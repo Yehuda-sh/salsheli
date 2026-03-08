@@ -2,517 +2,568 @@
   {
     "name": "בורקס גבינה",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-001",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "בורקס תפוחי אדמה",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-002",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "בורקס פיצה",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 6.5,
     "barcode": "BAKERY-003",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "קרואסון חמאה",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 7.0,
     "barcode": "BAKERY-004",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "קרואסון שוקולד",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 8.0,
     "barcode": "BAKERY-005",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "קרואסון שקדים",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 8.5,
     "barcode": "BAKERY-006",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "לחמניית קייזר",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 3.0,
     "barcode": "BAKERY-007",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "לחמנייה שומשום",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 3.5,
     "barcode": "BAKERY-008",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "לחמנייה זיתים",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 4.0,
     "barcode": "BAKERY-009",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "כעך שומשום",
     "category": "מאפים",
-    "icon": "🥨",
     "price": 5.0,
     "barcode": "BAKERY-010",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "כעך ירושלמי",
     "category": "מאפים",
-    "icon": "🥨",
     "price": 5.5,
     "barcode": "BAKERY-011",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "דניש גבינה",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 9.0,
     "barcode": "BAKERY-012",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "דניש שזיפים",
     "category": "מאפים",
-    "icon": "🥐",
     "price": 9.0,
     "barcode": "BAKERY-013",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "עוגיות שוקולד צ'יפס",
     "category": "עוגיות ומתוקים",
-    "icon": "🍪",
     "price": 45.0,
     "barcode": "BAKERY-014",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "עוגיות חמאה",
     "category": "עוגיות ומתוקים",
-    "icon": "🍪",
     "price": 40.0,
     "barcode": "BAKERY-015",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "עוגיות שקדים",
     "category": "עוגיות ומתוקים",
-    "icon": "🍪",
     "price": 50.0,
     "barcode": "BAKERY-016",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "עוגת גבינה (פרוסה)",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 12.0,
     "barcode": "BAKERY-017",
-    "unit": "פרוסה"
+    "brand": "",
+    "unit": "פרוסה",
+    "size": null
   },
   {
     "name": "עוגת שוקולד (פרוסה)",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 12.0,
     "barcode": "BAKERY-018",
-    "unit": "פרוסה"
+    "brand": "",
+    "unit": "פרוסה",
+    "size": null
   },
   {
     "name": "עוגת גזר (פרוסה)",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 11.0,
     "barcode": "BAKERY-019",
-    "unit": "פרוסה"
+    "brand": "",
+    "unit": "פרוסה",
+    "size": null
   },
   {
     "name": "עוגת תפוחים (פרוסה)",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 10.0,
     "barcode": "BAKERY-020",
-    "unit": "פרוסה"
+    "brand": "",
+    "unit": "פרוסה",
+    "size": null
   },
   {
     "name": "לחם לבן פרוס",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 8.0,
     "barcode": "BAKERY-021",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "לחם מלא פרוס",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 9.0,
     "barcode": "BAKERY-022",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "חלה פרוסה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 12.0,
     "barcode": "BAKERY-023",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "בגט צרפתי",
     "category": "מאפים",
-    "icon": "🥖",
     "price": 8.0,
     "barcode": "BAKERY-024",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "באן מאפה מאודה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 18.9,
     "barcode": "7290017456041",
     "brand": "פרש אסיה",
-    "unit": "100 גרם"
+    "unit": "100 גרם",
+    "size": null
   },
   {
-    "name": "בגט גרעינים ללא גלוטן 240 גרם",
+    "name": "בגט גרעינים ללא גלוטן",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 17.5,
     "barcode": "7296073389446",
     "brand": "איתנס יצור עוגות בע\"\\מ",
-    "unit": "100 גרם"
+    "unit": "100 גרם",
+    "size": "240 גרם"
   },
   {
     "name": "בורקס פילאס פיצה זית משק",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 50.0,
     "barcode": "7290003495405",
     "brand": "גידרון סהרון",
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "חלה מתוקה עגולה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 16.5,
     "barcode": "7290006390752",
     "brand": "שטיבל בע\"מ",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "חלה מתוקה קלועה עם צימוק",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 16.5,
     "barcode": "7290006451392",
     "brand": "גידרון תעשיות בע\"מ",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": null
   },
   {
-    "name": "חלה פרוסה ארוזה 500 גרם",
+    "name": "חלה פרוסה ארוזה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 12.9,
     "barcode": "7290000497136",
     "brand": "מאפית ברמן מקבוצת י. את",
-    "unit": "100 גרם"
+    "unit": "100 גרם",
+    "size": "500 גרם"
   },
   {
     "name": "לחם חצי ג'בטה כפרי",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 6.2,
     "barcode": "7290000094373",
     "brand": "לוטמלי תעשיות פלאסטיק",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": null
   },
   {
-    "name": "לחם כפרי ללא תוספת סוכר 700 גרם",
+    "name": "לחם כפרי ללא תוספת סוכר",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 24.9,
     "barcode": "7290013121776",
-    "unit": "100 גרם"
+    "brand": "",
+    "unit": "100 גרם",
+    "size": "700 גרם"
   },
   {
     "name": "לחם לבן ביתי ללא גלוטן",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 25.9,
     "barcode": "7290013121752",
-    "unit": "100 גרם"
+    "brand": "",
+    "unit": "100 גרם",
+    "size": null
   },
   {
-    "name": "לחם מוראטו לבן 550 גרם",
+    "name": "לחם מוראטו לבן",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 14.9,
     "barcode": "8006837000918",
-    "unit": "100 גרם"
+    "brand": "",
+    "unit": "100 גרם",
+    "size": "550 גרם"
   },
   {
-    "name": "לחם מחמצת אגוזים 550 גרם",
+    "name": "לחם מחמצת אגוזים",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 19.9,
     "barcode": "7290006451934",
     "brand": "גידרון תעשיות בע\"מ",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": "550 גרם"
   },
   {
-    "name": "לחם מחמצת סלק 550 גרם",
+    "name": "לחם מחמצת סלק",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 19.9,
     "barcode": "7290006451675",
     "brand": "גידרון תעשיות בע\"מ",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": "550 גרם"
   },
   {
-    "name": "לחם מלא 100% שיפון קל 750 גרם",
+    "name": "לחם מלא 100% שיפון קל",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 17.9,
     "barcode": "7290013027399",
     "brand": "מאפיית שלמה א. אנג'\\ל בע",
-    "unit": "100 גרם"
+    "unit": "100 גרם",
+    "size": "750 גרם"
   },
   {
-    "name": "מאפה בצק טבעוני פיצה 600 גרם",
+    "name": "מאפה בצק טבעוני פיצה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 29.9,
     "barcode": "7290109640785",
-    "unit": "100 גרם"
+    "brand": "",
+    "unit": "100 גרם",
+    "size": "600 גרם"
   },
   {
     "name": "מארז 4 יחידות לחמניית חלה קלה",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 17.5,
     "barcode": "7290003158591",
     "brand": "גידרון תעשיות בע\"מ",
-    "unit": "יחידה"
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "מקלות בורקס פילו צרפתי",
     "category": "מאפים",
-    "icon": "🍞",
     "price": 22.9,
     "barcode": "7290004230364",
     "brand": "נטו",
-    "unit": "100 גרם"
+    "unit": "100 גרם",
+    "size": null
   },
   {
-    "name": "לחם שיפון מלא 500 גרם",
+    "name": "לחם שיפון מלא",
     "category": "לחמים ולחמניות",
-    "icon": "🍞",
     "price": 16.9,
     "barcode": "BAKERY-033",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": "500 גרם"
   },
   {
-    "name": "לחמניות המבורגר 6 יחידות",
+    "name": "לחמניות המבורגר",
     "category": "לחמים ולחמניות",
-    "icon": "🍔",
     "price": 14.9,
     "barcode": "BAKERY-034",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": "6 יחידות"
   },
   {
-    "name": "לחמניות נקניקייה 6 יחידות",
+    "name": "לחמניות נקניקייה",
     "category": "לחמים ולחמניות",
-    "icon": "🌭",
     "price": 13.9,
     "barcode": "BAKERY-035",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": "6 יחידות"
   },
   {
     "name": "פוקצ'ה רוזמרין",
     "category": "באגטים ולחמים",
-    "icon": "🥖",
     "price": 18.9,
     "barcode": "BAKERY-036",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "צ'בטה איטלקית",
     "category": "באגטים ולחמים",
-    "icon": "🥖",
     "price": 12.9,
     "barcode": "BAKERY-037",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "שמרית עם שוקולד",
     "category": "מאפים מתוקים",
-    "icon": "🥮",
     "price": 9.0,
     "barcode": "BAKERY-038",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "שמרית עם קינמון וצימוקים",
     "category": "מאפים מתוקים",
-    "icon": "🥮",
     "price": 9.0,
     "barcode": "BAKERY-039",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "רוגלך שוקולד",
     "category": "מאפים מתוקים",
-    "icon": "🥐",
     "price": 7.0,
     "barcode": "BAKERY-040",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "רוגלך תמרים",
     "category": "מאפים מתוקים",
-    "icon": "🥐",
     "price": 7.0,
     "barcode": "BAKERY-041",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "סופגנייה במילוי ריבה",
     "category": "מאפים מתוקים",
-    "icon": "🍩",
     "price": 6.0,
     "barcode": "BAKERY-042",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "סופגנייה קרם וניל",
     "category": "מאפים מתוקים",
-    "icon": "🍩",
     "price": 7.0,
     "barcode": "BAKERY-043",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "מעמול תמרים",
     "category": "מאפים מזרחיים",
-    "icon": "🥮",
     "price": 55.0,
     "barcode": "BAKERY-044",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "מעמול אגוזים",
     "category": "מאפים מזרחיים",
-    "icon": "🥮",
     "price": 60.0,
     "barcode": "BAKERY-045",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "עוגיות תמרים ביתיות",
     "category": "עוגיות",
-    "icon": "🍪",
     "price": 46.0,
     "barcode": "BAKERY-046",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "עוגת שמרים במילוי גבינה",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 45.0,
     "barcode": "BAKERY-047",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "עוגת גבינה אפויה",
     "category": "עוגות",
-    "icon": "🍰",
     "price": 55.0,
     "barcode": "BAKERY-048",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "עוגת שוקולד קלאסית",
     "category": "עוגות",
-    "icon": "🍫",
     "price": 49.0,
     "barcode": "BAKERY-049",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "עוגת תפוחים",
     "category": "עוגות",
-    "icon": "🍎",
     "price": 42.0,
     "barcode": "BAKERY-050",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "קוביות לוטוס",
     "category": "עוגיות",
-    "icon": "🍪",
     "price": 54.0,
     "barcode": "BAKERY-051",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   },
   {
     "name": "פיתה דרוזית גדולה",
     "category": "לחמים ולחמניות",
-    "icon": "🫓",
     "price": 6.0,
     "barcode": "BAKERY-052",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
-    "name": "טורטייה קמח מלא 6 יחידות",
+    "name": "טורטייה קמח מלא",
     "category": "לחמים ולחמניות",
-    "icon": "🫓",
     "price": 14.9,
     "barcode": "BAKERY-053",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": "6 יחידות"
   },
   {
     "name": "קובאנה יתימית",
     "category": "מאפים מזרחיים",
-    "icon": "🥞",
     "price": 12.0,
     "barcode": "BAKERY-054",
-    "unit": "יחידה"
+    "brand": "",
+    "unit": "יחידה",
+    "size": null
   },
   {
     "name": "פריך שומשום",
     "category": "עוגיות",
-    "icon": "🍪",
     "price": 42.0,
     "barcode": "BAKERY-055",
-    "unit": "ק\"ג"
+    "brand": "",
+    "unit": "ק\"ג",
+    "size": null
   }
 ]

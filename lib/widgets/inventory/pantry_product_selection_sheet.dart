@@ -821,7 +821,8 @@ class _PantryProductSelectionSheetState
     final name = product['name'] as String? ?? 'מוצר';
     final category = product['category'] as String? ?? 'אחר';
     final brand = product['brand'] as String?;
-    final icon = product['icon'] as String? ?? '📦';
+    final size = product['size'] as String?;
+    final icon = _getCategoryEmoji(category);
     final source = product['source'] as String? ?? 'supermarket';
     final productId = product['barcode'] as String? ?? name;
     final isAdding = _addingProductId == productId;
@@ -957,14 +958,26 @@ class _PantryProductSelectionSheetState
                                 ),
                               ),
                             ),
-                            if (brand != null && brand != '---') ...[
+                            if (size != null) ...[
                               const SizedBox(width: kSpacingSmall),
                               Text(
-                                brand,
+                                size,
                                 style: TextStyle(
                                   fontSize: kFontSizeTiny,
                                   color: cs.onSurfaceVariant,
                                 ),
+                              ),
+                            ],
+                            if (brand != null && brand.isNotEmpty && brand != '---') ...[
+                              const SizedBox(width: kSpacingSmall),
+                              Text(
+                                '· $brand',
+                                style: TextStyle(
+                                  fontSize: kFontSizeTiny,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ],
                           ],
@@ -1027,6 +1040,39 @@ class _PantryProductSelectionSheetState
       case 'supermarket':
       default:
         return cs.primary;
+    }
+  }
+
+  /// אימוג'י לפי קטגוריה
+  String _getCategoryEmoji(String category) {
+    switch (category) {
+      case 'בקר': return '🐄';
+      case 'עוף': return '🐔';
+      case 'דגים': return '🐟';
+      case 'טלה וכבש': return '🐑';
+      case 'הודו': return '🦃';
+      case 'היגיינה אישית': return '🧼';
+      case 'מוצרי ניקיון': return '🧹';
+      case 'מוצרי תינוקות': return '👶';
+      case 'ירקות': return '🥬';
+      case 'פירות': return '🍎';
+      case 'מוצרי חלב': return '🥛';
+      case 'בשר ודגים': return '🥩';
+      case 'משקאות': return '🥤';
+      case 'מאפים': return '🍞';
+      case 'ממתקים וחטיפים': return '🍫';
+      case 'שמנים ורטבים': return '🫗';
+      case 'תבלינים ואפייה': return '🧂';
+      case 'קפה ותה': return '☕';
+      case 'קפואים': return '🧊';
+      case 'אורז ופסטה': return '🍚';
+      case 'שימורים': return '🥫';
+      case 'אחר': return '📦';
+      case 'תרופות ללא מרשם': return '💊';
+      case 'טיפוח': return '💄';
+      case 'ויטמינים ותוספים': return '💪';
+      case 'ציוד רפואי': return '🩹';
+      default: return '📦';
     }
   }
 }

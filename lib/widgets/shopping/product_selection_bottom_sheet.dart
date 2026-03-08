@@ -212,7 +212,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       name: productName,
       unitPrice: (product['price'] as num?)?.toDouble() ?? 0.0,
       barcode: product['barcode'] as String?,
-      manufacturer: product['manufacturer'] as String?,
+      manufacturer: product['brand'] as String?,
     );
 
     try {
@@ -636,6 +636,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   Widget _buildCleanProductRow(Map<String, dynamic> product, ColorScheme cs) {
     final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
     final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
+    final size = product['size'] as String?;
+    final brand = product['brand'] as String?;
 
     final provider = context.read<ShoppingListsProvider>();
     final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
@@ -668,20 +670,50 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
               const Gap(6),
 
-              // 📝 שם המוצר
+              // 📝 שם המוצר + גודל + מותג
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isInList ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
-                      height: 1.0,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: isInList ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (size != null) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          size,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: cs.onSurface.withValues(alpha: 0.5),
+                            height: 1.0,
+                          ),
+                        ),
+                      ],
+                      if (brand != null && brand.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '· $brand',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: cs.onSurface.withValues(alpha: 0.35),
+                            height: 1.0,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),

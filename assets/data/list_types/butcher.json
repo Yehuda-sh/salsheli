@@ -2,980 +2,829 @@
   {
     "name": "בשר טחון",
     "category": "בקר",
-    "icon": "🥩",
     "price": 39.9,
     "barcode": "BUTCHER-001",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר בקר טחון טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "חזה עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 44.9,
     "barcode": "BUTCHER-002",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "חזה עוף טרי ללא עצם",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סטייק אנטריקוט",
     "category": "בקר",
-    "icon": "🥩",
     "price": 149.9,
     "barcode": "BUTCHER-003",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק אנטריקוט בקר מיושן",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כרעיים עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 19.9,
     "barcode": "BUTCHER-004",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כרעיים עוף טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "צלעות טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 99.9,
     "barcode": "BUTCHER-005",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "צלעות טלה צעיר",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קבב",
     "category": "בקר",
-    "icon": "🥩",
     "price": 59.9,
     "barcode": "BUTCHER-006",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "קבב בשר בקר וכבש",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שוקיים עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 24.9,
     "barcode": "BUTCHER-007",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שוקיים עוף טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בשר צלי",
     "category": "בקר",
-    "icon": "🥩",
     "price": 79.9,
     "barcode": "BUTCHER-008",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר צלי מס' 3",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כנפיים עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 14.9,
     "barcode": "BUTCHER-009",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כנפיים עוף טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "המבורגר",
     "category": "בקר",
-    "icon": "🍔",
     "price": 49.9,
     "barcode": "BUTCHER-010",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "קציצות המבורגר מוכנות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "עוף שלם",
     "category": "עוף",
-    "icon": "🍗",
     "price": 17.9,
     "barcode": "BUTCHER-011",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "עוף שלם טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שניצל עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 54.9,
     "barcode": "BUTCHER-012",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שניצל עוף מוכן בפירורים",
-    "imageUrl": "assets/images/snichel.png"
+    "size": null
   },
   {
     "name": "סטייק סינטה",
     "category": "בקר",
-    "icon": "🥩",
     "price": 129.9,
     "barcode": "BUTCHER-013",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק סינטה בקר",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "צלעות בקר",
     "category": "בקר",
-    "icon": "🥩",
     "price": 89.9,
     "barcode": "BUTCHER-014",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "צלעות בקר קצרות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "נקניקיות מרגז",
     "category": "אחר",
-    "icon": "🌭",
     "price": 69.9,
     "barcode": "BUTCHER-015",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "נקניקיות מרגז פיקנטיות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שיפודי פרגית",
     "category": "עוף",
-    "icon": "🍗",
     "price": 49.9,
     "barcode": "BUTCHER-016",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שיפודי פרגית מתובלים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בשר גולש",
     "category": "בקר",
-    "icon": "🥩",
     "price": 69.9,
     "barcode": "BUTCHER-017",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר גולש לבישול ארוך",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "עוף טחון",
     "category": "עוף",
-    "icon": "🍗",
     "price": 34.9,
     "barcode": "BUTCHER-018",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "עוף טחון טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "אסאדו",
     "category": "בקר",
-    "icon": "🥩",
     "price": 94.9,
     "barcode": "BUTCHER-019",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "אסאדו בקר לגריל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "לבבות עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 29.9,
     "barcode": "BUTCHER-020",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "לבבות עוף טריים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כבד עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 24.9,
     "barcode": "BUTCHER-021",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כבד עוף טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סטייק דנבר",
     "category": "בקר",
-    "icon": "🥩",
     "price": 109.9,
     "barcode": "BUTCHER-022",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק דנבר רך",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "חזה הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 64.9,
     "barcode": "BUTCHER-023",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "חזה הודו טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שוק טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 84.9,
     "barcode": "BUTCHER-024",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שוק טלה לבישול איטי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "ציפס עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 44.9,
     "barcode": "BUTCHER-025",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "רצועות עוף בפירורים",
-    "imageUrl": "assets/images/snichel.png"
+    "size": null
   },
   {
     "name": "בשר שרירים",
     "category": "בקר",
-    "icon": "🥩",
     "price": 74.9,
     "barcode": "BUTCHER-026",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר שרירים מס' 8",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פילה עוף",
     "category": "עוף",
-    "icon": "🍗",
     "price": 49.9,
     "barcode": "BUTCHER-027",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה עוף נקי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סטייק טי-בון",
     "category": "בקר",
-    "icon": "🥩",
     "price": 159.9,
     "barcode": "BUTCHER-028",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק טי-בון פרימיום",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קורקבנים",
     "category": "עוף",
-    "icon": "🍗",
     "price": 19.9,
     "barcode": "BUTCHER-029",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "קורקבנים עוף מנוקים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בשר ראש",
     "category": "בקר",
-    "icon": "🥩",
     "price": 59.9,
     "barcode": "BUTCHER-030",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר ראש לקציצות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סלמון פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 89.9,
     "barcode": "BUTCHER-031",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה סלמון טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "דניס שלם",
     "category": "דגים",
-    "icon": "🐟",
     "price": 49.9,
     "barcode": "BUTCHER-032",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "דניס שלם טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בורי פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 54.9,
     "barcode": "BUTCHER-033",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה בורי נקי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קרפיון פרוסות",
     "category": "דגים",
-    "icon": "🐟",
     "price": 39.9,
     "barcode": "BUTCHER-034",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פרוסות קרפיון לגפילטע",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פורל שלם",
     "category": "דגים",
-    "icon": "🐟",
     "price": 69.9,
     "barcode": "BUTCHER-035",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פורל שלם מנוקה",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "מוסר פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 79.9,
     "barcode": "BUTCHER-036",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה מוסר ים ללא עצמות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "טונה סטייק",
     "category": "דגים",
-    "icon": "🐟",
     "price": 119.9,
     "barcode": "BUTCHER-037",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק טונה לגריל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בקלה פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 64.9,
     "barcode": "BUTCHER-038",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה בקלה מנוקה",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "אמנון פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 44.9,
     "barcode": "BUTCHER-039",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה אמנון נקי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "לברק פילה",
     "category": "דגים",
-    "icon": "🐟",
     "price": 74.9,
     "barcode": "BUTCHER-040",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פילה לברק ים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כבש טחון",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 54.9,
     "barcode": "BUTCHER-041",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כבש טחון טרי לקבב",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כתף טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 89.9,
     "barcode": "BUTCHER-042",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כתף טלה לצלייה",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "צוואר טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 69.9,
     "barcode": "BUTCHER-043",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "צוואר טלה לבישול איטי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "לשון טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 49.9,
     "barcode": "BUTCHER-044",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "לשון טלה מנוקה",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "חזה טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 79.9,
     "barcode": "BUTCHER-045",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "חזה טלה עם עצם",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שוקיים הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 39.9,
     "barcode": "BUTCHER-046",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שוקיים הודו טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כרעיים הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 34.9,
     "barcode": "BUTCHER-047",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כרעיים הודו טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "הודו טחון",
     "category": "הודו",
-    "icon": "🦃",
     "price": 44.9,
     "barcode": "BUTCHER-048",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "בשר הודו טחון דל שומן",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שניצל הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 59.9,
     "barcode": "BUTCHER-049",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "שניצל הודו בפירורים",
-    "imageUrl": "assets/images/snichel.png"
+    "size": null
   },
   {
     "name": "נקניקיות הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 49.9,
     "barcode": "BUTCHER-050",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "נקניקיות הודו דלות שומן",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "נקניקיות ווינה",
     "category": "אחר",
-    "icon": "🌭",
     "price": 39.9,
     "barcode": "BUTCHER-051",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "נקניקיות ווינה עדינות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פסטרמה",
     "category": "אחר",
-    "icon": "🌭",
     "price": 89.9,
     "barcode": "BUTCHER-052",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "פסטרמה מעושנת",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קורנד ביף",
     "category": "אחר",
-    "icon": "🌭",
     "price": 79.9,
     "barcode": "BUTCHER-053",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "קורנד ביף במלח גס",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רולדה",
     "category": "אחר",
-    "icon": "🌭",
     "price": 74.9,
     "barcode": "BUTCHER-054",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "רולדת בשר ממולאת",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "צ'וריסוס",
     "category": "אחר",
-    "icon": "🌭",
     "price": 64.9,
     "barcode": "BUTCHER-055",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "נקניקיות צ'וריסוס חריפות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כנפיים הודו",
     "category": "הודו",
-    "icon": "🦃",
     "price": 29.9,
     "barcode": "BUTCHER-056",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כנפיים הודו טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סטייק כבש",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 139.9,
     "barcode": "BUTCHER-057",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סטייק כבש מובחר",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "סלמי",
     "category": "אחר",
-    "icon": "🌭",
     "price": 84.9,
     "barcode": "BUTCHER-058",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "סלמי איטלקי מיושן",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כבדי טלה",
     "category": "טלה וכבש",
-    "icon": "🥩",
     "price": 44.9,
     "barcode": "BUTCHER-059",
     "brand": "טרי",
     "unit": "ק\"ג",
-    "description": "כבדי טלה טריים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פחמים לגריל",
     "category": "מוצרים נלווים",
-    "icon": "🔥",
     "price": 12.9,
     "barcode": "BUTCHER-060",
+    "brand": "",
     "unit": "שק 3 ק\"ג",
-    "description": "פחמים איכותיים לגריל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "תבלין לבשר",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 8.9,
     "barcode": "BUTCHER-061",
+    "brand": "",
     "unit": "יחידה",
-    "description": "תערובת תבלינים לבשר",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "תבלין לעוף",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 7.9,
     "barcode": "BUTCHER-062",
+    "brand": "",
     "unit": "יחידה",
-    "description": "תערובת תבלינים לעוף",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "תבלין לדגים",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 9.9,
     "barcode": "BUTCHER-063",
+    "brand": "",
     "unit": "יחידה",
-    "description": "תערובת תבלינים לדגים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "תבלין קבב",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 8.5,
     "barcode": "BUTCHER-064",
+    "brand": "",
     "unit": "יחידה",
-    "description": "תערובת תבלינים לקבב",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "מלח ים גס",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 5.9,
     "barcode": "BUTCHER-065",
+    "brand": "",
     "unit": "יחידה",
-    "description": "מלח ים גס לבשר",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פלפל שחור טחון",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 6.9,
     "barcode": "BUTCHER-066",
+    "brand": "",
     "unit": "יחידה",
-    "description": "פלפל שחור טחון",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פפריקה מעושנת",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 9.5,
     "barcode": "BUTCHER-067",
+    "brand": "",
     "unit": "יחידה",
-    "description": "פפריקה מעושנת",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שום גרנולות",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 7.5,
     "barcode": "BUTCHER-068",
+    "brand": "",
     "unit": "יחידה",
-    "description": "שום מיובש גרנולות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רוזמרין מיובש",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 8.9,
     "barcode": "BUTCHER-069",
+    "brand": "",
     "unit": "יחידה",
-    "description": "רוזמרין מיובש",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כמון שלם",
     "category": "מוצרים נלווים",
-    "icon": "🧂",
     "price": 6.9,
     "barcode": "BUTCHER-070",
+    "brand": "",
     "unit": "יחידה",
-    "description": "כמון שלם",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רטב ברביקיו",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 12.9,
     "barcode": "BUTCHER-071",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "רטב ברביקיו מתוק חריף",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רטב צ'ימיצ'ורי",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 14.9,
     "barcode": "BUTCHER-072",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "רטב צ'ימיצ'ורי ארגנטינאי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רטב טריאקי",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 16.9,
     "barcode": "BUTCHER-073",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "רטב טריאקי יפני",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רטב חרדל דבש",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 11.9,
     "barcode": "BUTCHER-074",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "רטב חרדל עם דבש",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "רטב סויה",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 9.9,
     "barcode": "BUTCHER-075",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "רטב סויה קלאסי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שמן זית לגריל",
     "category": "מוצרים נלווים",
-    "icon": "🫒",
     "price": 24.9,
     "barcode": "BUTCHER-076",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "שמן זית איכותי לגריל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "נייר אפייה",
     "category": "מוצרים נלווים",
-    "icon": "📄",
     "price": 8.9,
     "barcode": "BUTCHER-077",
+    "brand": "",
     "unit": "גליל",
-    "description": "נייר אפייה למנגל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "נייר כסף",
     "category": "מוצרים נלווים",
-    "icon": "📄",
     "price": 12.9,
     "barcode": "BUTCHER-078",
+    "brand": "",
     "unit": "גליל",
-    "description": "נייר אלומיניום למנגל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שיפודים עץ",
     "category": "מוצרים נלווים",
-    "icon": "🍢",
     "price": 6.9,
     "barcode": "BUTCHER-079",
+    "brand": "",
     "unit": "חבילה",
-    "description": "שיפודי עץ למנגל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "פירורי לחם",
     "category": "מוצרים נלווים",
-    "icon": "🍞",
     "price": 9.9,
     "barcode": "BUTCHER-080",
+    "brand": "",
     "unit": "אריזה 500 גרם",
-    "description": "פירורי לחם לשניצל",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קמח מצה",
     "category": "מוצרים נלווים",
-    "icon": "🍞",
     "price": 12.9,
     "barcode": "BUTCHER-081",
+    "brand": "",
     "unit": "אריזה 500 גרם",
-    "description": "קמח מצה לציפוי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "ביצים",
     "category": "מוצרים נלווים",
-    "icon": "🥚",
     "price": 18.9,
     "barcode": "BUTCHER-082",
+    "brand": "",
     "unit": "מארז 12 יחידות",
-    "description": "ביצים טריות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שמן צמחי",
     "category": "מוצרים נלווים",
-    "icon": "🫒",
     "price": 14.9,
     "barcode": "BUTCHER-083",
+    "brand": "",
     "unit": "בקבוק ליטר",
-    "description": "שמן צמחי לטיגון",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "קטשופ",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 8.9,
     "barcode": "BUTCHER-084",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "קטשופ עגבניות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "חרדל",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 7.9,
     "barcode": "BUTCHER-085",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "חרדל צהוב קלאסי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "מיונז",
     "category": "מוצרים נלווים",
-    "icon": "🍯",
     "price": 9.9,
     "barcode": "BUTCHER-086",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "מיונז",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "חומץ",
     "category": "מוצרים נלווים",
-    "icon": "🍶",
     "price": 6.9,
     "barcode": "BUTCHER-087",
+    "brand": "",
     "unit": "בקבוק",
-    "description": "חומץ לבן למרינדות",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "לימונים",
     "category": "מוצרים נלווים",
-    "icon": "🍋",
     "price": 4.9,
     "barcode": "BUTCHER-088",
+    "brand": "",
     "unit": "ק\"ג",
-    "description": "לימונים טריים",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "בצל יבש",
     "category": "מוצרים נלווים",
-    "icon": "🧅",
     "price": 3.9,
     "barcode": "BUTCHER-089",
+    "brand": "",
     "unit": "ק\"ג",
-    "description": "בצל יבש",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "שום",
     "category": "מוצרים נלווים",
-    "icon": "🧄",
     "price": 15.9,
     "barcode": "BUTCHER-090",
+    "brand": "",
     "unit": "ק\"ג",
-    "description": "שום טרי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "צלחות חד פעמי",
     "category": "מוצרים נלווים",
-    "icon": "🍽️",
     "price": 12.9,
     "barcode": "BUTCHER-091",
+    "brand": "",
     "unit": "חבילה",
-    "description": "צלחות פלסטיק חד פעמי",
-    "imageUrl": null
+    "size": null
   },
   {
     "name": "כוסות חד פעמי",
     "category": "מוצרים נלווים",
-    "icon": "🥤",
     "price": 9.9,
     "barcode": "BUTCHER-092",
+    "brand": "",
     "unit": "חבילה",
-    "description": "כוסות פלסטיק חד פעמי",
-    "imageUrl": null
+    "size": null
   }
 ]
