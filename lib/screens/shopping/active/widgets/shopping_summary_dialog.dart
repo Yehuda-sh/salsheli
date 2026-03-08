@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:memozap/widgets/common/sticky_button.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/l10n/app_strings.dart';
@@ -176,7 +179,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           const SizedBox(height: kSpacingMedium),
 
           // ✅ אופציה 1: העבר לרשימה הבאה
-          _PendingOptionTile(
+          PendingOptionTile(
             icon: Icons.arrow_forward,
             iconColor: StatusColors.info,
             title: AppStrings.shopping.summaryPendingTransfer,
@@ -190,7 +193,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           const SizedBox(height: kSpacingSmall),
 
           // 📌 אופציה 2: השאר ברשימה
-          _PendingOptionTile(
+          PendingOptionTile(
             icon: Icons.pause_circle_outline,
             iconColor: StatusColors.pending,
             title: AppStrings.shopping.summaryPendingLeave,
@@ -204,7 +207,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           const SizedBox(height: kSpacingSmall),
 
           // 🗑️ אופציה 3: מחק
-          _PendingOptionTile(
+          PendingOptionTile(
             icon: Icons.delete_outline,
             iconColor: StatusColors.error,
             title: AppStrings.shopping.summaryPendingDelete,
