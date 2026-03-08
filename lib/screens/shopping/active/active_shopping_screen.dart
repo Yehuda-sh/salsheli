@@ -775,15 +775,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       itemsByCategory.putIfAbsent(category, () => []).add(item);
     }
 
-    // 🔄 מיון דינמי: פריטים שסומנו (purchased/outOfStock/notNeeded) → לתחתית
-    for (final items in itemsByCategory.values) {
-      items.sort((a, b) {
-        final aChecked = (_itemStatuses[a.id] ?? ShoppingItemStatus.pending) != ShoppingItemStatus.pending;
-        final bChecked = (_itemStatuses[b.id] ?? ShoppingItemStatus.pending) != ShoppingItemStatus.pending;
-        if (aChecked == bChecked) return 0;
-        return aChecked ? 1 : -1;
-      });
-    }
+    // 🔄 מיון דינמי: מבוטל — פריטים נשארים במיקום המקורי
+    // (מיון לתחתית מבלבל בזמן קנייה פעילה)
 
     return Stack(
       children: [
