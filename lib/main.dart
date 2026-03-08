@@ -98,8 +98,7 @@ void main() async {
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
     }
   } catch (e) {
-    if (kDebugMode) {
-    }
+    if (kDebugMode) debugPrint('🔴 Firebase init error: $e');
   }
 
   // 📊 הדפסת הגדרות (רק ב-debug)
@@ -110,8 +109,6 @@ void main() async {
   // 🛡️ תפיסת שגיאות Flutter (UI) - דיווח ל-Crashlytics
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    if (kDebugMode) {
-    }
     // Report to Crashlytics in production
     if (AppConfig.isProduction) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(details);
