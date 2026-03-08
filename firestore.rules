@@ -2,10 +2,10 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// Version: 4.0 (22/02/2026)
+// Version: 4.1 (March 2026)
 //
-// ✅ Hybrid Premium — Strict Schema Validation & Audit Trail
-// 📅 Last Updated: 22/02/2026
+// ✅ Strict Schema Validation & Audit Trail
+// 📅 Last Updated: March 2026
 //
 // ✨ Features:
 //     - Strict Schema Validation (inventory, notifications)
