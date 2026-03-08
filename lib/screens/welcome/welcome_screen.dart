@@ -81,7 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 // === לוגו וסלוגן ===
                 Padding(
-                  padding: const EdgeInsets.only(top: kSpacingLarge, bottom: kSpacingMedium),
+                  padding: const EdgeInsets.only(top: kSpacingMedium, bottom: kSpacingSmall),
                   child: _LogoAndSlogan()
                       .animate()
                       .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
@@ -94,6 +94,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: Column(
                     children: [
                       Expanded(
+                        flex: 5,
                         child: PageView(
                           controller: _pageController,
                           onPageChanged: (index) => setState(() => _currentPage = index),
@@ -123,28 +124,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                       ),
 
-                      // Dot indicators
-                      const SizedBox(height: kSpacingSmall),
-                      _DotIndicator(
-                        count: 3,
-                        current: _currentPage,
-                        activeColor: brand?.accent ?? cs.primary,
-                        inactiveColor: cs.outlineVariant,
-                      )
-                          .animate()
-                          .fadeIn(duration: 400.ms, delay: 200.ms),
-
-                      // סלוגן
-                      const SizedBox(height: kSpacingSmall),
-                      Text(
-                        AppStrings.welcome.moreGroupsHint,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.55),
-                          fontWeight: FontWeight.w600,
+                      // Dot indicators + סלוגן
+                      Padding(
+                        padding: const EdgeInsets.only(top: kSpacingSmallPlus, bottom: kSpacingSmall),
+                        child: Column(
+                          children: [
+                            _DotIndicator(
+                              count: 3,
+                              current: _currentPage,
+                              activeColor: brand?.accent ?? cs.primary,
+                              inactiveColor: cs.outlineVariant,
+                            ),
+                            const SizedBox(height: kSpacingSmall),
+                            Text(
+                              AppStrings.welcome.moreGroupsHint,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurface.withValues(alpha: 0.55),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       )
                           .animate()
-                          .fadeIn(duration: 400.ms, delay: 300.ms),
+                          .fadeIn(duration: 400.ms, delay: 200.ms),
+                      // רווח ל-sticky bar
+                      const SizedBox(height: 140),
                     ],
                   ),
                 ),
@@ -381,46 +386,65 @@ class _LogoAndSlogan extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final accentColor = brand?.accent ?? cs.primary;
 
+    final bgColor = brand?.paperBackground ?? kPaperBackground;
+
     return Semantics(
       header: true,
       label: '${AppStrings.welcome.title} - ${AppStrings.welcome.subtitle}',
-      child: Column(
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppStrings.welcome.title,
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineLarge?.copyWith(
-                  color: cs.onSurface.withValues(alpha: 0.87),
-                  fontWeight: FontWeight.w800,
-                  fontSize: 42,
-                  letterSpacing: 0.8,
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus, horizontal: kSpacingLarge),
+            decoration: BoxDecoration(
+              color: bgColor.withValues(alpha: 0.93),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+              border: Border.all(
+                color: cs.outlineVariant.withValues(alpha: 0.2),
+                width: 0.5,
               ),
-              const SizedBox(width: 3),
-              Padding(
-                padding: const EdgeInsets.only(top: 3),
-                child: Icon(
-                  Icons.check_rounded,
-                  size: 22,
-                  color: accentColor.withValues(alpha: 0.85),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppStrings.welcome.title,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineLarge?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.87),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 42,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 3),
+                      child: Icon(
+                        Icons.check_rounded,
+                        size: 22,
+                        color: accentColor.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: kSpacingSmall),
-          Text(
-            AppStrings.welcome.subtitle,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.70),
-              fontWeight: FontWeight.w600,
-              fontSize: 17,
+                const SizedBox(height: kSpacingSmall),
+                Text(
+                  AppStrings.welcome.subtitle,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.70),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 17,
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -451,9 +475,9 @@ class _FeatureCard extends StatelessWidget {
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingSmall),
+      child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 340),
           child: Semantics(
@@ -464,7 +488,7 @@ class _FeatureCard extends StatelessWidget {
                 filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(kSpacingMedium),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingLarge),
                   decoration: BoxDecoration(
                     color: cs.surface.withValues(alpha: 0.65),
                     border: Border(
