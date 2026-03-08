@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>MemoZap needs access to your contacts to share shopping lists with family and friends.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>MemoZap uses the camera to scan receipts and barcodes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MemoZap needs access to your photo library to save receipt images.</string>
 </dict>
 </plist>
