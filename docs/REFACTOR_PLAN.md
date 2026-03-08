@@ -243,6 +243,122 @@ lib/screens/
 
 ---
 
+---
+
+## 🔵 שלב 5 — ריפקטור מודולים (providers / repositories / services)
+
+> סיכון: בינוני-גבוה. לוגיקה עסקית.
+
+### 5.1 מחיקת מודולים מתים (867 שורות)
+
+```
+lib/services/contact_picker_service.dart    (464 שורות) — לא מיובא
+lib/mixins/connectivity_mixin.dart          (274 שורות) — לא מיובא (offline_banner שמשתמש בו גם מת)
+lib/services/prefs_service.dart             (129 שורות) — לא מיובא
+```
+
+### 5.2 ניקוי exports מתים ב-config
+
+| קובץ | מה למחוק |
+|------|---------|
+| `app_config.dart` | `AppEnvironment` enum |
+| `list_types_config.dart` | `ListTypeConfig` class, `configKeys` |
+| `stores_config.dart` | `StoreInfo` class |
+| `storage_locations_config.dart` | `isInvalid` method |
+| `filters_config.dart` | `resolved` method |
+
+### 5.3 פיצול `shopping_lists_provider.dart` (1,520 שורות → 3 קבצים)
+
+**הקובץ הכי בעייתי בפרויקט — 35 methods, עושה הכל:**
+
+```
+📂 CRUD (7): loadLists, createList, deleteList, restoreList, updateList, retry, clearAll
+📂 Items (9): addItemToList, addUnifiedItem, removeItemFromList, updateItemAt, updateItemById,
+              toggleAllItemsChecked, updateListStatus, markItemAsChecked, updateItemStatus
+📂 Collaborative (5): startCollaborativeShopping, joinCollaborativeShopping,
+                       finishCollaborativeShopping, leaveCollaborativeShopping, cleanupAbandonedSessions
+📂 Sharing (2): shareListToHousehold, updateUserContext
+📂 Query (4): getRecentLists, getById, getListStats, getUnpurchasedItems
+📂 Lifecycle (4): archiveList, completeList, activateList, addToNextList
+📂 Other (4): חדש, כללי, Function, dispose
+```
+
+**פיצול מומלץ:**
+```
+lib/providers/
+├── shopping_lists_provider.dart              (~500 שורות)
+│   └── CRUD + Query + Lifecycle + dispose
+├── shopping_items_mixin.dart                 (~400 שורות)
+│   └── addItem, removeItem, updateItem, toggleAll, updateStatus
+└── collaborative_shopping_mixin.dart         (~400 שורות)
+    └── start, join, finish, leave, cleanup, shareToHousehold
+```
+
+**איך לפצל עם mixins:**
+```dart
+// shopping_items_mixin.dart
+mixin ShoppingItemsMixin on ChangeNotifier {
+  // כל ה-methods שקשורים לפריטים
+}
+
+// collaborative_shopping_mixin.dart
+mixin CollaborativeShoppingMixin on ChangeNotifier {
+  // כל ה-methods שקשורים לקניות שיתופיות
+}
+
+// shopping_lists_provider.dart
+class ShoppingListsProvider extends ChangeNotifier
+    with ShoppingItemsMixin, CollaborativeShoppingMixin {
+  // CRUD + Query + Lifecycle בלבד
+}
+```
+
+### 5.4 פיצול `auth_service.dart` (1,159 שורות → 2 קבצים)
+
+```
+lib/services/
+├── auth_service.dart           (~600 שורות) — login, register, session, password
+└── social_auth_service.dart    (~500 שורות) — Google Sign-In, Apple Sign-In
+```
+
+### 5.5 providers אחרים לשיפור
+
+| Provider | שורות | בעיה | המלצה |
+|----------|-------|------|-------|
+| `user_context.dart` | 704 | auth + theme + preferences מעורבבים | פצל: auth ב-provider, theme/prefs ב-service |
+| `inventory_provider.dart` | 737 | סביר | ✅ בינתיים OK |
+| `products_provider.dart` | 592 | 3 repos שונים | ✅ הגיוני (local + firebase + interface) |
+
+### 5.6 Repositories — מצב
+
+**✅ מבנה מצוין — Repository Pattern נכון:**
+
+| Domain | Interface | Firebase Impl | Local Impl | סה"כ |
+|--------|-----------|--------------|------------|------|
+| shopping_lists | ✅ 351 | ✅ 826 | — | 1,177 |
+| inventory | ✅ 175 | ✅ 655 | — | 830 |
+| user | ✅ 383 | ✅ 609 | — | 992 |
+| products | ✅ 178 | ✅ 429 | ✅ 282 | 889 |
+| receipt | ✅ 184 | ✅ 288 | — | 472 |
+| locations | ✅ 117 | ✅ 145 | — | 262 |
+| **shared** | — | — | — | 175 |
+| **סה"כ** | | | | **4,797** |
+
+**ממצאים:**
+- כל domain יש interface + Firebase implementation ✅
+- products הוא היחיד עם local impl (לטעינת JSON) ✅
+- `repository_constants.dart` — collection names מרוכזים ✅
+- `firestore_utils.dart` — helpers משותפים ✅
+- **אין צורך בריפקטור** — הארכיטקטורה נקייה 👏
+
+### 5.7 Models — שיפורים קטנים
+
+| Model | בעיה | פתרון |
+|-------|------|-------|
+| `selected_contact.dart` | חסר `fromMap`/`toMap` | להוסיף (אם נשמר ב-Firestore) |
+
+---
+
 ## ⏱️ הערכת זמנים
 
 | שלב | זמן | שורות מושפעות |
@@ -251,8 +367,20 @@ lib/screens/
 | 2. איחוד סגנון | 2-3 ימים | ~500 (שינוי) |
 | 3. ריפקטור מבני | 3-5 ימים | ~5,000 (העברה) |
 | 4. פיצ'רים | בהתאם | +2,000 (חדש) |
+| 5. ריפקטור מודולים | 2-3 ימים | ~2,400 (פיצול + מחיקה) |
 
-**סדר עבודה מומלץ:** 1 → 1.3 → 2.3 → 2.2 → 3.1 → 3.2 → 4
+**סדר עבודה מומלץ:** 1 → 1.3 → 5.1 → 5.2 → 2.3 → 2.2 → 3.1 → 5.3 → 5.4 → 3.2 → 4
+
+### 📊 סיכום כולל — קוד מת
+
+| מקור | קבצים/פריטים | שורות |
+|------|-------------|-------|
+| widgets מתים | 18 קבצים | 6,600 |
+| מחרוזות מתות (l10n) | 233 מחרוזות | 271 (כבר נמחקו ✅) |
+| מודולים מתים | 3 קבצים | 867 |
+| קבועים מתים (core) | 17 קבועים | ~50 |
+| config exports מתים | 5 פריטים | ~80 |
+| **סה"כ למחיקה** | | **~7,600 שורות** |
 
 ---
 
