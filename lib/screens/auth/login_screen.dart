@@ -433,13 +433,13 @@ class _LoginScreenState extends State<LoginScreen>
                   top: MediaQuery.of(context).padding.top + 8,
                   left: 8,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
                       child: Container(
                         decoration: BoxDecoration(
                           color: cs.tertiary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                           border: Border.all(
                             color: cs.tertiary.withValues(alpha: 0.3),
                             width: 0.5,
@@ -447,7 +447,7 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                         child: InkWell(
                           onTap: _showQuickLoginDialog,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             child: Row(
@@ -820,13 +820,13 @@ class _QuickLoginBottomSheet extends StatelessWidget {
 
     // ✅ v4.0: Glassmorphic background
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
         child: Container(
       decoration: BoxDecoration(
         color: cs.surface.withValues(alpha: 0.92),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -838,7 +838,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
             height: 4,
             decoration: BoxDecoration(
               color: cs.outlineVariant,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
           ),
 
@@ -851,7 +851,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: cs.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
                 ),
@@ -965,7 +965,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: roleColor.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Text(
           user['role']!,

@@ -74,7 +74,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.tertiaryContainer.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(
           color: cs.tertiary.withValues(alpha: 0.3),
         ),
@@ -93,7 +93,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
             unawaited(HapticFeedback.lightImpact());
             Navigator.pushNamed(context, '/pending-invites');
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           child: Padding(
             padding: const EdgeInsets.all(kSpacingMedium),
             child: Row(
@@ -104,7 +104,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     color: cs.tertiary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
                   child: Icon(
                     Icons.mail_outline,
@@ -144,7 +144,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: cs.tertiary,
-                                borderRadius: BorderRadius.circular(10),
+                                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               ),
                               child: Text(
                                 strings.moreCount(invites.length),

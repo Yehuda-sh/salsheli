@@ -166,7 +166,7 @@ class WelcomeScreen extends StatelessWidget {
 
                   // Scrim עליון - מאחורי CTA + הסבר
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
                       child: Container(
@@ -176,7 +176,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: (brand?.paperBackground ?? kPaperBackground).withValues(alpha: 0.82),
-                          borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                           border: Border.all(
                             color: cs.outlineVariant.withValues(alpha: 0.15),
                             width: 0.5,
@@ -206,7 +206,7 @@ class WelcomeScreen extends StatelessWidget {
                                   backgroundColor: (brand?.accent ?? cs.primary).withValues(alpha: 0.18),
                                   foregroundColor: brand?.accent ?? cs.primary,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                                    borderRadius: BorderRadius.circular(kBorderRadius),
                                     side: BorderSide(
                                       color: (brand?.accent ?? cs.primary).withValues(alpha: 0.28),
                                     ),
@@ -246,14 +246,14 @@ class WelcomeScreen extends StatelessWidget {
 
                   // Scrim תחתון - מאחורי לינק התחברות
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                         decoration: BoxDecoration(
                           color: (brand?.paperBackground ?? kPaperBackground).withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                           border: Border.all(
                             color: cs.outlineVariant.withValues(alpha: 0.15),
                             width: 0.5,
@@ -352,7 +352,7 @@ class _LogoAndSlogan extends StatelessWidget {
     final bgColor = brand?.paperBackground ?? kPaperBackground;
     final accentColor = brand?.accent ?? cs.primary;
 
-    final borderRadius = BorderRadius.circular(kBorderRadiusUnified);
+    final borderRadius = BorderRadius.circular(kBorderRadius);
 
     return Semantics(
       header: true,
@@ -440,7 +440,7 @@ class _FeatureCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final borderRadius = BorderRadius.circular(kBorderRadiusUnified);
+    final borderRadius = BorderRadius.circular(kBorderRadius);
 
     return Center(
       child: ConstrainedBox(
@@ -613,7 +613,7 @@ class _MiniListItemWithQty extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
               color: cs.onSurfaceVariant.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Text(
               qty,
@@ -671,7 +671,7 @@ class _MiniPantryItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
             decoration: BoxDecoration(
               color: isLow ? warningColor.withValues(alpha: 0.15) : cs.onSurfaceVariant.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Text(
               qty,

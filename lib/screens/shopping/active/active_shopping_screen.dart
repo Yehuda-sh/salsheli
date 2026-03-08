@@ -887,7 +887,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                     ),
                     icon: const Icon(Icons.check, size: 18),
@@ -917,7 +917,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     children: [
                       // פס התקדמות דק עם צבעים לפי סטטוס
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                         child: SizedBox(
                           height: 6,
                           child: Row(
@@ -1039,7 +1039,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   ),
                                   decoration: BoxDecoration(
                                     color: cs.onSurface.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(kBorderRadius),
                                   ),
                                   child: Text(
                                     '${items.length}',
@@ -1394,7 +1394,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         padding: const EdgeInsetsDirectional.only(start: kSpacingMedium),
         decoration: BoxDecoration(
           color: StatusColors.error.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1415,7 +1415,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         padding: const EdgeInsetsDirectional.only(end: kSpacingMedium),
         decoration: BoxDecoration(
           color: cs.onSurfaceVariant.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1444,7 +1444,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
           decoration: backgroundColor != null
               ? BoxDecoration(
                   color: backgroundColor,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 )
               : null,
           child: Row(
@@ -1511,7 +1511,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
                             color: cs.primaryContainer,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
                             border: Border.all(
                               color: cs.primary.withValues(alpha: 0.3),
                             ),
@@ -1561,7 +1561,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     height: 4,
                     decoration: BoxDecoration(
                       color: cs.outline.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                   ),
                   const SizedBox(height: kSpacingMedium),

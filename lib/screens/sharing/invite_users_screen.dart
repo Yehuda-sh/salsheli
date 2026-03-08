@@ -513,7 +513,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   filled: true,
                                   fillColor: cs.onPrimary,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                   ),
                                 ),
                                 validator: _validateEmail,
@@ -703,7 +703,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                 : (isAlreadyShared || isOwner)
                     ? cs.surfaceContainerHighest
                     : cs.surface.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             border: Border.all(
               color: isSelected ? cs.primary : Colors.transparent,
               width: 2,
@@ -774,7 +774,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: kStickyPurple.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.roleOwner,
@@ -788,7 +788,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: kStickyOrange.withValues(alpha: 0.3),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.alreadySharedBadge,
@@ -835,7 +835,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected ? cs.onPrimary : cs.surface.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           border: Border.all(
             color: isSelected ? cs.outline : Colors.transparent,
             width: 2,

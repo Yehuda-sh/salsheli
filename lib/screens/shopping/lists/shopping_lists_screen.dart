@@ -181,7 +181,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 color: _hasActiveFilters
                     ? cs.primaryContainer
                     : cs.surface.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                 border: Border.all(
                   color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.12),
                 ),
@@ -311,7 +311,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
           ),
           padding: const EdgeInsets.all(kSpacingLarge),
           child: Column(
@@ -405,7 +405,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
         ),
         padding: const EdgeInsets.all(kSpacingLarge),
         child: Column(
@@ -478,7 +478,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       builder: (context) => Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
         ),
         padding: const EdgeInsets.all(kSpacingLarge),
         child: Column(
@@ -612,7 +612,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -831,7 +831,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             decoration: BoxDecoration(
               color: highlightColor,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Text(
               title,

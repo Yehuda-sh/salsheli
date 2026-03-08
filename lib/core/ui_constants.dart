@@ -172,10 +172,10 @@ const double kInputPadding = 16.0;  // Standard input padding
 // BORDER RADIUS
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kBorderRadius = 12.0;       // Default border radius
-const double kBorderRadiusSmall = 8.0;   // Small border radius
-const double kBorderRadiusUnified = 14.0; // Unified border radius (Hybrid Premium)
-const double kBorderRadiusLarge = 16.0;  // Large border radius
+const double kBorderRadiusSmall = 8.0;   // Small (chips, tags, badges)
+const double kBorderRadius = 12.0;       // Default (cards, inputs)
+const double kBorderRadiusLarge = 16.0;  // Large (dialogs, sheets)
+const double kBorderRadiusXLarge = 24.0; // Extra large (FAB, pills)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BORDER WIDTH

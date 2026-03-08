@@ -175,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         duration: type == 'success' ? const Duration(seconds: 2) : kSnackBarDurationLong,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         margin: const EdgeInsets.all(kSpacingMedium),
       ),
@@ -366,9 +366,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           hintText: hint,
           prefixIcon: Icon(icon),
           suffixIcon: suffixIcon,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusUnified)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+            borderRadius: BorderRadius.circular(kBorderRadius),
             borderSide: BorderSide(color: cs.primary, width: 2),
           ),
           filled: true,
@@ -648,7 +648,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   backgroundColor: ctaBg,
                                   foregroundColor: ctaFg,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                                    borderRadius: BorderRadius.circular(kBorderRadius),
                                   ),
                                 ),
                               );
@@ -937,14 +937,14 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
           child: Container(
             decoration: BoxDecoration(
               color: isDisabled ? cs.surfaceContainerHighest.withValues(alpha: 0.5) : cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+              borderRadius: BorderRadius.circular(kBorderRadius),
               boxShadow: isDisabled ? null : [BoxShadow(color: shadowColor, blurRadius: 6, offset: const Offset(0, 3))],
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
                 onTap: widget.onPressed,
-                borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+                borderRadius: BorderRadius.circular(kBorderRadius),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: kSpacingSmall + 4, horizontal: kSpacingMedium),
                   child: Row(

@@ -269,7 +269,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 child: Center(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
-                    decoration: BoxDecoration(color: kStickyOrange, borderRadius: BorderRadius.circular(12)),
+                    decoration: BoxDecoration(color: kStickyOrange, borderRadius: BorderRadius.circular(kBorderRadius)),
                     child: Text(
                       '${_pendingRequests.length}',
                       style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold),
@@ -393,7 +393,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                     color: isUnknownType
                         ? cs.tertiary.withValues(alpha: 0.3)
                         : cs.scrim.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -422,7 +422,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                     decoration: BoxDecoration(
                       color: cs.scrim.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
                       'x${request.requestData['quantity'] ?? 1}',
@@ -454,7 +454,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
                   color: cs.tertiary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   border: Border.all(color: cs.tertiary.withValues(alpha: 0.5)),
                 ),
                 child: Row(

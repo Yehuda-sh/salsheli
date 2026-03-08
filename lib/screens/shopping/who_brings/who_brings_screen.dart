@@ -455,7 +455,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                       color: isFull
                           ? cs.primary.withValues(alpha: 0.2)
                           : cs.tertiary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Icon(
                       isFull ? Icons.check_circle : Icons.group_add,

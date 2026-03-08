@@ -527,7 +527,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             decoration: BoxDecoration(
               color: cs.surface,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(kSpacingLarge),
@@ -542,7 +542,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       height: 4,
                       decoration: BoxDecoration(
                         color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                     ),
                   ),
@@ -588,7 +588,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: isSelected
                                 ? cs.primary.withValues(alpha: 0.2)
                                 : cs.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
                             border: isSelected
                                 ? Border.all(color: cs.primary, width: 2)
                                 : null,

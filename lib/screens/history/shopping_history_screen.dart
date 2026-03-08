@@ -414,7 +414,7 @@ class _ReceiptTile extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: successColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Text(
                     strings.virtualTag,
@@ -459,7 +459,7 @@ class _ReceiptTile extends StatelessWidget {
               color: item.isChecked
                   ? successColor
                   : cs.outlineVariant.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: item.isChecked
                 ? Icon(Icons.check, color: cs.onPrimary, size: 14)
@@ -471,7 +471,7 @@ class _ReceiptTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: cs.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Text(
               '×${_formatQuantity(item.quantity)}',

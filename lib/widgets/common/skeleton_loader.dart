@@ -61,7 +61,7 @@ LinearGradient _shimmerGradient(ColorScheme cs) {
 /// Parameters:
 /// - [width]: רוחב הקופסה
 /// - [height]: גובה הקופסה
-/// - [borderRadius]: רדיוס פינות (ברירת מחדל: kBorderRadiusUnified = 14px)
+/// - [borderRadius]: רדיוס פינות (ברירת מחדל: kBorderRadius = 14px)
 /// - [animate]: האם להפעיל אנימציית shimmer (ברירת מחדל: true)
 class SkeletonBox extends StatelessWidget {
   final double width;
@@ -89,7 +89,7 @@ class SkeletonBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.6),
         borderRadius:
-            borderRadius ?? BorderRadius.circular(kBorderRadiusUnified),
+            borderRadius ?? BorderRadius.circular(kBorderRadius),
       ),
     );
 
@@ -150,7 +150,7 @@ class SkeletonCircle extends StatelessWidget {
 /// v4.0: כרטיס "שקוף" של DashboardCard:
 ///     - StickyNote בגרסה דוממת (rotation: 0, animate: false)
 ///     - Gap-based spacing
-///     - kBorderRadiusUnified (14px)
+///     - kBorderRadius (14px)
 ///     - RepaintBoundary per card
 ///
 /// Parameters:

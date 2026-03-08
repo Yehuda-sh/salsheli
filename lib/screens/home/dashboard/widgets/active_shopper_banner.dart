@@ -140,7 +140,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         boxShadow: [
           BoxShadow(
             // ✅ FIX: Theme-aware shadow
@@ -154,7 +154,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _onContinue(context),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           child: Padding(
             padding: const EdgeInsets.all(kSpacingMedium),
             child: Row(
@@ -262,7 +262,7 @@ class _OthersShoppingBanner extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         boxShadow: [
           BoxShadow(
             // ✅ FIX: Theme-aware shadow
@@ -276,7 +276,7 @@ class _OthersShoppingBanner extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _onViewList(context),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           child: Padding(
             padding: const EdgeInsets.all(kSpacingMedium),
             child: Row(
@@ -476,7 +476,7 @@ class _PulsingIconState extends State<_PulsingIcon>
             decoration: BoxDecoration(
               // ✅ FIX: Theme-aware color
               color: widget.backgroundColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
             child: Icon(
               Icons.shopping_cart,

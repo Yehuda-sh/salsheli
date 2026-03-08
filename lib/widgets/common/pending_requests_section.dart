@@ -150,14 +150,14 @@ class _RequestCardState extends State<_RequestCard> {
 
     // 🎨 Glassmorphic card surface
     Widget cardWidget = ClipRRect(
-      borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+      borderRadius: BorderRadius.circular(kBorderRadius),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
         child: Container(
           padding: const EdgeInsets.all(kSpacingMedium),
           decoration: BoxDecoration(
             color: cs.surface.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(kBorderRadiusUnified),
+            borderRadius: BorderRadius.circular(kBorderRadius),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

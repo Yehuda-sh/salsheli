@@ -572,14 +572,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
             child: BackdropFilter(
               filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
               child: Container(
                 height: 48,
                 decoration: BoxDecoration(
                   color: glassBgColor,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
                   boxShadow: [
                     BoxShadow(
                       color: shadowColor,
@@ -679,7 +679,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             backgroundColor: chipBgColor,
             selectedColor: chipSelectedColor,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               side: BorderSide(
                 color: isSelected ? scheme.outline.withValues(alpha: 0.3) : Colors.transparent,
               ),
@@ -704,7 +704,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         onPressed: _showAddLocationDialog,
         backgroundColor: chipBgColor,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(color: scheme.primary, width: 1.5),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -956,7 +956,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                           color: isDark
                               ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
                               : scheme.surface.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         child: Text(
                           '${locationItems.length}',

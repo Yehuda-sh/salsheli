@@ -423,7 +423,7 @@ class _ChildFormState extends State<_ChildForm> {
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.surface.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

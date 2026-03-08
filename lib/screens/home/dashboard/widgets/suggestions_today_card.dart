@@ -66,7 +66,7 @@ class _LoadingState extends StatelessWidget {
       height: 80,
       decoration: BoxDecoration(
         color: kStickyYellow.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Center(
         child: Row(
@@ -114,7 +114,7 @@ class _SuggestionsCarousel extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: kStickyOrange.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               border: const BorderDirectional(
                 start: BorderSide(
                   color: kStickyOrangeDark,
@@ -128,7 +128,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: kStickyOrange.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: const Icon(
                     Icons.inventory_2_outlined,
@@ -149,7 +149,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: kStickyOrange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                     border: Border.all(
                       color: kStickyOrange.withValues(alpha: 0.4),
                     ),
@@ -415,7 +415,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
             ],
             stops: const [0.0, 0.5, 1.0],
           ),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           boxShadow: [
             // צל ראשי - משתנה בלחיצה
             BoxShadow(
@@ -444,7 +444,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                 decoration: BoxDecoration(
                   color: cs.surface.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(2),
+                    bottom: Radius.circular(kBorderRadiusSmall),
                   ),
                 ),
               ),
@@ -499,7 +499,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     ),
                     decoration: BoxDecoration(
                       color: cs.scrim.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
                       AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
@@ -517,7 +517,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
                         color: cs.tertiary.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                       child: Row(
                         children: [
@@ -557,10 +557,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         Expanded(
                           child: Material(
                             color: cs.scrim.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             child: InkWell(
                               onTap: () => _onAdd(context),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 8,
@@ -591,10 +591,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         // כפתור X - disabled for unknown
                         Material(
                           color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                           child: InkWell(
                             onTap: _isUnknownStatus ? null : () => _onDismiss(context),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             child: Padding(
                               padding: const EdgeInsets.all(8),
                               child: Icon(

@@ -162,7 +162,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
         padding: const EdgeInsets.all(kSpacingMedium),
         decoration: BoxDecoration(
           color: bannerBg,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
@@ -204,7 +204,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
                 color: highlightBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
               child: Row(
                 children: [
@@ -268,7 +268,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                               backgroundColor: successColor,
                               foregroundColor: cs.onPrimary,
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                             ),
                           );
                           // 💫 Pulse עדין לכפתור כשהדחיפות קריטית
@@ -299,7 +299,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                             style: OutlinedButton.styleFrom(
                               side: BorderSide(color: onBannerColor, width: 2),
                               padding: const EdgeInsets.symmetric(vertical: 10),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
                             ),
                           ),
                         ),

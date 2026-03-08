@@ -409,7 +409,7 @@ class _NotificationTile extends StatelessWidget {
         height: 44,
         decoration: BoxDecoration(
           color: _getTypeColor(notification.type, cs, brand).withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Center(
           child: Text(

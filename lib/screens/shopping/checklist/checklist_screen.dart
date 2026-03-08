@@ -372,7 +372,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                 curve: Curves.easeOut,
                                 builder: (context, value, child) {
                                   return ClipRRect(
-                                    borderRadius: BorderRadius.circular(4),
+                                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                     child: LinearProgressIndicator(
                                       value: value,
                                       backgroundColor: cs.outline.withValues(alpha: 0.15),
@@ -495,7 +495,7 @@ class _ChecklistItemTile extends StatelessWidget {
                   height: 28,
                   decoration: BoxDecoration(
                     color: isChecked ? StatusColors.success : Colors.transparent,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     border: Border.all(
                       color: isChecked ? StatusColors.success : cs.outline,
                       width: 2,

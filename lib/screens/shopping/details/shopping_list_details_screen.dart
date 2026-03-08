@@ -678,14 +678,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
             child: BackdropFilter(
               filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma), // טשטוש הרקע
               child: Container(
                 height: 48, // גובה קבוע וקטן יותר
                 decoration: BoxDecoration(
                   color: cs.surface.withValues(alpha: 0.6), // שקוף למחצה
-                  borderRadius: BorderRadius.circular(24), // עיגול מלא (Capsule)
+                  borderRadius: BorderRadius.circular(kBorderRadiusXLarge), // עיגול מלא (Capsule)
                   boxShadow: [
                     BoxShadow(
                       color: cs.scrim.withValues(alpha: 0.05),
@@ -778,7 +778,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             backgroundColor: cs.surface.withValues(alpha: 0.8),
             selectedColor: kStickyCyan, // צבע המותג (תכלת) להדגשה
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               side: BorderSide(
                 color: isSelected ? cs.onSurface.withValues(alpha: 0.12) : Colors.transparent,
               ),
@@ -908,7 +908,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: cs.surface.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
                       ),
                       child: Text(
                         '${categoryItems.length}',
@@ -1026,7 +1026,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                         ),
                         child: Text(
                           '${item.quantity}',

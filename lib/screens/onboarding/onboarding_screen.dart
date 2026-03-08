@@ -376,7 +376,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       children: [
         Expanded(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             child: LinearProgressIndicator(
               value: (_currentStep + 1) / totalSteps,
               backgroundColor: cs.surfaceContainerHighest.withValues(alpha: kProgressIndicatorBackgroundAlpha),

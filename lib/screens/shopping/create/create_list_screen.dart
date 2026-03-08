@@ -825,7 +825,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: cs.tertiaryContainer,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                           ),
                           child: Text(
                             AppStrings.createListDialog.recommended,

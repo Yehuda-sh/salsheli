@@ -321,7 +321,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       padding: const EdgeInsets.all(kSpacingMedium),
       decoration: BoxDecoration(
         color: cs.errorContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: cs.error.withValues(alpha: 0.3)),
       ),
       child: Row(
@@ -418,7 +418,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 height: 56,
                 decoration: BoxDecoration(
                   color: cs.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                 ),
                 child: Center(
                   child: const Text(
@@ -483,7 +483,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     onTap: () {
                       Navigator.pushNamed(context, '/notifications');
                     },
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
                     child: Badge.count(
                       count: unreadCount,
                       isLabelVisible: unreadCount > 0,
@@ -491,7 +491,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: cs.surface.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
                         child: Icon(Icons.notifications_outlined, color: cs.primary),
                       ),
@@ -549,7 +549,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             elevation: 0,
             color: cs.secondaryContainer.withValues(alpha: 0.3),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               side: BorderSide(
                 color: cs.secondary.withValues(alpha: 0.2),
               ),
@@ -558,7 +558,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               onTap: () {
                 Navigator.pushNamed(context, '/create-list');
               },
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               child: Padding(
                 padding: const EdgeInsets.all(kSpacingLarge),
                 child: Column(
@@ -568,7 +568,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       height: 64,
                       decoration: BoxDecoration(
                         color: cs.secondary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                       ),
                       child: Icon(
                         Icons.add_shopping_cart,
@@ -624,7 +624,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       clipBehavior: Clip.antiAlias,
       color: cs.surface.withValues(alpha: 0.7),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         side: BorderSide(
           color: accentColor.withValues(alpha: 0.25),
         ),
@@ -638,7 +638,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             arguments: list,
           );
         },
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         child: IntrinsicHeight(
           child: Row(
             children: [
@@ -649,12 +649,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   color: accentColor,
                   borderRadius: isRtl
                       ? const BorderRadius.only(
-                          topRight: Radius.circular(14),
-                          bottomRight: Radius.circular(14),
+                          topRight: Radius.circular(kBorderRadius),
+                          bottomRight: Radius.circular(kBorderRadius),
                         )
                       : const BorderRadius.only(
-                          topLeft: Radius.circular(14),
-                          bottomLeft: Radius.circular(14),
+                          topLeft: Radius.circular(kBorderRadius),
+                          bottomLeft: Radius.circular(kBorderRadius),
                         ),
                 ),
               ),
@@ -894,7 +894,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         height: 40,
         decoration: BoxDecoration(
           color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Icon(
           receipt.isVirtual ? Icons.receipt_long : Icons.receipt,

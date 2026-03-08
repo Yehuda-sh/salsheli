@@ -518,7 +518,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: ListTile(
         leading: CircleAvatar(
@@ -544,7 +544,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
                 child: Text(
                   strings.you,
