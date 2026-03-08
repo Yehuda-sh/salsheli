@@ -1,5 +1,5 @@
 // 📄 lib/widgets/common/animated_button.dart
-// Version 4.0 - Hybrid Premium | 22/02/2026
+// Version 1.0
 //
 // Wrapper שמוסיף אנימציית לחיצה (scale + opacity) + haptic feedback אופציונלי.
 // **אפקט בלבד** - לא מפעיל את הפעולה, הכפתור הפנימי מטפל בלחיצה.
@@ -44,7 +44,7 @@ class AnimatedButton extends StatefulWidget {
   /// Should match the child button's enabled state.
   final bool enabled;
 
-  /// Scale animation target (default: 0.98 - subtle, WhatsApp-like)
+  /// Scale animation target (default: 0.98 - subtle)
   /// For icon buttons, use 0.99 or 1.0 (disabled).
   final double scaleTarget;
 
