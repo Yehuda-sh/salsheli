@@ -265,22 +265,23 @@ class _StickyBottomBar extends StatelessWidget {
 
               const SizedBox(height: kSpacingSmall),
 
-              // לינק התחברות
-              TextButton.icon(
-                onPressed: onLogin,
-                icon: Icon(
-                  Icons.login_rounded,
-                  size: 18,
-                  color: accentColor.withValues(alpha: 0.65),
-                ),
-                label: Text(
-                  AppStrings.welcome.loginLink,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: accentColor.withValues(alpha: 0.75),
-                    fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.underline,
-                    decorationThickness: 1.2,
-                    decorationColor: accentColor.withValues(alpha: 0.45),
+              // כפתור התחברות
+              SizedBox(
+                width: double.infinity,
+                height: kButtonHeight - 4,
+                child: OutlinedButton.icon(
+                  onPressed: onLogin,
+                  icon: Icon(Icons.login_rounded, size: 18),
+                  label: Text(
+                    AppStrings.welcome.loginLink,
+                    style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.w600),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: cs.primary,
+                    side: BorderSide(color: cs.primary.withValues(alpha: 0.4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
                   ),
                 ),
               ),
