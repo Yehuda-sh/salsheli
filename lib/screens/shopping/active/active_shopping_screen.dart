@@ -797,7 +797,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               : '?';
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
-                            child: _ShopperAvatar(
+                            child: ShopperAvatar(
                               initial: initial,
                               isStarter: shopper.isStarter,
                               accentColor: accent,

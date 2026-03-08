@@ -481,6 +481,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             );
           },
         ),
+      ),
+      ],
     );
   }
 
@@ -885,8 +887,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             scheme.surfaceContainerHighest.withValues(alpha: 0.2),
           ]
         : [
-            cs.secondaryContainer.withValues(alpha: 0.3),
-            cs.tertiaryContainer.withValues(alpha: 0.3),
+            scheme.secondaryContainer.withValues(alpha: 0.3),
+            scheme.tertiaryContainer.withValues(alpha: 0.3),
             scheme.tertiary.withValues(alpha: 0.1),
             scheme.primary.withValues(alpha: 0.1),
           ];
@@ -1317,8 +1319,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           ),
         ),
       ),
-    ),
-      ],
     );
   }
 }
+

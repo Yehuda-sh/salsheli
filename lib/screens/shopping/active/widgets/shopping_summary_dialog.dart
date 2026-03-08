@@ -83,7 +83,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
             const Divider(height: kSpacingLarge),
 
             // ✅ קנוי
-            _SummaryRow(
+            SummaryRow(
               icon: Icons.check_circle,
               label: AppStrings.shopping.activePurchased,
               value: AppStrings.shopping.summaryPurchased(widget.purchased, widget.total),
@@ -92,11 +92,11 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
 
             // 🚫 לא צריך
             if (widget.notNeeded > 0)
-              _SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '${widget.notNeeded}', color: cs.onSurfaceVariant),
+              SummaryRow(icon: Icons.block, label: AppStrings.shopping.activeNotNeeded, value: '${widget.notNeeded}', color: cs.onSurfaceVariant),
 
             // ❌ אזלו
             if (widget.outOfStock > 0)
-              _SummaryRow(
+              SummaryRow(
                 icon: Icons.remove_shopping_cart,
                 label: AppStrings.shopping.summaryOutOfStock,
                 value: '${widget.outOfStock}',
@@ -105,7 +105,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
 
             // ⏸️ לא סומנו
             if (widget.pending > 0)
-              _SummaryRow(
+              SummaryRow(
                 icon: Icons.radio_button_unchecked,
                 label: AppStrings.shopping.summaryNotMarked,
                 value: '${widget.pending}',

@@ -231,7 +231,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   Color _getCardColor(String urgency) {
     // ⚠️ Grey for unknown status
-    if (_isUnknownStatus) return cs.outline;
+    if (_isUnknownStatus) return Theme.of(context).colorScheme.outline;
 
     switch (urgency) {
       case 'critical':
