@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 import '../../../l10n/app_strings.dart';
 import '../../../services/template_service.dart';
+import 'package:salsheli/core/ui_constants.dart';
 
 /// דיאלוג לבחירת תבנית רשימה מוכנה
 class TemplatePickerDialog extends StatelessWidget {
@@ -38,11 +39,11 @@ class TemplatePickerDialog extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(strings.noTemplatesAvailable, style: TextStyle(fontSize: 16, color: cs.outline)),
+                        Text(strings.noTemplatesAvailable, style: TextStyle(fontSize: kFontSizeBody, color: cs.outline)),
                         SizedBox(height: 8),
                         Text(
                           strings.noTemplatesMessage,
-                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                          style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -57,8 +58,8 @@ class TemplatePickerDialog extends StatelessWidget {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
-                        leading: Text(template.icon, style: const TextStyle(fontSize: 32)),
-                        title: Text(template.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        leading: Text(template.icon, style: const TextStyle(fontSize: kFontSizeDisplay)),
+                        title: Text(template.name, style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold)),
                         subtitle: template.description != null ? Text(template.description!) : null,
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {

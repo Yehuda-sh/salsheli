@@ -74,7 +74,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         Text(
                           'טוען סיכום...',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSizeBody,
                             color: cs.onSurface,
                           ),
                         ),
@@ -94,12 +94,12 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         SizedBox(height: kSpacingMedium),
                         Text(
                           'שגיאה בטעינת הסיכום',
-                          style: TextStyle(fontSize: 18, color: cs.onSurface),
+                          style: TextStyle(fontSize: kFontSizeTitle, color: cs.onSurface),
                         ),
                         SizedBox(height: kSpacingSmall),
                         Text(
                           provider.errorMessage ?? 'שגיאה לא ידועה',
-                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                          style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(height: kSpacingLarge),
                         StickyButton(
@@ -126,7 +126,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         Text(
                           'הרשימה לא נמצאה',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: kFontSizeLarge,
                             fontWeight: FontWeight.bold,
                             color: cs.onSurface,
                           ),
@@ -134,7 +134,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         SizedBox(height: kSpacingSmall),
                         Text(
                           'ייתכן שהרשימה נמחקה',
-                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
+                          style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
                         ),
                         const SizedBox(height: kSpacingLarge),
                         StickyButton(
@@ -185,14 +185,14 @@ class ShoppingSummaryScreen extends StatelessWidget {
                             backgroundColor: cs.primaryContainer,
                             child: const Text(
                               '🎉',
-                              style: TextStyle(fontSize: 40),
+                              style: TextStyle(fontSize: kFontSizeDisplay),
                             ),
                           ),
                           SizedBox(height: 12),
                           Text(
                             'קנייה הושלמה בהצלחה!',
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: kFontSizeXLarge,
                               fontWeight: FontWeight.bold,
                               color: cs.onSurface,
                             ),
@@ -201,7 +201,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           Text(
                             list.name,
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: kFontSizeTitle,
                               color: cs.onSurfaceVariant,
                             ),
                           ),
@@ -348,7 +348,7 @@ class _SummaryCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: kFontSizeMedium,
                     color: textColor,
                   ),
                 ),
@@ -356,7 +356,7 @@ class _SummaryCard extends StatelessWidget {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: kFontSizeTitle,
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),
@@ -366,7 +366,7 @@ class _SummaryCard extends StatelessWidget {
                   Text(
                     subtitle!,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: kFontSizeSmall,
                       color: textColor,
                     ),
                   ),
@@ -414,7 +414,7 @@ class _StatBox extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: kFontSizeLarge,
               fontWeight: FontWeight.bold,
               color: color,
             ),
@@ -423,7 +423,7 @@ class _StatBox extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: kFontSizeSmall,
               color: textColor,
             ),
           ),

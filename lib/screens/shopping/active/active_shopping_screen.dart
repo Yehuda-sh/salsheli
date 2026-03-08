@@ -849,7 +849,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               '+${widget.list.currentShoppers.length - 4}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: cs.onSurfaceVariant,
-                                fontSize: 11,
+                                fontSize: kFontSizeSmall,
                               ),
                             ),
                           ),
@@ -891,7 +891,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.check, size: 18),
-                    label: const Text('סיימתי', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: const Text('סיימתי', style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                 )
               else
@@ -953,23 +953,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         children: [
                           Icon(Icons.check_circle, color: StatusColors.success, size: 14),
                           SizedBox(width: 2),
-                          Text('$purchased/$total', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                          Text('$purchased/$total', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
                             SizedBox(width: 10),
                             Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 14),
                             SizedBox(width: 2),
-                            Text('$outOfStock', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                            Text('$outOfStock', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                           ],
                           if (notNeeded > 0) ...[
                             SizedBox(width: 10),
                             Icon(Icons.block, color: cs.onSurfaceVariant, size: 14),
                             SizedBox(width: 2),
-                            Text('$notNeeded', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                            Text('$notNeeded', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                           ],
                           SizedBox(width: 10),
                           Icon(Icons.shopping_cart, color: cs.primary, size: 14),
                           SizedBox(width: 2),
-                          Text('${total - completed}', style: TextStyle(fontSize: 11, color: cs.primary, fontWeight: FontWeight.bold)),
+                          Text('${total - completed}', style: TextStyle(fontSize: kFontSizeSmall, color: cs.primary, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
@@ -1403,7 +1403,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               AppStrings.shopping.legendOutOfStock,
-              style: TextStyle(color: StatusColors.error, fontSize: 12, fontWeight: FontWeight.bold),
+              style: TextStyle(color: StatusColors.error, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -1422,7 +1422,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
           children: [
             Text(
               AppStrings.shopping.legendNotNeeded,
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 4),
             Icon(Icons.block, color: cs.onSurfaceVariant, size: 20),
@@ -1490,7 +1490,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                         ? cs.onSurfaceVariant.withValues(alpha: 0.6)
                         : cs.onSurface,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
+                    fontSize: kFontSizeBody,
                     letterSpacing: 0.3,
                     height: 1.1,
                   ),
@@ -1520,7 +1520,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                             '×${item.quantity ?? 1}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onPrimaryContainer,
-                              fontSize: 13,
+                              fontSize: kFontSizeMedium,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1978,7 +1978,7 @@ class _ShopperAvatar extends StatelessWidget {
         child: Text(
           initial,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: kFontSizeSmall,
             fontWeight: FontWeight.bold,
             color: fgColor,
           ),

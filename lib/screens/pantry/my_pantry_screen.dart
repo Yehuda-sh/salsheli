@@ -518,7 +518,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   provider.inventoryTitle,
                   style: TextStyle(
                     color: textColor,
-                    fontSize: 20,
+                    fontSize: kFontSizeLarge,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -534,7 +534,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     child: Text(
                       displayName.characters.first,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: kFontSizeSmall,
                         fontWeight: FontWeight.bold,
                         color: scheme.onPrimaryContainer,
                       ),
@@ -593,7 +593,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     hintText: AppStrings.pantry.searchHint,
-                    hintStyle: const TextStyle(fontSize: 14),
+                    hintStyle: const TextStyle(fontSize: kFontSizeMedium),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -663,7 +663,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             label: Text(
               '$emoji $name',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: kFontSizeMedium,
                 color: isSelected ? textColor : textColorMuted,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -699,7 +699,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         avatar: Icon(Icons.add_location_alt, size: 18, color: scheme.primary),
         label: Text(
           AppStrings.inventory.addLocationButton,
-          style: TextStyle(fontSize: 13, color: textColorMuted),
+          style: TextStyle(fontSize: kFontSizeMedium, color: textColorMuted),
         ),
         onPressed: _showAddLocationDialog,
         backgroundColor: chipBgColor,
@@ -946,7 +946,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: scheme.onSurface,
-                              fontSize: 16,
+                              fontSize: kFontSizeBody,
                             ),
                       ),
                       const SizedBox(width: 8),
@@ -961,7 +961,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                         child: Text(
                           '${locationItems.length}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: kFontSizeSmall,
                             fontWeight: FontWeight.bold,
                             color: scheme.onSurface,
                           ),
@@ -1072,7 +1072,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             if (item.isRecurring)
               const Padding(
                 padding: EdgeInsets.only(left: kSpacingTiny),
-                child: Text('⭐', style: TextStyle(fontSize: 12)),
+                child: Text('⭐', style: TextStyle(fontSize: kFontSizeSmall)),
               ),
 
             // 📝 שם המוצר (לחיץ לעריכה)
@@ -1089,7 +1089,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                           item.productName,
                           style: theme.textTheme.bodyLarge!.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: kFontSizeBody,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1124,7 +1124,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Widget _buildCategoryEmoji(InventoryItem item, bool isCritical) {
     final emoji = Text(
       _getCategoryEmoji(item.category),
-      style: const TextStyle(fontSize: 18),
+      style: const TextStyle(fontSize: kFontSizeTitle),
     );
 
     if (!isCritical) return emoji;
@@ -1166,7 +1166,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 style: TextStyle(
                   color: item.isLowStock ? cs.error : cs.primary,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: kFontSizeMedium,
                 ),
               ),
               SizedBox(width: kSpacingXTiny),
@@ -1174,7 +1174,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 strings.unitAbbreviation,
                 style: TextStyle(
                   color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
-                  fontSize: 11,
+                  fontSize: kFontSizeSmall,
                 ),
               ),
               if (item.isLowStock) ...[
@@ -1226,7 +1226,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(icon, style: const TextStyle(fontSize: 10)),
+          Text(icon, style: const TextStyle(fontSize: kFontSizeTiny)),
           const SizedBox(width: 2),
           Text(
             dateStr,

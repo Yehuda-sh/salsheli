@@ -205,7 +205,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                     foregroundColor: accentColor,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     textStyle: const TextStyle(
-                      fontSize: 13,
+                      fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -420,7 +420,7 @@ class _ActionButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: Size.zero,
         textStyle: const TextStyle(
-          fontSize: 12,
+          fontSize: kFontSizeSmall,
           fontWeight: FontWeight.bold,
         ),
       ),

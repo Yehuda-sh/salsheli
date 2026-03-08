@@ -185,7 +185,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                   child: Text(
                     strings.title,
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: kFontSizeTitle,
                       fontWeight: FontWeight.bold,
                       color: onBannerColor,
                     ),
@@ -209,7 +209,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
               child: Row(
                 children: [
                   // אמוג'י דחיפות
-                  Text(_getUrgencyEmoji(suggestion.urgency), style: const TextStyle(fontSize: 32)),
+                  Text(_getUrgencyEmoji(suggestion.urgency), style: const TextStyle(fontSize: kFontSizeDisplay)),
                   const SizedBox(width: kSpacingSmall),
 
                   // פרטים
@@ -220,7 +220,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                         Text(
                           suggestion.productName,
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: kFontSizeBody,
                             fontWeight: FontWeight.bold,
                             color: onBannerColor,
                           ),
@@ -232,7 +232,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
                         Text(
                           strings.stockText(suggestion.currentStock),
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: kFontSizeMedium,
                             color: onBannerColor.withValues(alpha: 0.9),
                           ),
                           // ✅ FIX: Removed forced RTL + overflow protection

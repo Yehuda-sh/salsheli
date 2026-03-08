@@ -414,7 +414,7 @@ class _NotificationTile extends StatelessWidget {
         child: Center(
           child: Text(
             notification.type.emoji,
-            style: const TextStyle(fontSize: 22),
+            style: const TextStyle(fontSize: kFontSizeTitle),
           ),
         ),
       ),

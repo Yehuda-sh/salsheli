@@ -354,7 +354,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                             : CircleAvatar(
                                 backgroundColor: cs.primaryContainer,
                                 child: Text(contact.initials,
-                                    style: const TextStyle(fontSize: 10)),
+                                    style: const TextStyle(fontSize: kFontSizeTiny)),
                               ),
                         label: Text(contact.displayName),
                         deleteIcon: const Icon(Icons.close, size: 18),
@@ -603,7 +603,7 @@ class _ContactTile extends StatelessWidget {
       title: Text(contact.displayName),
       subtitle: Text(
         contact.userEmail,
-        style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+        style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
       ),
       trailing: isSelected
           ? _RoleDropdown(

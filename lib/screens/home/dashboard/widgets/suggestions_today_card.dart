@@ -470,7 +470,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w600,
-                          fontSize: 10,
+                          fontSize: kFontSizeTiny,
                         ),
                       ),
                     ],
@@ -527,7 +527,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,
                               style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 9,
+                                fontSize: kFontSizeTiny,
                                 color: cs.onSurface.withValues(alpha: 0.6),
                               ),
                             ),

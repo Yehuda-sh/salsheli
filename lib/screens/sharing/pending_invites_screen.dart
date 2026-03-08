@@ -423,7 +423,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
               // כותרת
               Row(
                 children: [
-                  const Text('👥', style: TextStyle(fontSize: 24)),
+                  const Text('👥', style: TextStyle(fontSize: kFontSizeTitle)),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(

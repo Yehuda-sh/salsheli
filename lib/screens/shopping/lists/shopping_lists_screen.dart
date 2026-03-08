@@ -198,7 +198,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   Text(
                     _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: kFontSizeMedium,
                       color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
                       fontWeight: _hasActiveFilters ? FontWeight.bold : FontWeight.normal,
                     ),
@@ -262,7 +262,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: kFontSizeSmall,
                       color: cs.onSurfaceVariant,
                     ),
                   ),
@@ -619,7 +619,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           children: [
             Text(
               label,
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: kFontSizeSmall),
             ),
             if (onTap != null) ...[
               SizedBox(width: 2),

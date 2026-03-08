@@ -423,7 +423,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 child: Center(
                   child: const Text(
                     '👋',
-                    style: TextStyle(fontSize: 28),
+                    style: TextStyle(fontSize: kFontSizeXLarge),
                   )
                       .animate(
                         onPlay: (c) => c.repeat(reverse: true),
@@ -677,7 +677,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                         child: Center(
                           child: Text(list.typeEmoji,
-                              style: const TextStyle(fontSize: 24)),
+                              style: const TextStyle(fontSize: kFontSizeTitle)),
                         ),
                       ),
                       const SizedBox(width: kSpacingMedium),

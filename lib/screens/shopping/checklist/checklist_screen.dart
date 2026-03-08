@@ -257,7 +257,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             Text(
                               _list.name,
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: kFontSizeLarge,
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface,
                               ),
@@ -338,7 +338,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                   Text(
                                     '$checkedItems',
                                     style: TextStyle(
-                                      fontSize: 32,
+                                      fontSize: kFontSizeDisplay,
                                       fontWeight: FontWeight.bold,
                                       color: allChecked ? StatusColors.success : cs.primary,
                                     ),
@@ -346,7 +346,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                   Text(
                                     ' / $totalItems',
                                     style: TextStyle(
-                                      fontSize: 24,
+                                      fontSize: kFontSizeTitle,
                                       color: cs.onSurfaceVariant,
                                     ),
                                   ),

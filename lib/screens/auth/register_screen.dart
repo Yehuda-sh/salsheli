@@ -462,7 +462,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               AppStrings.auth.registerTitle,
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 36,
+                                fontSize: kFontSizeDisplay,
                                 color: cs.onSurface.withValues(alpha: 0.87),
                                 letterSpacing: 0.8,
                               ),
@@ -478,7 +478,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: cs.onSurface.withValues(alpha: 0.70),
                                 fontWeight: FontWeight.w600,
-                                fontSize: 15,
+                                fontSize: kFontSizeBody,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -724,7 +724,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     AppStrings.auth.haveAccount,
                                     style: TextStyle(
                                       color: cs.onSurface.withValues(alpha: 0.55),
-                                      fontSize: 15,
+                                      fontSize: kFontSizeBody,
                                     ),
                                   ),
                                   TextButton(
@@ -734,7 +734,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                       style: TextStyle(
                                         color: accent.withValues(alpha: 0.75),
                                         fontWeight: FontWeight.w600,
-                                        fontSize: 16,
+                                        fontSize: kFontSizeBody,
                                         decoration: TextDecoration.underline,
                                         decorationColor: accent.withValues(alpha: 0.45),
                                         decorationThickness: 1.2,

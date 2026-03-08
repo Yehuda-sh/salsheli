@@ -562,7 +562,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             constraints: BoxConstraints(minWidth: 16, minHeight: 16),
                             child: Text(
                               '${currentList.pendingRequestsForReview.length}',
-                              style: TextStyle(color: cs.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: cs.onPrimary, fontSize: kFontSizeTiny, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -698,7 +698,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     hintText: AppStrings.listDetails.searchHint,
-                    hintStyle: const TextStyle(fontSize: 14),
+                    hintStyle: const TextStyle(fontSize: kFontSizeMedium),
                     prefixIcon: const Icon(Icons.search, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
@@ -764,7 +764,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             label: Text(
               '$emoji $category',
               style: TextStyle(
-                fontSize: 13,
+                fontSize: kFontSizeMedium,
                 color: isSelected ? cs.onSurface : cs.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
@@ -899,7 +899,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
-                        fontSize: 16,
+                        fontSize: kFontSizeBody,
                       ),
                     ),
                     SizedBox(width: 8),
@@ -912,7 +912,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       ),
                       child: Text(
                         '${categoryItems.length}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -1031,7 +1031,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         child: Text(
                           '${item.quantity}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: kFontSizeSmall,
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onPrimaryContainer,
                           ),
@@ -1047,7 +1047,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         style: theme.textTheme.bodyLarge!.copyWith(
                           decoration: item.isChecked ? TextDecoration.lineThrough : null,
                           color: item.isChecked ? cs.outline : cs.onSurface,
-                          fontSize: 16,
+                          fontSize: kFontSizeBody,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

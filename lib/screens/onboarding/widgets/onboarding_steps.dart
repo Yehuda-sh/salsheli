@@ -528,7 +528,7 @@ class _MultiSelectStep extends StatelessWidget {
             label: Text(
               opt,
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: kFontSizeBody,
                 fontWeight: FontWeight.w500,
               ),
             ),

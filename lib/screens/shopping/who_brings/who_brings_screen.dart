@@ -268,7 +268,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                             Text(
                               _list.name,
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: kFontSizeLarge,
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface,
                               ),

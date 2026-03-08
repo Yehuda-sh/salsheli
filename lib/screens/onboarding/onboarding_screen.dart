@@ -270,7 +270,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                       child: Text(
                                         AppStrings.onboarding.title,
                                         style: TextStyle(
-                                          fontSize: 20,
+                                          fontSize: kFontSizeLarge,
                                           fontWeight: FontWeight.bold,
                                           color: cs.onSurface,
                                         ),
@@ -285,7 +285,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           color: _isLoading
                                               ? cs.onSurfaceVariant
                                               : cs.onSurface.withValues(alpha: 0.7),
-                                          fontSize: 16,
+                                          fontSize: kFontSizeBody,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -390,7 +390,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           AppStrings.onboarding.stepProgress(_currentStep + 1, totalSteps),
           style: TextStyle(
             color: cs.onSurface,
-            fontSize: 16,
+            fontSize: kFontSizeBody,
             fontWeight: FontWeight.w600,
           ),
         ),

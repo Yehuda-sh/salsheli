@@ -458,7 +458,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 Text(
                                   'DEV',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: kFontSizeSmall,
                                     fontWeight: FontWeight.bold,
                                     color: cs.tertiary,
                                   ),
@@ -504,7 +504,7 @@ class _LoginScreenState extends State<LoginScreen>
                               AppStrings.auth.loginTitle,
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 36,
+                                fontSize: kFontSizeDisplay,
                                 color: cs.onSurface,
                                 letterSpacing: 1,
                               ),
@@ -518,7 +518,7 @@ class _LoginScreenState extends State<LoginScreen>
                               AppStrings.auth.loginSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: cs.onSurfaceVariant,
-                                fontSize: 15,
+                                fontSize: kFontSizeBody,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -737,7 +737,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   AppStrings.auth.noAccount,
                                   style: TextStyle(
                                     color: cs.onSurfaceVariant,
-                                    fontSize: 15,
+                                    fontSize: kFontSizeBody,
                                   ),
                                 ),
                                 TextButton(
@@ -749,7 +749,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     style: TextStyle(
                                       color: accent,
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: kFontSizeBody,
                                       decoration: TextDecoration.underline,
                                       decorationColor: accent,
                                       decorationThickness: 2,
@@ -970,7 +970,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
         child: Text(
           user['role']!,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: kFontSizeSmall,
             fontWeight: FontWeight.w600,
             color: roleColor,
           ),

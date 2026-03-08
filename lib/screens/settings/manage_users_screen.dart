@@ -230,7 +230,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   .map((role) => ListTile(
                         leading: Text(
                           role.emoji,
-                          style: const TextStyle(fontSize: 24),
+                          style: const TextStyle(fontSize: kFontSizeTitle),
                         ),
                         title: Text(role.hebrewName),
                         onTap: () => Navigator.of(context).pop(role),
@@ -347,7 +347,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                         child: Text(
                           strings.title,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: kFontSizeLarge,
                             fontWeight: FontWeight.bold,
                             color: cs.onSurface,
                           ),
@@ -369,7 +369,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                         const SizedBox(height: kSpacingMedium),
                         Text(
                           strings.errorUserNotLoggedIn,
-                          style: const TextStyle(fontSize: 18),
+                          style: const TextStyle(fontSize: kFontSizeTitle),
                         ),
                       ],
                     ),
@@ -401,7 +401,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                       child: Text(
                         strings.title,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: kFontSizeLarge,
                           fontWeight: FontWeight.bold,
                           color: cs.onSurface,
                         ),
@@ -457,7 +457,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Text(
               _errorMessage!,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: kFontSizeBody),
             ),
             const SizedBox(height: kSpacingMedium),
             FilledButton.icon(
@@ -483,7 +483,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             SizedBox(height: kSpacingMedium),
             Text(
               strings.noSharedUsers,
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: kFontSizeTitle),
             ),
             SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
@@ -525,7 +525,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           backgroundColor: _getRoleColor(user.role).withValues(alpha: 0.3),
           child: Text(
             user.role.emoji,
-            style: const TextStyle(fontSize: 24),
+            style: const TextStyle(fontSize: kFontSizeTitle),
           ),
         ),
         title: Row(
@@ -534,7 +534,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               child: Text(
                 displayName,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: kFontSizeBody,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -549,7 +549,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 child: Text(
                   strings.you,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: kFontSizeSmall,
                     color: Theme.of(context).colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.w600,
                   ),
@@ -570,7 +570,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             if (user.userEmail != null)
               Text(
                 user.userEmail!,
-                style: TextStyle(fontSize: 12, color: cs.outline),
+                style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline),
               ),
           ],
         ),

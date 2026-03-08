@@ -596,7 +596,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: Center(
                             child: Text(
                               avatar,
-                              style: const TextStyle(fontSize: 24),
+                              style: const TextStyle(fontSize: kFontSizeTitle),
                             ),
                           ),
                         ),
@@ -804,7 +804,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Text(
                         AppStrings.settings.title,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: kFontSizeLarge,
                           fontWeight: FontWeight.bold,
                           color: cs.onSurface,
                         ),
@@ -826,7 +826,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           child: _avatarOptions.contains(userContext.user?.profileImageUrl)
                               ? Text(
                                   userContext.user!.profileImageUrl!,
-                                  style: TextStyle(fontSize: 28),
+                                  style: TextStyle(fontSize: kFontSizeXLarge),
                                 )
                               : Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
                         ),
@@ -1102,7 +1102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context: context,
                             applicationName: 'סל שלי',
                             applicationVersion: '1.0.0',
-                            applicationIcon: Text('🛒', style: TextStyle(fontSize: 48)),
+                            applicationIcon: Text('🛒', style: TextStyle(fontSize: kFontSizeDisplay)),
                             children: [
                               Text('אפליקציה לניהול רשימות קניות משפחתיות'),
                             ],

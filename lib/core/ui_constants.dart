@@ -235,7 +235,9 @@ const double kFontSizeSmall = 12.0;   // Small text
 const double kFontSizeMedium = 14.0;  // Medium text (between small and body)
 const double kFontSizeBody = 16.0;    // Body text
 const double kFontSizeLarge = 20.0;   // Large text
+const double kFontSizeTitle = 24.0;   // Section titles / headlines
 const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
+const double kFontSizeDisplay = 34.0; // Display / hero text
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ICON SIZES

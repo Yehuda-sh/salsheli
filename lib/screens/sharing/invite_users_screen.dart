@@ -394,7 +394,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               child: Text(
                                 AppStrings.sharing.inviteTitle,
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: kFontSizeLarge,
                                   fontWeight: FontWeight.bold,
                                   color: cs.onSurface,
                                 ),
@@ -407,7 +407,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       Text(
                         AppStrings.sharing.inviteSubtitle,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: kFontSizeBody,
                           color: cs.onSurface.withValues(alpha: 0.6),
                         ),
                         textAlign: TextAlign.center,
@@ -427,12 +427,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text('📇', style: TextStyle(fontSize: 20)),
+                                    const Text('📇', style: TextStyle(fontSize: kFontSizeLarge)),
                                     const SizedBox(width: 8),
                                     Text(
                                       AppStrings.sharing.savedContactsTitle,
                                       style: const TextStyle(
-                                        fontSize: 16,
+                                        fontSize: kFontSizeBody,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -442,7 +442,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 Text(
                                   AppStrings.sharing.savedContactsSubtitle,
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: kFontSizeSmall,
                                     color: cs.onSurface.withValues(alpha: 0.6),
                                   ),
                                 ),
@@ -458,7 +458,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                         icon: const Icon(Icons.expand_more, size: 18),
                                         label: Text(
                                           AppStrings.sharing.showMoreContacts(_savedContacts.length - _initialContactsToShow),
-                                          style: const TextStyle(fontSize: 12),
+                                          style: const TextStyle(fontSize: kFontSizeSmall),
                                         ),
                                       ),
                                     ),
@@ -473,7 +473,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             AppStrings.sharing.orEnterNewEmail,
                             style: TextStyle(
                               color: cs.onSurface.withValues(alpha: 0.6),
-                              fontSize: 14,
+                              fontSize: kFontSizeMedium,
                             ),
                           ),
                         ),
@@ -499,7 +499,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               Text(
                                 AppStrings.sharing.emailLabel,
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: kFontSizeBody,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -533,7 +533,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   child: Text(
                                     AppStrings.sharing.contactSelectedEmailDisabled,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: kFontSizeSmall,
                                       color: cs.primary,
                                       fontStyle: FontStyle.italic,
                                     ),
@@ -558,7 +558,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               Text(
                                 AppStrings.sharing.selectRoleLabel,
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: kFontSizeBody,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -623,7 +623,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 child: Text(
                                   _getConfirmationText(),
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: kFontSizeSmall,
                                     color: cs.onSurface,
                                   ),
                                 ),
@@ -761,7 +761,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           child: Text(
                             contact.displayName,
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: kFontSizeMedium,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                               color: (isAlreadyShared || isOwner) ? cs.outline : cs.onSurface,
                             ),
@@ -778,7 +778,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                             child: Text(
                               AppStrings.sharing.roleOwner,
-                              style: TextStyle(fontSize: 10, color: kStickyPurple.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyPurple.withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
@@ -792,7 +792,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                             child: Text(
                               AppStrings.sharing.alreadySharedBadge,
-                              style: TextStyle(fontSize: 10, color: kStickyOrange.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyOrange.withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
@@ -802,7 +802,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       Text(
                         contact.userEmail,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: kFontSizeSmall,
                           color: (isAlreadyShared || isOwner) ? cs.outline : cs.onSurfaceVariant,
                         ),
                       ),
@@ -854,7 +854,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             // Emoji
             Text(
               icon,
-              style: const TextStyle(fontSize: 24),
+              style: const TextStyle(fontSize: kFontSizeTitle),
             ),
 
             const SizedBox(width: 12),
@@ -867,14 +867,14 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                   Text(
                     label,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: kFontSizeBody,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   Text(
                     description,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: kFontSizeSmall,
                       color: cs.onSurface.withValues(alpha: 0.6),
                     ),
                   ),

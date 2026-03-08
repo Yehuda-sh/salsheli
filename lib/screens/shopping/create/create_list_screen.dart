@@ -830,7 +830,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                           child: Text(
                             AppStrings.createListDialog.recommended,
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: kFontSizeTiny,
                               color: cs.onTertiaryContainer,
                             ),
                           ),
@@ -881,12 +881,12 @@ class _CreateListScreenState extends State<CreateListScreen> {
                           radius: 12,
                           child: Text(
                             contact.initials,
-                            style: const TextStyle(fontSize: 10),
+                            style: const TextStyle(fontSize: kFontSizeTiny),
                           ),
                         ),
                   label: Text(
                     '${contact.displayName} (${contact.role.hebrewName})',
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: kFontSizeSmall),
                   ),
                   deleteIcon: const Icon(Icons.close, size: 16),
                   onDeleted: _isSubmitting
@@ -921,7 +921,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                   child: Text(
                     AppStrings.createListDialog.pendingInviteNote,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: kFontSizeSmall,
                       color: cs.tertiary,
                     ),
                   ),

@@ -485,7 +485,7 @@ class _FeatureCard extends StatelessWidget {
                     Row(
                       children: [
                         ExcludeSemantics(
-                          child: Text(emoji, style: const TextStyle(fontSize: 24, height: 1.0)),
+                          child: Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle, height: 1.0)),
                         ),
                         SizedBox(width: kSpacingSmall),
                         Expanded(
@@ -617,7 +617,7 @@ class _MiniListItemWithQty extends StatelessWidget {
             ),
             child: Text(
               qty,
-              style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
+              style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
             ),
           ),
           SizedBox(width: 4),
@@ -625,7 +625,7 @@ class _MiniListItemWithQty extends StatelessWidget {
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: kFontSizeSmall,
                 height: 1.2,
                 color: cs.onSurface.withValues(alpha: 0.87),
                 decoration: checked ? TextDecoration.lineThrough : null,
@@ -665,7 +665,7 @@ class _MiniPantryItem extends StatelessWidget {
           ),
           SizedBox(width: 4),
           Expanded(
-            child: Text(text, style: TextStyle(fontSize: 11, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
+            child: Text(text, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -676,7 +676,7 @@ class _MiniPantryItem extends StatelessWidget {
             child: Text(
               qty,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: kFontSizeTiny,
                 height: 1.2,
                 fontWeight: FontWeight.bold,
                 color: isLow ? warningColor : cs.onSurfaceVariant,
@@ -720,7 +720,7 @@ class _MiniShareUser extends StatelessWidget {
               child: Text(
                 name.isNotEmpty ? name[0] : '?',
                 style: TextStyle(
-                  fontSize: 9,
+                  fontSize: kFontSizeTiny,
                   height: 1.2,
                   fontWeight: FontWeight.bold,
                   color: ThemeData.estimateBrightnessForColor(bgColor) == Brightness.light
@@ -732,7 +732,7 @@ class _MiniShareUser extends StatelessWidget {
           ),
           SizedBox(width: 4),
           Expanded(
-            child: Text(name, style: TextStyle(fontSize: 11, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
+            child: Text(name, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
           // נקודת סטטוס
           Container(
@@ -746,7 +746,7 @@ class _MiniShareUser extends StatelessWidget {
           SizedBox(width: 4),
           Text(
             isOnline ? AppStrings.welcome.statusOnline : AppStrings.welcome.statusOffline,
-            style: TextStyle(fontSize: 9, height: 1.2, color: cs.onSurfaceVariant),
+            style: TextStyle(fontSize: kFontSizeTiny, height: 1.2, color: cs.onSurfaceVariant),
           ),
         ],
       ),

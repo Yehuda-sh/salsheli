@@ -334,7 +334,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             SizedBox(height: kSpacingLarge),
             Text(
               strings.noPendingRequests,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: kSpacingSmall),
@@ -401,7 +401,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                       Icon(icon, size: 14, color: isUnknownType ? cs.tertiary : null),
                       SizedBox(width: 4),
                       Text(typeLabel, style: TextStyle(
-                        fontSize: 11,
+                        fontSize: kFontSizeSmall,
                         fontWeight: FontWeight.w600,
                         color: isUnknownType ? cs.tertiary : null,
                       )),
@@ -412,7 +412,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Expanded(
                   child: Text(
                     itemName,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -426,7 +426,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                     ),
                     child: Text(
                       'x${request.requestData['quantity'] ?? 1}',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -439,11 +439,11 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               children: [
                 Icon(Icons.person, size: 16, color: cs.outline),
                 SizedBox(width: 4),
-                Text(requesterName, style: TextStyle(fontSize: 12, color: cs.outline)),
+                Text(requesterName, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
                 SizedBox(width: kSpacingSmall),
                 Icon(Icons.access_time, size: 16, color: cs.outline),
                 SizedBox(width: 4),
-                Text(timeAgo, style: TextStyle(fontSize: 12, color: cs.outline)),
+                Text(timeAgo, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
               ],
             ),
 
@@ -464,7 +464,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                     Expanded(
                       child: Text(
                         AppStrings.sharing.unknownRequestWarning,
-                        style: TextStyle(fontSize: 12, color: cs.tertiary),
+                        style: TextStyle(fontSize: kFontSizeSmall, color: cs.tertiary),
                       ),
                     ),
                   ],
