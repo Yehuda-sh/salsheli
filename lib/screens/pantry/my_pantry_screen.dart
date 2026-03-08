@@ -895,8 +895,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         : [
             Colors.cyan.withValues(alpha: 0.1),
             Colors.purple.withValues(alpha: 0.1),
-            cs.tertiary.withOpacity(0.1),
-            cs.primary.withOpacity(0.1),
+            scheme.tertiary.withValues(alpha: 0.1),
+            scheme.primary.withValues(alpha: 0.1),
           ];
 
     // מונה גלובלי לאנימציות staggered

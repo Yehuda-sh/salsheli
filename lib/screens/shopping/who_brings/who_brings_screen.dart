@@ -538,7 +538,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   label: const Text('בטל התנדבות'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
-                    side: const BorderSide(color: cs.error),
+                    side: BorderSide(color: cs.error),
                     minimumSize: const Size(double.infinity, 40),
                   ),
                 )
