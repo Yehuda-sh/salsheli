@@ -12,7 +12,26 @@
 // 🔗 Related: onboarding_data, OnboardingSteps
 
 import 'package:flutter/foundation.dart' show debugPrint, kDebugMode;
-);
+
+/// Store category types
+enum StoreCategory {
+  supermarket,
+  minimarket,
+  pharmacy,
+  // ❌ liquorStore - הוסר (לא חלק מהליבה)
+}
+
+/// מידע על חנות מוכרת
+class StoreInfo {
+  final String code;
+  final String displayName;
+  final StoreCategory category;
+
+  const StoreInfo({
+    required this.code,
+    required this.displayName,
+    required this.category,
+  });
 }
 
 /// Configuration for stores

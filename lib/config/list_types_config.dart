@@ -22,7 +22,36 @@ import 'package:flutter/material.dart';
 import '../core/ui_constants.dart';
 import '../theme/app_theme.dart';
 import 'list_type_keys.dart';
-);
+
+/// 📦 הגדרת סוג רשימה אחד
+/// מכיל את כל המידע הויזואלי והטקסטואלי
+class ListTypeConfig {
+  /// מפתח ייחודי (תואם ל-ShoppingList constants)
+  final String key;
+  
+  /// שם מלא להצגה (למשל ב-Drawer)
+  final String fullName;
+  
+  /// שם קצר להצגה (למשל ב-Dropdown)
+  final String shortName;
+  
+  /// אימוג'י ייצוגי
+  final String emoji;
+  
+  /// אייקון Material
+  final IconData icon;
+  
+  /// צבע אופציונלי (לשימוש עתידי)
+  final Color? color;
+
+  const ListTypeConfig({
+    required this.key,
+    required this.fullName,
+    required this.shortName,
+    required this.emoji,
+    required this.icon,
+    this.color,
+  });
 }
 
 /// 🗂️ כל סוגי הרשימות במערכת
