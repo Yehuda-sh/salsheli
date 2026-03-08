@@ -1,17 +1,13 @@
-// 📄 File: lib/screens/welcome/welcome_screen.dart
-// 🎯 Purpose: מסך קבלת פנים — Notebook + Glassmorphic
+// 📄 lib/screens/welcome/welcome_screen.dart
+// 🎯 Purpose: מסך קבלת פנים — Notebook + Carousel + Sticky CTA
 //
 // 📋 Design:
-// - רקע מחברת עדין (NotebookBackground)
-// - כרטיסי פיצ'ר Glassmorphic עם פס צבעוני
-// - CTA אחד ברור (M3 FilledButton.tonal)
-// - 8pt grid, kBorderRadius, Design Tokens
+// - רקע מחברת (NotebookBackground)
+// - Carousel עם 3 פיצ'רים (swipe)
+// - Sticky CTA בתחתית (תמיד נראה)
+// - אנימציות כניסה + Haptic feedback
 //
-// ✨ Features:
-// - אנימציות כניסה מדורגות (Staggered Entrance)
-// - משוב Haptic מבוסס הקשר
-// - Shimmer עדין על CTA
-// - Mini previews (Shopping List, Pantry, Sharing)
+// 🔗 Related: ui_constants.dart, app_theme.dart, NotebookBackground
 
 import 'dart:async';
 import 'dart:ui';
@@ -26,30 +22,36 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
-  void _handleLogin(BuildContext context) {
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  final _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() {
     unawaited(HapticFeedback.lightImpact());
     Navigator.pushNamed(context, '/login');
   }
 
-  void _handleRegister(BuildContext context) {
+  void _handleRegister() {
     unawaited(HapticFeedback.mediumImpact());
     Navigator.pushNamed(context, '/register');
   }
 
-  void _handleLegalLink(BuildContext context, VoidCallback showDialog) {
+  void _handleLegalLink(VoidCallback showDialog) {
     unawaited(HapticFeedback.selectionClick());
     showDialog();
-  }
-
-  bool _isSmallScreen(BuildContext context) =>
-      MediaQuery.of(context).size.width < 360;
-
-  double _horizontalPadding(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth < 360 ? 12.0 : screenWidth > 400 ? 20.0 : kSpacingMedium;
   }
 
   @override
@@ -57,275 +59,365 @@ class WelcomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final isSmallScreen = _isSmallScreen(context);
-    final horizontalPadding = _horizontalPadding(context);
-
-    // ⏱️ Staggered entrance delays (80ms apart)
-    const staggerDelay = 80;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
-          // רקע מחברת עדין - brand texture בלבד
+          // רקע מחברת
           const NotebookBackground(
             lineOpacity: 0.16,
             lineColor: kNotebookBlueSoft,
             showRedLine: true,
             redLineOpacity: 0.14,
             redLineWidth: 1.5,
-            fadeEdges: true,
           ),
+
+          // תוכן ראשי
           SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-              child: Column(
-                children: [
-                  // תוכן עליון - scrollable (RepaintBoundary לביצועים)
-                  Expanded(
-                    child: RepaintBoundary(
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            SizedBox(height: isSmallScreen ? kSpacingSmall : kSpacingLarge),
-
-                            // לוגו וסלוגן
-                            _LogoAndSlogan(isSmallScreen: isSmallScreen)
-                                .animate()
-                                .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
-                                .slideY(begin: 0.2, duration: 400.ms, curve: Curves.easeOutBack)
-                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, curve: Curves.easeOutBack),
-                            const SizedBox(height: kSpacingLarge),
-
-                            // כרטיסי פיצ'רים נקיים - Staggered Entrance
-                            _FeatureCard(
-                                  emoji: AppStrings.welcome.group1Emoji,
-                                  title: AppStrings.welcome.group1Title,
-                                  description: AppStrings.welcome.group1Question,
-                                  accentColor: kStickyGreen,
-                                  previewWidget: const _MiniShoppingList(),
-                                )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack)
-                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack)
-                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 1).ms, curve: Curves.easeOutBack),
-                            const SizedBox(height: kSpacingSmallPlus),
-
-                            _FeatureCard(
-                                  emoji: AppStrings.welcome.group2Emoji,
-                                  title: AppStrings.welcome.group2Title,
-                                  description: AppStrings.welcome.group2Question,
-                                  accentColor: kStickyOrange,
-                                  previewWidget: const _MiniPantry(),
-                                )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack)
-                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack)
-                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 2).ms, curve: Curves.easeOutBack),
-                            const SizedBox(height: kSpacingSmallPlus),
-
-                            _FeatureCard(
-                                  emoji: AppStrings.welcome.group3Emoji,
-                                  title: AppStrings.welcome.group3Title,
-                                  description: AppStrings.welcome.group3Question,
-                                  accentColor: kStickyCyan,
-                                  previewWidget: const _MiniSharing(),
-                                )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
-                                .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
-                                .scale(begin: Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack),
-                            SizedBox(height: kSpacingMedium),
-
-                            // סלוגן סיום
-                            Text(
-                              AppStrings.welcome.moreGroupsHint,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: cs.onSurface.withValues(alpha: 0.55),
-                                fontWeight: FontWeight.w600,
-                              ),
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: (staggerDelay * 4).ms, curve: Curves.easeOutBack),
-                            SizedBox(height: kSpacingMedium),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // הפרדה דקה - "כאן מתחיל אזור פעולה"
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Divider(height: 1, thickness: 1, color: cs.outlineVariant.withValues(alpha: 0.12)),
-                  ),
-
-                  // Scrim עליון - מאחורי CTA + הסבר
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: kSpacingSmall,
-                          vertical: kSpacingSmall,
-                        ),
-                        decoration: BoxDecoration(
-                          color: (brand?.paperBackground ?? kPaperBackground).withValues(alpha: 0.82),
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.15),
-                            width: 0.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: cs.shadow.withValues(alpha: 0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, -2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            // CTA ראשי - M3 FilledButton.tonal (premium, brand accent)
-                            SizedBox(
-                              width: double.infinity,
-                              height: kButtonHeight,
-                              child: FilledButton.tonalIcon(
-                                onPressed: () => _handleRegister(context),
-                                icon: Icon(Icons.person_add),
-                                label: Text(
-                                  AppStrings.welcome.startButton,
-                                  style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
-                                ),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: (brand?.accent ?? cs.primary).withValues(alpha: 0.18),
-                                  foregroundColor: brand?.accent ?? cs.primary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
-                                    side: BorderSide(
-                                      color: (brand?.accent ?? cs.primary).withValues(alpha: 0.28),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                                // ✨ Shimmer עדין - אחת ל-5 שניות למשיכת העין
-                                .animate(onPlay: (controller) => controller.repeat())
-                                .shimmer(
-                                  delay: 3500.ms,
-                                  duration: 1500.ms,
-                                  color: (brand?.accent ?? cs.primary).withValues(alpha: 0.08),
-                                ),
-                            SizedBox(height: kSpacingTiny),
-                            // הסבר קצר
-                            Text(
-                              AppStrings.welcome.authExplanation,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: cs.onSurface.withValues(alpha: 0.55),
-                                height: 1.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  )
+            bottom: false,
+            child: Column(
+              children: [
+                // === לוגו וסלוגן ===
+                Padding(
+                  padding: const EdgeInsets.only(top: kSpacingLarge, bottom: kSpacingMedium),
+                  child: _LogoAndSlogan()
                       .animate()
-                      .fadeIn(duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack)
-                      .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack)
-                      .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 5).ms, curve: Curves.easeOutBack),
-                  const SizedBox(height: kSpacingSmall),
+                      .fadeIn(duration: 400.ms, curve: Curves.easeOutBack)
+                      .slideY(begin: 0.2, duration: 400.ms, curve: Curves.easeOutBack)
+                      .scale(begin: const Offset(0.95, 0.95), duration: 400.ms),
+                ),
 
-                  // Scrim תחתון - מאחורי לינק התחברות
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: (brand?.paperBackground ?? kPaperBackground).withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.15),
-                            width: 0.5,
-                          ),
-                        ),
-                        child: TextButton.icon(
-                          onPressed: () => _handleLogin(context),
-                          icon: Icon(
-                            Icons.login_rounded,
-                            size: 18,
-                            color: (brand?.accent ?? cs.primary).withValues(alpha: 0.65),
-                          ),
-                          label: Text(
-                            AppStrings.welcome.loginLink,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: (brand?.accent ?? cs.primary).withValues(alpha: 0.75),
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                              decorationThickness: 1.2,
-                              decorationColor: (brand?.accent ?? cs.primary).withValues(alpha: 0.45),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-
-                  // לינקים משפטיים
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                // === Carousel ===
+                Expanded(
+                  child: Column(
                     children: [
-                      TextButton(
-                        onPressed: () => _handleLegalLink(
-                          context,
-                          () => showTermsOfServiceDialog(context),
-                        ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: Size(44, 32),
-                        ),
-                        child: Text(
-                          AppStrings.welcome.termsOfService,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurface.withValues(alpha: 0.5),
-                            decoration: TextDecoration.underline,
-                          ),
+                      Expanded(
+                        child: PageView(
+                          controller: _pageController,
+                          onPageChanged: (index) => setState(() => _currentPage = index),
+                          children: [
+                            _FeatureCard(
+                              emoji: AppStrings.welcome.group1Emoji,
+                              title: AppStrings.welcome.group1Title,
+                              description: AppStrings.welcome.group1Question,
+                              accentColor: kStickyGreen,
+                              previewWidget: const _MiniShoppingList(),
+                            ),
+                            _FeatureCard(
+                              emoji: AppStrings.welcome.group2Emoji,
+                              title: AppStrings.welcome.group2Title,
+                              description: AppStrings.welcome.group2Question,
+                              accentColor: kStickyOrange,
+                              previewWidget: const _MiniPantry(),
+                            ),
+                            _FeatureCard(
+                              emoji: AppStrings.welcome.group3Emoji,
+                              title: AppStrings.welcome.group3Title,
+                              description: AppStrings.welcome.group3Question,
+                              accentColor: kStickyCyan,
+                              previewWidget: const _MiniSharing(),
+                            ),
+                          ],
                         ),
                       ),
+
+                      // Dot indicators
+                      const SizedBox(height: kSpacingSmall),
+                      _DotIndicator(
+                        count: 3,
+                        current: _currentPage,
+                        activeColor: brand?.accent ?? cs.primary,
+                        inactiveColor: cs.outlineVariant,
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms, delay: 200.ms),
+
+                      // סלוגן
+                      const SizedBox(height: kSpacingSmall),
                       Text(
-                        ' \u2022 ',
-                        style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: kFontSizeSmall),
-                      ),
-                      TextButton(
-                        onPressed: () => _handleLegalLink(
-                          context,
-                          () => showPrivacyPolicyDialog(context),
+                        AppStrings.welcome.moreGroupsHint,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                          fontWeight: FontWeight.w600,
                         ),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: Size(44, 32),
-                        ),
-                        child: Text(
-                          AppStrings.welcome.privacyPolicy,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurface.withValues(alpha: 0.5),
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms, delay: 300.ms),
                     ],
                   ),
-                  const SizedBox(height: kSpacingSmall),
+                ),
+              ],
+            ),
+          ),
+
+          // === Sticky Bottom CTA ===
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _StickyBottomBar(
+              bottomPadding: bottomPadding,
+              onRegister: _handleRegister,
+              onLogin: _handleLogin,
+              onTerms: () => _handleLegalLink(() => showTermsOfServiceDialog(context)),
+              onPrivacy: () => _handleLegalLink(() => showPrivacyPolicyDialog(context)),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 400.ms)
+                .slideY(begin: 0.3, duration: 400.ms, delay: 400.ms),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// Sticky Bottom Bar
+// ============================================================
+
+class _StickyBottomBar extends StatelessWidget {
+  final double bottomPadding;
+  final VoidCallback onRegister;
+  final VoidCallback onLogin;
+  final VoidCallback onTerms;
+  final VoidCallback onPrivacy;
+
+  const _StickyBottomBar({
+    required this.bottomPadding,
+    required this.onRegister,
+    required this.onLogin,
+    required this.onTerms,
+    required this.onPrivacy,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final bgColor = brand?.paperBackground ?? kPaperBackground;
+    final accentColor = brand?.accent ?? cs.primary;
+
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        child: Container(
+          padding: EdgeInsets.only(
+            left: kSpacingMedium,
+            right: kSpacingMedium,
+            top: kSpacingSmallPlus,
+            bottom: bottomPadding + kSpacingSmall,
+          ),
+          decoration: BoxDecoration(
+            color: bgColor.withValues(alpha: 0.88),
+            border: Border(
+              top: BorderSide(
+                color: cs.outlineVariant.withValues(alpha: 0.15),
+                width: 0.5,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: cs.shadow.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // CTA ראשי
+              SizedBox(
+                width: double.infinity,
+                height: kButtonHeight,
+                child: FilledButton.tonalIcon(
+                  onPressed: onRegister,
+                  icon: const Icon(Icons.person_add),
+                  label: Text(
+                    AppStrings.welcome.startButton,
+                    style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: accentColor.withValues(alpha: 0.18),
+                    foregroundColor: accentColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      side: BorderSide(color: accentColor.withValues(alpha: 0.28)),
+                    ),
+                  ),
+                ),
+              )
+                  .animate(onPlay: (controller) => controller.repeat())
+                  .shimmer(
+                    delay: 3500.ms,
+                    duration: 1500.ms,
+                    color: accentColor.withValues(alpha: 0.08),
+                  ),
+
+              const SizedBox(height: kSpacingSmall),
+
+              // לינק התחברות
+              TextButton.icon(
+                onPressed: onLogin,
+                icon: Icon(
+                  Icons.login_rounded,
+                  size: 18,
+                  color: accentColor.withValues(alpha: 0.65),
+                ),
+                label: Text(
+                  AppStrings.welcome.loginLink,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: accentColor.withValues(alpha: 0.75),
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                    decorationThickness: 1.2,
+                    decorationColor: accentColor.withValues(alpha: 0.45),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: kSpacingTiny),
+
+              // לינקים משפטיים
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: onTerms,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(44, 44),
+                    ),
+                    child: Text(
+                      AppStrings.welcome.termsOfService,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.5),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    ' \u2022 ',
+                    style: TextStyle(color: cs.onSurface.withValues(alpha: 0.4), fontSize: kFontSizeSmall),
+                  ),
+                  TextButton(
+                    onPressed: onPrivacy,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(44, 44),
+                    ),
+                    child: Text(
+                      AppStrings.welcome.privacyPolicy,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: cs.onSurface.withValues(alpha: 0.5),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ],
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// Dot Indicator
+// ============================================================
+
+class _DotIndicator extends StatelessWidget {
+  final int count;
+  final int current;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  const _DotIndicator({
+    required this.count,
+    required this.current,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(count, (index) {
+        final isActive = index == current;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: isActive ? 24 : 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+// ============================================================
+// Logo & Slogan
+// ============================================================
+
+class _LogoAndSlogan extends StatelessWidget {
+  const _LogoAndSlogan();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final accentColor = brand?.accent ?? cs.primary;
+
+    return Semantics(
+      header: true,
+      label: '${AppStrings.welcome.title} - ${AppStrings.welcome.subtitle}',
+      child: Column(
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppStrings.welcome.title,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  color: cs.onSurface.withValues(alpha: 0.87),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 42,
+                  letterSpacing: 0.8,
+                ),
+              ),
+              const SizedBox(width: 3),
+              Padding(
+                padding: const EdgeInsets.only(top: 3),
+                child: Icon(
+                  Icons.check_rounded,
+                  size: 22,
+                  color: accentColor.withValues(alpha: 0.85),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: kSpacingSmall),
+          Text(
+            AppStrings.welcome.subtitle,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.70),
+              fontWeight: FontWeight.w600,
+              fontSize: 17,
             ),
           ),
         ],
@@ -334,89 +426,10 @@ class WelcomeScreen extends StatelessWidget {
   }
 }
 
-/// לוגו וסלוגן - נקי עם halo עדין מאחורי אזור הלוגו
-class _LogoAndSlogan extends StatelessWidget {
-  final bool isSmallScreen;
+// ============================================================
+// Feature Card (Carousel page)
+// ============================================================
 
-  const _LogoAndSlogan({required this.isSmallScreen});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
-    final onSurface = cs.onSurface;
-    final bgColor = brand?.paperBackground ?? kPaperBackground;
-    final accentColor = brand?.accent ?? cs.primary;
-
-    final borderRadius = BorderRadius.circular(kBorderRadius);
-
-    return Semantics(
-      header: true,
-      label: '${AppStrings.welcome.title} - ${AppStrings.welcome.subtitle}',
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-          child: Container(
-            padding: EdgeInsets.symmetric(
-              vertical: isSmallScreen ? kSpacingSmallPlus : kSpacingMedium,
-              horizontal: kSpacingLarge,
-            ),
-            decoration: BoxDecoration(
-              color: bgColor.withValues(alpha: 0.93),
-              borderRadius: borderRadius,
-              border: Border.all(
-                color: cs.outlineVariant.withValues(alpha: 0.2),
-                width: 0.5,
-              ),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      AppStrings.welcome.title,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        color: onSurface.withValues(alpha: 0.87),
-                        fontWeight: FontWeight.w800,
-                        fontSize: isSmallScreen ? 36 : 44,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    const SizedBox(width: 3),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Icon(
-                        Icons.check_rounded,
-                        size: isSmallScreen ? 18 : 22,
-                        color: accentColor.withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ],
-                ).animate().fadeIn(duration: 400.ms),
-                const SizedBox(height: kSpacingSmall),
-                Text(
-                  AppStrings.welcome.subtitle,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: onSurface.withValues(alpha: 0.70),
-                    fontWeight: FontWeight.w600,
-                    fontSize: isSmallScreen ? 15 : 17,
-                  ),
-                ).animate().fadeIn(duration: 400.ms, delay: 150.ms),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// כרטיס פיצ'ר - Glassmorphic עם פס צבעוני, קווי מחברת נראים מבעד
 class _FeatureCard extends StatelessWidget {
   final String emoji;
   final String title;
@@ -437,87 +450,77 @@ class _FeatureCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final borderRadius = BorderRadius.circular(kBorderRadius);
 
     return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 340),
-        child: Semantics(
-          label: '$title - $description',
-          child: ClipRRect(
-            borderRadius: borderRadius,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(kSpacingSmallPlus),
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.65),
-                  // borderRadius handled by ClipRRect parent
-                  border: Border(
-                    top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
-                    bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
-                    left: BorderSide(
-                      color: isRtl ? cs.outlineVariant.withValues(alpha: 0.18) : accentColor.withValues(alpha: 0.65),
-                      width: isRtl ? 0.9 : 4,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Semantics(
+            label: '$title - $description',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  decoration: BoxDecoration(
+                    color: cs.surface.withValues(alpha: 0.65),
+                    border: Border(
+                      top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
+                      bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
+                      left: BorderSide(
+                        color: isRtl ? cs.outlineVariant.withValues(alpha: 0.18) : accentColor.withValues(alpha: 0.65),
+                        width: isRtl ? 0.9 : 4,
+                      ),
+                      right: BorderSide(
+                        color: isRtl ? accentColor.withValues(alpha: 0.65) : cs.outlineVariant.withValues(alpha: 0.18),
+                        width: isRtl ? 4 : 0.9,
+                      ),
                     ),
-                    right: BorderSide(
-                      color: isRtl ? accentColor.withValues(alpha: 0.65) : cs.outlineVariant.withValues(alpha: 0.18),
-                      width: isRtl ? 4 : 0.9,
-                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: cs.shadow.withValues(alpha: 0.08),
+                        blurRadius: 24,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: cs.shadow.withValues(alpha: 0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // כותרת: emoji + title + description
-                    Row(
-                      children: [
-                        ExcludeSemantics(
-                          child: Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle, height: 1.0)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Emoji גדול
+                      ExcludeSemantics(
+                        child: Text(emoji, style: const TextStyle(fontSize: 48, height: 1.0)),
+                      ),
+                      const SizedBox(height: kSpacingSmallPlus),
+
+                      // כותרת
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.87),
+                          fontWeight: FontWeight.w700,
                         ),
-                        SizedBox(width: kSpacingSmall),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: 0.87),
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                description,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: 0.58),
-                                ),
-                              ),
-                            ],
-                          ),
+                      ),
+                      const SizedBox(height: kSpacingTiny),
+
+                      // תיאור
+                      Text(
+                        description,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: cs.onSurface.withValues(alpha: 0.58),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: kSpacingSmall),
-                    // Mini preview - ללא רקע נפרד
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: previewWidget,
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+
+                      // Mini preview
+                      previewWidget,
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -528,7 +531,10 @@ class _FeatureCard extends StatelessWidget {
   }
 }
 
-/// Mini Shopping List Preview
+// ============================================================
+// Mini Previews (unchanged logic, center-aligned)
+// ============================================================
+
 class _MiniShoppingList extends StatelessWidget {
   const _MiniShoppingList();
 
@@ -546,7 +552,6 @@ class _MiniShoppingList extends StatelessWidget {
   }
 }
 
-/// Mini Pantry Preview
 class _MiniPantry extends StatelessWidget {
   const _MiniPantry();
 
@@ -564,7 +569,6 @@ class _MiniPantry extends StatelessWidget {
   }
 }
 
-/// Mini Sharing Preview
 class _MiniSharing extends StatelessWidget {
   const _MiniSharing();
 
@@ -582,7 +586,6 @@ class _MiniSharing extends StatelessWidget {
   }
 }
 
-/// Mini List Item with Quantity
 class _MiniListItemWithQty extends StatelessWidget {
   final String text;
   final String qty;
@@ -605,7 +608,7 @@ class _MiniListItemWithQty extends StatelessWidget {
             size: 14,
             color: checked ? successColor : cs.onSurfaceVariant,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
@@ -617,7 +620,7 @@ class _MiniListItemWithQty extends StatelessWidget {
               style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(
               text,
@@ -636,7 +639,6 @@ class _MiniListItemWithQty extends StatelessWidget {
   }
 }
 
-/// Mini Pantry Item
 class _MiniPantryItem extends StatelessWidget {
   final String text;
   final String qty;
@@ -660,7 +662,7 @@ class _MiniPantryItem extends StatelessWidget {
             size: 14,
             color: isLow ? warningColor : successColor,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(text, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
@@ -686,7 +688,6 @@ class _MiniPantryItem extends StatelessWidget {
   }
 }
 
-/// Mini Share User
 class _MiniShareUser extends StatelessWidget {
   final String name;
   final bool isOnline;
@@ -705,7 +706,6 @@ class _MiniShareUser extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          // אווטר צבעוני עם אות ראשונה
           Container(
             width: 16,
             height: 16,
@@ -727,11 +727,10 @@ class _MiniShareUser extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Expanded(
             child: Text(name, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
-          // נקודת סטטוס
           Container(
             width: 8,
             height: 8,
@@ -740,7 +739,7 @@ class _MiniShareUser extends StatelessWidget {
               color: isOnline ? successColor : cs.onSurfaceVariant.withValues(alpha: 0.3),
             ),
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(
             isOnline ? AppStrings.welcome.statusOnline : AppStrings.welcome.statusOffline,
             style: TextStyle(fontSize: kFontSizeTiny, height: 1.2, color: cs.onSurfaceVariant),
