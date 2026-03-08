@@ -236,9 +236,7 @@ class _LayoutStrings {
   String notificationsCount(int count) => 'יש לך $count עדכונים חדשים';
 
   // User Menu
-  String get hello => 'שלום 👋';
   String get welcome => 'ברוך הבא ל-${AppStrings.appName}';
-  String welcomeWithUpdates(int count) => 'יש לך $count עדכונים חדשים';
 
   // Offline
   String get offline => 'אין חיבור לרשת';
@@ -285,7 +283,6 @@ class _CommonStrings {
 
   // Actions
   String get logout => 'התנתק';
-  String get logoutAction => 'התנתקות';
   String get cancel => 'ביטול';
   String get save => 'שמור';
   String get delete => 'מחק';
@@ -309,7 +306,6 @@ class _CommonStrings {
   String get loading => 'טוען...';
   String get error => 'שגיאה';
   String get success => 'הצלחה';
-  String get noData => 'אין נתונים';
   String get categoryUnknown => 'לא ידוע';
   String get syncError => 'בעיית סנכרון - השינויים נשמרו מקומית';
   String get saveFailed => 'השמירה נכשלה, נסה שוב';
@@ -323,11 +319,6 @@ class _CommonStrings {
   // ========================================
   // Glassmorphic Accessibility (v4.0)
   // ========================================
-
-  String get glassNavBarSemantics => 'סרגל ניווט שקוף מעל תוכן הרשימה';
-  String get glassHeaderSemantics => 'כותרת שקופה עם סיכום התקדמות';
-  String get glassStatsSemantics => 'סרגל סטטיסטיקות שקוף';
-  String get glassSavingOverlaySemantics => 'שכבת שמירה פעילה — אנא המתן';
 }
 
 // ========================================
@@ -377,7 +368,6 @@ class _OnboardingStrings {
   String budgetAmount(double amount) => '${amount.toStringAsFixed(0)} ₪';
 
   // Categories Step
-  String get categoriesTitle => 'אילו קטגוריות חשובות לכם במיוחד?';
 
   // Shopping Frequency Step
   String get frequencyTitle => 'תדירות קניות';
@@ -401,8 +391,6 @@ class _OnboardingStrings {
   String storesSummary(String stores) => 'חנויות: $stores';
   String get noStoresSelected => 'לא נבחר';
   String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';
-  String categoriesSummary(String categories) => 'קטגוריות: $categories';
-  String get noCategoriesSelected => 'לא נבחר';
   String frequencySummary(int count) => 'תדירות: $count פעמים בשבוע';
   String fixedDaysSummary(String days) => 'ימים קבועים: $days';
   String childrenSummary(String children) => 'ילדים: $children';
@@ -447,15 +435,9 @@ class _ShoppingStrings {
   const _ShoppingStrings();
 
   // Item Status
-  String get itemStatusPending => 'ממתין';
-  String get itemStatusPurchased => 'קנוי';
   String get itemStatusOutOfStock => 'אזל';
-  String get itemStatusNotNeeded => 'לא צריך';
 
   // Unknown Items (server fallback)
-  String get unknownItemsSection => 'פריטים לא נתמכים';
-  String get unknownItemsHint => 'סוג הפריט לא מוכר - ייתכן שנדרש עדכון אפליקציה';
-  String unknownItemsCount(int count) => count == 1 ? 'פריט לא נתמך' : '$count פריטים לא נתמכים';
 
   // Active Shopping Screen
   String get activeSaving => 'שומר...';
@@ -515,7 +497,6 @@ class _ShoppingStrings {
 
   // Active Shopping - Summary Dialog
   String get summaryTitle => 'סיכום קנייה';
-  String get summaryShoppingTime => 'זמן קנייה';
   String get summaryOutOfStock => 'אזלו בחנות';
   String get summaryNotMarked => 'לא סומנו';
   String get summaryBack => 'חזור';
@@ -534,7 +515,6 @@ class _ShoppingStrings {
   String get summaryPendingDeleteSubtitle => 'הפריטים יוסרו לגמרי';
 
   // Price & Quantity
-  String quantityMultiplier(int quantity) => '$quantity×';
   String priceFormat(double price) => '₪${price.toStringAsFixed(2)}';
   String get noPrice => 'אין מחיר';
   String get categoryGeneral => 'כללי';
@@ -547,8 +527,6 @@ class _ShoppingStrings {
   String get loadingProducts => 'טוען מוצרים...';
   String noProductsMatchingSearch(String query) => 'לא נמצאו מוצרים התואמים "$query"';
   String get noProductsAvailable => 'אין מוצרים זמינים כרגע';
-  String get tryDifferentSearch => 'נסה לחפש משהו אחר';
-  String get loadProductsFromServer => 'טען מוצרים מהשרת';
   String get loadProductsButton => 'טען מוצרים';
   String get productNoName => 'ללא שם';
   String updateProductError(String error) => 'שגיאה בעדכון מוצר: $error';
@@ -620,10 +598,6 @@ class _ShoppingStrings {
   String maxListsReached(int max) => 'הגעת למקסימום $max רשימות פעילות';
 
   // Limit Warnings (80%)
-  String itemsNearLimit(int current, int max) =>
-      'יש לך $current מתוך $max פריטים ברשימה';
-  String listsNearLimit(int current, int max) =>
-      'יש לך $current מתוך $max רשימות פעילות';
 
   // ========================================
   // Active Shopping - Sync & Messages
@@ -637,8 +611,6 @@ class _ShoppingStrings {
   // ========================================
   // Active Shopping - Icon Legend
   // ========================================
-
-  String get legendPurchased => 'קניתי';
   String get legendOutOfStock => 'אין במלאי';
   String get legendNotNeeded => 'לא צריך';
 
@@ -649,18 +621,10 @@ class _ShoppingStrings {
   String get retryLoadSemantics => 'לחץ פעמיים כדי לנסות לטעון את הרשימה מחדש';
   String get backToListSemantics => 'לחץ פעמיים כדי לחזור לרשימת הקניות';
   String get finishAndSaveSemantics => 'לחץ פעמיים כדי לסיים את הקנייה ולשמור את הנתונים';
-  String purchasedToggleSemantics(String itemName, bool isPurchased) =>
-      isPurchased
-          ? 'לחץ פעמיים כדי להחזיר את $itemName לרשימת הקניות'
-          : 'לחץ פעמיים כדי להעביר את $itemName לסל הקניות המלא';
   String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
       isOutOfStock
           ? 'לחץ פעמיים כדי לבטל סימון אין במלאי עבור $itemName'
           : 'לחץ פעמיים כדי לסמן ש-$itemName אזל מהמדף';
-  String notNeededToggleSemantics(String itemName, bool isNotNeeded) =>
-      isNotNeeded
-          ? 'לחץ פעמיים כדי להחזיר את $itemName לרשימה'
-          : 'לחץ פעמיים כדי לסמן ש-$itemName כבר לא צריך';
 }
 
 // ========================================
@@ -691,8 +655,6 @@ class _IndexStrings {
   String get errorTitle => 'אופס! משהו השתבש';
   String get errorMessage => 'לא הצלחנו לטעון את האפליקציה';
   String get retryButton => 'נסה שוב';
-  String get retryLabel => 'נסה שוב לטעון את האפליקציה';
-  String get retryHint => 'לחץ כדי לנסות שוב';
 }
 
 // ========================================
@@ -735,7 +697,6 @@ class _WelcomeStrings {
   String get moreGroupsHint => 'פשוט ונוח - בלי סיבוכים';
 
   // Demo data for mini previews (Welcome screen)
-  String get demoListHeader => '🛒 סופר';
   String get demoItem1 => 'חלב';
   String get demoItem2 => 'לחם';
   String get demoItem3 => 'ביצים';
@@ -767,9 +728,6 @@ class _WelcomeStrings {
   String get loginLink => 'כבר יש לי חשבון — התחברות';
   String get authExplanation => 'כדי להשתמש באפליקציה צריך להתחבר או להירשם';
   String get registerButton => 'הרשמה';
-  String get socialLoginLabel => 'או התחבר עם:';
-  String get googleButton => 'Google';
-  String get facebookButton => 'Facebook';
 
   // Legal links
   String get termsOfService => 'תנאי שימוש';
@@ -777,11 +735,9 @@ class _WelcomeStrings {
 
   // Accessibility
   String get logoLabel => 'לוגו אפליקציית ${AppStrings.appName}';
-  String socialLoginButtonLabel(String provider) => 'התחבר עם $provider';
 
   // ⚠️ DEPRECATED: Guest mode removed - auth is required
   @Deprecated('Guest mode removed - auth is required')
-  String get guestButton => 'המשך כאורח';
 }
 
 // ========================================
@@ -812,10 +768,7 @@ class _AuthStrings {
   // ========================================
 
   String get forgotPassword => 'שכחת סיסמה?';
-  String get resetPasswordTitle => 'איפוס סיסמה';
-  String get resetPasswordSubtitle => 'נשלח לך קישור לאיפוס הסיסמה למייל';
   String get sendResetEmailButton => 'שלח קישור';
-  String get backToLogin => 'חזרה להתחברות';
   String get resetEmailSent => 'מייל לאיפוס סיסמה נשלח בהצלחה!';
 
   // ========================================
@@ -839,8 +792,6 @@ class _AuthStrings {
   String get emailUpdated => 'האימייל עודכן בהצלחה!';
   String get updatePassword => 'עדכון סיסמה';
   String get passwordUpdated => 'הסיסמה עודכנה בהצלחה!';
-  String get newPasswordLabel => 'סיסמה חדשה';
-  String get currentPasswordLabel => 'סיסמה נוכחית';
 
   // ========================================
   // Account Deletion
@@ -873,7 +824,6 @@ class _AuthStrings {
   String get noAccount => 'אין לך חשבון?';
   String get registerNow => 'הירשם עכשיו';
   String get haveAccount => 'יש לך חשבון?';
-  String get loginNow => 'התחבר עכשיו';
 
   // ========================================
   // Divider
@@ -927,7 +877,6 @@ class _AuthStrings {
   // Generic Errors with Parameters
   String signUpError(String? message) => 'שגיאה ברישום${message != null ? ": $message" : ""}';
   String signInError(String? message) => 'שגיאה בהתחברות${message != null ? ": $message" : ""}';
-  String signOutError(String? message) => 'שגיאה בהתנתקות${message != null ? ": $message" : ""}';
   String resetEmailError(String? message) => 'שגיאה בשליחת מייל${message != null ? ": $message" : ""}';
   String verificationEmailError(String? message) => 'שגיאה בשליחת מייל אימות${message != null ? ": $message" : ""}';
   String updateDisplayNameError(String? message) => 'שגיאה בעדכון שם${message != null ? ": $message" : ""}';
@@ -941,18 +890,14 @@ class _AuthStrings {
   // ========================================
 
   String get mustCompleteLogin => 'יש להשלים את תהליך ההתחברות';
-  String get mustCompleteRegister => 'יש להשלים את תהליך ההרשמה';
   String get loginSuccess => 'התחברת בהצלחה!';
   String get registerSuccess => 'נרשמת בהצלחה!';
-  String get signOutSuccess => 'התנתקת בהצלחה';
 
   // ========================================
   // Login Screen - Additional
   // ========================================
 
   String get loginSuccessRedirect => 'התחברת בהצלחה! מעביר לדף הבית...';
-  String get googleLoginSuccess => 'התחברת בהצלחה עם Google!';
-  String get appleLoginSuccess => 'התחברת בהצלחה עם Apple!';
   String get orLoginWith => 'או התחבר עם';
   String get showPassword => 'הצג סיסמה';
   String get hidePassword => 'הסתר סיסמה';
@@ -1001,7 +946,6 @@ class _HomeStrings {
   const _HomeStrings();
 
   // Welcome Header
-  String welcomeUser(String userName) => 'שלום $userName! 👋';
 
   /// ברכה לפי שעות היום - מחליפה את "שלום" הגנרי
   String timeBasedGreeting(String userName, int hour) {
@@ -1020,23 +964,15 @@ class _HomeStrings {
 
   // ⚠️ DEPRECATED: Guest mode removed - auth is required
   @Deprecated('Guest mode removed - auth is required')
-  String get guestUser => 'אורח';
 
   // Sort
   String get sortLabel => 'מיון:';
   String get sortByDate => 'תאריך עדכון';
-  String get sortByName => 'שם';
-  String get sortByStatus => 'סטטוס';
 
   // Empty State
   String get noActiveLists => 'אין רשימות פעילות כרגע';
-  String get emptyStateMessage => 'צור את הרשימה הראשונה שלך\nקניות, מטלות, אירועים - הכל מתחיל פה! ✨';
-  String get createFirstList => 'צור רשימה ראשונה';
 
   // Receipts Card
-  String get myReceipts => 'הקבלות שלי';
-  String get noReceipts => 'אין קבלות עדיין. התחל להוסיף!';
-  String receiptsCount(int count) => '$count קבלות';
 
   // Active Lists Card
   String get otherActiveLists => 'רשימות פעילות נוספות';
@@ -1050,7 +986,6 @@ class _HomeStrings {
 
   // Errors
   String createListError(String error) => 'שגיאה ביצירת רשימה: $error';
-  String deleteListError(String error) => 'שגיאה במחיקה: $error';
 
   // Navigation
   String get doubleTapToExit => 'לחץ שוב לסגירת האפליקציה';
@@ -1068,31 +1003,18 @@ class _PriceComparisonStrings {
   String get searchHint => 'חפש מוצר...';
   String get searchButton => 'חפש';
   String get clearButton => 'נקה';
-  String get clearTooltip => 'נקה';
 
   // Results
-  String searchResults(String term) => 'תוצאות עבור "$term"';
-  String resultsCount(int count) => '$count תוצאות';
 
   // Empty States
-  String get noResultsTitle => 'לא נמצאו תוצאות';
-  String noResultsMessage(String term) => 'לא נמצאו תוצאות עבור "$term"';
-  String get noResultsHint => 'נסו מונח אחר או שם מוצר מדויק יותר';
-  String get emptyStateTitle => 'חפש מוצרים';
-  String get emptyStateMessage => 'הזן שם מוצר כדי להשוות מחירים בין חנויות שונות';
 
   // Store Info
-  String get cheapestLabel => 'הכי זול';
-  String get savingsLabel => 'חיסכון פוטנציאלי';
   String get storeIcon => '🏪';
-  String get savingsIcon => '💰';
 
   // Loading
-  String get searching => 'מחפש מוצרים...';
 
   // Errors
   String get errorTitle => 'שגיאה בחיפוש';
-  String searchError(String error) => 'שגיאה בחיפוש: $error';
   String get retry => 'נסה שוב';
 }
 
@@ -1107,27 +1029,19 @@ class _SettingsStrings {
   String get title => 'הגדרות ופרופיל';
 
   // Profile Section
-  String get profileTitle => 'פרופיל אישי';
   String get editProfile => 'עריכה';
-  String get editProfileButton => 'עריכת פרופיל - בקרוב!';
 
   // Stats Card
   String get statsActiveLists => 'רשימות פעילות';
-  String get statsReceipts => 'קבלות';
   String get statsPantryItems => 'פריטים במזווה';
 
   // Household Section
-  String get householdTitle => 'ניהול קבוצה';
   String get householdName => 'שם הקבוצה';
-  String get householdType => 'סוג הקבוצה:';
   String get householdNameHint => 'שם הקבוצה';
   String get editHouseholdNameSave => 'שמור';
   String get editHouseholdNameEdit => 'ערוך שם';
 
   // Members
-  String membersCount(int count) => 'חברי הקבוצה ($count)';
-  String get manageMembersButton => 'ניהול חברים - בקרוב!';
-  String get manageMembersComingSoon => 'ניהול חברים מלא - בקרוב! 🚧';
   String get roleOwner => 'בעלים';
   String get roleAdmin => 'מנהל';
   String get roleEditor => 'עורך';
@@ -1139,12 +1053,9 @@ class _SettingsStrings {
   String get addStoreTooltip => 'הוסף חנות';
 
   // Personal Settings
-  String get personalSettingsTitle => 'הגדרות אישיות';
   String get familySizeLabel => 'גודל הקבוצה (מספר אנשים)';
   String get weeklyRemindersLabel => 'תזכורות שבועיות';
   String get weeklyRemindersSubtitle => 'קבל תזכורת לתכנן קניות';
-  String get habitsAnalysisLabel => 'ניתוח הרגלי קנייה';
-  String get habitsAnalysisSubtitle => 'קבל המלצות מבוססות נתונים';
 
   // Notifications Section
   String get notificationsSectionTitle => 'התראות';
@@ -1171,8 +1082,6 @@ class _SettingsStrings {
   String get householdComingSoon => 'ניהול מלא - בקרוב!';
 
   // Quick Links
-  String get quickLinksTitle => 'קישורים מהירים';
-  String get myReceipts => 'הקבלות שלי';
   String get myPantry => 'המזווה שלי';
   String get priceComparison => 'השוואת מחירים';
   String get updatePricesTitle => 'עדכן מחירים מ-API';
@@ -1222,17 +1131,9 @@ class _HouseholdStrings {
 
   // Original 5
   String get typeFamily => 'משפחה';
-  String get typeBuildingCommittee => 'ועד בית';
-  String get typeKindergartenCommittee => 'ועד גן';
-  String get typeRoommates => 'שותפים לדירה';
   String get typeOther => 'אחר';
 
   // New 6
-  String get typeFriends => 'חברים';
-  String get typeColleagues => 'עמיתים לעבודה';
-  String get typeNeighbors => 'שכנים';
-  String get typeClassCommittee => 'ועד כיתה';
-  String get typeClub => 'מועדון/קהילה';
   String get typeExtendedFamily => 'משפחה מורחבת';
 
   // ========================================
@@ -1241,17 +1142,8 @@ class _HouseholdStrings {
 
   // Original 5
   String get descFamily => 'ניהול קניות וצרכים משותפים למשפחה';
-  String get descBuildingCommittee => 'רכישות משותפות וניהול אירועי ועד בית';
-  String get descKindergartenCommittee => 'ניהול קניות ואירועים לועד גן הילדים';
-  String get descRoommates => 'חלוקת עלויות וקניות לשותפים בדירה';
-  String get descOther => 'קבוצה מותאמת אישית - הגדר בעצמך';
 
   // New 6
-  String get descFriends => 'תכנון קניות וארגון אירועים עם חברים קרובים';
-  String get descColleagues => 'רכישות משותפות וארגון ארוחות לצוות העבודה';
-  String get descNeighbors => 'קניות משותפות ושיתוף פעולה בין שכנים בקרבת מקום';
-  String get descClassCommittee => 'ניהול קניות ואירועים להורי תלמידי הכיתה';
-  String get descClub => 'ארגון אירועים ורכישות לקבוצת תחביב או קהילה';
   String get descExtendedFamily => 'תכנון קניות ואירועים גדולים למשפחה המורחבת';
 }
 
@@ -1266,17 +1158,9 @@ class _ListTypeGroupsStrings {
   // Group Names
   // ========================================
 
-  String get nameShopping => 'קניות יומיומיות';
-  String get nameSpecialty => 'קניות מיוחדות';
-  String get nameEvents => 'אירועים';
-
   // ========================================
   // Group Descriptions
   // ========================================
-
-  String get descShopping => 'קניות שוטפות ויומיומיות';
-  String get descSpecialty => 'קניות בחנויות מיוחדות';
-  String get descEvents => 'אירועים, מסיבות ומטלות מיוחדות';
 }
 
 // ========================================
@@ -1298,17 +1182,11 @@ class _TemplatesStrings {
   // ========================================
 
   String get filterAll => 'הכל';
-  String get filterMine => 'שלי';
   String get filterShared => 'משותפות';
-  String get filterSystem => 'מערכת';
 
   // ========================================
   // Empty States
   // ========================================
-
-  String get emptyStateTitle => 'אין תבניות עדיין';
-  String get emptyStateMessage => 'צור תבנית ראשונה כדי להקל על יצירת רשימות בעתיד';
-  String get emptyStateButton => 'צור תבנית ראשונה';
 
   String get emptyMyTemplatesTitle => 'אין לך תבניות אישיות';
   String get emptyMyTemplatesMessage => 'צור תבנית כדי לחסוך זמן ביצירת רשימות חוזרות';
@@ -1321,69 +1199,33 @@ class _TemplatesStrings {
   // ========================================
 
   String itemsCount(int count) => '$count פריטים';
-  String get formatPersonal => 'אישי';
   String get formatShared => 'משותף';
-  String get formatAssigned => 'מוקצה';
-  String get formatSystem => 'מערכת';
 
   // ========================================
   // Actions
   // ========================================
 
   String get createButton => 'תבנית חדשה';
-  String get editButton => 'ערוך';
   String get deleteButton => 'מחק';
   String get useTemplateButton => 'השתמש בתבנית';
-  String get duplicateButton => 'שכפל';
 
   // ========================================
   // Form Screen
   // ========================================
 
-  String get formTitleCreate => 'תבנית חדשה';
-  String get formTitleEdit => 'עריכת תבנית';
-
   // Fields
   String get nameLabel => 'שם התבנית';
   String get nameHint => 'למשל: קניות שבועיות';
   String get nameRequired => 'נא להזין שם תבנית';
-
-  String get descriptionLabel => 'תיאור (אופציונלי)';
-  String get descriptionHint => 'תאר למה התבנית מיועדת...';
-
-  String get iconLabel => 'אייקון';
-  String get iconHint => 'בחר סוג רשימה';
-
-  String get formatLabel => 'פורמט';
-  String get formatPersonalDesc => 'רק אני רואה';
   String get formatSharedDesc => 'כל הקבוצה רואה';
-  String get formatAssignedDesc => 'הוקצה לאנשים ספציפיים';
-
-  String get itemsLabel => 'פריטים בתבנית';
-  String get addItemButton => 'הוסף פריט';
-  String get noItemsYet => 'עדיין אין פריטים. הוסף לפחות פריט אחד.';
 
   // Item Form
-  String get itemNameLabel => 'שם הפריט';
-  String get itemNameHint => 'למשל: חלב';
-  String get itemNameRequired => 'נא להזין שם פריט';
-
-  String get itemCategoryLabel => 'קטגוריה';
-  String get itemCategoryHint => 'בחר קטגוריה';
-
-  String get itemQuantityLabel => 'כמות';
-  String get itemQuantityHint => '1';
-
-  String get itemUnitLabel => 'יחידה';
-  String get itemUnitHint => 'ליטר, ק"ג, יחידות...';
 
   // Save
   String get saveButton => 'שמור תבנית';
-  String get savingButton => 'שומר...';
   String get cancelButton => 'בטל';
 
   // Validation
-  String get atLeastOneItem => 'יש להוסיף לפחות פריט אחד';
   String templateNameExists(String name) => 'תבנית בשם "$name" כבר קיימת';
 
   // ========================================
@@ -1394,19 +1236,12 @@ class _TemplatesStrings {
   String templateUpdated(String name) => 'התבנית "$name" עודכנה!';
   String templateDeleted(String name) => 'התבנית "$name" נמחקה';
   String get undo => 'בטל';
-
-  String createError(String error) => 'שגיאה ביצירת תבנית: $error';
   String updateError(String error) => 'שגיאה בעדכון: $error';
   String deleteError(String error) => 'שגיאה במחיקה: $error';
 
   // ========================================
   // Delete Confirmation
   // ========================================
-
-  String get deleteConfirmTitle => 'מחיקת תבנית';
-  String deleteConfirmMessage(String name) => 'האם אתה בטוח שברצונך למחוק את התבנית "$name"?';
-  String get deleteCancel => 'ביטול';
-  String get deleteConfirm => 'מחק';
 
   // ========================================
   // Use Template Dialog
@@ -1456,7 +1291,6 @@ class _CreateListDialogStrings {
 
   // Type Field
   String get typeLabel => 'סוג הרשימה';
-  String get typeSelected => 'נבחר';
 
   // Budget Field
   String get budgetLabel => 'תקציב (אופציונלי)';
@@ -1479,7 +1313,6 @@ class _CreateListDialogStrings {
   String get cancelButton => 'בטל';
   String get cancelTooltip => 'ביטול יצירת הרשימה';
   String get createButton => 'צור רשימה';
-  String get createTooltip => 'יצירת הרשימה החדשה';
   String get creating => 'יוצר...';
 
   // ========================================
@@ -1649,8 +1482,6 @@ class _InventoryStrings {
 
   // Category Field
   String get categoryLabel => 'קטגוריה';
-  String get categoryHint => 'לדוגמה: חלבי';
-  String get categoryRequired => 'נא להזין קטגוריה';
 
   // Quantity Field
   String get quantityLabel => 'כמות';
@@ -1783,27 +1614,9 @@ class _InventoryStrings {
   // Inventory Transfer Dialog
   // ========================================
 
-  String get transferDialogTitle => 'המזווה שלך';
-  String transferDialogItemCount(int count) =>
-      count == 1 ? 'פריט אחד' : '$count פריטים';
-  String transferDialogDescription(String groupName, int count) =>
-      'אתה מצטרף ל"$groupName" שיש לה מזווה משותף.\n'
-      'מה ברצונך לעשות עם ${count == 1 ? "הפריט" : "$count הפריטים"} במזווה האישי שלך?';
-  String get transferOptionTitle => 'העבר למזווה הקבוצה';
-  String get transferOptionSubtitle => 'כל הפריטים יועברו למזווה המשותף';
-  String get deleteOptionTitle => 'מחק את המזווה האישי';
-  String get deleteOptionSubtitle => 'התחל מחדש עם המזווה המשותף';
-  String get cancelJoinOption => 'ביטול - לא להצטרף';
-
   // Delete Confirmation Sub-dialog
-  String get deleteConfirmTitle => 'אישור מחיקה';
-  String deleteConfirmMessage(int count) =>
-      'האם אתה בטוח שברצונך למחוק ${count == 1 ? "פריט אחד" : "$count פריטים"} מהמזווה האישי?\n\nפעולה זו לא ניתנת לביטול.';
-  String get deleteConfirmButton => 'מחק הכל';
 
   // Accessibility
-  String transferSemanticLabel(int count, String groupName) =>
-      'העברת מזווה: $count פריטים לקבוצה $groupName';
 
   // ========================================
   // Low Stock Alert Dialog
@@ -1843,8 +1656,6 @@ class _InventoryStrings {
   String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים במזווה';
 
   // Limit Warnings (80%)
-  String itemsNearLimit(int current, int max) =>
-      'יש לך $current מתוך $max פריטים במזווה';
 
   // ========================================
   // Pantry Health (v4.0)
@@ -1914,10 +1725,7 @@ class _ShoppingListDetailsStrings {
   // ========================================
 
   String get searchHint => 'חפש פריט...';
-  String get sortButton => 'מיין';
-  String get sortNone => 'ללא מיון';
   String get sortPriceDesc => 'מחיר (יקר→זול)';
-  String get sortStatus => 'סטטוס (לא נסומן קודם)';
   String itemsCount(int count) => '$count פריטים';
 
   // ========================================
@@ -1925,14 +1733,7 @@ class _ShoppingListDetailsStrings {
   // ========================================
 
   String get categoryAll => 'הכל';
-  String get categoryVegetables => 'ירקות ופירות';
-  String get categoryMeat => 'בשר ודגים';
   String get categoryDairy => 'חלב וביצים';
-  String get categoryBakery => 'לחם ומאפים';
-  String get categoryCanned => 'שימורים';
-  String get categoryFrozen => 'קפואים';
-  String get categoryCleaning => 'ניקיון';
-  String get categoryHygiene => 'היגיינה';
   String get categoryOther => 'אחר';
 
   // ========================================
@@ -1943,9 +1744,6 @@ class _ShoppingListDetailsStrings {
   String get addTaskButton => 'הוסף משימה';
   String get shareListTooltip => 'שתף רשימה';
   String get addFromCatalogTooltip => 'הוסף מהקטלוג';
-  String get searchTooltip => 'חיפוש';
-  String get editTooltip => 'ערוך';
-  String get deleteTooltip => 'מחק';
 
   // ========================================
   // Delete Confirmation
@@ -1958,9 +1756,6 @@ class _ShoppingListDetailsStrings {
   // ========================================
   // Item Display
   // ========================================
-
-  String quantityDisplay(int quantity) => 'כמות: $quantity';
-  String get taskLabel => 'משימה';
   String get totalLabel => 'סה״כ:';
 
   // ========================================
@@ -1968,12 +1763,9 @@ class _ShoppingListDetailsStrings {
   // ========================================
 
   String get emptyListTitle => 'הרשימה ריקה';
-  String get emptyListMessage => 'לחץ על "הוסף מוצר" להתחלה';
-  String get emptyListSubMessage => 'או אכלס מהקטלוג:';
   String get populateFromCatalog => 'אכלס מהקטלוג';
 
   String get noSearchResultsTitle => 'לא נמצאו פריטים';
-  String get noSearchResultsMessage => 'נסה לשנות את החיפוש';
   String get clearSearchButton => 'נקה חיפוש';
 
   // ========================================
@@ -2033,24 +1825,16 @@ class _SharingStrings {
 
   // Error Messages
   String get userNotFound => 'משתמש לא נמצא במערכת';
-  String get userAlreadyInList => 'המשתמש כבר ברשימה';
   String get cannotInviteSelf => 'לא ניתן להזמין את עצמך';
   String inviteError(String error) => 'שגיאה בשליחת הזמנה: $error';
 
   // ========================================
   // Manage Users Screen
   // ========================================
-
-  String get manageUsersTitle => 'ניהול משתמשים';
-  String usersCount(int count) => '$count משתמשים';
   String get inviteUserButton => 'הזמן משתמש';
-  String get searchUserHint => 'חפש משתמש...';
-  String get noUsers => 'אין משתמשים ברשימה';
-  String get ownerLabel => '(אתה)';
 
   // User Actions
   String get changeRoleTooltip => 'שנה תפקיד';
-  String get removeUserTooltip => 'הסר משתמש';
   String get resendInviteTooltip => 'שלח הזמנה שוב';
 
   // Change Role Dialog
@@ -2062,10 +1846,8 @@ class _SharingStrings {
 
   // Remove User Dialog
   String get removeUserTitle => 'הסרת משתמש';
-  String removeUserMessage(String userName) => 'האם להסיר את $userName מהרשימה?';
   String get removeButton => 'הסר';
   String userRemoved(String userName) => '$userName הוסר מהרשימה';
-  String removeUserError(String error) => 'שגיאה בהסרת משתמש: $error';
 
   // Saved Contacts
   String get savedContactsTitle => 'אנשי קשר שמורים';
@@ -2088,10 +1870,7 @@ class _SharingStrings {
 
   // Restrictions
   String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
-  String get cannotRemoveSelf => 'לא ניתן להסיר את עצמך';
-  String get cannotRemoveOwner => 'לא ניתן להסיר את הבעלים';
   String get noPermissionInvite => 'רק הבעלים יכול להזמין משתמשים';
-  String get onlyOwnerCanDelete => 'רק הבעלים יכול למחוק את הרשימה';
 
   // ========================================
   // Pending Requests Screen
@@ -2099,9 +1878,7 @@ class _SharingStrings {
 
   String get pendingRequestsTitle => 'בקשות ממתינות';
   String get noPermissionViewRequests => 'רק בעלים/מנהלים יכולים לראות בקשות';
-  String pendingCount(int count) => '$count בקשות';
   String get noPendingRequests => 'אין בקשות ממתינות';
-  String get noPendingMessage => 'כשעורכים יוסיפו פריטים, הם יופיעו כאן לאישור';
   String get noPendingRequestsSubtitle => 'בקשות מעורכים יופיעו כאן לאישור';
 
   // Request Types
@@ -2113,11 +1890,8 @@ class _SharingStrings {
 
   // Unknown Request Warning
   String get unknownRequestWarning => 'סוג בקשה לא מוכר - נדרש עדכון אפליקציה';
-  String get unknownRequestCannotProcess => 'לא ניתן לעבד בקשה זו';
 
   // Request Card
-  String requestedBy(String userName) => 'נתבקש על ידי $userName';
-  String requestedAt(String time) => 'לפני $time';
   String get viewDetailsButton => 'פרטים';
   String get approveButton => 'אשר ✅';
   String get rejectButton => 'דחה ❌';
@@ -2132,12 +1906,10 @@ class _SharingStrings {
 
   // Request Details Dialog
   String get requestDetailsTitle => 'פרטי בקשה';
-  String get itemNameLabel => 'שם פריט';
   String get quantityLabel => 'כמות';
   String get categoryLabel => 'קטגוריה';
   String get priceLabel => 'מחיר';
   String get notesLabel => 'הערות';
-  String get closeButton => 'סגור';
 
   // Approve/Reject
   String requestApproved(String itemName) => '✅ הבקשה להוספת "$itemName" אושרה';
@@ -2146,37 +1918,23 @@ class _SharingStrings {
   String requestRejected(String itemName) => '❌ הבקשה להוספת "$itemName" נדחתה';
   String get requestRejectedSuccess => 'הבקשה נדחתה';
   String get requestRejectedError => 'שגיאה בדחיית הבקשה';
-  String approveError(String error) => 'שגיאה באישור: $error';
-  String rejectError(String error) => 'שגיאה בדחייה: $error';
 
   // Bulk Actions
-  String get approveAllButton => 'אשר הכל';
-  String get rejectAllButton => 'דחה הכל';
-  String get approveAllConfirm => 'לאשר את כל הבקשות?';
-  String get rejectAllConfirm => 'לדחות את כל הבקשות?';
   String get rejectDialogTitle => 'דחיית בקשה';
   String get rejectDialogMessage => 'למה לדחות את הבקשה? (אופציונלי)';
   String get rejectReasonHint => 'סיבת הדחייה...';
-  String allApproved(int count) => '✅ $count בקשות אושרו';
-  String allRejected(int count) => '❌ $count בקשות נדחו';
 
   // ========================================
   // Permission Validation Messages
   // ========================================
 
   String get noPermissionTitle => 'אין הרשאה';
-  String get editorCannotAddDirectly => 'עורכים יכולים להוסיף פריטים רק דרך בקשות שדורשות אישור';
-  String get viewerCannotEdit => 'צופים יכולים לראות את הרשימה בלבד, ללא אפשרות עריכה';
-  String get editorCannotEditExisting => 'עורכים לא יכולים לערוך פריטים קיימים';
-  String get editorCannotDelete => 'עורכים לא יכולים למחוק פריטים';
-  String get viewerCannotDelete => 'צופים לא יכולים למחוק פריטים';
   String get onlyOwnerCanChangePermissions => 'רק הבעלים יכול לשנות הרשאות';
   String get mustBeOwnerOrAdmin => 'חייבים להיות בעלים או מנהל לביצוע פעולה זו';
 
   // Request Creation
   String get requestCreated => 'הבקשה נשלחה לאישור הבעלים/מנהלים';
   String get requestWaitingApproval => 'הפריט ימתין לאישור לפני שיופיע ברשימה';
-  String requestCreationError(String error) => 'שגיאה ביצירת בקשה: $error';
 
   // ========================================
   // Sharing Notifications
@@ -2212,27 +1970,20 @@ class _SharingStrings {
 
   String get sharedListBadge => 'משותפת';
   String sharedWith(int count) => 'משותפת עם $count אנשים';
-  String get youAreOwner => 'אתה הבעלים';
   String get youAreAdmin => 'אתה מנהל';
-  String get youAreEditor => 'אתה עורך';
-  String get youAreViewer => 'אתה צופה';
 
   // ========================================
   // Loading & Error States
   // ========================================
 
   String get loadingUsers => 'טוען משתמשים...';
-  String get loadingRequests => 'טוען בקשות...';
   String get loadingError => 'שגיאה בטעינת נתונים';
   String get retryButton => 'נסה שוב';
 
   // Limits
-  String maxMembersReached(int max) => 'הגעת למקסימום $max חברים בקבוצה';
   String maxGroupsReached(int max) => 'הגעת למקסימום $max קבוצות';
 
   // Limit Warnings (80%)
-  String membersNearLimit(int current, int max) =>
-      'יש לך $current מתוך $max חברים בקבוצה';
   String groupsNearLimit(int current, int max) =>
       'יש לך $current מתוך $max קבוצות';
 }
@@ -2367,8 +2118,6 @@ class _ReceiptDetailsStrings {
   // ========================================
   // Summary Section
   // ========================================
-
-  String get itemsLabel => 'פריטים';
   String get totalLabel => 'סה"כ';
 
   // ========================================
@@ -2376,15 +2125,11 @@ class _ReceiptDetailsStrings {
   // ========================================
 
   String get virtualTag => 'וירטואלי';
-  String get linkedToListTag => 'מקושר לרשימה';
 
   // ========================================
   // Items Section
   // ========================================
-
-  String get itemsSectionTitle => 'פריטים';
   String get noItemsMessage => 'אין פריטים בקבלה';
-  String get unknownItemName => 'פריט ללא שם';
 }
 
 // ========================================
@@ -2485,7 +2230,6 @@ class _ActiveShopperBannerStrings {
   String shopperUpdatingPantry(String name) => '$name מעדכן/ת את המזווה כרגע';
   String shopperCheckedItem(String name, String item) => '$name סימן/ה "$item" כנקנה';
   String activeShoppersCount(int count) => '$count קונים פעילים כרגע';
-  String get youAreShoppingAlone => 'את/ה קונה לבד';
 
   // Accessibility for avatars
   String shopperAvatarLabel(String name, bool isStarter) =>
@@ -2493,9 +2237,6 @@ class _ActiveShopperBannerStrings {
   String get moreShoppersLabel => 'עוד קונים פעילים';
 
   // Real-time status changes
-  String get statusShopping => 'קונה עכשיו';
-  String get statusFinished => 'סיים/ה';
-  String get statusJoining => 'מצטרף/ת...';
 }
 
 // ========================================
@@ -2636,14 +2377,12 @@ class _PendingInviteBannerStrings {
 
   String get acceptButton => 'קבל';
   String get rejectButton => 'דחה';
-  String get rejectTooltip => 'דחה הזמנה';
 
   // ========================================
   // Dialog
   // ========================================
 
   String get rejectDialogTitle => 'דחיית הזמנה';
-  String get rejectDialogContent => 'האם אתה בטוח שברצונך לדחות את ההזמנה?';
   String get cancelButton => 'ביטול';
 
   // ========================================
@@ -2652,9 +2391,6 @@ class _PendingInviteBannerStrings {
 
   String acceptSuccess(String groupName) => 'הצטרפת לקבוצה "$groupName"';
   String get acceptError => 'שגיאה בקבלת ההזמנה';
-  String get rejectSuccess => 'ההזמנה נדחתה';
-  String get rejectError => 'שגיאה בדחיית ההזמנה';
-  String get notLoggedIn => 'לא מחובר';
 }
 
 // ========================================
@@ -2784,7 +2520,6 @@ class _PantryStrings {
 
   String get screenLabel => 'מסך המזווה שלי';
   String get addItemLabel => 'הוסף מוצר למזווה';
-  String itemEditLabel(String name) => '$name, לחץ לעריכה';
   String quantityLabel(int quantity, bool isLowStock) =>
       '$quantity יחידות${isLowStock ? ', מלאי נמוך' : ''}, לחץ לעדכון';
 
@@ -2880,12 +2615,6 @@ class _ChecklistStrings {
   String get emptySubtitle => 'הוסף פריטים לצ\'קליסט';
 
   // Accessibility (v4.0)
-  String checkItemSemantics(String itemName, bool isChecked) =>
-      isChecked
-          ? 'לחץ פעמיים כדי לבטל סימון של $itemName'
-          : 'לחץ פעמיים כדי לסמן את $itemName כבוצע';
-  String get progressHeaderSemantics => 'כותרת שקופה עם סרגל התקדמות הצ\'קליסט';
-  String get allDoneSemantics => 'מצוין! כל הפריטים הושלמו';
 }
 
 // ========================================
