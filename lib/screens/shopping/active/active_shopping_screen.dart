@@ -865,20 +865,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     ),
                   ),
                 ),
-              // 🏁 כפתור סיום קנייה — קומפקטי ב-AppBar
+              // 🏁 כפתור סיום קנייה — עיגול ✓ מינימליסטי
               if (!_isSaving)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: FilledButton.icon(
-                    onPressed: _finishShopping,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: StatusColors.success,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      minimumSize: const Size(0, 36),
-                    ),
-                    icon: const Icon(Icons.check, size: 18),
-                    label: const Text('סיימתי', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                IconButton(
+                  onPressed: _finishShopping,
+                  tooltip: 'סיימתי',
+                  icon: Icon(
+                    Icons.check_circle,
+                    color: StatusColors.success,
+                    size: 32,
                   ),
                 )
               else
