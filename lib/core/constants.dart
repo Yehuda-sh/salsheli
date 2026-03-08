@@ -125,9 +125,3 @@ LimitStatus getLimitStatus(int current, int max) {
   if (usage >= kLimitWarningThreshold) return LimitStatus.warning;
   return LimitStatus.safe;
 }
-  final percentage = current / max;
-  return percentage >= threshold && current < max;
-}
-}
-  return (current / max).clamp(0.0, 1.0);
-}
