@@ -970,7 +970,7 @@ class _RtlSummaryRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(leadingEmojiOrIconText, style: const TextStyle(fontSize: kFontSizeMedium)),
+        Text(leadingEmojiOrIconText, style: TextStyle(fontSize: kFontSizeMedium)),
         SizedBox(width: kSpacingSmall),
         Flexible(
           child: Text(

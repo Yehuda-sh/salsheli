@@ -122,7 +122,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.search_off, size: 80, color: cs.onSurfaceVariant),
-                        const SizedBox(height: kSpacingMedium),
+                        SizedBox(height: kSpacingMedium),
                         Text(
                           'הרשימה לא נמצאה',
                           style: TextStyle(
@@ -188,7 +188,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                               style: TextStyle(fontSize: 40),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Text(
                             'קנייה הושלמה בהצלחה!',
                             style: TextStyle(

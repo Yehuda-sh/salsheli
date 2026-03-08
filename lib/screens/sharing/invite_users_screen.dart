@@ -389,7 +389,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         child: Row(
                           children: [
                             Icon(Icons.person_add, size: 24, color: cs.primary),
-                            const SizedBox(width: kSpacingSmall),
+                            SizedBox(width: kSpacingSmall),
                             Expanded(
                               child: Text(
                                 AppStrings.sharing.inviteTitle,
@@ -503,7 +503,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              SizedBox(height: 8),
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
@@ -618,7 +618,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 size: 16,
                                 color: kStickyGreen.withValues(alpha: 0.8),
                               ),
-                              const SizedBox(width: kSpacingSmall),
+                              SizedBox(width: kSpacingSmall),
                               Expanded(
                                 child: Text(
                                   _getConfirmationText(),

@@ -136,7 +136,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                             ),
                           ),
                           if (invites.length > 1) ...[
-                            const SizedBox(width: 6),
+                            SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,

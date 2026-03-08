@@ -342,7 +342,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.group, size: 24, color: cs.primary),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Text(
                           strings.title,
@@ -396,7 +396,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.group, size: 24, color: cs.primary),
-                    const SizedBox(width: kSpacingSmall),
+                    SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         strings.title,
@@ -480,10 +480,10 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               size: 64,
               color: cs.outline.withOpacity(0.5),
             ),
-            const SizedBox(height: kSpacingMedium),
+            SizedBox(height: kSpacingMedium),
             Text(
               strings.noSharedUsers,
-              style: const TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18),
             ),
             SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
@@ -582,8 +582,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        const Icon(Icons.edit, size: 20),
-                        const SizedBox(width: kSpacingSmall),
+                        Icon(Icons.edit, size: 20),
+                        SizedBox(width: kSpacingSmall),
                         Text(strings.editRole),
                       ],
                     ),

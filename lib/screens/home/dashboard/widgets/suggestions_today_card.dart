@@ -29,7 +29,6 @@ class SuggestionsTodayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return Consumer<SuggestionsProvider>(
       builder: (context, provider, child) {
         // Loading state
@@ -476,7 +475,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
 
                   // שם המוצר
                   Expanded(
@@ -510,7 +509,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
 
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
@@ -523,7 +522,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       child: Row(
                         children: [
                           Icon(Icons.warning_amber, size: 10, color: cs.onSurface.withValues(alpha: 0.6)),
-                          const SizedBox(width: 3),
+                          SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,

@@ -331,10 +331,10 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               ),
               child: Icon(Icons.inbox_outlined, size: 64, color: cs.primary),
             ),
-            const SizedBox(height: kSpacingLarge),
+            SizedBox(height: kSpacingLarge),
             Text(
               strings.noPendingRequests,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: kSpacingSmall),

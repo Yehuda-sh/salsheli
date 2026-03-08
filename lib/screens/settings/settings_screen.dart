@@ -197,7 +197,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🔧 DEBUG: מחיקת כל הנתונים'),
+        title: Text('🔧 DEBUG: מחיקת כל הנתונים'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(kBorderRadius),
                 border: Border.all(color: cs.error.withValues(alpha: 0.3)),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(Icons.bug_report, color: cs.error, size: kIconSizeMedium),
                   SizedBox(width: kSpacingSmall),
@@ -334,7 +334,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Text(
                       AppStrings.settings.deleteAccountWarning,
-                      style: TextStyle(color: cs.error[900]),
+                      style: TextStyle(color: cs.error),
                     ),
                   ),
                   const SizedBox(height: kSpacingMedium),
@@ -546,7 +546,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: kSpacingMedium),
+                  SizedBox(height: kSpacingMedium),
 
                   // כותרת
                   Text(
@@ -558,7 +558,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: kSpacingLarge),
+                  SizedBox(height: kSpacingLarge),
 
                   // בחירת אווטאר
                   Text(
@@ -603,7 +603,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: kSpacingLarge),
+                  SizedBox(height: kSpacingLarge),
 
                   // שדה שם
                   Text(
@@ -665,7 +665,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               if (mounted) {
                                 navigator.pop();
                                 scaffoldMessenger.showSnackBar(
-                                  const SnackBar(
+                                  SnackBar(
                                     content: Text('הפרופיל עודכן בהצלחה'),
                                     backgroundColor: cs.primary,
                                   ),
@@ -767,7 +767,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: cs.error),
-              const SizedBox(height: kSpacingMedium),
+              SizedBox(height: kSpacingMedium),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
                 child: Text(
@@ -779,7 +779,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: kSpacingMedium),
               FilledButton.icon(
                 onPressed: _retry,
-                icon: const Icon(Icons.refresh),
+                icon: Icon(Icons.refresh),
                 label: Text(AppStrings.priceComparison.retry),
               ),
             ],
@@ -800,7 +800,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.settings_outlined, size: 24, color: cs.primary),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Text(
                         AppStrings.settings.title,
                         style: TextStyle(
@@ -837,7 +837,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               Text(
                                 userName,
-                                style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+                                style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
                                 textAlign: TextAlign.right,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
@@ -989,7 +989,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: kSpacingSmall),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.people_outline),
+                          leading: Icon(Icons.people_outline),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: Icon(Icons.chevron_left),
@@ -1004,7 +1004,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.person_add_outlined),
+                          leading: Icon(Icons.person_add_outlined),
                           title: Text(AppStrings.settings.householdInviteTitle),
                           subtitle: Text(AppStrings.settings.householdInviteSubtitle),
                           trailing: Icon(Icons.chevron_left),
@@ -1037,7 +1037,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: kSpacingMedium),
+                SizedBox(height: kSpacingMedium),
 
                 // 🔹 קישורים מהירים
                 Card(
@@ -1046,9 +1046,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     children: [
                       ListTile(
                         leading: Icon(Icons.receipt_long_outlined, color: cs.primary),
-                        title: const Text('הקבלות שלי'),
-                        subtitle: const Text('היסטוריית קניות'),
-                        trailing: const Icon(Icons.chevron_left),
+                        title: Text('הקבלות שלי'),
+                        subtitle: Text('היסטוריית קניות'),
+                        trailing: Icon(Icons.chevron_left),
                         onTap: () {
                           Navigator.pushNamed(context, '/receipts');
                         },
@@ -1056,9 +1056,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.mail_outline, color: cs.primary),
-                        title: const Text('הזמנות ממתינות'),
-                        subtitle: const Text('הזמנות שקיבלת לרשימות'),
-                        trailing: const Icon(Icons.chevron_left),
+                        title: Text('הזמנות ממתינות'),
+                        subtitle: Text('הזמנות שקיבלת לרשימות'),
+                        trailing: Icon(Icons.chevron_left),
                         onTap: () {
                           Navigator.pushNamed(context, '/pending-invites');
                         },
@@ -1066,15 +1066,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.school_outlined, color: cs.primary),
-                        title: const Text('הצג הדרכה מחדש'),
-                        subtitle: const Text('צפה שוב בהדרכת האפליקציה'),
-                        trailing: const Icon(Icons.chevron_left),
+                        title: Text('הצג הדרכה מחדש'),
+                        subtitle: Text('צפה שוב בהדרכת האפליקציה'),
+                        trailing: Icon(Icons.chevron_left),
                         onTap: () async {
                           final messenger = ScaffoldMessenger.of(context);
                           await TutorialService.resetTutorial(context);
                           if (!mounted) return;
                           messenger.showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               content: Text('ההדרכה תוצג בכניסה הבאה לדף הבית'),
                               backgroundColor: cs.primary,
                             ),
@@ -1085,7 +1085,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: kSpacingMedium),
+                SizedBox(height: kSpacingMedium),
 
                 // 🔹 מידע
                 Card(
@@ -1102,9 +1102,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             context: context,
                             applicationName: 'סל שלי',
                             applicationVersion: '1.0.0',
-                            applicationIcon: const Text('🛒', style: TextStyle(fontSize: 48)),
+                            applicationIcon: Text('🛒', style: TextStyle(fontSize: 48)),
                             children: [
-                              const Text('אפליקציה לניהול רשימות קניות משפחתיות'),
+                              Text('אפליקציה לניהול רשימות קניות משפחתיות'),
                             ],
                           );
                         },
@@ -1112,7 +1112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
-                        title: const Text('תנאי שימוש'),
+                        title: Text('תנאי שימוש'),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
@@ -1127,7 +1127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: kSpacingMedium),
+                SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
                 Card(

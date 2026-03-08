@@ -221,7 +221,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                       .fadeIn(duration: 300.ms)
                       .slideY(begin: 0.1, end: 0.0, curve: Curves.easeOut),
 
-                  const SizedBox(height: kSpacingSmall),
+                  SizedBox(height: kSpacingSmall),
 
                   // 📋 רשימת קבלות
                   Expanded(
@@ -427,7 +427,7 @@ class _ReceiptTile extends StatelessWidget {
           // רשימת פריטים בהרחבה
           children: [
             const Divider(height: 1),
-            const SizedBox(height: kSpacingSmall),
+            SizedBox(height: kSpacingSmall),
             if (receipt.items.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(kSpacingMedium),
@@ -482,7 +482,7 @@ class _ReceiptTile extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: kSpacingSmall),
+          SizedBox(width: kSpacingSmall),
           // שם פריט
           Expanded(
             child: Text(
@@ -583,7 +583,7 @@ class _EmptyState extends StatelessWidget {
               size: 80,
               color: cs.onSurfaceVariant.withValues(alpha: 0.5),
             ),
-            const SizedBox(height: kSpacingMedium),
+            SizedBox(height: kSpacingMedium),
             Text(
               strings.emptyTitle,
               style: TextStyle(

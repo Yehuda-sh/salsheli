@@ -249,7 +249,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       ),
                       SizedBox(width: kSpacingSmall),
                       Icon(Icons.checklist, size: 24, color: cs.primary),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -276,7 +276,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
                       if (_hasSyncError)
                         IconButton(
-                          icon: const Icon(Icons.cloud_off, color: StatusColors.warning, size: 20),
+                          icon: Icon(Icons.cloud_off, color: StatusColors.warning, size: 20),
                           tooltip: AppStrings.common.syncError,
                           onPressed: _showSyncErrorSnackbar,
                         ),
@@ -289,8 +289,8 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             value: true,
                             child: Row(
                               children: [
-                                const Icon(Icons.check_box, color: StatusColors.success),
-                                const SizedBox(width: kSpacingSmall),
+                                Icon(Icons.check_box, color: StatusColors.success),
+                                SizedBox(width: kSpacingSmall),
                                 Text(AppStrings.checklist.checkAll),
                               ],
                             ),
@@ -385,7 +385,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                 },
                               ),
 
-                              const SizedBox(height: kSpacingTiny),
+                              SizedBox(height: kSpacingTiny),
 
                               // אחוזים
                               Text(

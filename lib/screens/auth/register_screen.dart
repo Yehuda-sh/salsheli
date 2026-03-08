@@ -455,7 +455,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(height: kSpacingMedium),
 
                             // 📝 כותרת - staggered animation
                             Text(
@@ -663,7 +663,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   angle: kShimmerAngle,
                                   delay: 1200.ms,
                                 ),
-                            const SizedBox(height: kSpacingLarge),
+                            SizedBox(height: kSpacingLarge),
 
                             // ➖ Divider עם "או הירשם במהירות עם"
                             Padding(
@@ -697,7 +697,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
-                                const SizedBox(width: kSpacingSmall),
+                                SizedBox(width: kSpacingSmall),
                                 // Apple
                                 Expanded(
                                   child: _SocialLoginButton(
@@ -819,7 +819,7 @@ class _LoadingOverlayState extends State<_LoadingOverlay> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CircularProgressIndicator(color: widget.color),
-        const SizedBox(height: kSpacingMedium),
+        SizedBox(height: kSpacingMedium),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Text(

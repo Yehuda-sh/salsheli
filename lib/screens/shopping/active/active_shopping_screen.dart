@@ -420,9 +420,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// - finishAndDeletePending: מחק (סמן כ-notNeeded)
   /// - finishNoPending: אין פריטים ב-pending
   Future<void> _saveAndFinish({
-    final cs = Theme.of(context).colorScheme;
     ShoppingSummaryResult pendingAction = ShoppingSummaryResult.finishNoPending,
   }) async {
+    final cs = Theme.of(context).colorScheme;
     // ✅ תפוס context לפני await
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -946,7 +946,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       // סטטיסטיקות + מקרא בשורה אחת קומפקטית
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1018,9 +1018,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               children: [
                                 Text(
                                   getCategoryEmoji(hebrewCategoryToEnglish(category) ?? 'other'),
-                                  style: const TextStyle(fontSize: kFontSizeLarge),
+                                  style: TextStyle(fontSize: kFontSizeLarge),
                                 ),
-                                const SizedBox(width: kSpacingSmall),
+                                SizedBox(width: kSpacingSmall),
                                 Expanded(
                                   child: Text(
                                     category,
@@ -1050,7 +1050,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: kSpacingXTiny),
+                                SizedBox(width: kSpacingXTiny),
                                 // ▼/▲ חץ קיפול
                                 AnimatedRotation(
                                   turns: _collapsedCategories.contains(category) ? 0.5 : 0.0,
@@ -1503,7 +1503,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           overflow: TextOverflow.clip,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       // 🔢 תג כמות — לחיץ לעריכה מהירה
                       GestureDetector(
                         onTap: () => _showQuantityEditor(context, theme, cs),
@@ -1587,7 +1587,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                           foregroundColor: cs.onErrorContainer,
                           minimumSize: const Size(48, 48),
                         ),
-                        icon: const Icon(Icons.remove, size: 24),
+                        icon: Icon(Icons.remove, size: 24),
                       ),
                       // כמות נוכחית
                       Padding(
@@ -1907,7 +1907,7 @@ class _PendingOptionTile extends StatelessWidget {
           child: Row(
             children: [
               Icon(icon, color: iconColor, size: kIconSizeMedium),
-              const SizedBox(width: kSpacingSmall),
+              SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

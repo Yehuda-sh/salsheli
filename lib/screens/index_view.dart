@@ -572,7 +572,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 color: cs.onError,
                               ),
                             ),
-                            const SizedBox(height: kSpacingLarge),
+                            SizedBox(height: kSpacingLarge),
 
                             // טקסט
                             Text(

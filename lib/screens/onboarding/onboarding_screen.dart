@@ -265,7 +265,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 child: Row(
                                   children: [
                                     Icon(Icons.waving_hand, size: 24, color: cs.primary),
-                                    const SizedBox(width: kSpacingSmall),
+                                    SizedBox(width: kSpacingSmall),
                                     Expanded(
                                       child: Text(
                                         AppStrings.onboarding.title,
@@ -415,7 +415,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onPressed: _currentStep == 0 || _isLoading ? null : _prevStep,
           ),
         ),
-        const SizedBox(width: kSpacingSmall),
+        SizedBox(width: kSpacingSmall),
 
         // כפתור "הבא" / "סיום"
         Expanded(

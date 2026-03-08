@@ -497,7 +497,7 @@ class _LoginScreenState extends State<LoginScreen>
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(height: kSpacingMedium),
 
                             // 📝 כותרת - staggered animation
                             Text(
@@ -534,7 +534,7 @@ class _LoginScreenState extends State<LoginScreen>
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.emailLabel,
                                 hintText: AppStrings.auth.emailHint,
-                                prefixIcon: const Icon(Icons.email_outlined),
+                                prefixIcon: Icon(Icons.email_outlined),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
@@ -652,7 +652,7 @@ class _LoginScreenState extends State<LoginScreen>
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 200.ms),
-                            const SizedBox(height: kSpacingSmall),
+                            SizedBox(height: kSpacingSmall),
 
                             // 🔘 כפתור התחברות + shimmer CTA
                             FilledButton.icon(
@@ -675,7 +675,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   angle: kShimmerAngle,
                                   delay: 1200.ms,
                                 ),
-                            const SizedBox(height: kSpacingLarge),
+                            SizedBox(height: kSpacingLarge),
 
                             // ➖ Divider עם "או התחבר עם"
                             Padding(
@@ -712,7 +712,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
-                                const SizedBox(width: kSpacingSmall),
+                                SizedBox(width: kSpacingSmall),
                                 // Apple
                                 Expanded(
                                   child: _SocialLoginButton(
@@ -727,7 +727,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 350.ms)
                                 .slideY(begin: 0.15, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(height: kSpacingMedium),
 
                             // 🔗 קישור להרשמה
                             Row(
@@ -1138,7 +1138,7 @@ class _LoadingOverlayState extends State<_LoadingOverlay> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CircularProgressIndicator(color: widget.color),
-        const SizedBox(height: kSpacingMedium),
+        SizedBox(height: kSpacingMedium),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Text(

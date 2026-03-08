@@ -260,7 +260,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                   child: Row(
                     children: [
                       Icon(Icons.volunteer_activism, size: 24, color: cs.primary),
-                      const SizedBox(width: kSpacingSmall),
+                      SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,7 +328,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                   ),
                 ),
 
-                const SizedBox(height: kSpacingSmall),
+                SizedBox(height: kSpacingSmall),
 
                 // 📝 הוראות
                 Padding(
@@ -342,7 +342,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.info_outline, size: 18, color: cs.primary),
-                        const SizedBox(width: kSpacingSmall),
+                        SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Text(
                             'לחץ על "אני מביא" כדי להתנדב להביא פריט',
@@ -506,7 +506,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: kSpacingSmall),
+              SizedBox(height: kSpacingSmall),
 
               // === שמות מתנדבים ===
               if (volunteerCount > 0) ...[
@@ -565,7 +565,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.check, color: cs.primary, size: 20),

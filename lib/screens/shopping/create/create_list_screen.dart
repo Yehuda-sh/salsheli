@@ -817,7 +817,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                         ),
                       ),
                       if (isRecommended) ...[
-                        const SizedBox(width: kSpacingTiny),
+                        SizedBox(width: kSpacingTiny),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
@@ -916,7 +916,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
             Row(
               children: [
                 Icon(Icons.info_outline, size: 14, color: cs.tertiary),
-                const SizedBox(width: 4),
+                SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     AppStrings.createListDialog.pendingInviteNote,

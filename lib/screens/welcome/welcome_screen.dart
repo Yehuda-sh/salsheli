@@ -139,7 +139,7 @@ class WelcomeScreen extends StatelessWidget {
                                 .fadeIn(duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
                                 .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
                                 .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack),
-                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(height: kSpacingMedium),
 
                             // סלוגן סיום
                             Text(
@@ -151,7 +151,7 @@ class WelcomeScreen extends StatelessWidget {
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: (staggerDelay * 4).ms, curve: Curves.easeOutBack),
-                            const SizedBox(height: kSpacingMedium),
+                            SizedBox(height: kSpacingMedium),
                           ],
                         ),
                       ),
@@ -197,7 +197,7 @@ class WelcomeScreen extends StatelessWidget {
                               height: kButtonHeight,
                               child: FilledButton.tonalIcon(
                                 onPressed: () => _handleRegister(context),
-                                icon: const Icon(Icons.person_add),
+                                icon: Icon(Icons.person_add),
                                 label: Text(
                                   AppStrings.welcome.startButton,
                                   style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
@@ -221,7 +221,7 @@ class WelcomeScreen extends StatelessWidget {
                                   duration: 1500.ms,
                                   color: (brand?.accent ?? cs.primary).withValues(alpha: 0.08),
                                 ),
-                            const SizedBox(height: kSpacingTiny),
+                            SizedBox(height: kSpacingTiny),
                             // הסבר קצר
                             Text(
                               AppStrings.welcome.authExplanation,
@@ -487,7 +487,7 @@ class _FeatureCard extends StatelessWidget {
                         ExcludeSemantics(
                           child: Text(emoji, style: const TextStyle(fontSize: 24, height: 1.0)),
                         ),
-                        const SizedBox(width: kSpacingSmall),
+                        SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -620,7 +620,7 @@ class _MiniListItemWithQty extends StatelessWidget {
               style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Expanded(
             child: Text(
               text,

@@ -303,7 +303,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         shopperCount == 1
                             ? strings.othersActiveSingle(list.name)
@@ -333,7 +333,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                       backgroundColor: cs.onPrimary,
                       foregroundColor: successColor,
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     // כפתור צפה
                     IconButton(
                       onPressed: () => _onViewList(context),

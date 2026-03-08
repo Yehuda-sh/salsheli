@@ -852,7 +852,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               ),
             ),
           ],
-          const SizedBox(width: kSpacingSmall),
+          SizedBox(width: kSpacingSmall),
           // מונה פריטים
           Container(
             padding: const EdgeInsets.symmetric(
@@ -988,7 +988,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 );
               },
             ),
-            const SizedBox(height: kSpacingLarge),
+            SizedBox(height: kSpacingLarge),
             Text(
               AppStrings.shopping.loadingListsError,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -1061,7 +1061,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 );
               },
             ),
-            const SizedBox(height: kSpacingLarge),
+            SizedBox(height: kSpacingLarge),
             Text(
               AppStrings.shopping.noListsFoundTitle,
               style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),

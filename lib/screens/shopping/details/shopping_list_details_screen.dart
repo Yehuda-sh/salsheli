@@ -884,7 +884,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 ),
                 decoration: BoxDecoration(
                   color: highlightColor, // רקע שקוף "מרקר"
-                  border: const Border(
+                  border: Border(
                     // פס דק בצד ימין לחיזוק
                     right: BorderSide(color: cs.onSurface.withValues(alpha: 0.12), width: 4),
                   ),
@@ -892,7 +892,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 child: Row(
                   children: [
                     // רווח קטן מההתחלה
-                    const SizedBox(width: kNotebookRedLineOffset),
+                    SizedBox(width: kNotebookRedLineOffset),
 
                     Text(
                       '${_getCategoryEmoji(category, currentList.type)} $category',
@@ -1037,7 +1037,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           ),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                     ],
 
                     // שם המוצר

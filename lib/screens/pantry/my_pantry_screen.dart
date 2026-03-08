@@ -1270,7 +1270,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton.filled(
-                      icon: const Icon(Icons.remove),
+                      icon: Icon(Icons.remove),
                       onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
                     ),
                     Container(

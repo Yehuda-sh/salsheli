@@ -331,7 +331,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             color: cs.onErrorContainer,
             size: 24,
           ),
-          const SizedBox(width: kSpacingSmall),
+          SizedBox(width: kSpacingSmall),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +436,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ),
                 ),
               ),
-              const SizedBox(width: kSpacingMedium),
+              SizedBox(width: kSpacingMedium),
               // ברכה + שם משפחה
               Expanded(
                 child: Column(
@@ -450,7 +450,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ),
                     ),
                     if (familyName != null) ...[
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Row(
                         children: [
                           Icon(
@@ -541,7 +541,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ],
         ),
-        const SizedBox(height: kSpacingSmall),
+        SizedBox(height: kSpacingSmall),
 
         // רשימה או הודעה
         if (activeLists.isEmpty)
@@ -729,7 +729,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                         ? successColor
                                         : cs.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 4),
                                   Text(
                                     isDone
                                         ? strings.completed
