@@ -381,93 +381,64 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final notificationsService = context.read<NotificationsService?>();
     final strings = AppStrings.homeDashboard;
 
-    // ברכה דינמית לפי שעה
-    final greeting = strings.timeBasedGreeting(
-      userName,
-      DateTime.now().hour,
-    );
+    // ברכה קצרה לפי שעה
+    final hour = DateTime.now().hour;
+    final greetingEmoji = hour < 12 ? '☀️' : hour < 17 ? '🌤️' : hour < 21 ? '🌅' : '🌙';
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: kGlassBlurMedium,
-          sigmaY: kGlassBlurMedium,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: cs.primaryContainer.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-            border: Border.all(
-              color: cs.primary.withValues(alpha: 0.3),
+    // ראשי תיבות למשתמש
+    final initials = (userName ?? '?')
+        .split(' ')
+        .where((p) => p.isNotEmpty)
+        .map((p) => p[0])
+        .take(2)
+        .join();
+
+    return Row(
+      children: [
+        // User avatar — לחיצה פותחת bottom sheet
+        GestureDetector(
+          onTap: () => _showUserInfoSheet(context, userName, familyName),
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: cs.primaryContainer,
+              border: Border.all(
+                color: cs.primary.withValues(alpha: 0.3),
+                width: 2,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                initials,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
             ),
           ),
-          padding: const EdgeInsets.all(kSpacingMedium),
-          child: Row(
-            children: [
-              // אייקון/אימוג'י עם Pulse
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: cs.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                ),
-                child: Center(
-                  child: const Text(
-                    '👋',
-                    style: TextStyle(fontSize: kFontSizeXLarge),
-                  )
-                      .animate(
-                        onPlay: (c) => c.repeat(reverse: true),
-                      )
-                      .scale(
-                        begin: const Offset(1.0, 1.0),
-                        end: const Offset(1.08, 1.08),
-                        duration: 1500.ms,
-                        curve: Curves.easeInOut,
-                      ),
-                ),
-              ),
-              SizedBox(width: kSpacingMedium),
-              // ברכה + שם משפחה
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      greeting,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    if (familyName != null) ...[
-                      SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.home_outlined,
-                            size: 14,
-                            color: cs.onSurfaceVariant,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            familyName,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              // התראות - bell icon עם StreamBuilder לספירת התראות
-              StreamBuilder<int>(
-                stream: (userContext.userId != null && notificationsService != null)
-                    ? notificationsService.watchUnreadCount(userId: userContext.userId!)
+        ),
+        const SizedBox(width: kSpacingSmall),
+
+        // ברכה קצרה
+        Expanded(
+          child: Text(
+            '$greetingEmoji ${strings.timeBasedGreeting(userName, hour)}',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: cs.onSurface,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+
+        // התראות - bell icon עם StreamBuilder לספירת התראות
+        StreamBuilder<int>(
+          stream: (userContext.userId != null && notificationsService != null)
+              ? notificationsService.watchUnreadCount(userId: userContext.userId!)
                     : const Stream.empty(),
                 initialData: 0,
                 builder: (context, snapshot) {
@@ -493,7 +464,73 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 },
               ),
             ],
-          ),
+          );
+  }
+
+  /// Bottom sheet עם פרטי המשתמש
+  void _showUserInfoSheet(BuildContext context, String? userName, String? familyName) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final userContext = context.read<UserContext>();
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(kSpacingLarge),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Avatar גדול
+            CircleAvatar(
+              radius: 36,
+              backgroundColor: cs.primaryContainer,
+              child: Text(
+                (userName ?? '?').split(' ').where((p) => p.isNotEmpty).map((p) => p[0]).take(2).join(),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: kSpacingMedium),
+            // שם
+            Text(
+              userName ?? 'משתמש',
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            if (familyName != null) ...[
+              const SizedBox(height: kSpacingTiny),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.home_outlined, size: 16, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Text(familyName, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                ],
+              ),
+            ],
+            const SizedBox(height: kSpacingSmall),
+            // סטטוס
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 8, height: 8,
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: cs.primary),
+                ),
+                const SizedBox(width: 6),
+                Text('מחובר', style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
+              ],
+            ),
+            if (userContext.email != null) ...[
+              const SizedBox(height: kSpacingSmall),
+              Text(userContext.email!, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+            ],
+            const SizedBox(height: kSpacingMedium),
+          ],
         ),
       ),
     );
