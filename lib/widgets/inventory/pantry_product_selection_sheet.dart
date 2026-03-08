@@ -31,6 +31,7 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
 import '../common/notebook_background.dart';
+import '../../config/filters_config.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
   const PantryProductSelectionSheet({super.key});
@@ -1045,34 +1046,7 @@ class _PantryProductSelectionSheetState
 
   /// אימוג'י לפי קטגוריה
   String _getCategoryEmoji(String category) {
-    switch (category) {
-      case 'בקר': return '🐄';
-      case 'עוף': return '🐔';
-      case 'דגים': return '🐟';
-      case 'טלה וכבש': return '🐑';
-      case 'הודו': return '🦃';
-      case 'היגיינה אישית': return '🧼';
-      case 'מוצרי ניקיון': return '🧹';
-      case 'מוצרי תינוקות': return '👶';
-      case 'ירקות': return '🥬';
-      case 'פירות': return '🍎';
-      case 'מוצרי חלב': return '🥛';
-      case 'בשר ודגים': return '🥩';
-      case 'משקאות': return '🥤';
-      case 'מאפים': return '🍞';
-      case 'ממתקים וחטיפים': return '🍫';
-      case 'שמנים ורטבים': return '🫗';
-      case 'תבלינים ואפייה': return '🧂';
-      case 'קפה ותה': return '☕';
-      case 'קפואים': return '🧊';
-      case 'אורז ופסטה': return '🍚';
-      case 'שימורים': return '🥫';
-      case 'אחר': return '📦';
-      case 'תרופות ללא מרשם': return '💊';
-      case 'טיפוח': return '💄';
-      case 'ויטמינים ותוספים': return '💪';
-      case 'ציוד רפואי': return '🩹';
-      default: return '📦';
-    }
+    final englishKey = hebrewCategoryToEnglish(category);
+    return getCategoryEmoji(englishKey ?? category);
   }
 }

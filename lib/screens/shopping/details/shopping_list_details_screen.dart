@@ -49,6 +49,7 @@ import '../../../widgets/shopping/add_edit_task_dialog.dart';
 import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
+import '../../../config/filters_config.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -88,115 +89,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🎯 אימוג'י לפי קטגוריה - תואם לקטלוג המוצרים
   /// 🔧 FIX: קבלת listType כפרמטר במקום widget.list.type
   String _getCategoryEmoji(String category, String listType) {
-    // אטליז
-    if (listType == ShoppingList.typeButcher) {
-      switch (category) {
-        case 'בקר':
-          return '🐄';
-        case 'עוף':
-          return '🐔';
-        case 'דגים':
-          return '🐟';
-        case 'טלה וכבש':
-          return '🐑';
-        case 'הודו':
-          return '🦃';
-        default:
-          return '🌭';
-      }
-    }
-
-    // סופרמרקט - כל הקטגוריות
-    switch (category) {
-      // פירות וירקות
-      case 'פירות':
-        return '🍎';
-      case 'ירקות':
-        return '🥬';
-      case 'פירות יבשים':
-        return '🥜';
-
-      // מוצרי חלב וביצים
-      case 'מוצרי חלב':
-        return '🥛';
-      case 'תחליפי חלב':
-        return '🌱';
-
-      // בשר ודגים
-      case 'בשר ודגים':
-        return '🥩';
-      case 'תחליפי בשר':
-        return '🌿';
-
-      // לחם ומאפים
-      case 'מאפים':
-        return '🥖';
-
-      // דגנים ופסטה
-      case 'אורז ופסטה':
-        return '🍝';
-      case 'דגנים':
-        return '🥣';
-      case 'קטניות ודגנים':
-        return '🫘';
-
-      // ממתקים וחטיפים
-      case 'ממתקים וחטיפים':
-        return '🍫';
-      case 'ממרחים מתוקים':
-        return '🍯';
-      case 'אגוזים וגרעינים':
-        return '🥜';
-
-      // משקאות
-      case 'משקאות':
-        return '🥤';
-      case 'קפה ותה':
-        return '☕';
-
-      // שימורים ורטבים
-      case 'שימורים':
-        return '🥫';
-      case 'שמנים ורטבים':
-        return '🫒';
-      case 'סלטים מוכנים':
-        return '🥗';
-
-      // תבלינים ואפייה
-      case 'תבלינים ואפייה':
-        return '🧂';
-
-      // קפואים
-      case 'קפואים':
-        return '🧊';
-
-      // ניקיון ובית
-      case 'מוצרי ניקיון':
-        return '🧹';
-      case 'מוצרי בית':
-        return '🏠';
-      case 'חד פעמי':
-        return '🍽️';
-      case 'מוצרי גינה':
-        return '🌻';
-
-      // היגיינה וטיפוח
-      case 'היגיינה אישית':
-        return '🧴';
-
-      // תינוקות וחיות
-      case 'מוצרי תינוקות':
-        return '👶';
-      case 'מזון לחיות מחמד':
-        return '🐕';
-
-      // אחר
-      case 'אחר':
-        return '📦';
-
-      default:
-        return '🛒';
-    }
+    final englishKey = hebrewCategoryToEnglish(category);
+    return getCategoryEmoji(englishKey ?? category);
   }
 
   // 🎬 Animation Controllers

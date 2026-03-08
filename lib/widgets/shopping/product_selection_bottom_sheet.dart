@@ -34,6 +34,7 @@ import '../../services/category_detection_service.dart';
 import '../common/animated_button.dart';
 import '../common/notebook_background.dart';
 import 'add_edit_product_dialog.dart';
+import '../../config/filters_config.dart';
 
 class ProductSelectionBottomSheet extends StatefulWidget {
   final ShoppingList list;
@@ -899,56 +900,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // ═══════════════════════════════════════════════════════════════════════════
 
   String _getCategoryEmoji(String category) {
-    switch (category) {
-      // אטליז
-      case 'בקר':
-        return '🐄';
-      case 'עוף':
-        return '🐔';
-      case 'דגים':
-        return '🐟';
-      case 'טלה וכבש':
-        return '🐑';
-      case 'הודו':
-        return '🦃';
-
-      // סופרמרקט
-      case 'היגיינה אישית':
-        return '🧼';
-      case 'מוצרי ניקיון':
-        return '🧹';
-      case 'מוצרי תינוקות':
-        return '👶';
-      case 'ירקות':
-        return '🥬';
-      case 'פירות':
-        return '🍎';
-      case 'מוצרי חלב':
-        return '🥛';
-      case 'בשר ודגים':
-        return '🥩';
-      case 'משקאות':
-        return '🥤';
-      case 'מאפים':
-        return '🍞';
-      case 'ממתקים וחטיפים':
-        return '🍫';
-      case 'שמנים ורטבים':
-        return '🫗';
-      case 'תבלינים ואפייה':
-        return '🧂';
-      case 'קפה ותה':
-        return '☕';
-      case 'קפואים':
-        return '🧊';
-      case 'אורז ופסטה':
-        return '🍚';
-      case 'שימורים':
-        return '🥫';
-      case 'אחר':
-        return '📦';
-      default:
-        return '🛒';
-    }
+    final englishKey = hebrewCategoryToEnglish(category);
+    return getCategoryEmoji(englishKey ?? category);
   }
 }
