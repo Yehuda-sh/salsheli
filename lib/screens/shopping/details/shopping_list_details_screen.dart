@@ -177,13 +177,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         message = '❌ $rejected מהבקשות שלך נדחו';
       }
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(Duration(milliseconds: 500));
       if (mounted) {
         messenger.showSnackBar(
           SnackBar(
             content: Text(message),
-            duration: const Duration(seconds: 5),
-            backgroundColor: approved > 0 ? Colors.green.shade700 : Colors.orange.shade700,
+            duration: Duration(seconds: 5),
+            backgroundColor: approved > 0 ? cs.primary : cs.tertiary,
           ),
         );
       }
@@ -278,8 +278,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.listDetails.itemDeleted(removed.name)),
-        duration: const Duration(seconds: 5),
-        backgroundColor: Colors.red.shade700,
+        duration: Duration(seconds: 5),
+        backgroundColor: cs.error,
         action: SnackBarAction(
           label: AppStrings.common.cancel,
           textColor: cs.onPrimary,
@@ -559,7 +559,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
-                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                            constraints: BoxConstraints(minWidth: 16, minHeight: 16),
                             child: Text(
                               '${currentList.pendingRequestsForReview.length}',
                               style: TextStyle(color: cs.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
@@ -684,11 +684,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               child: Container(
                 height: 48, // גובה קבוע וקטן יותר
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.6), // שקוף למחצה
+                  color: cs.surface.withValues(alpha: 0.6), // שקוף למחצה
                   borderRadius: BorderRadius.circular(24), // עיגול מלא (Capsule)
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: cs.scrim.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -758,7 +758,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         padding: const EdgeInsets.only(left: 8.0), // ריווח בין צ'יפים
         child: AnimatedScale(
           scale: isSelected ? 1.05 : 1.0,
-          duration: const Duration(milliseconds: 150),
+          duration: Duration(milliseconds: 150),
           child: FilterChip(
             showCheckmark: false, // חוסך מקום
             label: Text(
@@ -775,7 +775,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 _selectedCategory = isAll ? null : category;
               });
             },
-            backgroundColor: Colors.white.withValues(alpha: 0.8),
+            backgroundColor: cs.surface.withValues(alpha: 0.8),
             selectedColor: kStickyCyan, // צבע המותג (תכלת) להדגשה
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
@@ -848,9 +848,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     // צבעים עדינים למרקרים
     final highlightColors = [
-      Colors.purple.withValues(alpha: 0.1),
+      cs.tertiaryContainer.withValues(alpha: 0.3),
       cs.tertiary.withValues(alpha: 0.1),
-      Colors.blue.withValues(alpha: 0.1),
+      cs.primaryContainer.withValues(alpha: 0.3),
       cs.primary.withValues(alpha: 0.1),
     ];
 
@@ -902,12 +902,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         fontSize: 16,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     // עיגול קטן עם המספר
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: cs.surface.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -950,7 +950,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       background: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: kSpacingLarge),
-        color: Colors.red.shade400,
+        color: cs.error.withValues(alpha: 0.7),
         child: Row(
           children: [
             Icon(Icons.delete_outline, color: cs.onPrimary),

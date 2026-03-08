@@ -226,14 +226,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         label: Text(AppStrings.homeDashboard.newListButton),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
-            end: const Offset(1.0, 1.0),
+            end: Offset(1.0, 1.0),
             duration: 500.ms,
             delay: 300.ms,
             curve: Curves.elasticOut,
           ),
       body: Stack(
         children: [
-          const NotebookBackground(),
+          NotebookBackground(),
           SafeArea(
             child: RefreshIndicator(
               color: brand?.accent ?? cs.primary,
@@ -532,7 +532,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const Spacer(),
+            Spacer(),
             Text(
               '${activeLists.length}',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -745,7 +745,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                           : FontWeight.normal,
                                     ),
                                   ),
-                                  const Spacer(),
+                                  Spacer(),
                                   // ספירה קומפקטית
                                   Text(
                                     '$checkedCount/$totalCount',

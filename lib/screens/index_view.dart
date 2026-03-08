@@ -328,7 +328,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                       BoxShadow(
                         color: cs.shadow.withValues(alpha: 0.2),
                         blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        offset: Offset(0, 10),
                       ),
                     ],
                   ),

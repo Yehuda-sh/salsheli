@@ -743,7 +743,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         }
       });
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     // פרטי משתמש - תמיד יש user בשלב זה
@@ -1053,7 +1053,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Navigator.pushNamed(context, '/receipts');
                         },
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.mail_outline, color: cs.primary),
                         title: Text('הזמנות ממתינות'),
@@ -1063,7 +1063,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Navigator.pushNamed(context, '/pending-invites');
                         },
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.school_outlined, color: cs.primary),
                         title: Text('הצג הדרכה מחדש'),
@@ -1109,14 +1109,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
                         title: Text('תנאי שימוש'),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
-                      const Divider(height: 1),
+                      Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
                         title: const Text('מדיניות פרטיות'),

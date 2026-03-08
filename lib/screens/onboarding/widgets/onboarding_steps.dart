@@ -902,9 +902,9 @@ class _SummaryStep extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withValues(alpha: 0.08),
+                    cs.surface.withValues(alpha: 0.08),
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.03),
+                    cs.scrim.withValues(alpha: 0.03),
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),

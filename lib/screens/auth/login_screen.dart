@@ -453,14 +453,14 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.bug_report, size: 16, color: Colors.orange.shade800),
-                                const SizedBox(width: 4),
+                                Icon(Icons.bug_report, size: 16, color: cs.tertiary),
+                                SizedBox(width: 4),
                                 Text(
                                   'DEV',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.orange.shade800,
+                                    color: cs.tertiary,
                                   ),
                                 ),
                               ],
@@ -708,7 +708,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   child: _SocialLoginButton(
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
-                                    color: const Color(0xFFDB4437),
+                                    color: Color(0xFFDB4437),
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
@@ -778,7 +778,7 @@ class _LoginScreenState extends State<LoginScreen>
                       sigmaY: kGlassBlurMedium,
                     ),
                     child: Container(
-                      color: Colors.black.withValues(alpha: 0.25),
+                      color: cs.scrim.withValues(alpha: 0.25),
                       child: Center(
                         child: _LoadingOverlay(color: cs.primary),
                       ),
@@ -850,10 +850,10 @@ class _QuickLoginBottomSheet extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
+                    color: cs.tertiaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.bug_report, color: Colors.orange.shade800, size: 20),
+                  child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -928,7 +928,7 @@ class _QuickLoginBottomSheet extends StatelessWidget {
     final cs = theme.colorScheme;
 
     final roleColor = switch (user['role']) {
-      'Owner' => Colors.amber,
+      'Owner' => cs.tertiary,
       'Admin' => cs.primary,
       'Editor' => cs.primary,
       _ => cs.outline,
@@ -1027,7 +1027,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
         onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
         child: AnimatedScale(
           scale: _isPressed ? 0.97 : 1.0,
-          duration: const Duration(milliseconds: 100),
+          duration: Duration(milliseconds: 100),
           curve: Curves.easeOut,
           child: Container(
             decoration: BoxDecoration(
@@ -1140,7 +1140,7 @@ class _LoadingOverlayState extends State<_LoadingOverlay> {
         CircularProgressIndicator(color: widget.color),
         SizedBox(height: kSpacingMedium),
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           child: Text(
             _messages[_messageIndex],
             key: ValueKey(_messageIndex),

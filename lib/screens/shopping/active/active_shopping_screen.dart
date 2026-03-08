@@ -680,7 +680,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_isLoading) {
       return Stack(
         children: [
-          const NotebookBackground(),
+          NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -711,7 +711,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_errorMessage != null) {
       return Stack(
         children: [
-          const NotebookBackground(),
+          NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -742,7 +742,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (widget.list.items.isEmpty) {
       return Stack(
         children: [
-          const NotebookBackground(),
+          NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -1480,7 +1480,7 @@ class _ActiveShoppingItemTile extends StatelessWidget {
               // 📝 שם המוצר + כמות
               Expanded(
                 child: AnimatedDefaultTextStyle(
-                  duration: const Duration(milliseconds: 200),
+                  duration: Duration(milliseconds: 200),
                   style: theme.textTheme.bodyLarge!.copyWith(
                     decoration: status == ShoppingItemStatus.purchased
                         ? TextDecoration.lineThrough

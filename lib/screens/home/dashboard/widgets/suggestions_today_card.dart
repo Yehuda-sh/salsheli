@@ -231,7 +231,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   Color _getCardColor(String urgency) {
     // ⚠️ Grey for unknown status
-    if (_isUnknownStatus) return Colors.grey.shade400;
+    if (_isUnknownStatus) return cs.outline;
 
     switch (urgency) {
       case 'critical':
@@ -405,11 +405,11 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
             colors: [
               cardColor,
               Color.alphaBlend(
-                Colors.white.withValues(alpha: 0.06),
+                cs.surface.withValues(alpha: 0.06),
                 cardColor,
               ),
               Color.alphaBlend(
-                Colors.black.withValues(alpha: 0.03),
+                cs.scrim.withValues(alpha: 0.03),
                 cardColor,
               ),
             ],
@@ -442,7 +442,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                 height: 14,
                 margin: const EdgeInsets.symmetric(horizontal: 30),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: cs.surface.withValues(alpha: 0.5),
                   borderRadius: const BorderRadius.vertical(
                     bottom: Radius.circular(2),
                   ),
@@ -498,7 +498,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.08),
+                      color: cs.scrim.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -556,7 +556,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         // כפתור הוסף (always enabled - safe operation)
                         Expanded(
                           child: Material(
-                            color: Colors.black.withValues(alpha: 0.1),
+                            color: cs.scrim.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                             child: InkWell(
                               onTap: () => _onAdd(context),
@@ -587,10 +587,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         // כפתור X - disabled for unknown
                         Material(
-                          color: Colors.black.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
+                          color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
                           borderRadius: BorderRadius.circular(8),
                           child: InkWell(
                             onTap: _isUnknownStatus ? null : () => _onDismiss(context),

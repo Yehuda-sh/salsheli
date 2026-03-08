@@ -693,7 +693,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   child: _SocialLoginButton(
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
-                                    color: const Color(0xFFDB4437),
+                                    color: Color(0xFFDB4437),
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
@@ -821,7 +821,7 @@ class _LoadingOverlayState extends State<_LoadingOverlay> {
         CircularProgressIndicator(color: widget.color),
         SizedBox(height: kSpacingMedium),
         AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 300),
           child: Text(
             _messages[_messageIndex],
             key: ValueKey(_messageIndex),
@@ -932,7 +932,7 @@ class _SocialLoginButtonState extends State<_SocialLoginButton> {
         onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
         child: AnimatedScale(
           scale: _isPressed ? 0.97 : 1.0,
-          duration: const Duration(milliseconds: 100),
+          duration: Duration(milliseconds: 100),
           curve: Curves.easeOut,
           child: Container(
             decoration: BoxDecoration(

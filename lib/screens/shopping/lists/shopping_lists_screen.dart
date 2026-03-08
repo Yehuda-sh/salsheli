@@ -180,7 +180,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               decoration: BoxDecoration(
                 color: _hasActiveFilters
                     ? cs.primaryContainer
-                    : Colors.white.withValues(alpha: 0.8),
+                    : cs.surface.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.12),
@@ -611,7 +611,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.7),
+          color: cs.surface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -975,7 +975,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           children: [
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 500),
+              duration: Duration(milliseconds: 500),
               curve: Curves.elasticOut,
               builder: (context, value, child) {
                 return Transform.scale(

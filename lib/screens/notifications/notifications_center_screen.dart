@@ -178,7 +178,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     // ✅ FIX: NotebookBackground + transparent Scaffold
     return Stack(
       children: [
-        const NotebookBackground(),
+        NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -216,7 +216,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     final brand = theme.extension<AppBrand>();
 
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(),
       );
     }

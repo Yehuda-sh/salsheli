@@ -617,7 +617,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     final cs = Theme.of(context).colorScheme;
     switch (role) {
       case UserRole.owner:
-        return Colors.amber;
+        return cs.tertiary;
       case UserRole.admin:
         return cs.tertiary;
       case UserRole.editor:

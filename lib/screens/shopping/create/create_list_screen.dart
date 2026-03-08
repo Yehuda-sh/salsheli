@@ -330,7 +330,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
     return Stack(
       children: [
         // 📓 רקע מחברת
-        const NotebookBackground(),
+        NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -763,7 +763,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
             },
       borderRadius: BorderRadius.circular(kBorderRadius),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: Duration(milliseconds: 200),
         padding: const EdgeInsets.all(kSpacingMedium),
         decoration: BoxDecoration(
           color: isSelected

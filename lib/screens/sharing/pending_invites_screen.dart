@@ -271,7 +271,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       return RefreshIndicator(
         onRefresh: _loadInvites,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
+          physics: AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: Center(
@@ -279,13 +279,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 margin: const EdgeInsets.all(kSpacingLarge),
                 padding: const EdgeInsets.all(kSpacingXLarge),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: cs.scrim.withValues(alpha: 0.05),
                       blurRadius: 10,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
@@ -322,7 +322,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       return RefreshIndicator(
         onRefresh: _loadInvites,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
+          physics: AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: Center(
@@ -331,13 +331,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 padding: const EdgeInsets.all(kSpacingXLarge),
                 decoration: BoxDecoration(
                   // 🎨 בועה לבנה שקופה - נקי וקריא על רקע מחברת
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: cs.scrim.withValues(alpha: 0.05),
                       blurRadius: 10,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),

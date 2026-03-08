@@ -740,7 +740,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.3),
+      barrierColor: cs.scrim.withValues(alpha: 0.3),
       builder: (dialogContext) {
         return BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
@@ -893,8 +893,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             scheme.surfaceContainerHighest.withValues(alpha: 0.2),
           ]
         : [
-            Colors.cyan.withValues(alpha: 0.1),
-            Colors.purple.withValues(alpha: 0.1),
+            cs.secondaryContainer.withValues(alpha: 0.3),
+            cs.tertiaryContainer.withValues(alpha: 0.3),
             scheme.tertiary.withValues(alpha: 0.1),
             scheme.primary.withValues(alpha: 0.1),
           ];
@@ -1250,7 +1250,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.3),
+      barrierColor: cs.scrim.withValues(alpha: 0.3),
       builder: (dialogContext) => BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
         child: StatefulBuilder(

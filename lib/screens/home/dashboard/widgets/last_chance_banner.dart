@@ -386,7 +386,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
           content: Text(strings.addedSuccess(suggestion.productName)),
           // ✅ FIX: Theme-aware colors
           backgroundColor: successColor,
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
     } catch (e) {
@@ -455,7 +455,7 @@ class _LastChanceBannerContentState extends State<_LastChanceBannerContent> {
           content: Text(strings.skippedForSession),
           // ✅ FIX: Theme-aware color
           backgroundColor: accentColor,
-          duration: const Duration(seconds: 2),
+          duration: Duration(seconds: 2),
         ),
       );
     } catch (e) {

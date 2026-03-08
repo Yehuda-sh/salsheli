@@ -499,7 +499,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 // === Contacts List ===
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? Center(child: CircularProgressIndicator())
                       : _filteredContacts.isEmpty
                           ? Center(
                               child: Column(

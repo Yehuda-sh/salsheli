@@ -309,11 +309,11 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         padding: const EdgeInsets.all(kSpacingXLarge),
         decoration: BoxDecoration(
           // 🎨 בועה לבנה שקופה - נקי וקריא על רקע מחברת
-          color: Colors.white.withValues(alpha: 0.85),
+          color: cs.surface.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: cs.scrim.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -392,18 +392,18 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   decoration: BoxDecoration(
                     color: isUnknownType
                         ? cs.tertiary.withValues(alpha: 0.3)
-                        : Colors.black.withValues(alpha: 0.1),
+                        : cs.scrim.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 14, color: isUnknownType ? Colors.orange.shade800 : null),
-                      const SizedBox(width: 4),
+                      Icon(icon, size: 14, color: isUnknownType ? cs.tertiary : null),
+                      SizedBox(width: 4),
                       Text(typeLabel, style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: isUnknownType ? Colors.orange.shade800 : null,
+                        color: isUnknownType ? cs.tertiary : null,
                       )),
                     ],
                   ),
@@ -412,7 +412,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Expanded(
                   child: Text(
                     itemName,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -421,7 +421,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: cs.scrim.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -455,16 +455,16 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 decoration: BoxDecoration(
                   color: cs.tertiary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.shade300),
+                  border: Border.all(color: cs.tertiary.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, size: 16, color: Colors.orange.shade800),
-                    const SizedBox(width: kSpacingSmall),
+                    Icon(Icons.warning_amber, size: 16, color: cs.tertiary),
+                    SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         AppStrings.sharing.unknownRequestWarning,
-                        style: TextStyle(fontSize: 12, color: Colors.orange.shade800),
+                        style: TextStyle(fontSize: 12, color: cs.tertiary),
                       ),
                     ),
                   ],

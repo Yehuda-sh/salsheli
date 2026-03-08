@@ -297,7 +297,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     borderRadius: BorderRadius.circular(kBorderRadius),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
+                        color: cs.scrim.withValues(alpha: 0.1),
                         blurRadius: 4,
                         offset: const Offset(0, 2),
                       ),
@@ -389,7 +389,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
         // Loading Overlay
         if (_isLoading)
           Container(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: cs.scrim.withValues(alpha: 0.3),
             child: const Center(
               child: CircularProgressIndicator(),
             ),
@@ -513,13 +513,13 @@ class _WhoBringsItemTile extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.people, size: 16, color: cs.outline),
-                    const SizedBox(width: kSpacingTiny),
+                    SizedBox(width: kSpacingTiny),
                     Expanded(
                       child: Text(
                         item.getVolunteerDisplay(maxNames: 3),
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
-                          color: Colors.grey.shade700,
+                          color: cs.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -540,7 +540,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
                     side: BorderSide(color: cs.error),
-                    minimumSize: const Size(double.infinity, 40),
+                    minimumSize: Size(double.infinity, 40),
                   ),
                 )
               else if (!isFull)
@@ -552,7 +552,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,
-                    minimumSize: const Size(double.infinity, 40),
+                    minimumSize: Size(double.infinity, 40),
                   ),
                 )
               else

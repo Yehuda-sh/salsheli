@@ -701,8 +701,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             color: isSelected
                 ? cs.onPrimary
                 : (isAlreadyShared || isOwner)
-                    ? Colors.grey.shade200
-                    : Colors.white.withValues(alpha: 0.5),
+                    ? cs.surfaceContainerHighest
+                    : cs.surface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected ? cs.primary : Colors.transparent,
@@ -834,7 +834,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? cs.onPrimary : Colors.white.withValues(alpha: 0.5),
+          color: isSelected ? cs.onPrimary : cs.surface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? cs.outline : Colors.transparent,

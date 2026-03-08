@@ -351,9 +351,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     ),
                                   ),
                                   if (allChecked) ...[
-                                    const SizedBox(width: kSpacingSmall),
-                                    const Icon(Icons.celebration,
-                                        color: Colors.amber, size: 28)
+                                    SizedBox(width: kSpacingSmall),
+                                    Icon(Icons.celebration,
+                                        color: cs.tertiary, size: 28)
                                       .animate(onPlay: (c) => c.repeat(reverse: true, count: 3))
                                       .scaleXY(begin: 1.0, end: 1.2, duration: 400.ms, curve: Curves.easeInOut),
                                   ],
@@ -368,7 +368,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               // בר התקדמות מונפש
                               TweenAnimationBuilder<double>(
                                 tween: Tween<double>(begin: 0, end: progress),
-                                duration: const Duration(milliseconds: 400),
+                                duration: Duration(milliseconds: 400),
                                 curve: Curves.easeOut,
                                 builder: (context, value, child) {
                                   return ClipRRect(
@@ -473,7 +473,7 @@ class _ChecklistItemTile extends StatelessWidget {
             onTap: onToggle,
             borderRadius: BorderRadius.circular(kBorderRadius),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: Duration(milliseconds: 200),
               padding: const EdgeInsets.all(kSpacingMedium),
               decoration: BoxDecoration(
                 color: isChecked
@@ -490,7 +490,7 @@ class _ChecklistItemTile extends StatelessWidget {
               children: [
                 // Checkbox מונפש
                 AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
+                  duration: Duration(milliseconds: 200),
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
@@ -511,7 +511,7 @@ class _ChecklistItemTile extends StatelessWidget {
                 // שם הפריט
                 Expanded(
                   child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
+                    duration: Duration(milliseconds: 200),
                     style: TextStyle(
                       fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.w500,

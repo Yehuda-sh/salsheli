@@ -426,7 +426,7 @@ class _ReceiptTile extends StatelessWidget {
           ),
           // רשימת פריטים בהרחבה
           children: [
-            const Divider(height: 1),
+            Divider(height: 1),
             SizedBox(height: kSpacingSmall),
             if (receipt.items.isEmpty)
               Padding(

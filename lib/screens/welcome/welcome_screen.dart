@@ -138,7 +138,7 @@ class WelcomeScreen extends StatelessWidget {
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
                                 .slideY(begin: 0.2, duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack)
-                                .scale(begin: const Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack),
+                                .scale(begin: Offset(0.95, 0.95), duration: 400.ms, delay: (staggerDelay * 3).ms, curve: Curves.easeOutBack),
                             SizedBox(height: kSpacingMedium),
 
                             // סלוגן סיום
@@ -293,7 +293,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: const Size(44, 32),
+                          minimumSize: Size(44, 32),
                         ),
                         child: Text(
                           AppStrings.welcome.termsOfService,
@@ -314,7 +314,7 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          minimumSize: const Size(44, 32),
+                          minimumSize: Size(44, 32),
                         ),
                         child: Text(
                           AppStrings.welcome.privacyPolicy,
