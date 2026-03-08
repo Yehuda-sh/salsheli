@@ -890,14 +890,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                // 📊 Header קומפקטי — פס התקדמות דק + סטטיסטיקות בשורה אחת
+                // 📊 Header קומפקטי — פס התקדמות + סטטיסטיקות
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
+                  margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
                   decoration: BoxDecoration(
-                    color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.15),
-                    border: Border(
-                      bottom: BorderSide(color: cs.outline.withValues(alpha: 0.1)),
-                    ),
+                    color: cs.surfaceContainerHighest.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -992,17 +991,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                             });
                           },
                           child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsetsDirectional.only(
-                              end: kSpacingMedium,
-                              top: kSpacingXTiny,
-                              bottom: kSpacingXTiny,
+                            margin: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingSmall,
+                              vertical: kSpacingXTiny,
                             ),
                             decoration: BoxDecoration(
                               color: kStickyCyan.withValues(alpha: kHighlightOpacity),
-                              border: BorderDirectional(
-                                end: BorderSide(color: cs.outline.withValues(alpha: 0.3), width: 4),
-                              ),
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Row(
                               children: [
@@ -1047,8 +1043,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   duration: kAnimationDurationShort,
                                   child: Icon(
                                     Icons.expand_more,
-                                    size: 20,
-                                    color: cs.onSurfaceVariant,
+                                    size: 24,
+                                    color: cs.primary,
                                   ),
                                 ),
                               ],
@@ -1390,12 +1386,12 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                     child: Icon(
                       status == ShoppingItemStatus.purchased
                           ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
+                          : Icons.circle_outlined,
                       key: ValueKey(status == ShoppingItemStatus.purchased),
                       color: status == ShoppingItemStatus.purchased
                           ? StatusColors.success
-                          : cs.onSurfaceVariant,
-                      size: 28,
+                          : cs.outline.withValues(alpha: 0.5),
+                      size: 30,
                     ),
                   ),
                 ),
@@ -1417,8 +1413,10 @@ class _ActiveShoppingItemTile extends StatelessWidget {
                         status == ShoppingItemStatus.notNeeded
                     ? cs.onSurfaceVariant.withValues(alpha: 0.6)
                     : cs.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                letterSpacing: 0.3,
+                height: 1.1,
               ),
               child: Row(
                 children: [
