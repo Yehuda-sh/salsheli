@@ -1,20 +1,17 @@
 // 📄 File: lib/screens/welcome/welcome_screen.dart
-// 🎯 Purpose: מסך קבלת פנים - Hybrid Premium
+// 🎯 Purpose: מסך קבלת פנים — Notebook + Glassmorphic
 //
 // 📋 Design:
-// - רקע מחברת עדין (brand texture בלבד)
-// - כרטיסי פיצ'ר נקיים על Surface (לא Sticky Notes)
-// - CTA אחד ברור (M3 FilledButton)
-// - 8pt grid, radius 14px, טיפוגרפיה נקייה
-// - WhatsApp-like: פשוט, נקי, מקצועי
+// - רקע מחברת עדין (NotebookBackground)
+// - כרטיסי פיצ'ר Glassmorphic עם פס צבעוני
+// - CTA אחד ברור (M3 FilledButton.tonal)
+// - 8pt grid, kBorderRadius, Design Tokens
 //
 // ✨ Features:
-// - עומק Glassmorphic מוגבר
 // - אנימציות כניסה מדורגות (Staggered Entrance)
 // - משוב Haptic מבוסס הקשר
-// - אופטימיזציה לביצועי Render
-//
-// 📝 Version: 4.0 - Hybrid Premium (Immersive Depth + Sensory) (22/02/2026)
+// - Shimmer עדין על CTA
+// - Mini previews (Shopping List, Pantry, Sharing)
 
 import 'dart:async';
 import 'dart:ui';
