@@ -95,6 +95,25 @@ class _LoadingState extends StatelessWidget {
 }
 
 /// קרוסלת הצעות אופקית בסגנון Sticky Notes
+/// מנקה שם מוצר להצגה בפתקית:
+/// - מסיר מספרים בסוף (כמו "1.33ל")
+/// - מסיר סימני % צמודים למילים
+/// - מקצר ל-25 תווים מקסימום
+String _cleanProductName(String name) {
+  // הסר רווחים מיותרים
+  var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
+
+  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל")
+  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח)\s*$'), '');
+
+  // קצר אם עדיין ארוך
+  if (clean.length > 25) {
+    clean = '${clean.substring(0, 22)}...';
+  }
+
+  return clean;
+}
+
 class _SuggestionsCarousel extends StatelessWidget {
   final List<SmartSuggestion> suggestions;
 
@@ -477,17 +496,19 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   ),
                   SizedBox(height: 8),
 
-                  // שם המוצר
+                  // שם המוצר — מנקה ומקצר
                   Expanded(
                     child: Text(
-                      suggestion.productName,
+                      _cleanProductName(suggestion.productName),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
-                        height: 1.2,
+                        height: 1.3,
+                        fontSize: kFontSizeBody,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
                   ),
 
