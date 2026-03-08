@@ -1348,182 +1348,171 @@ class _ActiveShoppingItemTile extends StatelessWidget {
         backgroundColor = null;
     }
 
-    return Container(
-      height: kNotebookLineSpacing, // 48px = שורה אחת במחברת
-      decoration: backgroundColor != null
-          ? BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(4),
-            )
-          : null,
-      child: Row(
-        children: [
-          // ✅ Checkbox - סימון כנקנה
-          // 🔧 FIX: אזור לחיץ גדול יותר (48x48 לפי Material guidelines)
-          // ✅ נגישות: Semantics + Tooltip
-          Semantics(
-            button: true,
-            label: AppStrings.shopping.purchasedToggleSemantics(
-              item.name,
-              status == ShoppingItemStatus.purchased,
+    // 🆕 Swipe-to-reveal: לחיצה = קניתי, החלקה = חושפת כפתורים
+    return Dismissible(
+      key: ValueKey('swipe_${item.id}'),
+      confirmDismiss: (direction) async {
+        unawaited(HapticFeedback.lightImpact());
+        if (direction == DismissDirection.startToEnd) {
+          // החלקה ימינה (RTL: startToEnd = ימין) → אין במלאי
+          if (status == ShoppingItemStatus.outOfStock) {
+            onStatusChanged(ShoppingItemStatus.pending);
+          } else {
+            onStatusChanged(ShoppingItemStatus.outOfStock);
+          }
+        } else {
+          // החלקה שמאלה → לא צריך
+          if (status == ShoppingItemStatus.notNeeded) {
+            onStatusChanged(ShoppingItemStatus.pending);
+          } else {
+            onStatusChanged(ShoppingItemStatus.notNeeded);
+          }
+        }
+        return false; // לא להסיר מהרשימה
+      },
+      // רקע החלקה ימינה — אין במלאי
+      background: Container(
+        height: kNotebookLineSpacing,
+        alignment: AlignmentDirectional.centerStart,
+        padding: const EdgeInsetsDirectional.only(start: kSpacingMedium),
+        decoration: BoxDecoration(
+          color: StatusColors.error.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 20),
+            const SizedBox(width: 4),
+            Text(
+              AppStrings.shopping.legendOutOfStock,
+              style: TextStyle(color: StatusColors.error, fontSize: 12, fontWeight: FontWeight.bold),
             ),
-            child: Tooltip(
-              message: AppStrings.shopping.legendPurchased,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  unawaited(HapticFeedback.selectionClick());
-                  if (status == ShoppingItemStatus.purchased) {
-                    onStatusChanged(ShoppingItemStatus.pending);
-                  } else {
-                    onStatusChanged(ShoppingItemStatus.purchased);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: Icon(
-                      status == ShoppingItemStatus.purchased
-                          ? Icons.check_circle
-                          : Icons.circle_outlined,
-                      key: ValueKey(status == ShoppingItemStatus.purchased),
-                      color: status == ShoppingItemStatus.purchased
-                          ? StatusColors.success
-                          : cs.outline.withValues(alpha: 0.5),
-                      size: 30,
-                    ),
-                  ),
-                ),
-              ),
+          ],
+        ),
+      ),
+      // רקע החלקה שמאלה — לא צריך
+      secondaryBackground: Container(
+        height: kNotebookLineSpacing,
+        alignment: AlignmentDirectional.centerEnd,
+        padding: const EdgeInsetsDirectional.only(end: kSpacingMedium),
+        decoration: BoxDecoration(
+          color: cs.onSurfaceVariant.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              AppStrings.shopping.legendNotNeeded,
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold),
             ),
-          ),
-
-          const SizedBox(width: kSpacingSmall),
-
-          // 📝 שם המוצר
-          Expanded(
-            child: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: theme.textTheme.bodyLarge!.copyWith(
-                decoration: status == ShoppingItemStatus.purchased
-                    ? TextDecoration.lineThrough
-                    : null,
-                color: status == ShoppingItemStatus.purchased ||
-                        status == ShoppingItemStatus.notNeeded
-                    ? cs.onSurfaceVariant.withValues(alpha: 0.6)
-                    : cs.onSurface,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                letterSpacing: 0.3,
-                height: 1.1,
-              ),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      item.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // 🔢 תג כמות
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: cs.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      '×${item.quantity ?? 1}',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onPrimaryContainer,
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // ❌ כפתור "אין במלאי"
-          // 🔧 FIX: אזור לחיץ גדול יותר עם padding
-          // ✅ נגישות: Semantics + Tooltip
-          Semantics(
-            button: true,
-            label: AppStrings.shopping.outOfStockToggleSemantics(
-              item.name,
-              status == ShoppingItemStatus.outOfStock,
-            ),
-            child: Tooltip(
-              message: AppStrings.shopping.legendOutOfStock,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  unawaited(HapticFeedback.lightImpact());
-                  if (status == ShoppingItemStatus.outOfStock) {
-                    onStatusChanged(ShoppingItemStatus.pending);
-                  } else {
-                    onStatusChanged(ShoppingItemStatus.outOfStock);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+            const SizedBox(width: 4),
+            Icon(Icons.block, color: cs.onSurfaceVariant, size: 20),
+          ],
+        ),
+      ),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          if (status == ShoppingItemStatus.purchased) {
+            onStatusChanged(ShoppingItemStatus.pending);
+          } else {
+            onStatusChanged(ShoppingItemStatus.purchased);
+          }
+        },
+        child: Container(
+          height: kNotebookLineSpacing,
+          decoration: backgroundColor != null
+              ? BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(4),
+                )
+              : null,
+          child: Row(
+            children: [
+              // ✅ אינדיקטור סטטוס (לא כפתור — לחיצה על כל השורה)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
                   child: Icon(
-                    status == ShoppingItemStatus.outOfStock
-                        ? Icons.remove_shopping_cart
-                        : Icons.remove_shopping_cart_outlined,
-                    size: kIconSizeMedium,
-                    color: StatusColors.error.withValues(
-                      alpha: status == ShoppingItemStatus.outOfStock ? 1.0 : 0.6,
-                    ),
+                    status == ShoppingItemStatus.purchased
+                        ? Icons.check_circle
+                        : status == ShoppingItemStatus.outOfStock
+                            ? Icons.remove_shopping_cart
+                            : status == ShoppingItemStatus.notNeeded
+                                ? Icons.block
+                                : Icons.circle_outlined,
+                    key: ValueKey(status),
+                    color: status == ShoppingItemStatus.purchased
+                        ? StatusColors.success
+                        : status == ShoppingItemStatus.outOfStock
+                            ? StatusColors.error
+                            : status == ShoppingItemStatus.notNeeded
+                                ? cs.onSurfaceVariant
+                                : cs.outline.withValues(alpha: 0.5),
+                    size: 28,
                   ),
                 ),
               ),
-            ),
-          ),
 
-          // 🚫 כפתור "לא צריך"
-          // 🔧 FIX: אזור לחיץ גדול יותר עם padding
-          // ✅ נגישות: Semantics + Tooltip
-          Semantics(
-            button: true,
-            label: AppStrings.shopping.notNeededToggleSemantics(
-              item.name,
-              status == ShoppingItemStatus.notNeeded,
-            ),
-            child: Tooltip(
-              message: AppStrings.shopping.legendNotNeeded,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  unawaited(HapticFeedback.lightImpact());
-                  if (status == ShoppingItemStatus.notNeeded) {
-                    onStatusChanged(ShoppingItemStatus.pending);
-                  } else {
-                    onStatusChanged(ShoppingItemStatus.notNeeded);
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                  child: Icon(
-                    Icons.block,
-                    size: kIconSizeMedium,
-                    color: cs.onSurfaceVariant.withValues(
-                      alpha: status == ShoppingItemStatus.notNeeded ? 1.0 : 0.5,
-                    ),
+              const SizedBox(width: kSpacingSmall),
+
+              // 📝 שם המוצר + כמות
+              Expanded(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: theme.textTheme.bodyLarge!.copyWith(
+                    decoration: status == ShoppingItemStatus.purchased
+                        ? TextDecoration.lineThrough
+                        : null,
+                    color: status == ShoppingItemStatus.purchased ||
+                            status == ShoppingItemStatus.notNeeded
+                        ? cs.onSurfaceVariant.withValues(alpha: 0.6)
+                        : cs.onSurface,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    letterSpacing: 0.3,
+                    height: 1.1,
+                  ),
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          item.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // 🔢 תג כמות
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: cs.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          '×${item.quantity ?? 1}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onPrimaryContainer,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
