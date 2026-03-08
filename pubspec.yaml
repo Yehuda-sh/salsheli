@@ -1,8 +1,8 @@
-# 🚀 Version 4.0 - Hybrid Premium Edition | 22/02/2026
+# 📝 MemoZap — Smart Family Shopping Lists
 name: memozap
-description: "MemoZap - ניהול קניות משפחתי מהיר וחכם: רשימות משותפות, מזווה דיגיטלי וסריקת קבלות."
+description: "MemoZap - Smart family shopping list manager with Notebook design, shared lists, digital pantry and receipt scanning."
 publish_to: "none"
-version: 4.0.0+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.8.1
