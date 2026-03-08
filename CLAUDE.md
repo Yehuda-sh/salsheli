@@ -1,40 +1,54 @@
-# MemoZap (סלשלי)
+# MemoZap
 
 ## Project Overview
 
-אפליקציית ניהול קניות משפחתית חכמה.
+אפליקציית ניהול קניות משפחתית חכמה עם עיצוב **Notebook + Sticky Notes**.
 
 **פיצ'רים עיקריים:**
 - רשימות קניות משותפות בזמן אמת (9 סוגים)
 - מזווה דיגיטלי עם התראות מלאי נמוך
-- שיתוף רשימות עם משתמשים אחרים
+- שיתוף רשימות עם תפקידים (Owner/Admin/Editor/Viewer)
 - קנייה משותפת עם סנכרון בזמן אמת
-- היסטוריית קניות
+- היסטוריית קניות וסיכומים
 
-**סגנון:** WhatsApp-like - פשוט ונקי
+**Package:** `com.memozap.app`
 
 ---
 
 ## Tech Stack
 
-- **Framework:** Flutter 3.8.1+ / Dart 3.8.1+
-- **Backend:** Firebase (Auth, Firestore, Storage, Analytics)
+- **Framework:** Flutter 3.8+ / Dart 3.8.1+
+- **Backend:** Firebase (Auth, Firestore, Storage, Analytics, Crashlytics, Messaging)
 - **State:** Provider + ChangeNotifier
-- **UI:** Hebrew RTL first, Material You support
+- **UI:** Hebrew RTL first, Material 3, Dark Mode
+
+---
+
+## Design System
+
+| Token | Values |
+|-------|--------|
+| Spacing | 8-pt grid via `AppTokens` (4, 8, 12, 16, 24, 32) |
+| Border Radius | `kBorderRadiusSmall(8)`, `Default(12)`, `Large(16)`, `XLarge(24)` |
+| Typography | `kFontSizeTiny(10)` → `kFontSizeDisplay(34)` — 8 sizes |
+| Colors | **Theme only** — `Theme.of(context).colorScheme` or `context.cs` |
+| Background | `NotebookBackground()` on all 21 screens |
+| Imports | `package:memozap/` — NOT `package:salsheli/` |
+
+**Rules:**
+- ❌ No `Colors.xxx` (except `Colors.transparent`)
+- ❌ No hardcoded `fontSize:` — use `kFontSize*` constants
+- ❌ No hardcoded `BorderRadius` — use `kBorderRadius*` constants
+- ✅ Use `context.cs` / `context.tt` extensions for theme access
 
 ---
 
 ## Project Guardrails (DO NOT CHANGE WITHOUT EXPLICIT APPROVAL)
 
-### Product Style
-- **WhatsApp-like, keep it simple**
-- לא להוסיף מורכבות מיותרת
-- UI נקי וברור
-
 ### Review Workflow
 - 3-5 שאלות הבהרה עם אפשרויות א/ב/ג
 - **בלי קטעי קוד בשאלות**
-- בכל שאלה להוסיף סעיף **"המלצת הסוכן"**
+- בכל שאלה להוסיף **"המלצת הסוכן"**
 
 ### Welcome Screen
 - מופיע **רק** עד יצירת חשבון
@@ -46,37 +60,33 @@
 - **נשמר אחרי Logout** (לא מתאפס)
 
 ### Auth Screens
-- **נקיים, לא Sticky Notes**
-- עיצוב מינימליסטי ומקצועי
+- **נקיים, לא Sticky Notes** — עיצוב מינימליסטי
 
-### Pending Invites (שיתוף רשימות)
+### Pending Invites
 - בדיקה אחרי register/login (כולל Google/Apple)
-- guard אם אין email/phone (לא לקרוס)
+- guard אם אין email/phone
 
 ### IDs/Keys (Config)
 - כל ID/key חייב **resolve()** עם fallback:
-  - **"other"** - למשתמש (UI-safe, מוצג כ"אחר")
-  - **"unknown"** - לדיבאג בלבד (לא להציג ב-UI!)
-- **ensureSanity()** בקונפיגים - בדיקות debug לעקביות
-- **Backward compatible** - aliases לערכים ישנים
-- לא לשנות IDs קיימים בלי migration plan
+  - **"other"** — למשתמש (UI-safe)
+  - **"unknown"** — לדיבאג בלבד
+- **ensureSanity()** בקונפיגים
+- **Backward compatible** — aliases לערכים ישנים
 
 ### AnimatedButton
-- **אפקט בלבד** - לא מפעיל פעולה (הפעולה ב-parent)
-- שומר ripple ונגישות (Semantics, Tooltip)
-- **haptic רק ל-CTA** (לא לניווט רגיל)
-- disabled שקט (לא אפקטים)
-- scale עדין: **0.97–0.98** (כמעט לא מורגש)
-- אנימציה מתחילה ב-**tap-down** (לא אחרי הפעולה)
+- **אפקט בלבד** — הפעולה ב-parent
+- haptic רק ל-CTA (לא לניווט)
+- scale: **0.97–0.98**
+- אנימציה מתחילה ב-**tap-down**
 
 ---
 
 ## Key Commands
 
 ```bash
-flutter analyze    # חובה לפני כל PR
-flutter test       # חובה לפני כל PR
-flutter run        # הרצה
+dart analyze lib/    # חובה לפני כל commit
+flutter test         # חובה לפני כל PR
+flutter run          # הרצה
 ```
 
 ---
@@ -85,27 +95,43 @@ flutter run        # הרצה
 
 | תחום | קבצים |
 |------|-------|
-| **Config** | `lib/config/list_types_config.dart`, `stores_config.dart`, `filters_config.dart`, `storage_locations_config.dart` |
-| **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart`, `receipt.dart` |
-| **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart`, `receipt_provider.dart` |
+| **Theme** | `lib/theme/design_tokens.dart`, `app_theme.dart`, `context_extensions.dart`, `app_transitions.dart` |
+| **Constants** | `lib/core/ui_constants.dart`, `status_colors.dart` |
+| **Config** | `lib/config/list_types_config.dart`, `stores_config.dart`, `filters_config.dart` |
+| **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
+| **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
+| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, EmptyState, AppSnackBar, AppDialog |
 | **Strings** | `lib/l10n/app_strings.dart` |
+| **Security** | `firestore.rules` (v4.1), `firestore.indexes.json` |
 
 ---
 
 ## Dependency-First Ordering
 
-סדר עבודה ל-Flutter:
-1. Model/Schema/Converters
-2. Repository/Service
-3. Provider/State
-4. UI
+סדר עבודה:
+1. Model / Schema
+2. Repository / Service
+3. Provider / State
+4. UI / Widgets
 5. Strings (AppStrings)
 6. Tests & analyze
 
 ---
 
+## Known Issues
+
+- **B1:** approve/reject בpending_requests לא מחובר (TODO)
+- **B2:** ניווט מהתראות לא עובד (TODO)
+- **B3:** SavedContactsService בולע שגיאות
+- **B4:** Firebase config עדיין `com.example.memozap` — צריך עדכון
+
+See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
+
+---
+
 ## Related Docs
 
-- [docs/PRD_BUILDER.md](docs/PRD_BUILDER.md) - תבנית PRD + guardrails מפורטים + acceptance criteria
-- [docs/MASTER-TODO.md](docs/MASTER-TODO.md) - משימות ובאגים לפי עדיפות
-- [docs/progress.txt](docs/progress.txt) - מעקב התקדמות אפיק נוכחי
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח ריוויו + סטטוס תיקונים
+- [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 9 שלבים
+- [docs/PRD_BUILDER.md](docs/PRD_BUILDER.md) — תבנית PRD + guardrails
+- [docs/MASTER-TODO.md](docs/MASTER-TODO.md) — משימות ובאגים לפי עדיפות
