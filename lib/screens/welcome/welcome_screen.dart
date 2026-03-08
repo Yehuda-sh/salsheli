@@ -149,7 +149,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           .animate()
                           .fadeIn(duration: 400.ms, delay: 200.ms),
                       // רווח ל-sticky bar
-                      const SizedBox(height: 140),
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -495,12 +495,12 @@ class _FeatureCard extends StatelessWidget {
                       top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
                       bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
                       left: BorderSide(
-                        color: isRtl ? cs.outlineVariant.withValues(alpha: 0.18) : accentColor.withValues(alpha: 0.65),
-                        width: isRtl ? 0.9 : 4,
+                        color: isRtl ? cs.outlineVariant.withValues(alpha: 0.18) : accentColor.withValues(alpha: 0.8),
+                        width: isRtl ? 0.9 : 5,
                       ),
                       right: BorderSide(
-                        color: isRtl ? accentColor.withValues(alpha: 0.65) : cs.outlineVariant.withValues(alpha: 0.18),
-                        width: isRtl ? 4 : 0.9,
+                        color: isRtl ? accentColor.withValues(alpha: 0.8) : cs.outlineVariant.withValues(alpha: 0.18),
+                        width: isRtl ? 5 : 0.9,
                       ),
                     ),
                     boxShadow: [
@@ -512,13 +512,13 @@ class _FeatureCard extends StatelessWidget {
                     ],
                   ),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Emoji גדול
                       ExcludeSemantics(
-                        child: Text(emoji, style: const TextStyle(fontSize: 48, height: 1.0)),
+                        child: Text(emoji, style: const TextStyle(fontSize: 56, height: 1.0)),
                       ),
-                      const SizedBox(height: kSpacingSmallPlus),
+                      const SizedBox(height: kSpacingMedium),
 
                       // כותרת
                       Text(
@@ -527,6 +527,7 @@ class _FeatureCard extends StatelessWidget {
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.87),
                           fontWeight: FontWeight.w700,
+                          fontSize: kFontSizeTitle,
                         ),
                       ),
                       const SizedBox(height: kSpacingTiny),
@@ -539,7 +540,7 @@ class _FeatureCard extends StatelessWidget {
                           color: cs.onSurface.withValues(alpha: 0.58),
                         ),
                       ),
-                      const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingLarge),
 
                       // Mini preview
                       previewWidget,
