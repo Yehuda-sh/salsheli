@@ -530,13 +530,10 @@ class _FeatureCard extends StatelessWidget {
                       // איור או Emoji
                       ExcludeSemantics(
                         child: illustrationAsset != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                                child: Image.asset(
-                                  illustrationAsset!,
-                                  height: 140,
-                                  fit: BoxFit.contain,
-                                ),
+                            ? Image.asset(
+                                illustrationAsset!,
+                                height: 180,
+                                fit: BoxFit.contain,
                               )
                             : Container(
                                 width: 88,
