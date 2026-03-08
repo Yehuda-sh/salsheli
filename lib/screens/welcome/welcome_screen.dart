@@ -239,20 +239,20 @@ class _StickyBottomBar extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 height: kButtonHeight,
-                child: FilledButton.tonalIcon(
+                child: FilledButton.icon(
                   onPressed: onRegister,
                   icon: const Icon(Icons.person_add),
                   label: Text(
                     AppStrings.welcome.startButton,
-                    style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w700),
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: accentColor.withValues(alpha: 0.18),
-                    foregroundColor: accentColor,
+                    backgroundColor: cs.primary,
+                    foregroundColor: cs.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(kBorderRadius),
-                      side: BorderSide(color: accentColor.withValues(alpha: 0.28)),
                     ),
+                    elevation: 2,
                   ),
                 ),
               )
@@ -260,7 +260,7 @@ class _StickyBottomBar extends StatelessWidget {
                   .shimmer(
                     delay: 3500.ms,
                     duration: 1500.ms,
-                    color: accentColor.withValues(alpha: 0.08),
+                    color: cs.onPrimary.withValues(alpha: 0.15),
                   ),
 
               const SizedBox(height: kSpacingSmall),
