@@ -1,51 +1,54 @@
 # 🔍 דוח קוד ריוויו — MemoZap
-**תאריך:** 2 מרץ 2026  
+**תאריך:** 8 מרץ 2026 (עדכון)  
 **סוקר:** ראפטור 🦖  
-**גרסה:** 4.0.0  
-**סה"כ קבצים:** 138 קבצי Dart | **~65,700 שורות קוד**
+**גרסה:** 1.0.0  
+**סה"כ קבצים:** ~135 קבצי Dart | **~58,000 שורות קוד**
 
 ---
 
-## 📊 ציון כללי: 7.5/10 — אפליקציה מוצקה עם מקום לשיפור
+## 📊 ציון כללי: 8.5/10 — אפליקציה מוצקה, קרובה לפרודקשן
 
 ---
 
-## ✅ מה טוב (כל הכבוד!)
+## ✅ מה טוב
 
 ### 1. ארכיטקטורה נקייה
-- **הפרדת שכבות** ברורה: Models → Repositories → Providers → Screens
-- **Repository Pattern** — כל גישה ל-Firebase עוברת דרך Repository, קל להחליף backend
-- **Provider למצב** — Single Source of Truth דרך `UserContext`
-- **קבועים מרוכזים** — `repository_constants.dart` עם כל שמות הקולקציות
+- **Repository Pattern** — כל גישה ל-Firebase דרך Repository
+- **Provider** — Single Source of Truth דרך `UserContext`
+- **קבועים מרוכזים** — `repository_constants.dart`, `ui_constants.dart`
 
 ### 2. טיפול בשגיאות
 - **`_runAsync` pattern** — דפוס עקבי לפעולות async עם loading/error
 - **`_notifySafe`** — מניעת crash כש-provider disposed
-- **`mounted` checks** — ב-167 מקומות לפני setState (כמעט מושלם)
-- **AuthException typed** — enum לסוגי שגיאות אימות, לא רק strings
+- **`mounted` checks** — 167 מקומות לפני setState
+- **AuthException typed** — enum לסוגי שגיאות אימות
 
-### 3. עיצוב ו-UI
-- **Material 3 + Dynamic Color** — תמיכה ב-Material You
-- **StatusColors type-safe** — enum במקום strings, עם haptic feedback
-- **קבועי UI מרוכזים** — spacing, colors, sizes, durations
-- **Dark Mode** — צבעים מופחתי רוויה (desaturated) למראה יוקרתי
+### 3. Design System (חדש! ✨)
+- **Design Tokens** — `AppTokens` עם spacing, blur, animation durations
+- **Context Extensions** — `context.cs`, `context.tt` לגישה מהירה
+- **0 Colors.xxx** — כל הצבעים דרך theme (316 הוחלפו!)
+- **Typography** — 8 `kFontSize*` קבועים (Tiny→Display)
+- **Border Radius** — 4 קבועים (Small=8, Default=12, Large=16, XLarge=24)
+- **NotebookBackground** — 21/21 מסכים עם עיצוב אחיד
+- **Dark Mode** — צבעים מופחתי רוויה למראה יוקרתי
 
-### 4. אבטחה בסיסית
-- **Sanitization** ל-householdName (trim, max 40, strip HTML chars)
+### 4. אבטחה
+- **Firestore Rules** — v4.1 עם schema validation, audit trail, anti-spam
+- **Role-based** — Owner/Admin/Editor/Viewer עם Map-based O(1) lookup
+- **Sanitization** — trim, max length, strip HTML
 - **Form validation** — email, phone, passwords
-- **Firestore rules** — מבנה subcollections עם הפרדת user/household
 
 ### 5. תיעוד
 - **כל קובץ מתועד** — header עם Purpose, Features, Related
-- **JSDoc-style comments** — על פונקציות ציבוריות עם דוגמאות קוד
+- **JSDoc-style comments** — על פונקציות ציבוריות
 
 ---
 
-## ⚠️ בעיות שצריך לתקן (לפי עדיפות)
+## ⚠️ בעיות שצריך לתקן
 
 ---
 
-### 🔴 קריטי — תקן לפני שחרור
+### 🔴 קריטי — לפני שחרור
 
 #### B1. TODOs לא מומשים — בקשות ממתינות שבורות
 ```
@@ -63,168 +66,111 @@ lib/widgets/common/pending_requests_section.dart:398
 lib/screens/notifications/notifications_center_screen.dart:360
   // TODO: Navigate to list details when implemented
 ```
-**הבעיה:** לחיצה על התראה לא מנווטת לרשימה הרלוונטית  
-**תיקון:** להוסיף `Navigator.push` ל-`ShoppingListDetailsScreen` עם ה-`listId` מההתראה
+**הבעיה:** לחיצה על התראה לא מנווטת לרשימה  
+**תיקון:** `Navigator.push` ל-`ShoppingListDetailsScreen` עם `listId`
 
 #### B3. `SavedContactsService` בולע שגיאות בשקט
 ```dart
-// 5 מקומות שבהם catch (e) רק מדפיס ולא מחזיר שגיאה ל-UI
 } catch (e) {
   return false;  // המשתמש לא יודע שנכשל!
 }
 ```
-**הבעיה:** שמירת/מחיקת איש קשר יכולה להיכשל בלי שהמשתמש ידע  
-**תיקון:** להחזיר `Result` או לזרוק exception שה-UI יתפוס ויציג SnackBar
+**תיקון:** להחזיר `Result` או לזרוק exception שה-UI יציג SnackBar
 
-#### B4. `selected_contact.dart` — `.length > 0` במקום `.isNotEmpty`
-```dart
-// שורה 60:
-userId != null || email.length > 0 || (phone != null && phone.length > 0)
-```
-**הבעיה:** סגנון ישן, אבל חמור יותר — אם `phone` הוא null ו-`email` ריק, ה-assert עובר!  
-**תיקון:** `email.isNotEmpty || (phone?.isNotEmpty ?? false)`
+#### B4. Firebase config mismatch
+**הבעיה:** `google-services.json` + `GoogleService-Info.plist` עדיין מפנים ל-`com.example.memozap`  
+**תיקון:** להוסיף `com.memozap.app` ב-Firebase Console ולהוריד חדשים
 
 ---
 
-### 🟡 חשוב — תקן בגרסה הבאה
-
-#### C1. קובץ `active_shopping_screen.dart` — 1,898 שורות! 🏋️
-**הבעיה:** הקובץ הגדול ביותר באפליקציה. קשה לתחזק, לבדוק, ולקרוא.  
-**תיקון:** לפצל ל-widgets קטנים:
-- `_ShoppingHeader` → קובץ נפרד
-- `_ShoppingItemTile` → קובץ נפרד  
-- `_CompactStat` → כבר widget נפרד, להעביר לקובץ
-- `_LoadingSkeletonScreen` / `_ErrorStateScreen` / `_EmptyStateScreen` → `widgets/`
+### 🟡 חשוב — גרסה הבאה
 
 #### C2. `ShoppingListsProvider` — 1,520 שורות
-**הבעיה:** Provider שמן מדי. עושה יותר מדי דברים (CRUD + sharing + receipts + search + sort)  
-**תיקון:** לפצל ל:
-- `ShoppingListsCrudProvider` — CRUD בסיסי
-- `ShoppingListsSharingMixin` — לוגיקת שיתוף
-- `ShoppingListsSearchMixin` — חיפוש וסינון
+**תיקון:** לפצל עם mixins: CrudMixin, SharingMixin, SearchMixin
 
-#### C3. `AppStrings` — 2,932 שורות, קובץ אחד ענק
-**הבעיה:** כל המחרוזות בקובץ אחד. שינוי קטן = diff ענק  
-**תיקון:** לפצל לפי פיצ'ר:
-- `app_strings_auth.dart`
-- `app_strings_shopping.dart`
-- `app_strings_inventory.dart`
-- וכו'
+#### C4. `NotificationsService` — copy-paste
+**תיקון:** מתודה אחת `_createNotification(type, data)` במקום 9 כמעט-זהות
 
-#### C4. `NotificationsService` — copy-paste מאסיבי
-```dart
-// 9 פעמים אותו pattern:
-await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
-```
-**הבעיה:** 9 מתודות שכמעט זהות (רק סוג ההתראה משתנה)  
-**תיקון:** מתודה אחת `_createNotification(type, data)` שכולן קוראות לה
+#### C6. אין Rate Limiting בצד קליינט
+**תיקון:** debounce על פעולות — כבר יש `kDoubleTapTimeout`, להשתמש בו
 
-#### C5. חסר — Firestore Security Rules
-**הבעיה:** לא מצאתי קובץ `firestore.rules` בריפו. בלי rules, כל אחד יכול לקרוא/לכתוב הכל!  
-**תיקון:** להוסיף `firestore.rules` עם:
-- רק משתמש מחובר יכול לקרוא את הנתונים שלו
-- רק owner/admin יכולים לשנות `shared_lists`
-- validation על שדות (type checking)
-
-#### C6. אין Rate Limiting בצד הקליינט
-**הבעיה:** אין throttle/debounce על פעולות כמו שמירה, שיתוף, אישור  
-**תיקון:** להוסיף debounce ללחיצות כפולות (כבר יש `kDoubleTapTimeout` — להשתמש בו!)
-
-#### C7. `pending_requests_screen.dart` — `Provider.of` ישן
-```dart
-final userContext = Provider.of<UserContext>(context, listen: false);
-```
-**הבעיה:** מעורבב עם `context.read<>()` בשאר האפליקציה. לא עקבי.  
-**תיקון:** להחליף ל-`context.read<UserContext>()` (כמו בכל שאר הקבצים)
-
-#### C8. `ShoppingListsRepository` לא מוזרק ב-`pending_requests_screen`
-```dart
-final repository = context.read<ShoppingListsRepository>();
-```
-**הבעיה:** `ShoppingListsRepository` לא רשום כ-Provider ב-`main.dart`! זה אמור לקרוס.  
-**תיקון:** לבדוק אם המסך עובד, ואם לא — להוסיף Provider או לעבוד דרך ה-Provider הקיים
+#### C7. `Provider.of` ישן ב-`pending_requests_screen`
+**תיקון:** להחליף ל-`context.read<>()` כמו בשאר הקוד
 
 ---
 
-### 🟢 שיפורים קלים — כשיש זמן
+### 🟢 שיפורים — כשיש זמן
 
-#### D1. אין בדיקות ל-Services
+#### D1. כיסוי בדיקות נמוך
 ```
-test/ — 10 קבצי בדיקה (4,674 שורות)
-✅ models: 4 בדיקות  
-✅ providers: 1 בדיקה
-✅ screens: 3 בדיקות
-✅ services: 1 בדיקה (suggestions בלבד)
+test/ — 10 קבצים
+✅ models: 4 | providers: 1 | screens: 3 | services: 1
 ❌ חסר: auth_service, notifications_service, pending_invites_service
 ```
-**תיקון:** להוסיף unit tests ל-services הקריטיים (auth, notifications, sharing)
 
-#### D2. `i18n` לא מלא — `list_types_config.dart`
-```dart
-// TODO(i18n): להעביר fullName/shortName ל-AppStrings לתמיכה בתרגום
-```
-**הבעיה:** שמות סוגי רשימות hardcoded בעברית. אם תרצה אנגלית — צריך לשנות  
-**תיקון:** להעביר ל-`AppStrings`
-
-#### D3. `DEPRECATED` strings ב-`AppStrings`
-```dart
-// ⚠️ DEPRECATED: Guest mode removed - auth is required
-```
-**הבעיה:** קוד מת — strings של guest mode שכבר לא קיים  
-**תיקון:** למחוק את הסקשן (שורות 782 ו-1021)
+#### D2. i18n לא מלא
+- 101 מחרוזות עבריות hardcoded (יטופל בPhase 8)
+- `list_types_config.dart` — שמות סוגים hardcoded
 
 #### D4. חסר `Equatable` על חלק מה-models
-**הבעיה:** `operator==` ידני עם `runtimeType` ב-5 models. זה boilerplate  
-**תיקון:** להוסיף חבילת `equatable` ולרשת ממנה (או להשאיר — עובד מצוין גם ככה)
+- `operator==` ידני ב-5 models. עובד, אבל boilerplate
 
-#### D5. `camera` ו-`mobile_scanner` ב-pubspec
-**הבעיה:** לא מצאתי שימוש ב-`camera` באפליקציה. אולי נשאר מגרסה ישנה?  
-**תיקון:** לבדוק אם `camera` בשימוש. אם לא — להסיר מ-`pubspec.yaml`
+#### D5. `camera` ב-pubspec
+- לבדוק אם בשימוש. אם לא — להסיר
 
-#### D6. `LoginScreen` — 1,157 שורות
-**הבעיה:** מסך login עם Google, Apple, email כולם באותו קובץ  
-**תיקון:** לפצל social login buttons ל-widget נפרד
+---
+
+## ✅ תוקן (מאז ריוויו מקורי 2/3/26)
+
+| # | בעיה | תיקון | commit |
+|---|-------|-------|--------|
+| C5 | חסר firestore.rules | ✅ קיים — v4.1 עם schema validation | `48976b9` |
+| C1 | active_shopping 1,898 שורות | ✅ פוצל → 1,132 + 3 widgets | `eabcd15` |
+| D6 | login_screen 1,157 שורות | ✅ פוצל → 802 + 3 widgets | `2c75131` |
+| C3 | AppStrings 2,932 שורות | ✅ נוקה → 2,661 (233 מתות נמחקו) | `fe549cd` |
+| D3 | Deprecated guest strings | ✅ נמחקו | `fe549cd` |
+| — | 316 Colors.xxx hardcoded | ✅ הכל דרך theme | `da51a8d` |
+| — | 18 גדלי פונט שונים | ✅ 8 kFontSize קבועים | `8b08d64` |
+| — | 11 border radius שונים | ✅ 4 קבועים | `c262f6a` |
+| — | 5 סגנונות עיצוב שונים | ✅ Notebook אחיד ב-21/21 | `a193602` |
+| — | 852 debug prints | ✅ הוסרו (רק kDebugMode נשאר) | `fe549cd` |
+| — | תמונות 5.4MB | ✅ → 156KB (webp) | `4e20ed1` |
+| — | Package com.example.memozap | ✅ → com.memozap.app | `bd8d772` |
 
 ---
 
 ## 📈 סטטיסטיקות
 
-| מדד | ערך | הערכה |
-|-----|------|-------|
-| קבצי Dart | 138 | סביר |
-| שורות קוד | 65,709 | גדול — שקול פיצול |
-| קובץ גדול ביותר | active_shopping — 1,898 שורות | ⚠️ גדול מדי |
-| StatefulWidgets | 34 | סביר |
-| dispose methods | ~15 | ✅ טוב |
-| setState calls | 192 | ✅ רוב עם mounted check |
-| Tests | 10 קבצים / 4,674 שורות | 🟡 כיסוי בינוני |
-| TODOs | 4 | ⚠️ 2 קריטיים |
-| Provider calls | עקביים (context.read/watch) | ✅ טוב |
-| Error handling | _runAsync + _notifySafe | ✅ מעולה |
+| מדד | לפני (2/3) | אחרי (8/3) | שינוי |
+|-----|-----------|-----------|-------|
+| שורות קוד | ~65,700 | ~58,000 | -12% |
+| קובץ גדול ביותר | 1,898 | 1,520 | ↓ |
+| Colors.xxx | 316 | 0 | ✅ |
+| Debug prints | 852 | 0 | ✅ |
+| סגנונות עיצוב | 5 | 1 | ✅ |
+| Dead strings | 233 | 0 | ✅ |
+| Dead files | 15 | 0 | ✅ |
+| תמונות (MB) | 5.4 | 0.15 | -97% |
+| Tests | 10 | 10 | 🟡 |
 
 ---
 
-## 🎯 סדר עדיפויות מומלץ
+## 🎯 סדר עדיפויות
 
-1. **B1** — לממש approve/reject ב-pending_requests (שבור!)
-2. **B2** — ניווט מהתראות (שבור!)  
-3. **C5** — Firestore Security Rules (אבטחה!)
-4. **B3** — טיפול בשגיאות ב-SavedContactsService
-5. **C1** — לפצל active_shopping_screen
-6. **C4** — לנקות כפילויות ב-NotificationsService
-7. **D1** — להוסיף tests
-8. **השאר** — כשיש זמן
+1. **B1** — approve/reject בpending_requests (שבור!)
+2. **B2** — ניווט מהתראות (שבור!)
+3. **B4** — Firebase config (com.memozap.app)
+4. **B3** — SavedContactsService error handling
+5. **C2** — פיצול ShoppingListsProvider
+6. **C4** — ניקוי NotificationsService
+7. **D1** — tests
+8. **D2** — i18n (Phase 8)
 
 ---
 
 ## 💡 סיכום
 
-האפליקציה **בנויה טוב**. הארכיטקטורה נקייה, הקוד מתועד, וטיפול השגיאות מוצק. הבעיות העיקריות הן:
-- 2 פיצ'רים שבורים (approve/reject + ניווט התראות)
-- חוסר ב-Firestore rules (אבטחה)
-- קבצים גדולים מדי שצריך לפצל
-
-ברגע שתתקן את B1+B2+C5, האפליקציה תהיה מוכנה לשלב הבא 🚀
+האפליקציה עשתה קפיצת איכות משמעותית: design system אחיד, 0 hardcoded colors, קוד נקי יותר ב-12%. נשאר לתקן 2 פיצ'רים שבורים (B1+B2), לעדכן Firebase config, ואז היא מוכנה לחנויות 🚀
 
 ---
-*🦖 ראפטור — Code Review*
+*🦖 ראפטור — Code Review | Updated March 8, 2026*
