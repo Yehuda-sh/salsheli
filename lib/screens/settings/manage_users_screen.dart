@@ -34,6 +34,7 @@ import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/share_list_service.dart';
 import '../sharing/invite_users_screen.dart';
+import '../../widgets/common/notebook_background.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -384,9 +385,13 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     final isOwner = ShareListService.canUserManage(_currentList, currentUserId);
 
-    return Directionality(
+    return Stack(
+      children: [
+        const NotebookBackground(),
+        Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: SafeArea(
           child: Column(
             children: [
@@ -423,6 +428,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               )
             : null,
       ),
+    ),
+      ],
     );
   }
 

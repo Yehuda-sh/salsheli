@@ -55,6 +55,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -369,7 +370,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final strings = AppStrings.pantry;
 
-    return Semantics(
+    return Stack(
+      children: [
+        const NotebookBackground(),
+        Semantics(
       label: strings.screenLabel,
       container: true,
       child: Consumer<InventoryProvider>(
@@ -380,7 +384,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             // ✅ Error state with Retry
             if (provider.hasError) {
               return Scaffold(
-                backgroundColor: backgroundColor,
+                backgroundColor: Colors.transparent,
                 body: SafeArea(
                   child: Center(
                     child: Column(
@@ -413,7 +417,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             }
 
             return Scaffold(
-              backgroundColor: backgroundColor,
+              backgroundColor: Colors.transparent,
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
@@ -1325,6 +1329,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           ),
         ),
       ),
+    ),
+      ],
     );
   }
 }

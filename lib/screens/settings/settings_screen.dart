@@ -48,6 +48,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/auth_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -753,7 +754,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Loading State
     if (_loading) {
       return Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         body: SafeArea(child: _buildLoadingSkeleton(cs)),
       );
     }
@@ -761,7 +762,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Error State
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: cs.surface,
+        backgroundColor: Colors.transparent,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -788,8 +789,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: cs.surface,
+    return Stack(
+      children: [
+        const NotebookBackground(),
+        Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: ListView(
               padding: const EdgeInsets.all(kSpacingMedium),
@@ -1181,7 +1185,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-        );
+        ),
+      ],
+    );
   }
 }
 
