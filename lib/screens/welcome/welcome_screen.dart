@@ -136,12 +136,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               inactiveColor: cs.outlineVariant,
                             ),
                             const SizedBox(height: kSpacingSmall),
-                            Text(
-                              AppStrings.welcome.moreGroupsHint,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: cs.onSurface.withValues(alpha: 0.55),
-                                fontWeight: FontWeight.w600,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.swipe, size: 16, color: cs.onSurface.withValues(alpha: 0.35)),
+                                const SizedBox(width: 6),
+                                Text(
+                                  AppStrings.welcome.moreGroupsHint,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurface.withValues(alpha: 0.45),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -361,11 +368,11 @@ class _DotIndicator extends StatelessWidget {
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: isActive ? 24 : 8,
-          height: 8,
+          width: isActive ? 28 : 10,
+          height: 10,
           decoration: BoxDecoration(
-            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(4),
+            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(5),
           ),
         );
       }),
@@ -517,7 +524,17 @@ class _FeatureCard extends StatelessWidget {
                     children: [
                       // Emoji גדול
                       ExcludeSemantics(
-                        child: Text(emoji, style: const TextStyle(fontSize: 56, height: 1.0)),
+                        child: Container(
+                          width: 88,
+                          height: 88,
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(emoji, style: const TextStyle(fontSize: 48, height: 1.0)),
+                          ),
+                        ),
                       ),
                       const SizedBox(height: kSpacingMedium),
 
@@ -527,8 +544,8 @@ class _FeatureCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: cs.onSurface.withValues(alpha: 0.87),
-                          fontWeight: FontWeight.w700,
-                          fontSize: kFontSizeTitle,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 22,
                         ),
                       ),
                       const SizedBox(height: kSpacingTiny),
@@ -538,13 +555,27 @@ class _FeatureCard extends StatelessWidget {
                         description,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.58),
+                          color: cs.onSurface.withValues(alpha: 0.55),
+                          fontSize: kFontSizeBody,
                         ),
                       ),
                       const SizedBox(height: kSpacingLarge),
 
-                      // Mini preview
-                      previewWidget,
+                      // Divider עדין
+                      Divider(
+                        height: 1,
+                        thickness: 0.5,
+                        color: cs.outlineVariant.withValues(alpha: 0.2),
+                        indent: kSpacingLarge,
+                        endIndent: kSpacingLarge,
+                      ),
+                      const SizedBox(height: kSpacingMedium),
+
+                      // Mini preview — גדול יותר
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                        child: previewWidget,
+                      ),
                     ],
                   ),
                 ),
@@ -626,15 +657,15 @@ class _MiniListItemWithQty extends StatelessWidget {
     final successColor = brand?.success ?? cs.primary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(
             checked ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 14,
+            size: 18,
             color: checked ? successColor : cs.onSurfaceVariant,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             decoration: BoxDecoration(
@@ -643,10 +674,10 @@ class _MiniListItemWithQty extends StatelessWidget {
             ),
             child: Text(
               qty,
-              style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
+              style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
@@ -680,17 +711,17 @@ class _MiniPantryItem extends StatelessWidget {
     final successColor = brand?.success ?? cs.primary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Icon(
             isLow ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-            size: 14,
+            size: 18,
             color: isLow ? warningColor : successColor,
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Expanded(
-            child: Text(text, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
+            child: Text(text, style: TextStyle(fontSize: kFontSizeBody, height: 1.3, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
@@ -729,12 +760,12 @@ class _MiniShareUser extends StatelessWidget {
     final bgColor = avatarColor ?? cs.primaryContainer;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
           Container(
-            width: 16,
-            height: 16,
+            width: 22,
+            height: 22,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: bgColor.withValues(alpha: 0.7),
@@ -753,9 +784,9 @@ class _MiniShareUser extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Expanded(
-            child: Text(name, style: TextStyle(fontSize: kFontSizeSmall, height: 1.2, color: cs.onSurface.withValues(alpha: 0.87))),
+            child: Text(name, style: TextStyle(fontSize: kFontSizeBody, height: 1.3, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
           Container(
             width: 8,
@@ -765,7 +796,7 @@ class _MiniShareUser extends StatelessWidget {
               color: isOnline ? successColor : cs.onSurfaceVariant.withValues(alpha: 0.3),
             ),
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: 8),
           Text(
             isOnline ? AppStrings.welcome.statusOnline : AppStrings.welcome.statusOffline,
             style: TextStyle(fontSize: kFontSizeTiny, height: 1.2, color: cs.onSurfaceVariant),
