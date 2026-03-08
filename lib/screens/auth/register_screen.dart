@@ -44,6 +44,7 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../theme/context_extensions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -637,8 +638,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             Builder(builder: (context) {
                               final ctaBg = brand?.success ?? cs.primary;
                               final ctaFg = ThemeData.estimateBrightnessForColor(ctaBg) == Brightness.light
-                                  ? Colors.black87
-                                  : Colors.white;
+                                  ? cs.onSurface
+                                  : cs.onPrimary;
                               return FilledButton.icon(
                                 onPressed: _isLoading ? null : _onRegisterPressed,
                                 icon: const Icon(Icons.app_registration),

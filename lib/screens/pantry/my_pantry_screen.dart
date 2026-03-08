@@ -55,6 +55,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
+import '../../theme/context_extensions.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -895,8 +896,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         : [
             Colors.cyan.withValues(alpha: 0.1),
             Colors.purple.withValues(alpha: 0.1),
-            Colors.orange.withValues(alpha: 0.1),
-            Colors.green.withValues(alpha: 0.1),
+            cs.tertiary.withOpacity(0.1),
+            cs.primary.withOpacity(0.1),
           ];
 
     // מונה גלובלי לאנימציות staggered

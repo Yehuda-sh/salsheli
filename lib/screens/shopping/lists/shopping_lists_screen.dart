@@ -24,6 +24,7 @@ import '../../../widgets/shopping/shopping_list_tile.dart';
 import '../active/active_shopping_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../who_brings/who_brings_screen.dart';
+import '../../../theme/context_extensions.dart';
 
 class ShoppingListsScreen extends StatefulWidget {
   const ShoppingListsScreen({super.key});
@@ -122,7 +123,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         },
         backgroundColor: kStickyYellow,
         tooltip: AppStrings.shopping.newListTooltip,
-        child: const Icon(Icons.add, color: Colors.black87),
+        child: Icon(Icons.add, color: cs.onSurface),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
@@ -182,7 +183,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                     : Colors.white.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _hasActiveFilters ? cs.primary : Colors.black12,
+                  color: _hasActiveFilters ? cs.primary : cs.onSurface.withOpacity(0.12),
                 ),
               ),
               child: Row(
@@ -191,14 +192,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   Icon(
                     Icons.tune,
                     size: 18,
-                    color: _hasActiveFilters ? cs.primary : Colors.black54,
+                    color: _hasActiveFilters ? cs.primary : cs.onSurface.withOpacity(0.6),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
                     style: TextStyle(
                       fontSize: 13,
-                      color: _hasActiveFilters ? cs.primary : Colors.black54,
+                      color: _hasActiveFilters ? cs.primary : cs.onSurface.withOpacity(0.6),
                       fontWeight: _hasActiveFilters ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -237,7 +238,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ? cs.error
         : isActive
             ? cs.primary
-            : Colors.black87;
+            : cs.onSurface;
 
     return PopupMenuItem(
       value: value,
@@ -463,7 +464,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         });
         Navigator.pop(context);
       },
-      backgroundColor: Colors.white,
+      backgroundColor: cs.onPrimary,
       selectedColor: kStickyCyan,
     );
   }
@@ -520,13 +521,13 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? cs.primary : Colors.black54,
+        color: isSelected ? cs.primary : cs.onSurface.withOpacity(0.6),
       ),
       title: Text(
         label,
         style: TextStyle(
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          color: isSelected ? cs.primary : Colors.black87,
+          color: isSelected ? cs.primary : cs.onSurface,
         ),
       ),
       trailing: isSelected ? Icon(Icons.check, color: cs.primary) : null,
@@ -620,7 +621,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             if (onTap != null) ...[
               const SizedBox(width: 2),
-              const Icon(Icons.edit, size: 10, color: Colors.black45),
+              Icon(Icons.edit, size: 10, color: cs.onSurface.withOpacity(0.45)),
             ],
           ],
         ),

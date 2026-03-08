@@ -28,6 +28,7 @@ import '../../l10n/app_strings.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
+import '../../theme/context_extensions.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -724,8 +725,8 @@ class _MiniShareUser extends StatelessWidget {
                   height: 1.2,
                   fontWeight: FontWeight.bold,
                   color: ThemeData.estimateBrightnessForColor(bgColor) == Brightness.light
-                      ? Colors.black87
-                      : Colors.white,
+                      ? cs.onSurface
+                      : cs.onPrimary,
                 ),
               ),
             ),

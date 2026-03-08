@@ -64,6 +64,7 @@ import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
+import '../../../theme/context_extensions.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;
@@ -356,7 +357,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
                 const SizedBox(width: kSpacingSmall),
                 Text(AppStrings.shopping.syncSuccess),
               ],
@@ -600,7 +601,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.check_circle, color: Colors.white),
+                Icon(Icons.check_circle, color: cs.onPrimary),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(child: Text(message)),
               ],
@@ -1776,7 +1777,7 @@ class _ShoppingSummaryDialogState extends State<_ShoppingSummaryDialog> {
               }
             },
             color: StatusColors.success,
-            textColor: Colors.white,
+            textColor: cs.onPrimary,
             height: 44,
           ),
         ),

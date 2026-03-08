@@ -50,6 +50,7 @@ import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
 import '../../../config/filters_config.dart';
+import '../../../theme/context_extensions.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -281,7 +282,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         backgroundColor: Colors.red.shade700,
         action: SnackBarAction(
           label: AppStrings.common.cancel,
-          textColor: Colors.white,
+          textColor: cs.onPrimary,
           onPressed: () {
             provider.addItemToList(widget.list.id, removed.name, removed.quantity ?? 1, removed.unit ?? 'יח\'');
             debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
@@ -349,7 +350,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 SnackBar(
                   content: Row(
                     children: [
-                      const Icon(Icons.hourglass_empty, color: Colors.white),
+                      Icon(Icons.hourglass_empty, color: cs.onPrimary),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(child: Text(AppStrings.sharing.requestCreated)),
                     ],
@@ -363,7 +364,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             debugPrint('❌ ShoppingListDetailsScreen: שגיאה בשליחת בקשה: $e');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('שגיאה: $e'), backgroundColor: Colors.red),
+                SnackBar(content: Text('שגיאה: $e'), backgroundColor: cs.error),
               );
             }
           }
@@ -496,7 +497,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           backgroundColor: kStickyCyan,
                           tooltip: AppStrings.listDetails.addTaskButton,
                           onPressed: _handleAddTask,
-                          child: const Icon(Icons.assignment_add, color: Colors.black87),
+                          child: Icon(Icons.assignment_add, color: cs.onSurface),
                         ),
                         const SizedBox(height: 16),
                         // כפתור ראשי: הוסף מוצר (גדול יותר)
@@ -509,7 +510,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             tooltip: AppStrings.listDetails.addProductButton,
                             elevation: 4,
                             onPressed: _handleAddProduct,
-                            child: const Icon(Icons.add_shopping_cart, size: 30, color: Colors.black),
+                            child: Icon(Icons.add_shopping_cart, size: 30, color: cs.onSurface),
                           ),
                         ),
                       ],
@@ -560,7 +561,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                             constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
                             child: Text(
                               '${currentList.pendingRequestsForReview.length}',
-                              style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: cs.onPrimary, fontSize: 10, fontWeight: FontWeight.bold),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -762,7 +763,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               '$emoji $category',
               style: TextStyle(
                 fontSize: 13,
-                color: isSelected ? Colors.black : Colors.black87,
+                color: isSelected ? cs.onSurface : cs.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -777,7 +778,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: BorderSide(
-                color: isSelected ? Colors.black12 : Colors.transparent,
+                color: isSelected ? cs.onSurface.withOpacity(0.12) : Colors.transparent,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -845,9 +846,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // צבעים עדינים למרקרים
     final highlightColors = [
       Colors.purple.withValues(alpha: 0.1),
-      Colors.orange.withValues(alpha: 0.1),
+      cs.tertiary.withOpacity(0.1),
       Colors.blue.withValues(alpha: 0.1),
-      Colors.green.withValues(alpha: 0.1),
+      cs.primary.withOpacity(0.1),
     ];
 
     return ListView.builder(
@@ -882,7 +883,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   color: highlightColor, // רקע שקוף "מרקר"
                   border: const Border(
                     // פס דק בצד ימין לחיזוק
-                    right: BorderSide(color: Colors.black12, width: 4),
+                    right: BorderSide(color: cs.onSurface.withOpacity(0.12), width: 4),
                   ),
                 ),
                 child: Row(
@@ -894,7 +895,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       '${_getCategoryEmoji(category, currentList.type)} $category',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: cs.onSurface,
                         fontSize: 16,
                       ),
                     ),
@@ -948,9 +949,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         color: Colors.red.shade400,
         child: Row(
           children: [
-            const Icon(Icons.delete_outline, color: Colors.white),
+            Icon(Icons.delete_outline, color: cs.onPrimary),
             const SizedBox(width: 8),
-            Text(AppStrings.common.delete, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(AppStrings.common.delete, style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -964,7 +965,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(backgroundColor: cs.error, foregroundColor: cs.onPrimary),
                 child: Text(AppStrings.common.delete),
               ),
             ],
@@ -1041,7 +1042,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         item.name,
                         style: theme.textTheme.bodyLarge!.copyWith(
                           decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                          color: item.isChecked ? Colors.grey : Colors.black87,
+                          color: item.isChecked ? cs.outline : cs.onSurface,
                           fontSize: 16,
                         ),
                         maxLines: 1,

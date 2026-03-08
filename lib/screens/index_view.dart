@@ -31,6 +31,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/notebook_background.dart';
+import '../theme/context_extensions.dart';
 
 /// 📋 מסך טעינה מונפש
 class IndexLoadingView extends StatefulWidget {
@@ -188,9 +189,9 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color.lerp(Colors.grey, startColor, value)!,
-                Color.lerp(Colors.grey, middleColor, value)!,
-                Color.lerp(Colors.grey, endColor, value)!,
+                Color.lerp(cs.outline, startColor, value)!,
+                Color.lerp(cs.outline, middleColor, value)!,
+                Color.lerp(cs.outline, endColor, value)!,
               ],
               stops: const [0.0, 0.5, 1.0],
             ),

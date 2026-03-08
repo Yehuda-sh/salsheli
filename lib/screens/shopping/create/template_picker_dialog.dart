@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 
 import '../../../l10n/app_strings.dart';
 import '../../../services/template_service.dart';
+import '../../../theme/context_extensions.dart';
 
 /// דיאלוג לבחירת תבנית רשימה מוכנה
 class TemplatePickerDialog extends StatelessWidget {
@@ -37,11 +38,11 @@ class TemplatePickerDialog extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(strings.noTemplatesAvailable, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+                        Text(strings.noTemplatesAvailable, style: TextStyle(fontSize: 16, color: cs.outline)),
                         const SizedBox(height: 8),
                         Text(
                           strings.noTemplatesMessage,
-                          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                          style: TextStyle(fontSize: 14, color: cs.onSurfaceVariant),
                           textAlign: TextAlign.center,
                         ),
                       ],

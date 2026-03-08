@@ -30,6 +30,7 @@ import '../../services/saved_contacts_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../theme/context_extensions.dart';
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -408,7 +409,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         AppStrings.sharing.inviteSubtitle,
                         style: const TextStyle(
                           fontSize: 16,
-                          color: Colors.black54,
+                          color: cs.onSurface.withOpacity(0.6),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -443,7 +444,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   AppStrings.sharing.savedContactsSubtitle,
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Colors.black54,
+                                    color: cs.onSurface.withOpacity(0.6),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -472,7 +473,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           child: Text(
                             AppStrings.sharing.orEnterNewEmail,
                             style: const TextStyle(
-                              color: Colors.black54,
+                              color: cs.onSurface.withOpacity(0.6),
                               fontSize: 14,
                             ),
                           ),
@@ -511,7 +512,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 decoration: InputDecoration(
                                   hintText: AppStrings.sharing.emailHint,
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: cs.onPrimary,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -624,7 +625,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   _getConfirmationText(),
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    color: Colors.black87,
+                                    color: cs.onSurface,
                                   ),
                                 ),
                               ),
@@ -639,7 +640,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Expanded(
                             child: StickyButton(
                               label: AppStrings.sharing.cancelButton,
-                              color: Colors.grey,
+                              color: cs.outline,
                               onPressed: _isLoading
                                   ? null
                                   : () => Navigator.pop(context),
@@ -699,7 +700,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: isSelected
-                ? Colors.white
+                ? cs.onPrimary
                 : (isAlreadyShared || isOwner)
                     ? Colors.grey.shade200
                     : Colors.white.withValues(alpha: 0.5),
@@ -717,8 +718,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                 color: isSelected
                     ? cs.primary
                     : (isAlreadyShared || isOwner)
-                        ? Colors.grey
-                        : Colors.black54,
+                        ? cs.outline
+                        : cs.onSurface.withOpacity(0.6),
               ),
               const SizedBox(width: 12),
               // Avatar
@@ -763,7 +764,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              color: (isAlreadyShared || isOwner) ? Colors.grey : cs.onSurface,
+                              color: (isAlreadyShared || isOwner) ? cs.outline : cs.onSurface,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -803,7 +804,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         contact.userEmail,
                         style: TextStyle(
                           fontSize: 11,
-                          color: (isAlreadyShared || isOwner) ? Colors.grey : cs.onSurfaceVariant,
+                          color: (isAlreadyShared || isOwner) ? cs.outline : cs.onSurfaceVariant,
                         ),
                       ),
                   ],
@@ -834,7 +835,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.5),
+          color: isSelected ? cs.onPrimary : Colors.white.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
             color: isSelected ? cs.outline : Colors.transparent,
@@ -846,7 +847,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             // Radio Icon
             Icon(
               isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-              color: isSelected ? cs.onSurface : Colors.grey,
+              color: isSelected ? cs.onSurface : cs.outline,
             ),
 
             const SizedBox(width: 12),
@@ -875,7 +876,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                     description,
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.black54,
+                      color: cs.onSurface.withOpacity(0.6),
                     ),
                   ),
                 ],

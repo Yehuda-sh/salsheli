@@ -34,6 +34,7 @@ import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
 import 'contact_selector_dialog.dart';
 import 'template_picker_dialog.dart';
+import '../../../theme/context_extensions.dart';
 
 /// סוג נראות הרשימה
 enum ListVisibility {
@@ -158,7 +159,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_outline, color: Colors.white),
+              Icon(Icons.check_circle_outline, color: cs.onPrimary),
               const SizedBox(width: kSpacingSmall),
               Expanded(child: Text(message)),
             ],
@@ -214,7 +215,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.white),
+            Icon(Icons.error_outline, color: cs.onPrimary),
             const SizedBox(width: kSpacingSmall),
             Expanded(child: Text(message)),
           ],
@@ -788,7 +789,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                 color: isSelected ? cs.primary : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(Icons.check, size: 16, color: Colors.white)
+                  ? Icon(Icons.check, size: 16, color: cs.onPrimary)
                   : null,
             ),
             const SizedBox(width: kSpacingMedium),

@@ -48,6 +48,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/auth_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
+import '../../theme/context_extensions.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -132,7 +133,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               AppStrings.settings.logoutConfirm,
-              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              style: TextStyle(color: cs.error, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -180,7 +181,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה בהתנתקות: $e'), backgroundColor: Colors.red, duration: kSnackBarDurationLong),
+          SnackBar(content: Text('שגיאה בהתנתקות: $e'), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     } else {
@@ -205,18 +206,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
+                color: cs.error.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(kBorderRadius),
-                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                border: Border.all(color: cs.error.withOpacity(0.3)),
               ),
               child: const Row(
                 children: [
-                  Icon(Icons.bug_report, color: Colors.red, size: kIconSizeMedium),
+                  Icon(Icons.bug_report, color: cs.error, size: kIconSizeMedium),
                   SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
                       'זמין רק ב-Debug Mode',
-                      style: TextStyle(fontSize: kFontSizeSmall, color: Colors.red),
+                      style: TextStyle(fontSize: kFontSizeSmall, color: cs.error),
                     ),
                   ),
                 ],
@@ -228,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('ביטול')),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('מחק הכל', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            child: Text('מחק הכל', style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -275,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה במחיקה: $e'), backgroundColor: Colors.red, duration: kSnackBarDurationLong),
+          SnackBar(content: Text('שגיאה במחיקה: $e'), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     }
@@ -309,11 +310,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
           return AlertDialog(
             title: Row(
               children: [
-                const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+                Icon(Icons.warning_amber_rounded, color: cs.error, size: 28),
                 const SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.settings.deleteAccountTitle,
-                  style: const TextStyle(color: Colors.red),
+                  style: TextStyle(color: cs.error),
                 ),
               ],
             ),
@@ -325,13 +326,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
+                      color: cs.error.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(kBorderRadius),
-                      border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                      border: Border.all(color: cs.error.withOpacity(0.3)),
                     ),
                     child: Text(
                       AppStrings.settings.deleteAccountWarning,
-                      style: TextStyle(color: Colors.red[900]),
+                      style: TextStyle(color: cs.error[900]),
                     ),
                   ),
                   const SizedBox(height: kSpacingMedium),
@@ -378,7 +379,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountRequiresReauth),
-                                backgroundColor: Colors.orange,
+                                backgroundColor: cs.tertiary,
                               ),
                             );
                           } else {
@@ -386,7 +387,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountError(e.message)),
-                                backgroundColor: Colors.red,
+                                backgroundColor: cs.error,
                               ),
                             );
                           }
@@ -396,17 +397,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(AppStrings.settings.deleteAccountError(e.toString())),
-                              backgroundColor: Colors.red,
+                              backgroundColor: cs.error,
                             ),
                           );
                         }
                       },
-                style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                style: FilledButton.styleFrom(backgroundColor: cs.error),
                 child: isDeleting
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
                       )
                     : Text(AppStrings.settings.deleteAccountButton),
               ),
@@ -420,7 +421,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.settings.deleteAccountSuccess),
-          backgroundColor: Colors.green,
+          backgroundColor: cs.primary,
         ),
       );
       await Future.delayed(const Duration(milliseconds: 500));
@@ -664,7 +665,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 scaffoldMessenger.showSnackBar(
                                   const SnackBar(
                                     content: Text('הפרופיל עודכן בהצלחה'),
-                                    backgroundColor: Colors.green,
+                                    backgroundColor: cs.primary,
                                   ),
                                 );
                               }
@@ -674,7 +675,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text('שגיאה בעדכון: $e'),
-                                    backgroundColor: Colors.red,
+                                    backgroundColor: cs.error,
                                   ),
                                 );
                               }
@@ -686,7 +687,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    color: Colors.white,
+                                    color: cs.onPrimary,
                                   ),
                                 )
                               : const Text('שמור'),
@@ -994,7 +995,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.householdComingSoon),
-                                backgroundColor: Colors.orange,
+                                backgroundColor: cs.tertiary,
                               ),
                             );
                           },
@@ -1009,7 +1010,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.householdComingSoon),
-                                backgroundColor: Colors.orange,
+                                backgroundColor: cs.tertiary,
                               ),
                             );
                           },
@@ -1073,7 +1074,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           messenger.showSnackBar(
                             const SnackBar(
                               content: Text('ההדרכה תוצג בכניסה הבאה לדף הבית'),
-                              backgroundColor: Colors.green,
+                              backgroundColor: cs.primary,
                             ),
                           );
                         },
@@ -1130,10 +1131,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Card(
                   elevation: 1,
                   child: ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.red),
-                    title: Text(AppStrings.settings.logoutTitle, style: const TextStyle(color: Colors.red)),
+                    leading: Icon(Icons.logout, color: cs.error),
+                    title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
-                    trailing: const Icon(Icons.chevron_left, color: Colors.red),
+                    trailing: Icon(Icons.chevron_left, color: cs.error),
                     onTap: _logout,
                   ),
                 ),
@@ -1143,10 +1144,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: kSpacingSmall),
                   Card(
                     elevation: 1,
-                    color: Colors.orange.shade50,
+                    color: cs.tertiaryContainer,
                     child: ListTile(
-                      leading: const Icon(Icons.bug_report, color: Colors.orange),
-                      title: const Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: Colors.orange)),
+                      leading: Icon(Icons.bug_report, color: cs.tertiary),
+                      title: Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: cs.tertiary)),
                       subtitle: const Text('מוחק seenOnboarding - חוזר ל-Welcome'),
                       onTap: _debugClearAllData,
                     ),
@@ -1158,18 +1159,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // 🔹 מחיקת חשבון (GDPR)
                 Card(
                   elevation: 1,
-                  color: Colors.red.shade50,
+                  color: cs.errorContainer,
                   child: ListTile(
-                    leading: const Icon(Icons.delete_forever, color: Colors.red),
+                    leading: Icon(Icons.delete_forever, color: cs.error),
                     title: Text(
                       AppStrings.settings.deleteAccountTitle,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: cs.error),
                     ),
                     subtitle: Text(
                       AppStrings.settings.deleteAccountSubtitle,
-                      style: TextStyle(color: Colors.red.shade300),
+                      style: TextStyle(color: cs.error.withOpacity(0.6)),
                     ),
-                    trailing: const Icon(Icons.chevron_left, color: Colors.red),
+                    trailing: Icon(Icons.chevron_left, color: cs.error),
                     onTap: _showDeleteAccountDialog,
                   ),
                 ),

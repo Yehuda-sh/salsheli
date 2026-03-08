@@ -31,6 +31,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import 'widgets/onboarding_steps.dart';
+import '../../theme/context_extensions.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -404,7 +405,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         // כפתור "הקודם"
         Expanded(
           child: StickyButton(
-            color: Colors.white,
+            color: cs.onPrimary,
             textColor: _currentStep == 0 || _isLoading
                 ? cs.onSurfaceVariant
                 : accent,
@@ -419,7 +420,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Expanded(
           child: StickyButton(
             color: accent,
-            textColor: Colors.white,
+            textColor: cs.onPrimary,
             label: _currentStep == totalSteps - 1
                 ? AppStrings.onboarding.finish
                 : AppStrings.onboarding.next,

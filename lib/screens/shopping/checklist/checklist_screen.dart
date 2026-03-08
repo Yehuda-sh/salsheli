@@ -34,6 +34,7 @@ import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../theme/context_extensions.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final ShoppingList list;
@@ -147,7 +148,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
           label: AppStrings.checklist.gotItButton,
-          textColor: Colors.white,
+          textColor: cs.onPrimary,
           onPressed: () {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
@@ -496,12 +497,12 @@ class _ChecklistItemTile extends StatelessWidget {
                     color: isChecked ? StatusColors.success : Colors.transparent,
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(
-                      color: isChecked ? StatusColors.success : Colors.grey,
+                      color: isChecked ? StatusColors.success : cs.outline,
                       width: 2,
                     ),
                   ),
                   child: isChecked
-                      ? const Icon(Icons.check, color: Colors.white, size: 20)
+                      ? Icon(Icons.check, color: cs.onPrimary, size: 20)
                       : null,
                 ),
 

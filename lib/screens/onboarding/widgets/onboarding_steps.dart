@@ -27,6 +27,7 @@ import '../../../l10n/app_strings.dart';
 import '../../../l10n/onboarding_extensions.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/sticky_note.dart';
+import '../../../theme/context_extensions.dart';
 
 class OnboardingSteps {
   static List<Widget> build({

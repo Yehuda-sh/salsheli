@@ -32,6 +32,7 @@ import '../../../providers/user_context.dart';
 import '../../../services/notifications_service.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/sticky_note.dart';
+import '../../../theme/context_extensions.dart';
 
 class WhoBringsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -225,7 +226,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: isSuccess ? Colors.green : null,
+        backgroundColor: isSuccess ? cs.primary : null,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -315,13 +316,13 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                         icon: Icons.check_circle,
                         label: 'הושלם',
                         value: '$fullItems',
-                        color: Colors.green,
+                        color: cs.primary,
                       ),
                       _StatItem(
                         icon: Icons.person,
                         label: 'אני מביא',
                         value: '$myItems',
-                        color: Colors.blue,
+                        color: cs.primary,
                       ),
                     ],
                   ),
@@ -452,13 +453,13 @@ class _WhoBringsItemTile extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isFull
-                          ? Colors.green.withValues(alpha: 0.2)
-                          : Colors.orange.withValues(alpha: 0.2),
+                          ? cs.primary.withOpacity(0.2)
+                          : cs.tertiary.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       isFull ? Icons.check_circle : Icons.group_add,
-                      color: isFull ? Colors.green : Colors.orange,
+                      color: isFull ? cs.primary : cs.tertiary,
                       size: 24,
                     ),
                   ),
@@ -487,7 +488,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: isFull
-                          ? Colors.green
+                          ? cs.primary
                           : cs.primaryContainer,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
@@ -495,7 +496,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                       '$volunteerCount/$neededCount',
                       style: TextStyle(
                         color: isFull
-                            ? Colors.white
+                            ? cs.onPrimary
                             : cs.onPrimaryContainer,
                         fontWeight: FontWeight.bold,
                         fontSize: kFontSizeMedium,
@@ -511,7 +512,7 @@ class _WhoBringsItemTile extends StatelessWidget {
               if (volunteerCount > 0) ...[
                 Row(
                   children: [
-                    const Icon(Icons.people, size: 16, color: Colors.grey),
+                    Icon(Icons.people, size: 16, color: cs.outline),
                     const SizedBox(width: kSpacingTiny),
                     Expanded(
                       child: Text(
@@ -537,8 +538,8 @@ class _WhoBringsItemTile extends StatelessWidget {
                   icon: const Icon(Icons.close, size: 18),
                   label: const Text('בטל התנדבות'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
+                    foregroundColor: cs.error,
+                    side: const BorderSide(color: cs.error),
                     minimumSize: const Size(double.infinity, 40),
                   ),
                 )
@@ -550,7 +551,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   label: const Text('אני מביא! ✋'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: cs.onPrimary,
                     minimumSize: const Size(double.infinity, 40),
                   ),
                 )
@@ -560,19 +561,19 @@ class _WhoBringsItemTile extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color: cs.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                    border: Border.all(color: cs.primary.withOpacity(0.3)),
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check, color: Colors.green, size: 20),
+                      Icon(Icons.check, color: cs.primary, size: 20),
                       SizedBox(width: kSpacingTiny),
                       Text(
                         'מלא! ✓',
                         style: TextStyle(
-                          color: Colors.green,
+                          color: cs.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -627,7 +628,7 @@ class _StatItem extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: kFontSizeTiny,
-            color: Colors.grey.shade600,
+            color: cs.onSurfaceVariant,
           ),
         ),
       ],

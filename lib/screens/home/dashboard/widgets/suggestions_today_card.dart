@@ -22,6 +22,7 @@ import '../../../../models/shopping_list.dart';
 import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
+import '../../../../theme/context_extensions.dart';
 
 /// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
@@ -312,7 +313,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 20),
+              Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(AppStrings.suggestionsToday.addedToList(widget.suggestion.productName)),
@@ -460,13 +461,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       Icon(
                         _getUrgencyIcon(suggestion.urgency),
                         size: 14,
-                        color: Colors.black54,
+                        color: cs.onSurface.withOpacity(0.6),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         _getUrgencyText(suggestion.urgency),
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.black54,
+                          color: cs.onSurface.withOpacity(0.6),
                           fontWeight: FontWeight.w600,
                           fontSize: 10,
                         ),
@@ -481,7 +482,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       suggestion.productName,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: cs.onSurface,
                         height: 1.2,
                       ),
                       maxLines: 2,
@@ -502,7 +503,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     child: Text(
                       AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.black54,
+                        color: cs.onSurface.withOpacity(0.6),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -514,19 +515,19 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.3),
+                        color: cs.tertiary.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.warning_amber, size: 10, color: Colors.black54),
+                          Icon(Icons.warning_amber, size: 10, color: cs.onSurface.withOpacity(0.6)),
                           const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,
                               style: theme.textTheme.labelSmall?.copyWith(
                                 fontSize: 9,
-                                color: Colors.black54,
+                                color: cs.onSurface.withOpacity(0.6),
                               ),
                             ),
                           ),
@@ -544,7 +545,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Colors.black54,
+                          color: cs.onSurface.withOpacity(0.6),
                         ),
                       ),
                     )
@@ -569,13 +570,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                                     const Icon(
                                       Icons.add,
                                       size: 16,
-                                      color: Colors.black87,
+                                      color: cs.onSurface,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
                                       style: theme.textTheme.labelMedium?.copyWith(
-                                        color: Colors.black87,
+                                        color: cs.onSurface,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
@@ -598,7 +599,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                               child: Icon(
                                 Icons.close,
                                 size: 16,
-                                color: _isUnknownStatus ? Colors.black26 : Colors.black45,
+                                color: _isUnknownStatus ? cs.onSurface.withOpacity(0.26) : cs.onSurface.withOpacity(0.45),
                               ),
                             ),
                           ),

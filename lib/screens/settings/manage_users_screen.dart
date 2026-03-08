@@ -34,6 +34,7 @@ import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/share_list_service.dart';
 import '../sharing/invite_users_screen.dart';
+import '../../theme/context_extensions.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -140,7 +141,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
+                foregroundColor: cs.error,
               ),
               child: Text(strings.removeButton),
             ),
@@ -293,7 +294,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: cs.error,
       ),
     );
   }
@@ -475,7 +476,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Icon(
               Icons.people_outline,
               size: 64,
-              color: Colors.grey.withValues(alpha: 0.5),
+              color: cs.outline.withOpacity(0.5),
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -486,7 +487,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             // 🔧 טקסט שונה לפי הרשאות
             Text(
               isOwner ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: cs.outline),
             ),
           ],
         ),
@@ -566,7 +567,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             if (user.userEmail != null)
               Text(
                 user.userEmail!,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 12, color: cs.outline),
               ),
           ],
         ),
@@ -588,9 +589,9 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'remove',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete, size: 20, color: Colors.red),
+                        Icon(Icons.delete, size: 20, color: cs.error),
                         const SizedBox(width: kSpacingSmall),
-                        Text(strings.removeUser, style: const TextStyle(color: Colors.red)),
+                        Text(strings.removeUser, style: TextStyle(color: cs.error)),
                       ],
                     ),
                   ),
@@ -620,7 +621,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
         return cs.primary;
       case UserRole.viewer:
       case UserRole.unknown:
-        return Colors.grey;
+        return cs.outline;
     }
   }
 }

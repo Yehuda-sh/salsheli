@@ -40,6 +40,7 @@ import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../theme/context_extensions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -438,10 +439,10 @@ class _LoginScreenState extends State<LoginScreen>
                       filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.orange.withValues(alpha: 0.12),
+                          color: cs.tertiary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: Colors.orange.withValues(alpha: 0.3),
+                            color: cs.tertiary.withOpacity(0.3),
                             width: 0.5,
                           ),
                         ),
@@ -929,9 +930,9 @@ class _QuickLoginBottomSheet extends StatelessWidget {
 
     final roleColor = switch (user['role']) {
       'Owner' => Colors.amber,
-      'Admin' => Colors.blue,
-      'Editor' => Colors.green,
-      _ => Colors.grey,
+      'Admin' => cs.primary,
+      'Editor' => cs.primary,
+      _ => cs.outline,
     };
 
     // 🔧 FIX: שימוש ב-characters.first במקום substring לתמיכה באמוג'י ותווים מיוחדים

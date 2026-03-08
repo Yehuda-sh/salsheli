@@ -27,6 +27,7 @@ import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../theme/context_extensions.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית
@@ -328,7 +329,7 @@ class _ReceiptTile extends StatelessWidget {
     final cs = theme.colorScheme;
     final strings = AppStrings.shoppingHistory;
     final locale = Localizations.localeOf(context).languageCode;
-    final successColor = theme.extension<AppBrand>()?.success ?? Colors.green;
+    final successColor = theme.extension<AppBrand>()?.success ?? cs.primary;
 
     final leadingColor = receipt.isVirtual ? successColor : cs.primary;
 

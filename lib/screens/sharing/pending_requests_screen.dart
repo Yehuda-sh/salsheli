@@ -32,6 +32,7 @@ import '../../services/share_list_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../theme/context_extensions.dart';
 
 class PendingRequestsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -271,7 +272,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                     decoration: BoxDecoration(color: kStickyOrange, borderRadius: BorderRadius.circular(12)),
                     child: Text(
                       '${_pendingRequests.length}',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -374,7 +375,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final (IconData icon, String typeLabel, String itemName) = _getRequestTypeInfo(request);
 
     return StickyNote(
-      color: isUnknownType ? Colors.grey.shade300 : color, // 🆕 צבע אפור ל-unknown
+      color: isUnknownType ? cs.outlineVariant : color, // 🆕 צבע אפור ל-unknown
       rotation: rotation,
       child: Padding(
         padding: const EdgeInsets.all(kSpacingMedium),
@@ -389,7 +390,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: isUnknownType
-                        ? Colors.orange.withValues(alpha: 0.3)
+                        ? cs.tertiary.withOpacity(0.3)
                         : Colors.black.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
@@ -435,13 +436,13 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             // Requester info
             Row(
               children: [
-                const Icon(Icons.person, size: 16, color: Colors.grey),
+                Icon(Icons.person, size: 16, color: cs.outline),
                 const SizedBox(width: 4),
-                Text(requesterName, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(requesterName, style: TextStyle(fontSize: 12, color: cs.outline)),
                 const SizedBox(width: kSpacingSmall),
-                const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                Icon(Icons.access_time, size: 16, color: cs.outline),
                 const SizedBox(width: 4),
-                Text(timeAgo, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(timeAgo, style: TextStyle(fontSize: 12, color: cs.outline)),
               ],
             ),
 
@@ -451,7 +452,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.2),
+                  color: cs.tertiary.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.orange.shade300),
                 ),
