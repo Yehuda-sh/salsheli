@@ -29,6 +29,7 @@ class SuggestionsTodayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Consumer<SuggestionsProvider>(
       builder: (context, provider, child) {
         // Loading state
@@ -273,6 +274,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   Future<void> _onAdd(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -340,6 +342,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   Future<void> _onDismiss(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -378,6 +381,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final suggestion = widget.suggestion;
     final cardColor = _getCardColor(suggestion.urgency);
