@@ -134,6 +134,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🔔 A1a: בדיקת בקשות Editor שאושרו/נדחו לאחרונה
   Future<void> _checkEditorNotifications() async {
+    final cs = Theme.of(context).colorScheme;
     final provider = context.read<ShoppingListsProvider>();
     final userContext = context.read<UserContext>();
     final requestsService = PendingRequestsService(provider.repository, userContext);
@@ -650,6 +651,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🔍 סעיף חיפוש וסינון - גרסה קומפקטית (חוסכת מקום!)
   /// 🔧 FIX: קבלת currentList כפרמטר במקום שימוש ב-widget.list
   Widget _buildFiltersSection(List<UnifiedListItem> allItems, ShoppingList currentList) {
+    final cs = Theme.of(context).colorScheme;
     // אם אין פריטים בכלל, אין טעם להציג פילטרים
     if (allItems.isEmpty) return const SizedBox.shrink();
 
