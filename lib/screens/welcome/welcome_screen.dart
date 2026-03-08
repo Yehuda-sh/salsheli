@@ -101,6 +101,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           children: [
                             _FeatureCard(
                               emoji: AppStrings.welcome.group1Emoji,
+                              illustrationAsset: 'assets/images/onboarding_shopping.webp',
                               title: AppStrings.welcome.group1Title,
                               description: AppStrings.welcome.group1Question,
                               accentColor: kStickyGreen,
@@ -108,6 +109,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                             _FeatureCard(
                               emoji: AppStrings.welcome.group2Emoji,
+                              illustrationAsset: 'assets/images/onboarding_pantry.webp',
                               title: AppStrings.welcome.group2Title,
                               description: AppStrings.welcome.group2Question,
                               accentColor: kStickyOrange,
@@ -115,6 +117,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             ),
                             _FeatureCard(
                               emoji: AppStrings.welcome.group3Emoji,
+                              illustrationAsset: 'assets/images/onboarding_sharing.webp',
                               title: AppStrings.welcome.group3Title,
                               description: AppStrings.welcome.group3Question,
                               accentColor: kStickyCyan,
@@ -464,6 +467,7 @@ class _LogoAndSlogan extends StatelessWidget {
 
 class _FeatureCard extends StatelessWidget {
   final String emoji;
+  final String? illustrationAsset;
   final String title;
   final String description;
   final Widget previewWidget;
@@ -471,6 +475,7 @@ class _FeatureCard extends StatelessWidget {
 
   const _FeatureCard({
     required this.emoji,
+    this.illustrationAsset,
     required this.title,
     required this.description,
     required this.previewWidget,
@@ -522,19 +527,28 @@ class _FeatureCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Emoji גדול
+                      // איור או Emoji
                       ExcludeSemantics(
-                        child: Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Text(emoji, style: const TextStyle(fontSize: 48, height: 1.0)),
-                          ),
-                        ),
+                        child: illustrationAsset != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                                child: Image.asset(
+                                  illustrationAsset!,
+                                  height: 140,
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            : Container(
+                                width: 88,
+                                height: 88,
+                                decoration: BoxDecoration(
+                                  color: accentColor.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(emoji, style: const TextStyle(fontSize: 48, height: 1.0)),
+                                ),
+                              ),
                       ),
                       const SizedBox(height: kSpacingMedium),
 
