@@ -61,7 +61,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-      debugPrint('📝 ManageUsersScreen: פתיחת מסך ניהול משתמשים');
     }
 
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
@@ -70,7 +69,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     // 🔒 Note: גם משתמשים ללא הרשאת ניהול יכולים לראות (read-only mode)
     // FAB והתפריט לא יוצגו להם
     if (kDebugMode && !widget.list.canCurrentUserManage) {
-      debugPrint('ℹ️ ManageUsersScreen: מצב צפייה בלבד (read-only)');
     }
 
     _loadUsers();

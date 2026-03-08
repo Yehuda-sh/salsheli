@@ -169,7 +169,6 @@ class _LoginScreenState extends State<LoginScreen>
 
       // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
       if (kDebugMode) {
-        debugPrint('✅ _handleLogin() | Sign in successful, userId: ${userContext.userId}');
       }
 
       // 🔹 2. שמירה ב-SharedPreferences (רק seenOnboarding!)

@@ -107,7 +107,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🛒 ActiveShoppingScreen.initState: התחלה');
 
     // ✅ UserContext Listener - לאזור לשינויים בנתוני המשתמש
     _userContext = context.read<UserContext>();
@@ -131,14 +130,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _errorMessage = null;
       });
 
-      debugPrint('🔄 _initializeScreen: מתחיל טעינה');
 
       // 🔐 בדיקת הרשאות - צופה לא יכול להשתתף בקנייה!
       final userId = _userContext.userId;
       if (userId != null) {
         final userRole = widget.list.getUserRole(userId);
         if (userRole != null && !userRole.canShop) {
-          debugPrint('🚫 _initializeScreen: צופה לא יכול להשתתף בקנייה');
           if (mounted) {
             // הצג הודעה וחזור למסך הקודם
             final brand = Theme.of(context).extension<AppBrand>();
@@ -165,14 +162,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       for (final item in widget.list.items) {
         if (item.isChecked) {
           _itemStatuses[item.id] = ShoppingItemStatus.purchased;
-          debugPrint('  ✅ ${item.name}: שוחזר כ-purchased');
         } else {
           _itemStatuses[item.id] = ShoppingItemStatus.pending;
         }
       }
 
       final purchasedCount = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
-      debugPrint('✅ _initializeScreen: ${widget.list.items.length} פריטים, $purchasedCount כבר נקנו');
 
       if (!mounted) return;
 
@@ -180,7 +175,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('❌ _initializeScreen Error: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -203,9 +197,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       return;
     }
 
-    debugPrint('🔄 _onUserContextChanged: שינוי אמיתי בהקשר המשתמש');
-    debugPrint('   userId: $_lastUserId → $newUserId');
-    debugPrint('   householdId: $_lastHouseholdId → $newHouseholdId');
 
     // עדכן את הערכים השמורים
     _lastUserId = newUserId;
@@ -218,7 +209,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   @override
   void dispose() {
-    debugPrint('🗑️ ActiveShoppingScreen.dispose');
 
     // ✅ ניקוי listener - רק אם הוסף
     if (_listenerAdded) {
@@ -237,7 +227,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// עדכון סטטוס פריט + שמירה אוטומטית עם debounce
   /// 🔢 עדכון כמות פריט
   void _updateItemQuantity(UnifiedListItem item, int newQuantity) {
-    debugPrint('📝 _updateItemQuantity: ${item.name} → $newQuantity');
 
     final provider = context.read<ShoppingListsProvider>();
     // quantity נמצא בתוך productData
@@ -248,7 +237,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   }
 
   void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
-    debugPrint('📝 _updateItemStatus: ${item.name} → ${newStatus.name}');
 
     // 🔄 עדכון מיידי ב-UI (optimistic update)
     setState(() {
@@ -269,7 +257,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     try {
       final provider = context.read<ShoppingListsProvider>();
       await provider.updateItemStatus(widget.list.id, itemId, status);
-      debugPrint('✅ _saveItemStatus: נשמר אוטומטית');
 
       // ✅ סנכרון הצליח - נקה שגיאה קודמת אם הייתה
       if (mounted) {
@@ -279,7 +266,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         });
       }
     } catch (e) {
-      debugPrint('❌ _saveItemStatus Auto-save Error: $e');
 
       // ⚠️ הצג אינדיקציה למשתמש שיש בעיית סנכרון
       if (mounted) {
@@ -314,7 +300,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
       } catch (e) {
         failedCount++;
-        debugPrint('⚠️ _flushPendingSaves: Failed to sync ${entry.key}: $e');
         // ממשיך למרות שגיאה - כדי לסנכרן כמה שיותר
       }
     }
@@ -327,13 +312,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       });
     }
 
-    debugPrint('✅ _flushPendingSaves: סיים סנכרון ${_itemStatuses.length} פריטים ($failedCount נכשלו)');
   }
 
   /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
   Future<void> _retrySyncAll() async {
     final cs = Theme.of(context).colorScheme;
-    debugPrint('🔄 _retrySyncAll: מנסה לסנכרן הכל...');
 
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
@@ -345,7 +328,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
       } catch (e) {
         anyFailed = true;
-        debugPrint('❌ Failed to sync ${entry.key}: $e');
       }
     }
 
@@ -375,7 +357,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// סיום קנייה - מעבר למסך סיכום
   Future<void> _finishShopping() async {
-    debugPrint('🏁 _finishShopping: מתחיל סיכום');
 
     // ✨ Haptic feedback למשוב מישוש
     unawaited(HapticFeedback.mediumImpact());
@@ -408,10 +389,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     );
 
     if (result != null && result != ShoppingSummaryResult.cancel && mounted) {
-      debugPrint('✅ _finishShopping: משתמש אישר סיום עם אופציה: ${result.name}');
       await _saveAndFinish(pendingAction: result);
     } else {
-      debugPrint('❌ _finishShopping: משתמש ביטל');
     }
   }
 
@@ -443,7 +422,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     });
 
     try {
-      debugPrint('💾 _saveAndFinish: מתחיל תהליך סיום קנייה (pendingAction: ${pendingAction.name})');
 
       // 1️⃣ בטל טיימרים כדי למנוע writes נוספים
       _cancelAllSaveTimers();
@@ -473,7 +451,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           // העבר pending + outOfStock לרשימה הבאה (מסיימים את הרשימה)
           itemsToTransfer.addAll(outOfStockItems);
           itemsToTransfer.addAll(pendingItems);
-          debugPrint('🔄 מעביר ${pendingItems.length} פריטי pending + ${outOfStockItems.length} outOfStock לרשימה הבאה');
           break;
 
         case ShoppingSummaryResult.finishAndDeletePending:
@@ -482,19 +459,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           for (final item in pendingItems) {
             _itemStatuses[item.id] = ShoppingItemStatus.notNeeded;
           }
-          debugPrint('🗑️ מסמן ${pendingItems.length} פריטי pending כ-notNeeded, מעביר ${outOfStockItems.length} outOfStock');
           break;
 
         case ShoppingSummaryResult.finishAndLeavePending:
           // ✅ השאר ברשימה - לא מעבירים כלום! (גם לא outOfStock)
           // הרשימה נשארת פעילה עם כל הפריטים שלא נקנו
-          debugPrint('📌 משאיר ${pendingItems.length} פריטי pending + ${outOfStockItems.length} outOfStock ברשימה');
           break;
 
         case ShoppingSummaryResult.finishNoPending:
           // אין pending - העבר רק outOfStock (מסיימים את הרשימה)
           itemsToTransfer.addAll(outOfStockItems);
-          debugPrint('🔄 מעביר ${outOfStockItems.length} outOfStock לרשימה הבאה');
           break;
 
         case ShoppingSummaryResult.cancel:
@@ -508,9 +482,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       // 5️⃣ עדכן מזווה ודפוסים - רק לרשימות משותפות (לא אירועים ולא אישיות)
       if (purchasedItems.isNotEmpty &&
           ShoppingList.shouldUpdatePantry(widget.list.type, isPrivate: widget.list.isPrivate)) {
-        debugPrint('📦 מעדכן מלאי: ${purchasedItems.length} פריטים');
         await inventoryProvider.updateStockAfterPurchase(purchasedItems);
-        debugPrint('✅ מלאי עודכן בהצלחה');
 
         // 📊 שמור דפוס קנייה (מערכת למידה)
         try {
@@ -525,19 +497,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             listType: widget.list.type,
             purchasedItems: purchasedNames,
           );
-          debugPrint('✅ דפוס קנייה נשמר בהצלחה');
         } catch (e) {
-          debugPrint('⚠️ שמירת דפוס נכשלה (לא קריטי): $e');
         }
       } else if (purchasedItems.isNotEmpty) {
-        debugPrint('🔒 רשימה אישית/אירוע - דילוג על עדכון מזווה ודפוסי קנייה');
       }
 
       // 6️⃣ העבר פריטים לרשימה הבאה (רק אם מסיימים את הרשימה)
       if (itemsToTransfer.isNotEmpty) {
-        debugPrint('🔄 מעביר ${itemsToTransfer.length} פריטים לרשימה הבאה');
         await shoppingProvider.addToNextList(itemsToTransfer);
-        debugPrint('✅ פריטים הועברו לרשימה הבאה');
       }
 
       // 5️⃣ קבע אם הרשימה הושלמה
@@ -547,17 +514,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       final shouldCompleteList = pendingAction != ShoppingSummaryResult.finishAndLeavePending;
 
       if (shouldCompleteList) {
-        debugPrint('🏁 מסמן רשימה כהושלמה');
         await shoppingProvider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
-        debugPrint('✅ רשימה הושלמה!');
       } else {
-        debugPrint('🔄 הרשימה נשארת פעילה - ${pendingItems.length} פריטים נשארו');
       }
 
       // 6️⃣ צור קבלה וירטואלית מהפריטים שנקנו
       if (purchasedItems.isNotEmpty) {
         try {
-          debugPrint('🧾 יוצר קבלה וירטואלית...');
           final userId = _userContext.user?.id;
           final listName = widget.list.name;
 
@@ -577,9 +540,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             date: DateTime.now(),
             items: receiptItems,
           );
-          debugPrint('✅ קבלה וירטואלית נוצרה בהצלחה');
         } catch (e) {
-          debugPrint('⚠️ יצירת קבלה וירטואלית נכשלה (לא קריטי): $e');
         }
       }
 
@@ -623,10 +584,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         // 🔧 FIX: איפוס _isSaving לפני ניווט למקרה שנכשל
         setState(() => _isSaving = false);
 
-        debugPrint('🚪 _saveAndFinish: מעבר למסך סיכום');
         unawaited(navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id));
     } catch (e) {
-      debugPrint('❌ _saveAndFinish Error: $e');
 
       if (mounted) {
         // הצג הודעת שגיאה עם אפשרות retry

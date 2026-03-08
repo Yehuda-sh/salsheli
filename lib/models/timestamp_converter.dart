@@ -72,7 +72,6 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
   DateTime fromJson(dynamic json) {
     if (json == null) {
       if (kDebugMode) {
-        debugPrint('⚠️ FlexibleDateTimeConverter: got null, returning DateTime.now()');
       }
       return DateTime.now();
     }
@@ -81,7 +80,6 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
       final parsed = DateTime.tryParse(json);
       if (parsed != null) return parsed;
       if (kDebugMode) {
-        debugPrint('⚠️ FlexibleDateTimeConverter: invalid String "$json", returning DateTime.now()');
       }
       return DateTime.now();
     }
@@ -89,7 +87,6 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
     if (json is DateTime) return json;
     // טיפוס לא מוכר - fallback + אזהרה
     if (kDebugMode) {
-      debugPrint('⚠️ FlexibleDateTimeConverter: unknown type ${json.runtimeType}, returning DateTime.now()');
     }
     return DateTime.now();
   }
@@ -113,7 +110,6 @@ class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dyna
     if (json is String) {
       final parsed = DateTime.tryParse(json);
       if (parsed == null && kDebugMode) {
-        debugPrint('⚠️ NullableFlexibleDateTimeConverter: invalid String "$json", returning null');
       }
       return parsed;
     }
@@ -121,7 +117,6 @@ class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dyna
     if (json is DateTime) return json;
     // טיפוס לא מוכר - null + אזהרה
     if (kDebugMode) {
-      debugPrint('⚠️ NullableFlexibleDateTimeConverter: unknown type ${json.runtimeType}, returning null');
     }
     return null;
   }

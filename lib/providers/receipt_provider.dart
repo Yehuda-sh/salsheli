@@ -155,7 +155,6 @@ class ReceiptProvider with ChangeNotifier {
       _errorMessage = "שגיאה בטעינת קבלות: $e";
       _isLoading = false;
       if (kDebugMode) {
-        debugPrint('❌ ReceiptProvider._loadReceipts: שגיאה - $e');
         debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
       }
       notifyListeners();

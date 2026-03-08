@@ -174,12 +174,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created invite notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createInviteNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -219,12 +217,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created requestApproved notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createRequestApprovedNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -270,12 +266,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created requestRejected notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createRequestRejectedNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -317,12 +311,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created roleChanged notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createRoleChangedNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -360,12 +352,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created userRemoved notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createUserRemovedNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -408,12 +398,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created whoBringsVolunteer notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createWhoBringsVolunteerNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -457,12 +445,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created newVote notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createNewVoteNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -503,12 +489,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created voteTie notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createVoteTieNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -545,12 +529,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Created lowStock notification for user $userId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.createLowStockNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -570,7 +552,6 @@ class NotificationsService {
   }) async {
     try {
       if (kDebugMode) {
-        debugPrint('📋 NotificationsService: Getting notifications for user $userId');
       }
 
       final snapshot = await _notificationsCollection(userId)
@@ -583,13 +564,11 @@ class NotificationsService {
           .toList();
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Found ${notifications.length} notifications');
       }
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.getUserNotifications failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return NotificationQueryResult.error(e.toString());
@@ -613,7 +592,6 @@ class NotificationsService {
   }) async {
     try {
       if (kDebugMode) {
-        debugPrint('📬 NotificationsService: Getting unread notifications for user $userId');
       }
 
       final snapshot = await _notificationsCollection(userId)
@@ -626,13 +604,11 @@ class NotificationsService {
           .toList();
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Found ${notifications.length} unread notifications');
       }
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.getUnreadNotifications failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return NotificationQueryResult.error(e.toString());
@@ -659,13 +635,11 @@ class NotificationsService {
       final count = snapshot.docs.length;
 
       if (kDebugMode) {
-        debugPrint('🔢 NotificationsService: Unread count for user $userId: $count');
       }
 
       return NotificationQueryResult.count(count);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.getUnreadCount failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return NotificationQueryResult.error(e.toString());
@@ -683,7 +657,6 @@ class NotificationsService {
   /// Note: Streams לא מחזירים typed result - שגיאות מועברות דרך onError
   Stream<int> watchUnreadCount({required String userId}) {
     if (kDebugMode) {
-      debugPrint('📊 NotificationsService: Watching unread count for user $userId');
     }
 
     return _notificationsCollection(userId)
@@ -692,7 +665,6 @@ class NotificationsService {
         .map((snapshot) {
           final count = snapshot.docs.length;
           if (kDebugMode) {
-            debugPrint('📊 NotificationsService: Unread count updated: $count');
           }
           return count;
         });
@@ -717,12 +689,10 @@ class NotificationsService {
       });
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Marked notification $notificationId as read');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.markAsRead failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -751,12 +721,10 @@ class NotificationsService {
       await batch.commit();
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Marked ${snapshot.docs.length} notifications as read for user $userId');
       }
       return snapshot.docs.length;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.markAllAsRead failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return -1;
@@ -779,12 +747,10 @@ class NotificationsService {
       await _notificationsCollection(userId).doc(notificationId).delete();
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Deleted notification $notificationId');
       }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.deleteNotification failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return false;
@@ -803,7 +769,6 @@ class NotificationsService {
       final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
 
       if (kDebugMode) {
-        debugPrint('🧹 NotificationsService: Cleaning up notifications older than $daysOld days');
       }
 
       // 🆕 שימוש ב-subcollection - לא צריך where על user_id
@@ -820,12 +785,10 @@ class NotificationsService {
       await batch.commit();
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Cleaned up ${snapshot.docs.length} old notifications');
       }
       return snapshot.docs.length;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.cleanupOldNotifications failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return -1;
@@ -842,7 +805,6 @@ class NotificationsService {
   Future<Map<String, int>> getNotificationStats({required String userId}) async {
     try {
       if (kDebugMode) {
-        debugPrint('📊 NotificationsService: Getting stats for user $userId');
       }
 
       // 🆕 שימוש ב-subcollection - לא צריך where על user_id
@@ -859,13 +821,11 @@ class NotificationsService {
       };
 
       if (kDebugMode) {
-        debugPrint('✅ NotificationsService: Stats - total: ${stats['total']}, unread: ${stats['unread']}, read: ${stats['read']}');
       }
 
       return stats;
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('❌ NotificationsService.getNotificationStats failed: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return {'total': 0, 'unread': 0, 'read': 0};

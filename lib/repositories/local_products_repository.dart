@@ -89,7 +89,6 @@ class LocalProductsRepository implements ProductsRepository {
   Future<List<Map<String, dynamic>>> _loadFile(String fileType) async {
     try {
       final path = 'assets/data/list_types/$fileType.json';
-      debugPrint('📥 טוען מוצרים מ-$path...');
 
       final jsonString = await rootBundle.loadString(path);
       final List<dynamic> jsonData = json.decode(jsonString);
@@ -100,15 +99,12 @@ class LocalProductsRepository implements ProductsRepository {
           .toList();
 
       _cache[fileType] = products;
-      debugPrint('✅ נטענו ${products.length} מוצרים מ-$fileType');
 
       return products;
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת מוצרים מ-$fileType: $e');
 
       // Fallback ל-supermarket אם נכשל
       if (fileType != _fallbackType) {
-        debugPrint('⚠️ נסה fallback ל-$_fallbackType...');
         return getProductsByListType(_fallbackType);
       }
 
@@ -229,7 +225,6 @@ class LocalProductsRepository implements ProductsRepository {
     if (force) {
       _cache.clear();
       _loadingFutures.clear();
-      debugPrint('🧹 Cache נוקה');
     }
     await getProductsByListType(_fallbackType);
   }
@@ -262,7 +257,6 @@ class LocalProductsRepository implements ProductsRepository {
       }
     }
 
-    debugPrint('✅ נטענו ${allProducts.length} מוצרים מכל הסוגים');
     return allProducts;
   }
 
@@ -270,13 +264,11 @@ class LocalProductsRepository implements ProductsRepository {
   void clearCache() {
     _cache.clear();
     _loadingFutures.clear();
-    debugPrint('🧹 Cache נוקה');
   }
 
   /// ניקוי cache של סוג רשימה ספציפי
   void clearCacheForType(String listType) {
     _cache.remove(listType);
     _loadingFutures.remove(listType);
-    debugPrint('🧹 Cache נוקה עבור $listType');
   }
 }

@@ -78,13 +78,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-      debugPrint('📦 MyPantryScreen: initState');
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         if (kDebugMode) {
-          debugPrint('🔄 MyPantryScreen: טעינת פריטים');
         }
         context.read<InventoryProvider>().loadItems();
       }
@@ -210,7 +208,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// מציג bottom sheet לבחירת מוצר מהקטלוג
   void _addItemDialog() {
     if (kDebugMode) {
-      debugPrint('➕ MyPantryScreen: פתיחת בחירת מוצר מהקטלוג');
     }
     PantryProductSelectionSheet.show(context);
   }
@@ -225,7 +222,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     try {
       if (kDebugMode) {
-        debugPrint('🏺 MyPantryScreen: מוסיף פריטי starter...');
       }
 
       // טוען את הפריטים מהתבנית
@@ -250,7 +246,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ MyPantryScreen: שגיאה בהוספת starter - $e');
       }
       if (mounted) {
         messenger.showSnackBar(
@@ -263,7 +258,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
     if (kDebugMode) {
-      debugPrint('✏️ MyPantryScreen: עריכת פריט - ${item.id}');
     }
     PantryItemDialog.showEditDialog(context, item);
   }
@@ -277,7 +271,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final inventoryProvider = context.read<InventoryProvider>();
 
     if (kDebugMode) {
-      debugPrint('🗑️ MyPantryScreen: מחיקת פריט - ${item.id}');
     }
     try {
       await inventoryProvider.deleteItem(item.id);
@@ -292,7 +285,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   await inventoryProvider.updateItem(item);
                 } catch (e) {
                   if (kDebugMode) {
-                    debugPrint('❌ MyPantryScreen: שגיאה בשחזור פריט - $e');
                   }
                 }
               },
@@ -302,7 +294,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ MyPantryScreen: שגיאה במחיקת פריט - $e');
       }
       if (mounted) {
         messenger.showSnackBar(
@@ -320,7 +311,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final inventoryProvider = context.read<InventoryProvider>();
 
     if (kDebugMode) {
-      debugPrint('📦 MyPantryScreen: עדכון כמות - ${item.id} -> $newQuantity');
     }
 
     // 📳 Haptic דינמי לפי כיוון
@@ -342,7 +332,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ MyPantryScreen: שגיאה בעדכון כמות - $e');
       }
       if (mounted) {
         messenger.showSnackBar(
@@ -356,7 +345,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Future<void> _sendLowStockNotification(InventoryItem item) async {
     // TODO: Implement household-based low stock notifications
     if (kDebugMode) {
-      debugPrint('📬 Low stock detected: ${item.productName} (${item.quantity}/${item.minQuantity})');
     }
   }
 

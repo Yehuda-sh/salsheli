@@ -102,7 +102,6 @@ class TemplateService {
             _productsCache![source] = [];
           }
           if (kDebugMode) {
-            debugPrint('   ✅ נטען $source: ${_productsCache![source]!.length} מוצרים');
           }
         } catch (e) {
           if (kDebugMode) debugPrint('   ❌ שגיאה בטעינת $source: $e');
@@ -112,7 +111,6 @@ class TemplateService {
 
       if (kDebugMode) {
         final total = _productsCache!.values.fold(0, (sum, list) => sum + list.length);
-        debugPrint('✅ [TemplateService] סיים לטעון כל המוצרים ($total סה"כ)');
       }
 
       _loadingCompleter!.complete();
@@ -253,7 +251,6 @@ class TemplateService {
     }
 
     if (kDebugMode) {
-      debugPrint('✅ [TemplateService] סיים לטעון תבנית: ${items.length} פריטים');
     }
     return items;
   }
@@ -449,7 +446,6 @@ class TemplateService {
     }
 
     if (kDebugMode) {
-      debugPrint('✅ [TemplateService] נטענו ${items.length} פריטי starter למזווה');
     }
     return items;
   }

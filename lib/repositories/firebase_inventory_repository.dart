@@ -123,7 +123,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<List<InventoryItem>> fetchItems(String householdId) async {
     try {
-      debugPrint('📥 FirebaseInventoryRepository.fetchItems: טוען מלאי ל-$householdId');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _inventoryCollection(householdId)
@@ -132,10 +131,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final items = _mapSnapshotToItems(snapshot);
 
-      debugPrint('✅ FirebaseInventoryRepository.fetchItems: נטענו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.fetchItems: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to fetch inventory for $householdId', e);
     }
@@ -173,7 +170,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<InventoryItem> saveItem(InventoryItem item, String householdId) async {
     try {
-      debugPrint('💾 FirebaseInventoryRepository.saveItem: שומר פריט ${item.id}');
 
       // 🆕 לא צריך להוסיף household_id - הוא בנתיב
       final data = item.toJson();
@@ -183,10 +179,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
           .doc(item.id)
           .set(data, SetOptions(merge: true));
 
-      debugPrint('✅ FirebaseInventoryRepository.saveItem: פריט נשמר');
       return item;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.saveItem: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to save item ${item.id}', e);
     }
@@ -218,14 +212,11 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<void> deleteItem(String id, String householdId) async {
     try {
-      debugPrint('🗑️ FirebaseInventoryRepository.deleteItem: מוחק פריט $id');
 
       // 🆕 מחיקה ישירה - הבעלות מאומתת דרך ה-subcollection path
       await _inventoryCollection(householdId).doc(id).delete();
 
-      debugPrint('✅ FirebaseInventoryRepository.deleteItem: פריט נמחק');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.deleteItem: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to delete item $id', e);
     }
@@ -297,22 +288,18 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// ```
   Future<InventoryItem?> getItemById(String itemId, String householdId) async {
     try {
-      debugPrint('🔍 FirebaseInventoryRepository.getItemById: מחפש פריט $itemId');
 
       // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
       final doc = await _inventoryCollection(householdId).doc(itemId).get();
 
       if (!doc.exists) {
-        debugPrint('⚠️ פריט לא נמצא');
         return null;
       }
 
       final item = InventoryItem.fromJson(doc.toDartMap()!);
-      debugPrint('✅ פריט נמצא');
 
       return item;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.getItemById: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to get item by id', e);
     }
@@ -341,7 +328,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// ```
   Future<List<InventoryItem>> getItemsByLocation(String location, String householdId) async {
     try {
-      debugPrint('📍 FirebaseInventoryRepository.getItemsByLocation: מחפש פריטים ב-$location');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _inventoryCollection(householdId)
@@ -351,10 +337,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final items = _mapSnapshotToItems(snapshot);
 
-      debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.getItemsByLocation: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to get items by location', e);
     }
@@ -383,7 +367,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   /// ```
   Future<List<InventoryItem>> getItemsByCategory(String category, String householdId) async {
     try {
-      debugPrint('🏷️ FirebaseInventoryRepository.getItemsByCategory: מחפש פריטים בקטגוריה $category');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _inventoryCollection(householdId)
@@ -393,10 +376,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final items = _mapSnapshotToItems(snapshot);
 
-      debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.getItemsByCategory: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to get items by category', e);
     }
@@ -435,7 +416,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
     required String householdId,
   }) async {
     try {
-      debugPrint('⚠️ FirebaseInventoryRepository.getLowStockItems: מחפש פריטים עם כמות <= $threshold');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _inventoryCollection(householdId)
@@ -445,10 +425,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final items = _mapSnapshotToItems(snapshot);
 
-      debugPrint('✅ נמצאו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.getLowStockItems: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to get low stock items', e);
     }
@@ -488,16 +466,13 @@ class FirebaseInventoryRepository implements InventoryRepository {
     required String householdId,
   }) async {
     try {
-      debugPrint('🔢 FirebaseInventoryRepository.updateQuantity: מעדכן כמות ל-$newQuantity');
 
       // 🆕 עדכון ישיר - הבעלות מאומתת דרך ה-subcollection path
       await _inventoryCollection(householdId)
           .doc(itemId)
           .update({FirestoreFields.quantity: newQuantity});
 
-      debugPrint('✅ FirebaseInventoryRepository.updateQuantity: כמות עודכנה');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseInventoryRepository.updateQuantity: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to update quantity', e);
     }
@@ -512,7 +487,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<List<InventoryItem>> fetchUserItems(String userId) async {
     try {
-      debugPrint('📥 FirebaseInventoryRepository.fetchUserItems: טוען מזווה אישי ל-$userId');
 
       final snapshot = await _userInventoryCollection(userId)
           .orderBy(FirestoreFields.productName)
@@ -520,10 +494,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       final items = _mapSnapshotToItems(snapshot);
 
-      debugPrint('✅ fetchUserItems: נטענו ${items.length} פריטים');
       return items;
     } catch (e, stackTrace) {
-      debugPrint('❌ fetchUserItems: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to fetch user inventory for $userId', e);
     }
@@ -533,17 +505,14 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<InventoryItem> saveUserItem(InventoryItem item, String userId) async {
     try {
-      debugPrint('💾 saveUserItem: שומר פריט ${item.id} למזווה אישי');
 
       final data = item.toJson();
       await _userInventoryCollection(userId)
           .doc(item.id)
           .set(data, SetOptions(merge: true));
 
-      debugPrint('✅ saveUserItem: פריט נשמר');
       return item;
     } catch (e, stackTrace) {
-      debugPrint('❌ saveUserItem: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to save user item ${item.id}', e);
     }
@@ -553,13 +522,10 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<void> deleteUserItem(String itemId, String userId) async {
     try {
-      debugPrint('🗑️ deleteUserItem: מוחק פריט $itemId ממזווה אישי');
 
       await _userInventoryCollection(userId).doc(itemId).delete();
 
-      debugPrint('✅ deleteUserItem: פריט נמחק');
     } catch (e, stackTrace) {
-      debugPrint('❌ deleteUserItem: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to delete user item $itemId', e);
     }
@@ -569,7 +535,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
   @override
   Future<int> deleteAllUserItems(String userId) async {
     try {
-      debugPrint('🗑️ deleteAllUserItems: מוחק את כל פריטי המזווה האישי של $userId');
 
       final snapshot = await _userInventoryCollection(userId).get();
       final batch = _firestore.batch();
@@ -580,10 +545,8 @@ class FirebaseInventoryRepository implements InventoryRepository {
 
       await batch.commit();
 
-      debugPrint('✅ deleteAllUserItems: נמחקו ${snapshot.docs.length} פריטים');
       return snapshot.docs.length;
     } catch (e, stackTrace) {
-      debugPrint('❌ deleteAllUserItems: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw InventoryRepositoryException('Failed to delete all user items', e);
     }
@@ -616,7 +579,6 @@ class FirebaseInventoryRepository implements InventoryRepository {
       try {
         return InventoryItem.fromJson(doc.toDartMap()!);
       } catch (e) {
-        debugPrint('⚠️ InventoryRepository: דולג על פריט פגום ${doc.id} - $e');
         return null;
       }
     }).whereType<InventoryItem>().toList();

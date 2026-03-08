@@ -62,15 +62,12 @@ Future<void> _connectToEmulators() async {
 
   // Firestore Emulator
   FirebaseFirestore.instance.useFirestoreEmulator(host, AppConfig.firestorePort);
-  debugPrint('🔥 Connected to Firestore Emulator at $host:${AppConfig.firestorePort}');
 
   // Auth Emulator
   await FirebaseAuth.instance.useAuthEmulator(host, AppConfig.authPort);
-  debugPrint('🔐 Connected to Auth Emulator at $host:${AppConfig.authPort}');
 
   // Storage Emulator
   await FirebaseStorage.instance.useStorageEmulator(host, AppConfig.storagePort);
-  debugPrint('📦 Connected to Storage Emulator at $host:${AppConfig.storagePort}');
 }
 
 void main() async {
@@ -102,7 +99,6 @@ void main() async {
     }
   } catch (e) {
     if (kDebugMode) {
-      debugPrint('❌ Firebase initialization error: $e');
     }
   }
 
@@ -115,7 +111,6 @@ void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
     if (kDebugMode) {
-      debugPrint('🔴 Flutter Error: ${details.exception}');
     }
     // Report to Crashlytics in production
     if (AppConfig.isProduction) {

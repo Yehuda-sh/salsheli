@@ -40,7 +40,6 @@ class OnboardingSteps {
     required ValueChanged<bool> onShareChanged,
     required ValueChanged<String> onReminderChanged,
   }) {
-    debugPrint('📋 onboarding: בניית 7 שלבים');
     return [
       const _WelcomeStep(),
       _FamilySizeStep(
@@ -171,7 +170,6 @@ class _WelcomeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('👋 onboarding: Welcome step');
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();
@@ -314,7 +312,6 @@ class _FamilySizeStepState extends State<_FamilySizeStep> {
             onChanged: (v) {
               unawaited(HapticFeedback.selectionClick());
               final newSize = v.toInt();
-              debugPrint('👨‍👩‍👧‍👦 onboarding: Family size = $newSize');
               widget.onChanged(newSize);
             },
           ),
@@ -542,12 +539,9 @@ class _MultiSelectStep extends StatelessWidget {
               final newSet = Set<String>.from(selected);
               if (val) {
                 newSet.add(opt);
-                debugPrint('➕ onboarding: נוסף - $opt');
               } else {
                 newSet.remove(opt);
-                debugPrint('➖ onboarding: הוסר - $opt');
               }
-              debugPrint('✅ onboarding: סה"כ נבחרו ${newSet.length} פריטים');
               onChanged(newSet);
             },
             backgroundColor: cs.surfaceContainerHighest.withValues(alpha: 0.18),
@@ -615,7 +609,6 @@ class _ShoppingFrequencyStep extends StatelessWidget {
             onChanged: (v) {
               unawaited(HapticFeedback.selectionClick());
               final newFreq = v.toInt();
-              debugPrint('📅 onboarding: Shopping frequency = $newFreq');
               onFrequencyChanged(newFreq);
             },
           ),
@@ -648,17 +641,13 @@ class _ShoppingFrequencyStep extends StatelessWidget {
                   final newSet = Set<int>.from(selectedDays);
                   if (val) {
                     newSet.add(day);
-                    debugPrint('➕ onboarding: נוסף יום - $dayLabel');
                   } else {
                     newSet.remove(day);
-                    debugPrint('➖ onboarding: הוסר יום - $dayLabel');
                   }
-                  debugPrint('✅ onboarding: סה"כ נבחרו ${newSet.length} ימים');
                   onDaysChanged(newSet);
 
                   // עדכון אוטומטי של התדירות לפי מספר הימים שנבחרו
                   if (newSet.isNotEmpty && newSet.length != frequency) {
-                    debugPrint('🔄 onboarding: מעדכן תדירות ל-${newSet.length} (לפי ימים נבחרים)');
                     onFrequencyChanged(newSet.length);
                   }
                 },
@@ -715,7 +704,6 @@ class _SharingStep extends StatelessWidget {
         value: value,
         activeThumbColor: accent,
         onChanged: (val) {
-          debugPrint('🤝 onboarding: שיתוף רשימות = ${val ? 'מופעל' : 'כבוי'}');
           onChanged(val);
         },
       ),
@@ -764,7 +752,6 @@ class _ReminderStep extends StatelessWidget {
           const SizedBox(height: kSpacingMedium),
           OutlinedButton.icon(
             onPressed: () async {
-              debugPrint('⏰ onboarding: פתיחת time picker');
               // המרה של המחרוזת ל-TimeOfDay לצורך הצגה ב-picker
               final parts = value.split(':');
               final currentTime = TimeOfDay(
@@ -787,10 +774,8 @@ class _ReminderStep extends StatelessWidget {
                 // המרה חזרה למחרוזת בפורמט HH:MM
                 final timeString =
                     '${pickedTime.hour.toString().padLeft(2, '0')}:${pickedTime.minute.toString().padLeft(2, '0')}';
-                debugPrint('✅ onboarding: זמן תזכורת עודכן ל-$timeString');
                 onChanged(timeString);
               } else {
-                debugPrint('❌ onboarding: time picker בוטל');
               }
             },
             icon: Icon(Icons.access_time, color: accent),
@@ -823,7 +808,6 @@ class _SummaryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('📊 onboarding: Summary step');
     final cs = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final brand = Theme.of(context).extension<AppBrand>();

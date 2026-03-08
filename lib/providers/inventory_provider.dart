@@ -69,7 +69,6 @@ class InventoryProvider with ChangeNotifier {
     String? errorMessagePrefix,
   }) async {
     if (_isDisposed) {
-      debugPrint('⚠️ InventoryProvider.$operation: Aborted (disposed)');
       return null;
     }
 
@@ -84,7 +83,6 @@ class InventoryProvider with ChangeNotifier {
       _errorMessage = null;
       return result;
     } catch (e) {
-      debugPrint('❌ InventoryProvider.$operation: שגיאה - $e');
       _errorMessage = errorMessagePrefix != null
           ? '$errorMessagePrefix: ${e.toString()}'
           : e.toString();
@@ -171,7 +169,6 @@ class InventoryProvider with ChangeNotifier {
   void _updateInventoryLocation() {
     final userId = _userContext?.userId;
     if (kDebugMode) {
-      debugPrint('📍 InventoryProvider._updateInventoryLocation: userId=$userId, isLoggedIn=${_userContext?.isLoggedIn}');
     }
     if (userId == null || _userContext?.isLoggedIn != true) {
       // 🔧 Logout/no user: איפוס מלא של state
@@ -190,7 +187,6 @@ class InventoryProvider with ChangeNotifier {
     if (_currentMode != InventoryMode.personal || _items.isEmpty && !_isLoading) {
       _currentMode = InventoryMode.personal;
       if (kDebugMode) {
-        debugPrint('👤 InventoryProvider: מזווה אישי/משפחתי');
       }
       _loadItems();
     }
@@ -245,21 +241,18 @@ class InventoryProvider with ChangeNotifier {
     try {
       // טעינה ממזווה אישי
       if (kDebugMode) {
-        debugPrint('📦 InventoryProvider: טוען ממזווה אישי $userId');
       }
       final loadedItems = await _repository.fetchUserItems(userId);
 
       // 🔒 בדיקה: אם הדור השתנה או המצב השתנה - לא לעדכן!
       if (_loadGeneration != generation) {
         if (kDebugMode) {
-          debugPrint('⚠️ InventoryProvider: דור טעינה השתנה - מתעלם מתוצאות');
         }
         return; // אל תשנה isLoading - הטעינה החדשה תטפל בזה
       }
 
       if (_currentMode != loadingMode) {
         if (kDebugMode) {
-          debugPrint('⚠️ InventoryProvider: מצב השתנה תוך כדי טעינה - מתעלם מתוצאות');
         }
         _isLoading = false;
         _notifySafe();
@@ -273,7 +266,6 @@ class InventoryProvider with ChangeNotifier {
 
       _errorMessage = 'שגיאה בטעינת מלאי: $e';
       if (kDebugMode) {
-        debugPrint('❌ InventoryProvider._doLoad: שגיאה - $e');
         debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
       }
     }
@@ -334,7 +326,6 @@ class InventoryProvider with ChangeNotifier {
     // 🚫 בדיקת הגבלת פריטים במזווה
     if (_items.length >= kMaxItemsPerPantry) {
       if (kDebugMode) {
-        debugPrint('❌ createItem: הגעת למקסימום $kMaxItemsPerPantry פריטים במזווה');
       }
       throw Exception(AppStrings.inventory.maxItemsReached(kMaxItemsPerPantry));
     }
@@ -619,7 +610,6 @@ class InventoryProvider with ChangeNotifier {
       return userItems.isNotEmpty;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ hasPersonalInventory: שגיאה - $e');
       }
       return false;
     }
@@ -635,7 +625,6 @@ class InventoryProvider with ChangeNotifier {
       return userItems.length;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ getPersonalInventoryCount: שגיאה - $e');
       }
       return 0;
     }
@@ -673,13 +662,11 @@ class InventoryProvider with ChangeNotifier {
       _notifySafe();
 
       if (kDebugMode) {
-        debugPrint('✅ InventoryProvider: נוספו $successCount פריטי starter למזווה');
       }
 
       return successCount;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.addStarterItems: שגיאה - $e');
       }
       _errorMessage = 'שגיאה בהוספת פריטים';
       _notifySafe();
@@ -702,19 +689,16 @@ class InventoryProvider with ChangeNotifier {
 
     try {
       if (kDebugMode) {
-        debugPrint('🗑️ InventoryProvider: מוחק מזווה אישי של $userId');
       }
 
       final deletedCount = await _repository.deleteAllUserItems(userId);
 
       if (kDebugMode) {
-        debugPrint('✅ InventoryProvider: נמחקו $deletedCount פריטים');
       }
 
       return deletedCount;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ InventoryProvider.deletePersonalInventory: שגיאה - $e');
       }
       _errorMessage = 'שגיאה במחיקת מזווה אישי';
       _notifySafe();

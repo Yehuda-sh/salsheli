@@ -109,7 +109,6 @@ class StorageLocationsConfig {
     if (_locationData.containsKey(locationId)) return locationId;
 
     if (kDebugMode) {
-      debugPrint('⚠️ StorageLocationsConfig.resolve: id לא מוכר "$locationId" → fallback ל-other');
     }
     return other;
   }
@@ -259,6 +258,5 @@ class StorageLocationsConfig {
       );
     }
 
-    debugPrint('✅ StorageLocationsConfig.ensureSanity(): ${allLocations.length} מיקומים, התאמה מלאה');
   }
 }

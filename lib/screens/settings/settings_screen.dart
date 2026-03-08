@@ -74,13 +74,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('⚙️ SettingsScreen: initState');
     _loadSettings();
   }
 
   @override
   void dispose() {
-    debugPrint('🗑️ SettingsScreen: dispose');
     super.dispose();
   }
 
@@ -98,7 +96,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _errorMessage = null;
       });
     } catch (e) {
-      debugPrint('❌ _loadSettings: שגיאה - $e');
       if (!mounted) return;
       setState(() {
         _errorMessage = AppStrings.settings.loadError(e.toString());
@@ -112,16 +109,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(key, value);
-      debugPrint('✅ Notification setting saved: $key = $value');
     } catch (e) {
-      debugPrint('❌ Error saving notification: $e');
     }
   }
 
   /// התנתקות רגילה (שומר seenOnboarding)
   Future<void> _logout() async {
     final cs = Theme.of(context).colorScheme;
-    debugPrint('🚪 _logout: מתחיל התנתקות רגילה');
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -142,7 +136,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      debugPrint('🚪 _logout: אושר - מתנתק (שומר seenOnboarding)');
 
       try {
         if (!mounted) return;
@@ -172,13 +165,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // ✅ signOut() שומר seenOnboarding (לפי Guardrails)
         await context.read<UserContext>().signOut();
 
-        debugPrint('✅ _logout: הושלם בהצלחה');
 
         if (!mounted) return;
         Navigator.of(context).pop();
         unawaited(Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false));
       } catch (e) {
-        debugPrint('❌ _logout: שגיאה - $e');
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -186,14 +177,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       }
     } else {
-      debugPrint('❌ _logout: בוטל');
     }
   }
 
   /// 🔧 DEBUG ONLY: מחיקת כל הנתונים (כולל seenOnboarding)
   Future<void> _debugClearAllData() async {
     final cs = Theme.of(context).colorScheme;
-    debugPrint('🔥 _debugClearAllData: DEBUG - מחיקת נתונים מלאה');
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -238,7 +227,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      debugPrint('🔥 _debugClearAllData: אושר - מוחק הכל');
 
       try {
         if (!mounted) return;
@@ -267,14 +255,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         await context.read<UserContext>().signOutAndClearAllData();
 
-        debugPrint('🎉 _debugClearAllData: הושלם בהצלחה');
 
         if (!mounted) return;
         Navigator.of(context).pop();
         // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome כי seenOnboarding=false
         unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
       } catch (e) {
-        debugPrint('❌ _debugClearAllData: שגיאה - $e');
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(

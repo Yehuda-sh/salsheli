@@ -72,7 +72,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       if (!mounted) return;
       _productsProvider = context.read<ProductsProvider>();
 
-      debugPrint('🎯 ProductSelectionBottomSheet: סוג רשימה = ${widget.list.type}');
       _productsProvider!.setListType(widget.list.type);
 
       if (_productsProvider!.isEmpty && !_productsProvider!.isLoading) {
@@ -82,7 +81,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   }
 
   void _onUserContextChanged() {
-    debugPrint('🔄 ProductSelectionBottomSheet: שינוי בהקשר המשתמש');
     if (mounted && _productsProvider != null) {
       _productsProvider!.loadProducts();
     }
@@ -127,13 +125,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     setState(() => _addingProductId = productId);
 
-    debugPrint('🔄 ProductSelectionBottomSheet: מעדכן "$productName" לכמות $newQuantity');
 
     try {
       final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
 
       if (currentList == null) {
-        debugPrint('   ⚠️ הרשימה לא נמצאה - ייתכן שנמחקה');
         if (mounted) Navigator.pop(context);
         return;
       }
@@ -145,7 +141,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       if (itemIndex != -1) {
         if (newQuantity <= 0) {
           await provider.removeItemFromList(widget.list.id, itemIndex);
-          debugPrint('   🗑️ פריט נמחק (כמות 0)');
 
           if (!mounted) return;
           setState(() => _addingProductId = null);
@@ -161,11 +156,9 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           if (!mounted) return;
           setState(() => _addingProductId = null);
           _showFeedback(AppStrings.shopping.productUpdatedQuantity(productName, newQuantity));
-          debugPrint('   ✅ עודכן לכמות $newQuantity');
         }
       }
     } catch (e) {
-      debugPrint('   ❌ שגיאה: $e');
       if (!mounted) return;
 
       setState(() => _addingProductId = null);
@@ -188,7 +181,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       context,
       onSave: (item) async {
         await provider.addUnifiedItem(widget.list.id, item);
-        debugPrint('✅ ProductSelectionBottomSheet: הוסף מוצר חדש "${item.name}"');
 
         if (!mounted) return;
         _showFeedback(AppStrings.shopping.productAddedToList(item.name));
@@ -206,7 +198,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     setState(() => _addingProductId = productId);
 
-    debugPrint('➕ ProductSelectionBottomSheet: מוסיף "$productName"');
 
     final newItem = ReceiptItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -229,16 +220,13 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       final originalCategory = product['category'] as String?;
       if (originalCategory != detectedCategory && originalCategory != null) {
-        debugPrint('   🔧 קטגוריה תוקנה: "$originalCategory" → "$detectedCategory"');
       } else {
-        debugPrint('   ✅ נוסף בהצלחה עם קטגוריה: $detectedCategory');
       }
 
       if (!mounted) return;
       setState(() => _addingProductId = null);
       _showFeedback(AppStrings.shopping.productAddedToList(newItem.name ?? 'מוצר'));
     } catch (e) {
-      debugPrint('   ❌ שגיאה: $e');
       if (!mounted) return;
 
       setState(() => _addingProductId = null);

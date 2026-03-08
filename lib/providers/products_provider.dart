@@ -297,7 +297,6 @@ class ProductsProvider with ChangeNotifier {
     } catch (e, st) {
       // לא משנים את _errorMessage כי זו טעינה ברקע
       if (kDebugMode) {
-        debugPrint('⚠️ ProductsProvider._loadAllInBackground: $e');
         debugPrintStack(label: '_loadAllInBackground', stackTrace: st);
       }
     } finally {

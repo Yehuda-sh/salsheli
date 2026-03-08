@@ -47,8 +47,6 @@ class SavedContactsService {
   /// ממוין לפי זמן הזמנה אחרונה (החדש ביותר קודם)
   Future<List<SavedContact>> getContacts(String userId) async {
     if (kDebugMode) {
-      debugPrint('📇 SavedContactsService.getContacts():');
-      debugPrint('   User: $userId');
     }
 
     try {
@@ -66,13 +64,11 @@ class SavedContactsService {
           b.effectiveLastInvitedAt.compareTo(a.effectiveLastInvitedAt));
 
       if (kDebugMode) {
-        debugPrint('   ✅ Found ${contacts.length} contacts');
       }
 
       return contacts;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error loading contacts: $e');
       }
       return [];
     }
@@ -89,9 +85,6 @@ class SavedContactsService {
     String? contactUserAvatar,
   }) async {
     if (kDebugMode) {
-      debugPrint('💾 SavedContactsService.saveContact():');
-      debugPrint('   CurrentUser: $currentUserId');
-      debugPrint('   Contact: $contactUserId ($contactUserEmail)');
     }
 
     try {
@@ -107,7 +100,6 @@ class SavedContactsService {
           'user_avatar': contactUserAvatar,
         });
         if (kDebugMode) {
-          debugPrint('   ✅ Contact updated (last_invited_at)');
         }
       } else {
         // איש קשר חדש - יצירה
@@ -119,12 +111,10 @@ class SavedContactsService {
         );
         await docRef.set(contact.toJson());
         if (kDebugMode) {
-          debugPrint('   ✅ New contact saved');
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error saving contact: $e');
       }
       rethrow;
     }
@@ -136,19 +126,14 @@ class SavedContactsService {
     required String contactUserId,
   }) async {
     if (kDebugMode) {
-      debugPrint('🗑️ SavedContactsService.deleteContact():');
-      debugPrint('   CurrentUser: $currentUserId');
-      debugPrint('   Contact: $contactUserId');
     }
 
     try {
       await _getUserContactsRef(currentUserId).doc(contactUserId).delete();
       if (kDebugMode) {
-        debugPrint('   ✅ Contact deleted');
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error deleting contact: $e');
       }
       rethrow;
     }
@@ -199,7 +184,6 @@ class SavedContactsService {
       });
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('⚠️ Error updating last_invited_at: $e');
       }
     }
   }

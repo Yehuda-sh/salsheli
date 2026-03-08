@@ -98,7 +98,6 @@ class UserContext with ChangeNotifier {
     if (!_isDisposed) {
       notifyListeners();
     } else {
-      debugPrint('⚠️ UserContext._notifySafe: Skipped (disposed)');
     }
   }
 
@@ -122,7 +121,6 @@ class UserContext with ChangeNotifier {
     String? errorMessagePrefix,
   }) async {
     if (_isDisposed) {
-      debugPrint('⚠️ UserContext.$operation: Aborted (disposed)');
       return null;
     }
 
@@ -137,7 +135,6 @@ class UserContext with ChangeNotifier {
       _errorMessage = null;
       return result;
     } catch (e) {
-      debugPrint('❌ UserContext.$operation: שגיאה - $e');
       _errorMessage = errorMessagePrefix != null
           ? '$errorMessagePrefix: ${e.toString()}'
           : e.toString();
@@ -212,13 +209,11 @@ class UserContext with ChangeNotifier {
         _themeMode = ThemeMode.values[themeModeIndex];
       } else {
         _themeMode = ThemeMode.system;
-        debugPrint('⚠️ themeMode index לא תקין ($themeModeIndex), משתמש בברירת מחדל');
       }
 
       _compactView = prefs.getBool('compactView') ?? false;
       _showPrices = prefs.getBool('showPrices') ?? true;
     } catch (e) {
-      debugPrint('⚠️ UserContext._loadPreferences: שגיאה בטעינת העדפות - $e');
     } finally {
       _notifySafe();
     }
@@ -234,7 +229,6 @@ class UserContext with ChangeNotifier {
       await prefs.setBool('compactView', _compactView);
       await prefs.setBool('showPrices', _showPrices);
     } catch (e) {
-      debugPrint('❌ UserContext._savePreferences: שגיאה בשמירת העדפות - $e');
     }
   }
 
@@ -289,7 +283,6 @@ class UserContext with ChangeNotifier {
           // משתמש התחבר - טען את הפרטים מ-Firestore
           _loadUserFromFirestore(firebaseUser.uid).catchError((error) {
             if (_isDisposed) return;
-            debugPrint('❌ שגיאה בטעינת משתמש: $error');
           });
         } else {
           // משתמש התנתק - נקה state
@@ -301,7 +294,6 @@ class UserContext with ChangeNotifier {
       },
       onError: (error) {
         if (_isDisposed) return;
-        debugPrint('❌ UserContext: שגיאה בהאזנה ל-Auth - $error');
       },
     );
   }
@@ -341,7 +333,6 @@ class UserContext with ChangeNotifier {
       _errorMessage = null;
       _hasAuthButNoProfile = false;
     } catch (e) {
-      debugPrint('❌ UserContext._loadUserFromFirestore: שגיאה - $e');
       _errorMessage = 'שגיאה בטעינת פרטי משתמש';
 
       // 🆕 v2.2: סמן שיש Auth אבל אין Profile
@@ -357,7 +348,6 @@ class UserContext with ChangeNotifier {
     if (_isDisposed) return;
 
     try {
-      debugPrint('🔄 UserContext: מסנכרן נתוני Onboarding מהשרת...');
 
       final serverOnboarding = OnboardingData(
         familySize: user.familySize,
@@ -375,9 +365,7 @@ class UserContext with ChangeNotifier {
         await OnboardingData.markAsCompleted();
       }
 
-      debugPrint('✅ UserContext: נתוני Onboarding סונכרנו מהשרת');
     } catch (e) {
-      debugPrint('⚠️ UserContext._syncOnboardingFromServer: שגיאה - $e');
       // לא זורקים שגיאה - זה לא קריטי
     }
   }
@@ -410,7 +398,6 @@ class UserContext with ChangeNotifier {
               final onboardingData = await OnboardingData.load();
               final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
 
-              debugPrint('📋 UserContext.signUp: טוען נתוני Onboarding לסנכרון');
 
               _user = await _repository.createUser(
                 userId: credential.user!.uid,
@@ -427,15 +414,11 @@ class UserContext with ChangeNotifier {
                 seenOnboarding: hasSeenOnboarding,
               );
 
-              debugPrint('✅ UserContext.signUp: נתוני Onboarding נשמרו בשרת!');
             } catch (profileError) {
               // 🔄 Rollback: אם יצירת הפרופיל נכשלה - מחק את המשתמש מ-Auth
-              debugPrint('❌ UserContext.signUp: יצירת פרופיל נכשלה, מבצע rollback');
               try {
                 await credential.user?.delete();
-                debugPrint('🗑️ UserContext.signUp: משתמש Auth נמחק (rollback)');
               } catch (deleteError) {
-                debugPrint('⚠️ UserContext.signUp: לא הצלחתי למחוק Auth user - $deleteError');
               }
               rethrow;
             }
@@ -507,7 +490,6 @@ class UserContext with ChangeNotifier {
     final user = credential.user!;
     final name = user.displayName ?? user.email?.split('@').first ?? 'משתמש';
 
-    debugPrint('📋 UserContext._createUserFromSocialLogin: יוצר פרופיל עבור ${user.uid}');
 
     _user = await _repository.createUser(
       userId: user.uid,
@@ -516,7 +498,6 @@ class UserContext with ChangeNotifier {
       phone: user.phoneNumber ?? '',
     );
 
-    debugPrint('✅ UserContext._createUserFromSocialLogin: פרופיל נוצר בהצלחה!');
   }
 
   /// התנתקות רגילה מהמערכת (שומר seenOnboarding)
@@ -526,7 +507,6 @@ class UserContext with ChangeNotifier {
       setLoading: false,
       errorMessagePrefix: 'שגיאה בהתנתקות',
       action: () async {
-        debugPrint('🚪 UserContext.signOut: התנתקות רגילה (שומר seenOnboarding)');
 
         // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
         await _authService.signOut();
@@ -546,7 +526,6 @@ class UserContext with ChangeNotifier {
         _hasAuthButNoProfile = false;
         _resetPreferences();
 
-        debugPrint('✅ UserContext.signOut: הושלם בהצלחה');
       },
     );
   }
@@ -558,7 +537,6 @@ class UserContext with ChangeNotifier {
       setLoading: false,
       errorMessagePrefix: 'שגיאה בהתנתקות ומחיקת נתונים',
       action: () async {
-        debugPrint('🔥 UserContext.signOutAndClearAllData: התנתקות מלאה!');
 
         // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
         await _authService.signOut();
@@ -572,7 +550,6 @@ class UserContext with ChangeNotifier {
         _hasAuthButNoProfile = false;
         _resetPreferences();
 
-        debugPrint('🎉 UserContext.signOutAndClearAllData: הושלם בהצלחה!');
       },
     );
   }
@@ -599,7 +576,6 @@ class UserContext with ChangeNotifier {
   /// מעדכן פרופיל משתמש (עדכון חלקי)
   Future<void> updateUserProfile({String? name, String? avatar}) async {
     if (_user == null) {
-      debugPrint('❌ UserContext.updateUserProfile: אין משתמש מחובר');
       throw UserRepositoryException('אין משתמש מחובר');
     }
 
@@ -684,7 +660,6 @@ class UserContext with ChangeNotifier {
       await prefs.remove('compactView');
       await prefs.remove('showPrices');
     } catch (e) {
-      debugPrint('⚠️ שגיאה בניקוי SharedPreferences: $e');
     }
 
     _notifySafe();
@@ -696,7 +671,6 @@ class UserContext with ChangeNotifier {
 
   @override
   void dispose() {
-    debugPrint('🗑️ UserContext.dispose()');
     _isDisposed = true;
     _authSubscription?.cancel();
     super.dispose();

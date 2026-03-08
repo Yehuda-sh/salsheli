@@ -61,7 +61,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-      debugPrint('🏠 HomeDashboardScreen.initState()');
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -75,7 +74,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   void dispose() {
     if (kDebugMode) {
-      debugPrint('🏠 HomeDashboardScreen.dispose()');
     }
     super.dispose();
   }
@@ -86,7 +84,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     setState(() => _isRefreshing = true);
 
     if (kDebugMode) {
-      debugPrint('🏠 HomeDashboard: מתחיל refresh...');
     }
 
     final lists = context.read<ShoppingListsProvider>();
@@ -101,11 +98,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         receipts.loadReceipts(),
       ]);
       if (kDebugMode) {
-        debugPrint('   ✅ רשימות וקבלות נטענו');
       }
     } on Exception catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ שגיאה בטעינה: $e');
       }
     }
 
@@ -115,7 +110,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       await sugg.refreshSuggestions();
     } on Exception catch (e) {
       if (kDebugMode) {
-        debugPrint('   ⚠️ לא ניתן לטעון הצעות: $e');
       }
     }
 
@@ -126,7 +120,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     }
 
     if (kDebugMode) {
-      debugPrint('🏠 HomeDashboard: refresh הושלם');
     }
 
     if (mounted) {

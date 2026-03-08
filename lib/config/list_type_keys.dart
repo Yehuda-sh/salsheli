@@ -93,7 +93,6 @@ class ListTypeKeys {
       );
     }
 
-    debugPrint('✅ ListTypeKeys.ensureSanity(): ${all.length} keys, no issues');
   }
 
   /// Fallback לערך לא מוכר

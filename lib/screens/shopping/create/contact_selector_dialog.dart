@@ -108,7 +108,6 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
-      debugPrint('❌ Error loading contacts: $e');
     }
   }
 

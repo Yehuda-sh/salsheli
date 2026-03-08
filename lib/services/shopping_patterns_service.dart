@@ -67,19 +67,15 @@ class ShoppingPatternsService {
     required List<String> purchasedItems,
   }) async {
     try {
-      debugPrint('📊 ShoppingPatternsService.saveShoppingPattern: $listType');
-      debugPrint('   רשימת מוצרים: ${purchasedItems.length}');
 
       final userId = _userContext.userId;
       final householdId = _userContext.householdId;
 
       if (userId == null || householdId == null) {
-        debugPrint('⚠️ ShoppingPatternsService: אין משתמש/household');
         return;
       }
 
       if (purchasedItems.isEmpty) {
-        debugPrint('⚠️ ShoppingPatternsService: אין מוצרים לשמור');
         return;
       }
 
@@ -104,9 +100,7 @@ class ShoppingPatternsService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ ShoppingPatternsService: דפוס נשמר בהצלחה');
     } catch (e) {
-      debugPrint('❌ ShoppingPatternsService.saveShoppingPattern Error: $e');
       // לא זורקים שגיאה - זה תכונה משנית
     }
   }
@@ -122,13 +116,11 @@ class ShoppingPatternsService {
     required ShoppingList shoppingList,
   }) async {
     try {
-      debugPrint('🔄 ShoppingPatternsService.sortListByPattern: ${shoppingList.name}');
 
       final userId = _userContext.userId;
       final householdId = _userContext.householdId;
 
       if (userId == null || householdId == null) {
-        debugPrint('⚠️ ShoppingPatternsService: אין משתמש/household');
         return shoppingList;
       }
 
@@ -140,7 +132,6 @@ class ShoppingPatternsService {
       );
 
       if (patterns.isEmpty) {
-        debugPrint('⚠️ ShoppingPatternsService: אין דפוסים עבור ${shoppingList.type}');
         return shoppingList;
       }
 
@@ -158,12 +149,10 @@ class ShoppingPatternsService {
         return scoreA.compareTo(scoreB);
       });
 
-      debugPrint('✅ ShoppingPatternsService: רשימה סודרה לפי דפוס (${patterns.length} דפוסים)');
 
       // החזר רשימה חדשה עם הפריטים המסודרים
       return shoppingList.copyWith(items: sortedItems);
     } catch (e) {
-      debugPrint('❌ ShoppingPatternsService.sortListByPattern Error: $e');
       return shoppingList; // במקרה של שגיאה - החזר את הרשימה המקורית
     }
   }
@@ -224,10 +213,8 @@ class ShoppingPatternsService {
           .get();
 
       final patterns = snapshot.docs.map((doc) => doc.data()).toList();
-      debugPrint('📥 ShoppingPatternsService: נטענו ${patterns.length} דפוסים');
       return patterns;
     } catch (e) {
-      debugPrint('❌ ShoppingPatternsService._loadPatterns Error: $e');
       return [];
     }
   }
@@ -239,7 +226,6 @@ class ShoppingPatternsService {
   /// מוחק דפוסים ישנים (מעל 90 ימים)
   Future<void> cleanupOldPatterns() async {
     try {
-      debugPrint('🗑️ ShoppingPatternsService.cleanupOldPatterns');
 
       final userId = _userContext.userId;
       final householdId = _userContext.householdId;
@@ -260,9 +246,7 @@ class ShoppingPatternsService {
         await doc.reference.delete();
       }
 
-      debugPrint('✅ ShoppingPatternsService: נמחקו ${snapshot.docs.length} דפוסים ישנים');
     } catch (e) {
-      debugPrint('❌ ShoppingPatternsService.cleanupOldPatterns Error: $e');
     }
   }
 }

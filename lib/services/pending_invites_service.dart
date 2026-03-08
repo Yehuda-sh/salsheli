@@ -284,18 +284,12 @@ class PendingInvitesService {
     String? householdName,
   }) async {
     if (kDebugMode) {
-      debugPrint('📨 PendingInvitesService.createInviteResult():');
-      debugPrint('   List: $listName ($listId)');
-      debugPrint('   Inviter: $inviterName ($inviterId)');
-      debugPrint('   Invited: $invitedUserEmail ($invitedUserId)');
-      debugPrint('   Role: ${role.hebrewName}');
     }
 
     try {
       // ✅ Email validation
       if (!_isValidEmail(invitedUserEmail)) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invalid email format: $invitedUserEmail');
         }
         return InviteResult.validationError('Invalid email format: $invitedUserEmail');
       }
@@ -308,7 +302,6 @@ class PendingInvitesService {
 
       if (existingInvite != null) {
         if (kDebugMode) {
-          debugPrint('   ⚠️ Invite already exists');
         }
         return InviteResult.inviteAlreadyPending();
       }
@@ -335,13 +328,11 @@ class PendingInvitesService {
       await _invitesRef.doc(invite.id).set(invite.toJson());
 
       if (kDebugMode) {
-        debugPrint('   ✅ Invite created: ${invite.id}');
       }
 
       return InviteResult.success(invite: invite);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error creating invite: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -363,9 +354,6 @@ class PendingInvitesService {
     String? userEmail,
   }) async {
     if (kDebugMode) {
-      debugPrint('📋 PendingInvitesService.getPendingInvitesForUserResult():');
-      debugPrint('   User: $userId');
-      debugPrint('   Email: $userEmail');
     }
 
     try {
@@ -398,13 +386,11 @@ class PendingInvitesService {
       }
 
       if (kDebugMode) {
-        debugPrint('   ✅ Found ${invites.length} pending invites');
       }
 
       return InviteResult.successWithInvites(invites);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error getting invites: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -435,8 +421,6 @@ class PendingInvitesService {
   /// מחפש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה).
   Future<InviteResult> getPendingInvitesCountResult(String userId, {String? userEmail}) async {
     if (kDebugMode) {
-      debugPrint('🔢 PendingInvitesService.getPendingInvitesCountResult():');
-      debugPrint('   User: $userId');
     }
 
     try {
@@ -464,13 +448,11 @@ class PendingInvitesService {
       }
 
       if (kDebugMode) {
-        debugPrint('   ✅ Count: $count');
       }
 
       return InviteResult.successWithCount(count);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error getting count: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -515,9 +497,6 @@ class PendingInvitesService {
     String? acceptingUserAvatar,
   }) async {
     if (kDebugMode) {
-      debugPrint('✅ PendingInvitesService.acceptInviteResult():');
-      debugPrint('   Invite: $inviteId');
-      debugPrint('   User: $acceptingUserId');
     }
 
     try {
@@ -525,7 +504,6 @@ class PendingInvitesService {
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invite not found');
         }
         return InviteResult.inviteNotFound();
       }
@@ -535,7 +513,6 @@ class PendingInvitesService {
       // בדיקות
       if (invite.status != RequestStatus.pending) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invite already processed');
         }
         return InviteResult.inviteAlreadyProcessed();
       }
@@ -543,7 +520,6 @@ class PendingInvitesService {
       final invitedUserId = invite.requestData['invited_user_id'] as String;
       if (invitedUserId != acceptingUserId) {
         if (kDebugMode) {
-          debugPrint('   ❌ Not authorized');
         }
         return InviteResult.notAuthorized();
       }
@@ -582,13 +558,11 @@ class PendingInvitesService {
       }
 
       if (kDebugMode) {
-        debugPrint('   ✅ Invite accepted, user added to list');
       }
 
       return InviteResult.successWithUser(sharedUser);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error accepting invite: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -605,9 +579,6 @@ class PendingInvitesService {
     String? reason,
   }) async {
     if (kDebugMode) {
-      debugPrint('❌ PendingInvitesService.declineInviteResult():');
-      debugPrint('   Invite: $inviteId');
-      debugPrint('   User: $decliningUserId');
     }
 
     try {
@@ -615,7 +586,6 @@ class PendingInvitesService {
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invite not found');
         }
         return InviteResult.inviteNotFound();
       }
@@ -625,7 +595,6 @@ class PendingInvitesService {
       // בדיקות
       if (invite.status != RequestStatus.pending) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invite already processed');
         }
         return InviteResult.inviteAlreadyProcessed();
       }
@@ -633,7 +602,6 @@ class PendingInvitesService {
       final invitedUserId = invite.requestData['invited_user_id'] as String;
       if (invitedUserId != decliningUserId) {
         if (kDebugMode) {
-          debugPrint('   ❌ Not authorized');
         }
         return InviteResult.notAuthorized();
       }
@@ -648,13 +616,11 @@ class PendingInvitesService {
       });
 
       if (kDebugMode) {
-        debugPrint('   ✅ Invite declined');
       }
 
       return InviteResult.success();
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error declining invite: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -669,15 +635,12 @@ class PendingInvitesService {
     required String cancellingUserId,
   }) async {
     if (kDebugMode) {
-      debugPrint('🗑️ PendingInvitesService.cancelInviteResult():');
-      debugPrint('   Invite: $inviteId');
     }
 
     try {
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
         if (kDebugMode) {
-          debugPrint('   ❌ Invite not found');
         }
         return InviteResult.inviteNotFound();
       }
@@ -687,7 +650,6 @@ class PendingInvitesService {
       // רק המזמין יכול לבטל
       if (invite.requesterId != cancellingUserId) {
         if (kDebugMode) {
-          debugPrint('   ❌ Not authorized');
         }
         return InviteResult.notAuthorized();
       }
@@ -695,13 +657,11 @@ class PendingInvitesService {
       await _invitesRef.doc(inviteId).delete();
 
       if (kDebugMode) {
-        debugPrint('   ✅ Invite cancelled');
       }
 
       return InviteResult.success();
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error cancelling invite: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());
@@ -782,8 +742,6 @@ class PendingInvitesService {
   /// ✅ מחזיר [InviteResult] עם סוג תוצאה ברור
   Future<InviteResult> cleanupOldInvitesResult({int daysOld = 30}) async {
     if (kDebugMode) {
-      debugPrint('🧹 PendingInvitesService.cleanupOldInvitesResult():');
-      debugPrint('   Days old: $daysOld');
     }
 
     try {
@@ -801,13 +759,11 @@ class PendingInvitesService {
       await batch.commit();
 
       if (kDebugMode) {
-        debugPrint('   ✅ Cleaned up ${snapshot.docs.length} old invites');
       }
 
       return InviteResult.successWithCount(snapshot.docs.length);
     } catch (e, stackTrace) {
       if (kDebugMode) {
-        debugPrint('   ❌ Error cleaning up: $e');
         debugPrintStack(stackTrace: stackTrace);
       }
       return InviteResult.firestoreError(e.toString());

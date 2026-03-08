@@ -41,21 +41,17 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<UserEntity?> fetchUser(String userId) async {
     try {
-      debugPrint('📥 FirebaseUserRepository.fetchUser: טוען משתמש $userId');
 
       final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
 
       if (!doc.exists) {
-        debugPrint('⚠️ FirebaseUserRepository.fetchUser: משתמש לא נמצא');
         return null;
       }
 
       final user = UserEntity.fromJson(doc.toDartMap()!);
-      debugPrint('✅ FirebaseUserRepository.fetchUser: משתמש נטען - ${user.email}');
       
       return user;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.fetchUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to fetch user $userId', e);
     }
@@ -66,15 +62,11 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<UserEntity> saveUser(UserEntity user) async {
     try {
-      debugPrint('💾 FirebaseUserRepository.saveUser: שומר משתמש ${user.id}');
-      debugPrint('   📧 Email: ${user.email}');
-      debugPrint('   📱 Phone: ${user.phone}');
 
       // עדכון lastLoginAt
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
       final jsonData = updatedUser.toJson();
-      debugPrint('   📦 JSON to save: $jsonData');
 
       await _firestore
           .collection(FirestoreCollections.users)
@@ -84,10 +76,8 @@ class FirebaseUserRepository implements UserRepository {
             SetOptions(merge: true), // מאפשר עדכון חלקי
           );
 
-      debugPrint('✅ FirebaseUserRepository.saveUser: משתמש נשמר');
       return updatedUser;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.saveUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to save user ${user.id}', e);
     }
@@ -98,13 +88,10 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<void> deleteUser(String userId) async {
     try {
-      debugPrint('🗑️ FirebaseUserRepository.deleteUser: מוחק משתמש $userId');
 
       await _firestore.collection(FirestoreCollections.users).doc(userId).delete();
 
-      debugPrint('✅ FirebaseUserRepository.deleteUser: משתמש נמחק');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.deleteUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to delete user $userId', e);
     }
@@ -118,7 +105,6 @@ class FirebaseUserRepository implements UserRepository {
       final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
       return doc.exists;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.existsUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       // 🔧 זורק Exception במקום להחזיר false - כדי להבדיל בין "לא קיים" לבין "שגיאת רשת"
       throw UserRepositoryException('Failed to check if user exists', e);
@@ -133,9 +119,7 @@ class FirebaseUserRepository implements UserRepository {
   Future<List<UserEntity>> getAllUsers({String? householdId}) async {
     try {
       if (householdId != null) {
-        debugPrint('📋 FirebaseUserRepository.getAllUsers: Loading users for household $householdId');
       } else {
-        debugPrint('⚠️ FirebaseUserRepository.getAllUsers: Loading ALL users (no filter!)');
       }
 
       Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
@@ -151,10 +135,8 @@ class FirebaseUserRepository implements UserRepository {
 
       final users = snapshot.toDartList().map(UserEntity.fromJson).toList();
 
-      debugPrint('✅ FirebaseUserRepository.getAllUsers: Loaded ${users.length} users');
       return users;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.getAllUsers: Error - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to get all users', e);
     }
@@ -170,7 +152,6 @@ class FirebaseUserRepository implements UserRepository {
         throw ArgumentError('Email cannot be empty');
       }
 
-      debugPrint('🔍 FirebaseUserRepository.findByEmail: מחפש משתמש עם אימייל $email');
 
       final normalizedEmail = email.toLowerCase().trim();
 
@@ -186,16 +167,13 @@ class FirebaseUserRepository implements UserRepository {
       final snapshot = await query.limit(1).get();
 
       if (snapshot.docs.isEmpty) {
-        debugPrint('⚠️ FirebaseUserRepository.findByEmail: משתמש לא נמצא');
         return null;
       }
 
       final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
-      debugPrint('✅ FirebaseUserRepository.findByEmail: משתמש נמצא - ${user.id}');
 
       return user;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.findByEmail: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to find user by email', e);
     }
@@ -210,7 +188,6 @@ class FirebaseUserRepository implements UserRepository {
         throw ArgumentError('Phone cannot be empty');
       }
 
-      debugPrint('🔍 FirebaseUserRepository.findByPhone: מחפש משתמש עם טלפון $phone');
 
       final normalizedPhone = _normalizePhone(phone);
 
@@ -221,16 +198,13 @@ class FirebaseUserRepository implements UserRepository {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        debugPrint('⚠️ FirebaseUserRepository.findByPhone: משתמש לא נמצא');
         return null;
       }
 
       final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
-      debugPrint('✅ FirebaseUserRepository.findByPhone: משתמש נמצא - ${user.id}');
 
       return user;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.findByPhone: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to find user by phone', e);
     }
@@ -246,15 +220,12 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<void> updateLastLogin(String userId) async {
     try {
-      debugPrint('⏰ FirebaseUserRepository.updateLastLogin: מעדכן זמן התחברות ל-$userId');
 
       await _firestore.collection(FirestoreCollections.users).doc(userId).update({
         'last_login_at': Timestamp.now(),
       });
 
-      debugPrint('✅ FirebaseUserRepository.updateLastLogin: זמן עודכן');
     } catch (e) {
-      debugPrint('❌ FirebaseUserRepository.updateLastLogin: שגיאה - $e');
       throw UserRepositoryException('Failed to update last login', e);
     }
   }
@@ -264,7 +235,6 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<void> updateHouseholdName(String userId, String? householdName) async {
     try {
-      debugPrint('✏️ FirebaseUserRepository.updateHouseholdName: מעדכן שם קבוצה של $userId');
 
       String? sanitized;
       if (householdName != null && householdName.trim().isNotEmpty) {
@@ -280,10 +250,8 @@ class FirebaseUserRepository implements UserRepository {
           .doc(userId)
           .update({'household_name': sanitized});
 
-      debugPrint('✅ FirebaseUserRepository.updateHouseholdName: שם קבוצה עודכן');
     } catch (e, stackTrace) {
       if (e is UserRepositoryException) rethrow;
-      debugPrint('❌ FirebaseUserRepository.updateHouseholdName: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to update household name', e);
     }
@@ -297,9 +265,7 @@ class FirebaseUserRepository implements UserRepository {
   Future<void> clearAll({String? householdId}) async {
     try {
       if (householdId != null) {
-        debugPrint('🧹 FirebaseUserRepository.clearAll: Deleting users for household $householdId');
       } else {
-        debugPrint('⚠️ FirebaseUserRepository.clearAll: Deleting ALL users (DANGEROUS!)');
       }
 
       Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
@@ -334,9 +300,7 @@ class FirebaseUserRepository implements UserRepository {
         }
       }
 
-      debugPrint('✅ FirebaseUserRepository.clearAll: Deleted ${docs.length} users');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.clearAll: Error - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to clear all users', e);
     }
@@ -408,12 +372,10 @@ class FirebaseUserRepository implements UserRepository {
     bool? seenOnboarding,
   }) async {
     try {
-      debugPrint('➕ FirebaseUserRepository.createUser: יוצר משתמש חדש $userId');
 
       // בדיקה אם המשתמש כבר קיים
       final existingUser = await fetchUser(userId);
       if (existingUser != null) {
-        debugPrint('⚠️ המשתמש כבר קיים, מחזיר את הקיים');
         return existingUser;
       }
 
@@ -438,10 +400,8 @@ class FirebaseUserRepository implements UserRepository {
       // שמירה ב-Firestore
       await saveUser(newUser);
 
-      debugPrint('✅ FirebaseUserRepository.createUser: משתמש נוצר עם נתוני Onboarding');
       return newUser;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseUserRepository.createUser: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to create user', e);
     }
@@ -501,14 +461,12 @@ class FirebaseUserRepository implements UserRepository {
     String? avatar,
   }) async {
     try {
-      debugPrint('✏️ FirebaseUserRepository.updateProfile: מעדכן פרופיל של $userId');
 
       final updates = <String, dynamic>{};
       if (name != null) updates[FirestoreFields.name] = name;
       if (avatar != null) updates['profile_image_url'] = avatar;
 
       if (updates.isEmpty) {
-        debugPrint('⚠️ אין שדות לעדכון - מחזיר משתמש קיים');
         final existing = await fetchUser(userId);
         if (existing == null) {
           throw UserRepositoryException('User not found: $userId');
@@ -521,7 +479,6 @@ class FirebaseUserRepository implements UserRepository {
           .doc(userId)
           .update(updates);
 
-      debugPrint('✅ FirebaseUserRepository.updateProfile: פרופיל עודכן (${updates.length} שדות)');
 
       // 🔧 מחזיר את המשתמש המעודכן
       final updated = await fetchUser(userId);
@@ -531,7 +488,6 @@ class FirebaseUserRepository implements UserRepository {
       return updated;
     } catch (e, stackTrace) {
       if (e is UserRepositoryException) rethrow;
-      debugPrint('❌ FirebaseUserRepository.updateProfile: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to update profile', e);
     }

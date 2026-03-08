@@ -243,7 +243,5 @@ class StoresConfig {
       }
     }
 
-    debugPrint(
-        '✅ StoresConfig.ensureSanity(): ${allCodes.length} חנויות מוכרות');
   }
 }

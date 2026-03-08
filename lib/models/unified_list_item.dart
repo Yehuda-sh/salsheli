@@ -79,7 +79,6 @@ DateTime? _safeParseDateTimeNullable(dynamic value) {
   if (value is String) return DateTime.tryParse(value);
   // Unknown type - return null instead of throwing
   if (kDebugMode) {
-    debugPrint('⚠️ _safeParseDateTimeNullable: unknown type ${value.runtimeType}');
   }
   return null;
 }

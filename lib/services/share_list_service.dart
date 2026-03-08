@@ -65,16 +65,11 @@ class ShareListService {
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
-      debugPrint('👥 ShareListService.inviteUser():');
-      debugPrint('   List: ${list.name}');
-      debugPrint('   Invited: $invitedUserId');
-      debugPrint('   Role: ${role.hebrewName}');
     }
 
     // בדיקה 1: רק Owner יכול להזמין משתמשים
     if (list.createdBy != currentUserId) {
       if (kDebugMode) {
-        debugPrint('   ❌ Permission denied: Only owner can invite users');
       }
       throw Exception('permission_denied');
     }
@@ -82,7 +77,6 @@ class ShareListService {
     // בדיקה 2: לא ניתן להזמין את ה-Owner
     if (invitedUserId == list.createdBy) {
       if (kDebugMode) {
-        debugPrint('   ❌ Cannot invite the owner');
       }
       throw Exception('cannot_invite_owner');
     }
@@ -90,7 +84,6 @@ class ShareListService {
     // בדיקה 3: לא ניתן ליצור Owner נוסף
     if (role == UserRole.owner) {
       if (kDebugMode) {
-        debugPrint('   ❌ Cannot create additional owner');
       }
       throw Exception('invalid_role');
     }
@@ -101,7 +94,6 @@ class ShareListService {
 
     if (existingUser != null) {
       if (kDebugMode) {
-        debugPrint('   ⚠️ User already shared with role: ${existingUser.role.hebrewName}');
       }
       throw Exception('user_already_shared');
     }
@@ -121,8 +113,6 @@ class ShareListService {
       ..[invitedUserId] = newSharedUser;
 
     if (kDebugMode) {
-      debugPrint('   ✅ User invited successfully');
-      debugPrint('   Total shared users: ${updatedSharedUsers.length}');
     }
 
     // שליחת התראה למשתמש המוזמן
@@ -137,11 +127,9 @@ class ShareListService {
           role: role.hebrewName,
         );
         if (kDebugMode) {
-          debugPrint('   📬 Notification sent to $invitedUserId');
         }
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('   ⚠️ Failed to send notification: $e');
         }
       }
     }
@@ -176,15 +164,11 @@ class ShareListService {
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
-      debugPrint('🗑️ ShareListService.removeUser():');
-      debugPrint('   List: ${list.name}');
-      debugPrint('   Removed: $removedUserId');
     }
 
     // בדיקה 1: רק Owner יכול להסיר משתמשים
     if (list.createdBy != currentUserId) {
       if (kDebugMode) {
-        debugPrint('   ❌ Permission denied: Only owner can remove users');
       }
       throw Exception('permission_denied');
     }
@@ -192,7 +176,6 @@ class ShareListService {
     // בדיקה 2: לא ניתן להסיר את ה-Owner
     if (removedUserId == list.createdBy) {
       if (kDebugMode) {
-        debugPrint('   ❌ Cannot remove the owner');
       }
       throw Exception('cannot_remove_owner');
     }
@@ -203,7 +186,6 @@ class ShareListService {
 
     if (!userExists) {
       if (kDebugMode) {
-        debugPrint('   ⚠️ User not found in shared users');
       }
       throw Exception('user_not_found');
     }
@@ -213,8 +195,6 @@ class ShareListService {
       ..remove(removedUserId);
 
     if (kDebugMode) {
-      debugPrint('   ✅ User removed successfully');
-      debugPrint('   Remaining shared users: ${updatedSharedUsers.length}');
     }
 
     // שליחת התראה למשתמש שהוסר
@@ -228,11 +208,9 @@ class ShareListService {
           removerName: removerName,
         );
         if (kDebugMode) {
-          debugPrint('   📬 Notification sent to $removedUserId');
         }
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('   ⚠️ Failed to send notification: $e');
         }
       }
     }
@@ -270,16 +248,11 @@ class ShareListService {
     NotificationsService? notificationsService,
   }) async {
     if (kDebugMode) {
-      debugPrint('✏️ ShareListService.updateUserRole():');
-      debugPrint('   List: ${list.name}');
-      debugPrint('   Target: $targetUserId');
-      debugPrint('   New role: ${newRole.hebrewName}');
     }
 
     // בדיקה 1: רק Owner יכול לשנות תפקידים
     if (list.createdBy != currentUserId) {
       if (kDebugMode) {
-        debugPrint('   ❌ Permission denied: Only owner can update roles');
       }
       throw Exception('permission_denied');
     }
@@ -287,7 +260,6 @@ class ShareListService {
     // בדיקה 2: לא ניתן לשנות תפקיד של Owner
     if (targetUserId == list.createdBy) {
       if (kDebugMode) {
-        debugPrint('   ❌ Cannot change owner role');
       }
       throw Exception('cannot_change_owner_role');
     }
@@ -295,7 +267,6 @@ class ShareListService {
     // בדיקה 3: לא ניתן ליצור Owner נוסף
     if (newRole == UserRole.owner) {
       if (kDebugMode) {
-        debugPrint('   ❌ Cannot create additional owner');
       }
       throw Exception('invalid_role');
     }
@@ -306,7 +277,6 @@ class ShareListService {
 
     if (targetUser == null) {
       if (kDebugMode) {
-        debugPrint('   ⚠️ User not found in shared users');
       }
       throw Exception('user_not_found');
     }
@@ -316,9 +286,6 @@ class ShareListService {
       ..[targetUserId] = targetUser.copyWith(role: newRole);
 
     if (kDebugMode) {
-      debugPrint('   ✅ Role updated successfully');
-      debugPrint('   Old role: ${targetUser.role.hebrewName}');
-      debugPrint('   New role: ${newRole.hebrewName}');
     }
 
     // שליחת התראה למשתמש שהתפקיד שלו השתנה
@@ -334,11 +301,9 @@ class ShareListService {
           changerName: changerName,
         );
         if (kDebugMode) {
-          debugPrint('   📬 Notification sent to $targetUserId');
         }
       } catch (e) {
         if (kDebugMode) {
-          debugPrint('   ⚠️ Failed to send notification: $e');
         }
       }
     }
@@ -364,9 +329,6 @@ class ShareListService {
     bool includeOwner = true,
   }) {
     if (kDebugMode) {
-      debugPrint('👥 ShareListService.getUsersForList():');
-      debugPrint('   List: ${list.name}');
-      debugPrint('   Include owner: $includeOwner');
     }
 
     final users = <SharedUser>[];
@@ -385,9 +347,7 @@ class ShareListService {
     users.addAll(list.sharedUsers.values);
 
     if (kDebugMode) {
-      debugPrint('   Total users: ${users.length}');
       for (final user in users) {
-        debugPrint('   - ${user.userId}: ${user.role.hebrewName} ${user.role.emoji}');
       }
     }
 
@@ -466,10 +426,8 @@ class ShareListService {
     }
 
     if (kDebugMode) {
-      debugPrint('📊 Users stats for ${list.name}:');
       stats.forEach((key, value) {
         if (value > 0) {
-          debugPrint('   $key: $value');
         }
       });
     }

@@ -119,7 +119,6 @@ class LocationsProvider with ChangeNotifier {
 
       _customLocations = locations;
       if (kDebugMode) {
-        debugPrint('✅ LocationsProvider: נטענו ${_customLocations.length} מיקומים');
       }
     } catch (e, st) {
       // בדיקה גם ב-catch
@@ -129,7 +128,6 @@ class LocationsProvider with ChangeNotifier {
 
       _errorMessage = 'שגיאה בטעינת מיקומים: $e';
       if (kDebugMode) {
-        debugPrint('❌ LocationsProvider._doLoad: שגיאה - $e');
         debugPrintStack(label: 'LocationsProvider._doLoad', stackTrace: st);
       }
     }
@@ -236,7 +234,6 @@ class LocationsProvider with ChangeNotifier {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ LocationsProvider.addLocation: שגיאה - $e');
       }
       // Rollback: שחזור למצב הקודם
       _customLocations = previousLocations;
@@ -287,7 +284,6 @@ class LocationsProvider with ChangeNotifier {
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ LocationsProvider.deleteLocation: שגיאה - $e');
       }
       // Rollback: שחזור המיקום שנמחק
       _customLocations = previousLocations;

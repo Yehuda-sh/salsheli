@@ -197,7 +197,6 @@ class ListTypes {
 
     // לא נמצא → fallback ל-other
     if (kDebugMode) {
-      debugPrint('⚠️ ListTypes.getByKeySafe: key לא מוכר "$key" → fallback ל-other');
     }
     return _otherConfig;
   }
@@ -268,6 +267,5 @@ class ListTypes {
       );
     }
 
-    debugPrint('✅ ListTypes.ensureSanity(): ${all.length} configs, התאמה מלאה ל-ListTypeKeys');
   }
 }

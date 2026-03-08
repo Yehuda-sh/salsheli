@@ -359,7 +359,6 @@ class _OthersShoppingBanner extends StatelessWidget {
     if (userId != null) {
       final userRole = list.getUserRole(userId);
       if (userRole != null && !userRole.canShop) {
-        debugPrint('🚫 צופה לא יכול להצטרף לקנייה');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppStrings.shopping.viewerCannotShop),

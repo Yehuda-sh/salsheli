@@ -84,7 +84,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       curve: Curves.easeIn,
     );
     if (kDebugMode) {
-      debugPrint('🏠 MainNavigationScreen.initState()');
     }
   }
 
@@ -107,7 +106,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         unawaited(HapticFeedback.selectionClick());
         _triggerFadeIn();
         if (kDebugMode) {
-          debugPrint('🏠 MainNavigation: Switched to tab $args via arguments');
         }
       }
     }
@@ -146,7 +144,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     _unreadSub?.cancel();
     _fadeController.dispose();
     if (kDebugMode) {
-      debugPrint('🏠 MainNavigationScreen.dispose()');
     }
     super.dispose();
   }
@@ -155,7 +152,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     // 🛡️ בדיקת bounds - מונע RangeError
     if (index < 0 || index >= _pages.length) {
       if (kDebugMode) {
-        debugPrint('❌ MainNavigationScreen: טאב לא חוקי $index (טווח חוקי: 0-${_pages.length - 1})');
       }
       return;
     }
@@ -172,7 +168,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     _triggerFadeIn();
 
     if (kDebugMode) {
-      debugPrint('🏠 MainNavigationScreen: מעבר לטאב $_selectedIndex → $index');
     }
     setState(() => _selectedIndex = index);
   }
@@ -181,7 +176,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
       if (kDebugMode) {
-        debugPrint('🏠 MainNavigationScreen: Back מטאב $_selectedIndex → חזרה לדשבורד (0)');
       }
       // v4.0: Haptic + fade on back-to-home
       unawaited(HapticFeedback.selectionClick());
@@ -195,7 +189,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
       if (kDebugMode) {
-        debugPrint('🏠 MainNavigationScreen: לחיצה ראשונה על Back - חכה לשנייה');
       }
 
       // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
@@ -231,7 +224,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
     // לחיצה שנייה תוך 2 שניות - אפשר יציאה
     if (kDebugMode) {
-      debugPrint('🏠 MainNavigationScreen: לחיצה שנייה על Back - יוצא מהאפליקציה');
     }
     return Future.value(true);
   }

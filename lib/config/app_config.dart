@@ -64,17 +64,7 @@ class AppConfig {
   /// 📊 הדפסת הגדרות נוכחיות (לדיבאג)
   static void printConfig() {
     if (!kDebugMode) return;
-    debugPrint('╔════════════════════════════════════════╗');
-    debugPrint('║         🔧 App Configuration           ║');
-    debugPrint('╠════════════════════════════════════════╣');
-    debugPrint('║ Environment: ${environment.name.padRight(24)}║');
-    debugPrint('║ Use Emulators: ${useEmulators.toString().padRight(22)}║');
     if (useEmulators) {
-      debugPrint('║ Emulator Host: ${emulatorHost.padRight(22)}║');
-      debugPrint('║ Auth Port: ${authPort.toString().padRight(26)}║');
-      debugPrint('║ Firestore Port: ${firestorePort.toString().padRight(21)}║');
-      debugPrint('║ Storage Port: ${storagePort.toString().padRight(23)}║');
     }
-    debugPrint('╚════════════════════════════════════════╝');
   }
 }

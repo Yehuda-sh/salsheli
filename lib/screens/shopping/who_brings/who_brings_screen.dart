@@ -104,7 +104,6 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
       _showSnackBar('נרשמת להביא: ${item.name} ✓', isSuccess: true);
     } catch (e) {
-      debugPrint('❌ Error volunteering: $e');
       _showSnackBar('שגיאה בהרשמה');
     } finally {
       if (mounted) {
@@ -150,7 +149,6 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
       _showSnackBar('ביטלת את ההתנדבות ל${item.name}');
     } catch (e) {
-      debugPrint('❌ Error canceling volunteer: $e');
       _showSnackBar('שגיאה בביטול');
     } finally {
       if (mounted) {
@@ -195,7 +193,6 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
           itemName: item.name,
           volunteerName: volunteerName,
         );
-        debugPrint('📬 התראה נשלחה לבעל הרשימה: $creatorId');
       }
 
       // שלח התראה לאדמינים (sharedUsers עם role=admin)
@@ -212,11 +209,9 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
             itemName: item.name,
             volunteerName: volunteerName,
           );
-          debugPrint('📬 התראה נשלחה לאדמין: $sharedUserId');
         }
       }
     } catch (e) {
-      debugPrint('⚠️ שגיאה בשליחת התראות (לא קריטי): $e');
     }
   }
 

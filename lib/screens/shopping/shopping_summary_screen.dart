@@ -37,7 +37,6 @@ import '../../widgets/common/sticky_note.dart';
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
   if (kDebugMode) {
-    debugPrint(message);
   }
 }
 

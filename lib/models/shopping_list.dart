@@ -48,7 +48,6 @@ class SharedUsersMapConverter
     // Handle old List format (backward compatibility)
     if (json is List) {
       if (kDebugMode) {
-        debugPrint('⚠️ SharedUsersMapConverter: Converting old List format to Map');
       }
       final result = <String, SharedUser>{};
       for (final item in json) {
@@ -64,7 +63,6 @@ class SharedUsersMapConverter
           }
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user from list: $e');
           }
         }
       }
@@ -83,7 +81,6 @@ class SharedUsersMapConverter
           result[key] = user.copyWith(userId: key);
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('⚠️ SharedUsersMapConverter: Failed to parse user ${entry.key}: $e');
           }
         }
       }
@@ -91,7 +88,6 @@ class SharedUsersMapConverter
     }
 
     if (kDebugMode) {
-      debugPrint('⚠️ SharedUsersMapConverter: Unexpected type ${json.runtimeType}');
     }
     return {};
   }

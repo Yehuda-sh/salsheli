@@ -112,21 +112,17 @@ class FirebaseProductsRepository implements ProductsRepository {
 
     // אם יש cache תקף - החזר אותו
     if (_isCacheValid && _cachedProducts != null) {
-      debugPrint('✅ מחזיר ${_cachedProducts!.length} מוצרים מ-cache');
       return _cachedProducts!;
     }
 
     try {
-      debugPrint('📥 טוען מוצרים מ-Firestore...');
       final snapshot = await _firestore.collection(FirestoreCollections.products).get();
 
       _cachedProducts = _mapSnapshotToProducts(snapshot);
       _lastCacheUpdate = DateTime.now();
 
-      debugPrint('✅ נטענו ${_cachedProducts!.length} מוצרים מ-Firestore');
       return _cachedProducts!;
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת מוצרים מ-Firestore: $e');
       return _cachedProducts ?? [];
     }
   }
@@ -139,7 +135,6 @@ class FirebaseProductsRepository implements ProductsRepository {
     int? offset,
   }) async {
     try {
-      debugPrint('📥 טוען מוצרים מ-Firestore (limit: $limit, offset: $offset)...');
       
       // 🚀 אם יש cache מלא, נשתמש בו במקום query
       if (_isCacheValid && _cachedProducts != null) {
@@ -149,7 +144,6 @@ class FirebaseProductsRepository implements ProductsRepository {
           start.clamp(0, _cachedProducts!.length),
           end.clamp(0, _cachedProducts!.length),
         );
-        debugPrint('✅ מחזיר ${result.length} מוצרים מ-cache (pagination)');
         return result;
       }
 
@@ -167,7 +161,6 @@ class FirebaseProductsRepository implements ProductsRepository {
         final allDocs = _mapSnapshotToProducts(snapshot);
 
         final result = allDocs.skip(offset).take(limit ?? allDocs.length).toList();
-        debugPrint('✅ נטענו ${result.length} מוצרים (pagination)');
         return result;
       }
 
@@ -179,10 +172,8 @@ class FirebaseProductsRepository implements ProductsRepository {
       final snapshot = await query.get();
       final products = _mapSnapshotToProducts(snapshot);
 
-      debugPrint('✅ נטענו ${products.length} מוצרים מ-Firestore');
       return products;
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת מוצרים עם pagination: $e');
       return [];
     }
   }
@@ -208,7 +199,6 @@ class FirebaseProductsRepository implements ProductsRepository {
     String category,
   ) async {
     try {
-      debugPrint('📥 טוען מוצרים בקטגוריה: $category');
       final snapshot = await _firestore
           .collection(FirestoreCollections.products)
           .where(FirestoreFields.category, isEqualTo: category)
@@ -216,10 +206,8 @@ class FirebaseProductsRepository implements ProductsRepository {
 
       final products = _mapSnapshotToProducts(snapshot);
 
-      debugPrint('✅ נמצאו ${products.length} מוצרים בקטגוריה $category');
       return products;
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת מוצרים לפי קטגוריה: $e');
       return [];
     }
   }
@@ -247,7 +235,6 @@ class FirebaseProductsRepository implements ProductsRepository {
   @override
   Future<Map<String, dynamic>?> getProductByBarcode(String barcode) async {
     try {
-      debugPrint('🔍 מחפש מוצר עם ברקוד: $barcode');
       final snapshot = await _firestore
           .collection(FirestoreCollections.products)
           .where(FirestoreFields.barcode, isEqualTo: barcode)
@@ -255,16 +242,13 @@ class FirebaseProductsRepository implements ProductsRepository {
           .get();
 
       if (snapshot.docs.isEmpty) {
-        debugPrint('⚠️ מוצר לא נמצא');
         return null;
       }
 
       final doc = snapshot.docs.first;
       final product = <String, dynamic>{...doc.toDartMap()!, 'id': doc.id};
-      debugPrint('✅ מוצר נמצא: ${product['name']}');
       return product;
     } catch (e) {
-      debugPrint('❌ שגיאה בחיפוש מוצר: $e');
       return null;
     }
   }
@@ -299,10 +283,8 @@ class FirebaseProductsRepository implements ProductsRepository {
         return name.contains(lowerQuery) || brand.contains(lowerQuery);
       }).toList();
 
-      debugPrint('🔍 נמצאו ${results.length} תוצאות עבור: $query');
       return results;
     } catch (e) {
-      debugPrint('❌ שגיאה בחיפוש: $e');
       return [];
     }
   }
@@ -338,10 +320,8 @@ class FirebaseProductsRepository implements ProductsRepository {
           .toList()
         ..sort();
 
-      debugPrint('📂 נמצאו ${categories.length} קטגוריות');
       return categories;
     } catch (e) {
-      debugPrint('❌ שגיאה בקבלת קטגוריות: $e');
       return [];
     }
   }
@@ -408,7 +388,6 @@ class FirebaseProductsRepository implements ProductsRepository {
   void clearCache() {
     _cachedProducts = null;
     _lastCacheUpdate = null;
-    debugPrint('🧹 Cache נוקה');
   }
 
   // ========================================

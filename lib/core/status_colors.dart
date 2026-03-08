@@ -52,11 +52,6 @@ enum StatusType {
       (e) => e.name == normalized,
       orElse: () {
         if (kDebugMode) {
-          debugPrint(
-            '⚠️ StatusType.fromString: Unknown status "$value" (normalized: "$normalized") - '
-            'falling back to pending. '
-            'Valid: ${StatusType.values.map((e) => e.name).join(", ")}',
-          );
         }
         return StatusType.pending;
       },

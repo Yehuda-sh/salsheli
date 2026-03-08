@@ -56,14 +56,12 @@ class _AppLayoutState extends State<AppLayout> {
   void initState() {
     super.initState();
     if (kDebugMode) {
-      debugPrint('📱 AppLayout.initState: currentIndex=${widget.currentIndex}, badges=${widget.badges}');
     }
   }
 
   @override
   void dispose() {
     if (kDebugMode) {
-      debugPrint('🗑️ AppLayout.dispose');
     }
     super.dispose();
   }
@@ -88,7 +86,6 @@ class _AppLayoutState extends State<AppLayout> {
     if (!mounted) return;
 
     if (kDebugMode) {
-      debugPrint('🚪 AppLayout.logout: התחלת התנתקות');
     }
 
     // 💾 Save context before async (Context Safety)
@@ -101,7 +98,6 @@ class _AppLayoutState extends State<AppLayout> {
       // ✅ זה מנקה גם Firebase Auth וגם SharedPreferences!
       await context.read<UserContext>().logout();
       if (kDebugMode) {
-        debugPrint('   ✅ UserContext.logout() הושלם בהצלחה');
       }
 
       // ✅ Context safety check
@@ -110,12 +106,10 @@ class _AppLayoutState extends State<AppLayout> {
       // 🏠 Navigate to login (Clear stack)
       await navigator.pushNamedAndRemoveUntil('/login', (r) => false);
       if (kDebugMode) {
-        debugPrint('   ✅ ניווט ל-/login');
       }
 
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('   ❌ AppLayout.logout: שגיאה - $e');
       }
 
       // ✅ Context safety check - אל תציג UI אם המסך נסגר

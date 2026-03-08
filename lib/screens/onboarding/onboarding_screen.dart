@@ -116,7 +116,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ));
 
     try {
-      debugPrint('🎉 OnboardingScreen: המשתמש סיים את ה-onboarding');
 
       // שמירת כל ההעדפות דרך השירות
       // השירות אוטומטית מסמן שה-onboarding הושלם
@@ -126,14 +125,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         throw Exception('שמירת ההגדרות נכשלה');
       }
 
-      debugPrint('✅ OnboardingScreen: שמירה הצליחה, עובר למסך רישום');
 
       if (!mounted) return;
 
       // מעבר למסך הבא
       Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false);
     } catch (e) {
-      debugPrint('❌ OnboardingScreen: שגיאה - $e');
 
       if (!mounted) return;
 
@@ -155,7 +152,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     setState(() => _isLoading = true);
 
     try {
-      debugPrint('⏭️ OnboardingScreen: המשתמש דילג על ה-onboarding');
 
       // שמירת ברירות מחדל
       final success = await _onboardingService.savePreferences(_data);
@@ -164,14 +160,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         throw Exception('לא ניתן לדלג');
       }
 
-      debugPrint('✅ OnboardingScreen: דילוג הצליח, עובר למסך רישום');
 
       if (!mounted) return;
 
       // מעבר למסך הבא
       Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false);
     } catch (e) {
-      debugPrint('❌ OnboardingScreen: שגיאה בדילוג - $e');
 
       if (!mounted) return;
 

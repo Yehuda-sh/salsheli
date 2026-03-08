@@ -196,7 +196,6 @@ class AuthService {
 
       try {
         if (kDebugMode && attempt > 1) {
-          debugPrint('🔄 AuthService.$operationName: ניסיון $attempt מתוך $maxRetries');
         }
 
         // הרצת הפעולה עם timeout
@@ -218,7 +217,6 @@ class AuthService {
             // Exponential backoff: 1s, 2s, 4s...
             final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
             if (kDebugMode) {
-              debugPrint('⏳ AuthService.$operationName: ממתין ${delay.inSeconds}s לפני ניסיון נוסף');
             }
             await Future.delayed(delay);
             continue;
@@ -234,7 +232,6 @@ class AuthService {
           if (attempt < maxRetries) {
             final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
             if (kDebugMode) {
-              debugPrint('⏳ AuthService.$operationName: שגיאת רשת, ממתין ${delay.inSeconds}s');
             }
             await Future.delayed(delay);
             continue;
@@ -255,7 +252,6 @@ class AuthService {
         if (isNetworkError && attempt < maxRetries) {
           final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
           if (kDebugMode) {
-            debugPrint('⏳ AuthService.$operationName: שגיאה כללית, ממתין ${delay.inSeconds}s');
           }
           await Future.delayed(delay);
           continue;
@@ -267,7 +263,6 @@ class AuthService {
 
     // הגענו לכאן רק אם כל הניסיונות נכשלו
     if (kDebugMode) {
-      debugPrint('❌ AuthService.$operationName: כל $maxRetries הניסיונות נכשלו');
     }
 
     if (lastError is AuthException) {
@@ -334,7 +329,6 @@ class AuthService {
     required String name,
   }) async {
     if (kDebugMode) {
-      debugPrint('🔐 AuthService.signUp: רושם משתמש חדש');
     }
 
     try {
@@ -352,14 +346,12 @@ class AuthService {
       await credential.user?.reload();
 
       if (kDebugMode) {
-        debugPrint('✅ AuthService.signUp: רישום הושלם - ${credential.user?.uid}');
       }
       return credential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signUp: שגיאת Firebase - ${e.code}');
       }
 
       // ✅ AuthException typed במקום Exception גנרי
@@ -367,7 +359,6 @@ class AuthService {
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signUp: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -405,7 +396,6 @@ class AuthService {
     required String password,
   }) async {
     if (kDebugMode) {
-      debugPrint('🔐 AuthService.signIn: מתחבר');
     }
 
     try {
@@ -419,14 +409,12 @@ class AuthService {
       );
 
       if (kDebugMode) {
-        debugPrint('✅ AuthService.signIn: התחברות הושלמה - ${credential.user?.uid}');
       }
       return credential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signIn: שגיאת Firebase - ${e.code}');
       }
 
       // ✅ AuthException typed במקום Exception גנרי
@@ -434,7 +422,6 @@ class AuthService {
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signIn: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -467,7 +454,6 @@ class AuthService {
   Future<UserCredential> signInWithGoogle() async {
     try {
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.signInWithGoogle: מתחבר עם Google');
       }
 
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -487,19 +473,16 @@ class AuthService {
       final userCredential = await _auth.signInWithCredential(credential);
 
       if (kDebugMode) {
-        debugPrint('✅ AuthService.signInWithGoogle: התחברות הושלמה - ${userCredential.user?.uid}');
       }
       return userCredential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signInWithGoogle: שגיאת Firebase - ${e.code}');
       }
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signInWithGoogle: שגיאה - $e');
       }
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
@@ -530,7 +513,6 @@ class AuthService {
   Future<UserCredential> signInWithApple() async {
     try {
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.signInWithApple: מתחבר עם Apple');
       }
 
       // Generate nonce for security
@@ -553,12 +535,10 @@ class AuthService {
       final userCredential = await _auth.signInWithCredential(oauthCredential);
 
       if (kDebugMode) {
-        debugPrint('✅ AuthService.signInWithApple: התחברות הושלמה - ${userCredential.user?.uid}');
       }
       return userCredential;
     } on SignInWithAppleAuthorizationException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signInWithApple: בוטל - ${e.code}');
       }
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthException(
@@ -576,12 +556,10 @@ class AuthService {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signInWithApple: שגיאת Firebase - ${e.code}');
       }
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signInWithApple: שגיאה - $e');
       }
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
@@ -629,16 +607,13 @@ class AuthService {
   Future<bool> signOut() async {
     try {
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.signOut: מתנתק');
       }
       await _auth.signOut();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.signOut: התנתקות הושלמה');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.signOut: שגיאה - $e');
       }
       return false;
     }
@@ -663,22 +638,18 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.sendPasswordResetEmail: שולח מייל');
       }
       await _auth.sendPasswordResetEmail(email: email);
       if (kDebugMode) {
-        debugPrint('✅ AuthService.sendPasswordResetEmail: מייל נשלח');
       }
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאת Firebase - ${e.code}');
       }
 
       final errorMessage = _getResetPasswordErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.sendPasswordResetEmail: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -714,17 +685,14 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.sendEmailVerification: שולח מייל אימות');
       }
       await _auth.currentUser!.sendEmailVerification();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.sendEmailVerification: מייל נשלח');
       }
     } on AuthException {
       rethrow;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.sendEmailVerification: שגיאה - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -760,18 +728,15 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.updateDisplayName: מעדכן שם');
       }
       await _auth.currentUser!.updateDisplayName(displayName);
       await _auth.currentUser!.reload();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.updateDisplayName: שם עודכן');
       }
     } on AuthException {
       rethrow;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.updateDisplayName: שגיאה - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -811,18 +776,15 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.updateEmail: מעדכן אימייל');
       }
       await _auth.currentUser!.verifyBeforeUpdateEmail(newEmail);
       await _auth.currentUser!.reload();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.updateEmail: אימייל עודכן');
       }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.updateEmail: שגיאת Firebase - ${e.code}');
       }
 
       String errorMessage;
@@ -839,7 +801,6 @@ class AuthService {
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.updateEmail: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -879,17 +840,14 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.updatePassword: מעדכן סיסמה');
       }
       await _auth.currentUser!.updatePassword(newPassword);
       if (kDebugMode) {
-        debugPrint('✅ AuthService.updatePassword: סיסמה עודכנה');
       }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.updatePassword: שגיאת Firebase - ${e.code}');
       }
 
       String errorMessage;
@@ -904,7 +862,6 @@ class AuthService {
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.updatePassword: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -951,7 +908,6 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.reauthenticate: מבצע re-authentication');
       }
 
       final credential = EmailAuthProvider.credential(
@@ -961,20 +917,17 @@ class AuthService {
 
       await _auth.currentUser!.reauthenticateWithCredential(credential);
       if (kDebugMode) {
-        debugPrint('✅ AuthService.reauthenticate: הושלם בהצלחה');
       }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.reauthenticate: שגיאת Firebase - ${e.code}');
       }
 
       final errorMessage = _getSignInErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.reauthenticate: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -1017,17 +970,14 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.deleteAccount: מוחק חשבון');
       }
       await _auth.currentUser!.delete();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.deleteAccount: חשבון נמחק');
       }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.deleteAccount: שגיאת Firebase - ${e.code}');
       }
 
       String errorMessage;
@@ -1040,7 +990,6 @@ class AuthService {
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.deleteAccount: שגיאה כללית - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,
@@ -1079,17 +1028,14 @@ class AuthService {
       }
 
       if (kDebugMode) {
-        debugPrint('🔐 AuthService.reloadUser: טוען מחדש');
       }
       await _auth.currentUser!.reload();
       if (kDebugMode) {
-        debugPrint('✅ AuthService.reloadUser: נטען מחדש');
       }
     } on AuthException {
       rethrow;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ AuthService.reloadUser: שגיאה - $e');
       }
       throw AuthException(
         code: AuthErrorCode.unknown,

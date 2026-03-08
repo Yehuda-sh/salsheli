@@ -170,7 +170,6 @@ class CategoryDetectionService {
     String? currentCategory,
   }) {
     if (kDebugMode) {
-      debugPrint('🤖 CategoryDetection: מזהה קטגוריה עבור "$productName" (brand: $brand, current: $currentCategory)');
     }
 
     // אם יש קטגוריה קיימת ותקינה - השתמש בה
@@ -178,7 +177,6 @@ class CategoryDetectionService {
         currentCategory != 'אחר' &&
         currentCategory.isNotEmpty) {
       if (kDebugMode) {
-        debugPrint('   ✅ משתמש בקטגוריה קיימת: $currentCategory');
       }
       return currentCategory;
     }
@@ -191,7 +189,6 @@ class CategoryDetectionService {
       for (final entry in _brandToCategory.entries) {
         if (brandLower.contains(entry.key.toLowerCase())) {
           if (kDebugMode) {
-            debugPrint('   ✅ זוהה לפי מותג: ${entry.value}');
           }
           return entry.value;
         }
@@ -203,7 +200,6 @@ class CategoryDetectionService {
       for (final keyword in entry.value) {
         if (nameLower.contains(keyword.toLowerCase())) {
           if (kDebugMode) {
-            debugPrint('   ✅ זוהה לפי מילת מפתח "$keyword": ${entry.key}');
           }
           return entry.key;
         }
@@ -212,7 +208,6 @@ class CategoryDetectionService {
 
     // 3. לא הצליח לזהות
     if (kDebugMode) {
-      debugPrint('   ❌ לא הצליח לזהות קטגוריה');
     }
     return currentCategory ?? 'אחר';
   }

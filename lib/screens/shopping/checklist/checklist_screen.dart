@@ -112,7 +112,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         setState(() => _hasSyncError = false);
       }
     } catch (e) {
-      debugPrint('❌ Error toggling item: $e');
       // החזר למצב הקודם
       _updateLocalList(item);
       if (mounted) {
@@ -192,7 +191,6 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
         setState(() => _hasSyncError = false);
       }
     } catch (e) {
-      debugPrint('❌ Error toggling all: $e');
       // ↩️ Rollback למצב הקודם
       if (mounted) {
         setState(() {

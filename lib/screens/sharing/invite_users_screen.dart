@@ -63,7 +63,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📝 InviteUsersScreen: פתיחת מסך הזמנת משתמשים');
 
     final userContext = context.read<UserContext>();
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
@@ -75,7 +74,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     final isOwner = widget.list.createdBy == currentUserId;
 
     if (!isOwner) {
-      debugPrint('⛔ InviteUsersScreen: אין הרשאה - רק Owner יכול להזמין');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);
@@ -121,7 +119,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         });
       }
     } catch (e) {
-      debugPrint('❌ Error loading saved contacts: $e');
       if (mounted) {
         setState(() => _isLoadingContacts = false);
       }
@@ -233,7 +230,6 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         invitedUserName = contact.userName;
         invitedUserEmail = contact.userEmail;
         displayName = contact.displayName;
-        debugPrint('📇 Inviting saved contact: $displayName ($invitedUserId)');
       } else {
         // ✉️ Email input - צריך לחפש את המשתמש לפי אימייל
         invitedUserEmail = _emailController.text.trim().toLowerCase();
@@ -247,13 +243,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           // ✅ משתמש נמצא - משתמשים ב-UID שלו
           invitedUserId = foundUser.id;
           invitedUserName = foundUser.name;
-          debugPrint('✅ Found user by email: ${foundUser.name} (${foundUser.id})');
         } else {
           // ⚠️ משתמש לא רשום - שומרים הזמנה לפי אימייל
           invitedUserId = null;
           invitedUserName = null;
           userExists = false;
-          debugPrint('⚠️ User not registered yet: $invitedUserEmail');
         }
       }
 
@@ -303,9 +297,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             contactUserName: invitedUserName,
             contactUserEmail: invitedUserEmail,
           );
-          debugPrint('💾 Contact saved: $displayName');
         } catch (e) {
-          debugPrint('⚠️ Failed to save contact: $e');
           // Don't fail the invite if saving contact fails
         }
       }

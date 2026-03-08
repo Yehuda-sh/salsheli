@@ -89,7 +89,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       }
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('NotificationsCenter: Error loading notifications: $e');
       }
       // ✅ FIX: mounted guard after async
       if (!mounted) return;
@@ -124,7 +123,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       });
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('NotificationsCenter: Error marking as read: $e');
       }
     }
   }
@@ -162,7 +160,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       );
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('NotificationsCenter: Error marking all as read: $e');
       }
     }
   }

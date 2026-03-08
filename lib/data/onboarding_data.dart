@@ -130,17 +130,11 @@ class OnboardingData {
   static int _validateFamilySize(int size) {
     if (size < kMinFamilySize) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: גודל משפחה קטן מדי ($size), משתמש במינימום $kMinFamilySize',
-        );
       }
       return kMinFamilySize;
     }
     if (size > kMaxFamilySize) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: גודל משפחה גדול מדי ($size), משתמש במקסימום $kMaxFamilySize',
-        );
       }
       return kMaxFamilySize;
     }
@@ -151,17 +145,11 @@ class OnboardingData {
   static int _validateShoppingFrequency(int frequency) {
     if (frequency < 1) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: תדירות קטנה מדי ($frequency), משתמש במינימום 1',
-        );
       }
       return 1;
     }
     if (frequency > 7) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: תדירות גדולה מדי ($frequency), משתמש במקסימום 7',
-        );
       }
       return 7;
     }
@@ -174,9 +162,6 @@ class OnboardingData {
     
     if (kDebugMode && days.length != validDays.length) {
       final invalid = days.difference(validDays);
-      debugPrint(
-        '⚠️ OnboardingData: הוסרו ימים לא תקינים: ${invalid.join(', ')}',
-      );
     }
     
     return validDays;
@@ -195,9 +180,6 @@ class OnboardingData {
     }).toList();
 
     if (kDebugMode && children.length != filtered.length) {
-      debugPrint(
-        '⚠️ OnboardingData: הוסרו ${children.length - filtered.length} ילדים לא תקינים',
-      );
     }
 
     return filtered;
@@ -214,9 +196,6 @@ class OnboardingData {
     if (kDebugMode) {
       final unknown = normalized.where((s) => !StoresConfig.isKnown(s)).toList();
       if (unknown.isNotEmpty) {
-        debugPrint(
-          '📝 OnboardingData: חנויות לא מוכרות (נשמרות כטקסט): ${unknown.join(', ')}',
-        );
       }
     }
 
@@ -236,9 +215,6 @@ class OnboardingData {
     // ✅ v3.0: RegExp pre-check - fast fail for invalid format
     if (!_timeRegExp.hasMatch(time)) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: פורמט זמן שגוי ($time), משתמש בברירת מחדל 09:00',
-        );
       }
       return '09:00';
     }
@@ -249,9 +225,6 @@ class OnboardingData {
 
     if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: שעה או דקה לא חוקיות ($time), משתמש בברירת מחדל 09:00',
-        );
       }
       return '09:00';
     }
@@ -261,9 +234,6 @@ class OnboardingData {
 
     // אם הפורמט השתנה (למשל "9:5" → "09:05"), לוג אזהרה
     if (kDebugMode && formatted != time) {
-      debugPrint(
-        '⚠️ OnboardingData: פורמט זמן תוקן מ-"$time" ל-"$formatted"',
-      );
     }
 
     return formatted;
@@ -468,7 +438,6 @@ class OnboardingData {
   Future<bool> save() async {
     try {
       if (kDebugMode) {
-        debugPrint('💾 OnboardingData: מתחיל שמירה...');
       }
       
       final prefs = await SharedPreferences.getInstance();
@@ -520,19 +489,13 @@ class OnboardingData {
 
       if (kDebugMode) {
         if (success) {
-          debugPrint('✅ OnboardingData: כל השדות נשמרו בהצלחה');
-          debugPrint('   📊 נתונים: $this');
         } else {
-          debugPrint(
-            '❌ OnboardingData: שגיאה בשמירת השדות הבאים: ${failedFields.join(', ')}',
-          );
         }
       }
 
       return success;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ OnboardingData: שגיאה כללית בשמירה - $e');
       }
       return false;
     }
@@ -548,15 +511,12 @@ class OnboardingData {
       final result = await saveFn();
       if (kDebugMode) {
         if (result) {
-          debugPrint('   ✓ נשמר: $key');
         } else {
-          debugPrint('   ✗ נכשל: $key');
         }
       }
       return result;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('   ✗ שגיאה ב-$key: $e');
       }
       return false;
     }
@@ -571,7 +531,6 @@ class OnboardingData {
   static Future<OnboardingData> load() async {
     try {
       if (kDebugMode) {
-        debugPrint('📂 OnboardingData: טוען נתונים...');
       }
       
       final prefs = await SharedPreferences.getInstance();
@@ -579,25 +538,19 @@ class OnboardingData {
       // בדיקת schema version למיגרציות עתידיות
       final schemaVersion = prefs.getInt(OnboardingPrefsKeys.schemaVersion) ?? 1;
       if (kDebugMode && schemaVersion != kCurrentSchemaVersion) {
-        debugPrint(
-          '🔄 OnboardingData: Schema version $schemaVersion (נוכחי: $kCurrentSchemaVersion)',
-        );
       }
 
       // טעינת נתונים עם אזהרות ספציפיות
       final familySizeValue = prefs.getInt(OnboardingPrefsKeys.familySize);
       if (kDebugMode && familySizeValue == null) {
-        debugPrint('   ⚠️ familySize לא נמצא, משתמש בברירת מחדל: 2');
       }
 
       final storesValue = prefs.getStringList(OnboardingPrefsKeys.preferredStores);
       if (kDebugMode && (storesValue == null || storesValue.isEmpty)) {
-        debugPrint('   ⚠️ preferredStores ריק, משתמש בברירת מחדל: []');
       }
 
       final frequencyValue = prefs.getInt(OnboardingPrefsKeys.shoppingFrequency);
       if (kDebugMode && frequencyValue == null) {
-        debugPrint('   ⚠️ shoppingFrequency לא נמצא, משתמש בברירת מחדל: 2');
       }
 
       final daysValue = prefs.getString(OnboardingPrefsKeys.shoppingDays);
@@ -605,12 +558,10 @@ class OnboardingData {
           ? daysValue.split(',').map(int.tryParse).whereType<int>().toSet()
           : <int>{};
       if (kDebugMode && (daysValue == null || daysValue.isEmpty)) {
-        debugPrint('   ⚠️ shoppingDays ריק, משתמש בברירת מחדל: []');
       }
 
       final hasChildrenValue = prefs.getBool(OnboardingPrefsKeys.hasChildren);
       if (kDebugMode && hasChildrenValue == null) {
-        debugPrint('   ⚠️ hasChildren לא נמצא, משתמש בברירת מחדל: false');
       }
 
       // ✅ טעינת ילדים מ-JSON
@@ -622,17 +573,14 @@ class OnboardingData {
           childrenList = jsonList.map((json) => Child.fromJson(json as Map<String, dynamic>)).toList();
         } catch (e) {
           if (kDebugMode) {
-            debugPrint('   ⚠️ שגיאה בטעינת children: $e');
           }
         }
       }
       if (kDebugMode && childrenList.isEmpty) {
-        debugPrint('   ⚠️ children ריק, משתמש בברירת מחדל: []');
       }
 
       final reminderValue = prefs.getString(OnboardingPrefsKeys.reminderTime);
       if (kDebugMode && reminderValue == null) {
-        debugPrint('   ⚠️ reminderTime לא נמצא, משתמש בברירת מחדל: 09:00');
       }
 
       final data = OnboardingData(
@@ -647,16 +595,11 @@ class OnboardingData {
       );
 
       if (kDebugMode) {
-        debugPrint('✅ OnboardingData: נתונים נטענו בהצלחה');
-        debugPrint('   📊 נתונים: $data');
       }
       
       return data;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint(
-          '⚠️ OnboardingData: שגיאה בטעינה, משתמש בברירות מחדל - $e',
-        );
       }
       return OnboardingData();
     }
@@ -665,7 +608,6 @@ class OnboardingData {
   /// איפוס לערכי ברירת מחדל
   static OnboardingData defaults() {
     if (kDebugMode) {
-      debugPrint('🔄 OnboardingData: יוצר ברירות מחדל');
     }
     return OnboardingData();
   }
@@ -681,7 +623,6 @@ class OnboardingData {
   static Future<bool> markAsCompleted() async {
     try {
       if (kDebugMode) {
-        debugPrint('✓ OnboardingData: מסמן onboarding כהושלם');
       }
       
       final prefs = await SharedPreferences.getInstance();
@@ -692,16 +633,13 @@ class OnboardingData {
 
       if (kDebugMode) {
         if (result) {
-          debugPrint('✅ OnboardingData: סימון הושלם בהצלחה');
         } else {
-          debugPrint('❌ OnboardingData: נכשל בסימון');
         }
       }
 
       return result;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ OnboardingData: שגיאה בסימון - $e');
       }
       return false;
     }
@@ -717,15 +655,11 @@ class OnboardingData {
           prefs.getBool(OnboardingPrefsKeys.seenOnboarding) ?? false;
 
       if (kDebugMode) {
-        debugPrint(
-          '🔍 OnboardingData: בדיקת סטטוס - ${hasSeen ? "עבר" : "לא עבר"}',
-        );
       }
       
       return hasSeen;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('⚠️ OnboardingData: שגיאה בבדיקת סטטוס - $e');
       }
       return false; // ברירת מחדל - נראה את ה-onboarding
     }
@@ -738,7 +672,6 @@ class OnboardingData {
   static Future<bool> reset() async {
     try {
       if (kDebugMode) {
-        debugPrint('🗑️ OnboardingData: מתחיל איפוס מלא...');
       }
       
       final prefs = await SharedPreferences.getInstance();
@@ -760,18 +693,15 @@ class OnboardingData {
       await Future.wait(keys.map((key) async {
         await prefs.remove(key);
         if (kDebugMode) {
-          debugPrint('   🗑️ מחק: $key');
         }
       }));
 
       if (kDebugMode) {
-        debugPrint('✅ OnboardingData: איפוס הושלם בהצלחה');
       }
       
       return true;
     } catch (e) {
       if (kDebugMode) {
-        debugPrint('❌ OnboardingData: שגיאה באיפוס - $e');
       }
       return false;
     }

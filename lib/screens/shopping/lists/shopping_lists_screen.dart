@@ -55,7 +55,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📋 ShoppingListsScreen.initState()');
   }
 
   @override
@@ -72,7 +71,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           provider.lastUpdated == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            debugPrint('🔄 טוען רשימות ראשונית');
             provider.loadLists();
           }
         });
@@ -103,7 +101,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      debugPrint('🔄 Pull to refresh');
                       await provider.loadLists();
                     },
                     child: _buildBody(context, provider),
@@ -117,7 +114,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'shopping_lists_add_btn',
         onPressed: () {
-          debugPrint('➕ יצירת רשימה חדשה');
           HapticFeedback.mediumImpact();
           Navigator.pushNamed(context, '/create-list');
         },
@@ -658,7 +654,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// 💀 Loading State - עם Skeleton Screens
   Widget _buildLoadingState() {
-    debugPrint('⏳ _buildLoadingState()');
     return const SkeletonListView.listCards();
   }
 
@@ -894,29 +889,24 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         child: ShoppingListTile(
           list: list,
           onTap: () {
-            debugPrint('📋 פתיחת רשימה: ${list.name}');
             Navigator.pushNamed(context, '/populate-list', arguments: list);
           },
           onDelete: () async {
-            debugPrint('🗑️ מחיקת רשימה: ${list.name}');
             final provider = context.read<ShoppingListsProvider>();
             await provider.deleteList(list.id);
           },
           onRestore: (deletedList) async {
-            debugPrint('↩️ שחזור רשימה: ${deletedList.name}');
             final provider = context.read<ShoppingListsProvider>();
             await provider.restoreList(deletedList);
           },
           onStartShopping: isActive
               ? () {
-                  debugPrint('🛒 התחלת קנייה: ${list.name}');
 
                   // 🔐 בדיקת הרשאות - צופה לא יכול להשתתף בקנייה
                   final userId = context.read<UserContext>().userId;
                   if (userId != null) {
                     final userRole = list.getUserRole(userId);
                     if (userRole != null && !userRole.canShop) {
-                      debugPrint('🚫 צופה לא יכול להשתתף בקנייה');
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(AppStrings.shopping.viewerCannotShop),
@@ -932,7 +922,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 }
               : null,
           onEdit: () {
-            debugPrint('✏️ עריכת רשימה: ${list.name}');
             Navigator.pushNamed(context, '/populate-list', arguments: list);
           },
         ),
@@ -962,7 +951,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// ❌ מצב שגיאה - משופר עם אנימציות
   /// ⚠️ עטוף ב-SingleChildScrollView לתמיכה ב-Pull-to-Refresh
   Widget _buildErrorState(ShoppingListsProvider provider) {
-    debugPrint('❌ _buildErrorState()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -1005,7 +993,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               label: AppStrings.shopping.tryAgainButton,
               icon: Icons.refresh,
               onPressed: () {
-                debugPrint('🔄 retry - טוען מחדש');
 
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.lightImpact();
@@ -1022,7 +1009,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 📭 תוצאות חיפוש ריקות - משופר עם אנימציות
   /// ⚠️ עטוף ב-SingleChildScrollView לתמיכה ב-Pull-to-Refresh
   Widget _buildEmptySearchResults() {
-    debugPrint('🔍 _buildEmptySearchResults()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -1083,7 +1069,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// 📋 מצב ריק – אין רשימות להצגה
   Widget _buildEmptyState() {
-    debugPrint('📭 _buildEmptyState()');
     final cs = Theme.of(context).colorScheme;
 
     return Center(
@@ -1155,7 +1140,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               label: AppStrings.shopping.createNewListButton,
               icon: Icons.add,
               onPressed: () {
-                debugPrint('➕ יצירת רשימה ראשונה');
 
                 // ✨ Haptic feedback למשוב מישוש
                 HapticFeedback.mediumImpact();
@@ -1182,19 +1166,16 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     // אירוע עם "מי מביא מה"
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeWhoBrings) {
-      debugPrint('   → WhoBringsScreen (מי מביא מה)');
       return WhoBringsScreen(list: list);
     }
 
     // אירוע אישי (משימות / צ'קליסט)
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeTasks) {
-      debugPrint('   → ChecklistScreen (משימות)');
       return ChecklistScreen(list: list);
     }
 
     // כל השאר: חנויות + אירוע עם קנייה רגילה
-    debugPrint('   → ActiveShoppingScreen (קנייה)');
     return ActiveShoppingScreen(list: list);
   }
 }

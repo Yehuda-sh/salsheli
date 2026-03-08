@@ -208,7 +208,6 @@ class ShoppingListTile extends StatelessWidget {
               Navigator.pop(dialogContext);
 
               final deletedList = list;
-              debugPrint('🗑️ ShoppingListTile: מוחק רשימה "${deletedList.name}" (${deletedList.id})');
 
               try {
                 await onDelete?.call();
@@ -220,7 +219,6 @@ class ShoppingListTile extends StatelessWidget {
                     action: SnackBarAction(
                       label: AppStrings.shopping.undoButton,
                       onPressed: () {
-                        debugPrint('🔄 ShoppingListTile: Undo - משחזר רשימה "${deletedList.name}"');
                         onRestore?.call(deletedList);
                       },
                     ),
@@ -228,7 +226,6 @@ class ShoppingListTile extends StatelessWidget {
                   ),
                 );
               } catch (e) {
-                debugPrint('❌ שגיאה במחיקה: $e');
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text(AppStrings.shopping.deleteError),

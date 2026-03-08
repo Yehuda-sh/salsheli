@@ -36,15 +36,12 @@ class TutorialService {
     final user = userContext.user;
 
     if (user == null) {
-      debugPrint('⚠️ TutorialService: No user logged in, cannot mark tutorial');
       return;
     }
 
     try {
       await userContext.saveUser(user.copyWith(seenTutorial: true));
-      debugPrint('✅ TutorialService: Home tutorial marked as seen in Firestore');
     } catch (e) {
-      debugPrint('❌ TutorialService: Failed to mark tutorial: $e');
     }
   }
 
@@ -57,9 +54,7 @@ class TutorialService {
 
     try {
       await userContext.saveUser(user.copyWith(seenTutorial: false));
-      debugPrint('🔄 TutorialService: Tutorial reset in Firestore');
     } catch (e) {
-      debugPrint('❌ TutorialService: Failed to reset tutorial: $e');
     }
   }
 
@@ -71,7 +66,6 @@ class TutorialService {
   static Future<void> showHomeTutorialIfNeeded(BuildContext context) async {
     final seen = hasSeenHomeTutorial(context);
     if (seen) {
-      debugPrint('ℹ️ TutorialService: Home tutorial already seen, skipping');
       return;
     }
 

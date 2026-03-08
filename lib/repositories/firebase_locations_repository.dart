@@ -47,7 +47,6 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
   @override
   Future<List<CustomLocation>> fetchLocations(String householdId) async {
-    debugPrint('📥 FirebaseLocationsRepository.fetchLocations: household=$householdId');
 
     try {
       final snapshot = await _firestore
@@ -58,10 +57,8 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
       final locations = _mapSnapshotToLocations(snapshot);
 
-      debugPrint('✅ FirebaseLocationsRepository: נטענו ${locations.length} מיקומים');
       return locations;
     } catch (e, st) {
-      debugPrint('❌ FirebaseLocationsRepository.fetchLocations: שגיאה - $e');
       debugPrintStack(stackTrace: st);
       rethrow;
     }
@@ -82,7 +79,6 @@ class FirebaseLocationsRepository implements LocationsRepository {
     CustomLocation location,
     String householdId,
   ) async {
-    debugPrint('💾 FirebaseLocationsRepository.saveLocation: ${location.name} (household=$householdId)');
 
     try {
       final data = location.toJson();
@@ -97,9 +93,7 @@ class FirebaseLocationsRepository implements LocationsRepository {
             SetOptions(merge: true),
           );
 
-      debugPrint('✅ FirebaseLocationsRepository: מיקום נשמר - ${location.emoji} ${location.name}');
     } catch (e, st) {
-      debugPrint('❌ FirebaseLocationsRepository.saveLocation: שגיאה - $e');
       debugPrintStack(stackTrace: st);
       rethrow;
     }
@@ -107,16 +101,13 @@ class FirebaseLocationsRepository implements LocationsRepository {
 
   @override
   Future<void> deleteLocation(String key, String householdId) async {
-    debugPrint('🗑️ FirebaseLocationsRepository.deleteLocation: $key (household=$householdId)');
 
     try {
       final docId = '${householdId}_$key';
 
       await _firestore.collection(FirestoreCollections.customLocations).doc(docId).delete();
 
-      debugPrint('✅ FirebaseLocationsRepository: מיקום נמחק - $key');
     } catch (e, st) {
-      debugPrint('❌ FirebaseLocationsRepository.deleteLocation: שגיאה - $e');
       debugPrintStack(stackTrace: st);
       rethrow;
     }
@@ -137,7 +128,6 @@ class FirebaseLocationsRepository implements LocationsRepository {
       try {
         return CustomLocation.fromJson(json);
       } catch (e) {
-        debugPrint('⚠️ LocationsRepository: דולג על מיקום פגום - $e');
         return null;
       }
     }).whereType<CustomLocation>().toList();

@@ -111,7 +111,6 @@ class OnboardingResult {
 // 🔧 Wrapper לlogs - פועל רק ב-debug mode
 void _log(String message) {
   if (kDebugMode) {
-    debugPrint(message);
   }
 }
 

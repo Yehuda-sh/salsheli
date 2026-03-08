@@ -50,7 +50,6 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('📝 PendingRequestsScreen: פתיחת מסך בקשות ממתינות');
 
     final userContext = Provider.of<UserContext>(context, listen: false);
     final repository = context.read<ShoppingListsRepository>();
@@ -62,7 +61,6 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final canApprove = ShareListService.canUserApprove(widget.list, currentUserId);
 
     if (!canApprove) {
-      debugPrint('⛔ PendingRequestsScreen: אין הרשאה - רק Owner/Admin');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);

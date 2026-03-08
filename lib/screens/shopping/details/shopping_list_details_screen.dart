@@ -107,7 +107,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   @override
   void initState() {
     super.initState();
-    debugPrint('📋 ShoppingListDetailsScreen: פתיחת רשימה "${widget.list.name}"');
 
     // 🎬 Initialize Animation Controllers
     _fabController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
@@ -192,7 +191,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   @override
   void dispose() {
-    debugPrint('🗑️ ShoppingListDetailsScreen: סגירת מסך');
     _fabController.dispose();
     _listController.dispose();
     super.dispose();
@@ -201,7 +199,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
   /// 🛒 פתיחת Bottom Sheet לבחירת מוצרים
   /// 🔧 FIX: שימוש ב-currentList מה-provider במקום widget.list
   Future<void> _navigateToPopulateScreen() async {
-    debugPrint('🛒 ShoppingListDetailsScreen: פתיחת Bottom Sheet');
 
     final provider = context.read<ShoppingListsProvider>();
     final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id, orElse: () => widget.list);
@@ -215,7 +212,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
     // רענון הרשימה אחרי סגירה
     if (mounted) {
-      debugPrint('✅ ShoppingListDetailsScreen: חזרה מ-Bottom Sheet');
       setState(() {});
     }
   }
@@ -236,7 +232,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           _isLoading = false;
         });
         unawaited(_listController.forward());
-        debugPrint('✅ ShoppingListDetailsScreen: טעינה הושלמה');
 
         // 🎬 סימון שהאנימציות הסתיימו אחרי זמן מספיק
         // מונע אנימציות חוזרות בעת checkbox/סינון/חיפוש
@@ -252,7 +247,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           _isLoading = false;
           _errorMessage = AppStrings.listDetails.loadingError;
         });
-        debugPrint('❌ ShoppingListDetailsScreen: שגיאה בטעינה - $e');
       }
     }
   }
@@ -267,13 +261,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     final originalIndex = currentList.items.indexWhere((item) => item.id == removed.id);
 
     if (originalIndex == -1) {
-      debugPrint('❌ ShoppingListDetailsScreen: לא נמצא פריט עם id ${removed.id}');
       return;
     }
 
     provider.removeItemFromList(widget.list.id, originalIndex);
 
-    debugPrint('🗑️ ShoppingListDetailsScreen: מחק מוצר "${removed.name}" (index: $originalIndex)');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -285,7 +277,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           textColor: cs.onPrimary,
           onPressed: () {
             provider.addItemToList(widget.list.id, removed.name, removed.quantity ?? 1, removed.unit ?? 'יח\'');
-            debugPrint('↩️ ShoppingListDetailsScreen: שחזר מוצר "${removed.name}"');
           },
         ),
       ),
@@ -294,7 +285,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🛒 הוספת מוצר חדש - פותח את הקטלוג
   Future<void> _handleAddProduct() async {
-    debugPrint('🛒 ShoppingListDetailsScreen: פתיחת קטלוג מוצרים');
     await _navigateToPopulateScreen();
   }
 
@@ -311,7 +301,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
-          debugPrint('✅ ShoppingListDetailsScreen: עדכן מוצר "${updatedItem.name}" (index: $originalIndex)');
         }
       },
     );
@@ -360,9 +349,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                 ),
               );
             }
-            debugPrint('📝 ShoppingListDetailsScreen: בקשה נשלחה להוספת משימה "${item.name}"');
           } catch (e) {
-            debugPrint('❌ ShoppingListDetailsScreen: שגיאה בשליחת בקשה: $e');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('שגיאה: $e'), backgroundColor: cs.error),
@@ -372,7 +359,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         } else {
           // ✅ Owner/Admin - הוסף ישירות
           unawaited(provider.addUnifiedItem(widget.list.id, item));
-          debugPrint('✅ ShoppingListDetailsScreen: הוסף משימה "${item.name}"');
         }
       },
     );
@@ -391,7 +377,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
-          debugPrint('✅ ShoppingListDetailsScreen: עדכן משימה "${updatedItem.name}" (index: $originalIndex)');
         }
       },
     );
@@ -444,7 +429,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     _lastItemsCount = items.length;
     _lastItemsHash = itemsHash;
 
-    debugPrint('🔍 סינון: ${items.length} → ${filtered.length} פריטים (קטגוריה: "$_selectedCategory")');
     return filtered;
   }
 
@@ -462,7 +446,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
       grouped.putIfAbsent(category, () => []).add(item);
     }
 
-    debugPrint('🏷️ ShoppingListDetailsScreen: קיבוץ ל-${grouped.length} קטגוריות');
     return grouped;
   }
 
@@ -631,7 +614,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                                 TextButton(
                                   onPressed: () {
                                     setState(() => _searchQuery = '');
-                                    debugPrint('🧹 ShoppingListDetailsScreen: ניקוי חיפוש מ-Empty Search');
                                   },
                                   child: Text(AppStrings.listDetails.clearSearchButton),
                                 ),

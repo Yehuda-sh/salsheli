@@ -90,12 +90,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
   @override
   void initState() {
     super.initState();
-    debugPrint('🔵 CreateListScreen.initState()');
   }
 
   @override
   void dispose() {
-    debugPrint('🔵 CreateListScreen.dispose()');
     _nameController.dispose();
     _budgetController.dispose();
     _nameFocusNode.dispose();
@@ -106,13 +104,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
   /// הגשת הטופס
   Future<void> _handleSubmit() async {
     final cs = Theme.of(context).colorScheme;
-    debugPrint('🔵 CreateListScreen._handleSubmit()');
 
     // 🔧 סגירת מקלדת לפני פעולות אסינכרוניות
     FocusManager.instance.primaryFocus?.unfocus();
 
     if (!(_formKey.currentState?.validate() ?? false)) {
-      debugPrint('   ⚠️ Validation נכשל');
       _showErrorSnackBar(AppStrings.createListDialog.validationFailed);
       return;
     }
@@ -125,7 +121,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
         ? double.tryParse(budgetText.replaceAll(',', '.'))
         : null;
 
-    debugPrint('   📝 שם: "$name", סוג: "$_type", תקציב: ${budget ?? "לא הוגדר"}');
 
     setState(() => _isSubmitting = true);
 
@@ -146,7 +141,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
         eventMode: _type == ShoppingList.typeEvent ? _eventMode : null,
       );
 
-      debugPrint('   ✅ רשימה נוצרה: ${newList.id}');
 
       if (!mounted) return;
 
@@ -173,7 +167,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
       // ניווט לעריכת הרשימה
       await navigator.pushReplacementNamed('/populate-list', arguments: newList);
     } catch (e) {
-      debugPrint('   ❌ שגיאה: $e');
 
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -246,7 +239,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
       );
 
       if (selected != null) {
-        debugPrint('📋 נבחרה תבנית: ${selected.name}');
 
         final items = await TemplateService.loadTemplateItems(
           selected.templateFile,
@@ -281,7 +273,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
         );
       }
     } catch (e) {
-      debugPrint('❌ שגיאה בטעינת תבניות: $e');
       if (!mounted) return;
 
       messenger.showSnackBar(
@@ -295,7 +286,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   /// פתיחת DatePicker
   Future<void> _selectEventDate() async {
-    debugPrint('📅 פותח DatePicker');
 
     // 🔧 סגירת מקלדת לפני פתיחת הדיאלוג
     FocusManager.instance.primaryFocus?.unfocus();
@@ -313,7 +303,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
     );
 
     if (selectedDate != null) {
-      debugPrint('   ✅ תאריך נבחר: $selectedDate');
       setState(() => _eventDate = selectedDate);
     }
   }
@@ -582,7 +571,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ? null
           : (selected) {
               if (selected) {
-                debugPrint('🔄 סוג רשימה שונה ל: $type');
                 setState(() {
                   _type = type;
                   // 🎯 עדכון eventMode כשעוברים לאירוע
@@ -965,7 +953,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
                   child: IconButton(
                     icon: const Icon(Icons.close, size: kIconSizeSmall),
                     onPressed: () {
-                      debugPrint('🗑️ מנקה תאריך אירוע');
                       setState(() => _eventDate = null);
                     },
                   ),

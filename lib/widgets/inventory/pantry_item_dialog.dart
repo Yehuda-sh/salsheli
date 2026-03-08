@@ -63,7 +63,6 @@ class PantryItemDialog extends StatefulWidget {
     BuildContext context, {
     VoidCallback? onSuccess,
   }) {
-    debugPrint('➕ PantryItemDialog: Opening add dialog');
     return showDialog<bool>(
       context: context,
       builder: (_) => PantryItemDialog(
@@ -79,7 +78,6 @@ class PantryItemDialog extends StatefulWidget {
     InventoryItem item, {
     VoidCallback? onSuccess,
   }) {
-    debugPrint('✏️ PantryItemDialog: Opening edit dialog for ${item.id}');
     return showDialog<bool>(
       context: context,
       builder: (_) => PantryItemDialog(
@@ -468,7 +466,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       // Close dialog with success result
       Navigator.of(context).pop(true);
     } catch (e) {
-      debugPrint('❌ PantryItemDialog: Error saving item - $e');
       if (!mounted) return;
 
       setState(() => _isLoading = false);

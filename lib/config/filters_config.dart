@@ -357,7 +357,6 @@ String? hebrewCategoryToEnglish(String category) {
 
   // 4️⃣ לא נמצא - יחזיר null (הקורא יחליט אם להשתמש ב-'other')
   if (kDebugMode) {
-    debugPrint('⚠️ hebrewCategoryToEnglish: לא נמצא מיפוי ל-"$normalized"');
   }
   return null;
 }

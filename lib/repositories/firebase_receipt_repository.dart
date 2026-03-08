@@ -51,7 +51,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   @override
   Future<List<Receipt>> fetchReceipts(String householdId) async {
     try {
-      debugPrint('📥 FirebaseReceiptRepository.fetchReceipts: טוען קבלות ל-$householdId');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _receiptsCollection(householdId)
@@ -60,10 +59,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final receipts = _mapSnapshotToReceipts(snapshot);
 
-      debugPrint('✅ FirebaseReceiptRepository.fetchReceipts: נטענו ${receipts.length} קבלות');
       return receipts;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.fetchReceipts: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to fetch receipts for $householdId', e);
     }
@@ -80,7 +77,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
           : receipt.id;
 
       final isNew = receipt.id.isEmpty;
-      debugPrint('💾 FirebaseReceiptRepository.saveReceipt: ${isNew ? "יוצר" : "מעדכן"} קבלה $receiptId');
 
       // 🆕 לא צריך להוסיף household_id - הוא בנתיב
       final data = receipt.toJson();
@@ -105,10 +101,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
       final savedData = savedDoc.toDartMap()!;
       savedData['id'] = receiptId;
 
-      debugPrint('✅ FirebaseReceiptRepository.saveReceipt: קבלה נשמרה');
       return Receipt.fromJson(savedData);
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.saveReceipt: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to save receipt ${receipt.id}', e);
     }
@@ -119,14 +113,11 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   @override
   Future<void> deleteReceipt({required String id, required String householdId}) async {
     try {
-      debugPrint('🗑️ FirebaseReceiptRepository.deleteReceipt: מוחק קבלה $id');
 
       // 🆕 מחיקה ישירה - הבעלות מאומתת דרך ה-subcollection path
       await _receiptsCollection(householdId).doc(id).delete();
 
-      debugPrint('✅ FirebaseReceiptRepository.deleteReceipt: קבלה נמחקה');
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.deleteReceipt: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to delete receipt $id', e);
     }
@@ -159,24 +150,20 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   @override
   Future<Receipt?> getReceiptById(String receiptId, String householdId) async {
     try {
-      debugPrint('🔍 FirebaseReceiptRepository.getReceiptById: מחפש קבלה $receiptId');
 
       // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
       final doc = await _receiptsCollection(householdId).doc(receiptId).get();
 
       if (!doc.exists) {
-        debugPrint('⚠️ קבלה לא נמצאה');
         return null;
       }
 
       final data = doc.toDartMap()!;
       data['id'] ??= doc.id;
       final receipt = Receipt.fromJson(data);
-      debugPrint('✅ קבלה נמצאה');
 
       return receipt;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.getReceiptById: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to get receipt by id', e);
     }
@@ -191,7 +178,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
   @override
   Future<List<Receipt>> getReceiptsByStore(String storeName, String householdId) async {
     try {
-      debugPrint('🏪 FirebaseReceiptRepository.getReceiptsByStore: מחפש קבלות מ-$storeName');
 
       // 🆕 שימוש ב-subcollection - לא צריך where על household_id
       final snapshot = await _receiptsCollection(householdId)
@@ -201,10 +187,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final receipts = _mapSnapshotToReceipts(snapshot);
 
-      debugPrint('✅ נמצאו ${receipts.length} קבלות');
       return receipts;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.getReceiptsByStore: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to get receipts by store', e);
     }
@@ -227,7 +211,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     required String householdId,
   }) async {
     try {
-      debugPrint('📅 FirebaseReceiptRepository.getReceiptsByDateRange: מחפש קבלות');
 
       // 🔧 מתחיל מתחילת startDate ומסיים בסוף endDate
       final normalizedStart = DateTime(startDate.year, startDate.month, startDate.day);
@@ -242,10 +225,8 @@ class FirebaseReceiptRepository implements ReceiptRepository {
 
       final receipts = _mapSnapshotToReceipts(snapshot);
 
-      debugPrint('✅ נמצאו ${receipts.length} קבלות');
       return receipts;
     } catch (e, stackTrace) {
-      debugPrint('❌ FirebaseReceiptRepository.getReceiptsByDateRange: שגיאה - $e');
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to get receipts by date range', e);
     }
@@ -269,7 +250,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       } catch (e) {
-        debugPrint('⚠️ ReceiptRepository: דולג על קבלה פגומה ${doc.id} - $e');
         return null;
       }
     }).whereType<Receipt>().toList();
