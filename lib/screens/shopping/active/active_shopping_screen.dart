@@ -79,6 +79,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   // 📊 מצבי פריטים (item.id → status)
   final Map<String, ShoppingItemStatus> _itemStatuses = {};
 
+  // 🗂️ קטגוריות מקופלות
+  final Set<String> _collapsedCategories = {};
+
   // 🔄 Loading/Error States
   bool _isLoading = true;
   String? _errorMessage;
@@ -858,15 +861,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     ),
                   ),
                 ),
-              // 🏁 כפתור סיום קנייה — עיגול ✓ מינימליסטי
+              // 🏁 כפתור סיום קנייה — מלבן מעוגל קטן
               if (!_isSaving)
-                IconButton(
-                  onPressed: _finishShopping,
-                  tooltip: 'סיימתי',
-                  icon: Icon(
-                    Icons.check_circle,
-                    color: StatusColors.success,
-                    size: 32,
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: TextButton.icon(
+                    onPressed: _finishShopping,
+                    style: TextButton.styleFrom(
+                      backgroundColor: StatusColors.success.withValues(alpha: 0.15),
+                      foregroundColor: StatusColors.success,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    icon: const Icon(Icons.check, size: 18),
+                    label: const Text('סיימתי', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 )
               else
@@ -879,96 +890,79 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                // 📊 Header קומפקטי - סטטיסטיקות (glassmorphic)
-                ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                      decoration: BoxDecoration(
-                        color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kHighlightOpacity),
-                        border: Border(
-                          bottom: BorderSide(color: cs.outline.withValues(alpha: 0.2)),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // ✅ קניתי
-                          _CompactStat(
-                            icon: Icons.check_circle,
-                            value: purchased,
-                            total: total,
-                            color: StatusColors.success,
-                          ),
-                          _buildDivider(cs.onSurfaceVariant),
-                          // ❌ לא במלאי
-                          if (outOfStock > 0)
-                            _CompactStat(
-                              icon: Icons.remove_shopping_cart,
-                              value: outOfStock,
-                              color: StatusColors.error,
-                            ),
-                          if (outOfStock > 0) _buildDivider(cs.onSurfaceVariant),
-                          // 🚫 לא צריך
-                          if (notNeeded > 0)
-                            _CompactStat(
-                              icon: Icons.block,
-                              value: notNeeded,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          if (notNeeded > 0) _buildDivider(cs.onSurfaceVariant),
-                          // 🛒 נותרו
-                          _CompactStat(
-                            icon: Icons.shopping_cart,
-                            value: total - completed,
-                            color: StatusColors.info,
-                            highlight: true,
-                          ),
-                        ],
-                      ),
+                // 📊 Header קומפקטי — פס התקדמות דק + סטטיסטיקות בשורה אחת
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
+                  decoration: BoxDecoration(
+                    color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.15),
+                    border: Border(
+                      bottom: BorderSide(color: cs.outline.withValues(alpha: 0.1)),
                     ),
                   ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // פס התקדמות דק עם צבעים לפי סטטוס
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: SizedBox(
+                          height: 6,
+                          child: Row(
+                            children: [
+                              if (purchased > 0)
+                                Expanded(
+                                  flex: purchased,
+                                  child: Container(color: StatusColors.success),
+                                ),
+                              if (outOfStock > 0)
+                                Expanded(
+                                  flex: outOfStock,
+                                  child: Container(color: StatusColors.error.withValues(alpha: 0.7)),
+                                ),
+                              if (notNeeded > 0)
+                                Expanded(
+                                  flex: notNeeded,
+                                  child: Container(color: cs.onSurfaceVariant.withValues(alpha: 0.4)),
+                                ),
+                              if (total - completed > 0)
+                                Expanded(
+                                  flex: total - completed,
+                                  child: Container(color: cs.outline.withValues(alpha: 0.15)),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // סטטיסטיקות + מקרא בשורה אחת קומפקטית
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle, color: StatusColors.success, size: 14),
+                          const SizedBox(width: 2),
+                          Text('$purchased/$total', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                          if (outOfStock > 0) ...[
+                            const SizedBox(width: 10),
+                            Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 14),
+                            const SizedBox(width: 2),
+                            Text('$outOfStock', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                          ],
+                          if (notNeeded > 0) ...[
+                            const SizedBox(width: 10),
+                            Icon(Icons.block, color: cs.onSurfaceVariant, size: 14),
+                            const SizedBox(width: 2),
+                            Text('$notNeeded', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                          ],
+                          const SizedBox(width: 10),
+                          Icon(Icons.shopping_cart, color: cs.primary, size: 14),
+                          const SizedBox(width: 2),
+                          Text('${total - completed}', style: TextStyle(fontSize: 11, color: cs.primary, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-
-              // 📖 מדריך אייקונים (flat design)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-                color: cs.surfaceContainerHighest.withValues(alpha: 0.2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // ✓ קניתי
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.check_circle, color: StatusColors.success, size: 18),
-                        const SizedBox(width: 4),
-                        Text(AppStrings.shopping.legendPurchased, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                    // 🛒❌ אין במלאי
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 18),
-                        const SizedBox(width: 4),
-                        Text(AppStrings.shopping.legendOutOfStock, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                    // 🚫 לא צריך
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.block, color: cs.onSurfaceVariant, size: 18),
-                        const SizedBox(width: 4),
-                        Text(AppStrings.shopping.legendNotNeeded, style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: kSpacingSmall),
+                const SizedBox(height: kSpacingXTiny),
 
               // ⚠️ הזדמנות אחרונה - באנר המלצות
               LastChanceBanner(activeListId: widget.list.id),
@@ -985,71 +979,94 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // 📌 כותרת קטגוריה - Highlighter style
+                        // 📌 כותרת קטגוריה - Highlighter style + קיפול
                         // ✅ RTL-aware: EdgeInsetsDirectional + BorderDirectional
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsetsDirectional.only(
-                            end: kSpacingMedium,
-                            top: kSpacingXTiny,
-                            bottom: kSpacingXTiny,
-                          ),
-                          decoration: BoxDecoration(
-                            color: kStickyCyan.withValues(alpha: kHighlightOpacity),
-                            border: BorderDirectional(
-                              end: BorderSide(color: cs.outline.withValues(alpha: 0.3), width: 4),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (_collapsedCategories.contains(category)) {
+                                _collapsedCategories.remove(category);
+                              } else {
+                                _collapsedCategories.add(category);
+                              }
+                            });
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsetsDirectional.only(
+                              end: kSpacingMedium,
+                              top: kSpacingXTiny,
+                              bottom: kSpacingXTiny,
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                getCategoryEmoji(hebrewCategoryToEnglish(category) ?? 'other'),
-                                style: const TextStyle(fontSize: kFontSizeLarge),
+                            decoration: BoxDecoration(
+                              color: kStickyCyan.withValues(alpha: kHighlightOpacity),
+                              border: BorderDirectional(
+                                end: BorderSide(color: cs.outline.withValues(alpha: 0.3), width: 4),
                               ),
-                              const SizedBox(width: kSpacingSmall),
-                              Expanded(
-                                child: Text(
-                                  category,
-                                  style: TextStyle(
-                                    fontSize: kFontSizeMedium,
-                                    fontWeight: FontWeight.bold,
-                                    color: cs.onSurface,
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  getCategoryEmoji(hebrewCategoryToEnglish(category) ?? 'other'),
+                                  style: const TextStyle(fontSize: kFontSizeLarge),
+                                ),
+                                const SizedBox(width: kSpacingSmall),
+                                Expanded(
+                                  child: Text(
+                                    category,
+                                    style: TextStyle(
+                                      fontSize: kFontSizeMedium,
+                                      fontWeight: FontWeight.bold,
+                                      color: cs.onSurface,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // 🔢 מספר פריטים בקטגוריה
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: kSpacingSmall,
-                                  vertical: 2,
+                                // 🔢 מספר פריטים בקטגוריה
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: kSpacingSmall,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: cs.onSurface.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${items.length}',
+                                    style: TextStyle(
+                                      fontSize: kFontSizeSmall,
+                                      fontWeight: FontWeight.bold,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: cs.onSurface.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${items.length}',
-                                  style: TextStyle(
-                                    fontSize: kFontSizeSmall,
-                                    fontWeight: FontWeight.bold,
+                                const SizedBox(width: kSpacingXTiny),
+                                // ▼/▲ חץ קיפול
+                                AnimatedRotation(
+                                  turns: _collapsedCategories.contains(category) ? 0.5 : 0.0,
+                                  duration: kAnimationDurationShort,
+                                  child: Icon(
+                                    Icons.expand_more,
+                                    size: 20,
                                     color: cs.onSurfaceVariant,
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: kSpacingSmall),
 
-                        // פריטים בקטגוריה
-                        ...items.map<Widget>(
-                          (item) => _ActiveShoppingItemTile(
-                            item: item,
-                            // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
-                            status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
-                            onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                        // פריטים בקטגוריה (מוסתרים כשמקופל)
+                        if (!_collapsedCategories.contains(category))
+                          ...items.map<Widget>(
+                            (item) => _ActiveShoppingItemTile(
+                              item: item,
+                              // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
+                              status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
+                              onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                            ),
                           ),
-                        ),
 
                         const SizedBox(height: kSpacingMedium),
                       ],
