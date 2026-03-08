@@ -6,13 +6,6 @@
 // 🔗 Related: Firebase, main.dart
 
 import 'package:flutter/foundation.dart';
-
-/// 🌍 סביבות האפליקציה
-enum AppEnvironment {
-  development, // פיתוח מקומי עם Emulators
-  production, // ייצור עם Firebase Cloud
-}
-
 /// ⚙️ הגדרות האפליקציה
 ///
 /// כל השדות static - אין צורך ליצור instance.

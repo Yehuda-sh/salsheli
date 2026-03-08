@@ -39,7 +39,6 @@ const Color kStickyGreen = Color(0xFFA5D6A7);   // Success, Add
 const Color kStickyCyan = Color(0xFF80DEEA);    // Info, Secondary
 const Color kStickyPurple = Color(0xFFCE93D8);  // Creative features
 const Color kStickyOrange = Color(0xFFFFAB91);  // Warnings
-const Color kStickyGray = Color(0xFFE0E0E0);    // Neutral, Actions
 
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Sticky Notes Palette (Dark Mode - Desaturated ~17%)
@@ -95,9 +94,6 @@ const double kGlassBlurLow = 5.0;
 /// טשטוש רגיל — bottom sheets, headers צפים
 const double kGlassBlurMedium = 10.0;
 
-/// טשטוש חזק — modals, overlays מרכזיים
-const double kGlassBlurHigh = 20.0;
-
 /// Alias לתאימות לאחור — שווה ל-[kGlassBlurMedium]
 const double kGlassBlurSigma = kGlassBlurMedium;
 
@@ -117,8 +113,6 @@ const Color kDarkPaperBackground = Color(0xFF1E1E1E);  // Dark mode paper
 
 const double kButtonHeight = 48.0;       // Standard button height
 const double kButtonHeightSmall = 36.0;  // Compact button height
-const double kButtonHeightLarge = 56.0;  // Prominent button height
-const double kMinTouchTarget = 44.0;     // Minimum touch target (accessibility)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BUTTON PADDING
@@ -149,7 +143,6 @@ const Duration kAnimationDurationMedium = Duration(milliseconds: 350); // Medium
 const Duration kAnimationDurationSlow = Duration(milliseconds: 2000);  // Slow animation (shimmer)
 
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
-const Duration kSnackBarDurationShort = Duration(seconds: 2); // Short SnackBar
 const Duration kSnackBarDurationLong = Duration(seconds: 5);  // Long SnackBar
 
 const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap detection timeout
@@ -157,12 +150,6 @@ const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap dete
 // ═══════════════════════════════════════════════════════════════════════════
 // HAPTIC DELAYS
 // ═══════════════════════════════════════════════════════════════════════════
-
-/// השהיה מינימלית לפני משוב רטט (מונע קריאות כפולות)
-const Duration kHapticFeedbackDelay = Duration(milliseconds: 10);
-
-/// השהיה לפני רטט בלחיצה ארוכה (long press)
-const Duration kHapticLongPressDelay = Duration(milliseconds: 50);
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SNACKBAR MARGINS
@@ -174,8 +161,6 @@ const double kSnackBarHorizontalMargin = 16.0;  // Left & right margins
 // ═══════════════════════════════════════════════════════════════════════════
 // FAB MARGINS
 // ═══════════════════════════════════════════════════════════════════════════
-
-const double kFabMargin = 16.0;                 // FAB margin from edges
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INPUT PADDING
@@ -192,16 +177,12 @@ const double kBorderRadiusSmall = 8.0;   // Small border radius
 const double kBorderRadiusUnified = 14.0; // Unified border radius (Hybrid Premium)
 const double kBorderRadiusLarge = 16.0;  // Large border radius
 
-/// עיגול גדול לאלמנטים צפים ובאנרים מרכזיים
-const double kBorderRadiusSuper = 24.0;
-
 // ═══════════════════════════════════════════════════════════════════════════
 // BORDER WIDTH
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kBorderWidthFocused = 2.0;      // Border width when focused
 const double kBorderWidthThick = 3.0;        // Thick border
-const double kBorderWidthExtraThick = 4.0;   // Extra thick border
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ELEVATION
@@ -275,14 +256,11 @@ const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kAvatarRadiusTiny = 12.0;   // Tiny avatar radius
-const double kAvatarRadiusSmall = 16.0;  // Small avatar radius
 const double kAvatarRadius = 32.0;       // Default avatar radius
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORM FIELD SIZES
 // ═══════════════════════════════════════════════════════════════════════════
-
-const double kFieldWidthNarrow = 80.0;   // Narrow field width (quantity inputs)
 const double kChipHeight = 48.0;          // Filter chip container height
 
 // ═══════════════════════════════════════════════════════════════════════════

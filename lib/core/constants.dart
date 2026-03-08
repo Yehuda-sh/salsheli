@@ -38,18 +38,6 @@ const List<String> kChildrenAgeGroups = [
   '13-18',
 ];
 
-/// מיפוי קבוצות גיל לתיאור סמנטי
-///
-/// מוכן לשימוש עתידי ב-i18n — ה-values הם מפתחות לוגיים,
-/// התרגום בפועל נמצא ב-[OnboardingAgeX] / [AppStrings].
-const Map<String, String> kChildrenAgeDescriptions = {
-  '0-1': 'baby',
-  '2-3': 'toddler',
-  '4-6': 'preschool',
-  '7-12': 'school',
-  '13-18': 'teen',
-};
-
 /// Set for validation (derived from list)
 /// ✅ O(1) lookup בלי לאבד סדר ב-source
 final Set<String> kValidChildrenAges =
@@ -137,36 +125,9 @@ LimitStatus getLimitStatus(int current, int max) {
   if (usage >= kLimitWarningThreshold) return LimitStatus.warning;
   return LimitStatus.safe;
 }
-
-/// בודק אם הגענו לסף אזהרה אבל עדיין לא למקסימום
-///
-/// [threshold] — סף מותאם אישית (ברירת מחדל: [kLimitWarningThreshold])
-///
-/// **Usage (UI layer):**
-/// ```dart
-/// if (isNearLimit(list.items.length, kMaxItemsPerList)) {
-///   // Show warning once per screen/session
-/// }
-/// ```
-bool isNearLimit(int current, int max, {double threshold = kLimitWarningThreshold}) {
-  if (max <= 0) return false;
   final percentage = current / max;
   return percentage >= threshold && current < max;
 }
-
-/// האם ניתן להוסיף פריט נוסף
-///
-/// ```dart
-/// if (!canAddItem(list.items.length, kMaxItemsPerList)) {
-///   // הצג הודעת "הרשימה מלאה"
-/// }
-/// ```
-bool canAddItem(int current, int max) {
-  return current < max;
 }
-
-/// מחזיר אחוז ניצול של מגבלה (0.0 - 1.0)
-double getLimitUsage(int current, int max) {
-  if (max <= 0) return 0.0;
   return (current / max).clamp(0.0, 1.0);
 }
