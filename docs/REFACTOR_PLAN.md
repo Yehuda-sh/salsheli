@@ -1,625 +1,826 @@
-# 📋 תוכנית ריפקטור — MemoZap (salsheli)
+# 📋 תוכנית מלאה — MemoZap: מפיתוח להפצה
 
-> נוצר: 8 מרץ 2026
-> מצב: טיוטה לאישור
-
----
-
-## 📊 מצב נוכחי
-
-| מדד | ערך |
-|-----|-----|
-| קבצי Dart | 179 |
-| שורות קוד (screens) | 21,385 |
-| שורות קוד (widgets) | 14,900 |
-| widgets מתים | 18 (6,600 שורות) |
-| מחרוזות hardcoded | ~150 |
-| סגנונות עיצוב שונים | 5 |
-| קבצים מעל 1,000 שורות | 8 |
+> נוצר: 8 מרץ 2026 | עדכון אחרון: 8 מרץ 2026
+> מטרה: **אפליקציה מוכנה ל-App Store + Google Play**
 
 ---
 
-## 🔴 שלב 1 — ניקוי קוד מת (יום 1-2)
+## 📊 מצב נוכחי — סיכום ביקורת
 
-> סיכון: אפס. מוחקים רק דברים שלא בשימוש.
+### קוד
+| מדד | ערך | בעיה? |
+|-----|-----|-------|
+| קבצי Dart | ~100 | |
+| שורות קוד | ~56,000 | |
+| widgets מתים | 18 קבצים (6,600 שורות) | 🔴 |
+| מודולים מתים | 3 קבצים (867 שורות) | 🔴 |
+| debug prints | **1,105** | 🔴 |
+| TODO/FIXME | 5 | 🟡 |
+| קבצים > 1,000 שורות | 8 (screens) + 2 (modules) | 🟡 |
+
+### עיצוב
+| מדד | ערך | בעיה? |
+|-----|-----|-------|
+| סגנונות עיצוב שונים | 5 | 🔴 |
+| `Colors.xxx` ישירים | **316** | 🔴 |
+| Border radius ערכים | 11 (צריך 4) | 🔴 |
+| Font sizes | 18 (צריך 6-8) | 🔴 |
+| Hero animations | 0 | 🟡 |
+| Page transitions | 0 | 🟡 |
+| Slivers | 0 | 🟡 |
+
+### הפצה
+| מדד | ערך | בעיה? |
+|-----|-----|-------|
+| applicationId | `com.example.memozap` | 🔴 חייב לשנות! |
+| Release signing | debug key בלבד | 🔴 |
+| logo.png | **4,760KB** | 🔴 צריך <200KB |
+| Native splash | ❌ | 🟡 |
+| ProGuard/R8 | ❌ | 🟡 |
+| Ads SDK | ❌ | 🟡 |
+| Tests | 9 קבצים, 0 integration | 🟡 |
+| i18n | עברית בלבד | ✅ (בינתיים) |
+| Firebase rules | ✅ | |
+| Crashlytics | ✅ | |
+| Analytics | ✅ | |
+
+---
+
+# 🗺️ שלבי העבודה
+
+## 🔴 שלב 1 — ניקוי (יום 1-2)
+> סיכון: אפס. מוחקים רק מה שלא בשימוש.
 
 ### 1.1 מחיקת 18 widgets מתים (~6,600 שורות)
 
-**למחוק:**
 ```
-lib/widgets/common/animated_button.dart         (145 שורות)
-lib/widgets/common/benefit_tile.dart            (262 שורות)
-lib/widgets/common/dashboard_card.dart          (222 שורות)
-lib/widgets/common/offline_banner.dart          (258 שורות)
-lib/widgets/common/painters/perforation_painter.dart (70 שורות)
-lib/widgets/common/product_image_widget.dart    (211 שורות)
-lib/widgets/dev_banner.dart                     (183 שורות)
-lib/widgets/dialogs/expiry_alert_dialog.dart    (504 שורות)
-lib/widgets/dialogs/inventory_settings_dialog.dart (546 שורות)
-lib/widgets/dialogs/legal_content_dialog.dart   (232 שורות)
-lib/widgets/dialogs/low_stock_alert_dialog.dart (424 שורות)
-lib/widgets/dialogs/recurring_product_dialog.dart (400 שורות)
-lib/widgets/dialogs/select_list_dialog.dart     (455 שורות)
-lib/widgets/inventory/pantry_filters.dart       (217 שורות)
-lib/widgets/inventory/storage_location_manager.dart (1,300 שורות)
-lib/widgets/shopping/product_filter_section.dart (864 שורות)
-lib/widgets/shopping/shopping_list_tags.dart     (207 שורות)
-lib/widgets/shopping/shopping_list_urgency.dart  (114 שורות)
+lib/widgets/common/animated_button.dart         (145)
+lib/widgets/common/benefit_tile.dart            (262)
+lib/widgets/common/dashboard_card.dart          (222)
+lib/widgets/common/offline_banner.dart          (258)
+lib/widgets/common/painters/perforation_painter.dart (70)
+lib/widgets/common/product_image_widget.dart    (211)
+lib/widgets/dev_banner.dart                     (183)
+lib/widgets/dialogs/expiry_alert_dialog.dart    (504)
+lib/widgets/dialogs/inventory_settings_dialog.dart (546)
+lib/widgets/dialogs/legal_content_dialog.dart   (232)
+lib/widgets/dialogs/low_stock_alert_dialog.dart (424)
+lib/widgets/dialogs/recurring_product_dialog.dart (400)
+lib/widgets/dialogs/select_list_dialog.dart     (455)
+lib/widgets/inventory/pantry_filters.dart       (217)
+lib/widgets/inventory/storage_location_manager.dart (1,300)
+lib/widgets/shopping/product_filter_section.dart (864)
+lib/widgets/shopping/shopping_list_tags.dart     (207)
+lib/widgets/shopping/shopping_list_urgency.dart  (114)
 ```
 
-**לפני מחיקה — לוודא:**
-- [ ] `grep -rl "ClassName" lib/` לכל widget
-- [ ] בדוק imports שמפנים לקובץ
+### 1.2 מחיקת 3 מודולים מתים (867 שורות)
 
-### 1.2 מחיקת קוד מת מ-core/ (17 קבועים)
+```
+lib/services/contact_picker_service.dart    (464)
+lib/mixins/connectivity_mixin.dart          (274)
+lib/services/prefs_service.dart             (129)
+```
+
+### 1.3 ניקוי core + config
 
 ```
 ui_constants.dart: kAvatarRadiusSmall, kBorderRadiusSuper, kBorderWidthExtraThick,
   kButtonHeightLarge, kFabMargin, kFieldWidthNarrow, kGlassBlurHigh,
-  kHapticFeedbackDelay, kHapticLongPressDelay, kStickyGray
+  kHapticFeedbackDelay, kHapticLongPressDelay, kStickyGray,
   kMinTouchTarget, kSnackBarDurationShort
 
-constants.dart: isNearLimit(), canAddItem(), getLimitUsage(),
-  kChildrenAgeDescriptions
+constants.dart: isNearLimit(), canAddItem(), getLimitUsage(), kChildrenAgeDescriptions
+
+app_config.dart: AppEnvironment enum
+list_types_config.dart: ListTypeConfig class, configKeys
+stores_config.dart: StoreInfo class
+storage_locations_config.dart: isInvalid
+filters_config.dart: resolved
 ```
 
-### 1.3 הסרת `_getCategoryEmoji` כפול
+### 1.4 הסרת `_getCategoryEmoji` כפול
 
-**מצב נוכחי:** אותו switch מופיע ב-4 מקומות:
-1. `product_selection_bottom_sheet.dart`
-2. `pantry_product_selection_sheet.dart`
-3. `product_filter_section.dart` (נמחק ב-1.1)
-4. `my_pantry_screen.dart`
+4 קבצים → `getCategoryEmoji()` מ-`filters_config.dart`
 
-**פתרון:** `filters_config.dart` כבר מגדיר `getCategoryEmoji()` גלובלי.
-- [ ] מחק `_getCategoryEmoji` מ-3 הקבצים שנשארו
-- [ ] החלף בקריאה ל-`getCategoryEmoji(hebrewCategoryToEnglish(category) ?? 'other')`
+### 1.5 ניקוי 1,105 debug prints
+
+- **שמור:** `debugPrint` (נעלם ב-release mode)
+- **מחק:** `print()` (נשאר ב-production!)
+- **הוסף:** `kDebugMode` guard או logger service
+
+```dart
+// במקום print() בכל מקום:
+import 'package:flutter/foundation.dart';
+if (kDebugMode) debugPrint('...');
+```
+
+### 1.6 טיפול ב-5 TODOs
+
+```
+pending_requests_section.dart:360 — TODO: approveRequest()
+pending_requests_section.dart:398 — TODO: rejectRequest()
+my_pantry_screen.dart:356 — TODO: household low stock notifications
+notifications_center_screen.dart:360 — TODO: navigate to list details
+list_types_config.dart:16 — TODO(i18n): move to AppStrings
+```
 
 ---
 
-## 🟡 שלב 2 — איחוד סגנון עיצובי (יום 3-5)
+## 🟡 שלב 2 — Design System (יום 3-5)
+> המטרה: שכל המסכים ירגישו כמו אפליקציה אחת.
 
-> סיכון: נמוך. שינויים ויזואליים בלבד.
+### 2.1 Design Tokens
 
-### 2.1 הגדרת "שפת עיצוב" אחידה
-
-**הסגנון הנבחר: Notebook + Sticky (בלי Glass)**
-
+**צור `lib/theme/design_tokens.dart`:**
 ```dart
-// כל מסך צריך:
-Stack(
-  children: [
-    const NotebookBackground(),  // 📓 רקע מחברת
-    Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(backgroundColor: Colors.transparent, ...),
-      body: ...
-    ),
-  ],
-)
+class AppTokens {
+  AppTokens._();
+
+  // ═══ Spacing (4-point grid) ═══
+  static const s4  = 4.0;
+  static const s8  = 8.0;
+  static const s12 = 12.0;
+  static const s16 = 16.0;
+  static const s24 = 24.0;
+  static const s32 = 32.0;
+
+  // ═══ Border Radius (4 sizes only!) ═══
+  static const radiusS  = 8.0;   // chips, badges
+  static const radiusM  = 12.0;  // cards, inputs
+  static const radiusL  = 16.0;  // bottom sheets
+  static const radiusXL = 24.0;  // special cards
+
+  // ═══ Durations ═══
+  static const fast   = Duration(milliseconds: 200);
+  static const medium = Duration(milliseconds: 350);
+  static const slow   = Duration(milliseconds: 500);
+
+  // ═══ Elevation ═══
+  static const elevLow  = 2.0;
+  static const elevMed  = 4.0;
+  static const elevHigh = 8.0;
+}
 ```
 
-**למה בלי Glass (BackdropFilter)?**
-- כבד על ביצועים (במיוחד רשימות ארוכות)
-- 13 מסכים כבר עובדים בלעדיו
-- Glass שמור למסכים "מיוחדים" (welcome, loading)
+### 2.2 Context Extensions
 
-### 2.2 מסכים שצריכים עדכון סגנון
+**צור `lib/theme/context_extensions.dart`:**
+```dart
+extension ContextX on BuildContext {
+  TextTheme get textTheme => Theme.of(this).textTheme;
+  ColorScheme get cs => Theme.of(this).colorScheme;
+  AppBrand get brand => Theme.of(this).extension<AppBrand>()!;
+}
+```
 
+### 2.3 החלפת 316 × `Colors.xxx` → Theme
+
+| לפני | אחרי |
+|------|-------|
+| `Colors.green` | `cs.primary` |
+| `Colors.red` | `cs.error` |
+| `Colors.grey[300]` | `cs.surfaceVariant` |
+| `Colors.white` | `cs.surface` |
+| `Colors.black54` | `cs.onSurface.withOpacity(0.6)` |
+| `Color(0xFF...)` | `brand.stickyYellow` / `brand.success` |
+
+**עדיפות (הכי נראים למשתמש):**
+1. `home_dashboard_screen.dart`
+2. `shopping_lists_screen.dart`
+3. `active_shopping_screen.dart`
+4. `my_pantry_screen.dart`
+5. `settings_screen.dart`
+
+### 2.4 Typography — מ-18 גדלים ל-TextTheme
+
+| שימוש | TextTheme |
+|-------|-----------|
+| כותרת מסך | `headlineMedium` |
+| כותרת סקשן | `titleLarge` |
+| כותרת כרטיס | `titleMedium` |
+| טקסט רגיל | `bodyMedium` |
+| טקסט משני | `bodySmall` |
+| כפתור | `labelLarge` |
+| badge/chip | `labelSmall` |
+
+### 2.5 Border Radius — מ-11 ל-4
+
+```dart
+// Search & Replace:
+// 2,3,4,6,8 → AppTokens.radiusS (8)
+// 10,12      → AppTokens.radiusM (12)
+// 14,16      → AppTokens.radiusL (16)
+// 20,24      → AppTokens.radiusXL (24)
+```
+
+### 2.6 איחוד סגנון עיצובי — Notebook + Sticky
+
+**מסכים לעדכן:**
 | מסך | מצב נוכחי | שינוי |
 |-----|-----------|-------|
-| `settings_screen.dart` | 🃏 Cards בלבד | + NotebookBackground + Sticky headers |
-| `manage_users_screen.dart` | 🃏 Cards + FAB | + NotebookBackground |
+| `settings_screen.dart` | 🃏 Cards | + NotebookBackground + Sticky |
+| `manage_users_screen.dart` | 🃏 Cards | + NotebookBackground |
 | `checklist_screen.dart` | 📦 Basic | + NotebookBackground + Sticky |
 | `contact_selector_dialog.dart` | 📦 Basic | + Sticky colors |
-| `register_screen.dart` | 🔮 Glass | לאחד עם login (Notebook+Glass) |
-| `my_pantry_screen.dart` | 🔮 Glass בלבד | + NotebookBackground |
-| `onboarding_screen.dart` | 📦 Basic | + Sticky colors |
+| `register_screen.dart` | 🔮 Glass | + Notebook (כמו login) |
+| `my_pantry_screen.dart` | 🔮 Glass | + NotebookBackground |
 | `shopping_history_screen.dart` | 🃏 Cards | + NotebookBackground |
+| `onboarding_screen.dart` | 📦 Basic | + Sticky colors |
 
-### 2.3 יצירת widgets משותפים חדשים
+### 2.7 Widgets משותפים חדשים
 
-#### `lib/widgets/common/app_snackbar.dart`
 ```dart
-// במקום לכתוב בכל מסך:
-ScaffoldMessenger.of(context).showSnackBar(
-  SnackBar(content: Text('...'), backgroundColor: Colors.green, ...)
-);
-
-// נכתוב:
-AppSnackBar.success(context, 'נשמר בהצלחה');
+// AppSnackBar — במקום ~160 SnackBar ידניים
+AppSnackBar.success(context, 'נשמר');
 AppSnackBar.error(context, 'שגיאה');
-AppSnackBar.info(context, 'עודכן');
-```
 
-#### `lib/widgets/common/empty_state.dart`
-```dart
-// widget אחיד ל-"אין תוכן" — במקום לבנות מחדש בכל מסך
-EmptyState(
-  emoji: '🛒',
-  title: 'אין רשימות',
-  subtitle: 'צור רשימה חדשה כדי להתחיל',
-  action: TextButton(onPressed: ..., child: Text('צור רשימה')),
-)
-```
+// EmptyState — במקום לבנות מחדש בכל מסך
+EmptyState(emoji: '🛒', title: 'אין רשימות', action: ...);
 
-#### `lib/widgets/common/section_header.dart`
-```dart
-// כותרת קטגוריה/סקשן אחידה בסגנון Highlighter
-SectionHeader(
-  emoji: '🥛',
-  title: 'מוצרי חלב',
-  count: 3,
-  collapsed: false,
-  onTap: () => toggle(),
-)
+// SectionHeader — כותרת קטגוריה אחידה
+SectionHeader(emoji: '🥛', title: 'חלב', count: 3, onTap: ...);
 ```
 
 ---
 
 ## 🟠 שלב 3 — ריפקטור מבני (יום 5-10)
-
 > סיכון: בינוני. שינויים בקבצים פעילים.
 
-### 3.1 פיצול קבצים ארוכים
+### 3.1 פיצול מסכים ארוכים
 
-| קובץ | שורות | פיצול מוצע |
-|------|-------|-----------|
-| `active_shopping_screen.dart` | 2,020 | → `active_shopping_screen.dart` (800) + `active_item_tile.dart` (400) + `shopping_progress_header.dart` (200) + `finish_shopping_dialog.dart` (300) |
-| `my_pantry_screen.dart` | 1,328 | → `my_pantry_screen.dart` (600) + `pantry_item_card.dart` (300) + `pantry_header.dart` (200) |
-| `settings_screen.dart` | 1,219 | → `settings_screen.dart` (400) + `settings_sections/` (5 קבצים × 150) |
-| `shopping_lists_screen.dart` | 1,197 | → `shopping_lists_screen.dart` (500) + `list_card.dart` (300) + `lists_filter_bar.dart` (200) |
-| `shopping_list_details_screen.dart` | 1,166 | → `details_screen.dart` (500) + `details_item_row.dart` (300) + `details_header.dart` (200) |
-| `login_screen.dart` | 1,157 | → `login_screen.dart` (400) + `auth_form.dart` (300) + `social_login_buttons.dart` (200) |
-| `create_list_screen.dart` | 1,032 | → `create_list_screen.dart` (500) + `list_type_selector.dart` (300) |
+| קובץ | שורות | פיצול |
+|------|-------|-------|
+| `active_shopping_screen.dart` | 2,020 | → screen (800) + item_tile (400) + progress_header (200) + dialogs (300) |
+| `my_pantry_screen.dart` | 1,328 | → screen (600) + item_card (300) + header (200) |
+| `settings_screen.dart` | 1,219 | → screen (400) + sections/ (5 × 150) |
+| `shopping_lists_screen.dart` | 1,197 | → screen (500) + list_card (300) + filter_bar (200) |
+| `shopping_list_details_screen.dart` | 1,166 | → screen (500) + item_row (300) + header (200) |
+| `login_screen.dart` | 1,157 | → screen (400) + auth_form (300) + social_buttons (200) |
+| `create_list_screen.dart` | 1,032 | → screen (500) + type_selector (300) |
 
-**כלל אצבע:** קובץ > 500 שורות = שקול פיצול. > 800 = חובה.
+### 3.2 פיצול providers ענקיים
 
-### 3.2 העברת מחרוזות hardcoded ל-AppStrings
+**`shopping_lists_provider.dart` (1,520 שורות → 3 קבצים):**
+```dart
+// shopping_items_mixin.dart (~400 שורות)
+mixin ShoppingItemsMixin on ChangeNotifier {
+  addItemToList, addUnifiedItem, removeItemFromList,
+  updateItemAt, updateItemById, toggleAllItemsChecked,
+  markItemAsChecked, updateItemStatus
+}
 
-**עדיפות גבוהה (מסכים עם הכי הרבה):**
-1. `login_screen.dart` — ~43 מחרוזות
-2. `shopping_list_details_screen.dart` — ~42
-3. `settings_screen.dart` — ~31
-4. `who_brings_screen.dart` — ~16
-5. `shopping_summary_screen.dart` — ~15
+// collaborative_shopping_mixin.dart (~400 שורות)
+mixin CollaborativeShoppingMixin on ChangeNotifier {
+  startCollaborativeShopping, joinCollaborativeShopping,
+  finishCollaborativeShopping, leaveCollaborativeShopping,
+  cleanupAbandonedSessions, shareListToHousehold
+}
 
-**סה"כ:** ~150 מחרוזות להעביר
+// shopping_lists_provider.dart (~500 שורות)
+class ShoppingListsProvider extends ChangeNotifier
+    with ShoppingItemsMixin, CollaborativeShoppingMixin {
+  loadLists, createList, deleteList, restoreList, updateList,
+  archiveList, completeList, activateList, addToNextList,
+  getRecentLists, getById, getListStats, getUnpurchasedItems
+}
+```
 
-### 3.3 מבנה תיקיות מומלץ
+**`auth_service.dart` (1,159 → 2 קבצים):**
+```
+auth_service.dart (~600) — email login, register, session, password
+social_auth_service.dart (~500) — Google Sign-In, Apple Sign-In
+```
+
+### 3.3 העברת ~150 מחרוזות hardcoded ל-AppStrings
+
+| מסך | מחרוזות HC |
+|-----|-----------|
+| `login_screen.dart` | ~43 |
+| `shopping_list_details_screen.dart` | ~42 |
+| `settings_screen.dart` | ~31 |
+| `who_brings_screen.dart` | ~16 |
+| `shopping_summary_screen.dart` | ~15 |
+
+### 3.4 מבנה תיקיות מעודכן
 
 ```
 lib/screens/
 ├── auth/
 │   ├── login_screen.dart
 │   ├── register_screen.dart
-│   └── widgets/               ← חדש: auth form, social buttons
+│   └── widgets/                ← auth_form, social_buttons
 ├── home/
 │   ├── home_dashboard_screen.dart
-│   └── widgets/               ← כבר קיים
+│   └── widgets/                ← banners, cards
 ├── shopping/
 │   ├── active/
 │   │   ├── active_shopping_screen.dart
-│   │   └── widgets/           ← חדש: item_tile, progress_header
+│   │   └── widgets/            ← item_tile, progress_header
 │   ├── lists/
 │   │   ├── shopping_lists_screen.dart
-│   │   └── widgets/           ← חדש: list_card, filter_bar
-│   ├── create/                ← כבר קיים
+│   │   └── widgets/            ← list_card, filter_bar
 │   ├── details/
-│   │   ├── shopping_list_details_screen.dart
-│   │   └── widgets/           ← חדש: item_row, header
-│   └── ...
+│   │   └── widgets/            ← item_row, header
+│   └── create/
 ├── pantry/
 │   ├── my_pantry_screen.dart
-│   └── widgets/               ← חדש: item_card, header
+│   └── widgets/                ← item_card, header
 ├── settings/
 │   ├── settings_screen.dart
-│   └── sections/              ← חדש: account, appearance, notifications...
+│   └── sections/               ← account, appearance, notifications
 └── ...
 ```
 
 ---
 
-## 🟢 שלב 4 — פיצ'רים חדשים (יום 10+)
+## ⭐ שלב 4 — חווית משתמש מקצועית (יום 10-15)
+> מה שהמשתמש **באמת מרגיש**.
 
-> רק אחרי שהבסיס נקי ומסודר.
+### 4.1 Page Transitions
 
-### 4.1 מזווה → רשימת קניות
-- כפתור "חסר? הוסף לרשימה" בכרטיס מוצר במזווה
-- בחירת רשימה קיימת או יצירת חדשה
-- **ROI גבוה:** מחבר בין שני חלקי האפליקציה
-
-### 4.2 חיפוש מוצרים גלובלי
-- שדה חיפוש ב-home שמחפש בכל הרשימות + המזווה + הקטלוג
-- "תוצאות: נמצא ברשימת שבועית, יש במזווה (3 יחידות)"
-
-### 4.3 Dark Mode עקבי
-- לוודא שכל המסכים תומכים
-- Sticky colors ל-dark mode כבר מוגדרים ב-theme
-
-### 4.4 אנימציות מעבר
-- Hero animation על מוצרים (מרשימה → פרטים)
-- Shared element על כותרות
-
----
-
----
-
-## 🔵 שלב 5 — ריפקטור מודולים (providers / repositories / services)
-
-> סיכון: בינוני-גבוה. לוגיקה עסקית.
-
-### 5.1 מחיקת מודולים מתים (867 שורות)
-
-```
-lib/services/contact_picker_service.dart    (464 שורות) — לא מיובא
-lib/mixins/connectivity_mixin.dart          (274 שורות) — לא מיובא (offline_banner שמשתמש בו גם מת)
-lib/services/prefs_service.dart             (129 שורות) — לא מיובא
-```
-
-### 5.2 ניקוי exports מתים ב-config
-
-| קובץ | מה למחוק |
-|------|---------|
-| `app_config.dart` | `AppEnvironment` enum |
-| `list_types_config.dart` | `ListTypeConfig` class, `configKeys` |
-| `stores_config.dart` | `StoreInfo` class |
-| `storage_locations_config.dart` | `isInvalid` method |
-| `filters_config.dart` | `resolved` method |
-
-### 5.3 פיצול `shopping_lists_provider.dart` (1,520 שורות → 3 קבצים)
-
-**הקובץ הכי בעייתי בפרויקט — 35 methods, עושה הכל:**
-
-```
-📂 CRUD (7): loadLists, createList, deleteList, restoreList, updateList, retry, clearAll
-📂 Items (9): addItemToList, addUnifiedItem, removeItemFromList, updateItemAt, updateItemById,
-              toggleAllItemsChecked, updateListStatus, markItemAsChecked, updateItemStatus
-📂 Collaborative (5): startCollaborativeShopping, joinCollaborativeShopping,
-                       finishCollaborativeShopping, leaveCollaborativeShopping, cleanupAbandonedSessions
-📂 Sharing (2): shareListToHousehold, updateUserContext
-📂 Query (4): getRecentLists, getById, getListStats, getUnpurchasedItems
-📂 Lifecycle (4): archiveList, completeList, activateList, addToNextList
-📂 Other (4): חדש, כללי, Function, dispose
-```
-
-**פיצול מומלץ:**
-```
-lib/providers/
-├── shopping_lists_provider.dart              (~500 שורות)
-│   └── CRUD + Query + Lifecycle + dispose
-├── shopping_items_mixin.dart                 (~400 שורות)
-│   └── addItem, removeItem, updateItem, toggleAll, updateStatus
-└── collaborative_shopping_mixin.dart         (~400 שורות)
-    └── start, join, finish, leave, cleanup, shareToHousehold
-```
-
-**איך לפצל עם mixins:**
 ```dart
-// shopping_items_mixin.dart
-mixin ShoppingItemsMixin on ChangeNotifier {
-  // כל ה-methods שקשורים לפריטים
-}
-
-// collaborative_shopping_mixin.dart
-mixin CollaborativeShoppingMixin on ChangeNotifier {
-  // כל ה-methods שקשורים לקניות שיתופיות
-}
-
-// shopping_lists_provider.dart
-class ShoppingListsProvider extends ChangeNotifier
-    with ShoppingItemsMixin, CollaborativeShoppingMixin {
-  // CRUD + Query + Lifecycle בלבד
+// lib/theme/app_transitions.dart
+class AppPageRoute<T> extends PageRouteBuilder<T> {
+  AppPageRoute({required Widget page})
+    : super(
+        transitionDuration: AppTokens.medium,
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, anim, __, child) =>
+          FadeTransition(
+            opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+            child: child,
+          ),
+      );
 }
 ```
 
-### 5.4 פיצול `auth_service.dart` (1,159 שורות → 2 קבצים)
+### 4.2 AnimatedList — מוצרים נכנסים/יוצאים עם אנימציה
+
+```dart
+// במקום ListView.builder רגיל ברשימת קניות
+AnimatedList(
+  key: _listKey,
+  itemBuilder: (context, index, animation) =>
+    SlideTransition(
+      position: animation.drive(
+        Tween(begin: Offset(1, 0), end: Offset.zero)
+          .chain(CurveTween(curve: Curves.easeOut)),
+      ),
+      child: ItemTile(...),
+    ),
+)
+```
+
+### 4.3 Hero Animations — מעברים חלקים
+
+```dart
+// ברשימת קניות (shopping_list_tile):
+Hero(
+  tag: 'list-${list.id}',
+  child: Material(child: ListTile(...)),
+)
+
+// בפרטי רשימה (details header):
+Hero(
+  tag: 'list-${widget.list.id}',
+  child: Material(child: Header(...)),
+)
+```
+
+### 4.4 Collapsing Headers (Slivers)
+
+```dart
+CustomScrollView(
+  slivers: [
+    SliverAppBar(
+      expandedHeight: 120,
+      floating: true,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(list.name),
+        background: NotebookHeader(stats: stats),
+      ),
+    ),
+    SliverPadding(
+      padding: EdgeInsets.all(AppTokens.s16),
+      sliver: SliverList(delegate: ...),
+    ),
+  ],
+)
+```
+
+### 4.5 Platform-Adaptive UI
+
+```dart
+// iOS: Cupertino dialogs, bounce physics
+// Android: Material dialogs, glow physics
+showAdaptiveDialog(
+  context: context,
+  builder: (_) => AlertDialog.adaptive(...),
+);
+
+// Scroll physics
+ListView(
+  physics: Platform.isIOS
+    ? BouncingScrollPhysics()
+    : ClampingScrollPhysics(),
+)
+```
+
+### 4.6 Lottie Animations
+
+**מיקומים:**
+| איפה | אנימציה | קובץ |
+|------|---------|------|
+| סיום קניות | confetti 🎉 | `shopping_complete.json` |
+| רשימה ריקה | עגלה ריקה 🛒 | `empty_cart.json` |
+| Onboarding | אנימציה לכל שלב | `onboarding_1-4.json` |
+| Loading | לוגו מסתובב | `loading.json` |
+| Error | 😕 פרצוף עצוב | `error.json` |
+| הצלחת שיתוף | חמישייה ✋ | `high_five.json` |
+
+**מקור:** lottiefiles.com (חינם, JSON קלילים)
+
+### 4.7 Micro-Interactions
+
+| פעולה | אפקט |
+|-------|-------|
+| הוספת מוצר | bounce-in + haptic light |
+| סימון "קניתי" ✅ | check animation + strikethrough + haptic |
+| מחיקה | slide-out + undo SnackBar |
+| Pull to refresh | custom indicator עם לוגו |
+| רשימה חדשה | scale-up + fade-in |
+| שיתוף הצליח | confetti |
+| scroll לסוף | "🎉 סיימת!" toast |
+
+### 4.8 Native Splash Screen
+
+```yaml
+# pubspec.yaml
+flutter_native_splash:
+  color: "#FFF8E1"  # Sticky yellow background
+  image: assets/images/splash_logo.png
+  android_12:
+    icon_background_color: "#FFF8E1"
+    image: assets/images/splash_logo.png
+```
+
+### 4.9 Skeleton Loading (כבר חלקית ✅)
+
+**להרחיב ל:**
+- רשימת קניות ראשית
+- מסך בית (dashboard cards)
+- מזווה
+
+### 4.10 Empty States מרשימים
+
+```dart
+EmptyState(
+  lottie: 'assets/lottie/empty_cart.json', // במקום רק emoji
+  title: 'עוד לא יצרת רשימה',
+  subtitle: 'בוא ניצור את הרשימה הראשונה שלך! 🛒',
+  action: StickyButton(
+    label: 'צור רשימה',
+    color: brand.stickyYellow,
+    onTap: () => ...,
+  ),
+)
+```
+
+---
+
+## 🔵 שלב 5 — הכנה להפצה (יום 15-20)
+> בלי זה — לא נכנסים ל-Store.
+
+### 5.1 🔴 Application ID (חובה!)
+
+```kotlin
+// android/app/build.gradle.kts
+// לפני:
+applicationId = "com.example.memozap"
+// אחרי:
+applicationId = "com.memozap.app"  // או "il.co.memozap"
+```
+
+**⚠️ חייבים לבחור לפני פרסום — לא ניתן לשנות אחר כך!**
 
 ```
-lib/services/
-├── auth_service.dart           (~600 שורות) — login, register, session, password
-└── social_auth_service.dart    (~500 שורות) — Google Sign-In, Apple Sign-In
+// iOS: Bundle Identifier
+// Runner.xcodeproj → Build Settings → PRODUCT_BUNDLE_IDENTIFIER
+com.memozap.app
 ```
 
-### 5.5 providers אחרים לשיפור
+### 5.2 🔴 Release Signing
 
-| Provider | שורות | בעיה | המלצה |
-|----------|-------|------|-------|
-| `user_context.dart` | 704 | auth + theme + preferences מעורבבים | פצל: auth ב-provider, theme/prefs ב-service |
-| `inventory_provider.dart` | 737 | סביר | ✅ בינתיים OK |
-| `products_provider.dart` | 592 | 3 repos שונים | ✅ הגיוני (local + firebase + interface) |
+**Android:**
+```bash
+# צור keystore
+keytool -genkey -v -keystore ~/memozap-release.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias memozap
 
-### 5.6 Repositories — מצב
+# android/key.properties (לא ב-Git!)
+storePassword=...
+keyPassword=...
+keyAlias=memozap
+storeFile=/path/to/memozap-release.jks
+```
 
-**✅ מבנה מצוין — Repository Pattern נכון:**
+```kotlin
+// android/app/build.gradle.kts
+val keystoreProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("key.properties")))
+}
 
-| Domain | Interface | Firebase Impl | Local Impl | סה"כ |
-|--------|-----------|--------------|------------|------|
-| shopping_lists | ✅ 351 | ✅ 826 | — | 1,177 |
-| inventory | ✅ 175 | ✅ 655 | — | 830 |
-| user | ✅ 383 | ✅ 609 | — | 992 |
-| products | ✅ 178 | ✅ 429 | ✅ 282 | 889 |
-| receipt | ✅ 184 | ✅ 288 | — | 472 |
-| locations | ✅ 117 | ✅ 145 | — | 262 |
-| **shared** | — | — | — | 175 |
-| **סה"כ** | | | | **4,797** |
+android {
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties["storeFile"] as String)
+            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true   // R8/ProGuard
+            isShrinkResources = true
+        }
+    }
+}
+```
 
-**ממצאים:**
-- כל domain יש interface + Firebase implementation ✅
-- products הוא היחיד עם local impl (לטעינת JSON) ✅
-- `repository_constants.dart` — collection names מרוכזים ✅
-- `firestore_utils.dart` — helpers משותפים ✅
-- **אין צורך בריפקטור** — הארכיטקטורה נקייה 👏
+**iOS:**
+- Apple Developer Account ($99/שנה)
+- Certificates + Provisioning Profiles ב-Xcode
+- או Fastlane לאוטומציה
 
-### 5.7 Models — שיפורים קטנים
+### 5.3 🔴 אופטימיזציית תמונות
 
-| Model | בעיה | פתרון |
-|-------|------|-------|
-| `selected_contact.dart` | חסר `fromMap`/`toMap` | להוסיף (אם נשמר ב-Firestore) |
+```
+logo.png:     4,760KB → צריך ~150KB (WebP או PNG מוקטן)
+snichel.png:    822KB → צריך ~100KB
+```
+
+**פתרון:**
+```bash
+# המר ל-WebP
+cwebp -q 80 assets/images/logo.png -o assets/images/logo.webp
+# או דחוס PNG
+pngquant --quality=65-80 assets/images/logo.png
+```
+
+### 5.4 ProGuard / R8
+
+```
+# android/app/proguard-rules.pro
+-keep class com.google.firebase.** { *; }
+-keep class io.flutter.** { *; }
+-dontwarn com.google.**
+```
+
+### 5.5 🔴 מודעות (AdMob)
+
+```yaml
+# pubspec.yaml
+google_mobile_ads: ^5.1.0
+```
+
+```dart
+// lib/services/ads_service.dart
+class AdsService {
+  static const _bannerAdUnit = 'ca-app-pub-XXXX/YYYY'; // real
+  static const _rewardedAdUnit = 'ca-app-pub-XXXX/ZZZZ';
+  static const _testBannerAdUnit = 'ca-app-pub-3940256099942544/6300978111'; // test
+
+  // וידאו לפני קנייה
+  Future<void> showRewardedAd({required VoidCallback onComplete}) async {
+    await RewardedAd.load(
+      adUnitId: kReleaseMode ? _rewardedAdUnit : _testRewardedAdUnit,
+      request: AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) => ad.show(onUserEarnedReward: (_, __) => onComplete()),
+        onAdFailedToLoad: (_) => onComplete(), // fallback: skip ad
+      ),
+    );
+  }
+}
+```
+
+**תוכנית מודעות:**
+- וידאו מתוגמל לפני תחילת קנייה (כמו שתכננת)
+- Banner קטן במסך הבית (לא invasive)
+- **אין** interstitials באמצע פעולות (מעצבן משתמשים)
+
+### 5.6 Privacy Policy + Terms
+
+**חובה לשני ה-Stores:**
+- [ ] דף Privacy Policy (אפשר ב-GitHub Pages)
+- [ ] דף Terms of Use
+- [ ] קישור מתוך האפליקציה (settings)
+- [ ] GDPR compliance: כפתור "מחק את החשבון שלי"
+
+### 5.7 Store Listing
+
+**Google Play:**
+- [ ] App name: `MemoZap – רשימת קניות משפחתית`
+- [ ] Short description (80 chars): `ניהול קניות חכם: רשימות משותפות, מזווה, והצעות מותאמות`
+- [ ] Full description (4000 chars)
+- [ ] Feature graphic (1024×500 px)
+- [ ] Screenshots (8 מסכים, טלפון + טאבלט)
+- [ ] App icon (512×512 px)
+- [ ] Category: Shopping
+- [ ] Content rating questionnaire
+- [ ] Data safety form
+
+**App Store:**
+- [ ] App name
+- [ ] Subtitle (30 chars)
+- [ ] Keywords (100 chars)
+- [ ] Screenshots (6.7" + 5.5" + iPad)
+- [ ] App Preview video (אופציונלי אבל מומלץ!)
+- [ ] Privacy details
+- [ ] Age rating
+
+### 5.8 App Icon מקצועי
+
+```yaml
+# pubspec.yaml
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"  # 1024×1024
+  adaptive_icon_background: "#FFF8E1"
+  adaptive_icon_foreground: "assets/icons/app_icon_foreground.png"
+```
+
+**צריך:**
+- [ ] אייקון 1024×1024 (חד, פשוט, זכיר)
+- [ ] Adaptive icon ל-Android (foreground + background)
+- [ ] הנוכחי מספיק טוב? אם לא — Fiverr/Canva
+
+### 5.9 Firebase Performance + Remote Config
+
+```yaml
+firebase_performance: ^0.10.0
+firebase_remote_config: ^5.0.0
+```
+
+**Remote Config — לשלוט בלי עדכון:**
+- min_app_version (Force update)
+- ad_frequency
+- feature_flags (הפעל/כבה פיצ'רים)
+- maintenance_mode
+
+---
+
+## 🟢 שלב 6 — בדיקות (יום 20-25)
+
+### 6.1 Unit Tests (מינימום לפני הפצה)
+
+| תחום | מה לבדוק | עדיפות |
+|------|---------|--------|
+| Models | fromMap/toMap/copyWith | 🔴 |
+| Providers | CRUD operations | 🔴 |
+| Services | auth, sharing | 🟡 |
+| Utils | formatters, validators | 🟡 |
+
+**כבר יש:** 9 test files — להרחיב ל-~20
+
+### 6.2 Widget Tests
+
+```dart
+testWidgets('shopping list shows items', (tester) async {
+  await tester.pumpWidget(MaterialApp(home: ShoppingListsScreen()));
+  expect(find.text('רשימת קניות'), findsOneWidget);
+});
+```
+
+### 6.3 Integration Tests
+
+```dart
+// test_driver/app_test.dart
+void main() {
+  group('Full shopping flow', () {
+    testWidgets('create list → add items → shop → complete', ...);
+  });
+}
+```
+
+### 6.4 Manual Testing Checklist
+
+- [ ] **אנדרואיד:** Pixel (מודרני) + Samsung ישן (תאימות)
+- [ ] **iOS:** iPhone 15 + iPhone SE (מסך קטן)
+- [ ] **RTL:** כל המסכים נראים טוב בעברית
+- [ ] **Dark mode:** כל המסכים
+- [ ] **Offline:** מה קורה בלי אינטרנט?
+- [ ] **Rotation:** מסכים ראשיים עובדים ב-landscape?
+- [ ] **Accessibility:** font size גדול, screen reader
+- [ ] **Low memory:** אפליקציה לא קורסת
+- [ ] **First launch:** onboarding חלק
+- [ ] **Deep links:** (אם יש)
+
+---
+
+## 🟣 שלב 7 — פיצ'רים לפני הפצה (יום 25-35)
+
+### 7.1 מזווה → רשימת קניות
+- כפתור "חסר? הוסף לרשימה" בכרטיס מזווה
+- בחירת רשימה קיימת
+- **ROI גבוה:** מחבר שני חלקי האפליקציה
+
+### 7.2 חיפוש גלובלי
+- search bar ב-home
+- חיפוש ברשימות + מזווה + קטלוג
+- תוצאות מקובצות לפי מקור
+
+### 7.3 Delete Account (חובה GDPR + App Store)
+- כפתור בהגדרות
+- מוחק: user, data, auth
+- confirmation dialog
+- re-authentication נדרש
+
+### 7.4 Force Update
+- Remote Config: `min_version`
+- מסך "יש גרסה חדשה" עם קישור ל-Store
+
+### 7.5 Rate App / Feedback
+- אחרי 5 קניות מוצלחות → "אהבת? דרג אותנו!"
+- `in_app_review` package
+
+### 7.6 Onboarding שיפור
+- Lottie animations
+- skip button
+- progress indicator
+
+### 7.7 Share App
+- "הזמן חברים" → deep link ל-Store
 
 ---
 
 ## ⏱️ הערכת זמנים
 
-| שלב | זמן | שורות מושפעות |
-|-----|------|--------------|
-| 1. ניקוי קוד מת | 1-2 ימים | -6,600 (מחיקה) |
-| 2. איחוד סגנון | 2-3 ימים | ~500 (שינוי) |
-| 3. ריפקטור מבני | 3-5 ימים | ~5,000 (העברה) |
-| 4. פיצ'רים | בהתאם | +2,000 (חדש) |
-| 5. ריפקטור מודולים | 2-3 ימים | ~2,400 (פיצול + מחיקה) |
-| 6. ליטוש מקצועי + UX | 5-7 ימים | ~3,000 (שיפור + חדש) |
-
-**סדר עבודה מומלץ:** 1 → 5.1 → 5.2 → 1.3 → **6.1** → **6.2** → 2.3 → 2.2 → **6.7** → 3.1 → 5.3 → 5.4 → 3.2 → **6.3** → **6.4** → **6.6** → **6.5** → 4
-
-### 📊 סיכום כולל — קוד מת
-
-| מקור | קבצים/פריטים | שורות |
-|------|-------------|-------|
-| widgets מתים | 18 קבצים | 6,600 |
-| מחרוזות מתות (l10n) | 233 מחרוזות | 271 (כבר נמחקו ✅) |
-| מודולים מתים | 3 קבצים | 867 |
-| קבועים מתים (core) | 17 קבועים | ~50 |
-| config exports מתים | 5 פריטים | ~80 |
-| **סה"כ למחיקה** | | **~7,600 שורות** |
+| שלב | זמן | תיאור |
+|-----|------|-------|
+| 1. ניקוי | 2 ימים | מחיקת ~8,500 שורות מתות |
+| 2. Design System | 3 ימים | tokens, colors, typography |
+| 3. ריפקטור מבני | 5 ימים | פיצול קבצים, providers |
+| 4. חווית משתמש | 5 ימים | animations, transitions, Lottie |
+| 5. הכנה להפצה | 5 ימים | signing, ads, store listing |
+| 6. בדיקות | 5 ימים | unit + widget + manual |
+| 7. פיצ'רים | 10 ימים | מזווה→רשימה, חיפוש, delete account |
+| **סה"כ** | **~35 ימים** | |
 
 ---
 
----
+## 📋 Checklist להפצה
 
-## ⭐ שלב 6 — ליטוש מקצועי + UX (מה שהמשתמש באמת מרגיש)
+### לפני Google Play:
+- [ ] applicationId ≠ com.example
+- [ ] Release keystore + signing
+- [ ] ProGuard/R8
+- [ ] App icon (adaptive)
+- [ ] Screenshots (6+ מסכים)
+- [ ] Privacy policy URL
+- [ ] Data safety form
+- [ ] Content rating
+- [ ] Feature graphic
+- [ ] Remove all print() statements
+- [ ] logo.png < 200KB
+- [ ] `flutter build appbundle --release`
 
-> המטרה: שהאפליקציה **תרגיש** כמו אפליקציה של חברה גדולה, לא פרויקט צד.
+### לפני App Store:
+- [ ] Apple Developer Account
+- [ ] Bundle ID ≠ com.example
+- [ ] Certificates + Profiles
+- [ ] App icon 1024×1024
+- [ ] Screenshots (3 sizes)
+- [ ] Privacy details
+- [ ] "Delete Account" button
+- [ ] Age rating
+- [ ] `flutter build ipa --release`
 
-### 📊 UX Audit — מצב נוכחי
-
-| תחום | ציון | הערה |
-|------|------|------|
-| Loading states | ✅ 28 | מצוין |
-| Error handling | ✅ 57 | מצוין |
-| Empty states | ✅ 34 | מצוין |
-| Animations | ✅ 29 | טוב |
-| Haptic feedback | ✅ 86 | מצוין! |
-| Pull to refresh | ✅ 6 | טוב |
-| Shimmer/Skeleton | ✅ 17 | מצוין |
-| Undo actions | ✅ 12 | טוב |
-| Responsive layout | ✅ 248 | מצוין |
-| Text overflow | ✅ 103 | מצוין |
-| Keyboard handling | ✅ 83 | מצוין |
-| Swipe actions | ✅ 18 | טוב |
-| **Hero animations** | **❌ 0** | חסר לגמרי |
-| **Page transitions** | **❌ 0** | ברירת מחדל בלבד |
-| **Lottie/Rive** | **❌ 0** | אין אנימציות מורכבות |
-| **AnimatedList** | **❌ 0** | רשימות לא מונפשות |
-| **Slivers** | **❌ 0** | אין collapsing headers |
-| **Platform-specific** | **❌ 2** | iOS ו-Android נראים אותו דבר |
-
-### ⚠️ בעיות עקביות (מה שהורס תחושת מקצועיות)
-
-#### 🔴 1. צבעים ישירים — 316 שימושים ב-`Colors.xxx`!
-```
-במקום: Colors.green, Colors.red.shade100, Colors.grey[300]
-צריך:  cs.primary, cs.error, cs.surfaceVariant
-```
-**למה זה רע:** כל מסך נראה קצת אחרת. Dark mode נשבר.
-
-#### 🔴 2. Border radius — 11 ערכים שונים!
-```
-נמצא: 2, 3, 4, 6, 8, 10, 12, 14, 16, 20, 24
-צריך:  kRadiusS (8), kRadiusM (12), kRadiusL (16), kRadiusXL (24)
-```
-**למה זה רע:** כפתורים/כרטיסים מרגישים לא אחידים.
-
-#### 🔴 3. Font sizes — 18 גדלים שונים!
-```
-נמצא: 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 32, 36, 40, 48
-צריך:  Theme.of(context).textTheme.bodySmall / bodyMedium / titleLarge / etc.
-```
-**למה זה רע:** היררכיה טיפוגרפית לא עקבית.
-
-### 🎯 6.1 Design Tokens — מערכת עיצוב אחידה
-
-צור `lib/theme/design_tokens.dart`:
-```dart
-/// 🎨 Design Tokens — מקום אחד לכל ערכי העיצוב
-class AppTokens {
-  AppTokens._();
-
-  // ═══ Spacing ═══
-  static const spacing4  = 4.0;
-  static const spacing8  = 8.0;
-  static const spacing12 = 12.0;
-  static const spacing16 = 16.0;
-  static const spacing24 = 24.0;
-  static const spacing32 = 32.0;
-
-  // ═══ Border Radius ═══
-  static const radiusS  = 8.0;   // כפתורים, chips
-  static const radiusM  = 12.0;  // כרטיסים, inputs
-  static const radiusL  = 16.0;  // bottom sheets, dialogs
-  static const radiusXL = 24.0;  // cards מיוחדים
-
-  // ═══ Font Sizes (fallback — prefer TextTheme) ═══
-  static const fontXS = 11.0;
-  static const fontS  = 13.0;
-  static const fontM  = 15.0;
-  static const fontL  = 18.0;
-  static const fontXL = 22.0;
-  static const fontXXL = 28.0;
-
-  // ═══ Durations ═══
-  static const durationFast   = Duration(milliseconds: 200);
-  static const durationMedium = Duration(milliseconds: 350);
-  static const durationSlow   = Duration(milliseconds: 500);
-
-  // ═══ Elevation ═══
-  static const elevationNone = 0.0;
-  static const elevationLow  = 2.0;
-  static const elevationMed  = 4.0;
-  static const elevationHigh = 8.0;
-}
-```
-
-### 🎯 6.2 החלפת 316 × `Colors.xxx` → Theme
-
-**עדיפות:** מסכים ראשיים קודם:
-1. `active_shopping_screen.dart`
-2. `shopping_lists_screen.dart`
-3. `home_dashboard_screen.dart`
-4. `my_pantry_screen.dart`
-5. `settings_screen.dart`
-
-**Pattern:**
-```dart
-// לפני:
-color: Colors.green
-
-// אחרי:
-final cs = Theme.of(context).colorScheme;
-color: cs.primary  // או cs.error, cs.surface, etc.
-
-// Sticky colors (מותג):
-final brand = Theme.of(context).extension<AppBrand>()!;
-color: brand.stickyYellow
-```
-
-### 🎯 6.3 אנימציות שעושות הבדל
-
-#### Page Transitions (כל הניווטים)
-```dart
-// lib/theme/app_page_transitions.dart
-class AppPageTransition extends PageRouteBuilder {
-  AppPageTransition({required Widget page})
-    : super(
-        transitionDuration: AppTokens.durationMedium,
-        pageBuilder: (_, __, ___) => page,
-        transitionsBuilder: (_, anim, __, child) =>
-          FadeTransition(opacity: anim, child: child),
-      );
-}
-```
-
-#### AnimatedList (רשימת קניות)
-```dart
-// כשמוסיפים מוצר — הוא נכנס עם אנימציה
-// כשמסירים — יוצא עם slide
-AnimatedList(
-  key: _listKey,
-  itemBuilder: (context, index, animation) =>
-    SizeTransition(sizeFactor: animation, child: ...),
-)
-```
-
-#### Hero Animation (מוצר → פרטים)
-```dart
-// ברשימה:
-Hero(tag: 'product-${item.id}', child: ProductTile(...))
-
-// בפרטים:
-Hero(tag: 'product-${item.id}', child: ProductHeader(...))
-```
-
-#### Collapsing AppBar עם Slivers
-```dart
-// מסכי רשימה עם header שמתכווץ בגלילה
-CustomScrollView(
-  slivers: [
-    SliverAppBar(
-      expandedHeight: 120,
-      pinned: true,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text('רשימת קניות'),
-        background: NotebookHeader(),
-      ),
-    ),
-    SliverList(delegate: ...),
-  ],
-)
-```
-
-### 🎯 6.4 Platform-Specific Polish
-
-```dart
-// iOS: Cupertino dialogs, swipe-back, bounce scroll
-// Android: Material dialogs, predictive back, glow scroll
-
-showAdaptiveDialog(
-  context: context,
-  builder: (_) => AlertDialog.adaptive(
-    title: Text('מחיקה'),
-    content: Text('בטוח?'),
-    actions: [
-      adaptiveAction(context, 'ביטול', () => Navigator.pop(context)),
-      adaptiveAction(context, 'מחק', () => delete(), isDestructive: true),
-    ],
-  ),
-);
-```
-
-### 🎯 6.5 Lottie Animations (ליטוש אחרון)
-
-**איפה Lottie עושה הבדל:**
-- ✅ סיום קניות — אנימציית "כל הכבוד!" (confetti)
-- ✅ רשימה ריקה — אנימציית עגלה ריקה
-- ✅ Onboarding — אנימציות בכל שלב
-- ✅ Loading — לוגו מונפש במקום spinner
-
-**מקורות חינמיים:** lottiefiles.com (אלפי אנימציות JSON קלות)
-
-### 🎯 6.6 Micro-interactions שעושות "wow"
-
-| פעולה | אפקט |
-|-------|-------|
-| מוסיף מוצר לרשימה | bounce-in + haptic |
-| מסמן "קניתי" | ✅ check animation + strikethrough |
-| מוחק מוצר | slide-out + undo snackbar |
-| pull-to-refresh | custom indicator עם לוגו |
-| גלילה לסוף | "הכל פה!" micro-animation |
-| רשימה חדשה | scale-up entrance |
-| שיתוף רשימה | confetti/celebration |
-
-### 🎯 6.7 Typography — מערכת אחידה
-
-```dart
-// במקום fontSize: 14 בכל מקום:
-Text('כותרת', style: context.textTheme.titleMedium)
-Text('תוכן', style: context.textTheme.bodyMedium)
-Text('הערה', style: context.textTheme.bodySmall)
-
-// Extension לנוחות:
-extension ContextX on BuildContext {
-  TextTheme get textTheme => Theme.of(this).textTheme;
-  ColorScheme get colorScheme => Theme.of(this).colorScheme;
-  AppBrand get brand => Theme.of(this).extension<AppBrand>()!;
-}
-```
+### לשניהם:
+- [ ] Crashlytics working
+- [ ] Analytics events defined
+- [ ] Remote Config setup
+- [ ] Ads tested with test IDs
+- [ ] No debug prints in release
+- [ ] All TODO/FIXME resolved
+- [ ] Dark mode tested
+- [ ] RTL tested
+- [ ] Offline behavior tested
 
 ---
 
-## ⏱️ הערכת זמנים (כולל שלב 6)
+## ✅ כללי עבודה
 
 1. **commit אחרי כל שינוי** — קל ל-revert
-2. **בדוק אמולטור** אחרי כל שלב
-3. **לא לשנות לוגיקה** בזמן ריפקטור — רק מבנה ועיצוב
-4. **קובץ אחד בכל פעם** — לא לפתוח 10 קבצים במקביל
-5. **dart analyze** אחרי כל commit
+2. **בדוק באמולטור** אחרי כל שלב
+3. **לא לשנות לוגיקה בזמן ריפקטור** — רק מבנה ועיצוב
+4. **קובץ אחד בכל פעם**
+5. **`dart analyze`** אחרי כל commit
+6. **`flutter test`** לפני push
+7. **Branch per step** — שלב 1 ב-branch, merge ל-main
