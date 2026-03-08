@@ -405,7 +405,7 @@ class _OnboardingStrings {
 //
 // 1. **Import פשוט:**
 //    ```dart
-//    import 'package:salsheli/l10n/app_strings.dart';
+//    import 'package:memozap/l10n/app_strings.dart';
 //    ```
 //
 // 2. **שימוש ב-Widget:**

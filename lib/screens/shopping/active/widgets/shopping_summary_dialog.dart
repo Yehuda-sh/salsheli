@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/core/status_colors.dart';
-import 'package:salsheli/l10n/app_strings.dart';
-import 'package:salsheli/theme/app_theme.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/core/status_colors.dart';
+import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/theme/app_theme.dart';
 
 enum ShoppingSummaryResult {
   cancel, // חזור לרשימה
@@ -24,7 +24,7 @@ class ShoppingSummaryDialog extends StatefulWidget {
   final int notNeeded;
   final int pending;
 
-  const _ShoppingSummaryDialog({
+  const ShoppingSummaryDialog({super.key, 
     required this.listName,
     required this.total,
     required this.purchased,
@@ -34,10 +34,10 @@ class ShoppingSummaryDialog extends StatefulWidget {
   });
 
   @override
-  State<ShoppingSummaryDialog> createState() => ShoppingSummaryDialogState();
+  State<ShoppingSummaryDialog> createState() => _ShoppingSummaryDialogState();
 }
 
-class ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
+class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
   // מצב: האם להציג את אפשרויות ה-pending
   bool _showPendingOptions = false;
 
@@ -237,7 +237,7 @@ class PendingOptionTile extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const _PendingOptionTile({
+  const PendingOptionTile({super.key, 
     required this.icon,
     required this.iconColor,
     required this.title,
@@ -309,7 +309,7 @@ class ShopperAvatar extends StatelessWidget {
   final bool isStarter;
   final Color accentColor;
 
-  const _ShopperAvatar({
+  const ShopperAvatar({super.key, 
     required this.initial,
     required this.isStarter,
     required this.accentColor,
@@ -362,7 +362,7 @@ class SummaryRow extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _SummaryRow({required this.icon, required this.label, required this.value, required this.color});
+  const SummaryRow({super.key, required this.icon, required this.label, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/widgets/common/skeleton_loader.dart';
-import 'package:salsheli/l10n/app_strings.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/widgets/common/skeleton_loader.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 class ActiveShoppingLoadingSkeleton extends StatelessWidget {
   final Color accentColor;
 
-  const _LoadingSkeletonScreen({required this.accentColor});
+  const ActiveShoppingLoadingSkeleton({super.key, required this.accentColor});
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +84,7 @@ class ActiveShoppingErrorState extends StatelessWidget {
   final String errorMessage;
   final VoidCallback onRetry;
 
-  const _ErrorStateScreen({required this.errorMessage, required this.onRetry});
+  const ActiveShoppingErrorState({super.key, required this.errorMessage, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +128,7 @@ class ActiveShoppingErrorState extends StatelessWidget {
 class ActiveShoppingEmptyState extends StatelessWidget {
   final Color accentColor;
 
-  const _EmptyStateScreen({required this.accentColor});
+  const ActiveShoppingEmptyState({super.key, required this.accentColor});
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +166,7 @@ class CompactStat extends StatelessWidget {
   final Color color;
   final bool highlight;
 
-  const _CompactStat({
+  const CompactStat({super.key, 
     required this.icon,
     required this.value,
     this.total,

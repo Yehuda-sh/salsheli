@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:salsheli/theme/design_tokens.dart';
+import 'package:memozap/theme/design_tokens.dart';
 
 /// 🎬 Page Transitions אחידים לכל האפליקציה
 ///

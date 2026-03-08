@@ -1,15 +1,17 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 class LoadingOverlay extends StatefulWidget {
   final Color color;
 
-  const _LoadingOverlay({required this.color});
+  const LoadingOverlay({super.key, required this.color});
 
   @override
-  State<LoadingOverlay> createState() => LoadingOverlayState();
+  State<LoadingOverlay> createState() => _LoadingOverlayState();
 }
 
-class LoadingOverlayState extends State<LoadingOverlay> {
+class _LoadingOverlayState extends State<LoadingOverlay> {
   static const _messages = [
     'בודק פרטים...',
     'מתחבר לשרת...',
@@ -45,9 +47,9 @@ class LoadingOverlayState extends State<LoadingOverlay> {
       mainAxisSize: MainAxisSize.min,
       children: [
         CircularProgressIndicator(color: widget.color),
-        SizedBox(height: kSpacingMedium),
+        const SizedBox(height: kSpacingMedium),
         AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           child: Text(
             _messages[_messageIndex],
             key: ValueKey(_messageIndex),

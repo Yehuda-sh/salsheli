@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 /// 📭 מצב ריק אחיד — אייקון + כותרת + תיאור + כפתור (אופציונלי)
 ///

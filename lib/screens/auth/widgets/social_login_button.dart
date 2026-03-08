@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:salsheli/core/ui_constants.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 class SocialLoginButton extends StatefulWidget {
   final IconData icon;
@@ -7,7 +9,8 @@ class SocialLoginButton extends StatefulWidget {
   final Color color;
   final VoidCallback? onPressed;
 
-  const _SocialLoginButton({
+  const SocialLoginButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.color,
@@ -15,10 +18,10 @@ class SocialLoginButton extends StatefulWidget {
   });
 
   @override
-  State<SocialLoginButton> createState() => SocialLoginButtonState();
+  State<SocialLoginButton> createState() => _SocialLoginButtonState();
 }
 
-class SocialLoginButtonState extends State<SocialLoginButton> {
+class _SocialLoginButtonState extends State<SocialLoginButton> {
   bool _isPressed = false;
 
   @override
@@ -27,7 +30,6 @@ class SocialLoginButtonState extends State<SocialLoginButton> {
     final isDisabled = widget.onPressed == null;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // ✅ צל מותאם ל-Dark Mode
     final shadowColor = isDark
         ? cs.surfaceContainerLowest.withValues(alpha: 0.1)
         : cs.shadow.withValues(alpha: 0.15);
@@ -42,7 +44,7 @@ class SocialLoginButtonState extends State<SocialLoginButton> {
         onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
         child: AnimatedScale(
           scale: _isPressed ? 0.97 : 1.0,
-          duration: Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
           child: Container(
             decoration: BoxDecoration(
@@ -80,7 +82,7 @@ class SocialLoginButtonState extends State<SocialLoginButton> {
                             ? widget.color.withValues(alpha: 0.5)
                             : widget.color,
                       ),
-                      SizedBox(width: kSpacingSmall),
+                      const SizedBox(width: kSpacingSmall),
                       Text(
                         widget.label,
                         style: TextStyle(
@@ -102,9 +104,3 @@ class SocialLoginButtonState extends State<SocialLoginButton> {
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🌫️ Loading Overlay with Cycling Text
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// ✅ v4.0: Loading overlay עם טקסט משתנה ליצירת תחושת מהירות

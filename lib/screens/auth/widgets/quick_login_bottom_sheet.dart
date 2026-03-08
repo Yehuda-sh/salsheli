@@ -1,13 +1,14 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:salsheli/core/ui_constants.dart';
-import 'package:salsheli/l10n/app_strings.dart';
-import 'package:salsheli/theme/app_theme.dart';
+import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/theme/app_theme.dart';
 
 class QuickLoginBottomSheet extends StatelessWidget {
   final List<Map<String, String>> users;
   final void Function(String email) onUserSelected;
 
-  const _QuickLoginBottomSheet({
+  const QuickLoginBottomSheet({
+    super.key,
     required this.users,
     required this.onUserSelected,
   });
@@ -17,114 +18,103 @@ class QuickLoginBottomSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    // קיבוץ משתמשים לפי קבוצה
     final groupedUsers = <String, List<Map<String, String>>>{};
     for (final user in users) {
       final group = user['group'] ?? 'אחר';
       groupedUsers.putIfAbsent(group, () => []).add(user);
     }
 
-    // ✅ v4.0: Glassmorphic background
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
         child: Container(
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: 0.92),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: cs.outlineVariant,
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            ),
+          decoration: BoxDecoration(
+            color: cs.surface.withValues(alpha: 0.92),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
           ),
-
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: cs.tertiaryContainer,
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.outlineVariant,
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'התחברות מהירה - DEV',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'בחר משתמש דמו להתחברות',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          // User list
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(bottom: 24),
-              itemCount: groupedUsers.length,
-              itemBuilder: (context, index) {
-                final group = groupedUsers.keys.elementAt(index);
-                final groupUsers = groupedUsers[group]!;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   children: [
-                    // Group header
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                      child: Text(
-                        group,
-                        style: theme.textTheme.labelLarge?.copyWith(
-                          color: cs.primary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: cs.tertiaryContainer,
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'התחברות מהירה - DEV',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'בחר משתמש דמו להתחברות',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    // Users in group
-                    ...groupUsers.map((user) => _buildUserTile(context, user)),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: 24),
+                  itemCount: groupedUsers.length,
+                  itemBuilder: (context, index) {
+                    final group = groupedUsers.keys.elementAt(index);
+                    final groupUsers = groupedUsers[group]!;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          child: Text(
+                            group,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: cs.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        ...groupUsers.map((user) => _buildUserTile(context, user)),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
+        ),
       ),
     );
   }
@@ -140,7 +130,6 @@ class QuickLoginBottomSheet extends StatelessWidget {
       _ => cs.outline,
     };
 
-    // 🔧 FIX: שימוש ב-characters.first במקום substring לתמיכה באמוג'י ותווים מיוחדים
     final firstChar = user['name']!.characters.firstOrNull ?? '?';
 
     return ListTile(
@@ -149,23 +138,16 @@ class QuickLoginBottomSheet extends StatelessWidget {
         backgroundColor: roleColor.withValues(alpha: 0.2),
         child: Text(
           firstChar,
-          style: TextStyle(
-            color: roleColor,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: roleColor, fontWeight: FontWeight.bold),
         ),
       ),
       title: Text(
         user['name']!,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
         user['email']!,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: cs.onSurfaceVariant,
-        ),
+        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
       ),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -185,10 +167,3 @@ class QuickLoginBottomSheet extends StatelessWidget {
     );
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔵 Social Login Button Widget
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// כפתור Social Login (Google/Apple) בעיצוב Theme-aware
-/// ✅ כולל AnimatedScale feedback בלחיצה + צללים מותאמים ל-Dark Mode
