@@ -525,9 +525,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Text('מחובר', style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
               ],
             ),
-            if (userContext.email != null) ...[
+            if (userContext.userEmail != null) ...[
               const SizedBox(height: kSpacingSmall),
-              Text(userContext.email!, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
+              Text(userContext.userEmail!, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
             ],
             const SizedBox(height: kSpacingMedium),
           ],
