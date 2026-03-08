@@ -736,8 +736,6 @@ class _WelcomeStrings {
   // Accessibility
   String get logoLabel => 'לוגו אפליקציית ${AppStrings.appName}';
 
-  // ⚠️ DEPRECATED: Guest mode removed - auth is required
-  @Deprecated('Guest mode removed - auth is required')
 }
 
 // ========================================
