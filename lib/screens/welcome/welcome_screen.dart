@@ -89,12 +89,42 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       .scale(begin: const Offset(0.95, 0.95), duration: 400.ms),
                 ),
 
+                // === Dots + Swipe hint ===
+                Padding(
+                  padding: const EdgeInsets.only(bottom: kSpacingSmall),
+                  child: Column(
+                    children: [
+                      _DotIndicator(
+                        count: 3,
+                        current: _currentPage,
+                        activeColor: brand?.accent ?? cs.primary,
+                        inactiveColor: cs.outlineVariant,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.swipe, size: 14, color: cs.onSurface.withValues(alpha: 0.3)),
+                          const SizedBox(width: 4),
+                          Text(
+                            AppStrings.welcome.moreGroupsHint,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurface.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 200.ms),
+
                 // === Carousel ===
                 Expanded(
                   child: Column(
                     children: [
                       Expanded(
-                        flex: 5,
                         child: PageView(
                           controller: _pageController,
                           onPageChanged: (index) => setState(() => _currentPage = index),
@@ -127,37 +157,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                       ),
 
-                      // Dot indicators + סלוגן
-                      Padding(
-                        padding: const EdgeInsets.only(top: kSpacingSmallPlus, bottom: kSpacingSmall),
-                        child: Column(
-                          children: [
-                            _DotIndicator(
-                              count: 3,
-                              current: _currentPage,
-                              activeColor: brand?.accent ?? cs.primary,
-                              inactiveColor: cs.outlineVariant,
-                            ),
-                            const SizedBox(height: kSpacingSmall),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.swipe, size: 16, color: cs.onSurface.withValues(alpha: 0.35)),
-                                const SizedBox(width: 6),
-                                Text(
-                                  AppStrings.welcome.moreGroupsHint,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: cs.onSurface.withValues(alpha: 0.45),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )
-                          .animate()
-                          .fadeIn(duration: 400.ms, delay: 200.ms),
                       // רווח ל-sticky bar
                       const SizedBox(height: 130),
                     ],
