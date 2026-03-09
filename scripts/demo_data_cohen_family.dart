@@ -204,7 +204,11 @@ const String demoPassword = 'Demo123!';
 final Map<String, Map<String, dynamic>> users = {
   aviUserId: {
     'id': aviUserId,
+    'name': 'אבי כהן',
+    'email': 'avi.cohen@demo.com',
+    'phone': '0501234567',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -222,7 +226,11 @@ final Map<String, Map<String, dynamic>> users = {
   },
   ronitUserId: {
     'id': ronitUserId,
+    'name': 'רונית כהן',
+    'email': 'ronit.cohen@demo.com',
+    'phone': '0502345678',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'יוחננוף'],
@@ -240,7 +248,11 @@ final Map<String, Map<String, dynamic>> users = {
   },
   yuvalUserId: {
     'id': yuvalUserId,
+    'name': 'יובל כהן',
+    'email': 'yuval.cohen@demo.com',
+    'phone': '0503456789',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 7, 15).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['AM:PM', 'שופרסל'],
@@ -258,7 +270,11 @@ final Map<String, Map<String, dynamic>> users = {
   },
   noaUserId: {
     'id': noaUserId,
+    'name': 'נועה כהן',
+    'email': 'noa.cohen@demo.com',
+    'phone': '0504567890',
     'household_id': householdId,
+    'household_name': 'משפחת כהן',
     'joined_at': DateTime(2024, 8, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -284,7 +300,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // Young Couple - Dan & Maya Levi
   danUserId: {
     'id': danUserId,
+    'name': 'דן לוי',
+    'email': 'dan.levi@demo.com',
+    'phone': '0505678901',
     'household_id': leviHouseholdId,
+    'household_name': 'משפחת לוי',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['ויקטורי', 'שופרסל'],
@@ -302,7 +322,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   },
   mayaUserId: {
     'id': mayaUserId,
+    'name': 'מאיה לוי',
+    'email': 'maya.levi@demo.com',
+    'phone': '0506789012',
     'household_id': leviHouseholdId,
+    'household_name': 'משפחת לוי',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['ויקטורי', 'יוחננוף'],
@@ -322,6 +346,9 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // Single Person - Tomer Bar (lives alone, active shopper)
   tomerId: {
     'id': tomerId,
+    'name': 'תומר בר',
+    'email': 'tomer.bar@demo.com',
+    'phone': '0507890123',
     'household_id': tomerHouseholdId,
     'joined_at': DateTime(2024, 10, 15).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
@@ -342,6 +369,9 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // New User - Shiran Gal (just joined, has rich pantry but no shopping history)
   shiranId: {
     'id': shiranId,
+    'name': 'שירן גל',
+    'email': 'shiran.gal@demo.com',
+    'phone': '0508901234',
     'household_id': shiranHouseholdId,
     'joined_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
@@ -366,7 +396,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // משה גולן - יו"ר ועד הבית (owner)
   mosheUserId: {
     'id': mosheUserId,
+    'name': 'משה גולן',
+    'email': 'moshe.golan@demo.com',
+    'phone': '0521111111',
     'household_id': mosheHouseholdId,
+    'household_name': 'משפחת גולן',
     'joined_at': DateTime(2024, 3, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -386,7 +420,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // שרה לוי - גזברית הוועד (admin)
   saraUserId: {
     'id': saraUserId,
+    'name': 'שרה לוי',
+    'email': 'sara.levi.vaad@demo.com',
+    'phone': '0522222222',
     'household_id': saraHouseholdId,
+    'household_name': 'משפחת לוי (שרה)',
     'joined_at': DateTime(2024, 3, 15).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 5)).toIso8601String(),
     'preferred_stores': ['רמי לוי', 'יוחננוף'],
@@ -406,7 +444,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // דוד כהן - חבר ועד (editor)
   davidUserId: {
     'id': davidUserId,
+    'name': 'דוד כהן',
+    'email': 'david.cohen.vaad@demo.com',
+    'phone': '0523333333',
     'household_id': davidHouseholdId,
+    'household_name': 'משפחת כהן (דוד)',
     'joined_at': DateTime(2024, 4, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -426,6 +468,9 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // מיכל אברהם - דיירת חדשה (viewer)
   michalUserId: {
     'id': michalUserId,
+    'name': 'מיכל אברהם',
+    'email': 'michal.avraham@demo.com',
+    'phone': '0524444444',
     'household_id': michalHouseholdId,
     'joined_at': DateTime(2024, 10, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
@@ -450,7 +495,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // יעל ברק - יו"ר ועד ההורים (owner)
   yaelUserId: {
     'id': yaelUserId,
+    'name': 'יעל ברק',
+    'email': 'yael.barak@demo.com',
+    'phone': '0531111111',
     'household_id': yaelHouseholdId,
+    'household_name': 'משפחת ברק',
     'joined_at': DateTime(2024, 9, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -470,7 +519,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // אורנה שלום - גזברית ועד הורים (admin)
   ornaUserId: {
     'id': ornaUserId,
+    'name': 'אורנה שלום',
+    'email': 'orna.shalom@demo.com',
+    'phone': '0532222222',
     'household_id': ornaHouseholdId,
+    'household_name': 'משפחת שלום',
     'joined_at': DateTime(2024, 9, 5).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
     'preferred_stores': ['יוחננוף'],
@@ -490,7 +543,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // רמי דור - חבר ועד הורים (editor)
   ramiUserId: {
     'id': ramiUserId,
+    'name': 'רמי דור',
+    'email': 'rami.dor@demo.com',
+    'phone': '0533333333',
     'household_id': ramiHouseholdId,
+    'household_name': 'משפחת דור',
     'joined_at': DateTime(2024, 9, 10).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
     'preferred_stores': ['שופרסל'],
@@ -514,7 +571,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // ליאור כץ - החתן (owner)
   liorUserId: {
     'id': liorUserId,
+    'name': 'ליאור כץ',
+    'email': 'lior.katz@demo.com',
+    'phone': '0541111111',
     'household_id': liorHouseholdId,
+    'household_name': 'משפחת כץ',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().toIso8601String(),
     'preferred_stores': ['שופרסל', 'רמי לוי'],
@@ -534,7 +595,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // נועם שפירא - הכלה (admin)
   noamUserId: {
     'id': noamUserId,
+    'name': 'נועם שפירא',
+    'email': 'noam.shapira@demo.com',
+    'phone': '0542222222',
     'household_id': noamHouseholdId,
+    'household_name': 'משפחת שפירא',
     'joined_at': DateTime(2024, 6, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
     'preferred_stores': ['יוחננוף', 'שופרסל'],
@@ -554,7 +619,11 @@ final Map<String, Map<String, dynamic>> additionalUsers = {
   // אייל כץ - אח החתן (editor)
   eyalUserId: {
     'id': eyalUserId,
+    'name': 'אייל כץ',
+    'email': 'eyal.katz@demo.com',
+    'phone': '0543333333',
     'household_id': eyalHouseholdId,
+    'household_name': 'משפחת כץ (אייל)',
     'joined_at': DateTime(2024, 7, 1).toIso8601String(),
     'last_login_at': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
     'preferred_stores': ['רמי לוי'],
@@ -4792,6 +4861,61 @@ void main(List<String> args) async {
       await writeDocument('custom_locations', location['key'] as String, location);
     }
     print('   ✅ מיקומים נוצרו');
+    print('');
+
+    // 5. Create Household Documents + Members
+    print('━' * 60);
+    print('🏠 יוצר households + members...');
+    print('━' * 60);
+
+    // === Cohen Household ===
+    final aviUidForHousehold = cohenUids[aviUserId]!;
+    final ronitUidForHousehold = cohenUids[ronitUserId]!;
+    final yuvalUidForHousehold = cohenUids[yuvalUserId]!;
+    final noaUidForHousehold = cohenUids[noaUserId]!;
+
+    await writeDocument('households', householdId, {
+      'id': householdId,
+      'name': 'משפחת כהן',
+      'created_by': aviUidForHousehold,
+      'created_at': DateTime(2024, 6, 1).toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+    print('   🏠 משפחת כהן');
+
+    // Cohen members
+    for (final memberEntry in <String, Map<String, dynamic>>{
+      aviUidForHousehold: {'name': 'אבי כהן', 'role': 'admin', 'joined_at': DateTime(2024, 6, 1).toIso8601String()},
+      ronitUidForHousehold: {'name': 'רונית כהן', 'role': 'admin', 'joined_at': DateTime(2024, 6, 1).toIso8601String()},
+      yuvalUidForHousehold: {'name': 'יובל כהן', 'role': 'member', 'joined_at': DateTime(2024, 7, 15).toIso8601String()},
+      noaUidForHousehold: {'name': 'נועה כהן', 'role': 'member', 'joined_at': DateTime(2024, 8, 1).toIso8601String()},
+    }.entries) {
+      await writeSubDocument('households/$householdId/members', memberEntry.key, memberEntry.value);
+    }
+    print('      ✅ 4 members');
+
+    // === Levi Household ===
+    final danUidForHousehold = additionalUids[danUserId]!;
+    final mayaUidForHousehold = additionalUids[mayaUserId]!;
+
+    await writeDocument('households', leviHouseholdId, {
+      'id': leviHouseholdId,
+      'name': 'משפחת לוי',
+      'created_by': danUidForHousehold,
+      'created_at': DateTime(2024, 10, 1).toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
+    });
+    print('   🏠 משפחת לוי');
+
+    for (final memberEntry in <String, Map<String, dynamic>>{
+      danUidForHousehold: {'name': 'דן לוי', 'role': 'admin', 'joined_at': DateTime(2024, 10, 1).toIso8601String()},
+      mayaUidForHousehold: {'name': 'מאיה לוי', 'role': 'admin', 'joined_at': DateTime(2024, 10, 1).toIso8601String()},
+    }.entries) {
+      await writeSubDocument('households/$leviHouseholdId/members', memberEntry.key, memberEntry.value);
+    }
+    print('      ✅ 2 members');
+
+    print('   ✅ households + members נוצרו');
     print('');
 
     // 6. Create Shared Lists (Household) - with real UIDs
