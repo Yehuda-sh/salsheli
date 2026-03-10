@@ -542,6 +542,23 @@ service cloud.firestore {
     // =========================================================
     // 🚫 Legacy Collections (Migration in progress)
     // =========================================================
+    // === Top-Level Pending Invites ===
+    // Service queries cross-user, so top-level collection is needed.
+    // Read: invited user can read their own invites
+    // Write: authenticated user can create (invite) or update (accept/reject)
+    match /pending_invites/{inviteId} {
+      allow read: if isAuthenticated() && (
+        resource.data.request_data.invited_user_id == request.auth.uid ||
+        resource.data.requester_id == request.auth.uid
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.request_data.invited_user_id == request.auth.uid ||
+        resource.data.requester_id == request.auth.uid
+      );
+      allow delete: if false;
+    }
+
     // ⚠️ קולקציות ישנות — קריאה בלבד עד סיום המיגרציה.
     //    לאחר סיום המיגרציה המלאה, יש למחוק בלוק זה לגמרי.
     //    כל הנתונים החדשים נכתבים ל-Subcollections (ראה מבנה למעלה).
