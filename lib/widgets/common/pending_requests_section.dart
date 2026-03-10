@@ -23,7 +23,10 @@ import 'package:provider/provider.dart';
 import '../../core/ui_constants.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
+import '../../services/pending_requests_service.dart';
 import 'sticky_note.dart';
 
 /// Widget להצגת בקשות ממתינות
@@ -355,9 +358,26 @@ class _RequestCardState extends State<_RequestCard> {
     unawaited(HapticFeedback.mediumImpact());
 
     try {
-      // TODO: Call PendingRequestsService.approveRequest()
-      // For now, just show message after delay
-      await Future.delayed(const Duration(milliseconds: 500));
+      final userContext = context.read<UserContext>();
+      final listsProvider = context.read<ShoppingListsProvider>();
+      final notificationsService = context.read<NotificationsService?>();
+      final pendingRequestsService = PendingRequestsService(
+        listsProvider.repository,
+        userContext,
+      );
+
+      // מצא את הרשימה
+      final list = listsProvider.lists.firstWhere(
+        (l) => l.id == widget.listId,
+        orElse: () => throw Exception('רשימה לא נמצאה'),
+      );
+
+      await pendingRequestsService.approveRequest(
+        list: list,
+        requestId: widget.request.id,
+        approverName: userContext.displayName ?? 'משתמש',
+        notificationsService: notificationsService ?? NotificationsService(),
+      );
 
       if (!mounted) return;
 
@@ -393,9 +413,25 @@ class _RequestCardState extends State<_RequestCard> {
     unawaited(HapticFeedback.heavyImpact());
 
     try {
-      // TODO: Call PendingRequestsService.rejectRequest()
-      // For now, just show message after delay
-      await Future.delayed(const Duration(milliseconds: 500));
+      final userContext = context.read<UserContext>();
+      final listsProvider = context.read<ShoppingListsProvider>();
+      final notificationsService = context.read<NotificationsService?>();
+      final pendingRequestsService = PendingRequestsService(
+        listsProvider.repository,
+        userContext,
+      );
+
+      final list = listsProvider.lists.firstWhere(
+        (l) => l.id == widget.listId,
+        orElse: () => throw Exception('רשימה לא נמצאה'),
+      );
+
+      await pendingRequestsService.rejectRequest(
+        list: list,
+        requestId: widget.request.id,
+        rejecterName: userContext.displayName ?? 'משתמש',
+        notificationsService: notificationsService ?? NotificationsService(),
+      );
 
       if (!mounted) return;
 

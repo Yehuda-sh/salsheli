@@ -24,7 +24,9 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/notification.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
+import '../../screens/shopping/details/shopping_list_details_screen.dart';
 import '../../services/notifications_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -353,8 +355,22 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       case NotificationType.requestApproved:
       case NotificationType.requestRejected:
         // Navigate to list if listId exists
-        if (notification.listId != null) {
-          // TODO: Navigate to list details when implemented
+        if (notification.listId != null && mounted) {
+          final listsProvider = context.read<ShoppingListsProvider>();
+          try {
+            final list = listsProvider.lists.firstWhere(
+              (l) => l.id == notification.listId,
+            );
+            if (mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ShoppingListDetailsScreen(list: list),
+                ),
+              );
+            }
+          } catch (_) {
+            // רשימה לא נמצאה — אולי נמחקה
+          }
         }
         break;
       default:
