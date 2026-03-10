@@ -510,17 +510,23 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           '$emoji $label',
           style: TextStyle(
             fontSize: 13,
-            color: isSelected ? Colors.black : Colors.black87,
+            color: isSelected
+                ? Theme.of(context).colorScheme.onSurface
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
         selected: isSelected,
         onSelected: (_) => onTap(),
-        backgroundColor: Colors.white.withValues(alpha: 0.8),
+        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
         selectedColor: kStickyCyan,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: isSelected ? Colors.black12 : Colors.transparent),
+          side: BorderSide(
+            color: isSelected
+                ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)
+                : Colors.transparent,
+          ),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 4),
         visualDensity: VisualDensity.compact,
