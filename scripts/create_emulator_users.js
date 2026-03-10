@@ -1,7 +1,15 @@
-// Creates demo users in the local Firebase Auth Emulator
+// Creates demo users in the local Firebase Auth Emulator with matching UIDs
 // Run: node scripts/create_emulator_users.js
+// Requires: firebase Auth Emulator running on port 9099
 
-const http = require('http');
+process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
+
+const admin = require('firebase-admin');
+const sa = require('./firebase-service-account.json');
+
+if (!admin.apps.length) {
+  admin.initializeApp({ credential: admin.credential.cert(sa) });
+}
 
 const users = [
   { email: 'avi.cohen@demo.com', uid: 'CkO3e7YZtBWulVIEy3uTzJIn0vI2', name: 'אבי כהן' },
@@ -14,43 +22,29 @@ const users = [
   { email: 'shiran.gal@demo.com', uid: 'azvmDVSSbqds2NU37NrKG3IyiU52', name: 'שירן גל' },
 ];
 
-async function createUser(u) {
-  const data = JSON.stringify({
-    email: u.email,
-    password: 'Demo123456!',
-    localId: u.uid,
-    displayName: u.name,
-  });
-
-  return new Promise((resolve, reject) => {
-    const req = http.request({
-      hostname: '127.0.0.1',
-      port: 9099,
-      path: '/identitytoolkit.googleapis.com/v1/accounts:signUp?key=fake-api-key',
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }, (res) => {
-      let body = '';
-      res.on('data', c => body += c);
-      res.on('end', () => {
-        if (res.statusCode === 200) {
-          console.log(`✅ ${u.email} (${u.uid})`);
-        } else {
-          console.log(`⚠️ ${u.email}: ${body.slice(0, 80)}`);
-        }
-        resolve();
-      });
-    });
-    req.on('error', reject);
-    req.write(data);
-    req.end();
-  });
-}
-
 async function main() {
   console.log('Creating 8 demo users in Auth Emulator...\n');
-  for (const u of users) await createUser(u);
-  console.log('\n✅ Done! Users ready for login.');
+
+  for (const u of users) {
+    try {
+      await admin.auth().createUser({
+        uid: u.uid,
+        email: u.email,
+        password: 'Demo123456!',
+        displayName: u.name,
+      });
+      console.log(`✅ ${u.email} (${u.uid})`);
+    } catch (e) {
+      if (e.code === 'auth/uid-already-exists') {
+        console.log(`⏭️  ${u.email} already exists`);
+      } else {
+        console.log(`❌ ${u.email}: ${e.message}`);
+      }
+    }
+  }
+
+  console.log('\n✅ Done!');
+  process.exit(0);
 }
 
 main();
