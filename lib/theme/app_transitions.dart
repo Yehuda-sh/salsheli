@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memozap/theme/design_tokens.dart';
 
 /// 🎬 Page Transitions אחידים לכל האפליקציה
 ///
@@ -12,8 +11,8 @@ import 'package:memozap/theme/design_tokens.dart';
 class AppPageTransition extends PageRouteBuilder {
   AppPageTransition({required Widget page})
       : super(
-          transitionDuration: AppTokens.durationMedium,
-          reverseTransitionDuration: AppTokens.durationFast,
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
           pageBuilder: (_, __, ___) => page,
           transitionsBuilder: (_, anim, __, child) => FadeTransition(
             opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
@@ -26,8 +25,8 @@ class AppPageTransition extends PageRouteBuilder {
 class AppSlideUpTransition extends PageRouteBuilder {
   AppSlideUpTransition({required Widget page})
       : super(
-          transitionDuration: AppTokens.durationMedium,
-          reverseTransitionDuration: AppTokens.durationFast,
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
           pageBuilder: (_, __, ___) => page,
           transitionsBuilder: (_, anim, __, child) {
             final slide = Tween<Offset>(
@@ -50,8 +49,8 @@ class AppSlideUpTransition extends PageRouteBuilder {
 class AppSharedAxisTransition extends PageRouteBuilder {
   AppSharedAxisTransition({required Widget page})
       : super(
-          transitionDuration: AppTokens.durationMedium,
-          reverseTransitionDuration: AppTokens.durationFast,
+          transitionDuration: const Duration(milliseconds: 300),
+          reverseTransitionDuration: const Duration(milliseconds: 150),
           pageBuilder: (_, __, ___) => page,
           transitionsBuilder: (_, anim, __, child) {
             final fade = CurvedAnimation(parent: anim, curve: Curves.easeOut);
