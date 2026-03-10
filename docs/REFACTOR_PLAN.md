@@ -201,6 +201,21 @@
 - [ ] `users/{uid}/private_lists/*` — נשאר **פרטי** (רק הבעלים רואה)
 - [ ] רשימה חדשה = משותפת לכל הבית (ברירת מחדל), אלא אם סימנו "פרטי"
 
+### 6.5.5 מזווה — real-time sync + מזווה משותף
+> 🔴 **קריטי**: כרגע המזווה **לא** מתעדכן בזמן אמת!
+>
+> **הבעיה:** `inventory_provider.dart` קורא `fetchUserItems()` (טעינה חד-פעמית).
+> ה-repository **יש** לו `watchInventory()` (stream) — אבל הוא לא בשימוש!
+> כלומר: אבי מוסיף חלב → רונית **לא רואה** עד שתרענן ידנית.
+
+- [ ] **החלף `fetchUserItems` ב-`watchInventory` (stream)** — כל שינוי מתעדכן מיידית לכולם
+- [ ] **מזווה משותף**: קרא מ-`households/{id}/inventory` (לא `users/{uid}/inventory`)
+  - חברי בית רואים אותו מזווה
+  - משתמש יחיד (בלי בית) — ממשיך מ-`users/{uid}/inventory`
+- [ ] **כתיבה**: הוספה/עדכון/מחיקה → ל-household inventory (לא user)
+- [ ] **סיום קנייה** → מוצרים עולים ל-household inventory (לא user)
+- [ ] Firestore rules: כל חבר household יכול read/write ל-inventory
+
 ---
 
 # 📍 Phase 7 — מוניטיזציה ⬜
