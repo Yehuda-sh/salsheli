@@ -36,6 +36,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
@@ -74,6 +75,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   bool _notifyGroup = true;
   bool _notifyReminders = true;
   bool _notifyListUpdates = false; // כבוי כברירת מחדל — יכול להציף
+
+  // הרשאות משפחה
+  bool _isHouseholdAdmin = false;
 
   bool _loading = true;
   String? _errorMessage;
@@ -114,11 +118,33 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       final prefs = await SharedPreferences.getInstance();
       // ✅ Guard: וידוא שהמסך עדיין קיים לפני setState
       if (!mounted) return;
+      // בדיקת הרשאת admin ב-household
+      final userContext = context.read<UserContext>();
+      final householdId = userContext.householdId;
+      final userId = userContext.userId;
+      bool isAdmin = false;
+      if (householdId != null && userId != null) {
+        try {
+          final memberDoc = await FirebaseFirestore.instance
+              .collection('households')
+              .doc(householdId)
+              .collection('members')
+              .doc(userId)
+              .get();
+          isAdmin = memberDoc.exists &&
+              (memberDoc.data()?['role'] == 'admin' || memberDoc.data()?['role'] == 'owner');
+        } catch (_) {
+          // Silent — default to non-admin
+        }
+      }
+
+      if (!mounted) return;
       setState(() {
         _notifyShopping = prefs.getBool(_kNotifyShopping) ?? true;
         _notifyGroup = prefs.getBool(_kNotifyGroup) ?? true;
         _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
         _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
+        _isHouseholdAdmin = isAdmin;
         _loading = false;
         _errorMessage = null;
       });
@@ -1056,11 +1082,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                 ? userContext.householdName!
                                 : AppStrings.settings.householdNameHint,
                           ),
-                          trailing: TextButton(
-                            onPressed: () =>
-                                _showEditHouseholdNameDialog(userContext),
-                            child: Text(AppStrings.settings.editHouseholdNameEdit),
-                          ),
+                          trailing: _isHouseholdAdmin
+                              ? TextButton(
+                                  onPressed: () =>
+                                      _showEditHouseholdNameDialog(userContext),
+                                  child: Text(AppStrings.settings.editHouseholdNameEdit),
+                                )
+                              : null,
                         ),
                       ],
                     ),
