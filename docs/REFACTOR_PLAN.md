@@ -16,6 +16,7 @@
 | 4 | ליטוש UX | 🟡 חלקי |
 | 5 | הכנה ל-Store | 🟡 חלקי |
 | 6 | Push Notifications (FCM) | ⬜ טרם התחיל |
+| 6.5 | ניהול משפחה מלא | ⬜ טרם התחיל |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
 | 8 | בדיקות | ⬜ טרם התחיל |
 | 9 | i18n + נגישות | ⬜ טרם התחיל |
@@ -146,6 +147,35 @@
 
 ---
 
+# 📍 Phase 6.5 — ניהול משפחה מלא ⬜
+> טרם התחיל — **נדרש לפני השקה**
+
+### 6.5.1 הצטרפות למשפחה (Join Household)
+- [ ] Flow חדש: הזמנה → אישור → **העברת המשתמש ל-household החדש**
+- [ ] אזהרה: "אתה עוזב את משפחת X — הנתונים האישיים (מזווה, קבלות) יישארו שם"
+- [ ] אישור כפול (dialog עם הקלדת שם המשפחה החדשה)
+- [ ] עדכון `users/{uid}/household_id` ל-household החדש
+- [ ] הוספה ל-`households/{newId}/members`
+- [ ] הסרה מ-`households/{oldId}/members`
+- [ ] טיפול ב-edge cases:
+  - [ ] מה אם המשתמש **בעלים** של household ישן ויש בו חברים נוספים? → חסום/העבר בעלות
+  - [ ] מה אם ה-household הישן נשאר ריק? → מחק אוטומטית
+  - [ ] מה אם כבר באותה משפחה? → הודעה "אתה כבר חבר"
+
+### 6.5.2 שינוי שם משפחה — הרשאת בעלים בלבד
+- [ ] העבר שם מ-`users/{uid}/household_name` ל-`households/{id}/name` (מקור אמת אחד)
+- [ ] הסתר כפתור "ערוך שם" ב-UI אם המשתמש לא owner
+- [ ] Firestore rule: רק owner/admin יכול לעדכן `households/{id}/name`
+- [ ] כל חברי המשפחה רואים אותו שם (נשלף מ-household doc)
+
+### 6.5.3 ניהול חברי משפחה
+- [ ] מסך "חברי המשפחה" (כרגע stub "בקרוב")
+- [ ] הצגת כל החברים + תפקיד (owner/admin/member)
+- [ ] Owner יכול: הסרת חברים, שינוי תפקיד
+- [ ] Member יכול: צפייה בלבד + עזיבת משפחה
+
+---
+
 # 📍 Phase 7 — מוניטיזציה ⬜
 > טרם התחיל
 
@@ -200,7 +230,10 @@
 | B8 | `/pending-invites` route missing → crash | ✅ | נפתר — `93c799f` |
 | B9 | `cs` shadowed in history `_buildItemRow` | ✅ | נפתר — `1d8823e` |
 | B10 | 3 analyzer errors (activeThumbColor, initialValue×2) | ✅ | נפתר — `93c799f` |
-| B11 | `pending_invites` PERMISSION_DENIED on login | 🟡 | Firestore rules — collection may not exist |
+| B11 | `pending_invites` PERMISSION_DENIED on login | ✅ | נפתר — top-level rules added `bfbf1d7` |
+| B12 | הזמנות מוסיפות לרשימה, לא למשפחה | 🟡 | Phase 6.5 — צריך join household flow |
+| B13 | שם משפחה נשמר per-user (לא household doc) | 🟡 | Phase 6.5 — העבר ל-`households/{id}/name` |
+| B14 | כל member יכול לשנות שם משפחה | 🟡 | Phase 6.5 — רק owner |
 
 ---
 
