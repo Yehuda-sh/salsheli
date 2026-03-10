@@ -107,23 +107,33 @@ class _TutorialDialogState extends State<_TutorialDialog> {
   static const List<_TutorialStep> _steps = [
     _TutorialStep(
       icon: Icons.waving_hand,
-      title: 'ברוכים הבאים! 🎉',
-      description: 'MemoZap תעזור לך לנהל את הקניות בקלות.\n\nבואו נכיר את האפליקציה בקצרה!',
+      title: 'ברוכים הבאים ל-MemoZap! 🎉',
+      description: 'האפליקציה שתנהל לך את הקניות, המזווה והמשפחה — במקום אחד.\n\nבואו נכיר בקצרה!',
     ),
     _TutorialStep(
-      icon: Icons.add_circle_outline,
-      title: 'יצירת רשימה',
-      description: 'לחץ על כפתור ה-+ כדי ליצור רשימה חדשה.\n\nאפשר ליצור רשימת קניות, משימות, או אפילו הצבעה!',
+      icon: Icons.shopping_cart_outlined,
+      title: 'רשימות קניות חכמות 🛒',
+      description: 'צרו רשימת קניות עם כפתור ה-+ בדף הבית.\n\nבזמן הקנייה — סמנו פריטים, ראו כמויות, והכל מתעדכן בזמן אמת לכל המשפחה.',
     ),
     _TutorialStep(
-      icon: Icons.navigation_outlined,
-      title: 'ניווט באפליקציה',
-      description: 'בתחתית המסך תמצא את התפריט:\n\n🏠 בית - סיכום ופעולות מהירות\n📝 רשימות - כל הרשימות שלך\n📦 מזווה - מעקב מלאי\n⚙️ הגדרות',
+      icon: Icons.kitchen_outlined,
+      title: 'המזווה הביתי 📦',
+      description: 'MemoZap עוקבת אחרי מה שיש לכם בבית.\n\nכשמסיימים קנייה — המוצרים עולים אוטומטית למזווה.\nכשמשהו אוזל — תקבלו הצעה להוסיף אותו לרשימה הבאה.',
+    ),
+    _TutorialStep(
+      icon: Icons.family_restroom,
+      title: 'ניהול משפחתי 👨‍👩‍👧‍👦',
+      description: 'הזמינו בני משפחה לקבוצה.\n\nכולם רואים את אותן רשימות ומזווה, ויכולים לערוך בו-זמנית — בלי להתקשר לשאול "מה לקנות?"',
+    ),
+    _TutorialStep(
+      icon: Icons.explore_outlined,
+      title: 'הניווט שלכם 🧭',
+      description: '🏠 בית — סיכום יומי, הצעות חכמות ורשימות פעילות\n\n📦 מזווה — כל המוצרים בבית\n\n📜 היסטוריה — קבלות וסטטיסטיקות\n\n⚙️ הגדרות — פרופיל, התראות ועוד',
     ),
     _TutorialStep(
       icon: Icons.rocket_launch,
-      title: 'מוכנים להתחיל!',
-      description: 'זהו! עכשיו אתה מוכן.\n\nאפשר תמיד לחזור להדרכה מההגדרות.',
+      title: 'מוכנים! 🚀',
+      description: 'התחילו ביצירת רשימת קניות ראשונה.\n\nאפשר תמיד לחזור להדרכה דרך ⚙️ הגדרות → הצג הדרכה מחדש.',
     ),
   ];
 
