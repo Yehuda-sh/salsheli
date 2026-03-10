@@ -76,6 +76,10 @@ dependencies:
   sign_in_with_apple: ^6.1.3
   crypto: ^3.0.6
 
+  # App Branding
+  flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.14.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -103,3 +107,29 @@ flutter:
         - asset: assets/fonts/Assistant-Regular.ttf
         - asset: assets/fonts/Assistant-Bold.ttf
           weight: 700
+
+# ═══════════════════════════════════════════════
+# 🎨 App Icon Configuration
+# ═══════════════════════════════════════════════
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/app_icon.png"
+  adaptive_icon_background: "#FFF8F0"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
+
+# ═══════════════════════════════════════════════
+# 🌊 Splash Screen Configuration
+# ═══════════════════════════════════════════════
+flutter_native_splash:
+  color: "#FFF8F0"
+  image: "assets/images/logo.webp"
+  color_dark: "#1A1A2E"
+  image_dark: "assets/images/logo.webp"
+  android_12:
+    color: "#FFF8F0"
+    icon_background_color: "#FFF8F0"
+    image: "assets/images/logo.webp"
+    color_dark: "#1A1A2E"
+    icon_background_color_dark: "#1A1A2E"
+    image_dark: "assets/images/logo.webp"
