@@ -50,24 +50,11 @@
 
 ### 🔴 קריטי — לפני שחרור
 
-#### B1. TODOs לא מומשים — בקשות ממתינות שבורות
-```
-lib/widgets/common/pending_requests_section.dart:360
-  // TODO: Call PendingRequestsService.approveRequest()
-  
-lib/widgets/common/pending_requests_section.dart:398
-  // TODO: Call PendingRequestsService.rejectRequest()
-```
-**הבעיה:** כפתורי "אשר" ו-"דחה" לא עושים כלום!  
-**תיקון:** לקרוא ל-`PendingRequestsService.approveRequest()` / `rejectRequest()`
+#### ~~B1. TODOs לא מומשים — בקשות ממתינות~~ ✅ תוקן
+**תוקן:** כפתורי "אשר"/"דחה" מחוברים ל-`PendingRequestsService`. Commit `3a1bf09`
 
-#### B2. ניווט להתראות שבור
-```
-lib/screens/notifications/notifications_center_screen.dart:360
-  // TODO: Navigate to list details when implemented
-```
-**הבעיה:** לחיצה על התראה לא מנווטת לרשימה  
-**תיקון:** `Navigator.push` ל-`ShoppingListDetailsScreen` עם `listId`
+#### ~~B2. ניווט להתראות~~ ✅ תוקן
+**תוקן:** לחיצה על התראה מנווטת ל-`ShoppingListDetailsScreen`. Commit `3a1bf09`
 
 #### B3. `SavedContactsService` בולע שגיאות בשקט
 ```dart
@@ -138,6 +125,8 @@ test/ — 10 קבצים
 | B4 | Firebase config mismatch | ✅ google-services.json עם שני packages | `0426be5` |
 | — | Dashboard banner → avatar | ✅ קומפקטי + bottom sheet | `386a415` |
 | — | Demo data missing households | ✅ households + members docs | `e1523d2` |
+| B1 | Pending requests approve/reject TODO | ✅ wired to PendingRequestsService | `3a1bf09` |
+| B2 | Notification navigation TODO | ✅ navigates to list details | `3a1bf09` |
 
 ---
 

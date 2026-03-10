@@ -120,8 +120,8 @@ flutter run          # הרצה
 
 ## Known Issues
 
-- **B1:** approve/reject בpending_requests לא מחובר (TODO)
-- **B2:** ניווט מהתראות לא עובד (TODO)
+- ~~**B1:** approve/reject בpending_requests~~ ✅ תוקן
+- ~~**B2:** ניווט מהתראות~~ ✅ תוקן
 - **B3:** SavedContactsService בולע שגיאות
 - ~~**B4:** Firebase config~~ ✅ תוקן — google-services.json כולל שני package names
 
