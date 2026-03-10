@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB52eBlYLTiOQdZFl0U1B4F4g75xo31oN8',
-    appId: '1:804283551011:android:6c53d4ec1bf80b33bd9096',
+    appId: '1:804283551011:android:b12a1e116860c006bd9096',
     messagingSenderId: '804283551011',
     projectId: 'memozap-5ad30',
     storageBucket: 'memozap-5ad30.firebasestorage.app',
