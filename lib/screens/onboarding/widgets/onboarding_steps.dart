@@ -234,10 +234,18 @@ class _AnimatedWelcomeIcon extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: Icon(
-          Icons.shopping_cart,
-          size: kIconSizeXLarge,
-          color: accent,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          child: Image.asset(
+            'assets/images/app_icon.png',
+            width: kIconSizeXLarge,
+            height: kIconSizeXLarge,
+            errorBuilder: (_, __, ___) => Icon(
+              Icons.shopping_cart,
+              size: kIconSizeXLarge,
+              color: accent,
+            ),
+          ),
         ),
       ),
     )

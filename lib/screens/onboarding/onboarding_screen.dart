@@ -129,7 +129,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (!mounted) return;
 
       // מעבר למסך הבא
-      Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false);
+      unawaited(Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false));
     } catch (e) {
 
       if (!mounted) return;
@@ -164,7 +164,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       if (!mounted) return;
 
       // מעבר למסך הבא
-      Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false);
+      unawaited(Navigator.of(context).pushNamedAndRemoveUntil('/register', (r) => false));
     } catch (e) {
 
       if (!mounted) return;
@@ -344,7 +344,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               if (_isLoading)
                 Positioned.fill(
                   child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
                     child: Container(
                       color: cs.surface.withValues(alpha: 0.4),
                       child: Center(
@@ -365,7 +365,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   /// מציג LinearProgressIndicator עם טקסט דינמי "שלב X/Y"
   /// הצבע מתאים ל-accent מה-theme
   Widget _buildProgressIndicator(ColorScheme cs, Color accent, int totalSteps) {
-    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Expanded(
@@ -394,7 +393,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   /// בונה כפתורי ניווט - "הקודם" ו "הבא/סיום"
   Widget _buildNavigationButtons(ColorScheme cs, Color accent, int totalSteps) {
-    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         // כפתור "הקודם"
