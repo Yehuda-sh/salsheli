@@ -277,11 +277,14 @@ class UserContext with ChangeNotifier {
         if (_isDisposed) return;
 
         if (firebaseUser != null) {
+          debugPrint('🟢 Auth state: user=${firebaseUser.uid}, email=${firebaseUser.email}');
           // 🔒 אם בתהליך רישום - אל תיצור משתמש כאן
           if (_isSigningUp) return;
 
           // משתמש התחבר - טען את הפרטים מ-Firestore
+          debugPrint('🟢 Loading user from Firestore...');
           _loadUserFromFirestore(firebaseUser.uid).catchError((error) {
+            debugPrint('🔴 Auth listener catchError: $error');
             if (_isDisposed) return;
           });
         } else {
@@ -332,13 +335,16 @@ class UserContext with ChangeNotifier {
 
       _errorMessage = null;
       _hasAuthButNoProfile = false;
-    } catch (e) {
+    } catch (e, stackTrace) {
       _errorMessage = 'שגיאה בטעינת פרטי משתמש';
+      debugPrint('🔴 _loadUserFromFirestore ERROR: $e');
+      debugPrint('🔴 Stack: $stackTrace');
 
       // 🆕 v2.2: סמן שיש Auth אבל אין Profile
       _hasAuthButNoProfile = _authService.isSignedIn && _user == null;
     } finally {
       _isLoading = false;
+      debugPrint('🔵 _loadUserFromFirestore DONE: user=${_user?.name}, isLoggedIn=$isLoggedIn, error=$_errorMessage');
       _notifySafe();
     }
   }
