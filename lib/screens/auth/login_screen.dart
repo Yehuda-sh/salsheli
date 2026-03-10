@@ -416,7 +416,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
 
               // 🧪 DEV MODE - Quick Login Button (Glassmorphic)
-              if (AppConfig.useEmulators)
+              if (kDebugMode)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 8,
                   left: 8,
