@@ -1076,16 +1076,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   child: Column(
                     children: [
                       ListTile(
-                        leading: Icon(Icons.receipt_long_outlined, color: cs.primary),
-                        title: Text('הקבלות שלי'),
-                        subtitle: Text('היסטוריית קניות'),
-                        trailing: Icon(Icons.chevron_left),
-                        onTap: () {
-                          Navigator.pushNamed(context, '/receipts');
-                        },
-                      ),
-                      Divider(height: 1),
-                      ListTile(
                         leading: Icon(Icons.mail_outline, color: cs.primary),
                         title: Text('הזמנות ממתינות'),
                         subtitle: Text('הזמנות שקיבלת לרשימות'),
