@@ -40,11 +40,9 @@ android {
     }
 }
 
-dependencies {
-    // 🔧 Force older firebase-auth that doesn't require reCAPTCHA Enterprise
-    implementation("com.google.firebase:firebase-auth") {
-        version { strictly("23.0.0") }
-    }
+configurations.all {
+    // 🔧 Exclude reCAPTCHA Enterprise — causes timeout on emulators
+    exclude(group = "com.google.android.recaptcha", module = "recaptcha")
 }
 
 flutter {
