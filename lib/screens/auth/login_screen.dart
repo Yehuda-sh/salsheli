@@ -336,34 +336,22 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// רשימת משתמשי דמו לכניסה מהירה (רק ב-development)
   static const List<Map<String, String>> _demoUsers = [
-    // משפחת כהן
-    {'name': 'אבי כהן', 'email': 'avi.cohen@demo.com', 'role': 'Owner', 'group': 'משפחת כהן'},
+    // 👨‍👩‍👧‍👦 משפחת כהן — 4 members, 2 רשימות, 20 פריטי מזווה, קבלה
+    {'name': 'אבי כהן', 'email': 'avi.cohen@demo.com', 'role': 'Admin', 'group': 'משפחת כהן'},
     {'name': 'רונית כהן', 'email': 'ronit.cohen@demo.com', 'role': 'Admin', 'group': 'משפחת כהן'},
     {'name': 'יובל כהן', 'email': 'yuval.cohen@demo.com', 'role': 'Editor', 'group': 'משפחת כהן'},
     {'name': 'נועה כהן', 'email': 'noa.cohen@demo.com', 'role': 'Editor', 'group': 'משפחת כהן'},
-    // זוג לוי
-    {'name': 'דן לוי', 'email': 'dan.levi@demo.com', 'role': 'Owner', 'group': 'זוג צעיר'},
+    // 💑 זוג לוי — 2 members, 1 רשימה
+    {'name': 'דן לוי', 'email': 'dan.levi@demo.com', 'role': 'Admin', 'group': 'זוג צעיר'},
     {'name': 'מאיה לוי', 'email': 'maya.levi@demo.com', 'role': 'Admin', 'group': 'זוג צעיר'},
-    // בודדים
-    {'name': 'תומר בר', 'email': 'tomer.bar@demo.com', 'role': 'Owner', 'group': 'גר לבד'},
-    {'name': 'שירן גל', 'email': 'shiran.gal@demo.com', 'role': 'Owner', 'group': 'משתמש חדש'},
-    // ועד בית - הדקל 15
-    {'name': 'משה גולן', 'email': 'moshe.golan@demo.com', 'role': 'Owner', 'group': 'ועד בית'},
-    {'name': 'שרה לוי', 'email': 'sara.levi@demo.com', 'role': 'Admin', 'group': 'ועד בית'},
-    {'name': 'דוד כהן', 'email': 'david.cohen.vaad@demo.com', 'role': 'Editor', 'group': 'ועד בית'},
-    {'name': 'מיכל אברהם', 'email': 'michal.avraham@demo.com', 'role': 'Viewer', 'group': 'ועד בית'},
-    // ועד גן - שושנים
-    {'name': 'יעל ברק', 'email': 'yael.barak@demo.com', 'role': 'Owner', 'group': 'ועד גן'},
-    {'name': 'אורנה שלום', 'email': 'orna.shalom@demo.com', 'role': 'Admin', 'group': 'ועד גן'},
-    {'name': 'רמי דור', 'email': 'rami.dor@demo.com', 'role': 'Editor', 'group': 'ועד גן'},
-    // חתונה - ליאור ונועם
-    {'name': 'ליאור כץ', 'email': 'lior.katz@demo.com', 'role': 'Owner', 'group': 'חתונה'},
-    {'name': 'נועם שפירא', 'email': 'noam.shapira@demo.com', 'role': 'Admin', 'group': 'חתונה'},
-    {'name': 'אייל כץ', 'email': 'eyal.katz@demo.com', 'role': 'Editor', 'group': 'חתונה'},
+    // 🧑 בודד — מזווה + רשימה פרטית
+    {'name': 'תומר בר', 'email': 'tomer.bar@demo.com', 'role': 'Admin', 'group': 'גר לבד'},
+    // 🆕 משתמש חדש — מזווה בלבד, בלי רשימות
+    {'name': 'שירן גל', 'email': 'shiran.gal@demo.com', 'role': 'Admin', 'group': 'משתמש חדש'},
   ];
 
   /// סיסמה לכל משתמשי הדמו
-  static const String _demoPassword = 'Demo123!';
+  static const String _demoPassword = 'Demo123456!';
 
   /// פתיחת דיאלוג לבחירת משתמש דמו
   void _showQuickLoginDialog() {
