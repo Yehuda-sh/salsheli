@@ -400,10 +400,52 @@ class FirebaseUserRepository implements UserRepository {
       // שמירה ב-Firestore
       await saveUser(newUser);
 
+      // 🏠 יצירת household document + member (אם חדש)
+      await _ensureHouseholdExists(newUser);
+
       return newUser;
     } catch (e, stackTrace) {
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to create user', e);
+    }
+  }
+
+  /// 🏠 יצירת household document + member אם לא קיים
+  Future<void> _ensureHouseholdExists(UserEntity user) async {
+    try {
+      final householdId = user.householdId;
+      if (householdId.isEmpty) return;
+
+      final householdRef = _firestore
+          .collection(FirestoreCollections.households)
+          .doc(householdId);
+
+      final householdDoc = await householdRef.get();
+      if (householdDoc.exists) return; // כבר קיים
+
+      // יצירת household document
+      await householdRef.set({
+        'id': householdId,
+        'name': user.householdName ?? 'הבית של ${user.name}',
+        'created_by': user.id,
+        'created_at': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      // יצירת member document
+      await householdRef
+          .collection(FirestoreCollections.members)
+          .doc(user.id)
+          .set({
+        'name': user.name,
+        'role': 'admin',
+        'joined_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      // לא נכשיל את ההרשמה בגלל household — לוג בלבד
+      if (kDebugMode) {
+        debugPrint('⚠️ _ensureHouseholdExists failed: $e');
+      }
     }
   }
 
