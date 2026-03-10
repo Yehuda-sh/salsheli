@@ -123,7 +123,7 @@ flutter run          # הרצה
 - **B1:** approve/reject בpending_requests לא מחובר (TODO)
 - **B2:** ניווט מהתראות לא עובד (TODO)
 - **B3:** SavedContactsService בולע שגיאות
-- **B4:** Firebase config עדיין `com.example.memozap` — צריך עדכון
+- ~~**B4:** Firebase config~~ ✅ תוקן — google-services.json כולל שני package names
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
@@ -133,5 +133,3 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 - [CODE_REVIEW.md](CODE_REVIEW.md) — דוח ריוויו + סטטוס תיקונים
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 9 שלבים
-- [docs/PRD_BUILDER.md](docs/PRD_BUILDER.md) — תבנית PRD + guardrails
-- [docs/MASTER-TODO.md](docs/MASTER-TODO.md) — משימות ובאגים לפי עדיפות

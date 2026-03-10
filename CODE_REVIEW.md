@@ -1,5 +1,5 @@
 # 🔍 דוח קוד ריוויו — MemoZap
-**תאריך:** 8 מרץ 2026 (עדכון)  
+**תאריך:** 9 מרץ 2026 (עדכון)  
 **סוקר:** ראפטור 🦖  
 **גרסה:** 1.0.0  
 **סה"כ קבצים:** ~135 קבצי Dart | **~58,000 שורות קוד**
@@ -77,9 +77,8 @@ lib/screens/notifications/notifications_center_screen.dart:360
 ```
 **תיקון:** להחזיר `Result` או לזרוק exception שה-UI יציג SnackBar
 
-#### B4. Firebase config mismatch
-**הבעיה:** `google-services.json` + `GoogleService-Info.plist` עדיין מפנים ל-`com.example.memozap`  
-**תיקון:** להוסיף `com.memozap.app` ב-Firebase Console ולהוריד חדשים
+#### ~~B4. Firebase config mismatch~~ ✅ תוקן
+**תוקן:** `google-services.json` כולל שני package names (`com.example.memozap` + `com.memozap.app`). Commits `3f1ecc2`, `0426be5`
 
 ---
 
@@ -136,6 +135,9 @@ test/ — 10 קבצים
 | — | 852 debug prints | ✅ הוסרו (רק kDebugMode נשאר) | `fe549cd` |
 | — | תמונות 5.4MB | ✅ → 156KB (webp) | `4e20ed1` |
 | — | Package com.example.memozap | ✅ → com.memozap.app | `bd8d772` |
+| B4 | Firebase config mismatch | ✅ google-services.json עם שני packages | `0426be5` |
+| — | Dashboard banner → avatar | ✅ קומפקטי + bottom sheet | `386a415` |
+| — | Demo data missing households | ✅ households + members docs | `e1523d2` |
 
 ---
 
@@ -173,4 +175,4 @@ test/ — 10 קבצים
 האפליקציה עשתה קפיצת איכות משמעותית: design system אחיד, 0 hardcoded colors, קוד נקי יותר ב-12%. נשאר לתקן 2 פיצ'רים שבורים (B1+B2), לעדכן Firebase config, ואז היא מוכנה לחנויות 🚀
 
 ---
-*🦖 ראפטור — Code Review | Updated March 8, 2026*
+*🦖 ראפטור — Code Review | Updated March 9, 2026*
