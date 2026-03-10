@@ -32,11 +32,38 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+  Timer? _autoPlayTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startAutoPlay();
+  }
 
   @override
   void dispose() {
+    _autoPlayTimer?.cancel();
     _pageController.dispose();
     super.dispose();
+  }
+
+  void _startAutoPlay() {
+    _autoPlayTimer?.cancel();
+    _autoPlayTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!_pageController.hasClients) return;
+      final nextPage = (_currentPage + 1) % 3;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  void _onUserSwipe(int index) {
+    setState(() => _currentPage = index);
+    // Reset timer when user interacts
+    _startAutoPlay();
   }
 
   void _handleLogin() {
@@ -127,7 +154,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       Expanded(
                         child: PageView(
                           controller: _pageController,
-                          onPageChanged: (index) => setState(() => _currentPage = index),
+                          onPageChanged: _onUserSwipe,
                           children: [
                             _FeatureCard(
                               emoji: AppStrings.welcome.group1Emoji,
@@ -213,7 +240,6 @@ class _StickyBottomBar extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final bgColor = brand?.paperBackground ?? kPaperBackground;
-    final accentColor = brand?.accent ?? cs.primary;
 
     return ClipRRect(
       child: BackdropFilter(
@@ -270,6 +296,20 @@ class _StickyBottomBar extends StatelessWidget {
                     delay: 3500.ms,
                     duration: 1500.ms,
                     color: cs.onPrimary.withValues(alpha: 0.15),
+                  )
+                  .then(delay: 500.ms)
+                  .scale(
+                    begin: const Offset(1.0, 1.0),
+                    end: const Offset(1.02, 1.02),
+                    duration: 600.ms,
+                    curve: Curves.easeInOut,
+                  )
+                  .then()
+                  .scale(
+                    begin: const Offset(1.02, 1.02),
+                    end: const Offset(1.0, 1.0),
+                    duration: 600.ms,
+                    curve: Curves.easeInOut,
                   ),
 
               const SizedBox(height: kSpacingSmall),
@@ -534,6 +574,15 @@ class _FeatureCard extends StatelessWidget {
                                 height: 200,
                                 fit: BoxFit.contain,
                               )
+                                .animate()
+                                .fadeIn(duration: 500.ms, delay: 200.ms)
+                                .scale(
+                                  begin: const Offset(0.92, 0.92),
+                                  end: const Offset(1.0, 1.0),
+                                  duration: 500.ms,
+                                  delay: 200.ms,
+                                  curve: Curves.easeOutBack,
+                                )
                             : Container(
                                 width: 88,
                                 height: 88,
@@ -599,8 +648,36 @@ class _FeatureCard extends StatelessWidget {
 // Mini Previews (unchanged logic, center-aligned)
 // ============================================================
 
-class _MiniShoppingList extends StatelessWidget {
+class _MiniShoppingList extends StatefulWidget {
   const _MiniShoppingList();
+
+  @override
+  State<_MiniShoppingList> createState() => _MiniShoppingListState();
+}
+
+class _MiniShoppingListState extends State<_MiniShoppingList> {
+  final List<bool> _checked = [false, false, false];
+  Timer? _animTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Animate items checking one by one
+    _animTimer = Timer(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      setState(() => _checked[0] = true);
+      Future.delayed(const Duration(milliseconds: 700), () {
+        if (!mounted) return;
+        setState(() => _checked[1] = true);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _animTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -608,16 +685,32 @@ class _MiniShoppingList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _MiniListItemWithQty(text: AppStrings.welcome.demoItem1, qty: '2', checked: true),
-        _MiniListItemWithQty(text: AppStrings.welcome.demoItem2, qty: '1', checked: true),
-        _MiniListItemWithQty(text: AppStrings.welcome.demoItem3, qty: 'L', checked: false),
+        _MiniListItemWithQty(text: AppStrings.welcome.demoItem1, qty: '2', checked: _checked[0]),
+        _MiniListItemWithQty(text: AppStrings.welcome.demoItem2, qty: '1', checked: _checked[1]),
+        _MiniListItemWithQty(text: AppStrings.welcome.demoItem3, qty: 'L', checked: _checked[2]),
       ],
     );
   }
 }
 
-class _MiniPantry extends StatelessWidget {
+class _MiniPantry extends StatefulWidget {
   const _MiniPantry();
+
+  @override
+  State<_MiniPantry> createState() => _MiniPantryState();
+}
+
+class _MiniPantryState extends State<_MiniPantry> {
+  bool _showWarning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Show the warning icon after a delay
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (mounted) setState(() => _showWarning = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -627,14 +720,34 @@ class _MiniPantry extends StatelessWidget {
       children: [
         _MiniPantryItem(text: AppStrings.welcome.demoPantryItem1, qty: '2', isLow: false),
         _MiniPantryItem(text: AppStrings.welcome.demoPantryItem2, qty: '6', isLow: false),
-        _MiniPantryItem(text: AppStrings.welcome.demoPantryItem3, qty: '0', isLow: true),
+        AnimatedOpacity(
+          opacity: _showWarning ? 1.0 : 0.4,
+          duration: const Duration(milliseconds: 500),
+          child: _MiniPantryItem(text: AppStrings.welcome.demoPantryItem3, qty: '0', isLow: _showWarning),
+        ),
       ],
     );
   }
 }
 
-class _MiniSharing extends StatelessWidget {
+class _MiniSharing extends StatefulWidget {
   const _MiniSharing();
+
+  @override
+  State<_MiniSharing> createState() => _MiniSharingState();
+}
+
+class _MiniSharingState extends State<_MiniSharing> {
+  bool _thirdOnline = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Third user "comes online" after delay
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) setState(() => _thirdOnline = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -644,7 +757,7 @@ class _MiniSharing extends StatelessWidget {
       children: [
         _MiniShareUser(name: AppStrings.welcome.demoUser1, isOnline: true, avatarColor: kStickyCyan),
         _MiniShareUser(name: AppStrings.welcome.demoUser2, isOnline: true, avatarColor: kStickyPurple),
-        _MiniShareUser(name: AppStrings.welcome.demoUser3, isOnline: false, avatarColor: kStickyOrange),
+        _MiniShareUser(name: AppStrings.welcome.demoUser3, isOnline: _thirdOnline, avatarColor: kStickyOrange),
       ],
     );
   }
