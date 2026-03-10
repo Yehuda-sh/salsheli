@@ -318,21 +318,17 @@ void main() {
   // Greeting Emoji Tests (bonus)
   // ===========================================================================
   group('HomeDashboardScreen - Greeting Emoji', () {
-    /// Replicates the emoji logic for testing
+    /// Matches _buildHeader logic in home_dashboard_screen.dart:
+    /// hour < 12 → ☀️, hour < 17 → 🌤️, hour < 21 → 🌅, else → 🌙
     String getGreetingEmoji(int hour) {
-      if (hour < 5) return '🌙';
       if (hour < 12) return '☀️';
       if (hour < 17) return '🌤️';
-      if (hour < 21) return '🌆';
+      if (hour < 21) return '🌅';
       return '🌙';
     }
 
-    test('should return moon emoji at night (0-4)', () {
-      expect(getGreetingEmoji(0), '🌙');
-      expect(getGreetingEmoji(4), '🌙');
-    });
-
-    test('should return sun emoji in morning (5-11)', () {
+    test('should return sun emoji in morning (0-11)', () {
+      expect(getGreetingEmoji(0), '☀️');
       expect(getGreetingEmoji(5), '☀️');
       expect(getGreetingEmoji(11), '☀️');
     });
@@ -343,11 +339,11 @@ void main() {
     });
 
     test('should return sunset emoji in evening (17-20)', () {
-      expect(getGreetingEmoji(17), '🌆');
-      expect(getGreetingEmoji(20), '🌆');
+      expect(getGreetingEmoji(17), '🌅');
+      expect(getGreetingEmoji(20), '🌅');
     });
 
-    test('should return moon emoji late at night (21-23)', () {
+    test('should return moon emoji at night (21-23)', () {
       expect(getGreetingEmoji(21), '🌙');
       expect(getGreetingEmoji(23), '🌙');
     });
