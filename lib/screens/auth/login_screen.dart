@@ -378,32 +378,43 @@ class _LoginScreenState extends State<LoginScreen>
     unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🧪 Quick login with: $email');
 
-    // 🔑 Debug: use custom token to bypass reCAPTCHA on emulators
+    // 🔑 Debug: use Firebase REST API to bypass reCAPTCHA on emulators
     if (kDebugMode) {
       try {
         setState(() => _isLoading = true);
-        debugPrint('🔑 Fetching custom token for $email...');
+        debugPrint('🔑 Trying REST API sign-in for $email...');
         
-        final uri = Uri.parse('http://187.124.3.245:9877/token?email=$email');
-        final response = await http.get(uri).timeout(const Duration(seconds: 5));
+        final response = await http.post(
+          Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB52eBlYLTiOQdZFl0U1B4F4g75xo31oN8'),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({
+            'email': email,
+            'password': _demoPassword,
+            'returnSecureToken': true,
+          }),
+        ).timeout(const Duration(seconds: 10));
         
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
-          final token = data['token'] as String;
-          debugPrint('🔑 Got token, signing in with custom token...');
+          debugPrint('✅ REST sign-in success! UID: ${data['localId']}');
+          debugPrint('🔄 Now signing in via SDK (should use cached session)...');
           
-          await FirebaseAuth.instance.signInWithCustomToken(token);
-          debugPrint('✅ Custom token login success!');
+          // REST worked → SDK should also work now (session is cached server-side)
+          // Try SDK with longer timeout
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email, password: _demoPassword,
+          ).timeout(const Duration(seconds: 90));
           
+          debugPrint('✅ SDK sign-in success!');
           if (mounted) {
             Navigator.of(context).pushReplacementNamed('/index');
           }
           return;
         } else {
-          debugPrint('⚠️ Token server returned ${response.statusCode}, falling back to email/password');
+          debugPrint('⚠️ REST API returned ${response.statusCode}: ${response.body}');
         }
       } catch (e) {
-        debugPrint('⚠️ Custom token login failed: $e, falling back to email/password');
+        debugPrint('⚠️ REST login failed: $e, falling back to normal login');
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
