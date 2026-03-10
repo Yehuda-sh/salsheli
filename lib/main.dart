@@ -85,6 +85,11 @@ void main() async {
       await _connectToEmulators();
     }
 
+    // 🧪 Disable reCAPTCHA verification in debug mode (fixes emulator login)
+    if (kDebugMode) {
+      await FirebaseAuth.instance.setSettings(appVerificationDisabledForTesting: true);
+    }
+
     // 📊 Initialize Firebase Analytics (production only)
     if (AppConfig.isProduction) {
       FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
