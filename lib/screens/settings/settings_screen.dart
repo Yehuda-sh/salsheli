@@ -49,6 +49,7 @@ import '../../services/auth_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/section_header.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -57,7 +58,11 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final List<Animation<double>> _fadeAnims;
+  late final List<Animation<Offset>> _slideAnims;
+  static const int _sectionCount = 7;
   // Keys לשמירה מקומית - התראות
   static const _kNotifyShopping = 'settings.notify.shopping';
   static const _kNotifyInventory = 'settings.notify.inventory';
@@ -74,11 +79,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnims = List.generate(_sectionCount, (i) {
+      final start = i * 0.12;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(parent: _animController, curve: Interval(start, end, curve: Curves.easeOut)),
+      );
+    });
+    _slideAnims = List.generate(_sectionCount, (i) {
+      final start = i * 0.12;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
+        CurvedAnimation(parent: _animController, curve: Interval(start, end, curve: Curves.easeOut)),
+      );
+    });
     _loadSettings();
   }
 
   @override
   void dispose() {
+    _animController.dispose();
     super.dispose();
   }
 
@@ -95,6 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _loading = false;
         _errorMessage = null;
       });
+      _animController.forward();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -696,6 +721,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     nameController.dispose();
   }
 
+  /// עוטף section באנימציית fade+slide
+  Widget _animatedSection(int index, Widget child) {
+    return SlideTransition(
+      position: _slideAnims[index],
+      child: FadeTransition(opacity: _fadeAnims[index], child: child),
+    );
+  }
+
   /// Skeleton Screen ל-Loading State
   Widget _buildLoadingSkeleton(ColorScheme cs) {
     return ListView(
@@ -803,76 +836,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
 
-                // 🔹 פרופיל אישי
-                Card(
-                  elevation: 1,
+                // 🔹 פרופיל אישי — Premium gradient ring
+                _animatedSection(0, Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Padding(
-                    padding: const EdgeInsets.all(kSpacingMedium),
-                    child: Row(
+                    padding: const EdgeInsets.all(kSpacingLarge),
+                    child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: kAvatarRadius,
-                          backgroundColor: cs.primary.withValues(alpha: 0.15),
-                          child: _avatarOptions.contains(userContext.user?.profileImageUrl)
-                              ? Text(
-                                  userContext.user!.profileImageUrl!,
-                                  style: TextStyle(fontSize: kFontSizeXLarge),
-                                )
-                              : Icon(Icons.person, color: cs.primary, size: kIconSizeProfile),
-                        ),
-                        const SizedBox(width: kSpacingMedium),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                userName,
-                                style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
-                                textAlign: TextAlign.right,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                              SizedBox(height: kSpacingTiny),
-                              Text(
-                                userEmail,
-                                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                                textAlign: TextAlign.right,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ],
+                        // Avatar with gradient ring
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              colors: [cs.primary, cs.tertiary],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: CircleAvatar(
+                            radius: 40,
+                            backgroundColor: cs.surface,
+                            child: _avatarOptions.contains(userContext.user?.profileImageUrl)
+                                ? Text(
+                                    userContext.user!.profileImageUrl!,
+                                    style: const TextStyle(fontSize: kFontSizeDisplay),
+                                  )
+                                : Text(
+                                    userName.isNotEmpty ? userName[0] : '?',
+                                    style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
+                                  ),
                           ),
                         ),
-                        const SizedBox(width: kSpacingSmall),
-                        FilledButton.icon(
+                        const SizedBox(height: kSpacingSmallPlus),
+                        Text(
+                          userName,
+                          style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.onSurface),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: kSpacingXTiny),
+                        Text(
+                          userEmail,
+                          style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        OutlinedButton.icon(
                           onPressed: _showEditProfileBottomSheet,
-                          icon: const Icon(Icons.edit, size: 18),
+                          icon: const Icon(Icons.edit_outlined, size: kIconSizeSmall),
                           label: Text(AppStrings.settings.editProfile),
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: cs.primary.withValues(alpha: 0.5)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ),
+                )),
 
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התראות
-                Card(
+                _animatedSection(1, Card(
                   elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.notifications_outlined, color: cs.primary),
-                            SizedBox(width: kSpacingSmall),
-                            Text(
-                              AppStrings.settings.notificationsSectionTitle,
-                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
-                            ),
-                          ],
+                        SectionHeader(
+                          leading: Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
+                          title: AppStrings.settings.notificationsSectionTitle,
                         ),
                         const SizedBox(height: kSpacingSmall),
                         _NotificationToggle(
@@ -905,76 +942,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                ),
+                )),
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 הגדרות כלליות
-                Card(
+                // 🔹 הגדרות כלליות — Theme cards
+                _animatedSection(2, Card(
                   elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.settings_outlined, color: cs.primary),
-                            SizedBox(width: kSpacingSmall),
-                            Text(
-                              AppStrings.settings.generalSettingsSectionTitle,
-                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
-                            ),
-                          ],
+                        SectionHeader(
+                          leading: Icon(Icons.palette_outlined, color: cs.primary, size: kIconSizeMedium),
+                          title: AppStrings.settings.generalSettingsSectionTitle,
                         ),
                         const SizedBox(height: kSpacingMedium),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(AppStrings.settings.themeLabel),
+                            _ThemeCard(
+                              icon: '☀️',
+                              label: AppStrings.settings.themeLight,
+                              isSelected: userContext.themeMode == ThemeMode.light,
+                              onTap: () => userContext.setThemeMode(ThemeMode.light),
+                            ),
                             const SizedBox(width: kSpacingSmall),
-                            Flexible(
-                              child: SegmentedButton<ThemeMode>(
-                                segments: [
-                                  ButtonSegment(value: ThemeMode.light, label: Text(AppStrings.settings.themeLight)),
-                                  ButtonSegment(value: ThemeMode.dark, label: Text(AppStrings.settings.themeDark)),
-                                  ButtonSegment(value: ThemeMode.system, label: Text(AppStrings.settings.themeSystem)),
-                                ],
-                                selected: {userContext.themeMode},
-                                onSelectionChanged: (selection) {
-                                  userContext.setThemeMode(selection.first);
-                                },
-                                style: const ButtonStyle(
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                              ),
+                            _ThemeCard(
+                              icon: '🌙',
+                              label: AppStrings.settings.themeDark,
+                              isSelected: userContext.themeMode == ThemeMode.dark,
+                              onTap: () => userContext.setThemeMode(ThemeMode.dark),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            _ThemeCard(
+                              icon: '📱',
+                              label: AppStrings.settings.themeSystem,
+                              isSelected: userContext.themeMode == ThemeMode.system,
+                              onTap: () => userContext.setThemeMode(ThemeMode.system),
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                ),
+                )),
 
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 ניהול משפחה
-                Card(
+                _animatedSection(3, Card(
                   elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.family_restroom, color: cs.primary),
-                            SizedBox(width: kSpacingSmall),
-                            Text(
-                              AppStrings.settings.householdManagementTitle,
-                              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
-                            ),
-                          ],
+                        SectionHeader(
+                          leading: Icon(Icons.family_restroom, color: cs.primary, size: kIconSizeMedium),
+                          title: AppStrings.settings.householdManagementTitle,
                         ),
                         const SizedBox(height: kSpacingSmall),
                         ListTile(
@@ -1025,13 +1053,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ),
-                ),
+                )),
 
                 SizedBox(height: kSpacingMedium),
 
                 // 🔹 קישורים מהירים
-                Card(
+                _animatedSection(4, Card(
                   elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Column(
                     children: [
                       ListTile(
@@ -1073,13 +1102,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
-                ),
+                )),
 
                 SizedBox(height: kSpacingMedium),
 
                 // 🔹 מידע
-                Card(
+                _animatedSection(5, Card(
                   elevation: 1,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: Column(
                     children: [
                       ListTile(
@@ -1115,12 +1145,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ],
                   ),
-                ),
+                )),
 
                 SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
-                Card(
+                _animatedSection(6, Card(
                   elevation: 1,
                   child: ListTile(
                     leading: Icon(Icons.logout, color: cs.error),
@@ -1129,7 +1159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: Icon(Icons.chevron_left, color: cs.error),
                     onTap: _logout,
                   ),
-                ),
+                )),
 
                 // 🔧 DEBUG ONLY: מחיקת כל הנתונים
                 if (kDebugMode) ...[
@@ -1177,7 +1207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-/// 🔔 Toggle להגדרות התראות
+/// 🔔 Toggle להגדרות התראות — themed accent
 class _NotificationToggle extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -1193,6 +1223,7 @@ class _NotificationToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return SwitchListTile(
       title: Text(
         title,
@@ -1202,13 +1233,70 @@ class _NotificationToggle extends StatelessWidget {
         subtitle,
         style: TextStyle(
           fontSize: kFontSizeSmall,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: cs.onSurfaceVariant,
         ),
       ),
       value: value,
       onChanged: onChanged,
+      activeColor: cs.primary,
+      activeTrackColor: cs.primary.withValues(alpha: 0.3),
       dense: true,
       contentPadding: EdgeInsets.zero,
+    );
+  }
+}
+
+/// 🎨 כרטיס בחירת ערכת נושא
+class _ThemeCard extends StatelessWidget {
+  final String icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ThemeCard({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus, horizontal: kSpacingSmall),
+          decoration: BoxDecoration(
+            color: isSelected ? cs.primary.withValues(alpha: 0.12) : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            border: Border.all(
+              color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.2),
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(icon, style: const TextStyle(fontSize: kFontSizeXLarge)),
+              const SizedBox(height: kSpacingXTiny),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                  color: isSelected ? cs.primary : cs.onSurface,
+                ),
+              ),
+              if (isSelected) ...[
+                const SizedBox(height: kSpacingXTiny),
+                Icon(Icons.check_circle, size: kIconSizeSmall, color: cs.primary),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
