@@ -357,7 +357,7 @@ class _PantryProductSelectionSheetState
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<String>(
-                            initialValue: location,
+                            value: location,
                             dropdownColor: cs.surface,
                             style: TextStyle(color: cs.onSurface),
                             decoration: InputDecoration(
