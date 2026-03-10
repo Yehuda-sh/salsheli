@@ -1096,31 +1096,41 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
-  /// 🎴 שורת פריט - Swipe למחיקה, Tap לעריכה, חיווי סטטוס
+  /// 🎴 שורת פריט — Card מקצועי עם Swipe, Tap, וחיווי סטטוס
   Widget _buildItemRow(InventoryItem item) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final strings = AppStrings.pantry;
     final isCritical = item.status == LimitStatus.critical || item.needsUrgentAttention;
     final isWarning = item.status == LimitStatus.warning || item.isLowStock;
 
-    // 🎨 רקע מבוסס סטטוס
-    Color? rowBgColor;
-    if (isWarning && !isCritical) {
-      rowBgColor = kStickyOrange.withValues(alpha: 0.1);
+    // 🎨 צבע פס צד לפי סטטוס
+    final Color statusColor;
+    if (isCritical) {
+      statusColor = cs.error;
+    } else if (isWarning) {
+      statusColor = brand?.warning ?? kStickyOrange;
+    } else {
+      statusColor = cs.primary.withValues(alpha: 0.3);
     }
 
-    final Widget row = Dismissible(
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    return Dismissible(
       key: Key(item.id),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerLeft,
         padding: const EdgeInsets.only(left: kSpacingLarge),
-        color: cs.errorContainer,
+        decoration: BoxDecoration(
+          color: cs.errorContainer,
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
         child: Row(
           children: [
             Icon(Icons.delete_outline, color: cs.onErrorContainer),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(strings.swipeDelete, style: TextStyle(color: cs.onErrorContainer, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -1149,73 +1159,209 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         );
       },
       onDismissed: (_) => _deleteItem(item),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 2),
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        height: 64,
-        decoration: BoxDecoration(
-          color: rowBgColor ?? cs.surface.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 6),
+        elevation: isCritical ? 2 : 0.5,
+        shadowColor: isCritical ? cs.error.withValues(alpha: 0.3) : null,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          side: BorderSide(
+            color: isWarning || isCritical
+                ? statusColor.withValues(alpha: 0.3)
+                : cs.outlineVariant.withValues(alpha: 0.15),
+          ),
         ),
-        child: Row(
-          children: [
-            const SizedBox(width: kSpacingMedium),
-
-            // 🏷️ אמוג'י קטגוריה (Pulse אם critical)
-            _buildCategoryEmoji(item, isCritical),
-
-            const SizedBox(width: kSpacingSmall),
-
-            // ⭐ מוצר קבוע
-            if (item.isRecurring)
-              const Padding(
-                padding: EdgeInsets.only(left: kSpacingTiny),
-                child: Text('⭐', style: TextStyle(fontSize: kFontSizeSmall)),
-              ),
-
-            // 📝 שם המוצר (לחיץ לעריכה)
-            Expanded(
-              child: Semantics(
-                button: true,
-                label: '${item.productName}, לחץ לעריכה',
-                child: InkWell(
-                  onTap: () => _editItemDialog(item),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          item.productName,
-                          style: theme.textTheme.bodyLarge!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: kFontSizeBody,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _editItemDialog(item),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                // 🎨 פס צד צבעוני (כמו ברשימות בדף הבית)
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: isRtl
+                        ? const BorderRadius.only(
+                            topRight: Radius.circular(kBorderRadius),
+                            bottomRight: Radius.circular(kBorderRadius),
+                          )
+                        : const BorderRadius.only(
+                            topLeft: Radius.circular(kBorderRadius),
+                            bottomLeft: Radius.circular(kBorderRadius),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
+
+                // 📦 תוכן
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingMedium,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      children: [
+                        // 🏷️ אמוג'י בעיגול
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: _buildCategoryEmoji(item, isCritical),
+                          ),
+                        ),
+
+                        const SizedBox(width: kSpacingSmall),
+
+                        // 📝 שם + קטגוריה + recurring
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  if (item.isRecurring)
+                                    const Padding(
+                                      padding: EdgeInsets.only(left: 4),
+                                      child: Text('⭐', style: TextStyle(fontSize: kFontSizeSmall)),
+                                    ),
+                                  Flexible(
+                                    child: Text(
+                                      item.productName,
+                                      style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Row(
+                                children: [
+                                  Text(
+                                    item.category,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: cs.onSurfaceVariant,
+                                      fontSize: kFontSizeTiny,
+                                    ),
+                                  ),
+                                  if (item.expiryDate != null) ...[
+                                    const SizedBox(width: kSpacingSmall),
+                                    _buildExpiryBadge(item, cs),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: kSpacingSmall),
+
+                        // 🔢 כמות — כפתורי +/- מהירים
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // כפתור מינוס
+                            _buildQuantityButton(
+                              icon: Icons.remove,
+                              color: item.quantity <= 1 ? cs.error : cs.onSurfaceVariant,
+                              onTap: item.quantity > 0
+                                  ? () => _updateQuantity(item, item.quantity - 1)
+                                  : null,
+                            ),
+
+                            // מספר כמות
+                            GestureDetector(
+                              onTap: () => _showQuickQuantityDialog(item),
+                              child: Container(
+                                constraints: const BoxConstraints(minWidth: 40),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isWarning || isCritical
+                                      ? statusColor.withValues(alpha: 0.1)
+                                      : cs.primaryContainer.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      '${item.quantity}',
+                                      style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: isWarning || isCritical ? statusColor : cs.primary,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    Text(
+                                      strings.unitAbbreviation,
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        color: cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // כפתור פלוס
+                            _buildQuantityButton(
+                              icon: Icons.add,
+                              color: cs.primary,
+                              onTap: item.quantity < 99
+                                  ? () => _updateQuantity(item, item.quantity + 1)
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-
-            // 📅 תאריך תפוגה
-            if (item.expiryDate != null)
-              Padding(
-                padding: const EdgeInsets.only(left: kSpacingSmall),
-                child: _buildExpiryBadge(item, cs),
-              ),
-
-            // 🔢 כמות ביחידות (Badge)
-            _buildQuantityBadge(item, cs),
-
-            const SizedBox(width: kSpacingSmall),
-          ],
+          ),
         ),
       ),
     );
+  }
 
-    return row;
+  /// כפתור +/- עגול לכמות
+  Widget _buildQuantityButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap != null
+            ? () {
+                unawaited(HapticFeedback.selectionClick());
+                onTap();
+              }
+            : null,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Icon(
+            icon,
+            size: 20,
+            color: onTap != null ? color : color.withValues(alpha: 0.3),
+          ),
+        ),
+      ),
+    );
   }
 
   /// 🏷️ אמוג'י קטגוריה עם Pulse לפריטים קריטיים
@@ -1239,53 +1385,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   /// 🔢 Badge כמות עם חיווי סטטוס
-  Widget _buildQuantityBadge(InventoryItem item, ColorScheme _) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.pantry;
-    return Semantics(
-      button: true,
-      label: '${item.quantity} יחידות${item.isLowStock ? ', מלאי נמוך' : ''}, לחץ לעדכון',
-      child: GestureDetector(
-        onTap: () => _showQuickQuantityDialog(item),
-        child: Container(
-          margin: const EdgeInsets.only(left: kSpacingSmall),
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-          decoration: BoxDecoration(
-            color: item.isLowStock
-                ? cs.errorContainer.withValues(alpha: 0.3)
-                : cs.primaryContainer.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${item.quantity}',
-                style: TextStyle(
-                  color: item.isLowStock ? cs.error : cs.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: kFontSizeMedium,
-                ),
-              ),
-              SizedBox(width: kSpacingXTiny),
-              Text(
-                strings.unitAbbreviation,
-                style: TextStyle(
-                  color: item.isLowStock ? cs.error : cs.onSurfaceVariant,
-                  fontSize: kFontSizeSmall,
-                ),
-              ),
-              if (item.isLowStock) ...[
-                SizedBox(width: kSpacingTiny),
-                Icon(Icons.warning, color: cs.error, size: 14),
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   /// 📅 Badge תאריך תפוגה
   Widget _buildExpiryBadge(InventoryItem item, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
