@@ -23,11 +23,7 @@
 // Last Updated: 22/02/2026
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ui';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
 import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
 import 'widgets/loading_overlay.dart';
@@ -378,69 +374,7 @@ class _LoginScreenState extends State<LoginScreen>
     unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🧪 Quick login with: $email');
 
-    // 🔑 Debug: use Firebase REST API to bypass reCAPTCHA on emulators
-    if (kDebugMode) {
-      try {
-        setState(() => _isLoading = true);
-        debugPrint('🔑 Trying REST API sign-in for $email...');
-        
-        final response = await http.post(
-          Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB52eBlYLTiOQdZFl0U1B4F4g75xo31oN8'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'email': email,
-            'password': _demoPassword,
-            'returnSecureToken': true,
-          }),
-        ).timeout(const Duration(seconds: 10));
-        
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
-          debugPrint('✅ REST sign-in success! UID: ${data['localId']}');
-          
-          // Exchange REST API token for a custom token via our server endpoint
-          // For now, use signInAnonymously + link approach won't work
-          // Instead: call token endpoint on 10.0.2.2 (host machine)
-          // If user has node running: node scripts/debug_token_server.js
-          
-          // Try to get custom token from local server (10.0.2.2 = host machine)
-          try {
-            final tokenResp = await http.get(
-              Uri.parse('http://10.0.2.2:9877/token?email=$email'),
-            ).timeout(const Duration(seconds: 3));
-            
-            if (tokenResp.statusCode == 200) {
-              final tokenData = json.decode(tokenResp.body);
-              await FirebaseAuth.instance.signInWithCustomToken(tokenData['token'] as String);
-              debugPrint('✅ Custom token sign-in success!');
-              if (mounted) Navigator.of(context).pushReplacementNamed('/index');
-              return;
-            }
-          } catch (e) {
-            debugPrint('⚠️ Local token server not available: $e');
-          }
-          
-          debugPrint('💡 REST confirmed credentials OK but SDK blocked by reCAPTCHA.');
-          debugPrint('💡 Run on Windows: node scripts/debug_token_server.js');
-          debugPrint('💡 Or test on a physical device instead of emulator.');
-          
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('הרץ node scripts/debug_token_server.js על Windows')),
-            );
-          }
-          return;
-        } else {
-          debugPrint('⚠️ REST API returned ${response.statusCode}: ${response.body}');
-        }
-      } catch (e) {
-        debugPrint('⚠️ REST login failed: $e, falling back to normal login');
-      } finally {
-        if (mounted) setState(() => _isLoading = false);
-      }
-    }
-
-    // Fallback: מילוי השדות + email/password login
+    // Auth Emulator handles login without reCAPTCHA
     _emailController.text = email;
     _passwordController.text = _demoPassword;
     await _handleLogin();
