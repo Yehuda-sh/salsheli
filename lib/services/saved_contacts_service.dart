@@ -69,8 +69,10 @@ class SavedContactsService {
       return contacts;
     } catch (e) {
       if (kDebugMode) {
+        debugPrint('⚠️ SavedContactsService.getContacts failed: $e');
       }
-      return [];
+      // rethrow כדי שה-UI יוכל להציג שגיאה למשתמש
+      rethrow;
     }
   }
 
