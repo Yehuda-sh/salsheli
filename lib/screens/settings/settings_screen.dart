@@ -1091,15 +1091,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         subtitle: Text('צפה שוב בהדרכת האפליקציה'),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () async {
-                          final messenger = ScaffoldMessenger.of(context);
                           await TutorialService.resetTutorial(context);
                           if (!mounted) return;
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text('ההדרכה תוצג בכניסה הבאה לדף הבית'),
-                              backgroundColor: cs.primary,
-                            ),
-                          );
+                          // הצג את ההדרכה מיידית
+                          await TutorialService.showHomeTutorialIfNeeded(context);
                         },
                       ),
                     ],
