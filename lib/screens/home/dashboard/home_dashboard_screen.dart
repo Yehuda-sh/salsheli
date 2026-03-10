@@ -256,11 +256,30 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       context,
                       userName: userContext.displayName,
                       familyName: familyName,
+                      activeListsCount: activeLists.length,
                     ),
                     sectionIndex++,
                   ),
 
                   const SizedBox(height: kSpacingMedium),
+
+                  // === 3. Quick Actions ===
+                  _staggered(
+                    _buildQuickActions(context),
+                    sectionIndex++,
+                  ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // === 3.5 סיכום חודשי ===
+                  if (sortedReceipts.isNotEmpty)
+                    _staggered(
+                      _buildMonthlySummary(context, sortedReceipts),
+                      sectionIndex++,
+                    ),
+
+                  if (sortedReceipts.isNotEmpty)
+                    const SizedBox(height: kSpacingMedium),
 
                   // === 4. הצעות להיום ===
                   _staggered(
@@ -302,9 +321,230 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
+  // QUICK ACTIONS - פעולות מהירות
+  // ============================================
+  Widget _buildQuickActions(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+
+    return Row(
+      children: [
+        _buildQuickActionChip(
+          context,
+          icon: Icons.shopping_cart_outlined,
+          label: 'סופרמרקט',
+          color: brand?.accent ?? cs.primary,
+          onTap: () => Navigator.pushNamed(context, '/create-list'),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        _buildQuickActionChip(
+          context,
+          icon: Icons.receipt_long_outlined,
+          label: 'קבלות',
+          color: brand?.success ?? kStickyGreen,
+          onTap: () => Navigator.pushNamed(context, '/receipts'),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        _buildQuickActionChip(
+          context,
+          icon: Icons.notifications_outlined,
+          label: 'התראות',
+          color: cs.tertiary,
+          onTap: () => Navigator.pushNamed(context, '/notifications'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionChip(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
+    return Expanded(
+      child: Material(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        child: InkWell(
+          onTap: () {
+            unawaited(HapticFeedback.lightImpact());
+            onTap();
+          },
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: kSpacingSmall),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(kBorderRadius),
+              border: Border.all(color: color.withValues(alpha: 0.15)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 20),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: cs.onSurface,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ============================================
+  // MONTHLY SUMMARY - סיכום חודשי
+  // ============================================
+  Widget _buildMonthlySummary(BuildContext context, List<Receipt> receipts) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final now = DateTime.now();
+
+    // חשב סה"כ חודשי
+    final monthlyReceipts = receipts.where((r) =>
+        r.date.year == now.year && r.date.month == now.month).toList();
+    final totalSpent = monthlyReceipts.fold<double>(
+        0, (sum, r) => sum + r.totalAmount);
+    final avgPerTrip = monthlyReceipts.isNotEmpty
+        ? totalSpent / monthlyReceipts.length
+        : 0.0;
+
+    if (monthlyReceipts.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(kSpacingMedium),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            cs.primaryContainer.withValues(alpha: 0.5),
+            cs.secondaryContainer.withValues(alpha: 0.3),
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        border: Border.all(color: cs.primary.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.insights_outlined, size: 18, color: cs.primary),
+              const SizedBox(width: 6),
+              Text(
+                'סיכום החודש',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: kSpacingMedium),
+          Row(
+            children: [
+              Expanded(
+                child: _buildSummaryItem(
+                  context,
+                  icon: Icons.receipt_long_outlined,
+                  value: '₪${totalSpent.toStringAsFixed(0)}',
+                  label: 'הוצאות',
+                  color: cs.primary,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: cs.outlineVariant.withValues(alpha: 0.3),
+              ),
+              Expanded(
+                child: _buildSummaryItem(
+                  context,
+                  icon: Icons.shopping_bag_outlined,
+                  value: '${monthlyReceipts.length}',
+                  label: 'קניות',
+                  color: cs.tertiary,
+                ),
+              ),
+              Container(
+                width: 1,
+                height: 40,
+                color: cs.outlineVariant.withValues(alpha: 0.3),
+              ),
+              Expanded(
+                child: _buildSummaryItem(
+                  context,
+                  icon: Icons.trending_down_outlined,
+                  value: '₪${avgPerTrip.toStringAsFixed(0)}',
+                  label: 'ממוצע',
+                  color: cs.secondary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryItem(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    final theme = Theme.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        Icon(icon, size: 20, color: color),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: cs.onSurface,
+          ),
+        ),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: cs.onSurfaceVariant,
+            fontSize: kFontSizeTiny,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ============================================
   // 0. ERROR BANNER - באנר שגיאה
   // ============================================
-  Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme cs) {
+  Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
@@ -374,6 +614,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     BuildContext context, {
     required String? userName,
     required String? familyName,
+    required int activeListsCount,
   }) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -422,16 +663,32 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         ),
         const SizedBox(width: kSpacingSmall),
 
-        // ברכה קצרה
+        // ברכה + subtitle
         Expanded(
-          child: Text(
-            '$greetingEmoji ${strings.timeBasedGreeting(userName, hour)}',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: cs.onSurface,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$greetingEmoji ${strings.timeBasedGreeting(userName, hour)}',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                activeListsCount > 0
+                    ? '$activeListsCount רשימות פעילות'
+                    : familyName ?? '',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
         ),
 
@@ -542,7 +799,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildActiveListsSection(
     BuildContext context,
     List<ShoppingList> activeLists,
-    ColorScheme cs,
+    ColorScheme _,
   ) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
@@ -632,7 +889,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
-  Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme cs) {
+  Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
@@ -814,7 +1071,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildHistorySection(
     BuildContext context,
     List<Receipt> receipts,
-    ColorScheme cs,
+    ColorScheme _,
   ) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
@@ -905,7 +1162,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
-  Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme cs) {
+  Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
