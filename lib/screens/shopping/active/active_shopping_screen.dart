@@ -164,8 +164,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         }
       }
 
-      final purchasedCount = _itemStatuses.values.where((s) => s == ShoppingItemStatus.purchased).length;
-
       if (!mounted) return;
 
       setState(() {

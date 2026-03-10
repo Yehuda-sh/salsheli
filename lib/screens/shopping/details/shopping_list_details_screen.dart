@@ -277,7 +277,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           label: AppStrings.common.cancel,
           textColor: cs.onPrimary,
           onPressed: () {
-            provider.addItemToList(widget.list.id, removed.name, removed.quantity ?? 1, removed.unit ?? 'יח\'');
+            provider.addItemToList(widget.list.id, removed.name, removed.quantity ?? 1, removed.unit);
           },
         ),
       ),
