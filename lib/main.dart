@@ -60,10 +60,14 @@ import 'package:provider/provider.dart';
 Future<void> _connectToEmulators() async {
   final host = AppConfig.emulatorHost;
 
-  // 🔑 Auth Emulator ONLY — Firestore & Storage use production
-  // This bypasses reCAPTCHA Enterprise issues on Android emulators
+  // Firestore Emulator
+  FirebaseFirestore.instance.useFirestoreEmulator(host, AppConfig.firestorePort);
+
+  // Auth Emulator
   await FirebaseAuth.instance.useAuthEmulator(host, AppConfig.authPort);
-  debugPrint('🔑 Connected to Auth Emulator at $host:${AppConfig.authPort}');
+
+  // Storage Emulator
+  await FirebaseStorage.instance.useStorageEmulator(host, AppConfig.storagePort);
 }
 
 void main() async {

@@ -68,10 +68,12 @@ enum AuthErrorCode {
 // ========================================
 
 /// Timeout לפעולות אימות (30 שניות)
-const Duration kAuthTimeout = Duration(seconds: 30);
+// ⚠️ 120s to allow Firebase Auth SDK to exhaust reCAPTCHA Enterprise retries
+// and fall back to plain auth (needed for Android emulators)
+const Duration kAuthTimeout = Duration(seconds: 120);
 
 /// מספר ניסיונות חוזרים
-const int kAuthMaxRetries = 3;
+const int kAuthMaxRetries = 1;
 
 /// זמן המתנה בסיסי בין ניסיונות (1 שנייה)
 const Duration kAuthRetryBaseDelay = Duration(seconds: 1);

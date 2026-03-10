@@ -38,7 +38,9 @@ class AppConfig {
   }
 
   /// 🔥 האם להשתמש ב-Emulators?
-  static bool get useEmulators => environment == AppEnvironment.development;
+  // ⚠️ Disabled: Auth Emulator tokens not accepted by production Firestore
+  // Enable only when running ALL emulators (auth + firestore + storage)
+  static bool get useEmulators => false;
 
   /// 🚀 האם אנחנו בסביבת production?
   static bool get isProduction => environment == AppEnvironment.production;
