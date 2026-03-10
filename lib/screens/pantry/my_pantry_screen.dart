@@ -447,6 +447,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   // 🏷️ כותרת המזווה (Collaborative Immersive)
                                   _buildInlineTitle(provider, scheme),
 
+                                  // 📊 סיכום מזווה
+                                  _buildSummaryStrip(allItems),
+
                                   // 🔍 חיפוש וסינון
                                   _buildFiltersSection(allItems),
 
@@ -508,13 +511,26 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
               const SizedBox(width: kSpacingSmall),
               Expanded(
-                child: Text(
-                  provider.inventoryTitle,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: kFontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      provider.inventoryTitle,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (provider.items.isNotEmpty)
+                      Text(
+                        '${provider.items.length} פריטים במזווה',
+                        style: TextStyle(
+                          color: scheme.onSurfaceVariant,
+                          fontSize: kFontSizeTiny,
+                        ),
+                      ),
+                  ],
                 ),
               ),
 
@@ -537,6 +553,94 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// 📊 פס סיכום מזווה — פריטים, מלאי נמוך, מיקומים
+  Widget _buildSummaryStrip(List<InventoryItem> items) {
+    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
+
+    final totalItems = items.length;
+    final lowStockCount = items.where((i) => i.isLowStock).length;
+    final locationsCount = items.map((i) => i.location).where((l) => l.isNotEmpty).toSet().length;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+      child: Row(
+        children: [
+          _buildSummaryChip(
+            icon: Icons.inventory_2_outlined,
+            value: '$totalItems',
+            label: 'פריטים',
+            color: cs.primary,
+            theme: theme,
+          ),
+          const SizedBox(width: kSpacingSmall),
+          if (lowStockCount > 0) ...[
+            _buildSummaryChip(
+              icon: Icons.warning_amber_rounded,
+              value: '$lowStockCount',
+              label: 'חסרים',
+              color: brand?.warning ?? cs.error,
+              theme: theme,
+            ),
+            const SizedBox(width: kSpacingSmall),
+          ],
+          _buildSummaryChip(
+            icon: Icons.place_outlined,
+            value: '$locationsCount',
+            label: 'מיקומים',
+            color: cs.tertiary,
+            theme: theme,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryChip({
+    required IconData icon,
+    required String value,
+    required String label,
+    required Color color,
+    required ThemeData theme,
+  }) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: kSpacingSmall),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          border: Border.all(color: color.withValues(alpha: 0.12)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16, color: color),
+            const SizedBox(width: 6),
+            Text(
+              value,
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Flexible(
+              child: Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: color.withValues(alpha: 0.8),
+                  fontSize: kFontSizeTiny,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -1046,13 +1150,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       },
       onDismissed: (_) => _deleteItem(item),
       child: Container(
-        height: 56,
-        decoration: rowBgColor != null
-            ? BoxDecoration(
-                color: rowBgColor,
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              )
-            : null,
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        height: 64,
+        decoration: BoxDecoration(
+          color: rowBgColor ?? cs.surface.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        ),
         child: Row(
           children: [
             const SizedBox(width: kSpacingMedium),
@@ -1135,7 +1239,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   /// 🔢 Badge כמות עם חיווי סטטוס
-  Widget _buildQuantityBadge(InventoryItem item, ColorScheme cs) {
+  Widget _buildQuantityBadge(InventoryItem item, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.pantry;
     return Semantics(
@@ -1183,7 +1287,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   /// 📅 Badge תאריך תפוגה
-  Widget _buildExpiryBadge(InventoryItem item, ColorScheme cs) {
+  Widget _buildExpiryBadge(InventoryItem item, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final isExpired = item.isExpired;
     final isExpiringSoon = item.isExpiringSoon;
