@@ -47,6 +47,7 @@ import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 import 'package:memozap/screens/history/shopping_history_screen.dart';
+import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 // Services
 import 'package:memozap/services/auth_service.dart'; // 🔐 Firebase Auth!
 import 'package:memozap/services/notifications_service.dart'; // 🔔 Notifications!
@@ -393,6 +394,7 @@ class MyApp extends StatelessWidget {
 
             '/notifications': (context) => const NotificationsCenterScreen(),
             '/receipts': (context) => const ShoppingHistoryScreen(),
+            '/pending-invites': (context) => const PendingInvitesScreen(),
           },
           onGenerateRoute: (settings) {
             // shopping-summary - receives listId

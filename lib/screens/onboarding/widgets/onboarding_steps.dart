@@ -702,7 +702,7 @@ class _SharingStep extends StatelessWidget {
           style: t.bodyLarge?.copyWith(color: cs.onSurface),
         ),
         value: value,
-        activeThumbColor: accent,
+        activeColor: accent,
         onChanged: (val) {
           onChanged(val);
         },

@@ -1120,11 +1120,19 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         onTap: () {
                           showAboutDialog(
                             context: context,
-                            applicationName: 'סל שלי',
+                            applicationName: 'MemoZap',
                             applicationVersion: '1.0.0',
-                            applicationIcon: Text('🛒', style: TextStyle(fontSize: kFontSizeDisplay)),
+                            applicationIcon: ClipRRect(
+                              borderRadius: BorderRadius.circular(kBorderRadius),
+                              child: Image.asset(
+                                'assets/images/app_icon.png',
+                                width: 48,
+                                height: 48,
+                                errorBuilder: (_, __, ___) => Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
+                              ),
+                            ),
                             children: [
-                              Text('אפליקציה לניהול רשימות קניות משפחתיות'),
+                              Text('אפליקציה חכמה לניהול קניות ומזווה משפחתי'),
                             ],
                           );
                         },

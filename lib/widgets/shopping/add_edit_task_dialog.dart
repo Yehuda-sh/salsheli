@@ -384,7 +384,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
                   // ⚡ עדיפות — Dropdown עם אימוג'י
                   DropdownButtonFormField<String>(
-                    initialValue: _selectedPriority,
+                    value: _selectedPriority,
                     decoration: InputDecoration(
                       labelText: AppStrings.listDetails.priorityLabel,
                       prefixIcon: const Icon(Icons.flag_outlined),
