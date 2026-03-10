@@ -23,7 +23,11 @@
 // Last Updated: 22/02/2026
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
 import 'widgets/loading_overlay.dart';
@@ -374,11 +378,40 @@ class _LoginScreenState extends State<LoginScreen>
     unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🧪 Quick login with: $email');
 
-    // מילוי השדות
+    // 🔑 Debug: use custom token to bypass reCAPTCHA on emulators
+    if (kDebugMode) {
+      try {
+        setState(() => _isLoading = true);
+        debugPrint('🔑 Fetching custom token for $email...');
+        
+        final uri = Uri.parse('http://187.124.3.245:9877/token?email=$email');
+        final response = await http.get(uri).timeout(const Duration(seconds: 5));
+        
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final token = data['token'] as String;
+          debugPrint('🔑 Got token, signing in with custom token...');
+          
+          await FirebaseAuth.instance.signInWithCustomToken(token);
+          debugPrint('✅ Custom token login success!');
+          
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed('/index');
+          }
+          return;
+        } else {
+          debugPrint('⚠️ Token server returned ${response.statusCode}, falling back to email/password');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Custom token login failed: $e, falling back to email/password');
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
+      }
+    }
+
+    // Fallback: מילוי השדות + email/password login
     _emailController.text = email;
     _passwordController.text = _demoPassword;
-
-    // הפעלת login
     await _handleLogin();
   }
 
