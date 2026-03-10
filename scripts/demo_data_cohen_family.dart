@@ -2626,6 +2626,8 @@ Map<String, dynamic> createInventoryItemFromProduct(
     'last_purchased': now.subtract(Duration(days: Random().nextInt(30) + 1)).toIso8601String(),
     'purchase_count': purchaseCount,
     'emoji': product['icon'] as String?,
+    'last_updated_by': '', // placeholder — יתעדכן בזמן כתיבה עם UID אמיתי
+    'updated_at': now.toIso8601String(),
     // הוסרו: barcode, price, brand - לא קיימים במודל InventoryItem
   };
 }
@@ -4915,6 +4917,41 @@ void main(List<String> args) async {
     }
     print('      ✅ 2 members');
 
+    // === Single/Additional User Households ===
+    // כל משתמש צריך household document — אחרת Firestore rules חוסמות
+    final singleUserHouseholds = <String, Map<String, dynamic>>{
+      tomerHouseholdId: {'name': 'הבית של תומר', 'userId': additionalUids[tomerId]!, 'userName': 'תומר בר'},
+      shiranHouseholdId: {'name': 'הבית של שירן', 'userId': additionalUids[shiranId]!, 'userName': 'שירן גל'},
+      mosheHouseholdId: {'name': 'הבית של משה', 'userId': additionalUids[mosheUserId]!, 'userName': 'משה גולן'},
+      saraHouseholdId: {'name': 'הבית של שרה', 'userId': additionalUids[saraUserId]!, 'userName': 'שרה לוי'},
+      davidHouseholdId: {'name': 'הבית של דוד', 'userId': additionalUids[davidUserId]!, 'userName': 'דוד כהן'},
+      michalHouseholdId: {'name': 'הבית של מיכל', 'userId': additionalUids[michalUserId]!, 'userName': 'מיכל אברהם'},
+      yaelHouseholdId: {'name': 'הבית של יעל', 'userId': additionalUids[yaelUserId]!, 'userName': 'יעל ברק'},
+      ornaHouseholdId: {'name': 'הבית של אורנה', 'userId': additionalUids[ornaUserId]!, 'userName': 'אורנה שלום'},
+      ramiHouseholdId: {'name': 'הבית של רמי', 'userId': additionalUids[ramiUserId]!, 'userName': 'רמי דור'},
+      liorHouseholdId: {'name': 'הבית של ליאור', 'userId': additionalUids[liorUserId]!, 'userName': 'ליאור כץ'},
+      noamHouseholdId: {'name': 'הבית של נועם', 'userId': additionalUids[noamUserId]!, 'userName': 'נועם שפירא'},
+      eyalHouseholdId: {'name': 'הבית של אייל', 'userId': additionalUids[eyalUserId]!, 'userName': 'אייל כץ'},
+    };
+
+    for (final entry in singleUserHouseholds.entries) {
+      final hId = entry.key;
+      final info = entry.value;
+      await writeDocument('households', hId, {
+        'id': hId,
+        'name': info['name'],
+        'created_by': info['userId'],
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+      });
+      await writeSubDocument('households/$hId/members', info['userId'] as String, {
+        'name': info['userName'],
+        'role': 'admin',
+        'joined_at': DateTime.now().toIso8601String(),
+      });
+    }
+    print('   🏠 ${singleUserHouseholds.length} households נוספים נוצרו (single users)');
+
     print('   ✅ households + members נוצרו');
     print('');
 
@@ -4958,6 +4995,8 @@ void main(List<String> args) async {
     final inventory = generateInventoryItems();
     final aviUid = cohenUids[aviUserId]!;
     for (final item in inventory) {
+      // 🔒 הגדר last_updated_by עם UID אמיתי (נדרש ע"י Firestore rules)
+      item['last_updated_by'] = aviUid;
       print('   ${item['emoji'] ?? '📦'} ${item['product_name']} (${item['location']})');
       await writeSubDocument(
         'households/$householdId/inventory', // 🔧 מזווה משפחתי משותף
