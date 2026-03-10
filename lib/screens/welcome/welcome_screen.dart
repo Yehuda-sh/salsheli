@@ -542,7 +542,7 @@ class _FeatureCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingLarge),
                   decoration: BoxDecoration(
-                    color: cs.surface.withValues(alpha: 0.65),
+                    color: cs.surface.withValues(alpha: 0.45),
                     border: Border(
                       top: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
                       bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.18), width: 0.9),
