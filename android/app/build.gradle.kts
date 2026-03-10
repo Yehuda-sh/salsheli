@@ -40,11 +40,6 @@ android {
     }
 }
 
-configurations.all {
-    // 🔧 Exclude reCAPTCHA Enterprise — causes timeout on emulators
-    exclude(group = "com.google.android.recaptcha", module = "recaptcha")
-}
-
 flutter {
     source = "../.."
 }
