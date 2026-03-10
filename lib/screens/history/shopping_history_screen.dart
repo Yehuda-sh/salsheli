@@ -152,6 +152,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                         FilterChip(
                           label: Text(strings.filterThisMonth),
                           selected: _filterPeriod == 'month',
+                          selectedColor: cs.primary.withValues(alpha: 0.15),
+                          checkmarkColor: cs.primary,
                           onSelected: (_) {
                             unawaited(HapticFeedback.lightImpact());
                             setState(() => _filterPeriod = 'month');
@@ -161,6 +163,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                         FilterChip(
                           label: Text(strings.filterThreeMonths),
                           selected: _filterPeriod == '3months',
+                          selectedColor: cs.primary.withValues(alpha: 0.15),
+                          checkmarkColor: cs.primary,
                           onSelected: (_) {
                             unawaited(HapticFeedback.lightImpact());
                             setState(() => _filterPeriod = '3months');
@@ -170,6 +174,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                         FilterChip(
                           label: Text(strings.filterAll),
                           selected: _filterPeriod == 'all',
+                          selectedColor: cs.primary.withValues(alpha: 0.15),
+                          checkmarkColor: cs.primary,
                           onSelected: (_) {
                             unawaited(HapticFeedback.lightImpact());
                             setState(() => _filterPeriod = 'all');
@@ -190,7 +196,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                       padding: const EdgeInsets.all(kSpacingMedium),
                       decoration: BoxDecoration(
                         color: cs.primaryContainer,
-                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -338,7 +344,7 @@ class _ReceiptTile extends StatelessWidget {
         elevation: 1,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(
             color: cs.outlineVariant.withValues(alpha: 0.2),
             width: 0.5,
@@ -446,7 +452,6 @@ class _ReceiptTile extends StatelessWidget {
   }
 
   Widget _buildItemRow(BuildContext context, ReceiptItem item, ColorScheme cs, Color successColor) {
-    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Row(
@@ -515,7 +520,7 @@ class _ReceiptTile extends StatelessWidget {
 // Widget: סטטיסטיקה
 // ========================================
 
-class _StatItem extends StatelessWidget {
+class _StatItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final String value;
@@ -529,31 +534,77 @@ class _StatItem extends StatelessWidget {
   });
 
   @override
+  State<_StatItem> createState() => _StatItemState();
+}
+
+class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(_StatItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value != widget.value) {
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
+    // Extract numeric value for animation
+    final numericStr = widget.value.replaceAll(RegExp(r'[^\d.]'), '');
+    final targetNum = double.tryParse(numericStr) ?? 0;
+    final prefix = widget.value.contains('₪') ? '₪' : '';
 
     return Column(
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 20),
+            Icon(widget.icon, color: widget.color, size: 20),
             const SizedBox(width: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: kFontSizeLarge,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+            AnimatedBuilder(
+              animation: _animation,
+              builder: (context, _) {
+                final current = (targetNum * _animation.value);
+                final display = targetNum == targetNum.toInt().toDouble()
+                    ? '$prefix${current.toInt()}'
+                    : '$prefix${current.toStringAsFixed(0)}';
+                return Text(
+                  display,
+                  style: TextStyle(
+                    fontSize: kFontSizeLarge,
+                    fontWeight: FontWeight.bold,
+                    color: widget.color,
+                  ),
+                );
+              },
             ),
           ],
         ),
         Text(
-          label,
+          widget.label,
           style: TextStyle(
-            fontSize: kFontSizeTiny,
-            // ✅ FIX: Theme-aware color
+            fontSize: kFontSizeSmall,
             color: cs.onSurfaceVariant,
           ),
         ),
@@ -574,30 +625,39 @@ class _EmptyState extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
+        padding: const EdgeInsets.all(kSpacingXLarge),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.receipt_long,
-              size: 80,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+            // Illustrated empty state — stacked receipts icon
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer.withValues(alpha: 0.3),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.receipt_long,
+                size: 56,
+                color: cs.primary.withValues(alpha: 0.6),
+              ),
             ),
-            SizedBox(height: kSpacingMedium),
+            SizedBox(height: kSpacingLarge),
             Text(
               strings.emptyTitle,
               style: TextStyle(
                 fontSize: kFontSizeLarge,
                 fontWeight: FontWeight.bold,
-                color: cs.onSurfaceVariant,
+                color: cs.onSurface,
               ),
             ),
             SizedBox(height: kSpacingSmall),
             Text(
               strings.emptySubtitle,
               style: TextStyle(
-                fontSize: kFontSizeSmall,
-                color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                fontSize: kFontSizeBody,
+                color: cs.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
