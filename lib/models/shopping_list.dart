@@ -270,8 +270,7 @@ class ShoppingList {
   static bool shouldUpdatePantry(String type, {required bool isPrivate}) {
     // רשימות אירוע - לא מעדכנות מזווה
     if (type == typeEvent) return false;
-    // רשימות אישיות - לא מעדכנות מזווה משפחתי (פרטיות!)
-    if (isPrivate) return false;
+    // כל שאר הרשימות (אישיות + משותפות) מעדכנות מזווה
     return true;
   }
 

@@ -342,6 +342,7 @@ class InventoryProvider with ChangeNotifier {
       notes: notes,
       isRecurring: isRecurring,
       emoji: emoji,
+      lastUpdatedBy: userId,
     );
 
     final previousItems = _items;
@@ -380,6 +381,11 @@ class InventoryProvider with ChangeNotifier {
     final userId = _userContext?.userId;
     if (userId == null) return;
 
+    // 🔒 תמיד הגדר lastUpdatedBy — נדרש ע"י Firestore rules
+    final itemWithAudit = item.lastUpdatedBy == userId
+        ? item
+        : item.copyWith(lastUpdatedBy: userId);
+
     final previousItems = _items;
 
     await _runAsync(
@@ -389,16 +395,16 @@ class InventoryProvider with ChangeNotifier {
       action: () async {
         // 🚀 Optimistic: עדכון מיידי של ה-UI
         _errorMessage = null;
-        final index = _items.indexWhere((i) => i.id == item.id);
+        final index = _items.indexWhere((i) => i.id == itemWithAudit.id);
         if (index != -1) {
-          _items = List.from(_items)..[index] = item;
+          _items = List.from(_items)..[index] = itemWithAudit;
         } else {
-          _items = [..._items, item];
+          _items = [..._items, itemWithAudit];
         }
         _notifySafe();
 
         try {
-          await _repository.saveUserItem(item, userId);
+          await _repository.saveUserItem(itemWithAudit, userId);
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם
           _items = previousItems;
@@ -519,10 +525,20 @@ class InventoryProvider with ChangeNotifier {
 
     // מצא פריט לפי שם
     final existingItem = _items.where((i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase()).firstOrNull;
-    if (existingItem == null) return;
+    if (existingItem == null) {
+      // 🆕 מוצר חדש שלא קיים במזווה — צור אותו אוטומטית
+      await createItem(
+        productName: productName,
+        category: 'כללי',
+        location: 'כללי',
+        quantity: quantity,
+      );
+      return;
+    }
 
     final updatedItem = existingItem.copyWith(
       quantity: existingItem.quantity + quantity,
+      lastUpdatedBy: userId,
     );
     final previousItems = _items;
 
