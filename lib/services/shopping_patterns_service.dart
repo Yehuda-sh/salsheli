@@ -245,7 +245,8 @@ class ShoppingPatternsService {
         await doc.reference.delete();
       }
 
-    } catch (e) {
+    } catch (_) {
+      // Silent: cleanup is best-effort
     }
   }
 }

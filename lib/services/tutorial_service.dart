@@ -41,7 +41,8 @@ class TutorialService {
 
     try {
       await userContext.saveUser(user.copyWith(seenTutorial: true));
-    } catch (e) {
+    } catch (_) {
+      // Silent: tutorial state is non-critical
     }
   }
 
@@ -54,7 +55,8 @@ class TutorialService {
 
     try {
       await userContext.saveUser(user.copyWith(seenTutorial: false));
-    } catch (e) {
+    } catch (_) {
+      // Silent: tutorial state is non-critical
     }
   }
 

@@ -346,11 +346,6 @@ class ShareListService {
     // 🆕 הוספת שאר המשתמשים מהמפה
     users.addAll(list.sharedUsers.values);
 
-    if (kDebugMode) {
-      for (final user in users) {
-      }
-    }
-
     return users;
   }
 
