@@ -127,12 +127,14 @@
 - [ ] טיפול ב-foreground / background / terminated notifications
 
 ### 6.2 Cloud Functions — שליחת התראות
-- [ ] **התראות קנייה** — Cloud Function על שינוי `status` ב-`shopping_lists` → שולח push לכל חברי הקבוצה
-- [ ] **התראות מלאי** — Scheduled Function (יומי) שבודק `inventory` items עם `quantity <= threshold` → push לבעל המזווה
-- [ ] **התראות קבוצה** — Cloud Function על הוספת member ל-`households/{id}/members` → push לכל החברים הקיימים
+- [ ] **🛒 פעילות קנייה** — Cloud Function על שינוי `status` ב-`shopping_lists` → push לכל חברי הקבוצה ("רונית התחילה/סיימה לקנות")
+- [ ] **👥 שינויים בקבוצה** — Cloud Function על הוספת/הסרת member ב-`households/{id}/members` → push לכל החברים
+- [ ] **⏰ תזכורות** — Scheduled Function (יומי) שבודק רשימות פתוחות מעל 24ש → push; תזכורת שבועית (יום שישי)
+- [ ] **📝 עדכוני רשימה** — Cloud Function על שינוי items ב-`shopping_lists/{id}/items` → push לחברי הרשימה (כבוי כברירת מחדל)
+- [ ] **מלאי נמוך** — לא push, רק כרטיס יומי בדאשבורד (כבר קיים ב-suggestions)
 
 ### 6.3 חיבור המתגים בהגדרות
-- [ ] חיבור `_notifyShopping` / `_notifyInventory` / `_notifyGroup` ל-FCM topics
+- [ ] חיבור `_notifyShopping` / `_notifyGroup` / `_notifyReminders` / `_notifyListUpdates` ל-FCM topics
 - [ ] Subscribe/unsubscribe לפי topic כשהמתג משתנה
 - [ ] שמירת העדפות גם ב-Firestore (לסנכרון בין מכשירים)
 

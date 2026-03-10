@@ -65,13 +65,15 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   static const int _sectionCount = 7;
   // Keys לשמירה מקומית - התראות
   static const _kNotifyShopping = 'settings.notify.shopping';
-  static const _kNotifyInventory = 'settings.notify.inventory';
   static const _kNotifyGroup = 'settings.notify.group';
+  static const _kNotifyReminders = 'settings.notify.reminders';
+  static const _kNotifyListUpdates = 'settings.notify.listUpdates';
 
   // מצב UI - התראות
   bool _notifyShopping = true;
-  bool _notifyInventory = true;
   bool _notifyGroup = true;
+  bool _notifyReminders = true;
+  bool _notifyListUpdates = false; // כבוי כברירת מחדל — יכול להציף
 
   bool _loading = true;
   String? _errorMessage;
@@ -114,8 +116,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       if (!mounted) return;
       setState(() {
         _notifyShopping = prefs.getBool(_kNotifyShopping) ?? true;
-        _notifyInventory = prefs.getBool(_kNotifyInventory) ?? true;
         _notifyGroup = prefs.getBool(_kNotifyGroup) ?? true;
+        _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
+        _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
         _loading = false;
         _errorMessage = null;
       });
@@ -922,21 +925,30 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           },
                         ),
                         _NotificationToggle(
-                          title: AppStrings.settings.notifyInventoryTitle,
-                          subtitle: AppStrings.settings.notifyInventorySubtitle,
-                          value: _notifyInventory,
-                          onChanged: (val) {
-                            setState(() => _notifyInventory = val);
-                            _saveNotificationSetting(_kNotifyInventory, val);
-                          },
-                        ),
-                        _NotificationToggle(
                           title: AppStrings.settings.notifyGroupTitle,
                           subtitle: AppStrings.settings.notifyGroupSubtitle,
                           value: _notifyGroup,
                           onChanged: (val) {
                             setState(() => _notifyGroup = val);
                             _saveNotificationSetting(_kNotifyGroup, val);
+                          },
+                        ),
+                        _NotificationToggle(
+                          title: AppStrings.settings.notifyRemindersTitle,
+                          subtitle: AppStrings.settings.notifyRemindersSubtitle,
+                          value: _notifyReminders,
+                          onChanged: (val) {
+                            setState(() => _notifyReminders = val);
+                            _saveNotificationSetting(_kNotifyReminders, val);
+                          },
+                        ),
+                        _NotificationToggle(
+                          title: AppStrings.settings.notifyListUpdatesTitle,
+                          subtitle: AppStrings.settings.notifyListUpdatesSubtitle,
+                          value: _notifyListUpdates,
+                          onChanged: (val) {
+                            setState(() => _notifyListUpdates = val);
+                            _saveNotificationSetting(_kNotifyListUpdates, val);
                           },
                         ),
                       ],

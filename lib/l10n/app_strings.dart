@@ -1057,12 +1057,14 @@ class _SettingsStrings {
 
   // Notifications Section
   String get notificationsSectionTitle => 'התראות';
-  String get notifyShoppingTitle => 'התראות קנייה';
-  String get notifyShoppingSubtitle => 'כשמישהו מסיים קנייה';
-  String get notifyInventoryTitle => 'התראות מלאי';
-  String get notifyInventorySubtitle => 'כשמוצר במזווה אוזל';
-  String get notifyGroupTitle => 'התראות קבוצה';
-  String get notifyGroupSubtitle => 'הזמנות וחברים חדשים';
+  String get notifyShoppingTitle => 'פעילות קנייה';
+  String get notifyShoppingSubtitle => 'כשמישהו התחיל או סיים לקנות';
+  String get notifyGroupTitle => 'שינויים בקבוצה';
+  String get notifyGroupSubtitle => 'חבר חדש, הזמנה או יציאה';
+  String get notifyRemindersTitle => 'תזכורות';
+  String get notifyRemindersSubtitle => 'רשימה פתוחה מעל 24 שעות, תזכורת שבועית';
+  String get notifyListUpdatesTitle => 'עדכוני רשימה';
+  String get notifyListUpdatesSubtitle => 'כשמישהו הוסיף או מחק פריטים מרשימה משותפת';
 
   // General Settings Section
   String get generalSettingsSectionTitle => 'הגדרות כלליות';
