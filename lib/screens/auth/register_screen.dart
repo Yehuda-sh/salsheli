@@ -37,13 +37,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../core/status_colors.dart';
+import '../../core/status_colors.dart' show StatusColors, StatusType;
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
-import '../../services/auth_service.dart';
+import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import 'widgets/loading_overlay.dart';
+import 'widgets/social_login_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -147,10 +149,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   /// הצגת הודעת סטטוס אחידה עם StatusColors
   /// [type] = 'success' | 'error' | 'warning'
-  void _showStatus(String message, {required String type}) {
+  void _showStatus(String message, {required StatusType type}) {
     final icon = switch (type) {
-      'success' => Icons.check_circle,
-      'warning' => Icons.info_outline,
+      StatusType.success => Icons.check_circle,
+      StatusType.warning => Icons.info_outline,
       _ => Icons.error_outline,
     };
 
@@ -158,21 +160,21 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: StatusColors.getOnContainer(StatusType.fromString(type), context), size: 24),
+            Icon(icon, color: StatusColors.getOnContainer(type, context), size: 24),
             const SizedBox(width: kSpacingSmall),
             Expanded(
               child: Text(
                 message,
                 style: TextStyle(
                   fontSize: kFontSizeSmall,
-                  color: StatusColors.getOnContainer(StatusType.fromString(type), context),
+                  color: StatusColors.getOnContainer(type, context),
                 ),
               ),
             ),
           ],
         ),
-        backgroundColor: StatusColors.getContainer(StatusType.fromString(type), context),
-        duration: type == 'success' ? const Duration(seconds: 2) : kSnackBarDurationLong,
+        backgroundColor: StatusColors.getContainer(type, context),
+        duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -225,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         setState(() => _isLoading = false);
 
         // 🎉 הודעת הצלחה
-        _showStatus(AppStrings.auth.registerSuccessRedirect, type: 'success');
+        _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
 
         // ⏱️ המתנה קצרה לפני ניווט
         await Future.delayed(const Duration(milliseconds: 1500));
@@ -246,7 +248,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
 
         // 🎨 הודעת שגיאה משופרת
-        _showStatus(errorMessage, type: 'error');
+        _showStatus(errorMessage, type: StatusType.error);
       }
     }
 
@@ -295,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: 'error');
+          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
         }
       }
     }
@@ -331,7 +333,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: 'error');
+          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
         }
       }
     }
@@ -690,17 +692,17 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               children: [
                                 // Google
                                 Expanded(
-                                  child: _SocialLoginButton(
+                                  child: SocialLoginButton(
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
-                                    color: Color(0xFFDB4437),
+                                    color: kGoogleRed,
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
                                 SizedBox(width: kSpacingSmall),
                                 // Apple
                                 Expanded(
-                                  child: _SocialLoginButton(
+                                  child: SocialLoginButton(
                                     icon: FontAwesomeIcons.apple,
                                     label: 'Apple',
                                     color: cs.onSurface, // שחור/לבן לפי Theme
@@ -759,80 +761,16 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
             if (_isLoading)
               Positioned.fill(
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
                   child: Container(
                     color: cs.scrim.withValues(alpha: 0.25),
-                    child: Center(child: _LoadingOverlay(color: accent)),
+                    child: Center(child: LoadingOverlay(color: accent)),
                   ),
                 ),
               ),
           ],
         ),
       ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🌫️ Loading Overlay - טקסט משתנה + Spinner
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// Glassmorphic loading overlay עם טקסט משתנה לחיזוק הציפייה
-class _LoadingOverlay extends StatefulWidget {
-  final Color color;
-  const _LoadingOverlay({required this.color});
-
-  @override
-  State<_LoadingOverlay> createState() => _LoadingOverlayState();
-}
-
-class _LoadingOverlayState extends State<_LoadingOverlay> {
-  int _messageIndex = 0;
-  late Timer _timer;
-
-  static const _messages = [
-    'יוצר חשבון...',
-    'מכין את המזווה שלך...',
-    'כמעט שם...',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) {
-      if (mounted) {
-        setState(() => _messageIndex = (_messageIndex + 1) % _messages.length);
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircularProgressIndicator(color: widget.color),
-        SizedBox(height: kSpacingMedium),
-        AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
-          child: Text(
-            _messages[_messageIndex],
-            key: ValueKey(_messageIndex),
-            style: TextStyle(
-              color: cs.onSurface.withValues(alpha: 0.8),
-              fontSize: kFontSizeBody,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
@@ -892,86 +830,4 @@ class _ShimmerOnFocusState extends State<_ShimmerOnFocus> {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔵 Social Login Button Widget
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// כפתור Social Login (Google/Apple) בעיצוב Theme-aware
-/// ✅ כולל AnimatedScale feedback בלחיצה + צללים מותאמים ל-Dark Mode
-class _SocialLoginButton extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback? onPressed;
-
-  const _SocialLoginButton({required this.icon, required this.label, required this.color, this.onPressed});
-
-  @override
-  State<_SocialLoginButton> createState() => _SocialLoginButtonState();
-}
-
-class _SocialLoginButtonState extends State<_SocialLoginButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final isDisabled = widget.onPressed == null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    // ✅ צל מותאם ל-Dark Mode
-    final shadowColor = isDark ? cs.surfaceContainerLowest.withValues(alpha: 0.1) : cs.shadow.withValues(alpha: 0.15);
-
-    return Semantics(
-      button: true,
-      label: AppStrings.auth.socialRegisterSemanticLabel(widget.label),
-      enabled: !isDisabled,
-      child: GestureDetector(
-        onTapDown: isDisabled ? null : (_) => setState(() => _isPressed = true),
-        onTapUp: isDisabled ? null : (_) => setState(() => _isPressed = false),
-        onTapCancel: isDisabled ? null : () => setState(() => _isPressed = false),
-        child: AnimatedScale(
-          scale: _isPressed ? 0.97 : 1.0,
-          duration: Duration(milliseconds: 100),
-          curve: Curves.easeOut,
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDisabled ? cs.surfaceContainerHighest.withValues(alpha: 0.5) : cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              boxShadow: isDisabled ? null : [BoxShadow(color: shadowColor, blurRadius: 6, offset: const Offset(0, 3))],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: widget.onPressed,
-                borderRadius: BorderRadius.circular(kBorderRadius),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: kSpacingSmall + 4, horizontal: kSpacingMedium),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      FaIcon(
-                        widget.icon,
-                        size: 18,
-                        color: isDisabled ? widget.color.withValues(alpha: 0.5) : widget.color,
-                      ),
-                      SizedBox(width: kSpacingSmall),
-                      Text(
-                        widget.label,
-                        style: TextStyle(
-                          color: isDisabled ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
-                          fontWeight: FontWeight.w600,
-                          fontSize: kFontSizeMedium,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _SocialLoginButton — removed, using shared widgets/social_login_button.dart

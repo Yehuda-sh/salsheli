@@ -57,6 +57,16 @@ const Color kStickyOrangeDark = Color(0xFFEC6135);  // Warnings (muted coral)
 // COLORS - Notebook Lines
 // ═══════════════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════
+// COLORS - Brand / Social
+// ═══════════════════════════════════════════════════════════════════════════
+
+const Color kGoogleRed = Color(0xFFDB4437);    // Google brand red
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COLORS - Notebook Lines
+// ═══════════════════════════════════════════════════════════════════════════
+
 const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
 const Color kNotebookBlueSoft = Color(0xFF9CA8B8); // Soft grayish-blue lines (Hybrid Premium)
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line

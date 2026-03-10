@@ -36,8 +36,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../config/app_config.dart';
 import '../../core/status_colors.dart';
+import '../../services/auth_service.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
@@ -243,8 +243,11 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        final errorMsg = e.toString().replaceAll('Exception: ', '');
-        _showStatus(errorMsg, type: StatusType.error);
+        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+        if (!isCancelled) {
+          final errorMsg = e.toString().replaceAll('Exception: ', '');
+          _showStatus(errorMsg, type: StatusType.error);
+        }
       }
     }
   }
@@ -277,8 +280,11 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        final errorMsg = e.toString().replaceAll('Exception: ', '');
-        _showStatus(errorMsg, type: StatusType.error);
+        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+        if (!isCancelled) {
+          final errorMsg = e.toString().replaceAll('Exception: ', '');
+          _showStatus(errorMsg, type: StatusType.error);
+        }
       }
     }
   }
@@ -630,7 +636,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     AppStrings.auth.forgotPassword,
                                     style: TextStyle(
                                       color: accent,
-                                      fontSize: kFontSizeTiny,
+                                      fontSize: kFontSizeSmall,
                                       fontWeight: FontWeight.w600,
                                       decoration: TextDecoration.underline,
                                     ),
@@ -696,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   child: SocialLoginButton(
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
-                                    color: Color(0xFFDB4437),
+                                    color: kGoogleRed,
                                     onPressed: _isLoading ? null : _handleGoogleSignIn,
                                   ),
                                 ),
