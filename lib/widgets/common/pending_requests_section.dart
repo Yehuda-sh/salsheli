@@ -14,6 +14,7 @@
 import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -376,7 +377,7 @@ class _RequestCardState extends State<_RequestCard> {
         list: list,
         requestId: widget.request.id,
         approverName: userContext.displayName ?? 'משתמש',
-        notificationsService: notificationsService ?? NotificationsService(),
+        notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
       );
 
       if (!mounted) return;
@@ -430,7 +431,7 @@ class _RequestCardState extends State<_RequestCard> {
         list: list,
         requestId: widget.request.id,
         rejecterName: userContext.displayName ?? 'משתמש',
-        notificationsService: notificationsService ?? NotificationsService(),
+        notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
       );
 
       if (!mounted) return;
