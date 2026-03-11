@@ -45,7 +45,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/filters_config.dart';
-import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/enums/shopping_item_status.dart';
@@ -139,7 +138,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppStrings.shopping.viewerCannotShop),
-                backgroundColor: brand?.warning ?? StatusColors.pending,
+                backgroundColor: brand?.warning ?? kStickyOrange,
               ),
             );
             Navigator.of(context).pop();
@@ -342,7 +341,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Text(AppStrings.shopping.syncSuccess),
               ],
             ),
-            backgroundColor: StatusColors.success,
+            backgroundColor: kStickyGreen,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -566,7 +565,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Expanded(child: Text(message)),
               ],
             ),
-            backgroundColor: StatusColors.success,
+            backgroundColor: kStickyGreen,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -589,7 +588,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           builder: (context) => AlertDialog(
             title: Row(
               children: [
-                const Icon(Icons.error_outline, color: StatusColors.error),
+                Icon(Icons.error_outline, color: cs.error),
                 const SizedBox(width: kSpacingSmall),
                 Text(AppStrings.shopping.saveError),
               ],
@@ -825,7 +824,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   icon: Badge(
                     label: Text('$_failedSyncCount'),
                     isLabelVisible: _failedSyncCount > 1,
-                    backgroundColor: StatusColors.error,
+                    backgroundColor: cs.error,
                     child: const Icon(
                       Icons.cloud_off,
                       size: 22,
@@ -839,8 +838,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   child: TextButton.icon(
                     onPressed: _finishShopping,
                     style: TextButton.styleFrom(
-                      backgroundColor: StatusColors.success.withValues(alpha: 0.15),
-                      foregroundColor: StatusColors.success,
+                      backgroundColor: kStickyGreen.withValues(alpha: 0.15),
+                      foregroundColor: kStickyGreen,
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
@@ -882,12 +881,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               if (purchased > 0)
                                 Expanded(
                                   flex: purchased,
-                                  child: Container(color: StatusColors.success),
+                                  child: Container(color: kStickyGreen),
                                 ),
                               if (outOfStock > 0)
                                 Expanded(
                                   flex: outOfStock,
-                                  child: Container(color: StatusColors.error.withValues(alpha: 0.7)),
+                                  child: Container(color: cs.error.withValues(alpha: 0.7)),
                                 ),
                               if (notNeeded > 0)
                                 Expanded(
@@ -908,12 +907,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle, color: StatusColors.success, size: 14),
+                          Icon(Icons.check_circle, color: kStickyGreen, size: 14),
                           SizedBox(width: 2),
                           Text('$purchased/$total', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
                             SizedBox(width: 10),
-                            Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 14),
+                            Icon(Icons.remove_shopping_cart, color: cs.error, size: 14),
                             SizedBox(width: 2),
                             Text('$outOfStock', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                           ],

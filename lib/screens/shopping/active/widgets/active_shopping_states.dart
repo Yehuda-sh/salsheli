@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
@@ -98,7 +97,7 @@ class ActiveShoppingErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: StatusColors.error),
+            Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: cs.error),
             SizedBox(height: kSpacingMedium),
             Text(
               AppStrings.shopping.oopsError,
@@ -114,7 +113,7 @@ class ActiveShoppingErrorState extends StatelessWidget {
             Semantics(
               label: AppStrings.shopping.retryLoadSemantics,
               button: true,
-              child: StickyButton(label: AppStrings.common.retry, icon: Icons.refresh, onPressed: onRetry, color: StatusColors.info),
+              child: StickyButton(label: AppStrings.common.retry, icon: Icons.refresh, onPressed: onRetry, color: cs.tertiary),
             ),
           ],
         ),

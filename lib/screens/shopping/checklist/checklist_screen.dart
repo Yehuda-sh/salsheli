@@ -27,7 +27,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
@@ -143,7 +142,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.common.syncError),
-        backgroundColor: StatusColors.warning,
+        backgroundColor: kStickyOrange,
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
           label: AppStrings.checklist.gotItButton,
@@ -274,7 +273,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
                       if (_hasSyncError)
                         IconButton(
-                          icon: Icon(Icons.cloud_off, color: StatusColors.warning, size: 20),
+                          icon: Icon(Icons.cloud_off, color: kStickyOrange, size: 20),
                           tooltip: AppStrings.common.syncError,
                           onPressed: _showSyncErrorSnackbar,
                         ),
@@ -287,7 +286,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             value: true,
                             child: Row(
                               children: [
-                                Icon(Icons.check_box, color: StatusColors.success),
+                                Icon(Icons.check_box, color: kStickyGreen),
                                 SizedBox(width: kSpacingSmall),
                                 Text(AppStrings.checklist.checkAll),
                               ],
@@ -338,7 +337,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     style: TextStyle(
                                       fontSize: kFontSizeDisplay,
                                       fontWeight: FontWeight.bold,
-                                      color: allChecked ? StatusColors.success : cs.primary,
+                                      color: allChecked ? kStickyGreen : cs.primary,
                                     ),
                                   ),
                                   Text(
@@ -375,7 +374,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                       value: value,
                                       backgroundColor: cs.outline.withValues(alpha: 0.15),
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        allChecked ? StatusColors.success : cs.primary,
+                                        allChecked ? kStickyGreen : cs.primary,
                                       ),
                                       minHeight: 8,
                                     ),
@@ -475,12 +474,12 @@ class _ChecklistItemTile extends StatelessWidget {
               padding: const EdgeInsets.all(kSpacingMedium),
               decoration: BoxDecoration(
                 color: isChecked
-                    ? StatusColors.success.withValues(alpha: 0.1)
+                    ? kStickyGreen.withValues(alpha: 0.1)
                     : cs.surface.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(kBorderRadius),
                 border: Border.all(
                   color: isChecked
-                      ? StatusColors.success.withValues(alpha: 0.3)
+                      ? kStickyGreen.withValues(alpha: 0.3)
                       : cs.outline.withValues(alpha: 0.15),
                 ),
               ),
@@ -492,10 +491,10 @@ class _ChecklistItemTile extends StatelessWidget {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: isChecked ? StatusColors.success : Colors.transparent,
+                    color: isChecked ? kStickyGreen : Colors.transparent,
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     border: Border.all(
-                      color: isChecked ? StatusColors.success : cs.outline,
+                      color: isChecked ? kStickyGreen : cs.outline,
                       width: 2,
                     ),
                   ),

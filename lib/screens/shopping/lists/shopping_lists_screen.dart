@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/list_types_config.dart';
-import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
@@ -910,7 +909,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(AppStrings.shopping.viewerCannotShop),
-                          backgroundColor: StatusColors.pending,
+                          backgroundColor: kStickyOrange,
                         ),
                       );
                       return;

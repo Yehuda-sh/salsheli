@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:flutter/services.dart';
-import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/shopping_item_status.dart';
 import 'package:memozap/models/unified_list_item.dart';
@@ -29,10 +28,10 @@ class ActiveShoppingItemTile extends StatelessWidget {
     Color? backgroundColor;
     switch (status) {
       case ShoppingItemStatus.purchased:
-        backgroundColor = StatusColors.success.withValues(alpha: 0.15);
+        backgroundColor = kStickyGreen.withValues(alpha: 0.15);
         break;
       case ShoppingItemStatus.outOfStock:
-        backgroundColor = StatusColors.error.withValues(alpha: 0.15);
+        backgroundColor = cs.error.withValues(alpha: 0.15);
         break;
       case ShoppingItemStatus.notNeeded:
         backgroundColor = cs.onSurfaceVariant.withValues(alpha: 0.2);
@@ -69,17 +68,17 @@ class ActiveShoppingItemTile extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         padding: const EdgeInsetsDirectional.only(start: kSpacingMedium),
         decoration: BoxDecoration(
-          color: StatusColors.error.withValues(alpha: 0.15),
+          color: cs.error.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.remove_shopping_cart, color: StatusColors.error, size: 20),
+            Icon(Icons.remove_shopping_cart, color: cs.error, size: 20),
             const SizedBox(width: 4),
             Text(
               AppStrings.shopping.legendOutOfStock,
-              style: TextStyle(color: StatusColors.error, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
+              style: TextStyle(color: cs.error, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -140,9 +139,9 @@ class ActiveShoppingItemTile extends StatelessWidget {
                                 : Icons.circle_outlined,
                     key: ValueKey(status),
                     color: status == ShoppingItemStatus.purchased
-                        ? StatusColors.success
+                        ? kStickyGreen
                         : status == ShoppingItemStatus.outOfStock
-                            ? StatusColors.error
+                            ? cs.error
                             : status == ShoppingItemStatus.notNeeded
                                 ? cs.onSurfaceVariant
                                 : cs.outline.withValues(alpha: 0.5),
@@ -284,8 +283,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
                               }
                             : null,
                         style: IconButton.styleFrom(
-                          backgroundColor: StatusColors.success.withValues(alpha: 0.2),
-                          foregroundColor: StatusColors.success,
+                          backgroundColor: kStickyGreen.withValues(alpha: 0.2),
+                          foregroundColor: kStickyGreen,
                           minimumSize: const Size(48, 48),
                         ),
                         icon: const Icon(Icons.add, size: 24),

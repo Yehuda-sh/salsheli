@@ -4,7 +4,6 @@ import 'package:memozap/widgets/common/sticky_button.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/core/status_colors.dart';
 import 'package:memozap/l10n/app_strings.dart';
 
 enum ShoppingSummaryResult {
@@ -58,7 +57,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.check_circle, color: StatusColors.success, size: kIconSizeLarge),
+          Icon(Icons.check_circle, color: kStickyGreen, size: kIconSizeLarge),
           SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
@@ -90,7 +89,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
               icon: Icons.check_circle,
               label: AppStrings.shopping.activePurchased,
               value: AppStrings.shopping.summaryPurchased(widget.purchased, widget.total),
-              color: StatusColors.success,
+              color: kStickyGreen,
             ),
 
             // 🚫 לא צריך
@@ -103,7 +102,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 icon: Icons.remove_shopping_cart,
                 label: AppStrings.shopping.summaryOutOfStock,
                 value: '${widget.outOfStock}',
-                color: StatusColors.error,
+                color: cs.error,
               ),
 
             // ⏸️ לא סומנו
@@ -112,7 +111,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 icon: Icons.radio_button_unchecked,
                 label: AppStrings.shopping.summaryNotMarked,
                 value: '${widget.pending}',
-                color: StatusColors.pending,
+                color: kStickyOrange,
               ),
           ],
         ),
@@ -143,7 +142,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 Navigator.pop(context, ShoppingSummaryResult.finishNoPending);
               }
             },
-            color: StatusColors.success,
+            color: kStickyGreen,
             textColor: cs.onPrimary,
             height: 44,
           ),
@@ -158,7 +157,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.help_outline, color: StatusColors.pending, size: kIconSizeLarge),
+          Icon(Icons.help_outline, color: kStickyOrange, size: kIconSizeLarge),
           SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
@@ -181,7 +180,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           // ✅ אופציה 1: העבר לרשימה הבאה
           PendingOptionTile(
             icon: Icons.arrow_forward,
-            iconColor: StatusColors.info,
+            iconColor: cs.tertiary,
             title: AppStrings.shopping.summaryPendingTransfer,
             subtitle: AppStrings.shopping.summaryPendingTransferSubtitle,
             onTap: () {
@@ -195,7 +194,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           // 📌 אופציה 2: השאר ברשימה
           PendingOptionTile(
             icon: Icons.pause_circle_outline,
-            iconColor: StatusColors.pending,
+            iconColor: kStickyOrange,
             title: AppStrings.shopping.summaryPendingLeave,
             subtitle: AppStrings.shopping.summaryPendingLeaveSubtitle,
             onTap: () {
@@ -209,7 +208,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           // 🗑️ אופציה 3: מחק
           PendingOptionTile(
             icon: Icons.delete_outline,
-            iconColor: StatusColors.error,
+            iconColor: cs.error,
             title: AppStrings.shopping.summaryPendingDelete,
             subtitle: AppStrings.shopping.summaryPendingDeleteSubtitle,
             onTap: () {

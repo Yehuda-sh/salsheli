@@ -27,7 +27,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -220,7 +219,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           subtitle: budget > 0
                               ? '${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}'
                               : null,
-                          color: budgetDiff >= 0 ? StatusColors.success : StatusColors.error,
+                          color: budgetDiff >= 0 ? kStickyGreen : cs.error,
                         ),
                       ),
 
@@ -235,7 +234,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                           title: 'אחוז הצלחה',
                           value: '${successRate.toStringAsFixed(1)}%',
                           subtitle: '$purchased מתוך $total פריטים נרכשו',
-                          color: StatusColors.info,
+                          color: cs.tertiary,
                         ),
                       ),
 
@@ -252,7 +251,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                                 icon: Icons.check_circle,
                                 label: 'נרכשו',
                                 value: '$purchased',
-                                color: StatusColors.success,
+                                color: kStickyGreen,
                               ),
                             ),
                           ),
@@ -265,7 +264,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                                 icon: Icons.cancel,
                                 label: 'חסרו',
                                 value: '$missing',
-                                color: StatusColors.error,
+                                color: cs.error,
                               ),
                             ),
                           ),
