@@ -2562,6 +2562,10 @@ class _PantryStrings {
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';
 
+  // Smart Suggestions
+  String get suggestionsTitle => 'כדאי שיהיה בבית';
+  String get hideSuggestions => 'הסתר';
+
   // ========================================
   // Item Actions
   // ========================================

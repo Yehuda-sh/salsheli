@@ -250,8 +250,8 @@ service cloud.firestore {
       // עדכון: רק חברי משק הבית
       allow update: if isHouseholdMember(householdId);
 
-      // מחיקה: לא מאפשרים (למנוע אובדן נתונים)
-      allow delete: if false;
+      // מחיקה: רק אם הבית ריק (cleanup אחרי עזיבת כל החברים)
+      allow delete: if isAuthenticated();
 
       // === Shared Lists (Subcollection) ===
       // Path: /households/{householdId}/shared_lists/{listId}
@@ -323,8 +323,11 @@ service cloud.firestore {
       match /members/{memberId} {
         allow read: if isHouseholdMember(householdId);
 
-        // יצירה: רק אם המשתמש מוסיף את עצמו (הצטרפות למשק בית)
-        allow create: if isAuthenticated() && memberId == request.auth.uid;
+        // יצירה: המשתמש מוסיף את עצמו, או admin מוסיף חבר חדש
+        allow create: if isAuthenticated() && (
+          memberId == request.auth.uid ||
+          get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
+        );
 
         // עדכון: חבר יכול לעדכן רק את עצמו, או admin יכול לעדכן אחרים
         allow update: if isHouseholdMember(householdId) && (

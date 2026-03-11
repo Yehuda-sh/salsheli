@@ -57,6 +57,7 @@ import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../widgets/common/add_location_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/inventory/pantry_suggestions.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -450,6 +451,25 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
                                   // 📊 סיכום מזווה
                                   _buildSummaryStrip(allItems),
+
+                                  // 💡 הצעות חכמות
+                                  PantrySuggestions(
+                                    currentItemCount: allItems.length,
+                                    existingProductNames: allItems
+                                        .map((i) => i.productName.toLowerCase())
+                                        .toSet(),
+                                    onAddItem: (name, qty, unit) async {
+                                      final provider =
+                                          context.read<InventoryProvider>();
+                                      await provider.createItem(
+                                        productName: name,
+                                        quantity: qty.toInt(),
+                                        unit: unit,
+                                        category: 'כללי',
+                                        location: 'general',
+                                      );
+                                    },
+                                  ),
 
                                   // 🔍 חיפוש וסינון
                                   _buildFiltersSection(allItems),
