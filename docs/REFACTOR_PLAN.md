@@ -86,14 +86,14 @@
 ### נשאר
 - [ ] AnimatedList (רשימת קניות)
 - [ ] Slivers / Collapsing AppBar
-- [ ] Splash screen (`flutter_native_splash`)
+- [x] Splash screen (`flutter_native_splash`) — configured in pubspec.yaml
 - [ ] Lottie animations (confetti, empty cart, error)
 - [ ] Hero animations
 - [ ] Micro-interactions (bounce, strikethrough animation)
 - [x] **StatusColors static → theme-aware** — 45 instances across 7 files. Commit `a540bc8` (B15) ✅
 - [x] **`_showAddLocationDialog` → widget משותף** — extracted to `add_location_dialog.dart` (-209 lines). Commit `d6de99a` (B17) ✅
 - [x] **Phase 6.5.0: "משפחה" → "בית"** — 15 strings in app_strings + tutorial + dashboard. Commit `1c616f4` ✅
-- [ ] **Empty state illustrations** — Gemini watercolor לדף ריק (רשימות, מזווה, התראות)
+- [x] **Empty state illustrations** — Gemini watercolor לדף ריק (רשימות, מזווה, התראות)
 
 ### בוצע (סשן 10/3/2026 ערב)
 - [x] **Dashboard: Quick Actions** — 3 כפתורים מהירים (רשימה/קבלות/התראות). Commit `1334e20`
