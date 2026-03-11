@@ -542,6 +542,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
           request.requestData['itemName'] as String? ?? strings.deleteItemFallback,
         );
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         return (
           Icons.person_add,
           strings.requestTypeInvite,

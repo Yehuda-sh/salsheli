@@ -1080,6 +1080,14 @@ class _SettingsStrings {
   String get householdInviteTitle => 'הזמן חברים';
   String get householdInviteSubtitle => 'שלח הזמנה להצטרף';
   String get householdComingSoon => 'ניהול מלא - בקרוב!';
+  String get inviteToHouseholdTitle => 'הזמן לבית';
+  String get inviteToHouseholdSubtitle => 'שלח הזמנה להצטרף לבית שלך';
+  String get inviteToHouseholdHint => 'הזן אימייל של המוזמן';
+  String get inviteToHouseholdSuccess => '✅ הזמנה נשלחה!';
+  String get inviteToHouseholdAlreadyMember => 'המשתמש כבר חבר בבית';
+  String get inviteToHouseholdAlreadyPending => 'כבר יש הזמנה ממתינה';
+  String get inviteToHouseholdButton => 'שלח הזמנה';
+  String get householdJoinedSuccess => '🏠 הצטרפת לבית בהצלחה!';
 
   // Quick Links
   String get myPantry => 'המזווה שלי';

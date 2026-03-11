@@ -258,6 +258,7 @@ class PendingRequest {
       case RequestType.deleteItem:
         return targetItemId != null && targetItemId!.isNotEmpty;
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         // 🔧 תמיכה גם ב-camelCase וגם snake_case
         final userId = _getData('userId', 'user_id');
         final email = requestData['email'] as String?;

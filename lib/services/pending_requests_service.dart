@@ -217,6 +217,7 @@ class PendingRequestsService {
         break;
 
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         // הזמנות מטופלות ב-PendingInvitesService
         log('⚠️ RequestType.inviteToList should be handled by PendingInvitesService');
         break;

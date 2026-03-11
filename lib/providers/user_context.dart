@@ -309,6 +309,14 @@ class UserContext with ChangeNotifier {
   ///
   /// 🆕 v2.2: מזהה מצב של "Auth OK but Profile Failed" לשחזור
   /// 🆕 v2.3: מנהל _isLoading בעצמו - UI מציג Loader בזמן טעינה ראשונית
+  /// רענון נתוני המשתמש מ-Firestore (למשל אחרי הצטרפות לבית חדש)
+  Future<void> refreshUser() async {
+    final userId = _authService.currentUser?.uid;
+    if (userId != null) {
+      await _loadUserFromFirestore(userId);
+    }
+  }
+
   Future<void> _loadUserFromFirestore(String userId) async {
     if (_isDisposed) return;
 

@@ -293,6 +293,7 @@ class _RequestCardState extends State<_RequestCard> {
       case RequestType.deleteItem:
         return '🗑️';
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         return '👥';
       case RequestType.unknown:
         return '❓';
@@ -308,6 +309,7 @@ class _RequestCardState extends State<_RequestCard> {
       case RequestType.deleteItem:
         return 'בקשה למחיקת פריט';
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         return 'הזמנה לרשימה';
       case RequestType.unknown:
         return 'בקשה לא מוכרת';
@@ -340,6 +342,7 @@ class _RequestCardState extends State<_RequestCard> {
         return 'מחיקת: $itemName';
 
       case RequestType.inviteToList:
+      case RequestType.inviteToHousehold:
         final listName = data['list_name'] ?? 'רשימה';
         final role = data['role'] ?? 'משתמש';
         return 'הזמנה לרשימה "$listName" כ-$role';

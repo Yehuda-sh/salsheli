@@ -23,6 +23,7 @@ import 'package:provider/provider.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/enums/request_type.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/pending_request.dart';
 import '../../providers/user_context.dart';
@@ -131,13 +132,22 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
 
       if (mounted) {
-        final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
+        final isHousehold = invite.type == RequestType.inviteToHousehold;
+        final successMsg = isHousehold
+            ? AppStrings.settings.householdJoinedSuccess
+            : strings.acceptSuccess(
+                _safeString(invite.requestData['list_name']) ??
+                    strings.listFallback);
         messenger.showSnackBar(
           SnackBar(
-            content: Text(strings.acceptSuccess(listName)),
+            content: Text(successMsg),
             backgroundColor: successBg,
           ),
         );
+        // אם הצטרף לבית חדש — עדכן userContext
+        if (isHousehold) {
+          unawaited(userContext.refreshUser());
+        }
         setState(() => _processingInviteId = null);
         unawaited(_loadInvites()); // Refresh list
       }
@@ -401,7 +411,10 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     // ✅ null safety - גישה בטוחה ל-requestData
     final strings = AppStrings.pendingInvitesScreen;
-    final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
+    final isHouseholdInvite = invite.type == RequestType.inviteToHousehold;
+    final listName = isHouseholdInvite
+        ? (_safeString(invite.requestData['household_name']) ?? 'הבית')
+        : (_safeString(invite.requestData['list_name']) ?? strings.listFallback);
     final inviterName = invite.requesterName ?? strings.userFallback;
     final roleName = _safeString(invite.requestData['role']) ?? 'editor';
     final role = UserRole.values.firstWhere(
@@ -423,11 +436,14 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
               // כותרת
               Row(
                 children: [
-                  const Text('👥', style: TextStyle(fontSize: kFontSizeTitle)),
+                  Text(isHouseholdInvite ? '🏠' : '👥',
+                      style: const TextStyle(fontSize: kFontSizeTitle)),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
-                      strings.inviteToList(listName),
+                      isHouseholdInvite
+                          ? 'הזמנה להצטרף ל$listName'
+                          : strings.inviteToList(listName),
                       style: const TextStyle(
                         fontSize: kFontSizeMedium,
                         fontWeight: FontWeight.bold,

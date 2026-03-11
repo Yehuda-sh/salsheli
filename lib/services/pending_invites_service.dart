@@ -340,6 +340,83 @@ class PendingInvitesService {
   }
 
   // ============================================================
+  // 🏠 CREATE HOUSEHOLD INVITE
+  // ============================================================
+
+  /// יצירת הזמנה לבית (household)
+  ///
+  /// בשונה מ-createInviteResult שמזמינה לרשימה ספציפית,
+  /// זו מזמינה להצטרף לבית כולו.
+  Future<InviteResult> createHouseholdInvite({
+    required String inviterId,
+    required String inviterName,
+    required String invitedUserEmail,
+    String? invitedUserId,
+    String? invitedUserName,
+    required String householdId,
+    required String householdName,
+  }) async {
+    try {
+      if (!_isValidEmail(invitedUserEmail)) {
+        return InviteResult.validationError('Invalid email format');
+      }
+
+      // בדיקה אם כבר יש הזמנה ממתינה לאותו בית
+      final existing = await _invitesRef
+          .where('request_data.invited_user_email',
+              isEqualTo: invitedUserEmail.toLowerCase())
+          .where('request_data.household_id', isEqualTo: householdId)
+          .where('status', isEqualTo: RequestStatus.pending.name)
+          .where('type', isEqualTo: RequestType.inviteToHousehold.value)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        return InviteResult.inviteAlreadyPending();
+      }
+
+      // בדיקה אם המוזמן כבר חבר בבית
+      if (invitedUserId != null) {
+        final memberDoc = await _firestore
+            .collection('households')
+            .doc(householdId)
+            .collection('members')
+            .doc(invitedUserId)
+            .get();
+        if (memberDoc.exists) {
+          return InviteResult.validationError('המשתמש כבר חבר בבית');
+        }
+      }
+
+      final invite = PendingRequest(
+        id: _uuid.v4(),
+        listId: householdId, // reuse listId field for householdId
+        requesterId: inviterId,
+        type: RequestType.inviteToHousehold,
+        status: RequestStatus.pending,
+        createdAt: DateTime.now(),
+        requesterName: inviterName,
+        requestData: {
+          'invited_user_id': invitedUserId ?? invitedUserEmail.toLowerCase(),
+          'invited_user_email': invitedUserEmail.toLowerCase(),
+          'invited_user_name': invitedUserName,
+          'household_id': householdId,
+          'household_name': householdName,
+          'role': UserRole.editor.name,
+        },
+      );
+
+      await _invitesRef.doc(invite.id).set(invite.toJson());
+
+      return InviteResult.success(invite: invite);
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      return InviteResult.firestoreError(e.toString());
+    }
+  }
+
+  // ============================================================
   // GET INVITES
   // ============================================================
 
@@ -532,7 +609,19 @@ class PendingInvitesService {
         'reviewed_at': FieldValue.serverTimestamp(),
       });
 
-      // יצירת SharedUser להוספה לרשימה
+      // 🏠 הזמנה לבית — הצטרפות ל-household
+      if (invite.type == RequestType.inviteToHousehold) {
+        final householdId = invite.requestData['household_id'] as String;
+        final result = await _addUserToHousehold(
+          householdId: householdId,
+          userId: acceptingUserId,
+          userName: acceptingUserName,
+          userEmail: invite.requestData['invited_user_email'] as String?,
+        );
+        return result;
+      }
+
+      // 📋 הזמנה לרשימה (legacy) — הוספה לרשימה ספציפית
       final role = UserRole.values.firstWhere(
         (r) => r.name == invite.requestData['role'],
         orElse: () => UserRole.editor,
@@ -547,7 +636,6 @@ class PendingInvitesService {
         userAvatar: acceptingUserAvatar,
       );
 
-      // הוספת המשתמש לרשימה
       final addResult = await _addUserToListResult(
         listId: invite.listId,
         sharedUser: sharedUser,
@@ -555,9 +643,6 @@ class PendingInvitesService {
 
       if (!addResult.isSuccess) {
         return addResult;
-      }
-
-      if (kDebugMode) {
       }
 
       return InviteResult.successWithUser(sharedUser);
@@ -686,6 +771,84 @@ class PendingInvitesService {
 
     if (snapshot.docs.isEmpty) return null;
     return PendingRequest.fromJson(snapshot.docs.first.data());
+  }
+
+  /// 🏠 הוספת משתמש לבית (household) לאחר אישור הזמנה
+  ///
+  /// 1. מוסיף ל-households/{id}/members
+  /// 2. מעדכן users/{uid}/household_id
+  /// 3. מוחק בית ישן אם ריק
+  Future<InviteResult> _addUserToHousehold({
+    required String householdId,
+    required String userId,
+    String? userName,
+    String? userEmail,
+  }) async {
+    try {
+      final batch = _firestore.batch();
+
+      // 1. הוספה ל-members של הבית החדש
+      final memberRef = _firestore
+          .collection('households')
+          .doc(householdId)
+          .collection('members')
+          .doc(userId);
+
+      batch.set(memberRef, {
+        'user_id': userId,
+        'role': UserRole.editor.name,
+        'joined_at': FieldValue.serverTimestamp(),
+        'display_name': userName,
+        'email': userEmail,
+      });
+
+      // 2. קריאת הבית הנוכחי של המשתמש (לפני עדכון)
+      final userDoc =
+          await _firestore.collection('users').doc(userId).get();
+      final oldHouseholdId = userDoc.data()?['household_id'] as String?;
+
+      // 3. עדכון household_id של המשתמש
+      batch.update(
+        _firestore.collection('users').doc(userId),
+        {'household_id': householdId},
+      );
+
+      // 4. הסרה מהבית הישן (אם שונה)
+      if (oldHouseholdId != null && oldHouseholdId != householdId) {
+        batch.delete(
+          _firestore
+              .collection('households')
+              .doc(oldHouseholdId)
+              .collection('members')
+              .doc(userId),
+        );
+      }
+
+      await batch.commit();
+
+      // 5. בדיקה אם הבית הישן ריק → מחיקה
+      if (oldHouseholdId != null && oldHouseholdId != householdId) {
+        final oldMembers = await _firestore
+            .collection('households')
+            .doc(oldHouseholdId)
+            .collection('members')
+            .limit(1)
+            .get();
+        if (oldMembers.docs.isEmpty) {
+          await _firestore
+              .collection('households')
+              .doc(oldHouseholdId)
+              .delete();
+        }
+      }
+
+      return InviteResult.success();
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      return InviteResult.firestoreError(e.toString());
+    }
   }
 
   /// הוספת משתמש לרשימה לאחר אישור ההזמנה

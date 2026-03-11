@@ -35,8 +35,11 @@ enum RequestType {
   /// 🗑️ בקשה למחוק פריט
   deleteItem('deleteItem'),
 
-  /// 👥 הזמנה להצטרף לרשימה/משפחה
+  /// 👥 הזמנה להצטרף לרשימה (legacy)
   inviteToList('inviteToList'),
+
+  /// 🏠 הזמנה להצטרף לבית
+  inviteToHousehold('inviteToHousehold'),
 
   /// ❓ סוג לא מוכר (fallback למניעת קריסה)
   /// Used when server returns an unknown type value
@@ -58,5 +61,7 @@ enum RequestType {
       this == RequestType.deleteItem;
 
   /// האם זו בקשת הזמנה
-  bool get isInviteRequest => this == RequestType.inviteToList;
+  bool get isInviteRequest =>
+      this == RequestType.inviteToList ||
+      this == RequestType.inviteToHousehold;
 }
