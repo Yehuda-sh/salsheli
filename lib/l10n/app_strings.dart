@@ -265,7 +265,7 @@ class _NavigationStrings {
   const _NavigationStrings();
 
   String get home => 'בית';
-  String get family => 'משפחה';
+  String get family => 'בית';
   String get groups => 'קבוצות'; // 🗑️ Deprecated - keeping for backwards compatibility
   String get lists => 'רשימות';
   String get pantry => 'מזווה';
@@ -345,7 +345,7 @@ class _OnboardingStrings {
   // Welcome Step
   String get welcomeTitle => 'ברוכים הבאים ל־${AppStrings.appName} 🎉';
   String get welcomeSubtitle =>
-      'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
+      'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, הבית, החברים או כל קבוצה';
 
   // Family Size Step
   String get familySizeTitle => 'כמה אנשים בבית?';
@@ -716,7 +716,7 @@ class _WelcomeStrings {
 
   // Legacy benefits (kept for backward compatibility)
   String get benefit1Title => 'שיתוף בזמן אמת';
-  String get benefit1Subtitle => 'כולם רואים ומעדכנים - זוג, משפחה או עבודה';
+  String get benefit1Subtitle => 'כולם רואים ומעדכנים - זוג, בית או עבודה';
   String get benefit2Title => 'מוצרים ומטלות ביחד';
   String get benefit2Subtitle => 'רשימה אחת לכל מה שצריך - מהסופר ועד המטלות';
   String get benefit3Title => 'מזווה חכם ומאורגן';
@@ -1138,7 +1138,7 @@ class _HouseholdStrings {
   // ========================================
 
   // Original 5
-  String get typeFamily => 'משפחה';
+  String get typeFamily => 'בית';
   String get typeOther => 'אחר';
 
   // New 6
@@ -1149,7 +1149,7 @@ class _HouseholdStrings {
   // ========================================
 
   // Original 5
-  String get descFamily => 'ניהול קניות וצרכים משותפים למשפחה';
+  String get descFamily => 'ניהול קניות וצרכים משותפים לבית';
 
   // New 6
   String get descExtendedFamily => 'תכנון קניות ואירועים גדולים למשפחה המורחבת';

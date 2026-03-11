@@ -1,7 +1,7 @@
 // 📄 lib/screens/onboarding/widgets/onboarding_steps.dart
 //
 // רכיבי שלבי Onboarding - 7 שלבים אינטראקטיביים.
-// כולל Welcome, גודל משפחה, חנויות, תדירות, שיתוף, תזכורת וסיכום.
+// כולל Welcome, גודל הבית, חנויות, תדירות, שיתוף, תזכורת וסיכום.
 //
 // 📋 Features:
 // - משוב Haptic מבוסס הקשר (Slider/Chips/Buttons)

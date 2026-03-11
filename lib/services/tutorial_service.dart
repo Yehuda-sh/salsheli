@@ -108,7 +108,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
     _TutorialStep(
       icon: Icons.waving_hand,
       title: 'ברוכים הבאים ל-MemoZap! 🎉',
-      description: 'האפליקציה שתנהל לכם את הקניות, המזווה והמשפחה — במקום אחד.\n\nבואו נכיר בקצרה!',
+      description: 'האפליקציה שתנהל לכם את הקניות, המזווה והבית — במקום אחד.\n\nבואו נכיר בקצרה!',
     ),
     _TutorialStep(
       icon: Icons.shopping_cart_outlined,
@@ -138,7 +138,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
     _TutorialStep(
       icon: Icons.explore_outlined,
       title: 'הניווט שלכם 🧭',
-      description: '🏠 בית — סיכום יומי, הצעות חכמות ורשימות פעילות\n\n📦 מזווה — כל המוצרים בבית + הוספה ידנית\n\n📜 היסטוריה — קבלות, הוצאות וסטטיסטיקות\n\n⚙️ הגדרות — פרופיל, משפחה, התראות, ערכת נושא',
+      description: '🏠 בית — סיכום יומי, הצעות חכמות ורשימות פעילות\n\n📦 מזווה — כל המוצרים בבית + הוספה ידנית\n\n📜 היסטוריה — קבלות, הוצאות וסטטיסטיקות\n\n⚙️ הגדרות — פרופיל, הבית, התראות, ערכת נושא',
     ),
     _TutorialStep(
       icon: Icons.rocket_launch,

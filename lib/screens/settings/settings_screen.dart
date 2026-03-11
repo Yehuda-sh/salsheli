@@ -1276,7 +1276,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ListTile(
                         leading: Icon(Icons.info_outline, color: cs.primary),
                         title: const Text('אודות'),
-                        subtitle: const Text('גרסה 1.0.0'),
+                        subtitle: const Text('גרסה 1.0.0'), // TODO: package_info_plus
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
                           showAboutDialog(
@@ -1293,7 +1293,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               ),
                             ),
                             children: [
-                              Text('אפליקציה חכמה לניהול קניות ומזווה משפחתי'),
+                              Text('אפליקציה חכמה לניהול קניות ומזווה ביתי'),
                             ],
                           );
                         },

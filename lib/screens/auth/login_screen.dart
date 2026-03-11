@@ -342,11 +342,11 @@ class _LoginScreenState extends State<LoginScreen>
 
   /// רשימת משתמשי דמו לכניסה מהירה (רק ב-development)
   static const List<Map<String, String>> _demoUsers = [
-    // 👨‍👩‍👧‍👦 משפחת כהן — 4 members, 2 רשימות, 20 פריטי מזווה, קבלה
-    {'name': 'אבי כהן', 'email': 'avi.cohen@demo.com', 'role': 'Admin', 'group': 'משפחת כהן'},
-    {'name': 'רונית כהן', 'email': 'ronit.cohen@demo.com', 'role': 'Admin', 'group': 'משפחת כהן'},
-    {'name': 'יובל כהן', 'email': 'yuval.cohen@demo.com', 'role': 'Editor', 'group': 'משפחת כהן'},
-    {'name': 'נועה כהן', 'email': 'noa.cohen@demo.com', 'role': 'Editor', 'group': 'משפחת כהן'},
+    // 👨‍👩‍👧‍👦 הבית של כהן — 4 members, 2 רשימות, 20 פריטי מזווה, קבלה
+    {'name': 'אבי כהן', 'email': 'avi.cohen@demo.com', 'role': 'Admin', 'group': 'הבית של כהן'},
+    {'name': 'רונית כהן', 'email': 'ronit.cohen@demo.com', 'role': 'Admin', 'group': 'הבית של כהן'},
+    {'name': 'יובל כהן', 'email': 'yuval.cohen@demo.com', 'role': 'Editor', 'group': 'הבית של כהן'},
+    {'name': 'נועה כהן', 'email': 'noa.cohen@demo.com', 'role': 'Editor', 'group': 'הבית של כהן'},
     // 💑 זוג לוי — 2 members, 1 רשימה
     {'name': 'דן לוי', 'email': 'dan.levi@demo.com', 'role': 'Admin', 'group': 'זוג צעיר'},
     {'name': 'מאיה לוי', 'email': 'maya.levi@demo.com', 'role': 'Admin', 'group': 'זוג צעיר'},
