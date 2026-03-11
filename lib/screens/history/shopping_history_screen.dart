@@ -629,18 +629,13 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Illustrated empty state — stacked receipts icon
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: cs.primaryContainer.withValues(alpha: 0.3),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.receipt_long,
-                size: 56,
-                color: cs.primary.withValues(alpha: 0.6),
+            // Illustrated empty state — watercolor notebook
+            ClipOval(
+              child: Image.asset(
+                'assets/images/empty_history.webp',
+                width: 140,
+                height: 140,
+                fit: BoxFit.cover,
               ),
             ),
             SizedBox(height: kSpacingLarge),

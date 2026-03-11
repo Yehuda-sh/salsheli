@@ -1100,7 +1100,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                         ),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.shopping_bag_outlined, size: 80, color: cs.primary),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/empty_cart.webp',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
                   ),
                 );
