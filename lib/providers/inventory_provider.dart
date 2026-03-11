@@ -5,6 +5,8 @@
 //
 // 🔗 Related: InventoryItem, InventoryRepository, UserContext
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -20,6 +22,8 @@ import 'user_context.dart';
 enum InventoryMode {
   /// מזווה אישי - /users/{userId}/inventory
   personal,
+  /// מזווה משותף - /households/{householdId}/inventory (real-time)
+  household,
 }
 
 class InventoryProvider with ChangeNotifier {
@@ -41,6 +45,8 @@ class InventoryProvider with ChangeNotifier {
   static const Uuid _uuid = Uuid();
   Future<void>? _loadingFuture; // מניעת טעינות כפולות
   int _loadGeneration = 0; // זיהוי גרסת טעינה - לביטול טעינות ישנות
+  StreamSubscription<List<InventoryItem>>? _inventorySubscription;
+  String? _subscribedHouseholdId; // track current subscription
 
   // === Safe Notification ===
 
@@ -224,12 +230,30 @@ class InventoryProvider with ChangeNotifier {
   Future<void> _doLoad(int generation) async {
     final userId = _userContext?.userId;
     if (_userContext?.isLoggedIn != true || userId == null) {
+      _cancelSubscription();
       _items = [];
       _isLoading = false;
       _errorMessage = null;
       _notifySafe();
       return;
     }
+
+    // 🏠 בדיקה אם המשתמש בבית משותף
+    final householdId = _userContext?.householdId;
+    final isPersonalHousehold = householdId == null ||
+        householdId == 'house_$userId' ||
+        householdId == 'house_${userId.hashCode.abs()}';
+
+    if (!isPersonalHousehold) {
+      // 🏠 Household mode — real-time stream
+      _currentMode = InventoryMode.household;
+      _subscribeToHousehold(householdId);
+      return;
+    }
+
+    // 👤 Personal mode — one-time fetch
+    _currentMode = InventoryMode.personal;
+    _cancelSubscription();
 
     // 🔒 שמירת המצב בתחילת הטעינה - לזיהוי race condition
     final loadingMode = _currentMode;
@@ -239,21 +263,11 @@ class InventoryProvider with ChangeNotifier {
     _notifySafe();
 
     try {
-      // טעינה ממזווה אישי
-      if (kDebugMode) {
-      }
       final loadedItems = await _repository.fetchUserItems(userId);
 
       // 🔒 בדיקה: אם הדור השתנה או המצב השתנה - לא לעדכן!
-      if (_loadGeneration != generation) {
-        if (kDebugMode) {
-        }
-        return; // אל תשנה isLoading - הטעינה החדשה תטפל בזה
-      }
-
+      if (_loadGeneration != generation) return;
       if (_currentMode != loadingMode) {
-        if (kDebugMode) {
-        }
         _isLoading = false;
         _notifySafe();
         return;
@@ -261,9 +275,7 @@ class InventoryProvider with ChangeNotifier {
 
       _items = loadedItems;
     } catch (e, st) {
-      // בדוק שוב שהדור לא השתנה לפני עדכון שגיאה
       if (_loadGeneration != generation) return;
-
       _errorMessage = 'שגיאה בטעינת מלאי: $e';
       if (kDebugMode) {
         debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
@@ -272,6 +284,40 @@ class InventoryProvider with ChangeNotifier {
 
     _isLoading = false;
     _notifySafe();
+  }
+
+  /// 🏠 Subscribe to household inventory stream (real-time sync)
+  void _subscribeToHousehold(String householdId) {
+    if (_subscribedHouseholdId == householdId) return; // already subscribed
+    _cancelSubscription();
+    _subscribedHouseholdId = householdId;
+
+    _isLoading = true;
+    _errorMessage = null;
+    _notifySafe();
+
+    _inventorySubscription = _repository.watchInventory(householdId).listen(
+      (items) {
+        if (_isDisposed) return;
+        _items = items;
+        _isLoading = false;
+        _errorMessage = null;
+        _notifySafe();
+      },
+      onError: (e) {
+        if (_isDisposed) return;
+        _errorMessage = 'שגיאה בטעינת מזווה משותף: $e';
+        _isLoading = false;
+        _notifySafe();
+      },
+    );
+  }
+
+  /// ביטול subscription קיים
+  void _cancelSubscription() {
+    _inventorySubscription?.cancel();
+    _inventorySubscription = null;
+    _subscribedHouseholdId = null;
   }
 
   /// טוען את כל הפריטים מחדש מה-Repository
@@ -358,7 +404,12 @@ class InventoryProvider with ChangeNotifier {
         _notifySafe();
 
         try {
-          await _repository.saveUserItem(newItem, userId);
+          if (_currentMode == InventoryMode.household &&
+              _subscribedHouseholdId != null) {
+            await _repository.saveItem(newItem, _subscribedHouseholdId!);
+          } else {
+            await _repository.saveUserItem(newItem, userId);
+          }
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם
           _items = previousItems;
@@ -404,7 +455,12 @@ class InventoryProvider with ChangeNotifier {
         _notifySafe();
 
         try {
-          await _repository.saveUserItem(itemWithAudit, userId);
+          if (_currentMode == InventoryMode.household &&
+              _subscribedHouseholdId != null) {
+            await _repository.saveItem(itemWithAudit, _subscribedHouseholdId!);
+          } else {
+            await _repository.saveUserItem(itemWithAudit, userId);
+          }
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם
           _items = previousItems;
@@ -442,7 +498,12 @@ class InventoryProvider with ChangeNotifier {
         _notifySafe();
 
         try {
-          await _repository.deleteUserItem(id, userId);
+          if (_currentMode == InventoryMode.household &&
+              _subscribedHouseholdId != null) {
+            await _repository.deleteItem(id, _subscribedHouseholdId!);
+          } else {
+            await _repository.deleteUserItem(id, userId);
+          }
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם
           _items = previousItems;
@@ -727,6 +788,7 @@ class InventoryProvider with ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _cancelSubscription();
 
     if (_listeningToUser && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);

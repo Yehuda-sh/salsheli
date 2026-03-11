@@ -157,6 +157,11 @@ abstract class InventoryRepository {
   /// ```
   Future<void> deleteUserItem(String itemId, String userId);
 
+  /// [Household] מאזין בזמן אמת לשינויים במזווה המשותף
+  ///
+  /// Path: `/households/{householdId}/inventory`
+  Stream<List<InventoryItem>> watchInventory(String householdId);
+
   /// [Personal/User] מוחק את כל פריטי המזווה האישי
   ///
   /// Path: `/users/{userId}/inventory/*`
