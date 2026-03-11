@@ -244,15 +244,18 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.notifications_none,
-              size: 64,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+            ClipOval(
+              child: Image.asset(
+                'assets/images/empty_notifications.webp',
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
             )
                 .animate(onPlay: (c) => c.repeat(reverse: true))
                 .scaleXY(
                   begin: 1.0,
-                  end: 1.08,
+                  end: 1.05,
                   duration: 2000.ms,
                   curve: Curves.easeInOut,
                 ),
