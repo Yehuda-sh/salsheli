@@ -127,10 +127,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     }
   }
 
-  /// מחזיר שם קבוצה להצגה:
-  /// 1. משפחה אישית → "משפחה אישית"
+  /// מחזיר שם הבית להצגה:
+  /// 1. בית אישי → "הבית שלי"
   /// 2. householdName קיים → מחזיר אותו
-  /// 3. fallback → גוזר מהשם האחרון של המשתמש ("משפחת כהן")
+  /// 3. fallback → גוזר מהשם האחרון של המשתמש ("הבית של כהן")
   String _getFamilyDisplayName(UserContext userContext) {
     final strings = AppStrings.homeDashboard;
     final householdId = userContext.householdId;

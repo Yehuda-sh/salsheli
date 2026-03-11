@@ -247,7 +247,7 @@ class _LayoutStrings {
   // Pending Invites Menu
   String get pendingInvitesTitle => 'הזמנות ממתינות';
   String get groupInvites => 'הזמנות לקבוצות';
-  String get groupInvitesSubtitle => 'הצטרפות למשפחה / Household';
+  String get groupInvitesSubtitle => 'הצטרפות לבית';
   String get listInvites => 'הזמנות לרשימות';
   String get listInvitesSubtitle => 'שיתוף רשימות קניות';
 
@@ -348,7 +348,7 @@ class _OnboardingStrings {
       'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, המשפחה, החברים או כל קבוצה';
 
   // Family Size Step
-  String get familySizeTitle => 'כמה אנשים במשפחה?';
+  String get familySizeTitle => 'כמה אנשים בבית?';
   String get hasChildrenQuestion => 'יש לכם ילדים?';
   String get addChild => 'הוסף ילד נוסף';
   String childLabel(int index) => 'ילד $index';
@@ -377,8 +377,8 @@ class _OnboardingStrings {
   String get multiSelectHint => '(בחירה מרובה)';
 
   // Sharing Step
-  String get sharingTitle => 'האם תרצה לשתף רשימות עם המשפחה?';
-  String get sharingOption => 'שיתוף רשימות עם המשפחה';
+  String get sharingTitle => 'האם תרצה לשתף רשימות עם הבית?';
+  String get sharingOption => 'שיתוף רשימות עם חברי הבית';
 
   // Reminder Step
   String get reminderTitle => 'באיזו שעה נוח לך לקבל תזכורות?';
@@ -387,7 +387,7 @@ class _OnboardingStrings {
   // Summary Step
   String get summaryTitle => 'סיכום ההעדפות שלך';
   String get summaryFinishHint => 'לחץ על \'סיום\' כדי להמשיך להרשמה.';
-  String familySizeSummary(int size) => 'משפחה: $size אנשים';
+  String familySizeSummary(int size) => 'הבית: $size אנשים';
   String storesSummary(String stores) => 'חנויות: $stores';
   String get noStoresSelected => 'לא נבחר';
   String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';
@@ -688,7 +688,7 @@ class _WelcomeStrings {
 
   // Family Sharing Card
   String get group3Emoji => '👨‍👩‍👧‍👦';
-  String get group3Title => 'שיתוף משפחתי';
+  String get group3Title => 'שיתוף הבית';
   String get group3Question => '"מי בקבוצה?"';
   String get group3Feature1 => 'זמן אמת 🔄';
   String get group3Feature2 => 'סנכרון ☁️';
@@ -706,7 +706,7 @@ class _WelcomeStrings {
   String get demoPantryItem2 => 'ביצים';
   String get demoPantryItem3 => 'לחם';
 
-  String get demoFamilyHeader => '👨‍👩‍👧‍👦 משפחה';
+  String get demoFamilyHeader => '👨‍👩‍👧‍👦 הבית';
   String get demoUser1 => 'אבא';
   String get demoUser2 => 'אמא';
   String get demoUser3 => 'דני';
@@ -1074,8 +1074,8 @@ class _SettingsStrings {
   String get themeSystem => 'מערכת';
 
   // Household Management Section (ניהול משפחה)
-  String get householdManagementTitle => 'ניהול משפחה';
-  String get householdMembersTitle => 'חברי המשפחה';
+  String get householdManagementTitle => 'ניהול הבית';
+  String get householdMembersTitle => 'חברי הבית';
   String get householdMembersSubtitle => 'הוסף והסר חברים';
   String get householdInviteTitle => 'הזמן חברים';
   String get householdInviteSubtitle => 'שלח הזמנה להצטרף';
@@ -1352,10 +1352,10 @@ class _CreateListDialogStrings {
 
   String get visibilityLabel => 'מי יראה את הרשימה?';
   String get visibilityPrivate => '🔒 אישית';
-  String get visibilityHousehold => '👨‍👩‍👧 משפחתית';
+  String get visibilityHousehold => '👨‍👩‍👧 משותף לבית';
   String get visibilityShared => '👥 שיתוף';
   String get visibilityPrivateDesc => 'רק אתה תראה את הרשימה הזו';
-  String get visibilityHouseholdDesc => 'כל המשפחה תוכל לראות ולערוך';
+  String get visibilityHouseholdDesc => 'כל חברי הבית יוכלו לראות ולערוך';
   String get visibilitySharedDesc => 'שתף עם אנשים ספציפיים (ללא גישה למזווה שלך)';
 
   // ========================================
@@ -1865,7 +1865,7 @@ class _SharingStrings {
 
   // Household Name Dialog
   String get householdNameDialogTitle => 'איך לקרוא לקבוצה שלכם?';
-  String get householdNameDialogHint => 'לדוגמה: משפחת כהן';
+  String get householdNameDialogHint => 'לדוגמה: הבית של כהן';
   String get householdNameDialogSkip => 'דלג';
 
   // Restrictions
@@ -2438,9 +2438,9 @@ class _HomeDashboardStrings {
     return hasName ? '$greet, $userName!' : '$greet!';
   }
 
-  String get personalFamily => 'משפחה אישית';
-  String get sharedFamily => 'משפחה משותפת';
-  String get familyOf => 'משפחת ';
+  String get personalFamily => 'הבית שלי';
+  String get sharedFamily => 'בית משותף';
+  String get familyOf => 'הבית של ';
 
   // ========================================
   // Active Lists Section
