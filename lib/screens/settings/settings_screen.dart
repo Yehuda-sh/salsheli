@@ -46,6 +46,7 @@ import 'package:memozap/widgets/common/skeleton_loader.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../screens/settings/household_members_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
@@ -1182,7 +1183,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SectionHeader(
-                          leading: Icon(Icons.family_restroom, color: cs.primary, size: kIconSizeMedium),
+                          leading: Icon(Icons.home_outlined, color: cs.primary, size: kIconSizeMedium),
                           title: AppStrings.settings.householdManagementTitle,
                         ),
                         const SizedBox(height: kSpacingSmall),
@@ -1192,14 +1193,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: Icon(Icons.chevron_left),
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppStrings.settings.householdComingSoon),
-                                backgroundColor: cs.tertiary,
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const HouseholdMembersScreen(),
+                            ),
+                          ),
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
