@@ -90,8 +90,9 @@
 - [ ] Lottie animations (confetti, empty cart, error)
 - [ ] Hero animations
 - [ ] Micro-interactions (bounce, strikethrough animation)
-- [ ] **StatusColors static → theme-aware** (43 שימושים) — `StatusColors.success` → `brand?.success ?? kStickyGreen` (B15)
-- [ ] **`_showAddLocationDialog` → widget משותף** — כפול בין `my_pantry_screen` + `pantry_product_selection_sheet` (B17)
+- [x] **StatusColors static → theme-aware** — 45 instances across 7 files. Commit `a540bc8` (B15) ✅
+- [x] **`_showAddLocationDialog` → widget משותף** — extracted to `add_location_dialog.dart` (-209 lines). Commit `d6de99a` (B17) ✅
+- [x] **Phase 6.5.0: "משפחה" → "בית"** — 15 strings in app_strings + tutorial + dashboard. Commit `1c616f4` ✅
 - [ ] **Empty state illustrations** — Gemini watercolor לדף ריק (רשימות, מזווה, התראות)
 
 ### בוצע (סשן 10/3/2026 ערב)
@@ -308,9 +309,9 @@
 | B12 | הזמנות מוסיפות לרשימה, לא למשפחה | 🟡 | Phase 6.5 — צריך join household flow |
 | B13 | שם משפחה נשמר per-user (לא household doc) | 🟡 | Phase 6.5 — העבר ל-`households/{id}/name` |
 | B14 | כל member יכול לשנות שם משפחה | 🟡 | Phase 6.5 — רק owner |
-| B15 | 43x `StatusColors.xxx` static (לא theme-aware) | 🟢 | Phase 4 — לא דחוף, dark mode לא מושלם |
+| B15 | 43x `StatusColors.xxx` static (לא theme-aware) | ✅ | נפתר — `a540bc8` |
 | B16 | Hardcoded Hebrew ב-`pantry_product_selection_sheet` (דיאלוגים) | 🟢 | Phase 9 — i18n |
-| B17 | `_showAddLocationDialog` כפול (מזווה + בחירת מוצר) | 🟢 | Extract לשירות/widget משותף |
+| B17 | `_showAddLocationDialog` כפול (מזווה + בחירת מוצר) | ✅ | נפתר — `d6de99a` |
 
 ---
 
