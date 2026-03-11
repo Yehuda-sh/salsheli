@@ -178,12 +178,12 @@ class ShoppingSummaryScreen extends StatelessWidget {
                       // 🎉 כותרת
                       Column(
                         children: [
-                          CircleAvatar(
-                            radius: 48,
-                            backgroundColor: cs.primaryContainer,
-                            child: const Text(
-                              '🎉',
-                              style: TextStyle(fontSize: kFontSizeDisplay),
+                          ClipOval(
+                            child: Image.asset(
+                              'assets/images/shopping_success.webp',
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(height: 12),
