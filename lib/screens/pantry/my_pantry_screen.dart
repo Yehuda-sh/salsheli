@@ -55,6 +55,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
+import '../../widgets/common/add_location_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
 
 class MyPantryScreen extends StatefulWidget {
@@ -799,7 +800,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           AppStrings.inventory.addLocationButton,
           style: TextStyle(fontSize: kFontSizeMedium, color: textColorMuted),
         ),
-        onPressed: _showAddLocationDialog,
+        onPressed: () async {
+          final newKey = await showAddLocationDialog(context);
+          if (newKey != null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppStrings.inventory.locationAdded),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              ),
+            );
+          }
+        },
         backgroundColor: chipBgColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
@@ -822,123 +833,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     chips.add(addChip);
 
     return chips;
-  }
-
-  /// רשימת אמוג'י לבחירה במיקום חדש
-  static const List<String> _availableEmojis = [
-    '📍', '🏠', '❄️', '🧊', '📦', '🛁', '🧺', '🚗', '🧼', '🧂',
-    '🍹', '🍕', '🎁', '🎒', '🧰', '🎨', '📚', '🔧', '🏺', '🗄️',
-  ];
-
-  /// מציג דיאלוג להוספת מיקום חדש (Glassmorphic backdrop)
-  Future<void> _showAddLocationDialog() async {
-    final cs = Theme.of(context).colorScheme;
-    final controller = TextEditingController();
-    String selectedEmoji = '📍';
-
-    final result = await showDialog<bool>(
-      context: context,
-      barrierColor: cs.scrim.withValues(alpha: 0.3),
-      builder: (dialogContext) {
-        return BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
-          child: StatefulBuilder(
-            builder: (context, setDialogState) {
-              return AlertDialog(
-                title: Text(AppStrings.inventory.addLocationTitle),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // בחירת אמוג'י
-                    Text(AppStrings.inventory.selectEmojiLabel, style: const TextStyle(fontSize: kFontSizeTiny)),
-                    const SizedBox(height: kSpacingSmall),
-                    Wrap(
-                      spacing: kSpacingSmall,
-                      runSpacing: kSpacingSmall,
-                      children: _availableEmojis.map((emoji) {
-                        final isSelected = emoji == selectedEmoji;
-                        return GestureDetector(
-                          onTap: () {
-                            setDialogState(() {
-                              selectedEmoji = emoji;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(kSpacingSmall),
-                            decoration: BoxDecoration(
-                              color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                              border: Border.all(
-                                color: isSelected ? cs.primary : Colors.transparent,
-                                width: kBorderWidthThick,
-                              ),
-                            ),
-                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                    // שם המיקום
-                    TextField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.inventory.locationNameLabel,
-                        hintText: AppStrings.inventory.locationNameHint,
-                        border: const OutlineInputBorder(),
-                      ),
-                      autofocus: true,
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dialogContext, false),
-                    child: Text(AppStrings.common.cancel),
-                  ),
-                  ElevatedButton.icon(
-                    icon: Icon(Icons.add_location_alt, size: kIconSizeSmall),
-                    label: Text(AppStrings.inventory.addLocationButton),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: cs.primaryContainer,
-                      foregroundColor: cs.onPrimaryContainer,
-                    ),
-                    onPressed: () async {
-                      final name = controller.text.trim();
-                      if (name.isEmpty) return;
-
-                      final provider = this.context.read<LocationsProvider>();
-                      final navigator = Navigator.of(dialogContext);
-                      final messenger = ScaffoldMessenger.of(this.context);
-
-                      final success = await provider.addLocation(name, emoji: selectedEmoji);
-
-                      if (success) {
-                        navigator.pop(true);
-                      } else {
-                        messenger.showSnackBar(
-                          SnackBar(content: Text(AppStrings.inventory.locationExists)),
-                        );
-                      }
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-
-    if (result == true && mounted) {
-      final successColor = Theme.of(context).colorScheme.primaryContainer;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.inventory.locationAdded),
-          backgroundColor: successColor,
-        ),
-      );
-    }
   }
 
   /// 📋 רשימה שטוחה (flutter_animate staggered)

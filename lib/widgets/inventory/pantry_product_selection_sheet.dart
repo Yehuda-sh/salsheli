@@ -30,6 +30,7 @@ import '../../models/custom_location.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
+import '../common/add_location_dialog.dart';
 import '../common/notebook_background.dart';
 import '../../config/filters_config.dart';
 
@@ -409,7 +410,7 @@ class _PantryProductSelectionSheetState
                           icon: Icon(Icons.add_location_alt, color: cs.primary),
                           tooltip: 'הוסף מיקום חדש',
                           onPressed: () async {
-                            final newLocation = await _showAddLocationDialog(dialogContext);
+                            final newLocation = await showAddLocationDialog(this.context);
                             if (newLocation != null) {
                               setDialogState(() {
                                 location = newLocation;
@@ -439,110 +440,6 @@ class _PantryProductSelectionSheetState
                         'location': location,
                       });
                     },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  /// רשימת אמוג'י לבחירה במיקום חדש
-  static const List<String> _availableEmojis = [
-    '📍', '🏠', '❄️', '🧊', '📦', '🛁', '🧺', '🚗', '🧼', '🧂',
-    '🍹', '🍕', '🎁', '🎒', '🧰', '🎨', '📚', '🔧', '🏺', '🗄️',
-  ];
-
-  /// מציג דיאלוג להוספת מיקום חדש
-  Future<String?> _showAddLocationDialog(BuildContext parentContext) async {
-    final cs = Theme.of(context).colorScheme;
-    final controller = TextEditingController();
-    String selectedEmoji = '📍';
-
-    return showDialog<String>(
-      context: parentContext,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return Directionality(
-              textDirection: TextDirection.rtl,
-              child: AlertDialog(
-                title: const Text('הוספת מיקום חדש'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // בחירת אמוג'י
-                    const Text('בחר אמוג\'י:', style: TextStyle(fontSize: kFontSizeTiny)),
-                    const SizedBox(height: kSpacingSmall),
-                    Wrap(
-                      spacing: kSpacingSmall,
-                      runSpacing: kSpacingSmall,
-                      children: _availableEmojis.map((emoji) {
-                        final isSelected = emoji == selectedEmoji;
-                        return GestureDetector(
-                          onTap: () {
-                            setDialogState(() {
-                              selectedEmoji = emoji;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(kSpacingSmall),
-                            decoration: BoxDecoration(
-                              color: isSelected ? cs.primaryContainer : cs.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                              border: Border.all(
-                                color: isSelected ? cs.primary : Colors.transparent,
-                                width: kBorderWidthThick,
-                              ),
-                            ),
-                            child: Text(emoji, style: const TextStyle(fontSize: kIconSize)),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                    // שם המיקום
-                    TextField(
-                      controller: controller,
-                      decoration: const InputDecoration(
-                        labelText: 'שם המיקום',
-                        hintText: 'לדוגמה: "מקרר קטן"',
-                        border: OutlineInputBorder(),
-                      ),
-                      autofocus: true,
-                      textDirection: TextDirection.rtl,
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('ביטול'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final name = controller.text.trim();
-                      if (name.isEmpty) return;
-
-                      final provider = this.context.read<LocationsProvider>();
-                      final navigator = Navigator.of(dialogContext);
-                      final messenger = ScaffoldMessenger.of(this.context);
-
-                      final success = await provider.addLocation(name, emoji: selectedEmoji);
-
-                      if (success) {
-                        // החזר את ה-key של המיקום החדש
-                        final newLoc = provider.customLocations.lastOrNull;
-                        navigator.pop(newLoc?.key);
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(content: Text('מיקום זה כבר קיים')),
-                        );
-                      }
-                    },
-                    child: const Text('הוסף'),
                   ),
                 ],
               ),
