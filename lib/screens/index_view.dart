@@ -241,7 +241,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   }
 
   /// 💫 Logo מונפש עם Pulsing Circle
-  Widget _buildAnimatedLogo(ColorScheme cs) {
+  Widget _buildAnimatedLogo(ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     final scaleAnimation = CurvedAnimation(
       parent: _logoController,
