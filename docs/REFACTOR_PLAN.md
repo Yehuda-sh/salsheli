@@ -90,6 +90,23 @@
 - [ ] Lottie animations (confetti, empty cart, error)
 - [ ] Hero animations
 - [ ] Micro-interactions (bounce, strikethrough animation)
+- [ ] **StatusColors static → theme-aware** (43 שימושים) — `StatusColors.success` → `brand?.success ?? kStickyGreen` (B15)
+- [ ] **`_showAddLocationDialog` → widget משותף** — כפול בין `my_pantry_screen` + `pantry_product_selection_sheet` (B17)
+- [ ] **Empty state illustrations** — Gemini watercolor לדף ריק (רשימות, מזווה, התראות)
+
+### בוצע (סשן 10/3/2026 ערב)
+- [x] **Dashboard: Quick Actions** — 3 כפתורים מהירים (רשימה/קבלות/התראות). Commit `1334e20`
+- [x] **Dashboard: Monthly Summary** — כרטיס הוצאות+קניות+ממוצע. Commit `1334e20`
+- [x] **Dashboard: Header subtitle** — "X רשימות פעילות". Commit `1334e20`
+- [x] **Dashboard: Fix 5 shadowed `cs`**. Commit `1334e20`
+- [x] **Pantry: Summary strip** — פריטים/חסרים/מיקומים. Commit `0dfaf4c`
+- [x] **Pantry: Header subtitle** — "X פריטים במזווה". Commit `0dfaf4c`
+- [x] **Pantry: Professional item rows** — Card design, side strip, inline +/- buttons, category circle. Commit `20e9f68`
+- [x] **Pantry: Fix 2 shadowed `cs`**. Commit `0dfaf4c`
+- [x] **Tutorial: 8 detailed steps** (was 4 generic). Commit `d7c82d1`
+- [x] **Tutorial: immediate playback** on reset (no re-login). Commit `2d11acb`
+- [x] **Settings: admin-only household name edit**. Commit `6a37aef`
+- [x] **Shopping: Fix 2 warnings** (unused var + dead null-aware). Commit `aa8f59d`
 
 ---
 
@@ -291,6 +308,9 @@
 | B12 | הזמנות מוסיפות לרשימה, לא למשפחה | 🟡 | Phase 6.5 — צריך join household flow |
 | B13 | שם משפחה נשמר per-user (לא household doc) | 🟡 | Phase 6.5 — העבר ל-`households/{id}/name` |
 | B14 | כל member יכול לשנות שם משפחה | 🟡 | Phase 6.5 — רק owner |
+| B15 | 43x `StatusColors.xxx` static (לא theme-aware) | 🟢 | Phase 4 — לא דחוף, dark mode לא מושלם |
+| B16 | Hardcoded Hebrew ב-`pantry_product_selection_sheet` (דיאלוגים) | 🟢 | Phase 9 — i18n |
+| B17 | `_showAddLocationDialog` כפול (מזווה + בחירת מוצר) | 🟢 | Extract לשירות/widget משותף |
 
 ---
 
@@ -348,11 +368,12 @@ assets/images/
 שבוע 1:   ✅ Phase 1 — ניקוי
 שבוע 2:   ✅ Phase 2 — design system
 שבוע 2-3: 🟡 Phase 3 — איחוד סגנון (חלקי)
-שבוע 3-4: 🟡 Phase 4 — ליטוש UX (חלקי)
+שבוע 3-4: 🟡 Phase 4 — ליטוש UX (חלקי) — dashboard+pantry+tutorial+settings done
 שבוע 4-5: 🟡 Phase 5 — Store prep (חלקי)
-שבוע 5-6: ⬜ Phase 6 — Push Notifications (FCM) 🆕
-שבוע 6-7: ⬜ Phase 7 — מוניטיזציה
-שבוע 7-8: ⬜ Phase 8 — טסטים
-שבוע 8-9: ⬜ Phase 9 — i18n
-שבוע 9-10: ⬜ Phase 10 — השקה
+שבוע 5-6: ⬜ Phase 6 — Push Notifications (FCM)
+שבוע 6-7: ⬜ Phase 6.5 — ניהול הבית (household) 🆕🔴 חובה לפני השקה
+שבוע 7-8: ⬜ Phase 7 — מוניטיזציה
+שבוע 8-9: ⬜ Phase 8 — טסטים
+שבוע 9:   ⬜ Phase 9 — i18n
+שבוע 10:  ⬜ Phase 10 — השקה
 ```
