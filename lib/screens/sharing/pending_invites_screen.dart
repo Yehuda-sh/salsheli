@@ -535,7 +535,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         label: Text(strings.acceptButton),
                         style: ElevatedButton.styleFrom(
                           // ✅ Theme-aware: צבע הצלחה מ-AppBrand
-                          backgroundColor: brand?.stickyGreen ?? StatusColors.success,
+                          backgroundColor: kStickyGreen,
                           foregroundColor: cs.onSurface,
                       ),
                     ),
