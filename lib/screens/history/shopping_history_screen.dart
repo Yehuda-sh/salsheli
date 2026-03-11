@@ -238,7 +238,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                               style: TextStyle(color: cs.onSurfaceVariant),
                             ),
                           )
-                        : ListView.builder(
+                        : RefreshIndicator(
+                            onRefresh: () => context.read<ReceiptProvider>().loadReceipts(),
+                            child: ListView.builder(
+                            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                             padding: const EdgeInsets.all(kSpacingMedium),
                             itemCount: receipts.length,
                             itemBuilder: (context, index) {
@@ -260,6 +263,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                                     curve: Curves.easeOut,
                                   );
                             },
+                          ),
                           ),
                   ),
                 ],

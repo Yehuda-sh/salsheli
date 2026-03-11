@@ -395,6 +395,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     return RefreshIndicator(
       onRefresh: _loadInvites,
       child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(kSpacingMedium),
         itemCount: _pendingInvites.length,
         itemBuilder: (context, index) {

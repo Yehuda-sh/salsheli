@@ -235,6 +235,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               displacement: 50.0,
               onRefresh: () => _refresh(context),
               child: ListView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
                   // === 1. באנרים (Error / Active Shopper / Pending Invites) ===

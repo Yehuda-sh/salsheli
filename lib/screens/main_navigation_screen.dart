@@ -41,6 +41,7 @@ import 'history/shopping_history_screen.dart';
 import 'home/dashboard/home_dashboard_screen.dart';
 import 'pantry/my_pantry_screen.dart';
 import 'settings/settings_screen.dart';
+import '../widgets/common/offline_banner.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -260,12 +261,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         // v4.0: FadeTransition wraps IndexedStack
         // ✅ IndexedStack preserved: שומר מצב של כל הטאבים (גלילה, פילטרים, חיפוש)
         // ✅ FadeTransition: אפקט fade-in עדין (200ms) בכל מעבר טאב
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: _pages,
-          ),
+        child: Column(
+          children: [
+            const OfflineBanner(),
+            Expanded(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: _pages,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

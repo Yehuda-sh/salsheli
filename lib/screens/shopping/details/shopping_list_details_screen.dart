@@ -709,6 +709,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           SizedBox(
             height: 40, // גובה קבוע לשורת הקטגוריות
             child: ListView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
               children: _buildCategoryChipsCompact(currentList),

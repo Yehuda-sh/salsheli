@@ -317,6 +317,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                 : RefreshIndicator(
                     onRefresh: _loadMembers,
                     child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       padding: const EdgeInsets.all(kSpacingMedium),
                       itemCount: _members.length + (_isAdmin && _members.length > 1 ? 1 : 0),
                       itemBuilder: (context, index) {

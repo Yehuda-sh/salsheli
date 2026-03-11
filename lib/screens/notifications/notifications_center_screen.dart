@@ -284,6 +284,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     return RefreshIndicator(
       onRefresh: _loadNotifications,
       child: ListView.separated(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
         itemCount: _notifications.length,
         // ✅ FIX: Always scrollable for pull-to-refresh with few items

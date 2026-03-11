@@ -740,6 +740,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           SizedBox(
             height: 40,
             child: ListView(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
               children: _buildLocationChips(availableLocations),
@@ -859,6 +860,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Widget _buildFlatList(List<InventoryItem> items) {
     return RepaintBoundary(
       child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: kSpacingSmall,
@@ -916,6 +918,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     return RepaintBoundary(
       child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
           top: kSpacingSmall,

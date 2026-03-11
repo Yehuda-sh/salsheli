@@ -939,6 +939,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               // 🗂️ רשימת מוצרים לפי קטגוריות
               Expanded(
                 child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                   itemCount: itemsByCategory.length,
                   itemBuilder: (context, index) {
