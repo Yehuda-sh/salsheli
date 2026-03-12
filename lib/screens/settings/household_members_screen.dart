@@ -1,11 +1,12 @@
 // 📄 lib/screens/settings/household_members_screen.dart
 //
-// 🏠 מסך חברי הבית — צפייה, הסרה, שינוי תפקיד, עזיבה
+// 🏠 מסך חברי הבית — "Professional Notebook" design
 
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -66,7 +67,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         );
       }).toList();
 
-      // Sort: admins first, then by name
       members.sort((a, b) {
         if (a.role == 'admin' && b.role != 'admin') return -1;
         if (a.role != 'admin' && b.role == 'admin') return 1;
@@ -121,7 +121,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
           .doc(member.userId)
           .delete();
 
-      // Create personal household for removed user
       final personalHouseholdId = 'house_${member.userId}';
       final batch = FirebaseFirestore.instance.batch();
       batch.set(
@@ -227,7 +226,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         _currentUserId == null) return;
 
     try {
-      // Remove from current household
       await FirebaseFirestore.instance
           .collection('households')
           .doc(_householdId)
@@ -235,7 +233,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
           .doc(_currentUserId)
           .delete();
 
-      // Create personal household
       final personalId = 'house_$_currentUserId';
       final batch = FirebaseFirestore.instance.batch();
       batch.set(
@@ -254,7 +251,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             .doc(_currentUserId!),
         {
           'user_id': _currentUserId,
-          'name': context.read<UserContext>().user?.name ?? 'משתמש',
+          'name': _members.firstWhere((m) => m.userId == _currentUserId, orElse: () => _MemberData(userId: '', name: 'משתמש', role: '')).name,
           'role': 'admin',
           'joined_at': FieldValue.serverTimestamp(),
         },
@@ -270,7 +267,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
       if (mounted) {
         await context.read<UserContext>().refreshUser();
         if (mounted) {
-          Navigator.of(context).pop(); // back to settings
+          Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('עזבת את הבית')),
           );
@@ -288,67 +285,126 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
     final userContext = context.watch<UserContext>();
     final householdName = userContext.householdName ?? 'הבית שלי';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(householdName),
-        centerTitle: true,
-        actions: [
-          if (!_isAdmin && _members.length > 1)
-            IconButton(
-              icon: Icon(Icons.exit_to_app, color: cs.error),
-              tooltip: 'עזוב את הבית',
-              onPressed: _leaveHousehold,
-            ),
-        ],
-      ),
+      backgroundColor: Colors.transparent,
       body: Stack(
         children: [
           const NotebookBackground(),
-          _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? Center(
-                    child: Text(_error!,
-                        style: TextStyle(color: cs.error)),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _loadMembers,
-                    child: ListView.builder(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      itemCount: _members.length + (_isAdmin && _members.length > 1 ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == _members.length) {
-                          // "Leave household" button for admin (only if >1 member)
-                          return Padding(
-                            padding: const EdgeInsets.only(top: kSpacingLarge),
-                            child: OutlinedButton.icon(
-                              icon: Icon(Icons.exit_to_app, color: cs.error),
-                              label: Text('עזוב את הבית',
-                                  style: TextStyle(color: cs.error)),
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: cs.error),
+          SafeArea(
+            child: Column(
+              children: [
+                // 🏠 Inline header
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      // Back button
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        child: Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          decoration: BoxDecoration(
+                            color: cs.surface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Icon(Icons.arrow_forward_ios,
+                              size: kIconSizeSmall, color: cs.onSurface),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      // House icon in colored circle
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: cs.primaryContainer,
+                        ),
+                        child: Center(
+                          child: Text('🏠',
+                              style: TextStyle(fontSize: kFontSizeBody)),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              householdName,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
                               ),
-                              onPressed: _leaveHousehold,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          );
-                        }
-                        return _buildMemberCard(_members[index], cs);
-                      },
-                    ),
+                            Text(
+                              '${_members.length} חברים',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Leave button
+                      if (_members.length > 1)
+                        IconButton(
+                          icon: Icon(Icons.exit_to_app, color: cs.error),
+                          tooltip: 'עזוב את הבית',
+                          onPressed: _leaveHousehold,
+                        ),
+                    ],
                   ),
+                ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
+
+                // Content
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _error != null
+                          ? Center(
+                              child: Text(_error!,
+                                  style: TextStyle(color: cs.error)),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _loadMembers,
+                              child: ListView.builder(
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: kSpacingMedium),
+                                itemCount: _members.length,
+                                itemBuilder: (context, index) {
+                                  return _buildMemberCard(
+                                          _members[index], cs, theme)
+                                      .animate()
+                                      .fadeIn(
+                                          duration: 400.ms,
+                                          delay: (100 * index).ms)
+                                      .slideX(begin: 0.05);
+                                },
+                              ),
+                            ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMemberCard(_MemberData member, ColorScheme cs) {
+  Widget _buildMemberCard(
+      _MemberData member, ColorScheme cs, ThemeData theme) {
     final isCurrentUser = member.userId == _currentUserId;
     final isAdmin = member.role == 'admin';
-    final joinDate = member.joinedAt;
 
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -358,65 +414,105 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             ? BorderSide(color: cs.primary, width: kBorderWidthThick)
             : BorderSide.none,
       ),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              isAdmin ? cs.primaryContainer : cs.surfaceContainerHighest,
-          child: Text(
-            member.name.isNotEmpty ? member.name[0] : '?',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isAdmin ? cs.primary : cs.onSurfaceVariant,
-            ),
-          ),
-        ),
-        title: Row(
+      child: Padding(
+        padding: const EdgeInsets.all(kSpacingMedium),
+        child: Row(
           children: [
-            Text(
-              member.name,
-              style: TextStyle(
-                fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            if (isCurrentUser) ...[
-              const SizedBox(width: kSpacingTiny),
-              Text('(אני)', style: TextStyle(
-                fontSize: kFontSizeSmall,
-                color: cs.onSurfaceVariant,
-              )),
-            ],
-          ],
-        ),
-        subtitle: Row(
-          children: [
+            // Avatar
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: kSpacingSmall,
-                vertical: 2,
-              ),
+              width: 48,
+              height: 48,
               decoration: BoxDecoration(
-                color: isAdmin ? kStickyGreen.withValues(alpha: 0.2) : cs.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              ),
-              child: Text(
-                isAdmin ? '👑 מנהל' : '👤 חבר',
-                style: TextStyle(fontSize: kFontSizeTiny),
-              ),
-            ),
-            if (joinDate != null) ...[
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                'הצטרף ${_formatDate(joinDate)}',
-                style: TextStyle(
-                  fontSize: kFontSizeTiny,
-                  color: cs.onSurfaceVariant,
+                shape: BoxShape.circle,
+                color: isAdmin ? cs.primaryContainer : cs.surfaceContainerHighest,
+                border: Border.all(
+                  color: isAdmin
+                      ? cs.primary.withValues(alpha: 0.3)
+                      : Colors.transparent,
+                  width: 2,
                 ),
               ),
-            ],
-          ],
-        ),
-        trailing: _isAdmin && !isCurrentUser
-            ? PopupMenuButton<String>(
+              child: Center(
+                child: Text(
+                  member.name.isNotEmpty ? member.name[0] : '?',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isAdmin ? cs.primary : cs.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: kSpacingMedium),
+
+            // Name + role
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          member.name,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight:
+                                isCurrentUser ? FontWeight.bold : FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isCurrentUser) ...[
+                        const SizedBox(width: kSpacingTiny),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: kSpacingSmall,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius:
+                                BorderRadius.circular(kBorderRadiusSmall),
+                          ),
+                          child: Text(
+                            'אני',
+                            style: TextStyle(
+                              fontSize: kFontSizeTiny,
+                              color: cs.onPrimaryContainer,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: kSpacingTiny),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingSmall,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isAdmin
+                          ? kStickyGreen.withValues(alpha: 0.15)
+                          : cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Text(
+                      isAdmin ? '👑 מנהל' : '👤 חבר',
+                      style: TextStyle(
+                        fontSize: kFontSizeTiny,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Actions
+            if (_isAdmin && !isCurrentUser)
+              PopupMenuButton<String>(
                 onSelected: (action) {
                   switch (action) {
                     case 'toggle_role':
@@ -454,14 +550,11 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                     ),
                   ),
                 ],
-              )
-            : null,
+              ),
+          ],
+        ),
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }
 

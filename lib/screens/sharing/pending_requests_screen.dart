@@ -16,6 +16,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -256,28 +257,71 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: kPaperBackground,
-        appBar: AppBar(
-          title: Text(strings.pendingRequestsTitle),
-          actions: [
-            // Badge with count
-            if (_pendingRequests.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 4),
-                    decoration: BoxDecoration(color: kStickyOrange, borderRadius: BorderRadius.circular(kBorderRadius)),
-                    child: Text(
-                      '${_pendingRequests.length}',
-                      style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold),
-                    ),
+        backgroundColor: Colors.transparent,
+        body: Stack(children: [
+          const NotebookBackground(),
+          SafeArea(
+            child: Column(
+              children: [
+                // 📋 Inline header
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        child: Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          decoration: BoxDecoration(
+                            color: cs.surface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Icon(Icons.arrow_forward_ios,
+                              size: kIconSizeSmall, color: cs.onSurface),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: cs.primaryContainer,
+                        ),
+                        child: const Center(
+                          child: Text('📋', style: TextStyle(fontSize: kFontSizeBody)),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.pendingRequestsTitle,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_pendingRequests.isNotEmpty)
+                              Text(
+                                '${_pendingRequests.length} בקשות',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-          ],
-        ),
-        body: Stack(children: [const NotebookBackground(), _buildContent()]),
+                ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
+                Expanded(child: _buildContent()),
+              ],
+            ),
+          ),
+        ]),
       ),
     );
   }

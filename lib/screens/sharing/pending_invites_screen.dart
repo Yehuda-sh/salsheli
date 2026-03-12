@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/status_colors.dart';
@@ -245,13 +246,68 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
           const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(AppStrings.pendingInvitesScreen.title),
-              centerTitle: true,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  // 📩 Inline header
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: () => Navigator.pop(context),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                          child: Container(
+                            padding: const EdgeInsets.all(kSpacingSmall),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+                              borderRadius: BorderRadius.circular(kBorderRadius),
+                            ),
+                            child: Icon(Icons.arrow_forward_ios,
+                                size: kIconSizeSmall,
+                                color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).colorScheme.primaryContainer,
+                          ),
+                          child: const Center(
+                            child: Text('📩', style: TextStyle(fontSize: kFontSizeBody)),
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppStrings.pendingInvitesScreen.title,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (_pendingInvites.isNotEmpty)
+                                Text(
+                                  '${_pendingInvites.length} ממתינות',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
             ),
-            body: _buildContent(),
           ),
         ],
       ),
