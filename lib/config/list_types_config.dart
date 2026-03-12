@@ -1,47 +1,46 @@
-// 📄 File: lib/config/list_types_config.dart
+// 📄 lib/config/list_types_config.dart
 //
 // 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות (9 סוגים)
 //
 // ✨ יתרונות:
 // - מקור אמת יחיד (Single Source of Truth)
-// - קל להוסיף סוג חדש (רק במקום אחד)
-// - עקביות בכל האפליקציה
-// - קל לתחזוקה ולבדיקה
+// - תמיכה מלאה ב-i18n דרך AppStrings
+// - עקביות ויזואלית (צבעים ואייקונים) בכל האפליקציה
 //
 // 📜 חוקי עבודה:
 // - key לא מוכר → fallback ל-ListTypeKeys.other
 // - סדר all = סדר UX, other חייב להיות אחרון
 // - חייב להיות 1:1 עם ListTypeKeys.all
 //
-// TODO(i18n): להעביר fullName/shortName ל-AppStrings לתמיכה בתרגום
-// ראה: lib/l10n/app_strings.dart
+// 🔗 Related: list_type_keys.dart, AppStrings, AppTheme
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
 import 'list_type_keys.dart';
 
 /// 📦 הגדרת סוג רשימה אחד
 /// מכיל את כל המידע הויזואלי והטקסטואלי
 class ListTypeConfig {
-  /// מפתח ייחודי (תואם ל-ShoppingList constants)
+  /// מפתח ייחודי (תואם ל-ListTypeKeys)
   final String key;
-  
-  /// שם מלא להצגה (למשל ב-Drawer)
+
+  /// שם מלא להצגה (נמשך מ-AppStrings)
   final String fullName;
-  
-  /// שם קצר להצגה (למשל ב-Dropdown)
+
+  /// שם קצר להצגה (למשל ב-Dropdown או בטאבים קטנים)
   final String shortName;
-  
+
   /// אימוג'י ייצוגי
   final String emoji;
-  
+
   /// אייקון Material
   final IconData icon;
-  
-  /// צבע אופציונלי (לשימוש עתידי)
+
+  /// צבע אחיד לסוג הרשימה (Sticky Note style)
   final Color? color;
 
   const ListTypeConfig({
@@ -56,11 +55,13 @@ class ListTypeConfig {
 
 /// 🗂️ כל סוגי הרשימות במערכת
 class ListTypes {
-  /// רשימת כל הסוגים (8 סוגים + "אחר")
-  static const List<ListTypeConfig> all = [
+  ListTypes._(); // מניעת instances
+
+  /// רשימת כל הסוגים (מחובר ל-AppStrings)
+  static List<ListTypeConfig> get all => [
     ListTypeConfig(
       key: ListTypeKeys.supermarket,
-      fullName: 'סופרמרקט',
+      fullName: AppStrings.shopping.typeSupermarket,
       shortName: 'סופר',
       emoji: '🛒',
       icon: Icons.shopping_cart,
@@ -68,7 +69,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.pharmacy,
-      fullName: 'בית מרקחת',
+      fullName: AppStrings.shopping.typePharmacy,
       shortName: 'מרקחת',
       emoji: '💊',
       icon: Icons.medication,
@@ -76,7 +77,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.greengrocer,
-      fullName: 'ירקן',
+      fullName: AppStrings.shopping.typeGreengrocer,
       shortName: 'ירקן',
       emoji: '🥬',
       icon: Icons.local_florist,
@@ -84,7 +85,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.butcher,
-      fullName: 'אטליז',
+      fullName: AppStrings.shopping.typeButcher,
       shortName: 'אטליז',
       emoji: '🥩',
       icon: Icons.set_meal,
@@ -92,7 +93,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.bakery,
-      fullName: 'מאפייה',
+      fullName: AppStrings.shopping.typeBakery,
       shortName: 'מאפייה',
       emoji: '🥖',
       icon: Icons.bakery_dining,
@@ -100,7 +101,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.market,
-      fullName: 'שוק',
+      fullName: AppStrings.shopping.typeMarket,
       shortName: 'שוק',
       emoji: '🏪',
       icon: Icons.store,
@@ -108,7 +109,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.household,
-      fullName: 'צרכי בית',
+      fullName: AppStrings.shopping.typeHousehold,
       shortName: 'בית',
       emoji: '🏠',
       icon: Icons.home,
@@ -116,7 +117,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.event,
-      fullName: 'אירוע',
+      fullName: 'אירוע', // TODO: להוסיף ל-AppStrings.shopping
       shortName: 'אירוע',
       emoji: '🎉',
       icon: Icons.celebration,
@@ -124,7 +125,7 @@ class ListTypes {
     ),
     ListTypeConfig(
       key: ListTypeKeys.other,
-      fullName: 'אחר',
+      fullName: AppStrings.shopping.typeOther,
       shortName: 'אחר',
       emoji: '📝',
       icon: Icons.more_horiz,
@@ -135,27 +136,25 @@ class ListTypes {
   // 🎨 Color API
   // ========================================
 
-  /// צבע לפי סוג רשימה - theme-aware
-  ///
-  /// בודק brand (dark mode) קודם, אם אין → config.color, אם אין → cs.primary
+  /// צבע לפי סוג רשימה - תומך ב-Dark Mode דרך AppBrand
   static Color getColor(String typeKey, ColorScheme cs, AppBrand? brand) {
     if (brand != null) {
       switch (typeKey) {
-        case 'supermarket':
-        case 'market':
+        case ListTypeKeys.supermarket:
+        case ListTypeKeys.market:
           return brand.stickyGreen;
-        case 'pharmacy':
+        case ListTypeKeys.pharmacy:
           return brand.stickyPink;
-        case 'greengrocer':
-        case 'household':
+        case ListTypeKeys.greengrocer:
+        case ListTypeKeys.household:
           return brand.stickyCyan;
-        case 'bakery':
+        case ListTypeKeys.bakery:
           return brand.stickyYellow;
-        case 'event':
+        case ListTypeKeys.event:
           return brand.stickyPurple;
       }
     }
-    // Fallback: config color → cs.primary
+    // Fallback: צבע הקונפיגורציה או צבע הנושא הראשי
     return getByKeySafe(typeKey).color ?? cs.primary;
   }
 
@@ -163,26 +162,7 @@ class ListTypes {
   // 🔍 Lookup API
   // ========================================
 
-  /// 🔍 מצא config לפי key (nullable)
-  /// @deprecated השתמש ב-getByKeySafe() שמחזיר תמיד Config
-  static ListTypeConfig? getByKey(String key) {
-    // ✅ בדיקת תקינות בזמן פיתוח בלבד
-    if (kDebugMode) {
-      ensureSanity();
-    }
-
-    try {
-      return all.firstWhere((config) => config.key == key);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// ✅ מצא config לפי key - תמיד מחזיר Config!
-  ///
-  /// API בטוח שלא יפיל UI:
-  /// - key לא מוכר → מחזיר other
-  /// - key == null → מחזיר other
+  /// מצא config לפי key - תמיד מחזיר Config בטוח לשימוש ב-UI
   static ListTypeConfig getByKeySafe(String? key) {
     if (kDebugMode) {
       ensureSanity();
@@ -190,22 +170,16 @@ class ListTypes {
 
     if (key == null) return _otherConfig;
 
-    // חיפוש ב-all
+    // חיפוש יעיל ברשימה
     for (final config in all) {
       if (config.key == key) return config;
     }
 
-    // לא נמצא → fallback ל-other
-    if (kDebugMode) {
-    }
     return _otherConfig;
   }
 
-  /// Cache ל-other config (ביצועים)
-  static final ListTypeConfig _otherConfig = all.firstWhere(
-    (c) => c.key == ListTypeKeys.other,
-    orElse: () => all.last, // safety fallback
-  );
+  /// Cache ל-Config ברירת המחדל (ביצועים)
+  static ListTypeConfig get _otherConfig => all.firstWhere((c) => c.key == ListTypeKeys.other, orElse: () => all.last);
 
   // ========================================
   // 🔧 Debug Validation
@@ -213,59 +187,28 @@ class ListTypes {
 
   static bool _sanityChecked = false;
 
-  /// 🔍 Sanity check - בדיקת פיתוח בלבד
-  ///
-  /// מוודא:
-  /// 1. אין כפילויות keys ב-all
-  /// 2. התאמה 1:1 עם ListTypeKeys.all
-  /// 3. other הוא אחרון (סדר UX)
+  /// בדיקת תקינות בזמן פיתוח
   static void ensureSanity() {
-    if (!kDebugMode) return;
-    if (_sanityChecked) return;
+    if (!kDebugMode || _sanityChecked) return;
     _sanityChecked = true;
 
-    // 1️⃣ בדיקת כפילויות
-    final keys = <String, int>{};
-    for (var i = 0; i < all.length; i++) {
-      final key = all[i].key;
-      if (keys.containsKey(key)) {
-        assert(false,
-          '❌ ListTypes: כפילות key! '
-          '"$key" מופיע באינדקס ${keys[key]} ו-$i',
-        );
-      }
-      keys[key] = i;
+    final configKeys = all.map((c) => c.key).toList();
+    final expectedKeys = ListTypeKeys.all;
+
+    // 1. בדיקת כפילויות
+    final distinctKeys = configKeys.toSet();
+    if (distinctKeys.length != configKeys.length) {
+      assert(false, '❌ ListTypes: נמצאו כפילויות של מפתחות ב-all');
     }
 
-    // 2️⃣ בדיקת התאמה 1:1 עם ListTypeKeys.all
-    final configKeys = all.map((c) => c.key).toSet();
-    final expectedKeys = ListTypeKeys.all.toSet();
-
-    // בדיקת keys חסרים (יש ב-ListTypeKeys אבל אין ב-ListTypes)
-    final missingInConfigs = expectedKeys.difference(configKeys);
-    if (missingInConfigs.isNotEmpty) {
-      assert(false,
-        '❌ ListTypes: חסרים configs עבור keys: $missingInConfigs\n'
-        'הוסף ListTypeConfig עבור כל key חסר',
-      );
+    // 2. בדיקת התאמה ל-ListTypeKeys
+    if (configKeys.length != expectedKeys.length || !configKeys.every((k) => expectedKeys.contains(k))) {
+      assert(false, '❌ ListTypes: אין התאמה 1:1 בין ListTypes.all ל-ListTypeKeys.all');
     }
 
-    // בדיקת keys מיותרים (יש ב-ListTypes אבל אין ב-ListTypeKeys)
-    final extraInConfigs = configKeys.difference(expectedKeys);
-    if (extraInConfigs.isNotEmpty) {
-      assert(false,
-        '❌ ListTypes: יש configs עם keys לא מוכרים: $extraInConfigs\n'
-        'הוסף את ה-keys ל-ListTypeKeys.all או הסר את ה-configs',
-      );
+    // 3. בדיקת מיקום Fallback
+    if (all.last.key != ListTypeKeys.other) {
+      assert(false, '❌ ListTypes: "${ListTypeKeys.other}" חייב להיות הערך האחרון ב-all');
     }
-
-    // 3️⃣ בדיקה ש-other הוא אחרון
-    if (all.isNotEmpty && all.last.key != ListTypeKeys.other) {
-      assert(false,
-        '❌ ListTypes: "${ListTypeKeys.other}" חייב להיות אחרון ב-all! '
-        'נמצא: "${all.last.key}"',
-      );
-    }
-
   }
 }
