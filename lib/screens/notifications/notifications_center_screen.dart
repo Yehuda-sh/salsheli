@@ -14,7 +14,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -90,8 +89,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         });
       }
     } catch (e) {
-      if (kDebugMode) {
-      }
       // ✅ FIX: mounted guard after async
       if (!mounted) return;
       setState(() {
@@ -124,8 +121,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         }
       });
     } catch (e) {
-      if (kDebugMode) {
-      }
     }
   }
 
@@ -161,8 +156,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         ),
       );
     } catch (e) {
-      if (kDebugMode) {
-      }
     }
   }
 

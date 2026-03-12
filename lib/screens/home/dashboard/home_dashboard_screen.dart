@@ -18,7 +18,6 @@
 // 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
 
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -57,8 +56,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -70,8 +67,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
   @override
   void dispose() {
-    if (kDebugMode) {
-    }
     super.dispose();
   }
 
@@ -80,8 +75,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     setState(() => _isRefreshing = true);
 
-    if (kDebugMode) {
-    }
 
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
@@ -94,8 +87,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         lists.loadLists(),
         receipts.loadReceipts(),
       ]);
-      if (kDebugMode) {
-      }
     } on Exception catch (_) {
       // Silently handle - data will show cached state
     }
@@ -114,8 +105,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       unawaited(HapticFeedback.lightImpact());
     }
 
-    if (kDebugMode) {
-    }
 
     if (mounted) {
       setState(() => _isRefreshing = false);

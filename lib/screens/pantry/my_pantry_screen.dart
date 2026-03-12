@@ -34,7 +34,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -80,13 +79,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
-    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        if (kDebugMode) {
-        }
         context.read<InventoryProvider>().loadItems();
       }
     });
@@ -207,8 +202,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// מציג bottom sheet לבחירת מוצר מהקטלוג
   void _addItemDialog() {
-    if (kDebugMode) {
-    }
     PantryProductSelectionSheet.show(context);
   }
 
@@ -221,8 +214,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final provider = context.read<InventoryProvider>();
 
     try {
-      if (kDebugMode) {
-      }
 
       // טוען את הפריטים מהתבנית
       final items = await TemplateService.loadPantryStarterItems();
@@ -245,8 +236,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-      }
       if (mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(strings.starterItemsError)),
@@ -257,8 +246,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
-    if (kDebugMode) {
-    }
     PantryItemDialog.showEditDialog(context, item);
   }
 
@@ -270,8 +257,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final inventoryProvider = context.read<InventoryProvider>();
 
-    if (kDebugMode) {
-    }
     try {
       await inventoryProvider.deleteItem(item.id);
       if (mounted) {
@@ -284,8 +269,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 try {
                   await inventoryProvider.updateItem(item);
                 } catch (e) {
-                  if (kDebugMode) {
-                  }
                 }
               },
             ),
@@ -293,8 +276,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-      }
       if (mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(strings.deleteItemError)),
@@ -310,8 +291,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final inventoryProvider = context.read<InventoryProvider>();
 
-    if (kDebugMode) {
-    }
 
     // 📳 Haptic דינמי לפי כיוון
     if (newQuantity > item.quantity) {
@@ -331,8 +310,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         await _sendLowStockNotification(updatedItem);
       }
     } catch (e) {
-      if (kDebugMode) {
-      }
       if (mounted) {
         messenger.showSnackBar(
           SnackBar(content: Text(strings.updateQuantityError)),
@@ -344,8 +321,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// שולח התראה על מלאי נמוך (placeholder - לשימוש עתידי עם household)
   Future<void> _sendLowStockNotification(InventoryItem item) async {
     // TODO: Implement household-based low stock notifications
-    if (kDebugMode) {
-    }
   }
 
   @override

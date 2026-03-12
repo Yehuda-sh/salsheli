@@ -22,7 +22,6 @@
 // );
 // ```
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -35,8 +34,6 @@ import '../../widgets/common/sticky_note.dart';
 
 // 🔧 Wrapper ללוגים - פועל רק ב-debug mode
 void _log(String message) {
-  if (kDebugMode) {
-  }
 }
 
 class ShoppingSummaryScreen extends StatelessWidget {

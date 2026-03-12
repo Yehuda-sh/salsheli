@@ -26,7 +26,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -84,8 +83,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
       parent: _fadeController,
       curve: Curves.easeIn,
     );
-    if (kDebugMode) {
-    }
   }
 
   @override
@@ -106,8 +103,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         // v4.0: Haptic + fade for argument-based navigation
         unawaited(HapticFeedback.selectionClick());
         _triggerFadeIn();
-        if (kDebugMode) {
-        }
       }
     }
   }
@@ -144,16 +139,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   void dispose() {
     _unreadSub?.cancel();
     _fadeController.dispose();
-    if (kDebugMode) {
-    }
     super.dispose();
   }
 
   void _onItemTapped(int index) {
     // 🛡️ בדיקת bounds - מונע RangeError
     if (index < 0 || index >= _pages.length) {
-      if (kDebugMode) {
-      }
       return;
     }
 
@@ -168,16 +159,12 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     // v4.0: Fade transition — instant opacity 0, then animate to 1
     _triggerFadeIn();
 
-    if (kDebugMode) {
-    }
     setState(() => _selectedIndex = index);
   }
 
   Future<bool> _handleBackPress() {
     // אם לא בטאב הראשון - חזור אליו במקום לצאת
     if (_selectedIndex != 0) {
-      if (kDebugMode) {
-      }
       // v4.0: Haptic + fade on back-to-home
       unawaited(HapticFeedback.selectionClick());
       _triggerFadeIn();
@@ -189,8 +176,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     if (_lastBackPress == null ||
         now.difference(_lastBackPress!) > kDoubleTapTimeout) {
       _lastBackPress = now;
-      if (kDebugMode) {
-      }
 
       // ✅ בדיקת mounted ו-context נשמרים לפני כל פעולה
       if (!mounted) return Future.value(false);
@@ -224,8 +209,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     }
 
     // לחיצה שנייה תוך 2 שניות - אפשר יציאה
-    if (kDebugMode) {
-    }
     return Future.value(true);
   }
 

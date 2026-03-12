@@ -60,8 +60,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   @override
   void initState() {
     super.initState();
-    if (kDebugMode) {
-    }
 
     _notificationsService = NotificationsService(FirebaseFirestore.instance);
     _currentList = widget.list; // 🔧 אתחול הרשימה הנוכחית
