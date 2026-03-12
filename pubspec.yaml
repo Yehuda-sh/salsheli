@@ -107,6 +107,9 @@ flutter:
         - asset: assets/fonts/Assistant-Regular.ttf
         - asset: assets/fonts/Assistant-Bold.ttf
           weight: 700
+    - family: Caveat
+      fonts:
+        - asset: assets/fonts/Caveat-Variable.ttf
 
 # ═══════════════════════════════════════════════
 # 🎨 App Icon Configuration

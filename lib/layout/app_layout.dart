@@ -237,24 +237,29 @@ class _AppLayoutState extends State<AppLayout> {
     final theme = Theme.of(context);
 
     return AppBar(
-      // ✅ Clean minimal header
+      // ✅ Premium branded header
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // App logo from asset
-          Text(
-            AppStrings.layout.appTitle,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: cs.primary,
-            ),
-          ),
-          const SizedBox(width: kSpacingSmall),
+          // 📓 App logo
           Image.asset(
             'assets/images/logo.webp',
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 32,
             fit: BoxFit.contain,
+          ),
+          const SizedBox(width: kSpacingSmall),
+          // ✍️ Handwriting-style brand name
+          Text(
+            AppStrings.layout.appTitle,
+            style: TextStyle(
+              fontFamily: 'Caveat',
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+              color: cs.primary,
+              letterSpacing: 0.5,
+              height: 1.0,
+            ),
           ),
         ],
       ),
