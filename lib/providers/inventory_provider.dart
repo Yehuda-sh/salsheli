@@ -174,8 +174,6 @@ class InventoryProvider with ChangeNotifier {
   /// מזהה את מיקום המזווה הנכון וטוען את הפריטים
   void _updateInventoryLocation() {
     final userId = _userContext?.userId;
-    if (kDebugMode) {
-    }
     if (userId == null || _userContext?.isLoggedIn != true) {
       // 🔧 Logout/no user: איפוס מלא של state
       _currentMode = InventoryMode.personal;
@@ -192,8 +190,6 @@ class InventoryProvider with ChangeNotifier {
     // מזווה אישי/משפחתי (לפי householdId)
     if (_currentMode != InventoryMode.personal || _items.isEmpty && !_isLoading) {
       _currentMode = InventoryMode.personal;
-      if (kDebugMode) {
-      }
       _loadItems();
     }
   }
@@ -371,8 +367,6 @@ class InventoryProvider with ChangeNotifier {
 
     // 🚫 בדיקת הגבלת פריטים במזווה
     if (_items.length >= kMaxItemsPerPantry) {
-      if (kDebugMode) {
-      }
       throw Exception(AppStrings.inventory.maxItemsReached(kMaxItemsPerPantry));
     }
 
@@ -686,8 +680,6 @@ class InventoryProvider with ChangeNotifier {
       final userItems = await _repository.fetchUserItems(userId);
       return userItems.isNotEmpty;
     } catch (e) {
-      if (kDebugMode) {
-      }
       return false;
     }
   }
@@ -701,8 +693,6 @@ class InventoryProvider with ChangeNotifier {
       final userItems = await _repository.fetchUserItems(userId);
       return userItems.length;
     } catch (e) {
-      if (kDebugMode) {
-      }
       return 0;
     }
   }
@@ -738,13 +728,9 @@ class InventoryProvider with ChangeNotifier {
       _items = [..._items, ...items];
       _notifySafe();
 
-      if (kDebugMode) {
-      }
 
       return successCount;
     } catch (e) {
-      if (kDebugMode) {
-      }
       _errorMessage = 'שגיאה בהוספת פריטים';
       _notifySafe();
       rethrow;
@@ -765,18 +751,12 @@ class InventoryProvider with ChangeNotifier {
     }
 
     try {
-      if (kDebugMode) {
-      }
 
       final deletedCount = await _repository.deleteAllUserItems(userId);
 
-      if (kDebugMode) {
-      }
 
       return deletedCount;
     } catch (e) {
-      if (kDebugMode) {
-      }
       _errorMessage = 'שגיאה במחיקת מזווה אישי';
       _notifySafe();
       rethrow;

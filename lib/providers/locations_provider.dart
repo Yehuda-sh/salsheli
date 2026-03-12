@@ -118,8 +118,6 @@ class LocationsProvider with ChangeNotifier {
       }
 
       _customLocations = locations;
-      if (kDebugMode) {
-      }
     } catch (e, st) {
       // בדיקה גם ב-catch
       if (currentGeneration != _loadGeneration || _isDisposed) {
@@ -233,8 +231,6 @@ class LocationsProvider with ChangeNotifier {
       await _repository.saveLocation(newLocation, householdId);
       return true;
     } catch (e) {
-      if (kDebugMode) {
-      }
       // Rollback: שחזור למצב הקודם
       _customLocations = previousLocations;
       _errorMessage = 'שגיאה בהוספת מיקום';
@@ -283,8 +279,6 @@ class LocationsProvider with ChangeNotifier {
       await _repository.deleteLocation(key, householdId);
       return true;
     } catch (e) {
-      if (kDebugMode) {
-      }
       // Rollback: שחזור המיקום שנמחק
       _customLocations = previousLocations;
       _errorMessage = 'שגיאה במחיקת מיקום';
