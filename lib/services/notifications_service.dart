@@ -575,14 +575,7 @@ class NotificationsService {
     }
   }
 
-  /// @deprecated השתמש ב-getUserNotificationsResult() במקום
-  Future<List<AppNotification>> getUserNotifications({
-    required String userId,
-    int limit = 50,
-  }) async {
-    final result = await getUserNotificationsResult(userId: userId, limit: limit);
-    return result.notifications ?? [];
-  }
+  // ✅ REMOVED: getUserNotifications() — use getUserNotificationsResult() instead
 
   /// 📬 Get unread notifications
   ///
@@ -615,13 +608,7 @@ class NotificationsService {
     }
   }
 
-  /// @deprecated השתמש ב-getUnreadNotificationsResult() במקום
-  Future<List<AppNotification>> getUnreadNotifications({
-    required String userId,
-  }) async {
-    final result = await getUnreadNotificationsResult(userId: userId);
-    return result.notifications ?? [];
-  }
+  // ✅ REMOVED: getUnreadNotifications() — use getUnreadNotificationsResult() instead
 
   /// 🔢 Get unread count (for badge)
   ///
@@ -646,11 +633,7 @@ class NotificationsService {
     }
   }
 
-  /// @deprecated השתמש ב-getUnreadCountResult() במקום
-  Future<int> getUnreadCount({required String userId}) async {
-    final result = await getUnreadCountResult(userId: userId);
-    return result.count ?? 0;
-  }
+  // ✅ REMOVED: getUnreadCount() — use getUnreadCountResult() instead
 
   /// 📊 Stream unread count (real-time badge)
   ///

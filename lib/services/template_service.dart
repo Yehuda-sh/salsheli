@@ -96,7 +96,7 @@ class TemplateService {
           if (decoded is List) {
             _productsCache![source] = decoded
                 .whereType<Map>()
-                .map((m) => Map<String, dynamic>.from(m))
+                .map(Map<String, dynamic>.from)
                 .toList();
           } else {
             _productsCache![source] = [];

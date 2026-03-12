@@ -979,12 +979,7 @@ class PendingInvitesService {
     return result.invites ?? [];
   }
 
-  /// @deprecated השתמש ב-getPendingInvitesCountResult() במקום
-  @Deprecated('Use getPendingInvitesCountResult() instead')
-  Future<int> getPendingInvitesCount(String userId, {String? userEmail}) async {
-    final result = await getPendingInvitesCountResult(userId, userEmail: userEmail);
-    return result.count ?? 0;
-  }
+  // ✅ REMOVED: getPendingInvitesCount() — use getPendingInvitesCountResult()
 
   /// @deprecated השתמש ב-acceptInviteResult() במקום
   @Deprecated('Use acceptInviteResult() instead')
@@ -1025,25 +1020,7 @@ class PendingInvitesService {
     }
   }
 
-  /// @deprecated השתמש ב-cancelInviteResult() במקום
-  @Deprecated('Use cancelInviteResult() instead')
-  Future<void> cancelInvite({
-    required String inviteId,
-    required String cancellingUserId,
-  }) async {
-    final result = await cancelInviteResult(
-      inviteId: inviteId,
-      cancellingUserId: cancellingUserId,
-    );
-    if (!result.isSuccess) {
-      throw Exception(result.type.name);
-    }
-  }
+  // ✅ REMOVED: cancelInvite() — use cancelInviteResult()
 
-  /// @deprecated השתמש ב-cleanupOldInvitesResult() במקום
-  @Deprecated('Use cleanupOldInvitesResult() instead')
-  Future<int> cleanupOldInvites({int daysOld = 30}) async {
-    final result = await cleanupOldInvitesResult(daysOld: daysOld);
-    return result.count ?? 0;
-  }
+  // ✅ REMOVED: cleanupOldInvites() — use cleanupOldInvitesResult()
 }

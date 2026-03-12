@@ -43,13 +43,7 @@ class FirestoreCollections {
   static const String joinRequests = 'join_requests';
   static const String householdInfo = 'info';
 
-  // === Legacy (deprecated - for migration) ===
-  @Deprecated('Use privateLists or sharedLists instead')
-  static const String shoppingLists = 'shopping_lists';
-  @Deprecated('Use householdInventory instead')
-  static const String inventory = 'inventory';
-  @Deprecated('Use householdReceipts instead')
-  static const String receipts = 'receipts';
+  // ✅ Legacy constants REMOVED (shoppingLists, inventory, receipts)
   static const String customLocations = 'custom_locations';
 }
 
