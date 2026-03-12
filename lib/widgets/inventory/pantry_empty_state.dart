@@ -170,15 +170,13 @@ class PantryEmptyState extends StatelessWidget {
                 Semantics(
                   label: 'מזווה ריק',
                   excludeSemantics: true,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: kStickyCyan.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: Text('🏪', style: TextStyle(fontSize: 60)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    child: Image.asset(
+                      'assets/images/empty_pantry.webp',
+                      width: 160,
+                      height: 160,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 )

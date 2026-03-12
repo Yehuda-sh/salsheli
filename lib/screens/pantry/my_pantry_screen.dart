@@ -628,7 +628,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       child: Row(
         children: [
           _buildSummaryChip(
-            icon: Icons.inventory_2_outlined,
+            emoji: '📦',
             value: '$totalItems',
             label: 'פריטים',
             color: cs.primary,
@@ -637,7 +637,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           const SizedBox(width: kSpacingSmall),
           if (lowStockCount > 0) ...[
             _buildSummaryChip(
-              icon: Icons.warning_amber_rounded,
+              emoji: '⚠️',
               value: '$lowStockCount',
               label: 'חסרים',
               color: brand?.warning ?? cs.error,
@@ -646,7 +646,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             const SizedBox(width: kSpacingSmall),
           ],
           _buildSummaryChip(
-            icon: Icons.place_outlined,
+            emoji: '📍',
             value: '$locationsCount',
             label: 'מיקומים',
             color: cs.tertiary,
@@ -658,44 +658,50 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   Widget _buildSummaryChip({
-    required IconData icon,
+    required String emoji,
     required String value,
     required String label,
     required Color color,
     required ThemeData theme,
   }) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: kSpacingSmall),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          border: Border.all(color: color.withValues(alpha: 0.12)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 16, color: color),
-            const SizedBox(width: 6),
-            Text(
-              value,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
+      child: Card(
+        elevation: 0.5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: kSpacingSmall, horizontal: kSpacingSmall),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withValues(alpha: 0.12),
+                color.withValues(alpha: 0.04),
+              ],
             ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+              Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: color.withValues(alpha: 0.8),
                   fontSize: kFontSizeTiny,
                 ),
-                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1234,20 +1240,25 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                             GestureDetector(
                               onTap: () => _showQuickQuantityDialog(item),
                               child: Container(
-                                constraints: const BoxConstraints(minWidth: 40),
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                constraints: const BoxConstraints(minWidth: 48),
+                                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
                                 decoration: BoxDecoration(
                                   color: isWarning || isCritical
-                                      ? statusColor.withValues(alpha: 0.1)
-                                      : cs.primaryContainer.withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                                      ? statusColor.withValues(alpha: 0.12)
+                                      : cs.primaryContainer.withValues(alpha: 0.4),
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                  border: Border.all(
+                                    color: isWarning || isCritical
+                                        ? statusColor.withValues(alpha: 0.3)
+                                        : cs.primary.withValues(alpha: 0.15),
+                                  ),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
                                       '${item.quantity}',
-                                      style: theme.textTheme.titleSmall?.copyWith(
+                                      style: theme.textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: isWarning || isCritical ? statusColor : cs.primary,
                                       ),
@@ -1255,7 +1266,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                     ),
                                     Text(
                                       item.unit,
-                                      style: TextStyle(
+                                      style: theme.textTheme.bodySmall?.copyWith(
                                         fontSize: kFontSizeTiny,
                                         color: cs.onSurfaceVariant,
                                       ),
