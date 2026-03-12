@@ -55,7 +55,7 @@ class OnboardingSteps {
       _MultiSelectStep(
         title: AppStrings.onboarding.storesTitle,
         icon: Icons.store,
-        options: StoresConfig.allStores,
+        options: StoresConfig.allDisplayNames,
         selected: data.preferredStores,
         onChanged: onStoresChanged,
         stickyColor: kStickyPink,
