@@ -178,7 +178,7 @@ async function main() {
     const shopperUid = cohenShoppers[w % cohenShoppers.length];
     const numItems = randomInt(5, 18);
     const items = pickRandom(products, numItems).map((p, i) => ({
-      id: `rcpt_c${w}_${i}`, name: p.name, quantity: randomInt(1, 4),
+      id: `rcpt_c${w}_${i}`, name: p.name, quantity: randomInt(1, 4), unit_price: p.price || 0,
       is_checked: true, category: p.category,
       checked_by: shopperUid, checked_at: date.toISOString(),
     }));
@@ -188,7 +188,7 @@ async function main() {
       store_name: stores[w % stores.length],
       date: date.toISOString(),
       household_id: 'household_cohen',
-      items, total_amount: 0, // no real prices
+      items, total_amount: items.reduce((s, it) => s + (it.quantity || 1) * (it.unit_price || 0), 0),
       is_virtual: true, created_by: shopperUid,
       created_at: date.toISOString(),
     });
@@ -203,7 +203,7 @@ async function main() {
     const shopperUid = w % 2 === 0 ? uids.dan : uids.maya;
     const numItems = randomInt(4, 12);
     const items = pickRandom(products, numItems).map((p, i) => ({
-      id: `rcpt_l${w}_${i}`, name: p.name, quantity: randomInt(1, 3),
+      id: `rcpt_l${w}_${i}`, name: p.name, quantity: randomInt(1, 3), unit_price: p.price || 0,
       is_checked: true, category: p.category,
       checked_by: shopperUid, checked_at: date.toISOString(),
     }));
@@ -213,7 +213,7 @@ async function main() {
       store_name: w % 3 === 0 ? 'שופרסל' : 'רמי לוי',
       date: date.toISOString(),
       household_id: 'household_levi',
-      items, total_amount: 0,
+      items, total_amount: items.reduce((s, it) => s + (it.quantity || 1) * (it.unit_price || 0), 0),
       is_virtual: true, created_by: shopperUid,
       created_at: date.toISOString(),
     });
@@ -227,7 +227,7 @@ async function main() {
     const date = daysAgo(dayOffset);
     const numItems = randomInt(3, 25);
     const items = pickRandom(products, numItems).map((p, i) => ({
-      id: `rcpt_n${w}_${i}`, name: p.name, quantity: randomInt(1, 5),
+      id: `rcpt_n${w}_${i}`, name: p.name, quantity: randomInt(1, 5), unit_price: p.price || 0,
       is_checked: true, category: p.category,
       checked_by: uids.naama, checked_at: date.toISOString(),
     }));
@@ -237,7 +237,7 @@ async function main() {
       store_name: stores[w % stores.length],
       date: date.toISOString(),
       household_id: 'household_naama',
-      items, total_amount: 0,
+      items, total_amount: items.reduce((s, it) => s + (it.quantity || 1) * (it.unit_price || 0), 0),
       is_virtual: true, created_by: uids.naama,
       created_at: date.toISOString(),
     });
@@ -251,7 +251,7 @@ async function main() {
     const date = daysAgo(dayOffset);
     const numItems = randomInt(3, 8);
     const items = pickRandom(products, numItems).map((p, i) => ({
-      id: `rcpt_t${w}_${i}`, name: p.name, quantity: randomInt(1, 2),
+      id: `rcpt_t${w}_${i}`, name: p.name, quantity: randomInt(1, 2), unit_price: p.price || 0,
       is_checked: true, category: p.category,
       checked_by: uids.tomer, checked_at: date.toISOString(),
     }));
@@ -261,7 +261,7 @@ async function main() {
       store_name: w % 2 === 0 ? 'AM:PM' : 'שופרסל דיל',
       date: date.toISOString(),
       household_id: 'household_tomer',
-      items, total_amount: 0,
+      items, total_amount: items.reduce((s, it) => s + (it.quantity || 1) * (it.unit_price || 0), 0),
       is_virtual: true, created_by: uids.tomer,
       created_at: date.toISOString(),
     });
@@ -286,7 +286,7 @@ async function main() {
     shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: bakeryProducts.map((p, i) => ({
       id: `item_bk_${i}`, name: p.name, quantity: randomInt(1, 3), unit: p.unit || "יח'",
-      unit_price: 0, category: p.category, type: 'product',
+      unit_price: p.price || 0, category: p.category, type: 'product',
       is_checked: i === 0, // first item checked
       emoji: p.icon || null, notes: i === 0 ? 'הגדול, לא הקטן' : null,
     })),
@@ -303,7 +303,7 @@ async function main() {
     shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: butcherProducts.map((p, i) => ({
       id: `item_bt_${i}`, name: p.name, quantity: randomInt(1, 2), unit: 'ק"ג',
-      unit_price: 0, category: p.category, type: 'product',
+      unit_price: p.price || 0, category: p.category, type: 'product',
       is_checked: i < 2, // 2 out of 6 checked
       emoji: p.icon || null, notes: null,
     })),
@@ -347,7 +347,7 @@ async function main() {
     }],
     items: greengrocerProducts.map((p, i) => ({
       id: `item_gg_${i}`, name: p.name, quantity: randomInt(1, 3), unit: p.unit || 'ק"ג',
-      unit_price: 0, category: p.category, type: 'product',
+      unit_price: p.price || 0, category: p.category, type: 'product',
       is_checked: i < 3, // 3/8 already checked (in progress)
       emoji: p.icon || null, notes: null,
       checked_by: i < 3 ? uids.ronit : null,
@@ -366,7 +366,7 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: bigListProducts.map((p, i) => ({
       id: `item_nb_${i}`, name: p.name, quantity: randomInt(1, 5), unit: p.unit || "יח'",
-      unit_price: 0, category: p.category, type: 'product',
+      unit_price: p.price || 0, category: p.category, type: 'product',
       is_checked: i < 20, // 20/55 checked
       emoji: p.icon || null, notes: i === 0 ? 'בדוק תאריך תפוגה!!' : null,
     })),
@@ -384,7 +384,7 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: marketProducts.map((p, i) => ({
       id: `item_nm_${i}`, name: p.name, quantity: randomInt(1, 3), unit: p.unit || 'ק"ג',
-      unit_price: 0, category: p.category, type: 'product',
+      unit_price: p.price || 0, category: p.category, type: 'product',
       is_checked: false, emoji: p.icon || null, notes: null,
     })),
   });
@@ -423,7 +423,7 @@ async function main() {
       shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
       items: completedItems.map((p, i) => ({
         id: `item_np${m}_${i}`, name: p.name, quantity: randomInt(1, 4), unit: p.unit || "יח'",
-        unit_price: 0, category: p.category, type: 'product', is_checked: true,
+        unit_price: p.price || 0, category: p.category, type: 'product', is_checked: true,
         emoji: p.icon || null, notes: null,
       })),
     });
