@@ -92,7 +92,7 @@ List<Map<String, dynamic>> _safeParseListOfMaps(dynamic value) {
   if (value is! List) return [];
   return value
       .whereType<Map>() // Filter only Map items
-      .map((e) => Map<String, dynamic>.from(e))
+      .map(Map<String, dynamic>.from)
       .toList();
 }
 
