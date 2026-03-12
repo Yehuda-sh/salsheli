@@ -21,7 +21,7 @@
 //
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:flutter/foundation.dart' show immutable, kDebugMode;
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/item_type.dart';
@@ -78,8 +78,6 @@ DateTime? _safeParseDateTimeNullable(dynamic value) {
   if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
   if (value is String) return DateTime.tryParse(value);
   // Unknown type - return null instead of throwing
-  if (kDebugMode) {
-  }
   return null;
 }
 

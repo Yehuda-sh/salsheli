@@ -5,7 +5,6 @@
 //
 // 🔗 Related: UnifiedListItem, SharedUser, ActiveShopper
 
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
@@ -48,8 +47,6 @@ class SharedUsersMapConverter
 
     // Handle old List format (backward compatibility)
     if (json is List) {
-      if (kDebugMode) {
-      }
       final result = <String, SharedUser>{};
       for (final item in json) {
         try {
@@ -63,8 +60,6 @@ class SharedUsersMapConverter
             }
           }
         } catch (e) {
-          if (kDebugMode) {
-          }
         }
       }
       return result;
@@ -81,15 +76,11 @@ class SharedUsersMapConverter
           // Set the userId from the map key
           result[key] = user.copyWith(userId: key);
         } catch (e) {
-          if (kDebugMode) {
-          }
         }
       }
       return result;
     }
 
-    if (kDebugMode) {
-    }
     return {};
   }
 
@@ -459,28 +450,8 @@ class ShoppingList {
 
   /// 🇮🇱 צבע פתק לפי סוג הרשימה
   /// 🇬🇧 Sticky note color by list type
-  Color get stickyColor {
-    switch (type) {
-      case typeSupermarket:
-        return kStickyYellow;
-      case typePharmacy:
-        return kStickyCyan;
-      case typeGreengrocer:
-        return kStickyGreen;
-      case typeButcher:
-        return kStickyPink;
-      case typeBakery:
-        return kStickyOrange; // ✅ Fixed inconsistency 
-      case typeMarket:
-        return kStickyPurple;
-      case typeHousehold:
-        return kStickyCyan;
-      case typeEvent:
-        return kStickyPurple; // אירועים
-      default:
-        return kStickyYellow; // default
-    }
-  }
+  /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
+  Color get stickyColor => ListTypes.getByKeySafe(type).color ?? kStickyYellow;
 
   /// 🇮🇱 אימוג'י לפי סוג הרשימה
   /// 🇬🇧 Emoji by list type

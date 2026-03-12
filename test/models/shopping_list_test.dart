@@ -427,8 +427,9 @@ void main() {
           type: ShoppingList.typePharmacy,
         );
 
-        expect(supermarketList.stickyColor, const Color(0xFFFFF59D));
-        expect(pharmacyList.stickyColor, const Color(0xFF80DEEA));
+        // ✅ Colors now come from ListTypes config (single source of truth)
+        expect(supermarketList.stickyColor, const Color(0xFFA5D6A7)); // kStickyGreen
+        expect(pharmacyList.stickyColor, const Color(0xFFF48FB1)); // kStickyPink
       });
 
       test('typeEmoji should return correct emoji for each type', () {
