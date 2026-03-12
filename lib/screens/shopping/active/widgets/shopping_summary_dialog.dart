@@ -14,6 +14,13 @@ enum ShoppingSummaryResult {
   finishNoPending, // סיים (אין pending)
 }
 
+/// תוצאת דיאלוג סיכום — כוללת גם שם חנות אופציונלי
+class ShoppingSummaryOutcome {
+  final ShoppingSummaryResult result;
+  final String? storeName;
+  const ShoppingSummaryOutcome(this.result, {this.storeName});
+}
+
 // ========================================
 // Dialog: סיכום קנייה
 // ========================================
@@ -25,6 +32,8 @@ class ShoppingSummaryDialog extends StatefulWidget {
   final int outOfStock;
   final int notNeeded;
   final int pending;
+  /// חנויות מועדפות/מוכרות להצגה כצ'יפים
+  final List<String> knownStores;
 
   const ShoppingSummaryDialog({super.key, 
     required this.listName,
@@ -33,6 +42,7 @@ class ShoppingSummaryDialog extends StatefulWidget {
     required this.outOfStock,
     required this.notNeeded,
     required this.pending,
+    this.knownStores = const [],
   });
 
   @override
@@ -42,6 +52,8 @@ class ShoppingSummaryDialog extends StatefulWidget {
 class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
   // מצב: האם להציג את אפשרויות ה-pending
   bool _showPendingOptions = false;
+  // שם חנות שהמשתמש בחר/הקליד
+  String? _selectedStoreName;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +125,73 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 value: '${widget.pending}',
                 color: kStickyOrange,
               ),
+
+            // 🏪 מאיפה קנית? (אופציונלי)
+            if (widget.purchased > 0) ...[
+              const Divider(height: kSpacingLarge),
+              Row(
+                children: [
+                  Icon(Icons.store_outlined, size: 18, color: cs.onSurfaceVariant),
+                  const SizedBox(width: 6),
+                  Text(
+                    'מאיפה קנית?',
+                    style: TextStyle(
+                      fontSize: kFontSizeMedium,
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '(אופציונלי)',
+                    style: TextStyle(
+                      fontSize: kFontSizeTiny,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingSmall),
+              // צ'יפים של חנויות מוכרות
+              if (widget.knownStores.isNotEmpty)
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  children: widget.knownStores.map((store) => ChoiceChip(
+                    label: Text(store, style: TextStyle(fontSize: kFontSizeSmall)),
+                    selected: _selectedStoreName == store,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedStoreName = selected ? store : null;
+                      });
+                    },
+                    visualDensity: VisualDensity.compact,
+                    selectedColor: cs.primaryContainer,
+                  )).toList(),
+                ),
+              if (widget.knownStores.isNotEmpty)
+                const SizedBox(height: kSpacingSmall),
+              // שדה טקסט לחנות אחרת
+              SizedBox(
+                height: 40,
+                child: TextField(
+                  style: TextStyle(fontSize: kFontSizeSmall),
+                  decoration: InputDecoration(
+                    hintText: 'או הקלד שם חנות...',
+                    hintStyle: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+                    prefixIcon: Icon(Icons.edit_outlined, size: 16, color: cs.onSurfaceVariant),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedStoreName = value.trim().isEmpty ? null : value.trim();
+                    });
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -122,7 +201,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           button: true,
           child: TextButton(
             onPressed: () {
-              Navigator.pop(context, ShoppingSummaryResult.cancel);
+              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.cancel));
             },
             child: Text(AppStrings.shopping.summaryBack),
           ),
@@ -139,7 +218,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
               if (widget.pending > 0) {
                 setState(() => _showPendingOptions = true);
               } else {
-                Navigator.pop(context, ShoppingSummaryResult.finishNoPending);
+                Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishNoPending, storeName: _selectedStoreName));
               }
             },
             color: kStickyGreen,
@@ -185,7 +264,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
             subtitle: AppStrings.shopping.summaryPendingTransferSubtitle,
             onTap: () {
               unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryResult.finishAndTransferPending);
+              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndTransferPending, storeName: _selectedStoreName));
             },
           ),
 
@@ -199,7 +278,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
             subtitle: AppStrings.shopping.summaryPendingLeaveSubtitle,
             onTap: () {
               unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryResult.finishAndLeavePending);
+              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndLeavePending, storeName: _selectedStoreName));
             },
           ),
 
@@ -213,7 +292,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
             subtitle: AppStrings.shopping.summaryPendingDeleteSubtitle,
             onTap: () {
               unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryResult.finishAndDeletePending);
+              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndDeletePending, storeName: _selectedStoreName));
             },
           ),
         ],

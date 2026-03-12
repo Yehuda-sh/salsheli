@@ -368,7 +368,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       return status == null || status == ShoppingItemStatus.pending;
     }).length;
 
-    final result = await showDialog<ShoppingSummaryResult>(
+    // אסוף שמות חנויות מוכרות (מהעדפות + מקבלות קודמות)
+    final knownStores = _getKnownStores();
+
+    final outcome = await showDialog<ShoppingSummaryOutcome>(
       context: context,
       // ✅ Issue #4: מניעת סגירה בלחיצה מחוץ לדיאלוג
       barrierDismissible: false,
@@ -379,13 +382,32 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         outOfStock: outOfStock,
         notNeeded: notNeeded,
         pending: pending,
+        knownStores: knownStores,
       ),
     );
 
-    if (result != null && result != ShoppingSummaryResult.cancel && mounted) {
-      await _saveAndFinish(pendingAction: result);
+    if (outcome != null && outcome.result != ShoppingSummaryResult.cancel && mounted) {
+      await _saveAndFinish(pendingAction: outcome.result, storeName: outcome.storeName);
     } else {
     }
+  }
+
+  /// אוסף שמות חנויות מוכרות — מהעדפות המשתמש + מקבלות קודמות
+  List<String> _getKnownStores() {
+    final stores = <String>{};
+    // מהעדפות המשתמש
+    final preferred = _userContext.user?.preferredStores ?? [];
+    stores.addAll(preferred);
+    // מקבלות אחרונות
+    try {
+      final receipts = context.read<ReceiptProvider>().receipts;
+      for (final r in receipts.take(20)) {
+        if (r.storeName.isNotEmpty) stores.add(r.storeName);
+      }
+    } catch (_) {}
+    // הסר את שם הרשימה הנוכחית (לא רלוונטי)
+    stores.remove(widget.list.name);
+    return stores.take(6).toList();
   }
 
   /// שמירה וסיום - עם עדכון מלאי אוטומטי
@@ -395,8 +417,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// - finishAndLeavePending: השאר ברשימה (הרשימה תישאר פעילה)
   /// - finishAndDeletePending: מחק (סמן כ-notNeeded)
   /// - finishNoPending: אין פריטים ב-pending
+  /// [storeName] - שם חנות אופציונלי (מהמשתמש, לקבלה)
   Future<void> _saveAndFinish({
     ShoppingSummaryResult pendingAction = ShoppingSummaryResult.finishNoPending,
+    String? storeName,
   }) async {
     final cs = Theme.of(context).colorScheme;
     // ✅ תפוס context לפני await
@@ -530,7 +554,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           )).toList();
 
           await receiptProvider.createReceipt(
-            storeName: listName,
+            storeName: storeName ?? listName,
             date: DateTime.now(),
             items: receiptItems,
           );
