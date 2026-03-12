@@ -492,26 +492,33 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Row(
       children: [
-        // User avatar — לחיצה פותחת bottom sheet
+        // User avatar — gradient ring + לחיצה פותחת bottom sheet
         GestureDetector(
           onTap: () => _showUserInfoSheet(context, userName, familyName),
           child: Container(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: cs.primaryContainer,
-              border: Border.all(
-                color: cs.primary.withValues(alpha: 0.3),
-                width: 2,
+              gradient: LinearGradient(
+                colors: [cs.primary, cs.tertiary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            child: Center(
-              child: Text(
-                initials,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.primary,
+            child: Container(
+              margin: const EdgeInsets.all(2.5),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: cs.primaryContainer,
+              ),
+              child: Center(
+                child: Text(
+                  initials,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: cs.primary,
+                  ),
                 ),
               ),
             ),
@@ -570,7 +577,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           color: cs.surface.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(kBorderRadius),
                         ),
-                        child: Icon(Icons.notifications_outlined, color: cs.primary),
+                        child: Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
                       ),
                     ),
                   );
