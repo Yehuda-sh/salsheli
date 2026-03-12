@@ -552,8 +552,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
   }
 
   Widget _buildTypeChip(String type, ThemeData theme) {
-    final typeInfo = ListTypes.getByKey(type);
-    if (typeInfo == null) return const SizedBox.shrink();
+    final typeInfo = ListTypes.getByKeySafe(type);
 
     final isSelected = _type == type;
 

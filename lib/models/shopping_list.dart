@@ -484,17 +484,17 @@ class ShoppingList {
   /// 🇮🇱 אימוג'י לפי סוג הרשימה
   /// 🇬🇧 Emoji by list type
   /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
-  String get typeEmoji => ListTypes.getByKey(type)?.emoji ?? '📝';
+  String get typeEmoji => ListTypes.getByKeySafe(type).emoji;
 
   /// 🇮🇱 שם סוג הרשימה בעברית
   /// 🇬🇧 List type name in Hebrew
   /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
-  String get typeName => ListTypes.getByKey(type)?.fullName ?? 'אחר';
+  String get typeName => ListTypes.getByKeySafe(type).fullName;
 
   /// 🇮🇱 אייקון Material לפי סוג הרשימה
   /// 🇬🇧 Material icon by list type
   /// ✅ Delegate ל-ListTypes (מקור אמת יחיד)
-  IconData get typeIcon => ListTypes.getByKey(type)?.icon ?? Icons.shopping_bag;
+  IconData get typeIcon => ListTypes.getByKeySafe(type).icon;
 
   /// Constructor
   ShoppingList({
