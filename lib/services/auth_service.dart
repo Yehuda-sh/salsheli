@@ -218,8 +218,6 @@ class AuthService {
           if (attempt < maxRetries) {
             // Exponential backoff: 1s, 2s, 4s...
             final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-            if (kDebugMode) {
-            }
             await Future.delayed(delay);
             continue;
           }
@@ -233,8 +231,6 @@ class AuthService {
 
           if (attempt < maxRetries) {
             final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-            if (kDebugMode) {
-            }
             await Future.delayed(delay);
             continue;
           }
@@ -253,8 +249,6 @@ class AuthService {
 
         if (isNetworkError && attempt < maxRetries) {
           final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-          if (kDebugMode) {
-          }
           await Future.delayed(delay);
           continue;
         }
@@ -264,8 +258,6 @@ class AuthService {
     }
 
     // הגענו לכאן רק אם כל הניסיונות נכשלו
-    if (kDebugMode) {
-    }
 
     if (lastError is AuthException) {
       throw lastError;
@@ -330,8 +322,6 @@ class AuthService {
     required String password,
     required String name,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // ✅ יצירת משתמש עם timeout ו-retry
@@ -347,21 +337,15 @@ class AuthService {
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
-      if (kDebugMode) {
-      }
       return credential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       // ✅ AuthException typed במקום Exception גנרי
       final errorMessage = _getSignUpErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.signUpError(e.toString()),
@@ -397,8 +381,6 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // ✅ עם timeout ו-retry
@@ -410,21 +392,15 @@ class AuthService {
         ),
       );
 
-      if (kDebugMode) {
-      }
       return credential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       // ✅ AuthException typed במקום Exception גנרי
       final errorMessage = _getSignInErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.signInError(e.toString()),
@@ -455,8 +431,6 @@ class AuthService {
   /// ```
   Future<UserCredential> signInWithGoogle() async {
     try {
-      if (kDebugMode) {
-      }
 
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) {
@@ -474,18 +448,12 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(credential);
 
-      if (kDebugMode) {
-      }
       return userCredential;
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
         message: AppStrings.auth.socialLoginError,
@@ -514,8 +482,6 @@ class AuthService {
   /// ```
   Future<UserCredential> signInWithApple() async {
     try {
-      if (kDebugMode) {
-      }
 
       // Generate nonce for security
       final rawNonce = _generateNonce();
@@ -536,12 +502,8 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(oauthCredential);
 
-      if (kDebugMode) {
-      }
       return userCredential;
     } on SignInWithAppleAuthorizationException catch (e) {
-      if (kDebugMode) {
-      }
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthException(
           code: AuthErrorCode.socialLoginCancelled,
@@ -557,12 +519,8 @@ class AuthService {
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
         message: AppStrings.auth.socialLoginError,
@@ -608,15 +566,9 @@ class AuthService {
   /// ```
   Future<bool> signOut() async {
     try {
-      if (kDebugMode) {
-      }
       await _auth.signOut();
-      if (kDebugMode) {
-      }
       return true;
     } catch (e) {
-      if (kDebugMode) {
-      }
       return false;
     }
   }
@@ -639,20 +591,12 @@ class AuthService {
   /// ```
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      if (kDebugMode) {
-      }
       await _auth.sendPasswordResetEmail(email: email);
-      if (kDebugMode) {
-      }
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       final errorMessage = _getResetPasswordErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.resetEmailError(e.toString()),
@@ -686,16 +630,10 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.sendEmailVerification();
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.verificationEmailError(e.toString()),
@@ -729,17 +667,11 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.updateDisplayName(displayName);
       await _auth.currentUser!.reload();
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.updateDisplayNameError(e.toString()),
@@ -777,17 +709,11 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.verifyBeforeUpdateEmail(newEmail);
       await _auth.currentUser!.reload();
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       String errorMessage;
       if (e.code == 'requires-recent-login') {
@@ -802,8 +728,6 @@ class AuthService {
 
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.updateEmailError(e.toString()),
@@ -841,16 +765,10 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.updatePassword(newPassword);
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       String errorMessage;
       if (e.code == 'requires-recent-login') {
@@ -863,8 +781,6 @@ class AuthService {
 
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.updatePasswordError(e.toString()),
@@ -909,8 +825,6 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
 
       final credential = EmailAuthProvider.credential(
         email: email,
@@ -918,19 +832,13 @@ class AuthService {
       );
 
       await _auth.currentUser!.reauthenticateWithCredential(credential);
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       final errorMessage = _getSignInErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.signInError(e.toString()),
@@ -971,16 +879,10 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.delete();
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-      }
 
       String errorMessage;
       if (e.code == 'requires-recent-login') {
@@ -991,8 +893,6 @@ class AuthService {
 
       throw AuthException.fromFirebaseCode(e.code, errorMessage);
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.deleteAccountError(e.toString()),
@@ -1029,16 +929,10 @@ class AuthService {
         );
       }
 
-      if (kDebugMode) {
-      }
       await _auth.currentUser!.reload();
-      if (kDebugMode) {
-      }
     } on AuthException {
       rethrow;
     } catch (e) {
-      if (kDebugMode) {
-      }
       throw AuthException(
         code: AuthErrorCode.unknown,
         message: AppStrings.auth.reloadUserError(e.toString()),

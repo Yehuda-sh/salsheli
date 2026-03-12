@@ -13,7 +13,6 @@
 // 📝 Version: 1.1
 // תלויות: OnboardingData, SharedPreferences
 
-import 'package:flutter/foundation.dart';
 import '../data/onboarding_data.dart';
 
 // ========================================
@@ -110,8 +109,6 @@ class OnboardingResult {
 
 // 🔧 Wrapper לlogs - פועל רק ב-debug mode
 void _log(String message) {
-  if (kDebugMode) {
-  }
 }
 
 /// שירות לניהול נתוני Onboarding

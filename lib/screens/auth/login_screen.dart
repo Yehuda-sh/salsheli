@@ -168,8 +168,6 @@ class _LoginScreenState extends State<LoginScreen>
       await userContext.signIn(email: email, password: password);
 
       // ✅ signIn() זורק Exception אם נכשל, אחרת מצליח
-      if (kDebugMode) {
-      }
 
       // 🔹 2. שמירה ב-SharedPreferences (רק seenOnboarding!)
       // ✅ FIX: שם עקבי עם IndexScreen ו-UserContext
