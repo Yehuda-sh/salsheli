@@ -96,18 +96,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ]);
       if (kDebugMode) {
       }
-    } on Exception catch (e) {
-      if (kDebugMode) {
-      }
+    } on Exception catch (_) {
+      // Silently handle - data will show cached state
     }
 
     if (!context.mounted) return;
 
     try {
       await sugg.refreshSuggestions();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-      }
+    } on Exception catch (_) {
+      // Silently handle - suggestions are non-critical
     }
 
     await Future.delayed(const Duration(milliseconds: 300));
@@ -387,13 +385,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ? 'assets/images/greeting_evening.webp'
                 : 'assets/images/greeting_night.webp';
 
-    // ראשי תיבות למשתמש
-    final initials = (userName ?? '?')
-        .split(' ')
-        .where((p) => p.isNotEmpty)
-        .map((p) => p[0])
-        .take(2)
-        .join();
+    // ✅ REMOVED: unused initials variable
 
     return Row(
       children: [

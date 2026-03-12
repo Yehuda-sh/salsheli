@@ -150,7 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         _loading = false;
         _errorMessage = null;
       });
-      _animController.forward();
+      unawaited(_animController.forward());
     } catch (e) {
       if (!mounted) return;
       setState(() {

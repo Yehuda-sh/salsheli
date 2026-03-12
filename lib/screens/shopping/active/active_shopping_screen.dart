@@ -998,7 +998,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                             child: Row(
                               children: [
                                 Text(
-                                  FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category) ?? 'other'),
+                                  FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)),
                                   style: TextStyle(fontSize: kFontSizeLarge),
                                 ),
                                 SizedBox(width: kSpacingSmall),
