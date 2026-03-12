@@ -199,7 +199,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     var sectionIndex = 0;
 
     return Scaffold(
-      backgroundColor: paperBg,
+      backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'home_fab',
         onPressed: () {

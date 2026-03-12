@@ -56,6 +56,7 @@ import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../widgets/common/add_location_dialog.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
 
@@ -421,17 +422,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
               ),
               body: provider.isLoading
-                  ? SafeArea(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(color: scheme.primary),
-                            const SizedBox(height: kSpacingMedium),
-                            Text(strings.loadingText, style: TextStyle(color: scheme.onSurface)),
-                          ],
-                        ),
-                      ),
+                  ? const SafeArea(
+                      child: AppLoadingSkeleton(sectionCount: 5, showHero: false),
                     )
                   : allItems.isEmpty
                       ? SafeArea(
