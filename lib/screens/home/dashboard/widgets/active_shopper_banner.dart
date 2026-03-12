@@ -362,7 +362,7 @@ class _OthersShoppingBanner extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppStrings.shopping.viewerCannotShop),
-            backgroundColor: StatusColors.pending,
+            backgroundColor: StatusColors.getColor(StatusType.pending, context),
           ),
         );
         return;
