@@ -7,8 +7,6 @@
 // Version: 4.1 (12/03/2026)
 // 🔗 Related: All screens and widgets, filters_config (for categories)
 
-import 'package:flutter/material.dart';
-
 /// מחרוזות UI - כרגע עברית בלבד
 class AppStrings {
   // מניעת instances
