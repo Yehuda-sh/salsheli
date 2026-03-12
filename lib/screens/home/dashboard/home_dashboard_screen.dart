@@ -208,7 +208,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        icon: const Icon(Icons.add),
+        icon: Image.asset('assets/images/icon_new_list.webp', width: 28, height: 28),
         label: Text(AppStrings.homeDashboard.newListButton),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
@@ -379,7 +379,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     // ברכה קצרה לפי שעה
     final hour = DateTime.now().hour;
-    final greetingEmoji = hour < 12 ? '☀️' : hour < 17 ? '🌤️' : hour < 21 ? '🌅' : '🌙';
+    final greetingAsset = hour < 12
+        ? 'assets/images/greeting_morning.webp'
+        : hour < 17
+            ? 'assets/images/greeting_afternoon.webp'
+            : hour < 21
+                ? 'assets/images/greeting_evening.webp'
+                : 'assets/images/greeting_night.webp';
 
     // ראשי תיבות למשתמש
     final initials = (userName ?? '?')
@@ -427,14 +433,22 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '$greetingEmoji ${strings.timeBasedGreeting(userName, hour)}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurface,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              Row(
+                children: [
+                  Image.asset(greetingAsset, width: 24, height: 24),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      strings.timeBasedGreeting(userName, hour),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
@@ -570,7 +584,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.shopping_cart_outlined, size: 20, color: cs.primary),
+            Image.asset('assets/images/icon_active_lists.webp', width: 28, height: 28),
             const SizedBox(width: 8),
             Text(
               strings.activeListsTitle,
