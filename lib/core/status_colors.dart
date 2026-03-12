@@ -220,48 +220,4 @@ class StatusColors {
         unawaited(HapticFeedback.selectionClick());
     }
   }
-
-  // ========================================
-  // Static Getters (Fallback colors - לשימוש ללא context)
-  // ========================================
-  //
-  // ⚠️ שימו לב: צבעים אלה הם fallback בלבד!
-  // לצבעים Theme-aware השתמשו ב-getColor/getContainer.
-  // צבעים אלה שימושיים ב:
-  // - const widgets
-  // - מקומות שאין גישה ל-context
-  // - ערכי ברירת מחדל
-
-  /// ירוק הצלחה (fallback)
-  static const Color success = _successFallback;
-
-  /// אדום שגיאה (fallback - desaturated 10%)
-  static const Color error = Color(0xFFCC4444); // Red 700 desaturated
-
-  /// כתום אזהרה (fallback)
-  static const Color warning = _warningFallback;
-
-  /// אפור ממתין (fallback - outline equivalent)
-  static const Color pending = Color(0xFF7A7A7A); // Grey 600 desaturated
-
-  /// כחול מידע (fallback - desaturated 10%)
-  static const Color info = Color(0xFF3580C8); // Blue 700 desaturated
-
-  // Container variants (רקעים בהירים, desaturated)
-
-  /// רקע הצלחה (fallback)
-  static const Color successContainer = _successContainerFallback;
-
-  /// רקע שגיאה (fallback - desaturated)
-  static const Color errorContainer = Color(0xFFFFD4D4); // Red 100 desaturated
-
-  /// רקע אזהרה (fallback)
-  static const Color warningContainer = _warningContainerFallback;
-
-  /// רקע ממתין (fallback)
-  static const Color pendingContainer = Color(0xFFF0F0F0); // Grey 200 desaturated
-
-  /// רקע מידע (fallback - desaturated)
-  static const Color infoContainer = Color(0xFFC5E0F8); // Blue 100 desaturated
-
 }
