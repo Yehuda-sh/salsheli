@@ -91,9 +91,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   /// 🎯 אימוג'י לפי קטגוריה - תואם לקטלוג המוצרים
   /// 🔧 FIX: קבלת listType כפרמטר במקום widget.list.type
-  String _FiltersConfig.getCategoryEmoji(String category, String listType) {
+  String _getCategoryEmoji(String category, String listType) {
     final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
-    return FiltersConfig.getCategoryEmoji(englishKey ?? category);
+    return FiltersConfig.getCategoryEmoji(englishKey);
   }
 
   // 🎬 Animation Controllers
@@ -803,7 +803,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     return allCategories.map((category) {
       final isAll = category == AppStrings.listDetails.categoryAll;
       final isSelected = _selectedCategory == category || (_selectedCategory == null && isAll);
-      final emoji = isAll ? '📦' : _FiltersConfig.getCategoryEmoji(category, currentList.type);
+      final emoji = isAll ? '📦' : _getCategoryEmoji(category, currentList.type);
 
       return Padding(
         padding: const EdgeInsets.only(left: 8.0), // ריווח בין צ'יפים
@@ -946,7 +946,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     SizedBox(width: kNotebookRedLineOffset),
 
                     Text(
-                      '${_FiltersConfig.getCategoryEmoji(category, currentList.type)} $category',
+                      '${_getCategoryEmoji(category, currentList.type)} $category',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,

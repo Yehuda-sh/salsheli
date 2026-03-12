@@ -92,7 +92,8 @@ class ShoppingListTile extends StatelessWidget {
           child: Semantics(
             label: label,
             button: true,
-            child: SimpleTappableCard(
+            child: TappableCard(
+              animateElevation: false,
               onTap: onPressed != null
                   ? () {
                       // 📳 Haptic: mediumImpact לכפתור CTA
