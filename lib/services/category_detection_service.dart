@@ -10,8 +10,6 @@
 //     - Detection by brand
 //     - Fallback for miscategorized products in JSON
 
-import 'package:flutter/foundation.dart';
-
 /// 🤖 שירות זיהוי אוטומטי של קטגוריות
 class CategoryDetectionService {
   /// מיפוי מותגים לקטגוריות
@@ -169,15 +167,11 @@ class CategoryDetectionService {
     String? brand,
     String? currentCategory,
   }) {
-    if (kDebugMode) {
-    }
 
     // אם יש קטגוריה קיימת ותקינה - השתמש בה
     if (currentCategory != null &&
         currentCategory != 'אחר' &&
         currentCategory.isNotEmpty) {
-      if (kDebugMode) {
-      }
       return currentCategory;
     }
 
@@ -188,8 +182,6 @@ class CategoryDetectionService {
       final brandLower = brand.toLowerCase();
       for (final entry in _brandToCategory.entries) {
         if (brandLower.contains(entry.key.toLowerCase())) {
-          if (kDebugMode) {
-          }
           return entry.value;
         }
       }
@@ -199,16 +191,12 @@ class CategoryDetectionService {
     for (final entry in _categoryKeywords.entries) {
       for (final keyword in entry.value) {
         if (nameLower.contains(keyword.toLowerCase())) {
-          if (kDebugMode) {
-          }
           return entry.key;
         }
       }
     }
 
     // 3. לא הצליח לזהות
-    if (kDebugMode) {
-    }
     return currentCategory ?? 'אחר';
   }
 

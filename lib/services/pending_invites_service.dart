@@ -283,14 +283,10 @@ class PendingInvitesService {
     required String householdId,
     String? householdName,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // ✅ Email validation
       if (!_isValidEmail(invitedUserEmail)) {
-        if (kDebugMode) {
-        }
         return InviteResult.validationError('Invalid email format: $invitedUserEmail');
       }
 
@@ -301,8 +297,6 @@ class PendingInvitesService {
       );
 
       if (existingInvite != null) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteAlreadyPending();
       }
 
@@ -327,8 +321,6 @@ class PendingInvitesService {
 
       await _invitesRef.doc(invite.id).set(invite.toJson());
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.success(invite: invite);
     } catch (e, stackTrace) {
@@ -430,8 +422,6 @@ class PendingInvitesService {
     String userId, {
     String? userEmail,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // 🔍 חיפוש לפי UID
@@ -462,8 +452,6 @@ class PendingInvitesService {
         }
       }
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.successWithInvites(invites);
     } catch (e, stackTrace) {
@@ -497,8 +485,6 @@ class PendingInvitesService {
   ///
   /// מחפש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה).
   Future<InviteResult> getPendingInvitesCountResult(String userId, {String? userEmail}) async {
-    if (kDebugMode) {
-    }
 
     try {
       final uidSnapshot = await _invitesRef
@@ -524,8 +510,6 @@ class PendingInvitesService {
         }
       }
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.successWithCount(count);
     } catch (e, stackTrace) {
@@ -573,15 +557,11 @@ class PendingInvitesService {
     String? acceptingUserName,
     String? acceptingUserAvatar,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // קבלת ההזמנה
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteNotFound();
       }
 
@@ -589,15 +569,11 @@ class PendingInvitesService {
 
       // בדיקות
       if (invite.status != RequestStatus.pending) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteAlreadyProcessed();
       }
 
       final invitedUserId = invite.requestData['invited_user_id'] as String;
       if (invitedUserId != acceptingUserId) {
-        if (kDebugMode) {
-        }
         return InviteResult.notAuthorized();
       }
 
@@ -663,15 +639,11 @@ class PendingInvitesService {
     String? decliningUserName,
     String? reason,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       // קבלת ההזמנה
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteNotFound();
       }
 
@@ -679,15 +651,11 @@ class PendingInvitesService {
 
       // בדיקות
       if (invite.status != RequestStatus.pending) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteAlreadyProcessed();
       }
 
       final invitedUserId = invite.requestData['invited_user_id'] as String;
       if (invitedUserId != decliningUserId) {
-        if (kDebugMode) {
-        }
         return InviteResult.notAuthorized();
       }
 
@@ -700,8 +668,6 @@ class PendingInvitesService {
         if (reason != null) 'rejection_reason': reason,
       });
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.success();
     } catch (e, stackTrace) {
@@ -719,14 +685,10 @@ class PendingInvitesService {
     required String inviteId,
     required String cancellingUserId,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       final inviteDoc = await _invitesRef.doc(inviteId).get();
       if (!inviteDoc.exists) {
-        if (kDebugMode) {
-        }
         return InviteResult.inviteNotFound();
       }
 
@@ -734,15 +696,11 @@ class PendingInvitesService {
 
       // רק המזמין יכול לבטל
       if (invite.requesterId != cancellingUserId) {
-        if (kDebugMode) {
-        }
         return InviteResult.notAuthorized();
       }
 
       await _invitesRef.doc(inviteId).delete();
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.success();
     } catch (e, stackTrace) {
@@ -904,8 +862,6 @@ class PendingInvitesService {
   ///
   /// ✅ מחזיר [InviteResult] עם סוג תוצאה ברור
   Future<InviteResult> cleanupOldInvitesResult({int daysOld = 30}) async {
-    if (kDebugMode) {
-    }
 
     try {
       final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
@@ -921,8 +877,6 @@ class PendingInvitesService {
 
       await batch.commit();
 
-      if (kDebugMode) {
-      }
 
       return InviteResult.successWithCount(snapshot.docs.length);
     } catch (e, stackTrace) {

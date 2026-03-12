@@ -46,8 +46,6 @@ class SavedContactsService {
   ///
   /// ממוין לפי זמן הזמנה אחרונה (החדש ביותר קודם)
   Future<List<SavedContact>> getContacts(String userId) async {
-    if (kDebugMode) {
-    }
 
     try {
       final snapshot = await _getUserContactsRef(userId)
@@ -63,8 +61,6 @@ class SavedContactsService {
       contacts.sort((a, b) =>
           b.effectiveLastInvitedAt.compareTo(a.effectiveLastInvitedAt));
 
-      if (kDebugMode) {
-      }
 
       return contacts;
     } catch (e) {
@@ -86,8 +82,6 @@ class SavedContactsService {
     required String contactUserEmail,
     String? contactUserAvatar,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       final docRef = _getUserContactsRef(currentUserId).doc(contactUserId);
@@ -101,8 +95,6 @@ class SavedContactsService {
           'user_name': contactUserName,
           'user_avatar': contactUserAvatar,
         });
-        if (kDebugMode) {
-        }
       } else {
         // איש קשר חדש - יצירה
         final contact = SavedContact.fromUserDetails(
@@ -112,12 +104,8 @@ class SavedContactsService {
           userAvatar: contactUserAvatar,
         );
         await docRef.set(contact.toJson());
-        if (kDebugMode) {
-        }
       }
     } catch (e) {
-      if (kDebugMode) {
-      }
       rethrow;
     }
   }
@@ -127,16 +115,10 @@ class SavedContactsService {
     required String currentUserId,
     required String contactUserId,
   }) async {
-    if (kDebugMode) {
-    }
 
     try {
       await _getUserContactsRef(currentUserId).doc(contactUserId).delete();
-      if (kDebugMode) {
-      }
     } catch (e) {
-      if (kDebugMode) {
-      }
       rethrow;
     }
   }
@@ -185,8 +167,6 @@ class SavedContactsService {
         'last_invited_at': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      if (kDebugMode) {
-      }
     }
   }
 }

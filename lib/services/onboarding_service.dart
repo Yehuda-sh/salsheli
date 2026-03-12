@@ -281,17 +281,4 @@ class OnboardingService {
     return result.isSuccess;
   }
 
-  /// @deprecated השתמש ב-loadPreferencesResult() במקום
-  @Deprecated('Use loadPreferencesResult() instead')
-  Future<OnboardingData> loadPreferences() async {
-    final result = await loadPreferencesResult();
-    return result.data ?? OnboardingData();
-  }
-
-  /// @deprecated השתמש ב-resetPreferencesResult() במקום
-  @Deprecated('Use resetPreferencesResult() instead')
-  Future<bool> resetPreferences() async {
-    final result = await resetPreferencesResult();
-    return result.isSuccess;
-  }
 }

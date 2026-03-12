@@ -101,8 +101,6 @@ class TemplateService {
           } else {
             _productsCache![source] = [];
           }
-          if (kDebugMode) {
-          }
         } catch (e) {
           if (kDebugMode) debugPrint('   ❌ שגיאה בטעינת $source: $e');
           _productsCache![source] = [];
@@ -250,8 +248,6 @@ class TemplateService {
       }
     }
 
-    if (kDebugMode) {
-    }
     return items;
   }
 
@@ -445,8 +441,6 @@ class TemplateService {
       ));
     }
 
-    if (kDebugMode) {
-    }
     return items;
   }
 

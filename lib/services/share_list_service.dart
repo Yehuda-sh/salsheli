@@ -64,27 +64,19 @@ class ShareListService {
     required String householdId,
     NotificationsService? notificationsService,
   }) async {
-    if (kDebugMode) {
-    }
 
     // בדיקה 1: רק Owner יכול להזמין משתמשים
     if (list.createdBy != currentUserId) {
-      if (kDebugMode) {
-      }
       throw Exception('permission_denied');
     }
 
     // בדיקה 2: לא ניתן להזמין את ה-Owner
     if (invitedUserId == list.createdBy) {
-      if (kDebugMode) {
-      }
       throw Exception('cannot_invite_owner');
     }
 
     // בדיקה 3: לא ניתן ליצור Owner נוסף
     if (role == UserRole.owner) {
-      if (kDebugMode) {
-      }
       throw Exception('invalid_role');
     }
 
@@ -93,8 +85,6 @@ class ShareListService {
     final existingUser = list.sharedUsers[invitedUserId];
 
     if (existingUser != null) {
-      if (kDebugMode) {
-      }
       throw Exception('user_already_shared');
     }
 
@@ -112,8 +102,6 @@ class ShareListService {
     final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
       ..[invitedUserId] = newSharedUser;
 
-    if (kDebugMode) {
-    }
 
     // שליחת התראה למשתמש המוזמן
     if (notificationsService != null) {
@@ -126,11 +114,7 @@ class ShareListService {
           inviterName: inviterName,
           role: role.hebrewName,
         );
-        if (kDebugMode) {
-        }
       } catch (e) {
-        if (kDebugMode) {
-        }
       }
     }
 
@@ -163,20 +147,14 @@ class ShareListService {
     required String householdId,
     NotificationsService? notificationsService,
   }) async {
-    if (kDebugMode) {
-    }
 
     // בדיקה 1: רק Owner יכול להסיר משתמשים
     if (list.createdBy != currentUserId) {
-      if (kDebugMode) {
-      }
       throw Exception('permission_denied');
     }
 
     // בדיקה 2: לא ניתן להסיר את ה-Owner
     if (removedUserId == list.createdBy) {
-      if (kDebugMode) {
-      }
       throw Exception('cannot_remove_owner');
     }
 
@@ -185,8 +163,6 @@ class ShareListService {
     final userExists = list.sharedUsers.containsKey(removedUserId);
 
     if (!userExists) {
-      if (kDebugMode) {
-      }
       throw Exception('user_not_found');
     }
 
@@ -194,8 +170,6 @@ class ShareListService {
     final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
       ..remove(removedUserId);
 
-    if (kDebugMode) {
-    }
 
     // שליחת התראה למשתמש שהוסר
     if (notificationsService != null) {
@@ -207,11 +181,7 @@ class ShareListService {
           listName: list.name,
           removerName: removerName,
         );
-        if (kDebugMode) {
-        }
       } catch (e) {
-        if (kDebugMode) {
-        }
       }
     }
 
@@ -247,27 +217,19 @@ class ShareListService {
     required String householdId,
     NotificationsService? notificationsService,
   }) async {
-    if (kDebugMode) {
-    }
 
     // בדיקה 1: רק Owner יכול לשנות תפקידים
     if (list.createdBy != currentUserId) {
-      if (kDebugMode) {
-      }
       throw Exception('permission_denied');
     }
 
     // בדיקה 2: לא ניתן לשנות תפקיד של Owner
     if (targetUserId == list.createdBy) {
-      if (kDebugMode) {
-      }
       throw Exception('cannot_change_owner_role');
     }
 
     // בדיקה 3: לא ניתן ליצור Owner נוסף
     if (newRole == UserRole.owner) {
-      if (kDebugMode) {
-      }
       throw Exception('invalid_role');
     }
 
@@ -276,8 +238,6 @@ class ShareListService {
     final targetUser = list.sharedUsers[targetUserId];
 
     if (targetUser == null) {
-      if (kDebugMode) {
-      }
       throw Exception('user_not_found');
     }
 
@@ -285,8 +245,6 @@ class ShareListService {
     final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
       ..[targetUserId] = targetUser.copyWith(role: newRole);
 
-    if (kDebugMode) {
-    }
 
     // שליחת התראה למשתמש שהתפקיד שלו השתנה
     if (notificationsService != null) {
@@ -300,11 +258,7 @@ class ShareListService {
           newRole: newRole.hebrewName,
           changerName: changerName,
         );
-        if (kDebugMode) {
-        }
       } catch (e) {
-        if (kDebugMode) {
-        }
       }
     }
 
@@ -328,8 +282,6 @@ class ShareListService {
     ShoppingList list, {
     bool includeOwner = true,
   }) {
-    if (kDebugMode) {
-    }
 
     final users = <SharedUser>[];
 

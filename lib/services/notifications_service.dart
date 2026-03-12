@@ -173,8 +173,6 @@ class NotificationsService {
       // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -216,8 +214,6 @@ class NotificationsService {
       // 🆕 שימוש ב-subcollection
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -265,8 +261,6 @@ class NotificationsService {
       // 🆕 שימוש ב-subcollection
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -310,8 +304,6 @@ class NotificationsService {
       // 🆕 שימוש ב-subcollection
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -351,8 +343,6 @@ class NotificationsService {
       // 🆕 שימוש ב-subcollection
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -397,8 +387,6 @@ class NotificationsService {
 
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -444,8 +432,6 @@ class NotificationsService {
 
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -488,8 +474,6 @@ class NotificationsService {
 
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -528,8 +512,6 @@ class NotificationsService {
 
       await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -551,8 +533,6 @@ class NotificationsService {
     int limit = 50,
   }) async {
     try {
-      if (kDebugMode) {
-      }
 
       final snapshot = await _notificationsCollection(userId)
           .orderBy(FirestoreFields.createdAt, descending: true)
@@ -563,8 +543,6 @@ class NotificationsService {
           .map((doc) => AppNotification.fromJson(doc.data()))
           .toList();
 
-      if (kDebugMode) {
-      }
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
@@ -584,8 +562,6 @@ class NotificationsService {
     required String userId,
   }) async {
     try {
-      if (kDebugMode) {
-      }
 
       final snapshot = await _notificationsCollection(userId)
           .where('is_read', isEqualTo: false)
@@ -596,8 +572,6 @@ class NotificationsService {
           .map((doc) => AppNotification.fromJson(doc.data()))
           .toList();
 
-      if (kDebugMode) {
-      }
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
@@ -621,8 +595,6 @@ class NotificationsService {
 
       final count = snapshot.docs.length;
 
-      if (kDebugMode) {
-      }
 
       return NotificationQueryResult.count(count);
     } catch (e, stackTrace) {
@@ -639,16 +611,12 @@ class NotificationsService {
   ///
   /// Note: Streams לא מחזירים typed result - שגיאות מועברות דרך onError
   Stream<int> watchUnreadCount({required String userId}) {
-    if (kDebugMode) {
-    }
 
     return _notificationsCollection(userId)
         .where('is_read', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
           final count = snapshot.docs.length;
-          if (kDebugMode) {
-          }
           return count;
         });
   }
@@ -671,8 +639,6 @@ class NotificationsService {
         'read_at': FieldValue.serverTimestamp(),
       });
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -703,8 +669,6 @@ class NotificationsService {
 
       await batch.commit();
 
-      if (kDebugMode) {
-      }
       return snapshot.docs.length;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -729,8 +693,6 @@ class NotificationsService {
     try {
       await _notificationsCollection(userId).doc(notificationId).delete();
 
-      if (kDebugMode) {
-      }
       return true;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -751,8 +713,6 @@ class NotificationsService {
     try {
       final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
 
-      if (kDebugMode) {
-      }
 
       // 🆕 שימוש ב-subcollection - לא צריך where על user_id
       final snapshot = await _notificationsCollection(userId)
@@ -767,8 +727,6 @@ class NotificationsService {
 
       await batch.commit();
 
-      if (kDebugMode) {
-      }
       return snapshot.docs.length;
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -787,8 +745,6 @@ class NotificationsService {
   /// ✅ מחזיר מפה עם סטטיסטיקות, או מפה ריקה בשגיאה
   Future<Map<String, int>> getNotificationStats({required String userId}) async {
     try {
-      if (kDebugMode) {
-      }
 
       // 🆕 שימוש ב-subcollection - לא צריך where על user_id
       final allSnapshot = await _notificationsCollection(userId).get();
@@ -803,8 +759,6 @@ class NotificationsService {
         'read': allSnapshot.docs.length - unreadSnapshot.docs.length,
       };
 
-      if (kDebugMode) {
-      }
 
       return stats;
     } catch (e, stackTrace) {
