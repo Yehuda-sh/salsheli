@@ -82,6 +82,7 @@ class _AppLayoutState extends State<AppLayout> {
   /// - Error handling with try-catch
   /// - Context safety after async
   /// - User feedback with SnackBar
+  // ignore: unused_element
   Future<void> _logout(BuildContext context) async {
     if (!mounted) return;
 
@@ -357,6 +358,7 @@ class _AnimatedIconButton extends StatefulWidget {
     required this.tooltip,
     required this.icon,
     required this.onPressed,
+    // ignore: unused_element_parameter  
     this.color,
   });
 
