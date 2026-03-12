@@ -124,7 +124,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           TextEditingController(text: item.minQuantity.toString());
       _notesController = TextEditingController(text: item.notes ?? '');
       // המר קטגוריה עברית למפתח אנגלית, או השתמש ב-other כברירת מחדל
-      _selectedCategory = FiltersConfig.hebrewCategoryToEnglish(item.category) ?? 'other';
+      _selectedCategory = FiltersConfig.hebrewCategoryToEnglish(item.category);
       _selectedLocation = item.location;
       // שדות חדשים
       _expiryDate = item.expiryDate;
