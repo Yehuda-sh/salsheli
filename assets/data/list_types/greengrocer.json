@@ -955,8 +955,8 @@
     "brand": "מחלבות גד",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -979,8 +979,8 @@
     "brand": "גבינות משק יעקבס",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2899,8 +2899,8 @@
     "brand": "CP",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2971,8 +2971,8 @@
     "brand": "CP",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2995,8 +2995,8 @@
     "brand": "",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3019,8 +3019,8 @@
     "brand": "CP",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3079,8 +3079,8 @@
     "brand": "קטיף.",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3103,8 +3103,8 @@
     "brand": "גרין",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3991,8 +3991,8 @@
     "brand": "קטיף.",
     "unit": "גרם",
     "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4771,8 +4771,8 @@
     "brand": "",
     "unit": "ק\"ג",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {

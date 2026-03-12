@@ -943,8 +943,8 @@
     "brand": "גליל כימיקלים",
     "unit": "ליטר",
     "size": "2.75 ליטרים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1003,8 +1003,8 @@
     "brand": "ג.מ טעם הארץ בע\"\\ם",
     "unit": "100 מ\"ל",
     "size": "500 מ\"ל",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1243,8 +1243,8 @@
     "brand": "בולטון אלימנטרי בע\"\\מ",
     "unit": "100 גרם",
     "size": "160 גר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1447,8 +1447,8 @@
     "brand": "קוסמופארם",
     "unit": "100 מ\"ל",
     "size": "700 מ\"ל",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1651,8 +1651,8 @@
     "brand": "---",
     "unit": "100 גרם",
     "size": "476.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1747,8 +1747,8 @@
     "brand": "חברת מלח הארץ אילת בע\"מ",
     "unit": "100 גרם",
     "size": "125 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1795,8 +1795,8 @@
     "brand": "ראוך פרוכטסאפטה",
     "unit": "ליטר",
     "size": "1 ליטר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1819,8 +1819,8 @@
     "brand": "פריניב בעמ",
     "unit": "100 מ\"ל",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1831,8 +1831,8 @@
     "brand": "קשת מיצים טבעיים",
     "unit": "100 מ\"ל",
     "size": "250 מ\"ל",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1843,8 +1843,8 @@
     "brand": "פריניב",
     "unit": "ליטר",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1915,8 +1915,8 @@
     "brand": "בית-השיטה עסיס תעשיות מז",
     "unit": "100 גרם",
     "size": "560 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2047,8 +2047,8 @@
     "brand": "פרפטי ואן מלה ג'ידה,סאן",
     "unit": "100 גרם",
     "size": "60 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2131,8 +2131,8 @@
     "brand": "אסם תעשיות מזון בע\"מ",
     "unit": "100 גרם",
     "size": "400 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2203,8 +2203,8 @@
     "brand": "סאפה פובליק קומפני לימיט",
     "unit": "ליטר",
     "size": "1 ליטר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2263,8 +2263,8 @@
     "brand": "",
     "unit": "100 מ\"ל",
     "size": "300 מ\"ל",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2491,8 +2491,8 @@
     "brand": "סאפה פובליק קומפני לימיט",
     "unit": "ליטר",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3703,8 +3703,8 @@
     "brand": "נטורל קייקס בע\"\\מ",
     "unit": "100 גרם",
     "size": "500 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3775,8 +3775,8 @@
     "brand": "פריניר",
     "unit": "100 גרם",
     "size": "400 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3787,8 +3787,8 @@
     "brand": "אסם תעשיות מזון בע\"מ",
     "unit": "100 גרם",
     "size": "310 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3931,8 +3931,8 @@
     "brand": "JINXIANG WANXING GARLIC",
     "unit": "100 גרם",
     "size": "190 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4039,8 +4039,8 @@
     "brand": "לה דוריה",
     "unit": "100 גרם",
     "size": "400 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4051,8 +4051,8 @@
     "brand": "ליני דשן פוד",
     "unit": "100 גרם",
     "size": "330",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4075,8 +4075,8 @@
     "brand": "ג.מ טעם הארץ בע\"\\ם",
     "unit": "100 מ\"ל",
     "size": "250.00 מיליליטרים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4267,8 +4267,8 @@
     "brand": "ויסוצקי",
     "unit": "100 גרם",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4279,8 +4279,8 @@
     "brand": "יפאורה תבורי בע\"\\מ",
     "unit": "ליטר",
     "size": "1.5 ליטר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4315,8 +4315,8 @@
     "brand": "קטיף.",
     "unit": "ק\"ג",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4327,8 +4327,8 @@
     "brand": "קטיף.",
     "unit": "ק\"ג",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {

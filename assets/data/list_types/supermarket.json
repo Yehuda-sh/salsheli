@@ -2431,8 +2431,8 @@
     "brand": "סהרון",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4987,8 +4987,8 @@
     "brand": "כללי",
     "unit": "גרם",
     "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4999,8 +4999,8 @@
     "brand": "דין שיווק",
     "unit": "גרם",
     "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -5755,8 +5755,8 @@
     "brand": "מחלבת מושבה",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -10975,8 +10975,8 @@
     "brand": "דין שיווק",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -11191,8 +11191,8 @@
     "brand": "דין שיווק",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -12403,8 +12403,8 @@
     "brand": "",
     "unit": "גרם",
     "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -12415,8 +12415,8 @@
     "brand": "מחלבות גד",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -13519,8 +13519,8 @@
     "brand": "גבינות משק יעקבס",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -24571,8 +24571,8 @@
     "brand": "",
     "unit": "100 גרם",
     "size": "250 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -24595,8 +24595,8 @@
     "brand": "שין יונג",
     "unit": "גרם",
     "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -30691,8 +30691,8 @@
     "brand": "מחלבת מושבה",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -33991,8 +33991,8 @@
     "brand": "גליל שיווק מקומי אגש\"ח",
     "unit": "יחידה",
     "size": "1.00 יחידה",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34003,8 +34003,8 @@
     "brand": "גרנות",
     "unit": "יחידה",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34195,8 +34195,8 @@
     "brand": "",
     "unit": "ק\"ג",
     "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34363,8 +34363,8 @@
     "brand": "מרינה",
     "unit": "יחידה",
     "size": "1.00 יחידה",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34411,8 +34411,8 @@
     "brand": "CP",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34627,8 +34627,8 @@
     "brand": "קטיף.",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -34639,8 +34639,8 @@
     "brand": "CP",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -49447,8 +49447,8 @@
     "brand": "טירת צבי",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -53635,8 +53635,8 @@
     "brand": "יחיעם",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -64195,8 +64195,8 @@
     "brand": "זהר בשר עופות ובשר בע\"מ",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -70471,8 +70471,8 @@
     "brand": "סהרון",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {

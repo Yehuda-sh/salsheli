@@ -15,6 +15,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -369,24 +370,47 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
             const NotebookBackground(),
             SafeArea(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(kSpacingMedium),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // 🏷️ כותרת inline
+                      // 🏷️ Inline header with back button
                       Padding(
                         padding: const EdgeInsets.only(bottom: kSpacingMedium),
                         child: Row(
                           children: [
-                            Icon(Icons.person_add, size: 24, color: cs.primary),
-                            SizedBox(width: kSpacingSmall),
+                            InkWell(
+                              onTap: () => Navigator.pop(context),
+                              borderRadius: BorderRadius.circular(kBorderRadius),
+                              child: Container(
+                                padding: const EdgeInsets.all(kSpacingSmall),
+                                decoration: BoxDecoration(
+                                  color: cs.surface.withValues(alpha: 0.7),
+                                  borderRadius: BorderRadius.circular(kBorderRadius),
+                                ),
+                                child: Icon(Icons.arrow_forward_ios,
+                                    size: kIconSizeSmall, color: cs.onSurface),
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: cs.primaryContainer,
+                              ),
+                              child: const Center(
+                                child: Text('✉️', style: TextStyle(fontSize: kFontSizeBody)),
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
                             Expanded(
                               child: Text(
                                 AppStrings.sharing.inviteTitle,
-                                style: TextStyle(
-                                  fontSize: kFontSizeLarge,
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: cs.onSurface,
                                 ),
@@ -394,7 +418,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ],
                         ),
-                      ),
+                      ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
                       // Subtitle
                       Text(
                         AppStrings.sharing.inviteSubtitle,

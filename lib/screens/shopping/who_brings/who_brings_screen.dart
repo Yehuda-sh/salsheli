@@ -22,6 +22,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
@@ -249,21 +250,44 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
           body: SafeArea(
             child: Column(
               children: [
-                // 🏷️ כותרת inline
+                // 🏷️ Inline header with back button
                 Padding(
                   padding: const EdgeInsets.all(kSpacingMedium),
                   child: Row(
                     children: [
-                      Icon(Icons.volunteer_activism, size: 24, color: cs.primary),
-                      SizedBox(width: kSpacingSmall),
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        child: Container(
+                          padding: const EdgeInsets.all(kSpacingSmall),
+                          decoration: BoxDecoration(
+                            color: cs.surface.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Icon(Icons.arrow_forward_ios,
+                              size: kIconSizeSmall, color: cs.onSurface),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: cs.primaryContainer,
+                        ),
+                        child: const Center(
+                          child: Text('🤝', style: TextStyle(fontSize: kFontSizeBody)),
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               _list.name,
-                              style: TextStyle(
-                                fontSize: kFontSizeLarge,
+                              style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface,
                               ),
@@ -281,7 +305,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                       ),
                     ],
                   ),
-                ),
+                ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
 
                 // 📊 Header עם סטטיסטיקות
                 Container(

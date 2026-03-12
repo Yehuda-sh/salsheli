@@ -991,8 +991,8 @@
     "brand": "מוצרי עוף טוב",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1015,8 +1015,8 @@
     "brand": "מוצרי עוף טוב",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1051,8 +1051,8 @@
     "brand": "זוגלובק",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
