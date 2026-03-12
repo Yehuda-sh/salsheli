@@ -407,7 +407,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     final minQuantity = int.tryParse(_minQuantityController.text) ?? 2;
     final productName = _nameController.text.trim();
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
-    final category = getCategoryLabel(_selectedCategory);
+    final category = FiltersConfig.getCategoryInfo(_selectedCategory).label;
     final unit = _unitController.text.trim();
     final notes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
 
@@ -699,7 +699,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
                         prefixIcon: Icon(Icons.category_outlined, color: cs.primary),
                       ),
-                      items: kCategoryInfo.entries
+                      items: FiltersConfig.kCategoryInfo.entries
                           .where((e) => e.key != 'all')
                           .map((entry) {
                         return DropdownMenuItem(

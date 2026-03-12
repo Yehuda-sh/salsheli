@@ -480,7 +480,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               padding: const EdgeInsets.only(left: 8),
               child: _buildCompactFilterChip(
                 label: category,
-                emoji: _FiltersConfig.getCategoryEmoji(category),
+                emoji: _getCategoryEmoji(category),
                 isSelected: productsProvider.selectedCategory == category,
                 onTap: () {
                   unawaited(HapticFeedback.selectionClick());
@@ -660,7 +660,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           child: Row(
             children: [
               // 🏷️ אייקון קטגוריה
-              Text(_FiltersConfig.getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
+              Text(_getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
 
               const Gap(6),
 
@@ -727,7 +727,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       height: kNotebookLineSpacing,
       child: Row(
         children: [
-          Text(_FiltersConfig.getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
+          Text(_getCategoryEmoji(category), style: const TextStyle(fontSize: 18)),
           const Gap(6),
           Expanded(
             child: Text(
@@ -892,8 +892,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // 🏷️ Category Emoji
   // ═══════════════════════════════════════════════════════════════════════════
 
-  String _FiltersConfig.getCategoryEmoji(String category) {
+  String _getCategoryEmoji(String category) {
     final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
-    return FiltersConfig.getCategoryEmoji(englishKey ?? category);
+    return FiltersConfig.getCategoryEmoji(englishKey);
   }
 }

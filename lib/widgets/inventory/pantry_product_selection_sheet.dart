@@ -720,7 +720,7 @@ class _PantryProductSelectionSheetState
     final category = product['category'] as String? ?? 'אחר';
     final brand = product['brand'] as String?;
     final size = product['size'] as String?;
-    final icon = _FiltersConfig.getCategoryEmoji(category);
+    final icon = _getCategoryEmoji(category);
     final source = product['source'] as String? ?? 'supermarket';
     final productId = product['barcode'] as String? ?? name;
     final isAdding = _addingProductId == productId;
@@ -942,8 +942,8 @@ class _PantryProductSelectionSheetState
   }
 
   /// אימוג'י לפי קטגוריה
-  String _FiltersConfig.getCategoryEmoji(String category) {
+  String _getCategoryEmoji(String category) {
     final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
-    return FiltersConfig.getCategoryEmoji(englishKey ?? category);
+    return FiltersConfig.getCategoryEmoji(englishKey);
   }
 }
