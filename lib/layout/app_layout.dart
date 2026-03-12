@@ -242,22 +242,19 @@ class _AppLayoutState extends State<AppLayout> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // App logo from asset
-          ClipRRect(
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            child: Image.asset(
-              'assets/images/logo.webp',
-              width: 32,
-              height: 32,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(width: kSpacingSmall),
           Text(
             AppStrings.layout.appTitle,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
               color: cs.primary,
             ),
+          ),
+          const SizedBox(width: kSpacingSmall),
+          Image.asset(
+            'assets/images/logo.webp',
+            width: 28,
+            height: 28,
+            fit: BoxFit.contain,
           ),
         ],
       ),

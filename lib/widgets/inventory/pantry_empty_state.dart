@@ -160,7 +160,7 @@ class PantryEmptyState extends StatelessWidget {
       child: RepaintBoundary(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(kSpacingLarge),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -174,8 +174,8 @@ class PantryEmptyState extends StatelessWidget {
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     child: Image.asset(
                       'assets/images/empty_pantry.webp',
-                      width: 160,
-                      height: 160,
+                      width: 200,
+                      height: 200,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -228,7 +228,7 @@ class PantryEmptyState extends StatelessWidget {
                       curve: Curves.easeOut,
                     ),
 
-                const Gap(kSpacingXLarge),
+                const Gap(kSpacingMedium),
 
                 // ═══════════════════════════════════════════════════════
                 // Group 3 — פתק "איך להתחיל?" (צהוב, 0.01°)
@@ -280,7 +280,7 @@ class PantryEmptyState extends StatelessWidget {
                       curve: Curves.easeOut,
                     ),
 
-                const Gap(kSpacingXLarge),
+                const Gap(kSpacingMedium),
 
                 // ═══════════════════════════════════════════════════════
                 // Group 5 — CTA ראשי (נכנס אחרון)
