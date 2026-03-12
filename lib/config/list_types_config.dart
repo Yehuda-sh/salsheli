@@ -14,12 +14,12 @@
 //
 // 🔗 Related: list_type_keys.dart, AppStrings, AppTheme
 
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
+import 'base_config.dart';
 import 'list_type_keys.dart';
 
 /// 📦 הגדרת סוג רשימה אחד
@@ -54,8 +54,9 @@ class ListTypeConfig {
 }
 
 /// 🗂️ כל סוגי הרשימות במערכת
-class ListTypes {
+class ListTypes with ConfigValidation {
   ListTypes._(); // מניעת instances
+  static final ListTypes _instance = ListTypes._();
 
   /// רשימת כל הסוגים (מחובר ל-AppStrings)
   static List<ListTypeConfig> get all => [
@@ -164,9 +165,7 @@ class ListTypes {
 
   /// מצא config לפי key - תמיד מחזיר Config בטוח לשימוש ב-UI
   static ListTypeConfig getByKeySafe(String? key) {
-    if (kDebugMode) {
-      ensureSanity();
-    }
+    _instance.ensureValid();
 
     if (key == null) return _otherConfig;
 
@@ -187,34 +186,30 @@ class ListTypes {
     icon: Icons.more_horiz,
   );
 
-  // ========================================
-  // 🔧 Debug Validation
-  // ========================================
-
-  static bool _sanityChecked = false;
-
-  /// בדיקת תקינות בזמן פיתוח
-  static void ensureSanity() {
-    if (!kDebugMode || _sanityChecked) return;
-    _sanityChecked = true;
-
+  /// ✅ Validation implementation - replaces old ensureSanity()
+  @override
+  void performValidation() {
     final configKeys = all.map((c) => c.key).toList();
     const expectedKeys = ListTypeKeys.all;
 
-    // 1. בדיקת כפילויות
-    final distinctKeys = configKeys.toSet();
-    if (distinctKeys.length != configKeys.length) {
-      assert(false, '❌ ListTypes: נמצאו כפילויות של מפתחות ב-all');
-    }
+    // 1. Check for duplicates in config keys
+    ConfigValidation.validateNoDuplicates(configKeys, 'ListTypes.all.keys');
 
-    // 2. בדיקת התאמה ל-ListTypeKeys
+    // 2. Check 1:1 mapping with ListTypeKeys
     if (configKeys.length != expectedKeys.length || !configKeys.every(expectedKeys.contains)) {
-      assert(false, '❌ ListTypes: אין התאמה 1:1 בין ListTypes.all ל-ListTypeKeys.all');
+      throw AssertionError(
+        'ListTypes: Config keys don\'t match ListTypeKeys.all\n'
+        'Config keys: $configKeys\n'
+        'Expected keys: $expectedKeys'
+      );
     }
 
-    // 3. בדיקת מיקום Fallback
-    if (all.last.key != ListTypeKeys.other) {
-      assert(false, '❌ ListTypes: "${ListTypeKeys.other}" חייב להיות הערך האחרון ב-all');
+    // 3. Check fallback position
+    if (all.isNotEmpty && all.last.key != ListTypeKeys.other) {
+      throw AssertionError(
+        'ListTypes: "${ListTypeKeys.other}" must be last in all list! '
+        'Found: "${all.last.key}"'
+      );
     }
   }
 }

@@ -11,7 +11,7 @@
 //
 // 🔗 Related: onboarding_data, OnboardingSteps
 
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'base_config.dart';
 
 /// Store category types
 enum StoreCategory {
@@ -41,8 +41,9 @@ class StoreInfo {
 /// - אוטוקומפליט / הצעות
 /// - קטגוריזציה אוטומטית
 /// - תצוגת שם מותאם
-class StoresConfig {
+class StoresConfig with ConfigValidation {
   StoresConfig._(); // Prevent instantiation
+  static final StoresConfig _instance = StoresConfig._();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // STORE CODES - קודים יציבים (לא לשנות!)
@@ -157,7 +158,7 @@ class StoresConfig {
   ///
   /// מקבל קוד או שם עברי
   static bool isKnown(String storeNameOrCode) {
-    if (kDebugMode) ensureSanity();
+    _instance.ensureValid();
     return _storeData.containsKey(storeNameOrCode) ||
         _hebrewToCode.containsKey(storeNameOrCode);
   }
@@ -195,47 +196,26 @@ class StoresConfig {
     return _storeData[code];
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🔧 Debug Validation
-  // ═══════════════════════════════════════════════════════════════════════════
+  /// ✅ Validation implementation - replaces old ensureSanity()
+  @override
+  void performValidation() {
+    // 1. Check for duplicates
+    ConfigValidation.validateNoDuplicates(allCodes, 'StoresConfig.allCodes');
 
-  static bool _sanityChecked = false;
+    // 2. Check all codes exist in data
+    ConfigValidation.validateOneToOneMapping(
+      allCodes.toSet(),
+      _storeData,
+      'StoresConfig'
+    );
 
-  /// 🔍 Sanity check - בדיקת פיתוח בלבד
-  ///
-  /// מוודא:
-  /// 1. אין כפילויות קודים
-  /// 2. כל קוד ב-allCodes קיים ב-_storeData
-  /// 3. כל ערך ב-_hebrewToCode מצביע לקוד תקין
-  static void ensureSanity() {
-    if (!kDebugMode) return;
-    if (_sanityChecked) return;
-    _sanityChecked = true;
-
-    // 1️⃣ בדיקת כפילויות
-    final seen = <String>{};
-    for (final code in allCodes) {
-      if (seen.contains(code)) {
-        assert(false, '❌ StoresConfig: כפילות קוד! "$code"');
-      }
-      seen.add(code);
-    }
-
-    // 2️⃣ בדיקה שכל קוד ב-allCodes קיים ב-_storeData
-    for (final code in allCodes) {
-      if (!_storeData.containsKey(code)) {
-        assert(false,
-            '❌ StoresConfig: קוד "$code" ב-allCodes אך חסר ב-_storeData');
-      }
-    }
-
-    // 3️⃣ בדיקה שכל ערך ב-_hebrewToCode מצביע לקוד תקין
+    // 3. Check Hebrew mapping points to valid codes
     for (final entry in _hebrewToCode.entries) {
       if (!_storeData.containsKey(entry.value)) {
-        assert(false,
-            '❌ StoresConfig: "${entry.key}" מצביע לקוד לא קיים "${entry.value}"');
+        throw AssertionError(
+          'StoresConfig: Hebrew name "${entry.key}" points to non-existent code "${entry.value}"'
+        );
       }
     }
-
   }
 }
