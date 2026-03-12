@@ -1,61 +1,37 @@
 // 📄 lib/config/app_config.dart
 //
 // הגדרות סביבה לאפליקציה - development עם Emulators, production עם Firebase Cloud.
-// כולל host דינמי לפי פלטפורמה ו-ports לכל שירות.
 //
 // 🔗 Related: Firebase, main.dart
 
 import 'package:flutter/foundation.dart';
 
-/// 🌍 סביבות האפליקציה
-enum AppEnvironment {
-  development, // פיתוח מקומי עם Emulators
-  production, // ייצור עם Firebase Cloud
-}
+enum AppEnvironment { development, production }
 
-/// ⚙️ הגדרות האפליקציה
-///
-/// כל השדות static - אין צורך ליצור instance.
-/// Constructor פרטי מונע יצירה בטעות.
 class AppConfig {
-  // מניעת יצירת instances
   AppConfig._();
 
-  /// 🌍 סביבה נוכחית
-  ///
-  /// ✅ לוגיקה: Release בלבד = production, כל השאר = development
-  /// (כולל Profile mode לבדיקת ביצועים)
-  ///
-  /// ניתן לדרוס עם: --dart-define=ENV=production
+  /// 🌍 קביעת הסביבה: אם זה Release - תמיד Production.
   static AppEnvironment get environment {
-    // בדיקת override ידני מ-dart-define
-    const envOverride = String.fromEnvironment('ENV');
-    if (envOverride == 'production') return AppEnvironment.production;
-    if (envOverride == 'development') return AppEnvironment.development;
-
-    // ברירת מחדל: רק Release = production
-    return kReleaseMode ? AppEnvironment.production : AppEnvironment.development;
+    const env = String.fromEnvironment('ENV', defaultValue: '');
+    if (env == 'production' || kReleaseMode) return AppEnvironment.production;
+    return AppEnvironment.development;
   }
 
-  /// 🔥 האם להשתמש ב-Emulators?
-  // ⚠️ Disabled: Auth Emulator tokens not accepted by production Firestore
-  // Enable only when running ALL emulators (auth + firestore + storage)
-  static bool get useEmulators => false;
+  /// 🔥 הפעלת אמולטורים רק אם אנחנו ב-Dev ושלחנו דגל מתאים בהרצה
+  /// פקודה: flutter run --dart-define=USE_EMULATORS=true
+  static bool get useEmulators {
+    if (kReleaseMode) return false; // אבטחה: לעולם לא באפליקציה שבחנות
+    return const bool.fromEnvironment('USE_EMULATORS', defaultValue: false);
+  }
 
-  /// 🚀 האם אנחנו בסביבת production?
   static bool get isProduction => environment == AppEnvironment.production;
-
-  /// 🛠️ האם אנחנו בסביבת development?
   static bool get isDevelopment => environment == AppEnvironment.development;
 
-  /// 🖥️ Host לחיבור ל-Emulators
-  /// Android Emulator רואה את localhost כ-10.0.2.2
-  /// iOS Simulator ו-Web משתמשים ב-localhost
-  /// 💡 למכשיר פיזי: החלף localhost ב-IP המקומי שלך
+  /// 🖥️ Host לחיבור ל-Emulators (אנדרואיד רואה localhost כ-10.0.2.2)
   static String get emulatorHost {
     if (kIsWeb) return 'localhost';
-    if (defaultTargetPlatform == TargetPlatform.android) return '10.0.2.2';
-    return 'localhost'; // iOS, macOS, Windows, Linux
+    return (defaultTargetPlatform == TargetPlatform.android) ? '10.0.2.2' : 'localhost';
   }
 
   // === Emulator Ports ===
@@ -66,7 +42,9 @@ class AppConfig {
   /// 📊 הדפסת הגדרות נוכחיות (לדיבאג)
   static void printConfig() {
     if (!kDebugMode) return;
-    if (useEmulators) {
-    }
+    debugPrint('--- ⚙️ MEMOZAP CONFIG ---');
+    debugPrint('📍 MODE: ${environment.name.toUpperCase()}');
+    debugPrint('🧪 EMULATORS: ${useEmulators ? "ACTIVE (Host: $emulatorHost)" : "OFF"}');
+    debugPrint('-------------------------');
   }
 }
