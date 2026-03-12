@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import '../config/list_type_keys.dart';
 import '../config/list_types_config.dart';
+import '../core/ui_constants.dart';
 import 'active_shopper.dart';
 import 'enums/item_type.dart';
 import 'enums/user_role.dart';
@@ -461,23 +462,23 @@ class ShoppingList {
   Color get stickyColor {
     switch (type) {
       case typeSupermarket:
-        return const Color(0xFFFFF59D); // kStickyYellow
+        return kStickyYellow;
       case typePharmacy:
-        return const Color(0xFF80DEEA); // kStickyCyan
+        return kStickyCyan;
       case typeGreengrocer:
-        return const Color(0xFFA5D6A7); // kStickyGreen
+        return kStickyGreen;
       case typeButcher:
-        return const Color(0xFFF48FB1); // kStickyPink
+        return kStickyPink;
       case typeBakery:
-        return const Color(0xFFFFCC80); // kStickyOrange
+        return kStickyOrange; // ✅ Fixed inconsistency 
       case typeMarket:
-        return const Color(0xFFCE93D8); // kStickyPurple
+        return kStickyPurple;
       case typeHousehold:
-        return const Color(0xFF80DEEA); // kStickyCyan
+        return kStickyCyan;
       case typeEvent:
-        return const Color(0xFFCE93D8); // kStickyPurple - אירועים
+        return kStickyPurple; // אירועים
       default:
-        return const Color(0xFFFFF59D); // kStickyYellow (default)
+        return kStickyYellow; // default
     }
   }
 
