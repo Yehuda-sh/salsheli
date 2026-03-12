@@ -37,10 +37,10 @@ class HouseholdActivityFeed extends StatelessWidget {
     if (activities.isEmpty) return const SizedBox.shrink();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת
+        // כותרת — ממורכזת
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.home_outlined, size: 20, color: cs.primary),
             const SizedBox(width: 8),
@@ -50,6 +50,10 @@ class HouseholdActivityFeed extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ],
+        ),
+        Row(
+          children: [
             const Spacer(),
             TextButton(
               onPressed: () {

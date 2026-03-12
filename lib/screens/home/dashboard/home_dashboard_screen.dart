@@ -568,10 +568,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final strings = AppStrings.homeDashboard;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת
+        // כותרת — ממורכזת
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.shopping_cart_outlined, size: 20, color: cs.primary),
             const SizedBox(width: 8),
@@ -581,7 +581,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Spacer(),
+            const SizedBox(width: 8),
             Text(
               '${activeLists.length}',
               style: theme.textTheme.bodySmall?.copyWith(
