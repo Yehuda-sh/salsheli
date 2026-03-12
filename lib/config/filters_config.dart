@@ -74,7 +74,7 @@ class FiltersConfig with ConfigValidation {
   void performValidation() {
     final data = CategoriesData.data;
     final order = CategoriesData.order;
-    final synonyms = CategoriesData.synonyms;
+    const synonyms = CategoriesData.synonyms;
 
     // 1. Check required keys exist
     const required = ['all', 'other'];
