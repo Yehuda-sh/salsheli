@@ -16,7 +16,7 @@
 | 4 | ליטוש UX | 🟡 חלקי |
 | 5 | הכנה ל-Store | 🟡 חלקי |
 | 6 | Push Notifications (FCM) | ⬜ טרם התחיל |
-| 6.5 | ניהול משפחה מלא | ⬜ טרם התחיל |
+| 6.5 | ניהול משפחה מלא | ✅ הושלם |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
 | 8 | בדיקות | ⬜ טרם התחיל |
 | 9 | i18n + נגישות | ⬜ טרם התחיל |
@@ -60,13 +60,13 @@
 - [x] **Header cleanup** — 15 widget files cleaned of outdated headers
 
 ### נשאר
-- [ ] פיצול `my_pantry_screen.dart` (1,330 שורות)
-- [ ] פיצול `settings_screen.dart` (1,222 שורות)
-- [ ] פיצול `shopping_lists_screen.dart` (1,200 שורות)
-- [ ] פיצול `shopping_list_details_screen.dart` (1,065 שורות)
-- [ ] פיצול `shopping_lists_provider.dart` (1,520 שורות)
-- [ ] פיצול `auth_service.dart` (1,159 שורות)
-- [ ] העברת ~101 מחרוזות hardcoded ל-AppStrings (נדחה ל-Phase 8 i18n)
+- [ ] פיצול `my_pantry_screen.dart` (1,477 שורות)
+- [ ] פיצול `settings_screen.dart` (1,471 שורות)
+- [ ] פיצול `shopping_lists_screen.dart` (1,187 שורות)
+- [ ] פיצול `shopping_list_details_screen.dart` (1,136 שורות)
+- [ ] פיצול `shopping_lists_provider.dart` (1,196 שורות)
+- [ ] פיצול `auth_service.dart` (1,001 שורות)
+- [ ] העברת ~101 מחרוזות hardcoded ל-AppStrings (נדחה ל-Phase 9 i18n)
 
 ---
 
@@ -165,7 +165,7 @@
 
 ---
 
-# 📍 Phase 6.5 — ניהול "הבית" (Household) ⬜
+# 📍 Phase 6.5 — ניהול "הבית" (Household) ✅
 > טרם התחיל — **נדרש לפני השקה**
 >
 > 🔑 **החלטה מרכזית:** "משפחה" → **"בית"** בכל האפליקציה.
@@ -372,7 +372,7 @@ assets/images/
 שבוע 3-4: 🟡 Phase 4 — ליטוש UX (חלקי) — dashboard+pantry+tutorial+settings done
 שבוע 4-5: 🟡 Phase 5 — Store prep (חלקי)
 שבוע 5-6: ⬜ Phase 6 — Push Notifications (FCM)
-שבוע 6-7: ⬜ Phase 6.5 — ניהול הבית (household) 🆕🔴 חובה לפני השקה
+שבוע 6-7: ✅ Phase 6.5 — ניהול הבית (household) ✅ הושלם
 שבוע 7-8: ⬜ Phase 7 — מוניטיזציה
 שבוע 8-9: ⬜ Phase 8 — טסטים
 שבוע 9:   ⬜ Phase 9 — i18n

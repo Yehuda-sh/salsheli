@@ -120,10 +120,8 @@ flutter run          # הרצה
 
 ## Known Issues
 
-- ~~**B1:** approve/reject בpending_requests~~ ✅ תוקן
-- ~~**B2:** ניווט מהתראות~~ ✅ תוקן
 - **B3:** SavedContactsService בולע שגיאות
-- ~~**B4:** Firebase config~~ ✅ תוקן — google-services.json כולל שני package names
+- **W1:** `use_build_context_synchronously` (2) ב-settings_screen (deferred)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
@@ -131,5 +129,9 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח ריוויו + סטטוס תיקונים
-- [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 9 שלבים
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (12/3/2026)
+- [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות
+- [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
+- [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
+- [docs/store-listing.md](docs/store-listing.md) — תוכן Store listing
+- [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית

@@ -1,7 +1,7 @@
 # 📋 TEST_PLAN.md — MemoZap Testing Strategy
 
-## 📊 מצב נוכחי
-- **282 unit tests** ב-10 קבצים ✅
+## 📊 מצב נוכחי (עדכון 12/3/2026)
+- **272 unit tests** ב-10 קבצים ✅ (כולם עוברים)
 - **0 widget tests** ❌
 - **0 integration tests** ❌
 - **0 E2E tests** ❌
@@ -135,7 +135,7 @@ testWidgets('Full happy path - new user', (tester) async {
 ## 📈 KPIs
 | Metric | Current | Target |
 |--------|---------|--------|
-| Unit tests | 282 | 350+ |
+| Unit tests | 272 | 350+ |
 | Widget tests | 0 | 30+ |
 | Integration tests | 0 | 10+ |
 | E2E tests | 0 | 3+ |
