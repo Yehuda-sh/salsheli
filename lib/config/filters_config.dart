@@ -1,187 +1,118 @@
 // 📄 lib/config/filters_config.dart
 //
-// הגדרות סינון קטגוריות למזווה - 41 קטגוריות עם תרגום לעברית ואמוג'י.
-// כולל מיפוי וריאציות (Synonyms) ותאימות לאחור (Aliases).
+// 🗄️ Categories API - slim config class using shared validation
+// 
+// ✅ Extracted from 187-line manual data file
+// ✅ Uses ConfigValidation mixin (eliminates future validation debt)
+// ✅ Delegates data to filters_data.dart
 //
-// 🔗 Related: my_pantry_screen, StorageLocationManager, AppStrings
+// 🔗 Related: filters_data.dart, my_pantry_screen, base_config.dart
 
-import '../l10n/app_strings.dart';
+import 'base_config.dart';
+import 'filters_data.dart';
 
-/// מידע על קטגוריה: שם (מהתרגום) + אמוג'י
-class CategoryInfo {
-  final String label;
-  final String emoji;
-  const CategoryInfo(this.label, this.emoji);
-}
+/// 🗂️ Categories configuration API  
+class FiltersConfig with ConfigValidation {
+  FiltersConfig._();
+  static final FiltersConfig _instance = FiltersConfig._();
 
-/// כל הקטגוריות הזמינות (מפתח EN → מידע)
-/// המידע נמשך ישירות מ-AppStrings לטובת תמיכה עתידית ב-i18n
-final Map<String, CategoryInfo> kCategoryInfo = {
-  'all': CategoryInfo(AppStrings.categories.all, '📋'),
-  'other': CategoryInfo(AppStrings.categories.other, '📦'),
-  'dairy': CategoryInfo(AppStrings.categories.dairy, '🥛'),
-  'vegetables': CategoryInfo(AppStrings.categories.vegetables, '🥬'),
-  'fruits': CategoryInfo(AppStrings.categories.fruits, '🍎'),
-  'meat_fish': CategoryInfo(AppStrings.categories.meatFish, '🥩'),
-  'rice_pasta': CategoryInfo(AppStrings.categories.ricePasta, '🍝'),
-  'spices': CategoryInfo(AppStrings.categories.spices, '🧂'),
-  'coffee_tea': CategoryInfo(AppStrings.categories.coffeeTea, '☕'),
-  'sweets_snacks': CategoryInfo(AppStrings.categories.sweetsSnacks, '🍬'),
-  'beef': CategoryInfo(AppStrings.categories.beef, '🥩'),
-  'chicken': CategoryInfo(AppStrings.categories.chicken, '🍗'),
-  'turkey': CategoryInfo(AppStrings.categories.turkey, '🦃'),
-  'lamb': CategoryInfo(AppStrings.categories.lamb, '🐑'),
-  'fish': CategoryInfo(AppStrings.categories.fish, '🐟'),
-  'meat_substitutes': CategoryInfo(AppStrings.categories.meatSubstitutes, '🌱'),
-  'bread_bakery': CategoryInfo(AppStrings.categories.breadBakery, '🍞'),
-  'cookies_sweets': CategoryInfo(AppStrings.categories.cookiesSweets, '🍪'),
-  'cakes': CategoryInfo(AppStrings.categories.cakes, '🎂'),
-  'canned': CategoryInfo(AppStrings.categories.canned, '🥫'),
-  'legumes_grains': CategoryInfo(AppStrings.categories.legumesGrains, '🫘'),
-  'cereals': CategoryInfo(AppStrings.categories.cereals, '🥣'),
-  'dried_fruits': CategoryInfo(AppStrings.categories.driedFruits, '🍇'),
-  'nuts_seeds': CategoryInfo(AppStrings.categories.nutsSeeds, '🥜'),
-  'beverages': CategoryInfo(AppStrings.categories.beverages, '🥤'),
-  'oils_sauces': CategoryInfo(AppStrings.categories.oilsSauces, '🫒'),
-  'sweet_spreads': CategoryInfo(AppStrings.categories.sweetSpreads, '🍯'),
-  'frozen': CategoryInfo(AppStrings.categories.frozen, '🧊'),
-  'ready_salads': CategoryInfo(AppStrings.categories.readySalads, '🥗'),
-  'dairy_substitutes': CategoryInfo(AppStrings.categories.dairySubstitutes, '🥛'),
-  'hygiene': CategoryInfo(AppStrings.categories.hygiene, '🚿'),
-  'oral_care': CategoryInfo(AppStrings.categories.oralCare, '🦷'),
-  'cosmetics': CategoryInfo(AppStrings.categories.cosmetics, '💄'),
-  'feminine_hygiene': CategoryInfo(AppStrings.categories.feminineHygiene, '🌸'),
-  'cleaning': CategoryInfo(AppStrings.categories.cleaning, '🧹'),
-  'home_products': CategoryInfo(AppStrings.categories.homeProducts, '🏠'),
-  'disposable': CategoryInfo(AppStrings.categories.disposable, '🥤'),
-  'garden': CategoryInfo(AppStrings.categories.garden, '🌱'),
-  'pet_food': CategoryInfo(AppStrings.categories.petFood, '🐕'),
-  'otc_medicine': CategoryInfo(AppStrings.categories.otcMedicine, '💊'),
-  'vitamins': CategoryInfo(AppStrings.categories.vitamins, '💪'),
-  'first_aid': CategoryInfo(AppStrings.categories.firstAid, '🩹'),
-  'baby_products': CategoryInfo(AppStrings.categories.babyProducts, '👶'),
-  'accessories': CategoryInfo(AppStrings.categories.accessories, '🛒'),
-};
+  /// All category info (backward compatibility)
+  static Map<String, CategoryInfo> get kCategoryInfo => CategoriesData.data;
 
-/// מיפוי קטגוריות שאוחדו - תאימות אחורה
-const Map<String, String> kCategoryAliases = {
-  'general': 'other',
-  'dairy_eggs': 'dairy',
-  'vegetables_fruits': 'vegetables',
-  'spices_baking': 'spices',
-  'snacks': 'sweets_snacks',
-  'bakery': 'bread_bakery',
-  'bread': 'bread_bakery',
-  'personal_hygiene': 'hygiene',
-  'cleaning_supplies': 'cleaning',
-};
+  /// Category order for UI (backward compatibility)
+  static List<String> get kCategoryOrder => CategoriesData.order;
 
-/// מיפוי וריאציות עברית נוספות מ-JSON
-const Map<String, String> kHebrewSynonyms = {
-  'משקאות אלכוהוליים': 'beverages',
-  'אלכוהול': 'beverages',
-  'שתייה': 'beverages',
-  'שתיה': 'beverages',
-  'גלידות': 'frozen',
-  'קפואים': 'frozen',
-  'כלי מטבח': 'home_products',
-  'נייר טואלט': 'home_products',
-  'חלב': 'dairy',
-  'ביצים': 'dairy',
-  'גבינות': 'dairy',
-  'לחם': 'bread_bakery',
-  'מאפים': 'bread_bakery',
-  'ירקות ופירות': 'vegetables',
-  'חטיפים': 'sweets_snacks',
-  'ממתקים': 'sweets_snacks',
-  'תבלינים': 'spices',
-  'חומרי ניקיון': 'cleaning',
-  'ניקוי': 'cleaning',
-  'כביסה': 'cleaning',
-  'שונות': 'other',
-  'כללי': 'other',
-};
+  /// Synonyms mapping (backward compatibility)
+  static Map<String, String> get kCategorySynonyms => CategoriesData.synonyms;
 
-/// סדר קטגוריות קבוע ל-UI
-const List<String> kCategoryOrder = [
-  'all',
-  'dairy',
-  'vegetables',
-  'fruits',
-  'meat_fish',
-  'rice_pasta',
-  'spices',
-  'coffee_tea',
-  'sweets_snacks',
-  'beef',
-  'chicken',
-  'turkey',
-  'lamb',
-  'fish',
-  'meat_substitutes',
-  'bread_bakery',
-  'cookies_sweets',
-  'cakes',
-  'canned',
-  'legumes_grains',
-  'cereals',
-  'dried_fruits',
-  'nuts_seeds',
-  'beverages',
-  'oils_sauces',
-  'sweet_spreads',
-  'frozen',
-  'ready_salads',
-  'dairy_substitutes',
-  'hygiene',
-  'oral_care',
-  'cosmetics',
-  'feminine_hygiene',
-  'cleaning',
-  'home_products',
-  'disposable',
-  'garden',
-  'pet_food',
-  'otc_medicine',
-  'vitamins',
-  'first_aid',
-  'baby_products',
-  'accessories',
-  'other',
-];
+  /// Get category info by key - safe fallback to 'other'
+  static CategoryInfo getCategoryInfo(String key) {
+    _instance.ensureValid();
+    return CategoriesData.data[key] ?? CategoriesData.data['other']!;
+  }
 
-/// רשימת מפתחות סופית ל-Dropdown
-/// ✅ תיקון אזהרה: שימוש ב-Tear-off במקום ב-Lambda
-final List<String> kCategories = List.unmodifiable(kCategoryOrder.where(kCategoryInfo.containsKey));
+  /// Resolve synonym to canonical key
+  static String resolveCategory(String input) {
+    _instance.ensureValid();
+    
+    // Direct key match
+    if (CategoriesData.data.containsKey(input)) {
+      return input;
+    }
+    
+    // Synonym lookup
+    final synonym = CategoriesData.synonyms[input];
+    if (synonym != null && CategoriesData.data.containsKey(synonym)) {
+      return synonym;
+    }
+    
+    // Fallback to 'other'
+    return 'other';
+  }
 
-/// מיפוי עברית → אנגלית (נוצר פעם אחת בשימוש הראשון)
-final Map<String, String> _hebrewToEnglish = {for (final entry in kCategoryInfo.entries) entry.value.label: entry.key};
+  /// Check if category exists
+  static bool isValidCategory(String key) {
+    return CategoriesData.data.containsKey(key);
+  }
 
-/// פונקציות עזר לקבלת מידע
-String resolveCategory(String categoryId) => kCategoryAliases[categoryId] ?? categoryId;
+  /// Get all category keys in UI order
+  static List<String> getAllCategories() {
+    return CategoriesData.order;
+  }
 
-String getCategoryLabel(String categoryId) {
-  final resolved = resolveCategory(categoryId);
-  return kCategoryInfo[resolved]?.label ?? AppStrings.common.categoryUnknown;
-}
+  /// Backward compatibility functions
+  static String hebrewCategoryToEnglish(String hebrewCategory) {
+    return resolveCategory(hebrewCategory);
+  }
 
-String getCategoryEmoji(String categoryId) {
-  final resolved = resolveCategory(categoryId);
-  return kCategoryInfo[resolved]?.emoji ?? '📦';
-}
+  static String getCategoryEmoji(String key) {
+    return getCategoryInfo(key).emoji;
+  }
 
-/// המרת שם קטגוריה למפתח אנגלי (סלחני לרווחים ורישיות)
-String? hebrewCategoryToEnglish(String category) {
-  final normalized = category.trim().replaceAll(RegExp(r'\s+'), ' ');
-  final lowercase = normalized.toLowerCase();
+  /// ✅ Validation implementation
+  @override
+  void performValidation() {
+    final data = CategoriesData.data;
+    final order = CategoriesData.order;
+    final synonyms = CategoriesData.synonyms;
 
-  // 1. בדיקה אם זה כבר מפתח אנגלי
-  if (kCategoryInfo.containsKey(lowercase)) return lowercase;
+    // 1. Check required keys exist
+    const required = ['all', 'other'];
+    for (final key in required) {
+      if (!data.containsKey(key)) {
+        throw AssertionError('FiltersConfig: Required category "$key" missing from data');
+      }
+    }
 
-  // 2. בדיקה במפה ההפוכה (עברית)
-  final fromLabels = _hebrewToEnglish[normalized];
-  if (fromLabels != null) return fromLabels;
+    // 2. Check order matches data keys
+    final dataKeys = data.keys.toSet();
+    final orderKeys = order.toSet();
+    
+    if (!dataKeys.containsAll(orderKeys) || !orderKeys.containsAll(dataKeys)) {
+      throw AssertionError(
+        'FiltersConfig: Order keys don\'t match data keys\n'
+        'Data keys: $dataKeys\n'
+        'Order keys: $orderKeys'
+      );
+    }
 
-  // 3. בדיקה במילים נרדפות
-  return kHebrewSynonyms[normalized];
+    // 3. Check 'all' first, 'other' last in order
+    if (order.isNotEmpty) {
+      if (order.first != 'all') {
+        throw AssertionError('FiltersConfig: "all" must be first in order, found: ${order.first}');
+      }
+      if (order.last != 'other') {
+        throw AssertionError('FiltersConfig: "other" must be last in order, found: ${order.last}');
+      }
+    }
+
+    // 4. Check synonyms point to valid keys
+    for (final entry in synonyms.entries) {
+      if (!data.containsKey(entry.value)) {
+        throw AssertionError(
+          'FiltersConfig: Synonym "${entry.key}" points to non-existent category "${entry.value}"'
+        );
+      }
+    }
+  }
 }

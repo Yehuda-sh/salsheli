@@ -156,11 +156,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// 🎯 אימוג'י לפי קטגוריית מוצר
   String _getCategoryEmoji(String category) {
     // נסה להמיר מעברית לאנגלית
-    final englishKey = hebrewCategoryToEnglish(category);
-    if (englishKey != null) {
-      return getCategoryEmoji(englishKey);
-    }
-    return getCategoryEmoji(category);
+    final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
+    return FiltersConfig.getCategoryEmoji(englishKey);
   }
 
   /// 🔍 סינון פריטים
@@ -1328,7 +1325,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🎨 צבע לפי קטגוריה — נותן צבעוניות ייחודית לכל סוג מוצר
   Color _getCategoryColor(String category) {
-    final key = hebrewCategoryToEnglish(category) ?? category;
+    final key = FiltersConfig.hebrewCategoryToEnglish(category);
     return switch (key) {
       'dairy' => const Color(0xFF42A5F5),        // כחול — חלב
       'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,  // ירוק — ירקות/פירות

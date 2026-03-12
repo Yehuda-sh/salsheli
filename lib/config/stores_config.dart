@@ -117,34 +117,29 @@ class StoresConfig with ConfigValidation {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // LISTS BY CATEGORY
+  // AUTO-GENERATED LISTS BY CATEGORY
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// קודי סופרמרקטים
-  static const List<String> supermarkets = [
-    shufersal,
-    ramiLevy,
-    mega,
-    hatziHinam,
-    victory,
-  ];
+  /// קודי סופרמרקטים (auto-generated from _storeData)
+  static List<String> get supermarkets => _storeData.values
+      .where((store) => store.category == StoreCategory.supermarket)
+      .map((store) => store.code)
+      .toList();
 
-  /// קודי מיניקמטים
-  static const List<String> minimarkets = [
-    ampm,
-  ];
+  /// קודי מיניקמטים (auto-generated from _storeData)
+  static List<String> get minimarkets => _storeData.values
+      .where((store) => store.category == StoreCategory.minimarket)
+      .map((store) => store.code)
+      .toList();
 
-  /// קודי בתי מרקחת
-  static const List<String> pharmacies = [
-    superPharm,
-  ];
+  /// קודי בתי מרקחת (auto-generated from _storeData)
+  static List<String> get pharmacies => _storeData.values
+      .where((store) => store.category == StoreCategory.pharmacy)
+      .map((store) => store.code)
+      .toList();
 
-  /// כל הקודים המוכרים
-  static const List<String> allCodes = [
-    ...supermarkets,
-    ...minimarkets,
-    ...pharmacies,
-  ];
+  /// כל הקודים המוכרים (auto-generated from _storeData)
+  static List<String> get allCodes => _storeData.keys.toList();
 
   /// שמות תצוגה (לאוטוקומפליט) - סדר UX
   static List<String> get allDisplayNames =>
