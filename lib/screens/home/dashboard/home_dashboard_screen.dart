@@ -229,7 +229,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               onRefresh: () => _refresh(context),
               child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.all(kSpacingMedium),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kNotebookRedLineOffset + kSpacingSmall,
+                  vertical: kSpacingMedium,
+                ),
                 children: [
                   // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   _staggered(
@@ -252,14 +255,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       familyName: familyName,
                       activeListsCount: activeLists.length,
                     ),
-                    sectionIndex++,
-                  ),
-
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 3. Quick Actions ===
-                  _staggered(
-                    _buildQuickActions(context),
                     sectionIndex++,
                   ),
 
@@ -300,99 +295,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ============================================
-  // QUICK ACTIONS - פעולות מהירות
-  // ============================================
-  Widget _buildQuickActions(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final brand = theme.extension<AppBrand>();
-
-    return Row(
-      children: [
-        _buildQuickActionChip(
-          context,
-          icon: Icons.shopping_cart_outlined,
-          label: 'סופרמרקט',
-          color: brand?.accent ?? cs.primary,
-          onTap: () => Navigator.pushNamed(context, '/create-list'),
-        ),
-        const SizedBox(width: kSpacingSmall),
-        _buildQuickActionChip(
-          context,
-          icon: Icons.receipt_long_outlined,
-          label: 'קבלות',
-          color: brand?.success ?? kStickyGreen,
-          onTap: () => Navigator.pushNamed(context, '/receipts'),
-        ),
-        const SizedBox(width: kSpacingSmall),
-        _buildQuickActionChip(
-          context,
-          icon: Icons.notifications_outlined,
-          label: 'התראות',
-          color: cs.tertiary,
-          onTap: () => Navigator.pushNamed(context, '/notifications'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionChip(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return Expanded(
-      child: Material(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: InkWell(
-          onTap: () {
-            unawaited(HapticFeedback.lightImpact());
-            onTap();
-          },
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: kSpacingSmall),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(kBorderRadius),
-              border: Border.all(color: color.withValues(alpha: 0.15)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: color, size: 20),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: cs.onSurface,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
