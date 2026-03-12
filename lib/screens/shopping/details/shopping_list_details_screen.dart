@@ -50,6 +50,9 @@ import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
 import '../../../config/filters_config.dart';
+import '../active/active_shopping_screen.dart';
+import '../checklist/checklist_screen.dart';
+import '../who_brings/who_brings_screen.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -468,6 +471,42 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
+            // 🛒 כפתור "התחל קנייה" בתחתית — רק לרשימות פעילות עם פריטים
+            bottomNavigationBar: currentList.status == ShoppingList.statusActive && currentList.items.isNotEmpty
+                ? SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          unawaited(HapticFeedback.mediumImpact());
+                          final Widget screen;
+                          if (currentList.type == ShoppingList.typeEvent &&
+                              currentList.eventMode == ShoppingList.eventModeWhoBrings) {
+                            screen = WhoBringsScreen(list: currentList);
+                          } else if (currentList.type == ShoppingList.typeEvent &&
+                              currentList.eventMode == ShoppingList.eventModeTasks) {
+                            screen = ChecklistScreen(list: currentList);
+                          } else {
+                            screen = ActiveShoppingScreen(list: currentList);
+                          }
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+                        },
+                        icon: const Icon(Icons.shopping_cart_checkout),
+                        label: Text(
+                          AppStrings.shopping.startShoppingButton,
+                          style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
+                        ),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: kSpacingMedium),
+                          backgroundColor: cs.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : null,
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: currentList.canCurrentUserEdit
                 ? Padding(
