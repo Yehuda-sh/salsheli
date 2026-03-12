@@ -149,9 +149,6 @@ class StoresConfig {
   static List<String> get allDisplayNames =>
       allCodes.map((code) => _storeData[code]!.displayName).toList();
 
-  /// @deprecated השתמש ב-allDisplayNames לאוטוקומפליט
-  static List<String> get allStores => allDisplayNames;
-
   // ═══════════════════════════════════════════════════════════════════════════
   // 🔍 Lookup API
   // ═══════════════════════════════════════════════════════════════════════════
@@ -164,9 +161,6 @@ class StoresConfig {
     return _storeData.containsKey(storeNameOrCode) ||
         _hebrewToCode.containsKey(storeNameOrCode);
   }
-
-  /// @deprecated השתמש ב-isKnown() במקום - שים לב שהרשימה פתוחה!
-  static bool isValid(String store) => isKnown(store);
 
   /// ממיר שם/קוד לקוד קנוני
   ///

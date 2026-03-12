@@ -412,6 +412,7 @@ class _ShoppingStrings {
   String get typeBakery => 'מאפייה';
   String get typeMarket => 'שוק';
   String get typeHousehold => 'כלי בית';
+  String get typeEvent => 'אירוע';
   String get typeOther => 'אחר';
   String get deleteListTitle => 'מחיקת רשימה';
   String deleteListMessage(String name) => 'האם למחוק את הרשימה "$name"?';

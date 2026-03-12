@@ -115,9 +115,9 @@ class ListTypes {
       icon: Icons.home,
       color: kStickyCyan,
     ),
-    const ListTypeConfig(
+    ListTypeConfig(
       key: ListTypeKeys.event,
-      fullName: 'אירוע', // TODO: להוסיף ל-AppStrings.shopping
+      fullName: AppStrings.shopping.typeEvent,
       shortName: 'אירוע',
       emoji: '🎉',
       icon: Icons.celebration,
