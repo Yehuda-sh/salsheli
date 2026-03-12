@@ -152,36 +152,85 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 ],
               ),
               const SizedBox(height: kSpacingSmall),
-              // צ'יפים של חנויות מוכרות
+              // 🏪 פתקיות חנויות מוכרות
               if (widget.knownStores.isNotEmpty)
                 Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  children: widget.knownStores.map((store) => ChoiceChip(
-                    label: Text(store, style: TextStyle(fontSize: kFontSizeSmall)),
-                    selected: _selectedStoreName == store,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedStoreName = selected ? store : null;
-                      });
-                    },
-                    visualDensity: VisualDensity.compact,
-                    selectedColor: cs.primaryContainer,
-                  )).toList(),
+                  spacing: kSpacingSmall,
+                  runSpacing: kSpacingSmall,
+                  children: widget.knownStores.asMap().entries.map((entry) {
+                    final store = entry.value;
+                    final isSelected = _selectedStoreName == store;
+                    // צבעים מתחלפים לפתקיות
+                    final colors = [kStickyYellow, kStickyGreen, kStickyCyan, kStickyPink, kStickyOrange, kStickyPurple];
+                    final noteColor = colors[entry.key % colors.length];
+
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedStoreName = isSelected ? null : store;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isSelected ? noteColor : noteColor.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                          border: isSelected
+                              ? Border.all(color: cs.primary, width: 2)
+                              : null,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: isSelected ? 0.15 : 0.06),
+                              blurRadius: isSelected ? 6 : 3,
+                              offset: const Offset(1, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isSelected)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4),
+                                child: Icon(Icons.check_circle, size: 14, color: cs.primary),
+                              ),
+                            Text(
+                              store,
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               if (widget.knownStores.isNotEmpty)
                 const SizedBox(height: kSpacingSmall),
-              // שדה טקסט לחנות אחרת
+              // ✏️ שדה טקסט לחנות אחרת
               SizedBox(
-                height: 40,
+                height: 42,
                 child: TextField(
                   style: TextStyle(fontSize: kFontSizeSmall),
                   decoration: InputDecoration(
-                    hintText: 'או הקלד שם חנות...',
+                    hintText: 'חנות אחרת...',
                     hintStyle: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    filled: true,
+                    fillColor: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      borderSide: BorderSide(color: cs.primary),
+                    ),
                     prefixIcon: Icon(Icons.edit_outlined, size: 16, color: cs.onSurfaceVariant),
                   ),
                   onChanged: (value) {
