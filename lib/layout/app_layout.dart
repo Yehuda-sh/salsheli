@@ -234,8 +234,6 @@ class _AppLayoutState extends State<AppLayout> {
   /// 🎨 Build AppBar
   /// ✅ צבעים מגיעים מ-AppBarTheme (מקור אמת יחיד)
   PreferredSizeWidget _buildAppBar(BuildContext context, ColorScheme cs) {
-    final theme = Theme.of(context);
-
     return AppBar(
       // ✅ Premium branded header
       title: Row(
