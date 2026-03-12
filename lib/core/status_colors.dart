@@ -10,7 +10,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -50,11 +49,7 @@ enum StatusType {
 
     return StatusType.values.firstWhere(
       (e) => e.name == normalized,
-      orElse: () {
-        if (kDebugMode) {
-        }
-        return StatusType.pending;
-      },
+      orElse: () => StatusType.pending,
     );
   }
 }

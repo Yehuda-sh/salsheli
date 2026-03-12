@@ -54,10 +54,6 @@ const Color kStickyPurpleDark = Color(0xFF9433A4);  // Creative features (muted 
 const Color kStickyOrangeDark = Color(0xFFEC6135);  // Warnings (muted coral)
 
 // ═══════════════════════════════════════════════════════════════════════════
-// COLORS - Notebook Lines
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Brand / Social
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -158,19 +154,11 @@ const Duration kSnackBarDurationLong = Duration(seconds: 5);  // Long SnackBar
 const Duration kDoubleTapTimeout = Duration(seconds: 2);      // Double-tap detection timeout
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HAPTIC DELAYS
-// ═══════════════════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════════════════════
 // SNACKBAR MARGINS
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kSnackBarBottomMargin = 80.0;      // Bottom margin (above nav bar)
 const double kSnackBarHorizontalMargin = 16.0;  // Left & right margins
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FAB MARGINS
-// ═══════════════════════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════════════════════
 // INPUT PADDING
@@ -199,8 +187,6 @@ const double kBorderWidthThick = 3.0;        // Thick border
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kCardElevation = 2.0;       // Card elevation (default)
-const double kCardElevationLow = 1.0;       // Low card elevation
-const double kCardElevationHigh = 4.0;      // High card elevation
 
 // ═══════════════════════════════════════════════════════════════════════════
 // OPACITY
@@ -267,7 +253,6 @@ const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
 // AVATAR SIZES
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kAvatarRadiusTiny = 12.0;   // Tiny avatar radius
 const double kAvatarRadius = 32.0;       // Default avatar radius
 
 // ═══════════════════════════════════════════════════════════════════════════
