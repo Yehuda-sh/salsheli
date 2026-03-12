@@ -42,7 +42,7 @@ class HouseholdActivityFeed extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/icon_home_activity.webp', width: 28, height: 28),
+            Image.asset('assets/images/icon_home_activity.webp', width: 36, height: 36),
             const SizedBox(width: 8),
             Text(
               'מה חדש בבית',

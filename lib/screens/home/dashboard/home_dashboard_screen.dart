@@ -208,7 +208,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        icon: Image.asset('assets/images/icon_new_list.webp', width: 28, height: 28),
+        icon: Image.asset('assets/images/icon_new_list.webp', width: 32, height: 32),
         label: Text(AppStrings.homeDashboard.newListButton),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
@@ -435,8 +435,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               Row(
                 children: [
-                  Image.asset(greetingAsset, width: 24, height: 24),
-                  const SizedBox(width: 6),
+                  Image.asset(greetingAsset, width: 36, height: 36),
+                  const SizedBox(width: kSpacingSmall),
                   Flexible(
                     child: Text(
                       strings.timeBasedGreeting(userName, hour),
@@ -584,7 +584,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/icon_active_lists.webp', width: 28, height: 28),
+            Image.asset('assets/images/icon_active_lists.webp', width: 36, height: 36),
             const SizedBox(width: 8),
             Text(
               strings.activeListsTitle,

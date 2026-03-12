@@ -271,7 +271,7 @@ class _AppLayoutState extends State<AppLayout> {
           icon: Badge.count(
             count: totalBadgeCount,
             isLabelVisible: totalBadgeCount > 0,
-            child: Image.asset('assets/images/icon_bell.webp', width: 28, height: 28),
+            child: Image.asset('assets/images/icon_bell.webp', width: 32, height: 32),
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),
