@@ -67,17 +67,28 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
 
     // מסך סיכום רגיל
     return AlertDialog(
-      title: Row(
+      title: Column(
         children: [
-          Icon(Icons.check_circle, color: kStickyGreen, size: kIconSizeLarge),
-          SizedBox(width: kSpacingSmallPlus),
-          Expanded(
-            child: Text(
-              AppStrings.shopping.summaryTitle,
-              style: TextStyle(fontSize: kFontSizeLarge + 4, fontWeight: FontWeight.bold, color: cs.onSurface),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
+          // 🛒 עגלה תלת-ממדית — hero visual
+          Image.asset(
+            'assets/images/shopping_cart_3d.webp',
+            height: 80,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: kSpacingSmall),
+          Text(
+            widget.purchased > 0
+                ? 'קנייה מוצלחת! ⚡'
+                : AppStrings.shopping.summaryTitle,
+            style: TextStyle(fontSize: kFontSizeLarge + 2, fontWeight: FontWeight.bold, color: cs.onSurface),
+            textAlign: TextAlign.center,
+          ),
+          Text(
+            widget.listName,
+            style: TextStyle(fontSize: kFontSizeSmall, color: cs.primary, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
           ),
         ],
       ),
@@ -86,13 +97,6 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.listName,
-              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.primary),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-            const SizedBox(height: kSpacingMedium),
 
             const Divider(height: kSpacingLarge),
 
