@@ -229,10 +229,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               onRefresh: () => _refresh(context),
               child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: kNotebookRedLineOffset + kSpacingSmall,
-                  vertical: kSpacingMedium,
-                ),
+                padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
                   // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   _staggered(
