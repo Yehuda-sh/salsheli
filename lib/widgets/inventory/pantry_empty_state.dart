@@ -90,14 +90,14 @@ class PantryEmptyState extends StatelessWidget {
             ],
           ),
           const Gap(kSpacingSmall),
-          _buildTip('1️⃣', 'לחץ על הכפתור + למטה', cs.onSurfaceVariant),
-          _buildTip('2️⃣', 'בחר מוצר מהקטלוג או הוסף חדש', cs.onSurfaceVariant),
-          _buildTip('3️⃣', 'הגדר כמות ומיקום אחסון', cs.onSurfaceVariant),
+          _buildTip('1️⃣', 'לחץ על ״הוסף מוצר״ למטה', cs.onSurfaceVariant),
+          _buildTip('2️⃣', 'חפש מוצר מתוך 9,000+ מוצרים', cs.onSurfaceVariant),
+          _buildTip('3️⃣', 'הגדר כמות — וזהו! 🎯', cs.onSurfaceVariant),
           const Gap(kSpacingSmall),
           const Divider(),
           const Gap(kSpacingSmall),
           Text(
-            '✨ המזווה יעזור לך לעקוב אחרי מה שיש לך בבית',
+            '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות',
             style: TextStyle(
               fontSize: kFontSizeSmall,
               color: cs.onSurfaceVariant,
@@ -198,7 +198,7 @@ class PantryEmptyState extends StatelessWidget {
                 Column(
                   children: [
                     Text(
-                      'המזווה ריק',
+                      'בואו נמלא את המזווה! 🎉',
                       style: TextStyle(
                         fontSize: kFontSizeXLarge,
                         fontWeight: FontWeight.bold,
@@ -208,8 +208,8 @@ class PantryEmptyState extends StatelessWidget {
                     const Gap(kSpacingSmall),
                     Text(
                       isGroupMode
-                          ? 'עדיין לא הוספתם מוצרים למזווה המשותף'
-                          : 'עדיין לא הוספת מוצרים למזווה שלך',
+                          ? 'הוסיפו מוצרים למזווה המשותף כדי לעקוב אחרי מה שיש בבית'
+                          : 'הוסף מוצרים כדי לדעת תמיד מה יש ומה חסר',
                       style: TextStyle(
                         fontSize: kFontSizeMedium,
                         color: cs.onSurfaceVariant,
@@ -338,10 +338,10 @@ class PantryEmptyState extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.family_restroom, color: badgeColor, size: 20),
+            Icon(Icons.home_outlined, color: badgeColor, size: 20),
             const Gap(kSpacingSmall),
             Text(
-              'מזווה משותף - $groupName',
+              'מזווה הבית — $groupName',
               style: TextStyle(color: badgeColor, fontWeight: FontWeight.w500),
             ),
           ],
@@ -362,10 +362,10 @@ class PantryEmptyState extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.person, color: cs.primary, size: 20),
+          Icon(Icons.kitchen_outlined, color: cs.primary, size: 20),
           const Gap(kSpacingSmall),
           Text(
-            'המזווה האישי שלך',
+            'המזווה שלך ✨',
             style: TextStyle(color: cs.primary, fontWeight: FontWeight.w500),
           ),
         ],
