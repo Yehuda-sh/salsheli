@@ -1,12 +1,12 @@
 // 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
 //
 // מסך הבית - פשוט ונקי:
-// 1. Header: ברכה דינמית (בוקר/צהריים/ערב) + שם משפחה + התראות
+// 1. Header: ברכה דינמית (בוקר/צהריים/ערב) + שם הבית + התראות
 // 2. באנרים (Active Shopper, Pending Invite)
-// 3. Quick Add
+// 3. Quick Actions
 // 4. הצעות להיום (≤3 פריטים)
 // 5. רשימות פעילות (Cards)
-// 6. היסטוריה (2 קבלות + "ראה הכל")
+// 6. פיד פעילות הבית
 //
 // 📋 Features:
 // - ברכת בוקר/ערב דינמית
@@ -18,8 +18,6 @@
 // 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
 
 import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,7 +27,6 @@ import 'package:provider/provider.dart';
 import '../../../config/list_types_config.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
-import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
@@ -39,8 +36,8 @@ import '../../../services/notifications_service.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../history/shopping_history_screen.dart';
 import 'widgets/active_shopper_banner.dart';
+import 'widgets/household_activity_feed.dart';
 import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
 
@@ -184,7 +181,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
-    final receiptProvider = context.watch<ReceiptProvider>();
     final userContext = context.watch<UserContext>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -198,10 +194,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         .toList()
       ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
-    // קבלות ממוינות לפי תאריך (חדש לישן)
-    final sortedReceipts = List<Receipt>.from(receiptProvider.receipts)
-      ..sort((a, b) => b.date.compareTo(a.date));
-
+    // ignore: unused_local_variable — used by sub-widgets via Provider
     // שם משפחה להצגה
     final familyName = _getFamilyDisplayName(userContext);
 
@@ -272,16 +265,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
                   const SizedBox(height: kSpacingMedium),
 
-                  // === 3.5 סיכום חודשי ===
-                  if (sortedReceipts.isNotEmpty)
-                    _staggered(
-                      _buildMonthlySummary(context, sortedReceipts),
-                      sectionIndex++,
-                    ),
-
-                  if (sortedReceipts.isNotEmpty)
-                    const SizedBox(height: kSpacingMedium),
-
                   // === 4. הצעות להיום ===
                   _staggered(
                     const RepaintBoundary(
@@ -302,10 +285,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
                   const SizedBox(height: kSpacingMedium),
 
-                  // === 6. היסטוריה ===
+                  // === 6. פיד פעילות הבית ===
                   _staggered(
-                    RepaintBoundary(
-                      child: _buildHistorySection(context, sortedReceipts, cs),
+                    const RepaintBoundary(
+                      child: HouseholdActivityFeed(),
                     ),
                     sectionIndex++,
                   ),
@@ -411,134 +394,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  // ============================================
-  // MONTHLY SUMMARY - סיכום חודשי
-  // ============================================
-  Widget _buildMonthlySummary(BuildContext context, List<Receipt> receipts) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final now = DateTime.now();
-
-    // חשב סה"כ חודשי
-    final monthlyReceipts = receipts.where((r) =>
-        r.date.year == now.year && r.date.month == now.month).toList();
-    final totalSpent = monthlyReceipts.fold<double>(
-        0, (sum, r) => sum + r.totalAmount);
-    final avgPerTrip = monthlyReceipts.isNotEmpty
-        ? totalSpent / monthlyReceipts.length
-        : 0.0;
-
-    if (monthlyReceipts.isEmpty) return const SizedBox.shrink();
-
-    return Container(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            cs.primaryContainer.withValues(alpha: 0.5),
-            cs.secondaryContainer.withValues(alpha: 0.3),
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: cs.primary.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.insights_outlined, size: 18, color: cs.primary),
-              const SizedBox(width: 6),
-              Text(
-                'סיכום החודש',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: kSpacingMedium),
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryItem(
-                  context,
-                  icon: Icons.receipt_long_outlined,
-                  value: '₪${totalSpent.toStringAsFixed(0)}',
-                  label: 'הוצאות',
-                  color: cs.primary,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: cs.outlineVariant.withValues(alpha: 0.3),
-              ),
-              Expanded(
-                child: _buildSummaryItem(
-                  context,
-                  icon: Icons.shopping_bag_outlined,
-                  value: '${monthlyReceipts.length}',
-                  label: 'קניות',
-                  color: cs.tertiary,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 40,
-                color: cs.outlineVariant.withValues(alpha: 0.3),
-              ),
-              Expanded(
-                child: _buildSummaryItem(
-                  context,
-                  icon: Icons.trending_down_outlined,
-                  value: '₪${avgPerTrip.toStringAsFixed(0)}',
-                  label: 'ממוצע',
-                  color: cs.secondary,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryItem(
-    BuildContext context, {
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    final theme = Theme.of(context);
-    final cs = Theme.of(context).colorScheme;
-
-    return Column(
-      children: [
-        Icon(icon, size: 20, color: color),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: theme.textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: cs.onSurface,
-          ),
-        ),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: cs.onSurfaceVariant,
-            fontSize: kFontSizeTiny,
-          ),
-        ),
-      ],
     );
   }
 
@@ -1066,174 +921,4 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
-  // ============================================
-  // 3. HISTORY - היסטוריה (2 קבלות + "ראה הכל")
-  // ============================================
-  Widget _buildHistorySection(
-    BuildContext context,
-    List<Receipt> receipts,
-    ColorScheme _,
-  ) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final strings = AppStrings.homeDashboard;
-    // ✅ FIX: RTL-aware chevron icon
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-
-    if (receipts.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    // מציג רק 2 קבלות אחרונות
-    final recentReceipts = receipts.take(2).toList();
-    final hasMore = receipts.length > 2;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // כותרת
-        Row(
-          children: [
-            Icon(Icons.history, size: 20, color: cs.primary),
-            const SizedBox(width: 8),
-            Text(
-              strings.historyTitle,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const Spacer(),
-            if (hasMore)
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ShoppingHistoryScreen(),
-                    ),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      strings.seeAll,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: 2),
-                    Icon(
-                      isRtl ? Icons.chevron_left : Icons.chevron_right,
-                      size: 16,
-                      color: cs.primary,
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        // כרטיסי קבלות
-        Card(
-          child: Column(
-            children: [
-              ...recentReceipts.asMap().entries.map((entry) {
-                final index = entry.key;
-                final receipt = entry.value;
-                return Column(
-                  children: [
-                    _buildReceiptTile(context, receipt, cs),
-                    if (index < recentReceipts.length - 1)
-                      const Divider(height: 1),
-                  ],
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReceiptTile(BuildContext context, Receipt receipt, ColorScheme _) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final strings = AppStrings.homeDashboard;
-
-    return ListTile(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ShoppingHistoryScreen(initialReceiptId: receipt.id),
-          ),
-        );
-      },
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: cs.primaryContainer,
-          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        ),
-        child: Icon(
-          receipt.isVirtual ? Icons.receipt_long : Icons.receipt,
-          color: cs.onPrimaryContainer,
-          size: 20,
-        ),
-      ),
-      title: Text(
-        receipt.storeName,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontWeight: FontWeight.w500,
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        _formatDate(receipt.date),
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: cs.onSurfaceVariant,
-        ),
-      ),
-      trailing: receipt.totalAmount > 0
-          ? Text(
-              '₪${receipt.totalAmount.toStringAsFixed(0)}',
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: cs.primary,
-              ),
-            )
-          : Text(
-              strings.itemsCount(receipt.items.length),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    final strings = AppStrings.homeDashboard;
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inDays == 0) {
-      return strings.today;
-    } else if (difference.inDays == 1) {
-      return strings.yesterday;
-    } else if (difference.inDays < 7) {
-      return strings.daysAgo(difference.inDays);
-    } else {
-      return strings.dateFormat(date.day, date.month, date.year);
-    }
-  }
 }
