@@ -277,7 +277,23 @@ class ShoppingListTile extends StatelessWidget {
               color: stickyColor.withValues(alpha: 0.5),
             ),
           ),
-          child: Column(
+          child: IntrinsicHeight(
+            child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 🎨 Colored side strip — לפי סוג רשימה
+              Container(
+                width: 5,
+                decoration: BoxDecoration(
+                  color: stickyColor,
+                  borderRadius: const BorderRadius.horizontal(
+                    right: Radius.circular(kBorderRadius),
+                  ),
+                ),
+              ),
+              // 📋 Card content
+              Expanded(
+                child: Column(
             children: [
               // 📋 Card content (tappable area)
               InkWell(
@@ -295,6 +311,17 @@ class ShoppingListTile extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
                     vertical: kSpacingSmallPlus,
+                  ),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: stickyColor.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Center(
+                      child: Text(list.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                    ),
                   ),
                   title: Text(
                     list.name,
@@ -387,6 +414,10 @@ class ShoppingListTile extends StatelessWidget {
               if (list.status == ShoppingList.statusActive)
                 _buildBottomActionButton(context, theme),
             ],
+          ),
+              ),
+            ],
+          ),
           ),
         ),
       ),
