@@ -407,18 +407,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
             child: Container(
               margin: const EdgeInsets.all(2.5),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: cs.primaryContainer,
               ),
-              child: Center(
-                child: Text(
-                  initials,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: cs.primary,
-                  ),
-                ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                'assets/images/default_avatar.webp',
+                width: 43,
+                height: 43,
+                fit: BoxFit.cover,
               ),
             ),
           ),
