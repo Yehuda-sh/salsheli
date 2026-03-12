@@ -354,6 +354,10 @@ class _LoginScreenState extends State<LoginScreen>
     {'name': 'תומר בר', 'email': 'tomer.bar@demo.com', 'role': 'Admin', 'group': 'גר לבד'},
     // 🆕 משתמש חדש — מזווה בלבד, בלי רשימות
     {'name': 'שירן גל', 'email': 'shiran.gal@demo.com', 'role': 'Admin', 'group': 'משתמש חדש'},
+    // Edge case users
+    {'name': 'אורי שלום', 'email': 'ori.shalom@demo.com', 'role': 'Member', 'group': '🧓 סבא, צופה בכהן'},
+    {'name': 'ליאור דהן', 'email': 'lior.dahan@demo.com', 'role': 'Admin', 'group': '😴 לא פעיל'},
+    {'name': 'נעמה רוזן', 'email': 'naama.rozen@demo.com', 'role': 'Admin', 'group': '🎉 Power User'},
   ];
 
   /// סיסמה לכל משתמשי הדמו
