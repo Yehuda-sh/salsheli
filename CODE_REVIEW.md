@@ -55,6 +55,11 @@
 | suggestions_service | 5 methods |
 | shopping_patterns_service | 2 methods |
 
+### 🟡 DRY נוסף — widgets
+| # | בעיה | היקף |
+|---|-------|------|
+| D5 | **add_edit_product + add_edit_task + pantry_item_dialog** — `_confirmExit`, `_showErrorSnackBar`, `_handleCancel`, `_markChanged` זהים ב-3 dialogs | ~80 שורות כפולות |
+
 ---
 
 ## 📈 מה בוצע בסקירה (12/3/2026)
@@ -92,7 +97,8 @@
 | מדד | ערך |
 |-----|-----|
 | קבצי Dart | ~149 |
-| שורות קוד (lib/) | ~58,000 |
+| שורות קוד (lib/) | ~57,000 |
+| **כל lib/ נסקר** | ✅ 100% |
 | Errors | **0** |
 | Warnings | **2** (known, deferred) |
 | Info issues | ~400 |
