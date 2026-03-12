@@ -115,7 +115,7 @@ class ListTypes {
       icon: Icons.home,
       color: kStickyCyan,
     ),
-    ListTypeConfig(
+    const ListTypeConfig(
       key: ListTypeKeys.event,
       fullName: 'אירוע', // TODO: להוסיף ל-AppStrings.shopping
       shortName: 'אירוע',
@@ -179,7 +179,13 @@ class ListTypes {
   }
 
   /// Cache ל-Config ברירת המחדל (ביצועים)
-  static ListTypeConfig get _otherConfig => all.firstWhere((c) => c.key == ListTypeKeys.other, orElse: () => all.last);
+  static const ListTypeConfig _otherConfig = ListTypeConfig(
+    key: ListTypeKeys.other,
+    fullName: 'אחר',
+    shortName: 'אחר',
+    emoji: '📝',
+    icon: Icons.more_horiz,
+  );
 
   // ========================================
   // 🔧 Debug Validation
@@ -193,7 +199,7 @@ class ListTypes {
     _sanityChecked = true;
 
     final configKeys = all.map((c) => c.key).toList();
-    final expectedKeys = ListTypeKeys.all;
+    const expectedKeys = ListTypeKeys.all;
 
     // 1. בדיקת כפילויות
     final distinctKeys = configKeys.toSet();
@@ -202,7 +208,7 @@ class ListTypes {
     }
 
     // 2. בדיקת התאמה ל-ListTypeKeys
-    if (configKeys.length != expectedKeys.length || !configKeys.every((k) => expectedKeys.contains(k))) {
+    if (configKeys.length != expectedKeys.length || !configKeys.every(expectedKeys.contains)) {
       assert(false, '❌ ListTypes: אין התאמה 1:1 בין ListTypes.all ל-ListTypeKeys.all');
     }
 

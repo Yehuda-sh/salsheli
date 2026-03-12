@@ -13,7 +13,7 @@ class AppConfig {
 
   /// 🌍 קביעת הסביבה: אם זה Release - תמיד Production.
   static AppEnvironment get environment {
-    const env = String.fromEnvironment('ENV', defaultValue: '');
+    const env = String.fromEnvironment('ENV');
     if (env == 'production' || kReleaseMode) return AppEnvironment.production;
     return AppEnvironment.development;
   }
@@ -22,7 +22,7 @@ class AppConfig {
   /// פקודה: flutter run --dart-define=USE_EMULATORS=true
   static bool get useEmulators {
     if (kReleaseMode) return false; // אבטחה: לעולם לא באפליקציה שבחנות
-    return const bool.fromEnvironment('USE_EMULATORS', defaultValue: false);
+    return const bool.fromEnvironment('USE_EMULATORS');
   }
 
   static bool get isProduction => environment == AppEnvironment.production;
