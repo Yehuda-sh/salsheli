@@ -547,17 +547,44 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.list_alt, size: 24, color: cs.primary),
+                  // 🎨 Emoji סוג רשימה בריבוע צבעוני
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: currentList.stickyColor.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    ),
+                    child: Center(
+                      child: Text(currentList.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                    ),
+                  ),
                   const SizedBox(width: kSpacingSmall),
                   Flexible(
-                    child: Text(
-                      currentList.name,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          currentList.name,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${currentList.items.length} פריטים',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant,
+                            fontSize: kFontSizeTiny,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              centerTitle: true,
+              centerTitle: false,
               actions: [
                 // 🔔 Badge בקשות ממתינות
                 if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
@@ -1001,87 +1028,107 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
         );
       },
       onDismissed: (_) => _deleteItem(context, item),
-      child: SizedBox(
-        height: kNotebookLineSpacing,
-        child: Row(
-          children: [
-            // רווח התחלתי
-            const SizedBox(width: kSpacingMedium),
-
-            // ✅ Checkbox
-            SizedBox(
-              width: 24,
-              height: 24,
-              child: Checkbox(
-                value: item.isChecked,
-                shape: const CircleBorder(),
-                activeColor: theme.colorScheme.primary,
-                side: BorderSide(color: theme.colorScheme.onSurfaceVariant, width: 2),
-                onChanged: (val) {
-                  // 🔧 FIX: שימוש ב-currentList שהתקבל כפרמטר
-                  final provider = context.read<ShoppingListsProvider>();
-                  final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
-                  if (originalIndex != -1) {
-                    provider.updateItemAt(currentList.id, originalIndex, (c) => c.copyWith(isChecked: val));
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+        child: Card(
+          elevation: item.isChecked ? 0 : 0.5,
+          color: item.isChecked
+              ? cs.surfaceContainerHighest.withValues(alpha: 0.3)
+              : cs.surface.withValues(alpha: 0.85),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            onTap: canEdit
+                ? () {
+                    if (isProduct) {
+                      _handleEditProduct(item);
+                    } else {
+                      _handleEditTask(item);
+                    }
                   }
-                },
-              ),
-            ),
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+              child: Row(
+                children: [
+                  // 🎨 Category emoji
+                  Text(
+                    isProduct ? getCategoryEmoji(item.category ?? '') : '📋',
+                    style: const TextStyle(fontSize: kFontSizeTitle),
+                  ),
+                  const SizedBox(width: kSpacingSmall),
 
-            const SizedBox(width: kSpacingMedium),
-
-            // 📝 שם המוצר + כמות (לחיץ לעריכה!)
-            Expanded(
-              child: InkWell(
-                onTap: canEdit
-                    ? () {
-                        if (isProduct) {
-                          _handleEditProduct(item);
-                        } else {
-                          _handleEditTask(item);
-                        }
-                      }
-                    : null,
-                child: Row(
-                  children: [
-                    // כמות (Badge) - רק אם יותר מ-1
-                    if ((item.quantity ?? 1) > 1) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                        ),
-                        child: Text(
-                          '${item.quantity}',
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            fontWeight: FontWeight.bold,
-                            color: theme.colorScheme.onPrimaryContainer,
+                  // 📝 שם + כמות
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          item.name,
+                          style: theme.textTheme.bodyLarge!.copyWith(
+                            decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                            color: item.isChecked ? cs.outline : cs.onSurface,
+                            fontSize: kFontSizeBody,
+                            fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      SizedBox(width: 8),
-                    ],
+                        if (item.category != null && item.category!.isNotEmpty)
+                          Text(
+                            item.category!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontSize: kFontSizeTiny,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
 
-                    // שם המוצר
-                    Flexible(
+                  // כמות (Badge)
+                  if ((item.quantity ?? 1) > 1)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
                       child: Text(
-                        item.name,
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                          color: item.isChecked ? cs.outline : cs.onSurface,
-                          fontSize: kFontSizeBody,
+                        '×${item.quantity}',
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onPrimaryContainer,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  ],
-                ),
+
+                  const SizedBox(width: kSpacingSmall),
+
+                  // ✅ Checkbox
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Checkbox(
+                      value: item.isChecked,
+                      shape: const CircleBorder(),
+                      activeColor: theme.colorScheme.primary,
+                      side: BorderSide(color: theme.colorScheme.onSurfaceVariant, width: 2),
+                      onChanged: (val) {
+                        final provider = context.read<ShoppingListsProvider>();
+                        final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
+                        if (originalIndex != -1) {
+                          provider.updateItemAt(currentList.id, originalIndex, (c) => c.copyWith(isChecked: val));
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
