@@ -237,43 +237,87 @@ class _AppLayoutState extends State<AppLayout> {
     final theme = Theme.of(context);
 
     return AppBar(
-      // ✅ הוסר: backgroundColor/foregroundColor - מגיעים מ-Theme
+      // ✅ Premium notebook-style header
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shopping_basket_outlined, color: cs.primary),
-          const SizedBox(width: kSpacingSmall),
-          Text(
-            AppStrings.layout.appTitle,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: cs.primary,
+          // 📓 App logo — notebook icon with gradient
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              gradient: LinearGradient(
+                colors: [cs.primary, cs.tertiary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
+            child: const Center(
+              child: Text('📓', style: TextStyle(fontSize: 18)),
+            ),
+          ),
+          const SizedBox(width: kSpacingSmall),
+          // App name — stylized
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppStrings.layout.appTitle,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: cs.onSurface,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              Text(
+                'רשימות חכמות 📝',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontSize: kFontSizeTiny,
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      centerTitle: true,
+      centerTitle: false,
       actions: [
-        // 🔔 Notifications Button - פותח תפריט בחירת סוג הזמנות
-        _AnimatedIconButton(
-          tooltip: AppStrings.layout.notifications,
-          icon: Badge.count(
-            count: totalBadgeCount,
-            isLabelVisible: totalBadgeCount > 0,
-            child: const Icon(Icons.notifications_outlined),
+        // 🔔 Notifications Button
+        Badge.count(
+          count: totalBadgeCount,
+          isLabelVisible: totalBadgeCount > 0,
+          child: IconButton(
+            tooltip: AppStrings.layout.notifications,
+            icon: Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(kBorderRadius),
+              ),
+              child: Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
+            ),
+            onPressed: () => _showNotificationsMenu(context),
           ),
-          onPressed: () => _showNotificationsMenu(context),
         ),
-        // 🚪 Logout Button with Animation + Haptic
-        _AnimatedIconButton(
+        const SizedBox(width: kSpacingTiny),
+        // 🚪 Logout Button
+        IconButton(
           tooltip: AppStrings.common.logout,
-          icon: const Icon(Icons.logout),
-          color: cs.error,
+          icon: Container(
+            padding: const EdgeInsets.all(kSpacingSmall),
+            decoration: BoxDecoration(
+              color: cs.errorContainer.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            child: Icon(Icons.logout, color: cs.error, size: kIconSizeMedium),
+          ),
           onPressed: () {
             unawaited(HapticFeedback.mediumImpact());
             _logout(context);
           },
         ),
+        const SizedBox(width: kSpacingSmall),
       ],
     );
   }
