@@ -512,9 +512,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏷️ כותרת המזווה - Collaborative Immersive (Glassmorphic + Avatars)
   Widget _buildInlineTitle(InventoryProvider provider, ColorScheme scheme) {
-    final textColor = scheme.onSurface;
+    final theme = Theme.of(context);
     final userContext = context.watch<UserContext>();
     final displayName = userContext.displayName ?? '';
+    final initials = displayName.isNotEmpty
+        ? displayName
+            .split(' ')
+            .where((p) => p.isNotEmpty)
+            .map((p) => p[0])
+            .take(2)
+            .join()
+        : '?';
 
     return ClipRRect(
       child: BackdropFilter(
@@ -529,7 +537,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           ),
           child: Row(
             children: [
-              Icon(Icons.kitchen_outlined, size: 24, color: scheme.primary),
+              // 📦 Emoji in colored circle (like Dashboard)
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.primaryContainer,
+                ),
+                child: const Center(
+                  child: Text('📦', style: TextStyle(fontSize: kFontSizeTitle)),
+                ),
+              ),
               const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Column(
@@ -537,37 +556,52 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   children: [
                     Text(
                       provider.inventoryTitle,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: kFontSizeLarge,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: scheme.onSurface,
                       ),
                     ),
                     if (provider.items.isNotEmpty)
                       Text(
                         '${provider.items.length} פריטים במזווה',
-                        style: TextStyle(
+                        style: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
-                          fontSize: kFontSizeTiny,
                         ),
                       ),
                   ],
                 ),
               ),
 
-              // 👥 Collaborative Avatars - בני הבית המחוברים
+              // 👤 Avatar with gradient ring (like Dashboard)
               if (displayName.isNotEmpty)
                 Tooltip(
                   message: displayName,
-                  child: CircleAvatar(
-                    radius: kAvatarRadiusTiny,
-                    backgroundColor: scheme.primaryContainer,
-                    child: Text(
-                      displayName.characters.first,
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        fontWeight: FontWeight.bold,
-                        color: scheme.onPrimaryContainer,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [scheme.primary, scheme.tertiary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: scheme.primaryContainer,
+                      ),
+                      child: Center(
+                        child: Text(
+                          initials,
+                          style: TextStyle(
+                            fontSize: kFontSizeTiny,
+                            fontWeight: FontWeight.bold,
+                            color: scheme.onPrimaryContainer,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -1022,14 +1056,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final isCritical = item.status == LimitStatus.critical || item.needsUrgentAttention;
     final isWarning = item.status == LimitStatus.warning || item.isLowStock;
 
-    // 🎨 צבע פס צד לפי סטטוס
+    // 🎨 צבע פס צד לפי סטטוס (קריטי/אזהרה) או קטגוריה
     final Color statusColor;
     if (isCritical) {
       statusColor = cs.error;
     } else if (isWarning) {
       statusColor = brand?.warning ?? kStickyOrange;
     } else {
-      statusColor = cs.primary.withValues(alpha: 0.3);
+      statusColor = _getCategoryColor(item.category);
     }
 
     final isRtl = Directionality.of(context) == TextDirection.rtl;
@@ -1220,9 +1254,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                       textAlign: TextAlign.center,
                                     ),
                                     Text(
-                                      strings.unitAbbreviation,
+                                      item.unit,
                                       style: TextStyle(
-                                        fontSize: 9,
+                                        fontSize: kFontSizeTiny,
                                         color: cs.onSurfaceVariant,
                                       ),
                                     ),
@@ -1279,6 +1313,29 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         ),
       ),
     );
+  }
+
+  /// 🎨 צבע לפי קטגוריה — נותן צבעוניות ייחודית לכל סוג מוצר
+  Color _getCategoryColor(String category) {
+    final key = hebrewCategoryToEnglish(category) ?? category;
+    return switch (key) {
+      'dairy' => const Color(0xFF42A5F5),        // כחול — חלב
+      'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,  // ירוק — ירקות/פירות
+      'meat' || 'poultry' || 'deli' => const Color(0xFFEF5350),   // אדום — בשר
+      'fish' || 'seafood' => const Color(0xFF26C6DA),              // תכלת — דגים
+      'bakery' || 'bread' => const Color(0xFFFFB74D),              // כתום — מאפים
+      'frozen' => const Color(0xFF78909C),                          // אפור-כחול — קפואים
+      'drinks' || 'alcohol' || 'wine' => kStickyPurple,            // סגול — משקאות
+      'snacks' || 'sweets' || 'chocolate' => const Color(0xFFFF7043), // כתום-אדום — חטיפים
+      'cleaning' || 'laundry' => const Color(0xFF66BB6A),          // ירוק בהיר — ניקיון
+      'hygiene' || 'beauty' => kStickyPink,                        // ורוד — טיפוח
+      'spices' || 'condiments' => const Color(0xFFFFA726),         // כתום — תבלינים
+      'grains' || 'pasta' || 'rice' => const Color(0xFFD4A373),    // חום — דגנים
+      'canned' || 'preserved' => const Color(0xFF8D6E63),          // חום כהה — שימורים
+      'baby' => const Color(0xFFF8BBD0),                           // ורוד בהיר — תינוקות
+      'oils' => const Color(0xFFCDDC39),                           // ליים — שמנים
+      _ => kStickyCyan,                                            // ברירת מחדל — תכלת
+    };
   }
 
   /// 🏷️ אמוג'י קטגוריה עם Pulse לפריטים קריטיים
