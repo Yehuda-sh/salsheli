@@ -819,6 +819,38 @@ class SettingsStringsEn extends SettingsStrings {
   String get loading => 'Loading...';
   String loadError(String error) => 'Error loading settings: $error';
   String saveError(String error) => 'Error saving settings: $error';
+
+  @override String get editProfileTitle => 'Edit Profile';
+  @override String get chooseAvatar => 'Choose Avatar:';
+  @override String get displayNameLabel => 'Display Name:';
+  @override String get displayNameHint => 'Enter your name';
+  @override String get enterNameError => 'Please enter a name';
+  @override String get profileUpdated => 'Profile updated successfully';
+  @override String profileUpdateError(String error) => 'Error updating: $error';
+
+  @override String get loggingOut => 'Logging out...';
+  @override String logoutError(String error) => 'Logout error: $error';
+  @override String get debugDeleteTitle => 'This will delete everything including seenOnboarding.\nYou\'ll return to the Welcome screen.';
+  @override String get debugOnlyLabel => 'Available in Debug Mode only';
+  @override String get debugDeleteAll => 'Delete All';
+  @override String get deletingData => 'Deleting data...';
+  @override String deleteDataError(String error) => 'Error deleting: $error';
+
+  @override String get invalidEmail => 'Invalid email';
+  @override String get defaultUserName => 'User';
+  @override String get defaultHouseholdName => 'My Home';
+  @override String inviteError(String error) => 'Error sending invitation';
+
+  @override String get pendingInvitesTitle => 'Pending Invitations';
+  @override String get pendingInvitesSubtitle => 'Invitations you received for lists';
+  @override String get showOnboardingAgain => 'Show Tutorial Again';
+  @override String get languageHebrew => 'עברית';
+  @override String get showOnboardingSubtitle => 'View the app tutorial again';
+  @override String get about => 'About';
+  @override String get aboutDescription => 'Smart app for managing shopping and home pantry';
+  @override String get termsOfService => 'Terms of Service';
+  @override String get privacyPolicy => 'Privacy Policy';
+  @override String get debugResetOnboarding => 'Deletes seenOnboarding - returns to Welcome';
 }
 
 // ========================================

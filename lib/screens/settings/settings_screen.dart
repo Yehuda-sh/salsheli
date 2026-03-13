@@ -199,18 +199,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         unawaited(showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const PopScope(
+          builder: (context) => PopScope(
             canPop: false,
             child: Center(
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(kSpacingLarge),
+                  padding: const EdgeInsets.all(kSpacingLarge),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: kSpacingMedium),
-                      Text('מתנתק...'),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: kSpacingMedium),
+                      Text(AppStrings.settings.loggingOut),
                     ],
                   ),
                 ),
@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה בהתנתקות: $e'), backgroundColor: cs.error, duration: kSnackBarDurationLong),
+          SnackBar(content: Text(AppStrings.settings.logoutError(e.toString())), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     } else {
@@ -249,7 +249,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('פעולה זו תמחק הכל כולל seenOnboarding.\nתחזור למסך Welcome.'),
+            Text(AppStrings.settings.debugDeleteTitle),
             SizedBox(height: kSpacingMedium),
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
@@ -264,7 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
-                      'זמין רק ב-Debug Mode',
+                      AppStrings.settings.debugOnlyLabel,
                       style: TextStyle(fontSize: kFontSizeSmall, color: cs.error),
                     ),
                   ),
@@ -274,10 +274,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text('ביטול')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppStrings.common.cancel)),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('מחק הכל', style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
+            child: Text(AppStrings.settings.debugDeleteAll, style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -290,18 +290,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         unawaited(showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => const PopScope(
+          builder: (context) => PopScope(
             canPop: false,
             child: Center(
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(kSpacingLarge),
+                  padding: const EdgeInsets.all(kSpacingLarge),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: kSpacingMedium),
-                      Text('מוחק נתונים...'),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: kSpacingMedium),
+                      Text(AppStrings.settings.deletingData),
                     ],
                   ),
                 ),
@@ -321,7 +321,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה במחיקה: $e'), backgroundColor: cs.error, duration: kSnackBarDurationLong),
+          SnackBar(content: Text(AppStrings.settings.deleteDataError(e.toString())), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     }
@@ -612,7 +612,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     : () async {
                         final email = emailController.text.trim();
                         if (email.isEmpty || !email.contains('@')) {
-                          setDialogState(() => errorText = 'אימייל לא תקין');
+                          setDialogState(() => errorText = AppStrings.settings.invalidEmail);
                           return;
                         }
 
@@ -625,10 +625,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         final service = PendingInvitesService();
                         final userId = userContext.userId!;
                         final userName =
-                            userContext.user?.name ?? 'משתמש';
+                            userContext.user?.name ?? AppStrings.settings.defaultUserName;
                         final householdId = userContext.householdId!;
                         final householdName =
-                            userContext.householdName ?? 'הבית שלי';
+                            userContext.householdName ?? AppStrings.settings.defaultHouseholdName;
 
                         // חפש אם המשתמש קיים
                         String? invitedUserId;
@@ -674,7 +674,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           setDialogState(() {
                             isSending = false;
                             errorText =
-                                result.errorMessage ?? 'שגיאה בשליחת ההזמנה';
+                                result.errorMessage ?? AppStrings.settings.inviteError('');
                           });
                         }
                       },
@@ -736,7 +736,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                   // כותרת
                   Text(
-                    'עריכת פרופיל',
+                    AppStrings.settings.editProfileTitle,
                     style: TextStyle(
                       fontSize: kFontSizeLarge,
                       fontWeight: FontWeight.bold,
@@ -748,7 +748,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                   // בחירת אווטאר
                   Text(
-                    'בחר אווטאר:',
+                    AppStrings.settings.chooseAvatar,
                     style: TextStyle(
                       fontSize: kFontSizeBody,
                       fontWeight: FontWeight.w600,
@@ -793,7 +793,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                   // שדה שם
                   Text(
-                    'שם תצוגה:',
+                    AppStrings.settings.displayNameLabel,
                     style: TextStyle(
                       fontSize: kFontSizeBody,
                       fontWeight: FontWeight.w600,
@@ -805,7 +805,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   TextField(
                     controller: nameController,
                     decoration: InputDecoration(
-                      hintText: 'הכנס את שמך',
+                      hintText: AppStrings.settings.displayNameHint,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(kBorderRadius),
                       ),
@@ -823,7 +823,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       Expanded(
                         child: OutlinedButton(
                           onPressed: isSaving ? null : () => Navigator.pop(sheetCtx),
-                          child: const Text('ביטול'),
+                          child: Text(AppStrings.common.cancel),
                         ),
                       ),
                       const SizedBox(width: kSpacingMedium),
@@ -834,7 +834,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             final newName = nameController.text.trim();
                             if (newName.isEmpty) {
                               scaffoldMessenger.showSnackBar(
-                                const SnackBar(content: Text('נא להזין שם')),
+                                SnackBar(content: Text(AppStrings.settings.enterNameError)),
                               );
                               return;
                             }
@@ -852,7 +852,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                 navigator.pop();
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
-                                    content: Text('הפרופיל עודכן בהצלחה'),
+                                    content: Text(AppStrings.settings.profileUpdated),
                                     backgroundColor: cs.primary,
                                   ),
                                 );
@@ -862,7 +862,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               if (mounted) {
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
-                                    content: Text('שגיאה בעדכון: $e'),
+                                    content: Text(AppStrings.settings.profileUpdateError(e.toString())),
                                     backgroundColor: cs.error,
                                   ),
                                 );
@@ -878,7 +878,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                     color: cs.onPrimary,
                                   ),
                                 )
-                              : const Text('שמור'),
+                              : Text(AppStrings.common.save),
                         ),
                       ),
                     ],
@@ -1175,7 +1175,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             children: [
                               _ThemeCard(
                                 icon: '🇮🇱',
-                                label: 'עברית',
+                                label: AppStrings.settings.languageHebrew,
                                 isSelected: LocaleManager.instance.isHebrew,
                                 onTap: () => LocaleManager.instance.setLocale(AppLocale.he),
                               ),
@@ -1264,8 +1264,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     children: [
                       ListTile(
                         leading: Icon(Icons.mail_outline, color: cs.primary),
-                        title: Text('הזמנות ממתינות'),
-                        subtitle: Text('הזמנות שקיבלת לרשימות'),
+                        title: Text(AppStrings.settings.pendingInvitesTitle),
+                        subtitle: Text(AppStrings.settings.pendingInvitesSubtitle),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () {
                           Navigator.pushNamed(context, '/pending-invites');
@@ -1274,8 +1274,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.school_outlined, color: cs.primary),
-                        title: Text('הצג הדרכה מחדש'),
-                        subtitle: Text('צפה שוב בהדרכת האפליקציה'),
+                        title: Text(AppStrings.settings.showOnboardingAgain),
+                        subtitle: Text(AppStrings.settings.showOnboardingSubtitle),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () async {
                           await TutorialService.resetTutorial(context);
@@ -1298,7 +1298,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     children: [
                       ListTile(
                         leading: Icon(Icons.info_outline, color: cs.primary),
-                        title: const Text('אודות'),
+                        title: Text(AppStrings.settings.about),
                         subtitle: const Text('גרסה 1.0.0'), // TODO: package_info_plus
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
@@ -1316,7 +1316,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               ),
                             ),
                             children: [
-                              Text('אפליקציה חכמה לניהול קניות ומזווה ביתי'),
+                              Text(AppStrings.settings.aboutDescription),
                             ],
                           );
                         },
@@ -1324,14 +1324,14 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
-                        title: Text('תנאי שימוש'),
+                        title: Text(AppStrings.settings.termsOfService),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
                       Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
-                        title: const Text('מדיניות פרטיות'),
+                        title: Text(AppStrings.settings.privacyPolicy),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () => showPrivacyPolicyDialog(context),
                       ),
@@ -1362,7 +1362,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     child: ListTile(
                       leading: Icon(Icons.bug_report, color: cs.tertiary),
                       title: Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: cs.tertiary)),
-                      subtitle: const Text('מוחק seenOnboarding - חוזר ל-Welcome'),
+                      subtitle: Text(AppStrings.settings.debugResetOnboarding),
                       onTap: _debugClearAllData,
                     ),
                   ),

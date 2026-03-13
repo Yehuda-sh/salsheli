@@ -829,6 +829,42 @@ class SettingsStrings {
   String get loading => 'טוען...';
   String loadError(String error) => 'Error loading settings: $error';
   String saveError(String error) => 'Error saving settings: $error';
+
+  // Profile editing
+  String get editProfileTitle => 'עריכת פרופיל';
+  String get chooseAvatar => 'בחר אווטאר:';
+  String get displayNameLabel => 'שם תצוגה:';
+  String get displayNameHint => 'הכנס את שמך';
+  String get enterNameError => 'נא להזין שם';
+  String get profileUpdated => 'הפרופיל עודכן בהצלחה';
+  String profileUpdateError(String error) => 'שגיאה בעדכון: $error';
+
+  // Debug/Misc
+  String get loggingOut => 'מתנתק...';
+  String logoutError(String error) => 'שגיאה בהתנתקות: $error';
+  String get debugDeleteTitle => 'פעולה זו תמחק הכל כולל seenOnboarding.\nתחזור למסך Welcome.';
+  String get debugOnlyLabel => 'זמין רק ב-Debug Mode';
+  String get debugDeleteAll => 'מחק הכל';
+  String get deletingData => 'מוחק נתונים...';
+  String deleteDataError(String error) => 'שגיאה במחיקה: $error';
+
+  // Invite
+  String get invalidEmail => 'אימייל לא תקין';
+  String get defaultUserName => 'משתמש';
+  String get defaultHouseholdName => 'הבית שלי';
+  String inviteError(String error) => 'שגיאה בשליחת ההזמנה';
+
+  // Quick links
+  String get pendingInvitesTitle => 'הזמנות ממתינות';
+  String get pendingInvitesSubtitle => 'הזמנות שקיבלת לרשימות';
+  String get showOnboardingAgain => 'הצג הדרכה מחדש';
+  String get languageHebrew => 'עברית';
+  String get showOnboardingSubtitle => 'צפה שוב בהדרכת האפליקציה';
+  String get about => 'אודות';
+  String get aboutDescription => 'אפליקציה חכמה לניהול קניות ומזווה ביתי';
+  String get termsOfService => 'תנאי שימוש';
+  String get privacyPolicy => 'מדיניות פרטיות';
+  String get debugResetOnboarding => 'מוחק seenOnboarding - חוזר ל-Welcome';
 }
 
 // ========================================
