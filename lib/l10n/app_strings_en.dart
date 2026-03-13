@@ -6,6 +6,8 @@
 // Version: 1.0 (12/03/2026) — English translation
 // 🔗 Related: All screens and widgets, filters_config (for categories)
 
+import 'app_strings_he.dart';
+
 /// UI Strings - English
 class AppStringsEn {
   // Prevent instantiation
@@ -17,176 +19,176 @@ class AppStringsEn {
   // ========================================
   // Layout & Navigation
   // ========================================
-  static const layout = _LayoutStrings();
-  static const navigation = _NavigationStrings();
+  static const layout = LayoutStringsEn();
+  static const navigation = NavigationStringsEn();
 
   // ========================================
   // Common UI Elements
   // ========================================
-  static const common = _CommonStrings();
+  static const common = CommonStringsEn();
 
   // ========================================
   // Categories (Pantry & Filters)
   // ========================================
-  static const categories = _CategoryStrings();
+  static const categories = CategoryStringsEn();
 
   // ========================================
   // Onboarding
   // ========================================
-  static const onboarding = _OnboardingStrings();
+  static const onboarding = OnboardingStringsEn();
 
   // ========================================
   // Shopping
   // ========================================
-  static const shopping = _ShoppingStrings();
+  static const shopping = ShoppingStringsEn();
 
   // ========================================
   // Index (Splash)
   // ========================================
-  static const index = _IndexStrings();
+  static const index = IndexStringsEn();
 
   // ========================================
   // Welcome
   // ========================================
-  static const welcome = _WelcomeStrings();
+  static const welcome = WelcomeStringsEn();
 
   // ========================================
   // Auth (Login/Register)
   // ========================================
-  static const auth = _AuthStrings();
+  static const auth = AuthStringsEn();
 
   // ========================================
   // Home Dashboard
   // ========================================
-  static const home = _HomeStrings();
+  static const home = HomeStringsEn();
 
   // ========================================
   // Price Comparison
   // ========================================
-  static const priceComparison = _PriceComparisonStrings();
+  static const priceComparison = PriceComparisonStringsEn();
 
   // ========================================
   // Settings
   // ========================================
-  static const settings = _SettingsStrings();
+  static const settings = SettingsStringsEn();
 
   // ========================================
   // Household (Household Types)
   // ========================================
-  static const household = _HouseholdStrings();
+  static const household = HouseholdStringsEn();
 
   // ========================================
   // List Type Groups
   // ========================================
-  static const listTypeGroups = _ListTypeGroupsStrings();
+  static const listTypeGroups = ListTypeGroupsStringsEn();
 
   // ========================================
   // Templates
   // ========================================
-  static const templates = _TemplatesStrings();
+  static const templates = TemplatesStringsEn();
 
   // ========================================
   // Create List Dialog
   // ========================================
-  static const createListDialog = _CreateListDialogStrings();
+  static const createListDialog = CreateListDialogStringsEn();
 
   // ========================================
   // Manage Users
   // ========================================
-  static const manageUsers = _ManageUsersStrings();
+  static const manageUsers = ManageUsersStringsEn();
 
   // ========================================
   // Inventory (Pantry)
   // ========================================
-  static const inventory = _InventoryStrings();
+  static const inventory = InventoryStringsEn();
 
   // ========================================
   // Shopping List Details
   // ========================================
-  static const listDetails = _ShoppingListDetailsStrings();
+  static const listDetails = ShoppingListDetailsStringsEn();
 
   // ========================================
   // Select List Dialog
   // ========================================
-  static const selectList = _SelectListStrings();
+  static const selectList = SelectListStringsEn();
 
   // ========================================
   // Recurring Product Dialog
   // ========================================
-  static const recurring = _RecurringStrings();
+  static const recurring = RecurringStringsEn();
 
   // ========================================
   // User Sharing System
   // ========================================
-  static const sharing = _SharingStrings();
+  static const sharing = SharingStringsEn();
 
   // ========================================
   // Receipt Details Screen
   // ========================================
-  static const receiptDetails = _ReceiptDetailsStrings();
+  static const receiptDetails = ReceiptDetailsStringsEn();
 
   // ========================================
   // Shopping History
   // ========================================
-  static const shoppingHistory = _ShoppingHistoryStrings();
+  static const shoppingHistory = ShoppingHistoryStringsEn();
 
   // ========================================
   // Active Shopper Banner
   // ========================================
-  static const activeShopperBanner = _ActiveShopperBannerStrings();
+  static const activeShopperBanner = ActiveShopperBannerStringsEn();
 
   // ========================================
   // Suggestions Today Card (Dashboard)
   // ========================================
-  static const suggestionsToday = _SuggestionsTodayCardStrings();
+  static const suggestionsToday = SuggestionsTodayCardStringsEn();
 
   // ========================================
   // Last Chance Banner
   // ========================================
-  static const lastChanceBanner = _LastChanceBannerStrings();
+  static const lastChanceBanner = LastChanceBannerStringsEn();
 
   // ========================================
   // Pending Invite Banner
   // ========================================
-  static const pendingInviteBanner = _PendingInviteBannerStrings();
+  static const pendingInviteBanner = PendingInviteBannerStringsEn();
 
   // ========================================
   // Pending Invites Screen
   // ========================================
-  static const pendingInvitesScreen = _PendingInvitesScreenStrings();
+  static const pendingInvitesScreen = PendingInvitesScreenStringsEn();
 
   // ========================================
   // Home Dashboard Screen
   // ========================================
-  static const homeDashboard = _HomeDashboardStrings();
+  static const homeDashboard = HomeDashboardStringsEn();
 
   // ========================================
   // Notifications Center Screen
   // ========================================
-  static const notificationsCenter = _NotificationsCenterStrings();
+  static const notificationsCenter = NotificationsCenterStringsEn();
 
   // ========================================
   // Pantry Screen
   // ========================================
-  static const pantry = _PantryStrings();
+  static const pantry = PantryStringsEn();
 
   // ========================================
   // Checklist Screen
   // ========================================
-  static const checklist = _ChecklistStrings();
+  static const checklist = ChecklistStringsEn();
 
   // ========================================
   // Contact Selector Dialog
   // ========================================
-  static const contactSelector = _ContactSelectorStrings();
+  static const contactSelector = ContactSelectorStringsEn();
 }
 
 // ========================================
 // _CategoryStrings
 // ========================================
 
-class _CategoryStrings {
-  const _CategoryStrings();
+class CategoryStringsEn extends CategoryStrings {
+  const CategoryStringsEn();
 
   String get all => 'All';
   String get other => 'Other';
@@ -238,8 +240,8 @@ class _CategoryStrings {
 // Layout Strings
 // ========================================
 
-class _LayoutStrings {
-  const _LayoutStrings();
+class LayoutStringsEn extends LayoutStrings {
+  const LayoutStringsEn();
 
   String get appTitle => AppStringsEn.appName;
   String get notifications => 'Notifications';
@@ -262,8 +264,8 @@ class _LayoutStrings {
 // Navigation Strings (Tabs)
 // ========================================
 
-class _NavigationStrings {
-  const _NavigationStrings();
+class NavigationStringsEn extends NavigationStrings {
+  const NavigationStringsEn();
 
   String get home => 'Home';
   String get family => 'Home';
@@ -279,8 +281,8 @@ class _NavigationStrings {
 // Common Strings (Buttons, Actions)
 // ========================================
 
-class _CommonStrings {
-  const _CommonStrings();
+class CommonStringsEn extends CommonStrings {
+  const CommonStringsEn();
 
   String get logout => 'Log Out';
   String get cancel => 'Cancel';
@@ -315,8 +317,8 @@ class _CommonStrings {
 // Onboarding Strings
 // ========================================
 
-class _OnboardingStrings {
-  const _OnboardingStrings();
+class OnboardingStringsEn extends OnboardingStrings {
+  const OnboardingStringsEn();
 
   String get title => 'Let\'s get to know you! 👋';
   String get skip => 'Skip';
@@ -372,8 +374,8 @@ class _OnboardingStrings {
 // Shopping Strings
 // ========================================
 
-class _ShoppingStrings {
-  const _ShoppingStrings();
+class ShoppingStringsEn extends ShoppingStrings {
+  const ShoppingStringsEn();
 
   String get itemStatusOutOfStock => 'Out of stock';
   String get activeSaving => 'Saving...';
@@ -503,8 +505,8 @@ class _ShoppingStrings {
 // Index (Splash) Strings
 // ========================================
 
-class _IndexStrings {
-  const _IndexStrings();
+class IndexStringsEn extends IndexStrings {
+  const IndexStringsEn();
 
   String get appName => AppStringsEn.appName;
   String get logoLabel => '${AppStringsEn.appName} app logo';
@@ -520,8 +522,8 @@ class _IndexStrings {
 // Welcome Strings
 // ========================================
 
-class _WelcomeStrings {
-  const _WelcomeStrings();
+class WelcomeStringsEn extends WelcomeStrings {
+  const WelcomeStringsEn();
 
   String get title => AppStringsEn.appName;
   String get subtitle => 'Shared lists. One place.';
@@ -574,8 +576,8 @@ class _WelcomeStrings {
 // Auth Strings (Login/Register)
 // ========================================
 
-class _AuthStrings {
-  const _AuthStrings();
+class AuthStringsEn extends AuthStrings {
+  const AuthStringsEn();
 
   String get loginTitle => 'Log In';
   String get loginSubtitle => 'Nice to see you again 👋';
@@ -684,8 +686,8 @@ class _AuthStrings {
 // Home Dashboard Strings
 // ========================================
 
-class _HomeStrings {
-  const _HomeStrings();
+class HomeStringsEn extends HomeStrings {
+  const HomeStringsEn();
 
   String timeBasedGreeting(String userName, int hour) {
     final String greeting;
@@ -717,8 +719,8 @@ class _HomeStrings {
 // Price Comparison Strings
 // ========================================
 
-class _PriceComparisonStrings {
-  const _PriceComparisonStrings();
+class PriceComparisonStringsEn extends PriceComparisonStrings {
+  const PriceComparisonStringsEn();
 
   String get title => 'Price Comparison';
   String get searchHint => 'Search product...';
@@ -733,8 +735,8 @@ class _PriceComparisonStrings {
 // Settings Strings
 // ========================================
 
-class _SettingsStrings {
-  const _SettingsStrings();
+class SettingsStringsEn extends SettingsStrings {
+  const SettingsStringsEn();
 
   String get title => 'Settings & Profile';
   String get editProfile => 'Edit';
@@ -813,8 +815,8 @@ class _SettingsStrings {
 // Household Strings
 // ========================================
 
-class _HouseholdStrings {
-  const _HouseholdStrings();
+class HouseholdStringsEn extends HouseholdStrings {
+  const HouseholdStringsEn();
 
   String get typeFamily => 'Home';
   String get typeOther => 'Other';
@@ -827,16 +829,16 @@ class _HouseholdStrings {
 // List Type Groups Strings
 // ========================================
 
-class _ListTypeGroupsStrings {
-  const _ListTypeGroupsStrings();
+class ListTypeGroupsStringsEn extends ListTypeGroupsStrings {
+  const ListTypeGroupsStringsEn();
 }
 
 // ========================================
 // Templates Strings
 // ========================================
 
-class _TemplatesStrings {
-  const _TemplatesStrings();
+class TemplatesStringsEn extends TemplatesStrings {
+  const TemplatesStringsEn();
 
   String get title => 'List Templates';
   String get subtitle => 'Create ready-made templates for reuse';
@@ -874,8 +876,8 @@ class _TemplatesStrings {
 // Create List Dialog Strings
 // ========================================
 
-class _CreateListDialogStrings {
-  const _CreateListDialogStrings();
+class CreateListDialogStringsEn extends CreateListDialogStrings {
+  const CreateListDialogStringsEn();
 
   String get title => 'Create New List';
   String get useTemplateButton => '📋 Use Template';
@@ -940,8 +942,8 @@ class _CreateListDialogStrings {
 // Manage Users Strings
 // ========================================
 
-class _ManageUsersStrings {
-  const _ManageUsersStrings();
+class ManageUsersStringsEn extends ManageUsersStrings {
+  const ManageUsersStringsEn();
 
   String get title => 'Manage Users';
   String get me => 'Me';
@@ -976,8 +978,8 @@ class _ManageUsersStrings {
 // Inventory Strings
 // ========================================
 
-class _InventoryStrings {
-  const _InventoryStrings();
+class InventoryStringsEn extends InventoryStrings {
+  const InventoryStringsEn();
 
   String get addDialogTitle => 'Add Item';
   String get editDialogTitle => 'Edit Item';
@@ -1094,8 +1096,8 @@ class _InventoryStrings {
 // Shopping List Details
 // ========================================
 
-class _ShoppingListDetailsStrings {
-  const _ShoppingListDetailsStrings();
+class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
+  const ShoppingListDetailsStringsEn();
 
   String get addProductTitle => 'Add Product';
   String get editProductTitle => 'Edit Product';
@@ -1146,8 +1148,8 @@ class _ShoppingListDetailsStrings {
 // Select List Dialog
 // ========================================
 
-class _SelectListStrings {
-  const _SelectListStrings();
+class SelectListStringsEn extends SelectListStrings {
+  const SelectListStringsEn();
 
   String get defaultTitle => 'Select List';
   String addingItem(String itemName) => 'Adding: $itemName';
@@ -1169,8 +1171,8 @@ class _SelectListStrings {
 // Recurring Product Dialog
 // ========================================
 
-class _RecurringStrings {
-  const _RecurringStrings();
+class RecurringStringsEn extends RecurringStrings {
+  const RecurringStringsEn();
 
   String get title => 'Popular Product!';
   String get subtitle => 'Looks like you buy this often';
@@ -1200,8 +1202,8 @@ class _RecurringStrings {
 // Receipt Details
 // ========================================
 
-class _ReceiptDetailsStrings {
-  const _ReceiptDetailsStrings();
+class ReceiptDetailsStringsEn extends ReceiptDetailsStrings {
+  const ReceiptDetailsStringsEn();
 
   String get totalLabel => 'Total';
   String get virtualTag => 'Virtual';
@@ -1212,8 +1214,8 @@ class _ReceiptDetailsStrings {
 // Shopping History
 // ========================================
 
-class _ShoppingHistoryStrings {
-  const _ShoppingHistoryStrings();
+class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
+  const ShoppingHistoryStringsEn();
 
   String get title => 'Shopping History';
   String get sortTooltip => 'Sort';
@@ -1239,8 +1241,8 @@ class _ShoppingHistoryStrings {
 // Active Shopper Banner
 // ========================================
 
-class _ActiveShopperBannerStrings {
-  const _ActiveShopperBannerStrings();
+class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
+  const ActiveShopperBannerStringsEn();
 
   String get myActiveTitle => 'You have active shopping';
   String myActiveSubtitle(String listName, int remaining) => '"$listName" - $remaining items remaining';
@@ -1265,8 +1267,8 @@ class _ActiveShopperBannerStrings {
 // Suggestions Today Card
 // ========================================
 
-class _SuggestionsTodayCardStrings {
-  const _SuggestionsTodayCardStrings();
+class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
+  const SuggestionsTodayCardStringsEn();
 
   String get title => 'Pantry Suggestions';
   String get loading => 'Loading suggestions...';
@@ -1286,8 +1288,8 @@ class _SuggestionsTodayCardStrings {
 // Last Chance Banner
 // ========================================
 
-class _LastChanceBannerStrings {
-  const _LastChanceBannerStrings();
+class LastChanceBannerStringsEn extends LastChanceBannerStrings {
+  const LastChanceBannerStringsEn();
 
   String get title => 'Wait, here\'s something you usually need...';
   String semanticsLabel(String productName, int stock) =>
@@ -1309,8 +1311,8 @@ class _LastChanceBannerStrings {
 // Pending Invites Screen
 // ========================================
 
-class _PendingInvitesScreenStrings {
-  const _PendingInvitesScreenStrings();
+class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
+  const PendingInvitesScreenStringsEn();
 
   String get title => 'Pending Invitations';
   String get loading => 'Loading invitations...';
@@ -1340,8 +1342,8 @@ class _PendingInvitesScreenStrings {
 // Pending Invite Banner
 // ========================================
 
-class _PendingInviteBannerStrings {
-  const _PendingInviteBannerStrings();
+class PendingInviteBannerStringsEn extends PendingInviteBannerStrings {
+  const PendingInviteBannerStringsEn();
 
   String get title => 'Group Invitation';
   String moreCount(int count) => '+$count';
@@ -1358,8 +1360,8 @@ class _PendingInviteBannerStrings {
 // User Sharing System
 // ========================================
 
-class _SharingStrings {
-  const _SharingStrings();
+class SharingStringsEn extends SharingStrings {
+  const SharingStringsEn();
 
   String get roleOwner => 'Owner';
   String get roleAdmin => 'Admin';
@@ -1477,8 +1479,8 @@ class _SharingStrings {
 // Home Dashboard Screen
 // ========================================
 
-class _HomeDashboardStrings {
-  const _HomeDashboardStrings();
+class HomeDashboardStringsEn extends HomeDashboardStrings {
+  const HomeDashboardStringsEn();
 
   String get newListButton => 'New List';
   String get errorTitle => 'Error loading data';
@@ -1519,8 +1521,8 @@ class _HomeDashboardStrings {
 // Notifications Center Screen
 // ========================================
 
-class _NotificationsCenterStrings {
-  const _NotificationsCenterStrings();
+class NotificationsCenterStringsEn extends NotificationsCenterStrings {
+  const NotificationsCenterStringsEn();
 
   String get title => 'Notifications';
   String get markAllAsRead => 'Mark all as read';
@@ -1536,8 +1538,8 @@ class _NotificationsCenterStrings {
 // Pantry Screen
 // ========================================
 
-class _PantryStrings {
-  const _PantryStrings();
+class PantryStringsEn extends PantryStrings {
+  const PantryStringsEn();
 
   String get screenLabel => 'My Pantry screen';
   String get addItemLabel => 'Add product to pantry';
@@ -1576,8 +1578,8 @@ class _PantryStrings {
 // Checklist Screen
 // ========================================
 
-class _ChecklistStrings {
-  const _ChecklistStrings();
+class ChecklistStringsEn extends ChecklistStrings {
+  const ChecklistStringsEn();
 
   String get subtitle => 'Checklist ✓';
   String get gotItButton => 'Got it';
@@ -1592,8 +1594,8 @@ class _ChecklistStrings {
 // Contact Selector Dialog
 // ========================================
 
-class _ContactSelectorStrings {
-  const _ContactSelectorStrings();
+class ContactSelectorStringsEn extends ContactSelectorStrings {
+  const ContactSelectorStringsEn();
 
   String get title => 'Select People to Share With';
   String get searchHint => 'Search by name or email...';
