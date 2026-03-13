@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memozap/config/app_config.dart';
+import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/firebase_options.dart';
 // Models
 import 'package:memozap/models/shopping_list.dart';
@@ -197,18 +198,23 @@ class MyApp extends StatelessWidget {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         final userContext = context.watch<UserContext>();
 
-        return MaterialApp(
+        return ListenableBuilder(
+          listenable: LocaleManager.instance,
+          builder: (context, _) => MaterialApp(
           title: 'MemoZap',
           debugShowCheckedModeBanner: false,
           builder: (context, child) {
             if (child == null) return const DevBanner();
-            return Stack(children: [child, const DevBanner()]);
+            return Directionality(
+              textDirection: LocaleManager.instance.textDirection,
+              child: Stack(children: [child, const DevBanner()]),
+            );
           },
           theme: lightDynamic != null ? AppTheme.fromDynamicColors(lightDynamic, dark: false) : AppTheme.lightTheme,
           darkTheme: darkDynamic != null ? AppTheme.fromDynamicColors(darkDynamic, dark: true) : AppTheme.darkTheme,
           themeMode: userContext.themeMode,
-          locale: const Locale('he', 'IL'),
-          supportedLocales: const [Locale('he', 'IL')],
+          locale: Locale(LocaleManager.instance.languageCode),
+          supportedLocales: const [Locale('he', 'IL'), Locale('en', 'US')],
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -252,7 +258,7 @@ class MyApp extends StatelessWidget {
             }
             return null;
           },
-        );
+        ));
       },
     );
   }

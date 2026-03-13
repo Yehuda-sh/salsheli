@@ -41,6 +41,7 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
+import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
 import 'package:provider/provider.dart';
@@ -1165,6 +1166,28 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               onTap: () => userContext.setThemeMode(ThemeMode.system),
                             ),
                           ],
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+                        // 🌐 Language selection
+                        ListenableBuilder(
+                          listenable: LocaleManager.instance,
+                          builder: (context, _) => Row(
+                            children: [
+                              _ThemeCard(
+                                icon: '🇮🇱',
+                                label: 'עברית',
+                                isSelected: LocaleManager.instance.isHebrew,
+                                onTap: () => LocaleManager.instance.setLocale(AppLocale.he),
+                              ),
+                              const SizedBox(width: kSpacingSmall),
+                              _ThemeCard(
+                                icon: '🇺🇸',
+                                label: 'English',
+                                isSelected: LocaleManager.instance.isEnglish,
+                                onTap: () => LocaleManager.instance.setLocale(AppLocale.en),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
