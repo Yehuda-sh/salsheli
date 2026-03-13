@@ -309,6 +309,28 @@ class CommonStrings {
   String get unsavedChangesMessage => 'יש שינויים שלא נשמרו. האם לצאת בלי לשמור?';
   String get stayHere => 'הישאר';
   String get exitWithoutSaving => 'צא בלי לשמור';
+
+  // 📅 Days of week (0=Sunday ... 6=Saturday)
+  String get daySunday => 'ראשון';
+  String get dayMonday => 'שני';
+  String get dayTuesday => 'שלישי';
+  String get dayWednesday => 'רביעי';
+  String get dayThursday => 'חמישי';
+  String get dayFriday => 'שישי';
+  String get daySaturday => 'שבת';
+  String get dayUnknown => 'לא ידוע';
+
+  /// Get day name by index (0=Sunday ... 6=Saturday)
+  String dayByIndex(int index) => switch (index) {
+    0 => daySunday,
+    1 => dayMonday,
+    2 => dayTuesday,
+    3 => dayWednesday,
+    4 => dayThursday,
+    5 => dayFriday,
+    6 => daySaturday,
+    _ => dayUnknown,
+  };
 }
 
 // ========================================

@@ -55,18 +55,7 @@ extension OnboardingAgeX on String {
 extension OnboardingDayX on int {
   /// מחזיר שם היום בעברית (0=ראשון ... 6=שבת).
   /// אם המספר מחוץ לטווח 0-6, מחזיר 'לא ידוע'.
-  String get dayLabel {
-    return switch (this) {
-      0 => 'ראשון',
-      1 => 'שני',
-      2 => 'שלישי',
-      3 => 'רביעי',
-      4 => 'חמישי',
-      5 => 'שישי',
-      6 => 'שבת',
-      _ => 'לא ידוע',
-    };
-  }
+  String get dayLabel => AppStrings.common.dayByIndex(this);
 
   /// רשימת כל ימי השבוע (0-6)
   static const List<int> allDays = [0, 1, 2, 3, 4, 5, 6];

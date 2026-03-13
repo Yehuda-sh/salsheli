@@ -115,6 +115,9 @@ void main() async {
 
   await Hive.initFlutter();
 
+  // 🌐 Load saved locale
+  await LocaleManager.instance.load();
+
   // Repositories
   final productsRepo = LocalProductsRepository();
   final locationsRepo = FirebaseLocationsRepository();

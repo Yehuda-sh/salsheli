@@ -311,6 +311,16 @@ class CommonStringsEn extends CommonStrings {
   String get unsavedChangesMessage => 'You have unsaved changes. Exit without saving?';
   String get stayHere => 'Stay';
   String get exitWithoutSaving => 'Exit Without Saving';
+
+  // 📅 Days of week
+  @override String get daySunday => 'Sunday';
+  @override String get dayMonday => 'Monday';
+  @override String get dayTuesday => 'Tuesday';
+  @override String get dayWednesday => 'Wednesday';
+  @override String get dayThursday => 'Thursday';
+  @override String get dayFriday => 'Friday';
+  @override String get daySaturday => 'Saturday';
+  @override String get dayUnknown => 'Unknown';
 }
 
 // ========================================
