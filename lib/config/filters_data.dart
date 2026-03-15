@@ -121,7 +121,7 @@ class CategoriesData {
     'היגיינה': 'hygiene',
     'תינוק': 'baby_products',
     'חיות מחמד': 'pet_food',
-    'כלים': 'tools',
+    'כלים': 'other',
     'שונות': 'other',
     'כללי': 'other',
   };
