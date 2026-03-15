@@ -563,15 +563,17 @@ class _FeatureCard extends StatelessWidget {
                       ),
                     ],
                   ),
+                  child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       // איור או Emoji
                       ExcludeSemantics(
                         child: illustrationAsset != null
                             ? Image.asset(
                                 illustrationAsset!,
-                                height: 200,
+                                height: 180,
                                 fit: BoxFit.contain,
                               )
                                 .animate()
