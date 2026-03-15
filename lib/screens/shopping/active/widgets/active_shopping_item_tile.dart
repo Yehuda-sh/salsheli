@@ -300,7 +300,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                         onQuantityChanged(qty);
                         Navigator.pop(ctx);
                       },
-                      child: const Text('אישור'),
+                      child: Text(AppStrings.common.confirm),
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),

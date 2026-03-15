@@ -556,7 +556,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           children: [
             Icon(Icons.error_outline, size: 64, color: cs.error),
             const Gap(kSpacingMedium),
-            Text(provider.errorMessage ?? 'שגיאה לא ידועה'),
+            Text(provider.errorMessage ?? AppStrings.common.unknownErrorGeneric),
             const Gap(kSpacingLarge),
             TextButton.icon(
               onPressed: () => provider.loadProducts(),

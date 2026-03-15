@@ -348,7 +348,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
+          content: Text(AppStrings.suggestionsToday.suggestionError(e.toString())),
           backgroundColor: kStickyPink,
         ),
       );
@@ -385,7 +385,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text('שגיאה: $e'),
+          content: Text(AppStrings.suggestionsToday.suggestionError(e.toString())),
           backgroundColor: kStickyPink,
         ),
       );

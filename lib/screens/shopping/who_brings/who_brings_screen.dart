@@ -17,6 +17,7 @@
 // Version 2.0 - No AppBar (Immersive)
 // Last Updated: 13/01/2026
 
+import 'package:memozap/l10n/app_strings.dart';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -63,7 +64,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
     // בדוק אם כבר התנדב
     if (item.hasUserVolunteered(userId)) {
-      _showSnackBar('כבר התנדבת להביא את ${item.name}');
+      _showSnackBar(AppStrings.shopping.alreadyVolunteered(item.name));
       return;
     }
 
@@ -103,9 +104,9 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
       // 📬 שלח התראה לבעל הרשימה ולאדמינים
       await _sendVolunteerNotification(item, displayName);
 
-      _showSnackBar('נרשמת להביא: ${item.name} ✓', isSuccess: true);
+      _showSnackBar(AppStrings.shopping.volunteerSuccess(item.name), isSuccess: true);
     } catch (e) {
-      _showSnackBar('שגיאה בהרשמה');
+      _showSnackBar(AppStrings.shopping.volunteerError);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -148,9 +149,9 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
       // עדכן את הרשימה המקומית
       _updateLocalList(updatedItem);
 
-      _showSnackBar('ביטלת את ההתנדבות ל${item.name}');
+      _showSnackBar(AppStrings.shopping.cancelVolunteer(item.name));
     } catch (e) {
-      _showSnackBar('שגיאה בביטול');
+      _showSnackBar(AppStrings.shopping.cancelVolunteerError);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -327,19 +328,19 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     children: [
                       _StatItem(
                         icon: Icons.list_alt,
-                        label: 'סה"כ',
+                        label: AppStrings.shopping.statsTotal,
                         value: '$totalItems',
                         color: cs.primary,
                       ),
                       _StatItem(
                         icon: Icons.check_circle,
-                        label: 'הושלם',
+                        label: AppStrings.shopping.statsCompleted,
                         value: '$fullItems',
                         color: cs.primary,
                       ),
                       _StatItem(
                         icon: Icons.person,
-                        label: 'אני מביא',
+                        label: AppStrings.shopping.statsIBring,
                         value: '$myItems',
                         color: cs.primary,
                       ),
@@ -555,7 +556,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onCancelVolunteer,
                   icon: Icon(Icons.close, size: 18),
-                  label: Text('בטל התנדבות'),
+                  label: Text(AppStrings.shopping.cancelVolunteerButton),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
                     side: BorderSide(color: cs.error),
@@ -567,7 +568,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : onVolunteer,
                   icon: Icon(Icons.volunteer_activism, size: 18),
-                  label: Text('אני מביא! ✋'),
+                  label: Text(AppStrings.shopping.iBringButton),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,

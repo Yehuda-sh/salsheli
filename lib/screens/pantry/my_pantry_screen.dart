@@ -594,7 +594,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           _buildSummaryChip(
             emoji: '📦',
             value: '$totalItems',
-            label: 'פריטים',
+            label: AppStrings.pantry.tabItems,
             color: cs.primary,
             theme: theme,
           ),
@@ -603,7 +603,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             _buildSummaryChip(
               emoji: '⚠️',
               value: '$lowStockCount',
-              label: 'חסרים',
+              label: AppStrings.pantry.tabMissing,
               color: brand?.warning ?? cs.error,
               theme: theme,
             ),
@@ -612,7 +612,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           _buildSummaryChip(
             emoji: '📍',
             value: '$locationsCount',
-            label: 'מיקומים',
+            label: AppStrings.pantry.tabLocations,
             color: cs.tertiary,
             theme: theme,
           ),

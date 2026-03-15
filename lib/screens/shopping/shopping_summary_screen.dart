@@ -25,6 +25,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 import '../../core/ui_constants.dart';
 import '../../providers/shopping_lists_provider.dart';
@@ -98,7 +99,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: kSpacingLarge),
                         StickyButton(
-                          label: 'חזור',
+                          label: AppStrings.common.goBack,
                           icon: Icons.arrow_back,
                           color: kStickyYellow,
                           onPressed: () => Navigator.of(context).pop(),
@@ -133,7 +134,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: kSpacingLarge),
                         StickyButton(
-                          label: 'חזרה לדף הבית',
+                          label: AppStrings.common.backToHome,
                           icon: Icons.home,
                           color: kStickyYellow,
                           onPressed: () {
@@ -211,7 +212,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         rotation: -0.02,
                         child: _SummaryCard(
                           icon: Icons.account_balance_wallet,
-                          title: 'תקציב',
+                          title: AppStrings.shopping.budgetTitle,
                           value: '₪${spentAmount.toStringAsFixed(2)}',
                           subtitle: budget > 0
                               ? '${budgetDiff >= 0 ? 'נשאר' : 'חריגה'}: ₪${budgetDiff.abs().toStringAsFixed(2)}'
@@ -228,7 +229,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                         rotation: 0.015,
                         child: _SummaryCard(
                           icon: Icons.trending_up,
-                          title: 'אחוז הצלחה',
+                          title: AppStrings.shopping.successRateTitle,
                           value: '${successRate.toStringAsFixed(1)}%',
                           subtitle: '$purchased מתוך $total פריטים נרכשו',
                           color: cs.tertiary,
@@ -246,7 +247,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                               rotation: -0.01,
                               child: _StatBox(
                                 icon: Icons.check_circle,
-                                label: 'נרכשו',
+                                label: AppStrings.shopping.purchasedLabel,
                                 value: '$purchased',
                                 color: kStickyGreen,
                               ),
@@ -259,7 +260,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                               rotation: 0.01,
                               child: _StatBox(
                                 icon: Icons.cancel,
-                                label: 'חסרו',
+                                label: AppStrings.shopping.missingLabel,
                                 value: '$missing',
                                 color: cs.error,
                               ),

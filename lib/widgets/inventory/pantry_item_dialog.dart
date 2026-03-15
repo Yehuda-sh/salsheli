@@ -396,7 +396,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       unawaited(HapticFeedback.heavyImpact());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('כמות חייבת להיות גדולה מאפס'),
+          content: Text(AppStrings.inventory.quantityMustBePositive),
           backgroundColor: StatusColors.getColor(StatusType.error, context),
           duration: kSnackBarDuration,
         ),
@@ -789,7 +789,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       decoration: InputDecoration(
                         labelText: 'הערות',
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                        hintText: 'הערות נוספות (אופציונלי)',
+                        hintText: AppStrings.inventory.notesHint,
                         hintStyle: TextStyle(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
@@ -811,7 +811,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                                 _hasChanges = true;
                               });
                             },
-                      title: const Text('מוצר קבוע'),
+                      title: Text(AppStrings.inventory.permanentProduct),
                       subtitle: const Text(
                         'יתווסף אוטומטית לרשימות חדשות',
                         style: TextStyle(fontSize: 12),

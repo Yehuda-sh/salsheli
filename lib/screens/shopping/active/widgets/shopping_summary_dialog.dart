@@ -221,7 +221,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 child: TextField(
                   style: TextStyle(fontSize: kFontSizeSmall),
                   decoration: InputDecoration(
-                    hintText: 'חנות אחרת...',
+                    hintText: AppStrings.shopping.otherStoreHint,
                     hintStyle: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

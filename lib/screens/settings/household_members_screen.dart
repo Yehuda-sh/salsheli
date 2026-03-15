@@ -93,8 +93,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('הסרת חבר'),
-        content: Text('להסיר את ${member.name} מהבית?'),
+        title: Text(AppStrings.household.removeMemberTitle),
+        content: Text(AppStrings.household.removeMemberConfirm(member.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -105,7 +105,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('הסר'),
+            child: Text(AppStrings.household.removeMemberButton),
           ),
         ],
       ),
@@ -161,7 +161,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה בהסרה: $e')),
+          SnackBar(content: Text(AppStrings.household.removeMemberError(e.toString()))),
         );
       }
     }
@@ -191,7 +191,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
+          SnackBar(content: Text(AppStrings.household.genericError(e.toString()))),
         );
       }
     }
@@ -201,7 +201,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('עזיבת הבית'),
+        title: Text(AppStrings.household.leaveHouseholdTitle),
         content: const Text(
           'בטוח שאתה רוצה לעזוב? תועבר לבית אישי חדש.',
         ),
@@ -215,7 +215,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             style: TextButton.styleFrom(
               foregroundColor: Theme.of(context).colorScheme.error,
             ),
-            child: const Text('עזוב'),
+            child: Text(AppStrings.household.leaveHouseholdButton),
           ),
         ],
       ),
@@ -269,14 +269,14 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('עזבת את הבית')),
+            SnackBar(content: Text(AppStrings.household.leftHousehold)),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('שגיאה: $e')),
+          SnackBar(content: Text(AppStrings.household.genericError(e.toString()))),
         );
       }
     }
@@ -533,7 +533,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                           size: kIconSizeSmall,
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        Text(isAdmin ? 'הפוך לחבר' : 'הפוך למנהל'),
+                        Text(isAdmin ? AppStrings.household.makeMember : AppStrings.household.makeAdmin),
                       ],
                     ),
                   ),
@@ -544,7 +544,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                         Icon(Icons.person_remove,
                             size: kIconSizeSmall, color: cs.error),
                         const SizedBox(width: kSpacingSmall),
-                        Text('הסר מהבית',
+                        Text(AppStrings.household.removeFromHousehold,
                             style: TextStyle(color: cs.error)),
                       ],
                     ),

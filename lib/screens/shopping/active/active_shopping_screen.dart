@@ -871,7 +871,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.check, size: 18),
-                    label: const Text('סיימתי', style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
+                    label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                 )
               else

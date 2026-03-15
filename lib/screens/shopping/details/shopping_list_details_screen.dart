@@ -356,7 +356,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
           } catch (e) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('שגיאה: $e'), backgroundColor: cs.error),
+                SnackBar(content: Text(AppStrings.common.unknownError(e.toString())), backgroundColor: cs.error),
               );
             }
           }
@@ -671,7 +671,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                     child: _isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : _errorMessage != null
-                        ? Center(child: Text('שגיאה: $_errorMessage'))
+                        ? Center(child: Text(AppStrings.common.unknownError(_errorMessage ?? '')))
                         : filteredItems.isEmpty && allItems.isNotEmpty
                         ? Center(
                             child: Column(

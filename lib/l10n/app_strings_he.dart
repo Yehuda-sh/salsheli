@@ -331,6 +331,16 @@ class CommonStrings {
     6 => daySaturday,
     _ => dayUnknown,
   };
+
+  // Shared UI
+  String get understood => 'הבנתי';
+  String get confirm => 'אישור';
+  String get goBack => 'חזור';
+  String get backToHome => 'חזרה לדף הבית';
+  String get close => 'סגור';
+  String unknownError(String error) => 'שגיאה: $error';
+  String get unknownErrorGeneric => 'שגיאה לא ידועה';
+  String get connected => 'מחובר';
 }
 
 // ========================================
@@ -388,6 +398,7 @@ class OnboardingStrings {
   String get childrenYes => 'כן';
   String sharingSummary(bool enabled) => 'שיתוף רשימות: ${enabled ? "כן" : "לא"}';
   String reminderTimeSummary(String time) => 'שעה מועדפת: $time';
+  String get onboardingError => 'שגיאה בטעינת ההדרכה';
 }
 
 // ========================================
@@ -519,6 +530,26 @@ class ShoppingStrings {
   String get finishAndSaveSemantics => 'לחץ פעמיים כדי לסיים את הקנייה ולשמור את הנתונים';
   String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
       isOutOfStock ? 'לחץ פעמיים כדי לבטל סימון אין במלאי עבור $itemName' : 'לחץ פעמיים כדי לסמן ש-$itemName אזל מהמדף';
+
+  // Who Brings
+  String alreadyVolunteered(String name) => 'כבר התנדבת להביא את $name';
+  String volunteerSuccess(String name) => 'נרשמת להביא: $name ✓';
+  String get volunteerError => 'שגיאה בהרשמה';
+  String cancelVolunteer(String name) => 'ביטלת את ההתנדבות ל$name';
+  String get cancelVolunteerError => 'שגיאה בביטול';
+  String get statsTotal => 'סה"כ';
+  String get statsCompleted => 'הושלם';
+  String get statsIBring => 'אני מביא';
+  String get cancelVolunteerButton => 'בטל התנדבות';
+  String get iBringButton => 'אני מביא! ✋';
+
+  // Summary
+  String get budgetTitle => 'תקציב';
+  String get successRateTitle => 'אחוז הצלחה';
+  String get purchasedLabel => 'נרכשו';
+  String get missingLabel => 'חסרו';
+  String get finishedButton => 'סיימתי';
+  String get otherStoreHint => 'חנות אחרת...';
 }
 
 // ========================================
@@ -879,6 +910,20 @@ class HouseholdStrings {
   String get typeExtendedFamily => 'משפחה מורחבת';
   String get descFamily => 'ניהול קניות וצרכים משותפים לבית';
   String get descExtendedFamily => 'תכנון קניות ואירועים גדולים למשפחה המורחבת';
+
+  // Members management
+  String get removeMemberTitle => 'הסרת חבר';
+  String removeMemberConfirm(String name) => 'להסיר את $name מהבית?';
+  String get removeMemberButton => 'הסר';
+  String removeMemberError(String error) => 'שגיאה בהסרה: $error';
+  String genericError(String error) => 'שגיאה: $error';
+  String get leaveHouseholdTitle => 'עזיבת הבית';
+  String get leaveHouseholdButton => 'עזוב';
+  String get leftHousehold => 'עזבת את הבית';
+  String get makeAdmin => 'הפוך למנהל';
+  String get makeMember => 'הפוך לחבר';
+  String get removeFromHousehold => 'הסר מהבית';
+  String roleChangeError(String error) => 'שגיאה בשינוי תפקיד: $error';
 }
 
 // ========================================
@@ -1146,6 +1191,12 @@ class InventoryStrings {
   String pantryHealthPercent(int percent) => '$percent% מלאי תקין';
   String get pantryFullyStocked => 'הכל במלאי — אין מה לדאוג!';
   String pantryLowItems(int count) => count == 1 ? 'מוצר אחד עומד להיגמר' : '$count מוצרים עומדים להיגמר';
+
+  // Pantry item dialog
+  String get quantityMustBePositive => 'כמות חייבת להיות גדולה מאפס';
+  String get notesHint => 'הערות נוספות (אופציונלי)';
+  String get permanentProduct => 'מוצר קבוע';
+  String addCustomProduct(String query) => 'הוסף "$query"';
 }
 
 // ========================================
@@ -1457,6 +1508,7 @@ class SuggestionsTodayCardStrings {
   String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
   String addedToList(String productName) => 'נוסף "$productName" לרשימה';
   String dismissedForWeek(String productName) => 'דחיתי "$productName" לשבוע';
+  String suggestionError(String error) => 'שגיאה: $error';
 }
 
 // ========================================
@@ -1511,6 +1563,15 @@ class PendingInvitesScreenStrings {
   String get declineConfirmButton => 'דחה';
   String get declineSuccess => 'ההזמנה נדחתה';
   String declineError(String error) => 'שגיאה בדחיית ההזמנה: $error';
+
+  // Pending requests
+  String pendingRequestsLabel(int count) => 'בקשות ממתינות לאישור, $count בקשות';
+  String get rejectRequest => 'דחה את הבקשה';
+  String get rejectButton => 'דחה';
+  String get approveRequest => 'אשר את הבקשה';
+  String get approveButton => 'אשר';
+  String approveError(String error) => 'שגיאה באישור הבקשה: $error';
+  String rejectError(String error) => 'שגיאה בדחיית הבקשה: $error';
 }
 
 // ========================================
@@ -1628,6 +1689,15 @@ class PantryStrings {
   String get cancelButton => 'ביטול';
   String get saveButton => 'שמור';
   String get unitAbbreviation => 'יח׳';
+
+  // Tabs
+  String get tabItems => 'פריטים';
+  String get tabMissing => 'חסרים';
+  String get tabLocations => 'מיקומים';
+  // Empty state
+  String get addBasicsButton => 'כן, הוסף!';
+  String get emptyLabel => 'מזווה ריק';
+  String get addFirstProduct => 'הוסף מוצר ראשון';
 }
 
 // ========================================

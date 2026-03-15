@@ -321,6 +321,15 @@ class CommonStringsEn extends CommonStrings {
   @override String get dayFriday => 'Friday';
   @override String get daySaturday => 'Saturday';
   @override String get dayUnknown => 'Unknown';
+
+  @override String get understood => 'Understood';
+  @override String get confirm => 'Confirm';
+  @override String get goBack => 'Go Back';
+  @override String get backToHome => 'Back to Home';
+  @override String get close => 'Close';
+  @override String unknownError(String error) => 'Error: $error';
+  @override String get unknownErrorGeneric => 'Unknown error';
+  @override String get connected => 'Connected';
 }
 
 // ========================================
@@ -378,6 +387,7 @@ class OnboardingStringsEn extends OnboardingStrings {
   String get childrenYes => 'Yes';
   String sharingSummary(bool enabled) => 'List sharing: ${enabled ? "Yes" : "No"}';
   String reminderTimeSummary(String time) => 'Preferred time: $time';
+  @override String get onboardingError => 'Error loading tutorial';
 }
 
 // ========================================
@@ -509,6 +519,23 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get finishAndSaveSemantics => 'Double tap to finish shopping and save data';
   String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
       isOutOfStock ? 'Double tap to unmark out of stock for $itemName' : 'Double tap to mark $itemName as out of stock';
+
+  @override String alreadyVolunteered(String name) => 'You already volunteered to bring $name';
+  @override String volunteerSuccess(String name) => 'Signed up to bring: $name ✓';
+  @override String get volunteerError => 'Error signing up';
+  @override String cancelVolunteer(String name) => 'Cancelled volunteering for $name';
+  @override String get cancelVolunteerError => 'Error cancelling';
+  @override String get statsTotal => 'Total';
+  @override String get statsCompleted => 'Done';
+  @override String get statsIBring => 'I Bring';
+  @override String get cancelVolunteerButton => 'Cancel';
+  @override String get iBringButton => "I'll bring it! ✋";
+  @override String get budgetTitle => 'Budget';
+  @override String get successRateTitle => 'Success Rate';
+  @override String get purchasedLabel => 'Purchased';
+  @override String get missingLabel => 'Missing';
+  @override String get finishedButton => 'Done';
+  @override String get otherStoreHint => 'Other store...';
 }
 
 // ========================================
@@ -865,6 +892,19 @@ class HouseholdStringsEn extends HouseholdStrings {
   String get typeExtendedFamily => 'Extended Family';
   String get descFamily => 'Manage shared shopping and needs for the household';
   String get descExtendedFamily => 'Plan shopping and events for the extended family';
+
+  @override String get removeMemberTitle => 'Remove Member';
+  @override String removeMemberConfirm(String name) => 'Remove $name from the household?';
+  @override String get removeMemberButton => 'Remove';
+  @override String removeMemberError(String error) => 'Error removing: $error';
+  @override String genericError(String error) => 'Error: $error';
+  @override String get leaveHouseholdTitle => 'Leave Household';
+  @override String get leaveHouseholdButton => 'Leave';
+  @override String get leftHousehold => 'You left the household';
+  @override String get makeAdmin => 'Make Admin';
+  @override String get makeMember => 'Make Member';
+  @override String get removeFromHousehold => 'Remove from Household';
+  @override String roleChangeError(String error) => 'Error changing role: $error';
 }
 
 // ========================================
@@ -1132,6 +1172,11 @@ class InventoryStringsEn extends InventoryStrings {
   String pantryHealthPercent(int percent) => '$percent% properly stocked';
   String get pantryFullyStocked => 'Everything in stock — no worries!';
   String pantryLowItems(int count) => count == 1 ? '1 product is running low' : '$count products are running low';
+
+  @override String get quantityMustBePositive => 'Quantity must be greater than zero';
+  @override String get notesHint => 'Additional notes (optional)';
+  @override String get permanentProduct => 'Permanent product';
+  @override String addCustomProduct(String query) => 'Add "$query"';
 }
 
 // ========================================
@@ -1324,6 +1369,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   String get noActiveLists => 'No active lists - create a new list';
   String addedToList(String productName) => 'Added "$productName" to list';
   String dismissedForWeek(String productName) => 'Dismissed "$productName" for a week';
+  @override String suggestionError(String error) => 'Error: $error';
 }
 
 // ========================================
@@ -1378,6 +1424,14 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   String get declineConfirmButton => 'Decline';
   String get declineSuccess => 'Invitation declined';
   String declineError(String error) => 'Error declining invitation: $error';
+
+  @override String pendingRequestsLabel(int count) => 'Pending requests, $count requests';
+  @override String get rejectRequest => 'Reject request';
+  @override String get rejectButton => 'Reject';
+  @override String get approveRequest => 'Approve request';
+  @override String get approveButton => 'Approve';
+  @override String approveError(String error) => 'Error approving request: $error';
+  @override String rejectError(String error) => 'Error rejecting request: $error';
 }
 
 // ========================================
@@ -1614,6 +1668,13 @@ class PantryStringsEn extends PantryStrings {
   String get cancelButton => 'Cancel';
   String get saveButton => 'Save';
   String get unitAbbreviation => 'pcs';
+
+  @override String get tabItems => 'Items';
+  @override String get tabMissing => 'Missing';
+  @override String get tabLocations => 'Locations';
+  @override String get addBasicsButton => 'Yes, add!';
+  @override String get emptyLabel => 'Pantry empty';
+  @override String get addFirstProduct => 'Add first product';
 }
 
 // ========================================

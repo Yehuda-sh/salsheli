@@ -533,7 +533,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   decoration: BoxDecoration(shape: BoxShape.circle, color: cs.primary),
                 ),
                 const SizedBox(width: 6),
-                Text('מחובר', style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
+                Text(AppStrings.common.connected, style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
               ],
             ),
             if (userContext.userEmail != null) ...[

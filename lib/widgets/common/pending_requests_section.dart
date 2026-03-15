@@ -11,6 +11,7 @@
 //
 // 🔗 Related: PendingRequest, StickyNote
 
+import 'package:memozap/l10n/app_strings.dart';
 import 'dart:async';
 import 'dart:ui' show ImageFilter;
 
@@ -61,7 +62,7 @@ class PendingRequestsSection extends StatelessWidget {
     // 🎨 RepaintBoundary isolates card animations from notebook background
     return RepaintBoundary(
       child: Semantics(
-        label: 'בקשות ממתינות לאישור, ${pendingRequests.length} בקשות',
+        label: AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length),
         container: true,
         child: Padding(
           padding: const EdgeInsets.only(bottom: kSpacingMedium),
@@ -231,13 +232,13 @@ class _RequestCardState extends State<_RequestCard> {
 
                     // דחה
                     Tooltip(
-                      message: 'דחה את הבקשה',
+                      message: AppStrings.pendingInvitesScreen.rejectRequest,
                       child: TextButton.icon(
                         onPressed: _isProcessing
                             ? null
                             : () => _rejectRequest(userContext.userId!),
                         icon: const Icon(Icons.close, size: 18),
-                        label: const Text('דחה'),
+                        label: Text(AppStrings.pendingInvitesScreen.rejectButton),
                         style: TextButton.styleFrom(
                           foregroundColor: cs.error,
                         ),
@@ -246,13 +247,13 @@ class _RequestCardState extends State<_RequestCard> {
                     const Gap(kSpacingSmall),
                     // אשר
                     Tooltip(
-                      message: 'אשר את הבקשה',
+                      message: AppStrings.pendingInvitesScreen.approveRequest,
                       child: FilledButton.icon(
                         onPressed: _isProcessing
                             ? null
                             : () => _approveRequest(userContext.userId!),
                         icon: const Icon(Icons.check, size: 18),
-                        label: const Text('אשר'),
+                        label: Text(AppStrings.pendingInvitesScreen.approveButton),
                       ),
                     ),
                   ],
@@ -398,7 +399,7 @@ class _RequestCardState extends State<_RequestCard> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('שגיאה באישור הבקשה: $e')),
+        SnackBar(content: Text(AppStrings.pendingInvitesScreen.approveError(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -446,7 +447,7 @@ class _RequestCardState extends State<_RequestCard> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('שגיאה בדחיית הבקשה: $e')),
+        SnackBar(content: Text(AppStrings.pendingInvitesScreen.rejectError(e.toString()))),
       );
     } finally {
       if (mounted) {

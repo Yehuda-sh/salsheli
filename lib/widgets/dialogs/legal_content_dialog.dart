@@ -138,7 +138,7 @@ class _LegalContentDialog extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('הבנתי'),
+                    child: Text(AppStrings.common.understood),
                   ),
                 ),
               ),

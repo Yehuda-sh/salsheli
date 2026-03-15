@@ -16,6 +16,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:memozap/l10n/app_strings.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
@@ -142,7 +143,7 @@ class PantryEmptyState extends StatelessWidget {
                 const Gap(kSpacingMedium),
                 StickyButton(
                   color: kStickyYellow,
-                  label: 'כן, הוסף!',
+                  label: AppStrings.pantry.addBasicsButton,
                   icon: Icons.check,
                   onPressed: () {
                     unawaited(HapticFeedback.lightImpact());
@@ -168,7 +169,7 @@ class PantryEmptyState extends StatelessWidget {
                 // Group 1 — אייקון ראשי (נוחת ראשון, scale מ-0.75)
                 // ═══════════════════════════════════════════════════════
                 Semantics(
-                  label: 'מזווה ריק',
+                  label: AppStrings.pantry.emptyLabel,
                   excludeSemantics: true,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
@@ -289,7 +290,7 @@ class PantryEmptyState extends StatelessWidget {
                   // 📳 mediumImpact — CTA ראשי
                   StickyButton(
                     color: kStickyGreen,
-                    label: 'הוסף מוצר ראשון',
+                    label: AppStrings.pantry.addFirstProduct,
                     icon: Icons.add,
                     onPressed: () {
                       unawaited(HapticFeedback.mediumImpact());
