@@ -564,7 +564,7 @@ class _FeatureCard extends StatelessWidget {
                     ],
                   ),
                   child: SingleChildScrollView(
-                  child: Column(
+                    child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -635,6 +635,7 @@ class _FeatureCard extends StatelessWidget {
                       // Mini preview
                       previewWidget,
                     ],
+                  ),
                   ),
                 ),
               ),
