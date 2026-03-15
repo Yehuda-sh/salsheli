@@ -80,7 +80,7 @@ Object? _readLastInvitedAt(Map<dynamic, dynamic> json, String key) =>
 class SavedContact {
   /// מזהה ייחודי של איש הקשר (userId של המשתמש המוזמן)
   /// 🔄 readValue: תמיכה ב-user_id וגם userId (תאימות לאחור)
-  @JsonKey(name: 'user_id', readValue: _readUserId)
+  @JsonKey(name: 'user_id', readValue: _readUserId, defaultValue: '')
   final String userId;
 
   /// שם המשתמש
@@ -90,7 +90,7 @@ class SavedContact {
 
   /// אימייל המשתמש
   /// 🔄 readValue: תמיכה ב-user_email וגם userEmail (תאימות לאחור)
-  @JsonKey(name: 'user_email', readValue: _readUserEmail)
+  @JsonKey(name: 'user_email', readValue: _readUserEmail, defaultValue: '')
   final String userEmail;
 
   /// טלפון המשתמש

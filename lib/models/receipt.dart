@@ -83,7 +83,7 @@ class Receipt {
 
   /// 🔒 מזהה משק הבית (אבטחה - חובה!)
   /// 🇬🇧 Household ID (security - required!)
-  @JsonKey(name: 'household_id')
+  @JsonKey(name: 'household_id', defaultValue: '')
   final String householdId;
 
   /// 🔒 Private constructor - משתמש ב-factory Receipt() לאכיפת immutability

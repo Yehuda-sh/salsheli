@@ -58,14 +58,16 @@ Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
 @immutable
 class CustomLocation {
   /// מזהה ייחודי (באנגלית, lowercase, עם underscores)
+  @JsonKey(defaultValue: '')
   final String key;
 
   /// שם המיקום בעברית
+  @JsonKey(defaultValue: '')
   final String name;
 
   /// אמוג'י לתצוגה
   /// readValue: מחזיר null אם ריק → משתמש בברירת מחדל מה-constructor
-  @JsonKey(readValue: _readEmoji)
+  @JsonKey(readValue: _readEmoji, defaultValue: '')
   final String emoji;
 
   /// מזהה המשתמש שיצר את המיקום (לסנכרון משק בית)

@@ -104,10 +104,12 @@ const _sentinel = Object();
 class ShoppingList {
   /// 🇮🇱 מזהה ייחודי לרשימה
   /// 🇬🇧 Unique list identifier
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// 🇮🇱 שם הרשימה (למשל "סופר יומי")
   /// 🇬🇧 List name (e.g., "Daily Supermarket")
+  @JsonKey(defaultValue: '')
   final String name;
 
   /// 🇮🇱 מתי עודכנה הרשימה לאחרונה
@@ -143,7 +145,7 @@ class ShoppingList {
 
   /// 🇮🇱 מזהה המשתמש שיצר את הרשימה
   /// 🇬🇧 User ID who created the list
-  @JsonKey(name: 'created_by')
+  @JsonKey(name: 'created_by', defaultValue: '')
   final String createdBy;
 
   /// 🇮🇱 מזהי משתמשים איתם הרשימה שותפה

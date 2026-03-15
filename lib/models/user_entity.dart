@@ -96,14 +96,17 @@ Object? _readHouseholdName(Map<dynamic, dynamic> json, String key) {
 class UserEntity {
   /// 🇮🇱 מזהה ייחודי למשתמש
   /// 🇬🇧 Unique user identifier
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// 🇮🇱 שם המשתמש המלא
   /// 🇬🇧 Full user name
+  @JsonKey(defaultValue: '')
   final String name;
 
   /// 🇮🇱 כתובת דוא"ל
   /// 🇬🇧 Email address
+  @JsonKey(defaultValue: '')
   final String email;
 
   /// 🇮🇱 מספר טלפון (פורמט ישראלי 05XXXXXXXX)
@@ -115,7 +118,7 @@ class UserEntity {
   /// 🇮🇱 מזהה משק בית (מאפשר שיתוף נתונים)
   /// 🇬🇧 Household ID (enables data sharing)
   /// 🔄 readValue: תמיכה ב-snake_case וגם camelCase
-  @JsonKey(name: 'household_id', readValue: _readHouseholdId)
+  @JsonKey(name: 'household_id', readValue: _readHouseholdId, defaultValue: '')
   final String householdId;
 
   /// 🇮🇱 שם הקבוצה/משפחה (אופציונלי)

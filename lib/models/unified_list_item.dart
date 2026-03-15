@@ -100,9 +100,11 @@ List<Map<String, dynamic>> _safeParseListOfMaps(dynamic value) {
 @JsonSerializable(explicitToJson: true)
 class UnifiedListItem {
   /// מזהה ייחודי
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// שם המוצר/משימה
+  @JsonKey(defaultValue: '')
   final String name;
 
   /// סוג הפריט (product/task)

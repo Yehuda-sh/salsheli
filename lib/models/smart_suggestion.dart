@@ -37,16 +37,17 @@ part 'smart_suggestion.g.dart';
 class SmartSuggestion {
   /// 🇮🇱 מזהה ייחודי להמלצה
   /// 🇬🇧 Unique suggestion identifier
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// 🇮🇱 מזהה המוצר במזווה (InventoryItem.id)
   /// 🇬🇧 Product ID in inventory (InventoryItem.id)
-  @JsonKey(name: 'product_id')
+  @JsonKey(name: 'product_id', defaultValue: '')
   final String productId;
 
   /// 🇮🇱 שם המוצר
   /// 🇬🇧 Product name
-  @JsonKey(name: 'product_name')
+  @JsonKey(name: 'product_name', defaultValue: '')
   final String productName;
 
   /// 🇮🇱 קטגוריה

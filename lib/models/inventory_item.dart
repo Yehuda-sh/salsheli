@@ -53,6 +53,7 @@ Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
 @JsonSerializable()
 class InventoryItem {
   /// מזהה ייחודי (UUID)
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// שם המוצר (e.g., "חלב 3%")

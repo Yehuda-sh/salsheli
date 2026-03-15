@@ -48,7 +48,7 @@ class ActiveShopper {
   /// 🇮🇱 מזהה המשתמש
   /// 🇬🇧 User ID
   /// 🔄 תאימות לאחור: קורא גם user_id וגם userId
-  @JsonKey(name: 'user_id', readValue: _readUserId)
+  @JsonKey(name: 'user_id', readValue: _readUserId, defaultValue: '')
   final String userId;
 
   /// 🇮🇱 מתי הצטרף לקנייה

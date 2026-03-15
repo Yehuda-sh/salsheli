@@ -68,14 +68,15 @@ class _RequestDataConverter
 @JsonSerializable(explicitToJson: true)
 class PendingRequest {
   /// מזהה הבקשה
+  @JsonKey(defaultValue: '')
   final String id;
 
   /// מזהה הרשימה
-  @JsonKey(name: 'list_id')
+  @JsonKey(name: 'list_id', defaultValue: '')
   final String listId;
 
   /// מזהה המשתמש שביקש
-  @JsonKey(name: 'requester_id')
+  @JsonKey(name: 'requester_id', defaultValue: '')
   final String requesterId;
 
   /// סוג הבקשה
