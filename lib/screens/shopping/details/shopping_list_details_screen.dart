@@ -106,6 +106,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
 
   // 🎬 דגל למניעת אנימציות חוזרות אחרי הטעינה הראשונית
   bool _animationsDone = false;
+  bool _editorNotificationsChecked = false;
 
   @override
   void initState() {
@@ -119,7 +120,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     // 🚀 Start animations
     _fabController.forward();
     _loadData();
-    _checkEditorNotifications();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_editorNotificationsChecked) {
+      _editorNotificationsChecked = true;
+      _checkEditorNotifications();
+    }
   }
 
   @override
