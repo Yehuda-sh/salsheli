@@ -120,7 +120,7 @@ class CategoriesData {
     'ניקיון': 'cleaning',
     'היגיינה': 'hygiene',
     'תינוק': 'baby_products',
-    'חיות מחמד': 'pets',
+    'חיות מחמד': 'pet_food',
     'כלים': 'tools',
     'שונות': 'other',
     'כללי': 'other',
