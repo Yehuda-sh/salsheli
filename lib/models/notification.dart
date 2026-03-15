@@ -94,12 +94,13 @@ enum NotificationPriority {
 @immutable
 @JsonSerializable(explicitToJson: true)
 class AppNotification {
+  @JsonKey(defaultValue: '')
   final String id;
   
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: 'user_id', defaultValue: '')
   final String userId; // מי מקבל את ההתראה
   
-  @JsonKey(name: 'household_id')
+  @JsonKey(name: 'household_id', defaultValue: '')
   final String householdId;
 
   /// סוג ההתראה
@@ -107,7 +108,9 @@ class AppNotification {
   @JsonKey(unknownEnumValue: NotificationType.unknown)
   final NotificationType type;
   
+  @JsonKey(defaultValue: '')
   final String title; // כותרת (עברית)
+  @JsonKey(defaultValue: '')
   final String message; // הודעה מפורטת
   
   /// נתונים נוספים (listId, requestId, etc)

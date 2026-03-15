@@ -119,7 +119,7 @@ class CategoriesData {
     'קפוא': 'frozen',
     'ניקיון': 'cleaning',
     'היגיינה': 'hygiene',
-    'תינוק': 'baby',
+    'תינוק': 'baby_products',
     'חיות מחמד': 'pets',
     'כלים': 'tools',
     'שונות': 'other',
