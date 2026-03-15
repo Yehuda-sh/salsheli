@@ -215,21 +215,31 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
 
     if (_error != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error),
-            const SizedBox(height: 16),
-            Text(_error!, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _loadNotifications,
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.retryButton),
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Card(
+            elevation: 1,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.notifications_off_outlined, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  const SizedBox(height: kSpacingMedium),
+                  Text(_error!, style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
+                  const SizedBox(height: kSpacingMedium),
+                  FilledButton.icon(
+                    onPressed: _loadNotifications,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(strings.retryButton),
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
-      );
+      ).animate().fadeIn(duration: 400.ms);
     }
 
     if (_notifications.isEmpty) {
@@ -278,11 +288,11 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       onRefresh: _loadNotifications,
       child: ListView.separated(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+        padding: const EdgeInsets.symmetric(vertical: kSpacingSmall, horizontal: kSpacingSmall),
         itemCount: _notifications.length,
         // ✅ FIX: Always scrollable for pull-to-refresh with few items
         physics: const AlwaysScrollableScrollPhysics(),
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
         itemBuilder: (context, index) {
           final notification = _notifications[index];
           return RepaintBoundary(
@@ -398,21 +408,21 @@ class _NotificationTile extends StatelessWidget {
     final isUnread = notification.isUnread;
     final timeAgo = timeago.format(notification.createdAt, locale: 'he');
 
-    Widget tile = Container(
+    Widget tile = Card(
+      elevation: isUnread ? 2 : 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: 0.3), width: 1) : BorderSide.none,
+      ),
+      child: Container(
       decoration: BoxDecoration(
         color: isUnread
-            ? cs.primaryContainer.withValues(alpha: 0.25)
+            ? cs.primaryContainer.withValues(alpha: 0.15)
             : null,
-        border: isUnread
-            ? BorderDirectional(
-                start: BorderSide(
-                  color: cs.primary,
-                  width: 3,
-                ),
-              )
-            : null,
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),
       child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
       onTap: onTap,
       leading: Container(
         width: 44,
@@ -464,6 +474,7 @@ class _NotificationTile extends StatelessWidget {
               ),
             )
           : null,
+      ),
       ),
     );
 
