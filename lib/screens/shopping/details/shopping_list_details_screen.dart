@@ -96,79 +96,97 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     });
   }
 
-  /// הוספת מוצר מהקטלוג לרשימה
-  Future<void> _quickAddProduct(Map<String, dynamic> product, ShoppingList currentList) async {
+  /// ניקוי שדה חיפוש
+  void _clearSearch() {
+    _searchController.clear();
+    _searchFocus.unfocus();
+    setState(() {
+      _searchResults = [];
+      _isSearching = false;
+    });
+  }
+
+  /// הוספת מוצר (מקטלוג או חופשי) — מכבד הרשאות Editor
+  Future<void> _addProductToList({
+    required String name,
+    required ShoppingList currentList,
+    int quantity = 1,
+    String? category,
+  }) async {
     final provider = context.read<ShoppingListsProvider>();
     final messenger = ScaffoldMessenger.of(context);
+    final cs = Theme.of(context).colorScheme;
     final successColor = Theme.of(context).extension<AppBrand>()?.success ?? kStickyGreen;
-
-    final name = product['name']?.toString() ?? '?';
-    final detectedCategory = CategoryDetectionService.detectFromProductJson(product);
+    final needsApproval = currentList.shouldCurrentUserRequest;
 
     try {
-      await provider.addItemToList(
-        currentList.id,
-        name,
-        1,
-        "יח'",
-        category: detectedCategory,
-      );
+      if (needsApproval) {
+        // 🔒 Editor — שלח בקשה לאישור
+        final userContext = context.read<UserContext>();
+        final repository = context.read<ShoppingListsRepository>();
+        final service = PendingRequestsService(repository, userContext);
+        await service.createRequest(
+          list: currentList,
+          type: RequestType.addItem,
+          requestData: {
+            'name': name,
+            'quantity': quantity,
+            'unit': "יח'",
+            'category': category,
+            'type': 'product',
+          },
+        );
 
-      unawaited(HapticFeedback.mediumImpact());
+        unawaited(HapticFeedback.lightImpact());
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(
+          content: Row(children: [
+            Icon(Icons.hourglass_empty, color: cs.onPrimary),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(child: Text(AppStrings.sharing.requestCreated)),
+          ]),
+          backgroundColor: kStickyOrange,
+        ));
+      } else {
+        // ✅ Owner/Admin — הוסף ישירות
+        await provider.addItemToList(
+          currentList.id,
+          name,
+          quantity,
+          "יח'",
+          category: category,
+        );
 
-      if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.shopping.productAddedToList(name)),
-        backgroundColor: successColor,
-        duration: const Duration(seconds: 2),
-      ));
+        unawaited(HapticFeedback.mediumImpact());
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(
+          content: Text(AppStrings.shopping.productAddedToList(name)),
+          backgroundColor: successColor,
+          duration: const Duration(seconds: 2),
+        ));
+      }
 
-      // נקה חיפוש אחרי הוספה
-      _searchController.clear();
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
+      _clearSearch();
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(
         content: Text(AppStrings.shopping.addProductError(e.toString())),
-        backgroundColor: Theme.of(context).colorScheme.error,
+        backgroundColor: cs.error,
       ));
     }
   }
 
+  /// הוספת מוצר מהקטלוג לרשימה
+  Future<void> _quickAddProduct(Map<String, dynamic> product, ShoppingList currentList) async {
+    final name = product['name']?.toString() ?? '?';
+    final category = CategoryDetectionService.detectFromProductJson(product);
+    await _addProductToList(name: name, currentList: currentList, category: category);
+  }
+
   /// הוספת מוצר חופשי (לא מהקטלוג)
   Future<void> _addFreeTextProduct(String name, ShoppingList currentList) async {
-    final provider = context.read<ShoppingListsProvider>();
-    final messenger = ScaffoldMessenger.of(context);
-    final successColor = Theme.of(context).extension<AppBrand>()?.success ?? kStickyGreen;
-
-    try {
-      await provider.addItemToList(currentList.id, name.trim(), 1, "יח'");
-
-      unawaited(HapticFeedback.mediumImpact());
-
-      if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.shopping.productAddedToList(name.trim())),
-        backgroundColor: successColor,
-        duration: const Duration(seconds: 2),
-      ));
-
-      _searchController.clear();
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
-      _searchFocus.unfocus();
-    } catch (e) {
-      if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.common.unknownError(e.toString())),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ));
-    }
+    if (name.trim().isEmpty) return;
+    await _addProductToList(name: name.trim(), currentList: currentList);
   }
 
   // ===== עריכה/מחיקה =====
@@ -231,12 +249,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     final cs = Theme.of(context).colorScheme;
     final provider = context.read<ShoppingListsProvider>();
     final userContext = context.read<UserContext>();
-    final isEditor = currentList.currentUserRole?.canRequest == true;
+    final needsApproval = currentList.shouldCurrentUserRequest;
 
     await showAddEditTaskDialog(
       context,
       onSave: (item) async {
-        if (isEditor) {
+        if (needsApproval) {
           try {
             final repository = context.read<ShoppingListsRepository>();
             final service = PendingRequestsService(repository, userContext);
