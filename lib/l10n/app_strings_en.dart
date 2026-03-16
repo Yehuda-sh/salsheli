@@ -180,6 +180,7 @@ class AppStringsEn {
   // Contact Selector Dialog
   // ========================================
   static const contactSelector = ContactSelectorStringsEn();
+  static const shoppingSummary = ShoppingSummaryStringsEn();
 }
 
 // ========================================
@@ -1698,4 +1699,20 @@ class ContactSelectorStringsEn extends ContactSelectorStrings {
   String get roleEditorShortDesc => 'Can edit via approval';
   String get roleViewerShortDesc => 'View only';
   String get roleUnknownShortDesc => 'Unknown role';
+}
+
+class ShoppingSummaryStringsEn extends ShoppingSummaryStrings {
+  const ShoppingSummaryStringsEn();
+  @override String get title => 'Shopping completed!';
+  @override String get successRate => 'Success';
+  @override String get purchasedLabel => 'Purchased';
+  @override String get missingLabel => 'Missing';
+  @override String get totalLabel => 'Total';
+  @override String get budgetTitle => 'Budget';
+  @override String budgetRemaining(String amount) => '$amount left';
+  @override String budgetOver(String amount) => '$amount over';
+  @override String get backToHome => 'Back to home';
+  @override String get loadError => 'Error loading summary';
+  @override String get notFound => 'List not found';
+  @override String get notFoundSubtitle => 'The list may have been deleted';
 }

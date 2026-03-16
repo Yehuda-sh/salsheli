@@ -178,6 +178,7 @@ class AppStringsHe {
   // Contact Selector Dialog
   // ========================================
   static const contactSelector = ContactSelectorStrings();
+  static const shoppingSummary = ShoppingSummaryStrings();
 }
 
 // ========================================
@@ -1715,4 +1716,24 @@ class ContactSelectorStrings {
   String get roleEditorShortDesc => 'יכול לערוך דרך אישור';
   String get roleViewerShortDesc => 'יכול לצפות בלבד';
   String get roleUnknownShortDesc => 'תפקיד לא מוכר';
+}
+
+// ========================================
+// Shopping Summary
+// ========================================
+
+class ShoppingSummaryStrings {
+  const ShoppingSummaryStrings();
+  String get title => 'קנייה הושלמה בהצלחה!';
+  String get successRate => 'הצלחה';
+  String get purchasedLabel => 'נרכשו';
+  String get missingLabel => 'חסרו';
+  String get totalLabel => 'סה"כ';
+  String get budgetTitle => 'תקציב';
+  String budgetRemaining(String amount) => 'נשאר $amount';
+  String budgetOver(String amount) => 'חריגה $amount';
+  String get backToHome => 'חזרה לדף הבית';
+  String get loadError => 'שגיאה בטעינת הסיכום';
+  String get notFound => 'הרשימה לא נמצאה';
+  String get notFoundSubtitle => 'ייתכן שהרשימה נמחקה';
 }
