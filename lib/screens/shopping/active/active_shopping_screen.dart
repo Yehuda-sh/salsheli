@@ -63,6 +63,7 @@ import '../../../widgets/common/notebook_background.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
+import 'widgets/barcode_scanner_sheet.dart';
 import 'widgets/shopping_summary_dialog.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
@@ -356,6 +357,93 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           ),
         );
       }
+    }
+  }
+
+  /// 📷 סריקת ברקוד — חיפוש מוצר ב-DB והוספה/סימון
+  Future<void> _scanBarcode() async {
+    final result = await showModalBottomSheet<BarcodeScanResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+      ),
+      builder: (_) => const BarcodeScannerSheet(),
+    );
+
+    if (result == null || !mounted) return;
+
+    final barcode = result.barcode;
+    final productsProvider = context.read<ProductsProvider>();
+    final listsProvider = context.read<ShoppingListsProvider>();
+    final cs = Theme.of(context).colorScheme;
+    final messenger = ScaffoldMessenger.of(context);
+
+    // 1. חפש ברשימה הנוכחית
+    final existingItem = widget.list.items.where((item) {
+      final itemBarcode = item.productData?['barcode'] as String?;
+      return itemBarcode == barcode;
+    }).firstOrNull;
+
+    if (existingItem != null) {
+      // מוצר קיים ברשימה — סמן כנקנה
+      _updateItemStatus(existingItem, ShoppingItemStatus.purchased);
+      messenger.showSnackBar(SnackBar(
+        content: Text('✅ ${existingItem.name}'),
+        backgroundColor: kStickyGreen,
+        duration: const Duration(seconds: 2),
+      ));
+      return;
+    }
+
+    // 2. חפש ב-DB (supermarket.json)
+    final product = productsProvider.getByBarcode(barcode);
+
+    if (product != null) {
+      // מצאנו — שאל אם להוסיף
+      if (!mounted) return;
+      final shouldAdd = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(product['name'] as String? ?? barcode),
+          content: Text(AppStrings.shopping.barcodeFoundAdd),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppStrings.common.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(AppStrings.shopping.addToListButton),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldAdd == true && mounted) {
+        final newItem = UnifiedListItem.product(
+          name: product['name'] as String? ?? barcode,
+          quantity: 1,
+          unitPrice: (product['price'] as num?)?.toDouble() ?? 0,
+          category: product['category'] as String?,
+          barcode: barcode,
+        );
+        await listsProvider.addUnifiedItem(widget.list.id, newItem);
+        // סמן מיד כנקנה
+        _updateItemStatus(newItem, ShoppingItemStatus.purchased);
+        messenger.showSnackBar(SnackBar(
+          content: Text('✅ ${newItem.name}'),
+          backgroundColor: kStickyGreen,
+          duration: const Duration(seconds: 2),
+        ));
+      }
+    } else {
+      // לא נמצא
+      messenger.showSnackBar(SnackBar(
+        content: Text(AppStrings.shopping.barcodeNotFound(barcode)),
+        backgroundColor: cs.error,
+      ));
     }
   }
 
@@ -847,6 +935,13 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             ),
             centerTitle: true,
             actions: [
+              // 📷 סריקת ברקוד
+              if (!widget.readOnly)
+                IconButton(
+                  onPressed: _scanBarcode,
+                  tooltip: AppStrings.shopping.scanBarcode,
+                  icon: Icon(Icons.qr_code_scanner, size: 22, color: cs.primary),
+                ),
               // ⚠️ אינדיקציה לבעיית סנכרון - לחיץ לניסיון חוזר
               if (_hasSyncError)
                 IconButton(

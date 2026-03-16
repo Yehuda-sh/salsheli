@@ -486,6 +486,10 @@ class ShoppingStrings {
   String get legendNotNeeded => 'לא צריך';
   String get legendPending => 'ממתין';
   String get editQuantity => 'ערוך כמות';
+  String get scanBarcode => 'סרוק ברקוד';
+  String get barcodeFoundAdd => 'המוצר לא ברשימה. להוסיף?';
+  String get addToListButton => 'הוסף לרשימה';
+  String barcodeNotFound(String code) => 'ברקוד $code לא נמצא';
   String get retryLoadSemantics => 'לחץ פעמיים כדי לנסות לטעון את הרשימה מחדש';
   String get backToListSemantics => 'לחץ פעמיים כדי לחזור לרשימת הקניות';
   String get finishAndSaveSemantics => 'לחץ פעמיים כדי לסיים את הקנייה ולשמור את הנתונים';

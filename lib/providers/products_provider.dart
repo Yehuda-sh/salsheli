@@ -499,6 +499,14 @@ class ProductsProvider with ChangeNotifier {
   /// 2. התאמה חלקית - מתעדף את השם הקצר ביותר שמכיל את החיפוש
   ///
   /// Returns: Map עם נתוני המוצר או null אם לא נמצא
+  /// חיפוש מוצר לפי ברקוד
+  Map<String, dynamic>? getByBarcode(String barcode) {
+    if (barcode.isEmpty || _products.isEmpty) return null;
+    return _products
+        .where((p) => (p['barcode'] as String?) == barcode)
+        .firstOrNull;
+  }
+
   Map<String, dynamic>? getByName(String name) {
     if (name.isEmpty || _products.isEmpty) return null;
 

@@ -47,7 +47,7 @@ dependencies:
   # Media
   camera: ^0.11.0+2
   image_picker: ^1.1.2
-  mobile_scanner: ^7.1.2
+  mobile_scanner: ^7.2.0
 
   # Contacts
   flutter_contacts: ^1.1.9+2

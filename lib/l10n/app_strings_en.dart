@@ -475,6 +475,10 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get legendNotNeeded => 'Not needed';
   @override String get legendPending => 'Pending';
   @override String get editQuantity => 'Edit quantity';
+  @override String get scanBarcode => 'Scan barcode';
+  @override String get barcodeFoundAdd => 'Product not in list. Add it?';
+  @override String get addToListButton => 'Add to list';
+  @override String barcodeNotFound(String code) => 'Barcode $code not found';
   String get retryLoadSemantics => 'Double tap to try loading the list again';
   String get backToListSemantics => 'Double tap to return to the shopping list';
   String get finishAndSaveSemantics => 'Double tap to finish shopping and save data';
