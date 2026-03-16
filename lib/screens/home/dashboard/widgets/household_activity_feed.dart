@@ -6,6 +6,7 @@
 //
 // Version: 1.0 (12/03/2026)
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,8 +20,49 @@ import '../../../../providers/user_context.dart';
 import '../../../history/shopping_history_screen.dart';
 
 /// פיד פעילות הבית
-class HouseholdActivityFeed extends StatelessWidget {
+class HouseholdActivityFeed extends StatefulWidget {
   const HouseholdActivityFeed({super.key});
+
+  @override
+  State<HouseholdActivityFeed> createState() => _HouseholdActivityFeedState();
+}
+
+class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
+  /// מפת userId → name מחברי הבית
+  Map<String, String> _memberNames = {};
+  bool _membersLoaded = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_membersLoaded) {
+      _membersLoaded = true;
+      _loadMemberNames();
+    }
+  }
+
+  Future<void> _loadMemberNames() async {
+    final householdId = context.read<UserContext>().user?.householdId;
+    if (householdId == null || householdId.isEmpty) return;
+
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('households')
+          .doc(householdId)
+          .collection('members')
+          .get();
+      
+      if (!mounted) return;
+      setState(() {
+        _memberNames = {
+          for (final doc in snap.docs)
+            doc.id: (doc.data()['name'] as String?) ?? '',
+        };
+      });
+    } catch (_) {
+      // Silent fail — fallback to 'חבר/ת בית'
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,9 +207,13 @@ class HouseholdActivityFeed extends StatelessWidget {
     return activities.take(3).map((a) => _ActivityTile(activity: a)).toList();
   }
 
-  /// מחפש שם משתמש מתוך shared users ברשימות
+  /// מחפש שם משתמש — קודם מחברי הבית, אח"כ מ-shared users ברשימות
   String? _findUserName(String? userId, List<ShoppingList> lists) {
     if (userId == null) return null;
+    // 1. חפש בחברי הבית
+    final memberName = _memberNames[userId];
+    if (memberName != null && memberName.isNotEmpty) return memberName;
+    // 2. חפש ב-shared users של רשימות
     for (final list in lists) {
       final user = list.sharedUsers[userId];
       if (user?.userName != null) return user!.userName;
