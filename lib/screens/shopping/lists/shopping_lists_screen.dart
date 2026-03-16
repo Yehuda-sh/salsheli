@@ -53,11 +53,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       _searchQuery.isNotEmpty || _selectedType != 'all' || _sortBy != 'date_desc';
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
@@ -350,7 +345,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 onSubmitted: (value) {
                   setState(() {
                     _searchQuery = value.trim();
-                    _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+                    _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
                   });
                   Navigator.pop(context);
                 },
@@ -376,7 +371,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       onPressed: () {
                         setState(() {
                           _searchQuery = controller.text.trim();
-                          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+                          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
                         });
                         Navigator.pop(context);
                       },
@@ -457,7 +452,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         HapticFeedback.selectionClick();
         setState(() {
           _selectedType = key;
-          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
         });
         Navigator.pop(context);
       },
@@ -535,7 +530,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         HapticFeedback.selectionClick();
         setState(() {
           _sortBy = value;
-          _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
         });
         Navigator.pop(context);
       },
@@ -549,7 +544,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       _searchQuery = '';
       _selectedType = 'all';
       _sortBy = 'date_desc';
-      _currentHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
+      _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
     });
   }
 
