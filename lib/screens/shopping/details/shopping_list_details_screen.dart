@@ -493,17 +493,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             body: SafeArea(
               child: Column(
                 children: [
-                  // 📝 בקשות ממתינות (scrollable אם יותר מדי)
+                  // 📝 בקשות ממתינות
                   if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 150),
-                      child: SingleChildScrollView(
-                        child: PendingRequestsSection(
-                          listId: currentList.id,
-                          pendingRequests: currentList.pendingRequestsForReview,
-                          canApprove: currentList.canCurrentUserApprove,
-                        ),
-                      ),
+                    PendingRequestsSection(
+                      listId: currentList.id,
+                      pendingRequests: currentList.pendingRequestsForReview,
+                      canApprove: currentList.canCurrentUserApprove,
                     ),
 
                   // 🔍 שורת חיפוש + הוספה מהירה
