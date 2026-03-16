@@ -407,6 +407,10 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get whoBringsWhat => 'Who brings what';
   @override String get checklist => 'Checklist';
   @override String get defaultInviteLabel => 'Invitation';
+  @override String get leaveShoppingTitle => 'Leave shopping?';
+  @override String get leaveShoppingMessage => 'Shopping is still active. You can come back later.';
+  @override String get continueShoppingButton => 'Keep shopping';
+  @override String get leaveButton => 'Leave';
   String get summaryOutOfStock => 'Out of stock';
   String get summaryNotMarked => 'Not marked';
   String get summaryBack => 'Back';

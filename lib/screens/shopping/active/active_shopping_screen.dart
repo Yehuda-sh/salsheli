@@ -870,13 +870,39 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     // 🔄 מיון דינמי: מבוטל — פריטים נשארים במיקום המקורי
     // (מיון לתחתית מבלבל בזמן קנייה פעילה)
 
-    return Stack(
-      children: [
-        // 📓 Sticky Notes Background
-        const NotebookBackground(),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          // 🏁 FAB הוסר — כפתור סיום עבר ל-AppBar leading
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldLeave = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(AppStrings.shopping.leaveShoppingTitle),
+            content: Text(AppStrings.shopping.leaveShoppingMessage),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(AppStrings.shopping.continueShoppingButton),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: FilledButton.styleFrom(backgroundColor: cs.error),
+                child: Text(AppStrings.shopping.leaveButton),
+              ),
+            ],
+          ),
+        );
+        if (shouldLeave == true && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Stack(
+        children: [
+          // 📓 Sticky Notes Background
+          const NotebookBackground(),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            // 🏁 FAB הוסר — כפתור סיום עבר ל-AppBar leading
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -1201,7 +1227,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               ),
             ),
           ),
-      ],
+        ],
+      ),
     );
   }
 }

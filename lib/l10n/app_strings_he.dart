@@ -418,6 +418,10 @@ class ShoppingStrings {
   String get whoBringsWhat => 'מי מביא מה';
   String get checklist => 'צ\'קליסט';
   String get defaultInviteLabel => 'הזמנה';
+  String get leaveShoppingTitle => 'לצאת מהקנייה?';
+  String get leaveShoppingMessage => 'הקנייה עדיין פעילה. אם תצא, תוכל לחזור אליה מאוחר יותר.';
+  String get continueShoppingButton => 'להמשיך לקנות';
+  String get leaveButton => 'לצאת';
   String get summaryOutOfStock => 'אזלו בחנות';
   String get summaryNotMarked => 'לא סומנו';
   String get summaryBack => 'חזור';
