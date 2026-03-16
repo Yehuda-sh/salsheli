@@ -1209,7 +1209,11 @@ class ShoppingListDetailsStrings {
   String itemDeleted(String name) => 'המוצר "$name" נמחק';
   String get totalLabel => 'סה״כ:';
   String get emptyListTitle => 'הרשימה ריקה';
+  String get emptyListSubtitle => 'חפש מוצרים למעלה או הוסף מהקטלוג';
   String get populateFromCatalog => 'אכלס מהקטלוג';
+  String get quickSearchHint => 'חפש מוצר להוספה...';
+  String get addFreeText => 'הוסף כטקסט חופשי';
+  String categoriesCount(int count) => '$count קטגוריות';
   String get noSearchResultsTitle => 'לא נמצאו פריטים';
   String get clearSearchButton => 'נקה חיפוש';
   String get loadingError => 'שגיאה בטעינת הנתונים';
@@ -1473,7 +1477,8 @@ class SuggestionsTodayCardStrings {
   String inStock(int stock, String unit) => 'במלאי: $stock $unit';
   String get addButton => 'הוסף';
   String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
-  String addedToList(String productName) => 'נוסף "$productName" לרשימה';
+  String get addedToList => 'נוסף לרשימה';
+  String addedToListName(String productName) => 'נוסף "$productName" לרשימה';
   String dismissedForWeek(String productName) => 'דחיתי "$productName" לשבוע';
   String suggestionError(String error) => 'שגיאה: $error';
 }

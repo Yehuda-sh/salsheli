@@ -1190,7 +1190,15 @@ class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
   String itemDeleted(String name) => 'Product "$name" deleted';
   String get totalLabel => 'Total:';
   String get emptyListTitle => 'List is empty';
+  @override
+  String get emptyListSubtitle => 'Search for products above or add from catalog';
   String get populateFromCatalog => 'Populate from catalog';
+  @override
+  String get quickSearchHint => 'Search product to add...';
+  @override
+  String get addFreeText => 'Add as free text';
+  @override
+  String categoriesCount(int count) => '$count categories';
   String get noSearchResultsTitle => 'No items found';
   String get clearSearchButton => 'Clear search';
   String get loadingError => 'Error loading data';
@@ -1335,7 +1343,9 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   String inStock(int stock, String unit) => 'In stock: $stock $unit';
   String get addButton => 'Add';
   String get noActiveLists => 'No active lists - create a new list';
-  String addedToList(String productName) => 'Added "$productName" to list';
+  @override
+  String get addedToList => 'Added to list';
+  String addedToListName(String productName) => 'Added "$productName" to list';
   String dismissedForWeek(String productName) => 'Dismissed "$productName" for a week';
   @override String suggestionError(String error) => 'Error: $error';
 }
