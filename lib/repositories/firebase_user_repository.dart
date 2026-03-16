@@ -310,50 +310,7 @@ class FirebaseUserRepository implements UserRepository {
 
   /// יוצר משתמש חדש ב-Firestore
   ///
-  /// אם המשתמש כבר קיים - מחזיר את המשתמש הקיים (לא יוצר כפילות).
-  ///
-  /// **פרמטרים:**
-  /// - [userId] - מזהה ייחודי (בד"כ מ-Firebase Auth)
-  /// - [email] - כתובת אימייל (מנורמלת אוטומטית)
-  /// - [name] - שם המשתמש
-  /// - [householdId] - מזהה משק בית (אופציונלי)
-  /// - 🆕 [preferredStores] - חנויות מועדפות (מ-Onboarding)
-  /// - 🆕 [familySize] - גודל משפחה (מ-Onboarding)
-  /// - 🆕 [shoppingFrequency] - תדירות קניות (מ-Onboarding)
-  /// - 🆕 [shoppingDays] - ימי קניות קבועים (מ-Onboarding)
-  /// - 🆕 [hasChildren] - האם יש ילדים (מ-Onboarding)
-  /// - 🆕 [shareLists] - האם לשתף רשימות (מ-Onboarding)
-  /// - 🆕 [reminderTime] - זמן תזכורת (מ-Onboarding)
-  /// - 🆕 [seenOnboarding] - האם עבר Onboarding (מ-Onboarding)
-  ///
-  /// מחזיר את המשתמש החדש/הקיים.
-  ///
-  /// שימושי ב:
-  /// - תהליך הרשמה (Sign Up)
-  /// - יצירת משתמשי דמו
-  /// - מיגרציה של משתמשים
-  ///
-  /// זורק [UserRepositoryException] במקרה של שגיאה.
-  ///
-  /// Example:
-  /// ```dart
-  /// final user = await repository.createUser(
-  ///   userId: 'abc123',
-  ///   email: 'user@example.com',
-  ///   name: 'יוני כהן',
-  ///   householdId: 'house_demo',
-  ///   // 🆕 Onboarding data
-  ///   preferredStores: ['שופרסל', 'רמי לוי'],
-  ///   familySize: 4,
-  ///   shoppingFrequency: 2,
-  ///   seenOnboarding: true,
-  /// );
-  /// print('משתמש נוצר: ${user.id}');
-  /// ```
-  ///
-  /// See also:
-  /// - [saveUser] - עדכון משתמש קיים
-  /// - [existsUser] - בדיקת קיום משתמש
+  /// אם המשתמש כבר קיים - מחזיר את הקיים (לא יוצר כפילות).
   @override
   Future<UserEntity> createUser({
     required String userId,
@@ -361,14 +318,6 @@ class FirebaseUserRepository implements UserRepository {
     required String name,
     String? phone,
     String? householdId,
-    // 🆕 Onboarding fields
-    List<String>? preferredStores,
-    int? familySize,
-    int? shoppingFrequency,
-    List<int>? shoppingDays,
-    bool? hasChildren,
-    bool? shareLists,
-    String? reminderTime,
     bool? seenOnboarding,
   }) async {
     try {
@@ -379,21 +328,12 @@ class FirebaseUserRepository implements UserRepository {
         return existingUser;
       }
 
-      // יצירת משתמש חדש עם נתוני Onboarding
       final newUser = UserEntity.newUser(
         id: userId,
         email: email.toLowerCase().trim(),
         name: name,
         phone: phone,
         householdId: householdId,
-        // 🆕 Onboarding fields
-        preferredStores: preferredStores,
-        familySize: familySize,
-        shoppingFrequency: shoppingFrequency,
-        shoppingDays: shoppingDays,
-        hasChildren: hasChildren,
-        shareLists: shareLists,
-        reminderTime: reminderTime,
         seenOnboarding: seenOnboarding,
       );
 

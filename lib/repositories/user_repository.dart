@@ -101,53 +101,12 @@ abstract class UserRepository {
   /// יוצר משתמש חדש במערכת
   ///
   /// אם המשתמש כבר קיים - מחזיר את הקיים (לא יוצר כפילות).
-  /// כולל תמיכה בנתוני Onboarding מורחבים.
-  ///
-  /// Parameters:
-  ///   - [userId]: מזהה ייחודי (חובה, מ-Firebase Auth)
-  ///   - [email]: כתובת אימייל (חובה, **מנורמלת** אוטומטית: toLowerCase + trim)
-  ///   - [name]: שם המשתמש (חובה)
-  ///   - [phone]: מספר טלפון (אופציונלי)
-  ///   - [householdId]: מזהה משק בית (אופציונלי)
-  ///   - [preferredStores]: חנויות מועדפות (Onboarding)
-  ///   - [familySize]: גודל משפחה (Onboarding)
-  ///   - [shoppingFrequency]: תדירות קניות (Onboarding)
-  ///   - [shoppingDays]: ימי קניות קבועים (Onboarding)
-  ///   - [hasChildren]: האם יש ילדים (Onboarding)
-  ///   - [shareLists]: האם לשתף רשימות (Onboarding)
-  ///   - [reminderTime]: זמן תזכורת (Onboarding)
-  ///   - [seenOnboarding]: האם עבר Onboarding (Onboarding)
-  ///
-  /// Returns: המשתמש החדש או הקיים
-  ///
-  /// Throws: [UserRepositoryException] בשגיאת רשת/DB
-  ///
-  /// Example:
-  /// ```dart
-  /// final user = await repository.createUser(
-  ///   userId: 'abc123',
-  ///   email: 'user@example.com',
-  ///   name: 'יוני כהן',
-  ///   preferredStores: ['שופרסל', 'רמי לוי'],
-  ///   familySize: 4,
-  ///   seenOnboarding: true,
-  /// );
-  /// ```
-  ///
-  /// See also: [saveUser] לעדכון משתמש קיים
   Future<UserEntity> createUser({
     required String userId,
     required String email,
     required String name,
     String? phone,
     String? householdId,
-    List<String>? preferredStores,
-    int? familySize,
-    int? shoppingFrequency,
-    List<int>? shoppingDays,
-    bool? hasChildren,
-    bool? shareLists,
-    String? reminderTime,
     bool? seenOnboarding,
   });
 

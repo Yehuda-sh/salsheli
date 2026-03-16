@@ -4,7 +4,6 @@
 // 
 // ✅ Replaces repeated ensureSanity() patterns in:
 // - storage_locations_config.dart (16 lines)  
-// - stores_config.dart (16 lines)
 // - list_types_config.dart (16 lines)
 //
 // 🔗 Related: All config classes

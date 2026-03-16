@@ -395,9 +395,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// אוסף שמות חנויות מוכרות — מהעדפות המשתמש + מקבלות קודמות
   List<String> _getKnownStores() {
     final stores = <String>{};
-    // מהעדפות המשתמש
-    final preferred = _userContext.user?.preferredStores ?? [];
-    stores.addAll(preferred);
     // מקבלות אחרונות
     try {
       final receipts = context.read<ReceiptProvider>().receipts;

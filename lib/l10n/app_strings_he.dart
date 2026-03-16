@@ -33,7 +33,6 @@ class AppStringsHe {
   // ========================================
   // Onboarding
   // ========================================
-  static const onboarding = OnboardingStrings();
 
   // ========================================
   // Shopping
@@ -347,59 +346,6 @@ class CommonStrings {
 // Onboarding Strings
 // ========================================
 
-class OnboardingStrings {
-  const OnboardingStrings();
-
-  String get title => 'בואו נכיר! 👋';
-  String get skip => 'דלג';
-  String get previous => 'הקודם';
-  String get next => 'הבא';
-  String get finish => 'סיום';
-  String get progress => 'התקדמות';
-  String stepProgress(int current, int total) => 'שלב $current/$total';
-  String stepAccessibilityLabel(int current, int total) => 'שלב $current מתוך $total';
-  String savingError(String error) => 'שמירת ההגדרות נכשלה: $error';
-  String get skipError => 'לא ניתן לדלג';
-  String get welcomeTitle => 'ברוכים הבאים ל־${AppStringsHe.appName} 🎉';
-  String get welcomeSubtitle =>
-      'ניהול רשימות מעולם לא היה קל כל כך! 🎉\n🛒 קניות • 📝 מטלות • 🎁 אירועים - עם בת הזוג, הבית, החברים או כל קבוצה';
-  String get familySizeTitle => 'כמה אנשים בבית?';
-  String get hasChildrenQuestion => 'יש לכם ילדים?';
-  String get addChild => 'הוסף ילד נוסף';
-  String childLabel(int index) => 'ילד $index';
-  String get childNameLabel => 'שם';
-  String get childAgeLabel => 'גיל';
-  String get ageBaby => 'תינוק/ת (0-1)';
-  String get ageToddler => 'גיל הרך (2-3)';
-  String get agePreschool => 'גן (4-6)';
-  String get ageSchool => 'בית ספר (7-12)';
-  String get ageTeen => 'נוער (13-18)';
-  String get storesTitle => 'בחר חנויות מועדפות:';
-  String get budgetTitle => 'מה התקציב החודשי שלך?';
-  String budgetAmount(double amount) => '${amount.toStringAsFixed(0)} ₪';
-  String get frequencyTitle => 'תדירות קניות';
-  String get frequencyQuestion => 'כמה פעמים בשבוע אתם קונים קניות?';
-  String frequencyPerWeek(int count) => '$count פעמים בשבוע';
-  String get fixedDaysQuestion => 'יש לכם ימים קבועים לקניות?';
-  String get multiSelectHint => '(בחירה מרובה)';
-  String get sharingTitle => 'האם תרצה לשתף רשימות עם הבית?';
-  String get sharingOption => 'שיתוף רשימות עם חברי הבית';
-  String get reminderTitle => 'באיזו שעה נוח לך לקבל תזכורות?';
-  String get reminderChangeButton => 'שינוי שעה';
-  String get summaryTitle => 'סיכום ההעדפות שלך';
-  String get summaryFinishHint => 'לחץ על \'סיום\' כדי להמשיך להרשמה.';
-  String familySizeSummary(int size) => 'הבית: $size אנשים';
-  String storesSummary(String stores) => 'חנויות: $stores';
-  String get noStoresSelected => 'לא נבחר';
-  String budgetSummary(double amount) => 'תקציב חודשי: ${amount.toStringAsFixed(0)} ₪';
-  String frequencySummary(int count) => 'תדירות: $count פעמים בשבוע';
-  String fixedDaysSummary(String days) => 'ימים קבועים: $days';
-  String childrenSummary(String children) => 'ילדים: $children';
-  String get childrenYes => 'כן';
-  String sharingSummary(bool enabled) => 'שיתוף רשימות: ${enabled ? "כן" : "לא"}';
-  String reminderTimeSummary(String time) => 'שעה מועדפת: $time';
-  String get onboardingError => 'שגיאה בטעינת ההדרכה';
-}
 
 // ========================================
 // Shopping Strings

@@ -35,7 +35,6 @@ class AppStringsEn {
   // ========================================
   // Onboarding
   // ========================================
-  static const onboarding = OnboardingStringsEn();
 
   // ========================================
   // Shopping
@@ -336,59 +335,6 @@ class CommonStringsEn extends CommonStrings {
 // Onboarding Strings
 // ========================================
 
-class OnboardingStringsEn extends OnboardingStrings {
-  const OnboardingStringsEn();
-
-  String get title => 'Let\'s get to know you! 👋';
-  String get skip => 'Skip';
-  String get previous => 'Previous';
-  String get next => 'Next';
-  String get finish => 'Finish';
-  String get progress => 'Progress';
-  String stepProgress(int current, int total) => 'Step $current/$total';
-  String stepAccessibilityLabel(int current, int total) => 'Step $current of $total';
-  String savingError(String error) => 'Failed to save preferences: $error';
-  String get skipError => 'Cannot skip';
-  String get welcomeTitle => 'Welcome to ${AppStringsEn.appName} 🎉';
-  String get welcomeSubtitle =>
-      'Managing lists has never been easier! 🎉\n🛒 Shopping • 📝 Tasks • 🎁 Events - with your partner, household, friends or any group';
-  String get familySizeTitle => 'How many people in your household?';
-  String get hasChildrenQuestion => 'Do you have children?';
-  String get addChild => 'Add another child';
-  String childLabel(int index) => 'Child $index';
-  String get childNameLabel => 'Name';
-  String get childAgeLabel => 'Age';
-  String get ageBaby => 'Baby (0-1)';
-  String get ageToddler => 'Toddler (2-3)';
-  String get agePreschool => 'Preschool (4-6)';
-  String get ageSchool => 'School (7-12)';
-  String get ageTeen => 'Teen (13-18)';
-  String get storesTitle => 'Choose your favorite stores:';
-  String get budgetTitle => 'What\'s your monthly budget?';
-  String budgetAmount(double amount) => '₪${amount.toStringAsFixed(0)}';
-  String get frequencyTitle => 'Shopping frequency';
-  String get frequencyQuestion => 'How many times a week do you shop?';
-  String frequencyPerWeek(int count) => '$count times a week';
-  String get fixedDaysQuestion => 'Do you have fixed shopping days?';
-  String get multiSelectHint => '(multiple selection)';
-  String get sharingTitle => 'Would you like to share lists with your household?';
-  String get sharingOption => 'Share lists with household members';
-  String get reminderTitle => 'What time is convenient for reminders?';
-  String get reminderChangeButton => 'Change time';
-  String get summaryTitle => 'Your preferences summary';
-  String get summaryFinishHint => 'Press \'Finish\' to continue to registration.';
-  String familySizeSummary(int size) => 'Household: $size people';
-  String storesSummary(String stores) => 'Stores: $stores';
-  String get noStoresSelected => 'Not selected';
-  String budgetSummary(double amount) => 'Monthly budget: ₪${amount.toStringAsFixed(0)}';
-  String frequencySummary(int count) => 'Frequency: $count times a week';
-  String fixedDaysSummary(String days) => 'Fixed days: $days';
-  String childrenSummary(String children) => 'Children: $children';
-  String get childrenYes => 'Yes';
-  String sharingSummary(bool enabled) => 'List sharing: ${enabled ? "Yes" : "No"}';
-  String reminderTimeSummary(String time) => 'Preferred time: $time';
-  @override String get onboardingError => 'Error loading tutorial';
-}
 
 // ========================================
 // Shopping Strings

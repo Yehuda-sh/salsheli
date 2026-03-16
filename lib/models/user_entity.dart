@@ -57,14 +57,6 @@ Object? _readProfileImageUrl(Map<dynamic, dynamic> json, String key) {
   return value;
 }
 
-/// 🔧 קורא reminderTime עם תמיכה ב-snake_case + מתייחס ל-"" כ-null
-Object? _readReminderTime(Map<dynamic, dynamic> json, String key) {
-  final value = json['reminder_time'] ?? json['reminderTime'];
-  if (value == null) return null;
-  if (value is String && value.trim().isEmpty) return null;
-  return value;
-}
-
 /// 🔧 קורא joinedAt עם תמיכה ב-snake_case
 Object? _readJoinedAt(Map<dynamic, dynamic> json, String key) =>
     json['joined_at'] ?? json['joinedAt'];
@@ -147,11 +139,6 @@ class UserEntity {
   @JsonKey(name: 'last_login_at', readValue: _readLastLoginAt)
   final DateTime? lastLoginAt;
 
-  /// 🇮🇱 רשימת חנויות מועדפות (IDs)
-  /// 🇬🇧 List of preferred stores (IDs)
-  @JsonKey(name: 'preferred_stores')
-  final List<String> preferredStores;
-
   /// 🇮🇱 רשימת מוצרים מועדפים (barcodes)
   /// 🇬🇧 List of favorite products (barcodes)
   @JsonKey(name: 'favorite_products')
@@ -168,39 +155,6 @@ class UserEntity {
   /// 🇬🇧 Is household admin
   @JsonKey(name: 'is_admin')
   final bool isAdmin;
-
-  // === 🆕 שדות Onboarding (נשמרים בשרת) ===
-
-  /// 🇮🇱 גודל המשפחה (1-10)
-  /// 🇬🇧 Family size (1-10)
-  @JsonKey(name: 'family_size')
-  final int familySize;
-
-  /// 🇮🇱 תדירות קניות בשבוע (1-7)
-  /// 🇬🇧 Shopping frequency per week (1-7)
-  @JsonKey(name: 'shopping_frequency')
-  final int shoppingFrequency;
-
-  /// 🇮🇱 ימי קנייה קבועים (0=ראשון, 6=שבת)
-  /// 🇬🇧 Fixed shopping days (0=Sunday, 6=Saturday)
-  @JsonKey(name: 'shopping_days')
-  final List<int> shoppingDays;
-
-  /// 🇮🇱 האם יש ילדים במשפחה
-  /// 🇬🇧 Whether family has children
-  @JsonKey(name: 'has_children')
-  final bool hasChildren;
-
-  /// 🇮🇱 האם לשתף רשימות עם בני משפחה
-  /// 🇬🇧 Whether to share lists with family members
-  @JsonKey(name: 'share_lists')
-  final bool shareLists;
-
-  /// 🇮🇱 זמן תזכורת (פורמט HH:MM)
-  /// 🇬🇧 Reminder time (HH:MM format)
-  /// 🔄 readValue: מתייחס ל-"" כ-null + snake_case
-  @JsonKey(name: 'reminder_time', readValue: _readReminderTime)
-  final String? reminderTime;
 
   /// 🇮🇱 האם עבר את תהליך ה-Onboarding
   /// 🇬🇧 Whether completed onboarding process
@@ -221,17 +175,9 @@ class UserEntity {
     required this.joinedAt,
     this.lastLoginAt,
     this.profileImageUrl,
-    this.preferredStores = const [],
     this.favoriteProducts = const [],
     this.weeklyBudget = 0.0,
     this.isAdmin = false,
-    // 🆕 Onboarding fields
-    this.familySize = 2,
-    this.shoppingFrequency = 2,
-    this.shoppingDays = const [],
-    this.hasChildren = false,
-    this.shareLists = false,
-    this.reminderTime,
     this.seenOnboarding = false,
     this.seenTutorial = false,
     this.householdName,
@@ -249,17 +195,9 @@ class UserEntity {
         joinedAt = DateTime(1970),
         lastLoginAt = null,
         profileImageUrl = null,
-        preferredStores = const [],
         favoriteProducts = const [],
         weeklyBudget = 0.0,
         isAdmin = false,
-        // 🆕 Onboarding fields
-        familySize = 2,
-        shoppingFrequency = 2,
-        shoppingDays = const [],
-        hasChildren = false,
-        shareLists = false,
-        reminderTime = null,
         seenOnboarding = false,
         seenTutorial = false;
 
@@ -289,14 +227,6 @@ class UserEntity {
     required String name,
     String? phone,
     String? householdId,
-    // 🆕 Onboarding fields (optional)
-    List<String>? preferredStores,
-    int? familySize,
-    int? shoppingFrequency,
-    List<int>? shoppingDays,
-    bool? hasChildren,
-    bool? shareLists,
-    String? reminderTime,
     bool? seenOnboarding,
     bool? seenTutorial,
     String? householdName,
@@ -309,15 +239,7 @@ class UserEntity {
       householdId: householdId ?? 'house_$id',
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
-      preferredStores: preferredStores ?? const [],
       isAdmin: true, // משתמש חדש הוא admin של משק הבית שלו
-      // 🆕 Onboarding fields
-      familySize: familySize ?? 2,
-      shoppingFrequency: shoppingFrequency ?? 2,
-      shoppingDays: shoppingDays ?? const [],
-      hasChildren: hasChildren ?? false,
-      shareLists: shareLists ?? false,
-      reminderTime: reminderTime,
       seenOnboarding: seenOnboarding ?? false,
       seenTutorial: seenTutorial ?? false,
       householdName: householdName,
@@ -367,18 +289,9 @@ class UserEntity {
     DateTime? joinedAt,
     DateTime? lastLoginAt,
     bool clearLastLoginAt = false,
-    List<String>? preferredStores,
     List<String>? favoriteProducts,
     double? weeklyBudget,
     bool? isAdmin,
-    // 🆕 Onboarding fields
-    int? familySize,
-    int? shoppingFrequency,
-    List<int>? shoppingDays,
-    bool? hasChildren,
-    bool? shareLists,
-    String? reminderTime,
-    bool clearReminderTime = false,
     bool? seenOnboarding,
     bool? seenTutorial,
     String? householdName,
@@ -394,17 +307,9 @@ class UserEntity {
       profileImageUrl: clearProfileImageUrl ? null : (profileImageUrl ?? this.profileImageUrl),
       joinedAt: joinedAt ?? this.joinedAt,
       lastLoginAt: clearLastLoginAt ? null : (lastLoginAt ?? this.lastLoginAt),
-      preferredStores: preferredStores ?? this.preferredStores,
       favoriteProducts: favoriteProducts ?? this.favoriteProducts,
       weeklyBudget: weeklyBudget ?? this.weeklyBudget,
       isAdmin: isAdmin ?? this.isAdmin,
-      // 🆕 Onboarding fields
-      familySize: familySize ?? this.familySize,
-      shoppingFrequency: shoppingFrequency ?? this.shoppingFrequency,
-      shoppingDays: shoppingDays ?? this.shoppingDays,
-      hasChildren: hasChildren ?? this.hasChildren,
-      shareLists: shareLists ?? this.shareLists,
-      reminderTime: clearReminderTime ? null : (reminderTime ?? this.reminderTime),
       seenOnboarding: seenOnboarding ?? this.seenOnboarding,
       seenTutorial: seenTutorial ?? this.seenTutorial,
     );

@@ -28,7 +28,6 @@ class AppStrings {
   static NavigationStrings get navigation => _isEnglish ? AppStringsEn.navigation : AppStringsHe.navigation;
   static CommonStrings get common => _isEnglish ? AppStringsEn.common : AppStringsHe.common;
   static CategoryStrings get categories => _isEnglish ? AppStringsEn.categories : AppStringsHe.categories;
-  static OnboardingStrings get onboarding => _isEnglish ? AppStringsEn.onboarding : AppStringsHe.onboarding;
   static ShoppingStrings get shopping => _isEnglish ? AppStringsEn.shopping : AppStringsHe.shopping;
   static IndexStrings get index => _isEnglish ? AppStringsEn.index : AppStringsHe.index;
   static WelcomeStrings get welcome => _isEnglish ? AppStringsEn.welcome : AppStringsHe.welcome;

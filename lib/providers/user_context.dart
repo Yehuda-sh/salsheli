@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/repositories/user_repository.dart';
 import 'package:memozap/services/auth_service.dart';
-import 'package:memozap/data/onboarding_data.dart';
 
 /// Provider המנהל את הקשר המשתמש באפליקציה
 ///
@@ -335,9 +334,6 @@ class UserContext with ChangeNotifier {
             name: authUser.displayName ?? 'משתמש חדש',
           );
         }
-      } else {
-        // סנכרון נתוני Onboarding מהשרת למכשיר
-        await _syncOnboardingFromServer(_user!);
       }
 
       _errorMessage = null;
@@ -353,33 +349,6 @@ class UserContext with ChangeNotifier {
       _isLoading = false;
       debugPrint('🔵 _loadUserFromFirestore DONE: user=${_user?.name}, isLoggedIn=$isLoggedIn, error=$_errorMessage');
       _notifySafe();
-    }
-  }
-
-  /// סנכרון נתוני Onboarding מהשרת ל-SharedPreferences
-  Future<void> _syncOnboardingFromServer(UserEntity user) async {
-    if (_isDisposed) return;
-
-    try {
-
-      final serverOnboarding = OnboardingData(
-        familySize: user.familySize,
-        preferredStores: user.preferredStores.toSet(),
-        shoppingFrequency: user.shoppingFrequency,
-        shoppingDays: user.shoppingDays.toSet(),
-        hasChildren: user.hasChildren,
-        shareLists: user.shareLists,
-        reminderTime: user.reminderTime,
-      );
-
-      await serverOnboarding.save();
-
-      if (user.seenOnboarding) {
-        await OnboardingData.markAsCompleted();
-      }
-
-    } catch (e) {
-      // לא זורקים שגיאה - זה לא קריטי
     }
   }
 
@@ -408,23 +377,12 @@ class UserContext with ChangeNotifier {
 
           if (credential.user != null && !_isDisposed) {
             try {
-              final onboardingData = await OnboardingData.load();
-              final hasSeenOnboarding = await OnboardingData.hasSeenOnboarding();
-
-
               _user = await _repository.createUser(
                 userId: credential.user!.uid,
                 email: email,
                 name: name,
                 phone: phone,
-                preferredStores: onboardingData.preferredStores.toList(),
-                familySize: onboardingData.familySize,
-                shoppingFrequency: onboardingData.shoppingFrequency,
-                shoppingDays: onboardingData.shoppingDays.toList(),
-                hasChildren: onboardingData.hasChildren,
-                shareLists: onboardingData.shareLists,
-                reminderTime: onboardingData.reminderTime,
-                seenOnboarding: hasSeenOnboarding,
+                seenOnboarding: true,
               );
 
             } catch (profileError) {

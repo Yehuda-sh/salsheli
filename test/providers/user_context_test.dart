@@ -70,12 +70,6 @@ class MockUserRepository implements UserRepository {
       phone: phone,
       householdId: householdId ?? 'test-household',
       joinedAt: DateTime.now(),
-      preferredStores: preferredStores ?? const [],
-      familySize: familySize ?? 2,
-      shoppingFrequency: shoppingFrequency ?? 1,
-      shoppingDays: shoppingDays ?? const [],
-      hasChildren: hasChildren ?? false,
-      shareLists: shareLists ?? false,
       seenOnboarding: seenOnboarding ?? false,
     );
   }
@@ -117,12 +111,6 @@ class MockUserRepository implements UserRepository {
       email: 'test@example.com',
       householdId: 'test-household',
       joinedAt: DateTime.now(),
-      preferredStores: const [],
-      familySize: 2,
-      shoppingFrequency: 1,
-      shoppingDays: const [],
-      hasChildren: false,
-      shareLists: false,
       seenOnboarding: true,
     );
   }
@@ -313,12 +301,6 @@ UserEntity createTestUser({
     email: email,
     householdId: 'test-household',
     joinedAt: DateTime.now(),
-    preferredStores: const [],
-    familySize: 2,
-    shoppingFrequency: 1,
-    shoppingDays: const [],
-    hasChildren: false,
-    shareLists: false,
     seenOnboarding: true,
   );
 }
