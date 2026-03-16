@@ -21,7 +21,10 @@ import '../../../history/shopping_history_screen.dart';
 
 /// פיד פעילות הבית
 class HouseholdActivityFeed extends StatefulWidget {
-  const HouseholdActivityFeed({super.key});
+  /// Callback למעבר לטאב היסטוריה (במקום push חדש)
+  final VoidCallback? onSeeAllHistory;
+  
+  const HouseholdActivityFeed({super.key, this.onSeeAllHistory});
 
   @override
   State<HouseholdActivityFeed> createState() => _HouseholdActivityFeedState();
@@ -98,7 +101,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
           children: [
             const Spacer(),
             TextButton(
-              onPressed: () {
+              onPressed: widget.onSeeAllHistory ?? () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(

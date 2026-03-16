@@ -253,6 +253,8 @@ class LayoutStrings {
   String get listInvites => 'הזמנות לרשימות';
   String get listInvitesSubtitle => 'שיתוף רשימות קניות';
   String get notificationsSubtitle => 'עדכונים ופעילות אחרונה';
+  String get lowStockTitle => 'מלאי חסר';
+  String lowStockSubtitle(int count) => '$count מוצרים במלאי נמוך';
   String navSemanticLabel(String selectedTab) => 'ניווט ראשי. טאב נבחר: $selectedTab';
   String get navSemanticHint => 'החלק ימינה או שמאלה לבחירת טאב אחר';
   String get longPressHint => 'לחיצה ארוכה לפעולות נוספות';

@@ -41,7 +41,8 @@ import 'widgets/household_activity_feed.dart';
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
-  const HomeDashboardScreen({super.key});
+  final Function(int)? onTabSelected;
+  const HomeDashboardScreen({super.key, this.onTabSelected});
 
   @override
   State<HomeDashboardScreen> createState() => _HomeDashboardScreenState();
@@ -266,8 +267,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
                   // === 6. פיד פעילות הבית ===
                   _staggered(
-                    const RepaintBoundary(
-                      child: HouseholdActivityFeed(),
+                    RepaintBoundary(
+                      child: HouseholdActivityFeed(
+                        onSeeAllHistory: widget.onTabSelected != null
+                            ? () => widget.onTabSelected!(2)
+                            : null,
+                      ),
                     ),
                     sectionIndex++,
                   ),

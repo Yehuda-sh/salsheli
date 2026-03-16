@@ -255,6 +255,8 @@ class LayoutStringsEn extends LayoutStrings {
   String get listInvites => 'List Invitations';
   String get listInvitesSubtitle => 'Share shopping lists';
   String get notificationsSubtitle => 'Recent updates & activity';
+  @override String get lowStockTitle => 'Low Stock';
+  @override String lowStockSubtitle(int count) => '$count items running low';
   String navSemanticLabel(String selectedTab) => 'Main navigation. Selected tab: $selectedTab';
   String get navSemanticHint => 'Swipe left or right to select another tab';
   String get longPressHint => 'Long press for more options';

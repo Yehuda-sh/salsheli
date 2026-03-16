@@ -64,11 +64,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
   StreamSubscription<int>? _unreadSub;
   String? _subscribedUserId;
 
-  static const List<Widget> _pages = <Widget>[
-    HomeDashboardScreen(),
-    MyPantryScreen(),
-    ShoppingHistoryScreen(),
-    SettingsScreen(),
+  late final List<Widget> _pages = <Widget>[
+    HomeDashboardScreen(onTabSelected: _onItemTapped),
+    const MyPantryScreen(),
+    const ShoppingHistoryScreen(),
+    const SettingsScreen(),
   ];
 
   @override

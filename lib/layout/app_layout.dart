@@ -31,6 +31,7 @@ import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
+import '../providers/inventory_provider.dart';
 import '../providers/user_context.dart';
 
 class AppLayout extends StatefulWidget {
@@ -208,6 +209,21 @@ class _AppLayoutState extends State<AppLayout> {
                   Navigator.of(context).pushNamed('/pending-invites');
                 },
               ),
+              // מלאי חסר — רק אם יש
+              Builder(builder: (ctx) {
+                final lowStockCount = ctx.read<InventoryProvider>().getLowStockItems().length;
+                if (lowStockCount == 0) return const SizedBox.shrink();
+                return ListTile(
+                  leading: Icon(Icons.inventory_2_outlined, color: cs.error),
+                  title: Text(AppStrings.layout.lowStockTitle),
+                  subtitle: Text(AppStrings.layout.lowStockSubtitle(lowStockCount)),
+                  trailing: Badge.count(count: lowStockCount, child: Icon(forwardChevron)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    widget.onTabSelected(1); // מעבר לטאב מזווה
+                  },
+                );
+              }),
               const Divider(height: 1),
               // התראות כלליות
               ListTile(
