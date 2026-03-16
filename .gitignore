@@ -148,3 +148,7 @@ fastlane/Preview.html
 claude_desktop_config.json
 project_inventory.txt
 ui_inventory.txt
+docs/AGENTS.md
+docs/USER.md
+docs/TOOLS.md
+docs/MEMORY.md
