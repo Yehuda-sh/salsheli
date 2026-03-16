@@ -11,7 +11,7 @@ rules_version = '2';
 //     - Strict Schema Validation (inventory, notifications)
 //     - Audit Trail enforcement (last_updated_by on inventory changes)
 //     - Anti-spam protection (notification type enum, message length)
-//     - isOwnerOrAdmin helper for cleaner permission checks
+//     - Schema validation helpers
 //
 // 📅 History:
 //     v4.2 (15/03/2026) — Fix: household delete, notification sender_id, group_invites read, editor active_shoppers
@@ -80,19 +80,6 @@ service cloud.firestore {
     // בדיקה שערך הוא Timestamp תקין
     function isValidTimestamp(value) {
       return value is timestamp;
-    }
-
-    // בדיקה מקוצרת: האם המשתמש הוא Owner או Admin ברשימה
-    function isOwnerOrAdmin(listData) {
-      let role = getListRole(listData);
-      return role == 'owner' || role == 'admin';
-    }
-
-    // בדיקה שבעדכון קיימים שדות Audit Trail תקינים
-    // updated_at חייב להיות Timestamp, last_updated_by חייב להתאים ל-UID
-    function hasRequiredAuditFields() {
-      return isValidTimestamp(request.resource.data.updated_at) &&
-             request.resource.data.last_updated_by == request.auth.uid;
     }
 
     // ולידציית סכימה למזווה — שדות חובה עם ערכים תקינים
