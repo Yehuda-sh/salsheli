@@ -489,7 +489,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       ),
-      builder: (ctx) => Padding(
+      builder: (ctx) => SafeArea(
+        child: Padding(
         padding: const EdgeInsets.all(kSpacingLarge),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -543,6 +544,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: kSpacingMedium),
           ],
         ),
+      ),
       ),
     );
   }
