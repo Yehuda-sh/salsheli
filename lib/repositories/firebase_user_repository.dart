@@ -48,7 +48,9 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final user = UserEntity.fromJson(doc.toDartMap()!);
+      final data = doc.toDartMap()!;
+      data['id'] ??= doc.id;
+      final user = UserEntity.fromJson(data);
       
       return user;
     } catch (e, stackTrace) {
@@ -133,7 +135,11 @@ class FirebaseUserRepository implements UserRepository {
           .limit(householdId != null ? 50 : 100) // More restrictive for all-users query
           .get();
 
-      final users = snapshot.toDartList().map(UserEntity.fromJson).toList();
+      final users = snapshot.docs.map((doc) {
+        final data = doc.toDartMap()!;
+        data['id'] ??= doc.id;
+        return UserEntity.fromJson(data);
+      }).toList();
 
       return users;
     } catch (e, stackTrace) {
@@ -170,7 +176,9 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
+      final emailData = snapshot.docs.first.toDartMap()!;
+      emailData['id'] ??= snapshot.docs.first.id;
+      final user = UserEntity.fromJson(emailData);
 
       return user;
     } catch (e, stackTrace) {
@@ -201,7 +209,9 @@ class FirebaseUserRepository implements UserRepository {
         return null;
       }
 
-      final user = UserEntity.fromJson(snapshot.docs.first.toDartMap()!);
+      final phoneData = snapshot.docs.first.toDartMap()!;
+      phoneData['id'] ??= snapshot.docs.first.id;
+      final user = UserEntity.fromJson(phoneData);
 
       return user;
     } catch (e, stackTrace) {
@@ -541,7 +551,9 @@ class FirebaseUserRepository implements UserRepository {
         .snapshots()
         .map((snapshot) {
       final data = snapshot.toDartMap();
-      return data != null ? UserEntity.fromJson(data) : null;
+      if (data == null) return null;
+      data['id'] ??= snapshot.id;
+      return UserEntity.fromJson(data);
     });
   }
 }

@@ -129,7 +129,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
   /// מעשיר רשימות עם currentUserRole לפי המשתמש הנוכחי
   List<ShoppingList> _enrichListsWithUserRole(List<ShoppingList> lists) {
-    final currentUserId = _userContext?.user?.id;
+    final currentUserId = _userContext?.user?.id ?? _userContext?.userId;
     if (currentUserId == null) return lists;
 
     return lists.map((list) {
