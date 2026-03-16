@@ -276,12 +276,12 @@ class _AppLayoutState extends State<AppLayout> {
       ),
       centerTitle: true,
       actions: [
-        // 🔔 Notifications
+        // 🔔 Notifications — only notification count (not low stock)
         IconButton(
           tooltip: AppStrings.layout.notifications,
           icon: Badge.count(
-            count: totalBadgeCount,
-            isLabelVisible: totalBadgeCount > 0,
+            count: widget.badges?[0] ?? 0,
+            isLabelVisible: (widget.badges?[0] ?? 0) > 0,
             child: Image.asset('assets/images/icon_bell.webp', width: 32, height: 32),
           ),
           onPressed: () => _showNotificationsMenu(context),

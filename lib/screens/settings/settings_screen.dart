@@ -716,7 +716,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               color: cs.surface,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
             ),
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(kSpacingLarge),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
