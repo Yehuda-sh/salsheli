@@ -249,11 +249,12 @@ class LayoutStringsEn extends LayoutStrings {
   String get welcome => 'Welcome to ${AppStringsEn.appName}';
   String get offline => 'No internet connection';
   String get logoutError => 'Error logging out, try again';
-  String get pendingInvitesTitle => 'Pending Invitations';
+  String get pendingInvitesTitle => 'Notifications & Invites';
   String get groupInvites => 'Group Invitations';
   String get groupInvitesSubtitle => 'Join a household';
   String get listInvites => 'List Invitations';
   String get listInvitesSubtitle => 'Share shopping lists';
+  String get notificationsSubtitle => 'Recent updates & activity';
   String navSemanticLabel(String selectedTab) => 'Main navigation. Selected tab: $selectedTab';
   String get navSemanticHint => 'Swipe left or right to select another tab';
   String get longPressHint => 'Long press for more options';

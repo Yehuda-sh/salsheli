@@ -247,11 +247,12 @@ class LayoutStrings {
   String get welcome => 'ברוך הבא ל-${AppStringsHe.appName}';
   String get offline => 'אין חיבור לרשת';
   String get logoutError => 'שגיאה בהתנתקות, נסה שוב';
-  String get pendingInvitesTitle => 'הזמנות ממתינות';
+  String get pendingInvitesTitle => 'התראות והזמנות';
   String get groupInvites => 'הזמנות לקבוצות';
   String get groupInvitesSubtitle => 'הצטרפות לבית';
   String get listInvites => 'הזמנות לרשימות';
   String get listInvitesSubtitle => 'שיתוף רשימות קניות';
+  String get notificationsSubtitle => 'עדכונים ופעילות אחרונה';
   String navSemanticLabel(String selectedTab) => 'ניווט ראשי. טאב נבחר: $selectedTab';
   String get navSemanticHint => 'החלק ימינה או שמאלה לבחירת טאב אחר';
   String get longPressHint => 'לחיצה ארוכה לפעולות נוספות';

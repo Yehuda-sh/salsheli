@@ -208,6 +208,18 @@ class _AppLayoutState extends State<AppLayout> {
                   Navigator.of(context).pushNamed('/pending-invites');
                 },
               ),
+              const Divider(height: 1),
+              // התראות כלליות
+              ListTile(
+                leading: Icon(Icons.notifications_outlined, color: cs.tertiary),
+                title: Text(AppStrings.layout.notifications),
+                subtitle: Text(AppStrings.layout.notificationsSubtitle),
+                trailing: Icon(forwardChevron),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed('/notifications');
+                },
+              ),
               const SizedBox(height: kSpacingMedium),
             ],
           ),

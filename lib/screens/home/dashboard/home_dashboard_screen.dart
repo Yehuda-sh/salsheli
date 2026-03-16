@@ -31,13 +31,13 @@ import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
-import '../../../services/notifications_service.dart';
+// notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
-import 'widgets/pending_invites_banner.dart';
+// pending_invites_banner removed — invites via AppBar bell
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -225,7 +225,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!, cs),
                         const ActiveShopperBanner(),
-                        const PendingInvitesBanner(),
+                        // PendingInvitesBanner removed — invites accessible via AppBar bell
                       ],
                     ),
                     sectionIndex++,
@@ -361,7 +361,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final userContext = context.watch<UserContext>();
-    final notificationsService = context.read<NotificationsService?>();
     final strings = AppStrings.homeDashboard;
 
     // ברכה קצרה לפי שעה
@@ -446,34 +445,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ),
 
-        // התראות - bell icon עם StreamBuilder לספירת התראות
-        StreamBuilder<int>(
-          stream: (userContext.userId != null && notificationsService != null)
-              ? notificationsService.watchUnreadCount(userId: userContext.userId!)
-                    : const Stream.empty(),
-                initialData: 0,
-                builder: (context, snapshot) {
-                  final unreadCount = snapshot.data ?? 0;
-                  return InkWell(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/notifications');
-                    },
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    child: Badge.count(
-                      count: unreadCount,
-                      isLabelVisible: unreadCount > 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
-                        child: Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
-                      ),
-                    ),
-                  );
-                },
-              ),
             ],
           );
   }
