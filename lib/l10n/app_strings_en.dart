@@ -381,6 +381,16 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get typeHousehold => 'Household';
   String get typeEvent => 'Event';
   String get typeOther => 'Other';
+  // Short names (for chips/tabs)
+  @override String get typeSupermarketShort => 'Super';
+  @override String get typePharmacyShort => 'Pharmacy';
+  @override String get typeGreengrocerShort => 'Greens';
+  @override String get typeButcherShort => 'Butcher';
+  @override String get typeBakeryShort => 'Bakery';
+  @override String get typeMarketShort => 'Market';
+  @override String get typeHouseholdShort => 'Home';
+  @override String get typeEventShort => 'Event';
+  @override String get typeOtherShort => 'Other';
   String get deleteListTitle => 'Delete List';
   String deleteListMessage(String name) => 'Delete list "$name"?';
   String get deleteButton => 'Delete';

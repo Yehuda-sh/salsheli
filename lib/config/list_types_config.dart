@@ -63,7 +63,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.supermarket,
       fullName: AppStrings.shopping.typeSupermarket,
-      shortName: 'סופר',
+      shortName: AppStrings.shopping.typeSupermarketShort,
       emoji: '🛒',
       icon: Icons.shopping_cart,
       color: kStickyGreen,
@@ -71,7 +71,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.pharmacy,
       fullName: AppStrings.shopping.typePharmacy,
-      shortName: 'מרקחת',
+      shortName: AppStrings.shopping.typePharmacyShort,
       emoji: '💊',
       icon: Icons.medication,
       color: kStickyPink,
@@ -79,7 +79,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.greengrocer,
       fullName: AppStrings.shopping.typeGreengrocer,
-      shortName: 'ירקן',
+      shortName: AppStrings.shopping.typeGreengrocerShort,
       emoji: '🥬',
       icon: Icons.local_florist,
       color: kStickyCyan,
@@ -87,7 +87,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.butcher,
       fullName: AppStrings.shopping.typeButcher,
-      shortName: 'אטליז',
+      shortName: AppStrings.shopping.typeButcherShort,
       emoji: '🥩',
       icon: Icons.set_meal,
       color: kStickyOrange,
@@ -95,7 +95,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.bakery,
       fullName: AppStrings.shopping.typeBakery,
-      shortName: 'מאפייה',
+      shortName: AppStrings.shopping.typeBakeryShort,
       emoji: '🥖',
       icon: Icons.bakery_dining,
       color: kStickyYellow,
@@ -103,7 +103,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.market,
       fullName: AppStrings.shopping.typeMarket,
-      shortName: 'שוק',
+      shortName: AppStrings.shopping.typeMarketShort,
       emoji: '🏪',
       icon: Icons.store,
       color: kStickyGreen,
@@ -111,7 +111,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.household,
       fullName: AppStrings.shopping.typeHousehold,
-      shortName: 'בית',
+      shortName: AppStrings.shopping.typeHouseholdShort,
       emoji: '🏠',
       icon: Icons.home,
       color: kStickyCyan,
@@ -119,7 +119,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.event,
       fullName: AppStrings.shopping.typeEvent,
-      shortName: 'אירוע',
+      shortName: AppStrings.shopping.typeEventShort,
       emoji: '🎉',
       icon: Icons.celebration,
       color: kStickyPurple,
@@ -127,7 +127,7 @@ class ListTypes with ConfigValidation {
     ListTypeConfig(
       key: ListTypeKeys.other,
       fullName: AppStrings.shopping.typeOther,
-      shortName: 'אחר',
+      shortName: AppStrings.shopping.typeOtherShort,
       emoji: '📝',
       icon: Icons.more_horiz,
     ),
@@ -177,11 +177,11 @@ class ListTypes with ConfigValidation {
     return _otherConfig;
   }
 
-  /// Cache ל-Config ברירת המחדל (ביצועים)
-  static const ListTypeConfig _otherConfig = ListTypeConfig(
+  /// Config ברירת מחדל (fallback)
+  static ListTypeConfig get _otherConfig => ListTypeConfig(
     key: ListTypeKeys.other,
-    fullName: 'אחר',
-    shortName: 'אחר',
+    fullName: AppStrings.shopping.typeOther,
+    shortName: AppStrings.shopping.typeOtherShort,
     emoji: '📝',
     icon: Icons.more_horiz,
   );

@@ -392,6 +392,16 @@ class ShoppingStrings {
   String get typeHousehold => 'כלי בית';
   String get typeEvent => 'אירוע';
   String get typeOther => 'אחר';
+  // Short names (for chips/tabs)
+  String get typeSupermarketShort => 'סופר';
+  String get typePharmacyShort => 'מרקחת';
+  String get typeGreengrocerShort => 'ירקן';
+  String get typeButcherShort => 'אטליז';
+  String get typeBakeryShort => 'מאפייה';
+  String get typeMarketShort => 'שוק';
+  String get typeHouseholdShort => 'בית';
+  String get typeEventShort => 'אירוע';
+  String get typeOtherShort => 'אחר';
   String get deleteListTitle => 'מחיקת רשימה';
   String deleteListMessage(String name) => 'האם למחוק את הרשימה "$name"?';
   String get deleteButton => 'מחק';
