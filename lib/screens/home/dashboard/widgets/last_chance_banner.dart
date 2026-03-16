@@ -1,9 +1,9 @@
 // 📄 lib/screens/home/dashboard/widgets/last_chance_banner.dart
 //
-// בנר "הזדמנות אחרונה" — תצוגה אופקית קומפקטית בזמן קנייה פעילה.
-// מציג המלצות כצ'יפים קטנים (אמוג'י + שם קצר) + כפתורי הוספה/דילוג.
+// בנר "הזדמנות אחרונה" — תצוגה אופקית מרווחת בזמן קנייה פעילה.
+// מציג המלצות ככרטיס קומפקטי (אמוג'י מוגדל, טקסט ב-2 שורות) + כפתורי פעולה תקניים.
 //
-// Version: 5.0 (16/03/2026) — Horizontal chip layout
+// Version: 5.1 (16/03/2026) — Compact Card Layout
 
 import 'dart:async';
 
@@ -18,7 +18,7 @@ import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 import '../../../../theme/app_theme.dart';
 
-/// בנר אזהרה אחרונה — compact horizontal chips
+/// בנר אזהרה אחרונה — Compact Card
 class LastChanceBanner extends StatelessWidget {
   final String activeListId;
 
@@ -37,10 +37,7 @@ class LastChanceBanner extends StatelessWidget {
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, -0.1),
-                end: Offset.zero,
-              ).animate(animation),
+              position: Tween<Offset>(begin: const Offset(0, -0.1), end: Offset.zero).animate(animation),
               child: child,
             ),
           ),
@@ -48,10 +45,7 @@ class LastChanceBanner extends StatelessWidget {
               ? const SizedBox.shrink()
               : RepaintBoundary(
                   key: ValueKey(suggestion.id),
-                  child: _LastChanceChipRow(
-                    suggestion: suggestion,
-                    activeListId: activeListId,
-                  ),
+                  child: _LastChanceCard(suggestion: suggestion, activeListId: activeListId),
                 ),
         );
       },
@@ -59,18 +53,18 @@ class LastChanceBanner extends StatelessWidget {
   }
 }
 
-/// שורת צ'יפים אופקית קומפקטית
-class _LastChanceChipRow extends StatefulWidget {
+/// כרטיס המלצה קומפקטי ומרווח יותר
+class _LastChanceCard extends StatefulWidget {
   final SmartSuggestion suggestion;
   final String activeListId;
 
-  const _LastChanceChipRow({required this.suggestion, required this.activeListId});
+  const _LastChanceCard({required this.suggestion, required this.activeListId});
 
   @override
-  State<_LastChanceChipRow> createState() => _LastChanceChipRowState();
+  State<_LastChanceCard> createState() => _LastChanceCardState();
 }
 
-class _LastChanceChipRowState extends State<_LastChanceChipRow> {
+class _LastChanceCardState extends State<_LastChanceCard> {
   bool _isProcessing = false;
 
   String _getUrgencyEmoji(String urgency) {
@@ -96,92 +90,86 @@ class _LastChanceChipRowState extends State<_LastChanceChipRow> {
     final isCritical = suggestion.urgency == 'critical' || suggestion.urgency == 'high';
 
     // Urgency-based border color
-    final borderColor = isCritical
-        ? cs.error.withValues(alpha: 0.4)
-        : cs.outline.withValues(alpha: 0.2);
+    final borderColor = isCritical ? cs.error.withValues(alpha: 0.4) : cs.outline.withValues(alpha: 0.2);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
+      margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       decoration: BoxDecoration(
         color: isCritical
             ? cs.errorContainer.withValues(alpha: 0.3)
             : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: borderColor),
       ),
       child: Row(
         children: [
-          // 🏷️ Urgency emoji + product name chip
+          // 🏷️ Urgency emoji
           Text(
             _getUrgencyEmoji(suggestion.urgency),
-            style: const TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 24), // הוגדל מעט
           ),
-          const SizedBox(width: 4),
+          const SizedBox(width: kSpacingMedium),
+
+          // שם המוצר ומצב המלאי (2 שורות)
           Expanded(
-            child: Text(
-              '${suggestion.productName} (${strings.stockText(suggestion.currentStock)})',
-              style: TextStyle(
-                fontSize: kFontSizeSmall,
-                fontWeight: FontWeight.w600,
-                color: isCritical ? cs.error : cs.onSurface,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  suggestion.productName,
+                  style: TextStyle(
+                    fontSize: kFontSizeBody,
+                    fontWeight: FontWeight.bold,
+                    color: isCritical ? cs.error : cs.onSurface,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  strings.stockText(suggestion.currentStock),
+                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
 
           // Action buttons
           if (!_isProcessing) ...[
             // ✅ Add button
-            SizedBox(
-              height: 28,
-              child: FilledButton.tonal(
-                onPressed: () => _onAddPressed(context, successColor),
-                style: FilledButton.styleFrom(
-                  backgroundColor: successColor.withValues(alpha: 0.2),
-                  foregroundColor: successColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: const Size(0, 28),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
-                ),
-                child: Icon(Icons.add, size: 18),
+            FilledButton.tonal(
+              onPressed: () => _onAddPressed(context, successColor),
+              style: FilledButton.styleFrom(
+                backgroundColor: successColor.withValues(alpha: 0.2),
+                foregroundColor: successColor,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                minimumSize: const Size(0, 36), // גודל תקני ונוח
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               ),
+              child: const Icon(Icons.add, size: 20),
             ),
             const SizedBox(width: 4),
             // ⏭️ Next button
-            SizedBox(
-              height: 28,
-              child: IconButton(
-                onPressed: () => _onNextPressed(context),
-                icon: Icon(Icons.skip_next, size: 18),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                style: IconButton.styleFrom(
-                  foregroundColor: cs.onSurfaceVariant,
-                ),
-                tooltip: strings.nextTooltip,
-              ),
+            IconButton(
+              onPressed: () => _onNextPressed(context),
+              icon: const Icon(Icons.skip_next, size: 22),
+              style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant),
+              tooltip: strings.nextTooltip,
             ),
-            // ❌ Skip session
-            SizedBox(
-              height: 28,
-              child: IconButton(
-                onPressed: () => _onSkipSessionPressed(context),
-                icon: Icon(Icons.close, size: 16),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
-                style: IconButton.styleFrom(
-                  foregroundColor: cs.onSurfaceVariant.withValues(alpha: 0.5),
-                ),
-                tooltip: strings.skipSessionTooltip,
-              ),
+            // ❌ Skip session (הוחלף מאייקון סגירה לאייקון השתקה ברור יותר)
+            IconButton(
+              onPressed: () => _onSkipSessionPressed(context),
+              icon: const Icon(Icons.notifications_off_outlined, size: 20),
+              style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+              tooltip: strings.skipSessionTooltip,
             ),
           ] else
-            const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),
@@ -217,10 +205,7 @@ class _LastChanceChipRowState extends State<_LastChanceChipRow> {
       );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(strings.addError),
-        backgroundColor: cs.error,
-      ));
+      messenger.showSnackBar(SnackBar(content: Text(strings.addError), backgroundColor: cs.error));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -239,10 +224,7 @@ class _LastChanceChipRowState extends State<_LastChanceChipRow> {
       await suggestionsProvider.moveToNext();
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(strings.genericError),
-        backgroundColor: cs.error,
-      ));
+      messenger.showSnackBar(SnackBar(content: Text(strings.genericError), backgroundColor: cs.error));
     }
   }
 
@@ -270,10 +252,7 @@ class _LastChanceChipRowState extends State<_LastChanceChipRow> {
       );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(
-        content: Text(strings.genericError),
-        backgroundColor: cs.error,
-      ));
+      messenger.showSnackBar(SnackBar(content: Text(strings.genericError), backgroundColor: cs.error));
     }
   }
 }

@@ -1,9 +1,9 @@
 // 📄 lib/screens/home/dashboard/widgets/pending_invites_banner.dart
 //
 // באנר הזמנות ממתינות - מוצג כשיש הזמנות שטרם טופלו
-// ✨ v2.0: AnimatedSwitcher, flutter_animate entrance, shimmer icon, haptic
+// ✨ v2.1: Shimmer מהיר יותר, ספירת תגית מדויקת, ללא התנגשות אנימציות, ותיקוני const
 //
-// Version: 2.0 (22/02/2026)
+// Version: 2.1 (22/02/2026)
 // 🔗 Related: PendingInvitesService, UserContext
 
 import 'dart:async';
@@ -43,10 +43,7 @@ class PendingInvitesBanner extends StatelessWidget {
           duration: const Duration(milliseconds: 300),
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
-          child: _PendingInviteBannerContent(
-            key: ValueKey(invites.first.id),
-            invites: invites,
-          ),
+          child: _PendingInviteBannerContent(key: ValueKey(invites.first.id), invites: invites),
         );
       },
     );
@@ -65,26 +62,19 @@ class _PendingInviteBannerContent extends StatelessWidget {
     final strings = AppStrings.pendingInviteBanner;
     final firstInvite = invites.first;
 
-    final inviterName =
-        firstInvite.requesterName ?? firstInvite.requesterId;
+    final inviterName = firstInvite.requesterName ?? firstInvite.requesterId;
+
+    // טיפול חכם בשם חסר (Empty State Fallbacks)
     final groupName =
-        firstInvite.requestData['list_name'] as String? ?? '';
+        firstInvite.requestData['list_name'] as String? ?? firstInvite.requestData['group_name'] as String? ?? 'רשימה';
 
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.tertiaryContainer.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(
-          color: cs.tertiary.withValues(alpha: 0.3),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: cs.tertiary.withValues(alpha: 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.3)),
+        boxShadow: [BoxShadow(color: cs.tertiary.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -106,16 +96,11 @@ class _PendingInviteBannerContent extends StatelessWidget {
                     color: cs.tertiary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
-                  child: Icon(
-                    Icons.mail_outline,
-                    color: cs.tertiary,
-                    size: 22,
-                  )
-                      .animate(
-                        onPlay: (c) => c.repeat(reverse: true),
-                      )
+                  child: Icon(Icons.mail_outline, color: cs.tertiary, size: 22)
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
                       .shimmer(
-                        delay: 2000.ms,
+                        // קיצור זמני אנימציה ל-1000ms
+                        delay: 1000.ms,
                         duration: 1200.ms,
                         color: cs.tertiary.withValues(alpha: 0.3),
                       ),
@@ -136,18 +121,17 @@ class _PendingInviteBannerContent extends StatelessWidget {
                             ),
                           ),
                           if (invites.length > 1) ...[
-                            SizedBox(width: 6),
+                            // תיקון Const לביצועים
+                            const SizedBox(width: 6),
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: cs.tertiary,
                                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               ),
                               child: Text(
-                                strings.moreCount(invites.length),
+                                // מספר ההזמנות - שארית בלבד
+                                strings.moreCount(invites.length - 1),
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: cs.onTertiary,
                                   fontWeight: FontWeight.bold,
@@ -157,7 +141,8 @@ class _PendingInviteBannerContent extends StatelessWidget {
                           ],
                         ],
                       ),
-                      SizedBox(height: 2),
+                      // תיקון Const לביצועים
+                      const SizedBox(height: 2),
                       Text(
                         strings.inviteMessage(inviterName, groupName),
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -171,9 +156,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                 ),
                 // חץ
                 Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left
-                      : Icons.chevron_right,
+                  Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
                   color: cs.onTertiaryContainer,
                 ),
               ],
@@ -181,9 +164,6 @@ class _PendingInviteBannerContent extends StatelessWidget {
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.2, end: 0, duration: 400.ms, curve: Curves.easeOut);
+    );
   }
 }
