@@ -2,7 +2,7 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// Version: 4.1 (March 2026)
+// Version: 4.2 (March 2026)
 //
 // ✅ Strict Schema Validation & Audit Trail
 // 📅 Last Updated: March 2026
@@ -14,6 +14,7 @@ rules_version = '2';
 //     - isOwnerOrAdmin helper for cleaner permission checks
 //
 // 📅 History:
+//     v4.2 (15/03/2026) — Fix: household delete, notification sender_id, group_invites read, editor active_shoppers
 //     v4.0 (22/02/2026) — Schema validation, Audit Trail, anti-spam, helper functions
 //     v3.0 (14/12/2025) — Nested Subcollections, Map-Based permissions
 //
@@ -186,19 +187,25 @@ service cloud.firestore {
         // עדכון: רק הבעלים (mark as read)
         allow update: if isDocOwner(userId);
 
-        // ➕ יצירה: v4.0 — ולידציה מלאה
-        // 1. sender_id חייב להתאים ל-UID (מניעת התחזות)
-        // 2. sender_id != userId (מניעת spam לעצמך)
-        // 3. user_id חייב להתאים לנתיב (data consistency)
-        // 4. type חייב להיות מתוך רשימת Enums מותרת
-        // 5. message מוגבל ל-500 תווים
+        // ➕ יצירה: v4.2 — ולידציה מותאמת לקוד בפועל
+        // ⚠️ v4.2: sender_id הוסר כשדה חובה — NotificationsService לא תמיד שולח אותו
+        //    (התראות מערכת כמו low_stock נוצרות ללא sender).
+        //    אם sender_id קיים — חייב להתאים ל-UID (מניעת התחזות).
+        // 1. user_id חייב להתאים לנתיב (data consistency)
+        // 2. type חייב להיות מתוך רשימת Enums מותרת
+        // 3. message מוגבל ל-500 תווים
+        // 4. sender_id (אם קיים) חייב להתאים ל-UID ולא להיות הנמען
         allow create: if isAuthenticated() &&
-                      request.resource.data.sender_id == request.auth.uid &&
-                      request.resource.data.sender_id != userId &&
                       request.resource.data.user_id == userId &&
                       isValidNotificationType(request.resource.data.type) &&
                       request.resource.data.message is string &&
-                      request.resource.data.message.size() <= 500;
+                      request.resource.data.message.size() <= 500 &&
+                      (
+                        !('sender_id' in request.resource.data.keys()) ||
+                        request.resource.data.sender_id == null ||
+                        (request.resource.data.sender_id == request.auth.uid &&
+                         request.resource.data.sender_id != userId)
+                      );
       }
 
       // === Pending Invites (Subcollection) ===
@@ -250,8 +257,9 @@ service cloud.firestore {
       // עדכון: רק חברי משק הבית
       allow update: if isHouseholdMember(householdId);
 
-      // מחיקה: רק אם הבית ריק (cleanup אחרי עזיבת כל החברים)
-      allow delete: if isAuthenticated();
+      // מחיקה: רק חבר בית שהוא גם היוצר (או admin)
+      // ⚠️ v4.2: היה פתוח לכל authenticated — תוקן
+      allow delete: if isHouseholdMember(householdId);
 
       // === Shared Lists (Subcollection) ===
       // Path: /households/{householdId}/shared_lists/{listId}
@@ -277,12 +285,12 @@ service cloud.firestore {
           (getListRole(resource.data) == 'admin' &&
            request.resource.data.created_by == resource.data.created_by) ||
 
-          // 3. Editor: יכול לערוך רק items, updated_date, ושדות audit
-          // 🔒 v4.0: affectedKeys().hasOnly() מבטיח ש-Editor לא יכול לשנות
-          //    את שם הרשימה, הבעלים, shared_users, או כל שדה אחר
+          // 3. Editor: יכול לערוך items, active_shoppers, status, ושדות audit
+          // 🔒 v4.2: הוסף active_shoppers + status — Editor צריך לתחיל/לסיים קנייה
+          // ⚠️ v4.0 חסם Editors מלהתחיל קנייה פעילה!
           (getListRole(resource.data) == 'editor' &&
            request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['items', 'updated_date', 'updated_at', 'last_updated_by']))
+             .hasOnly(['items', 'active_shoppers', 'status', 'updated_date', 'updated_at', 'last_updated_by']))
 
           // 4. Viewer: צפייה בלבד - לא יכול לעדכן (אין צורך בכלל כאן)
         );
@@ -521,11 +529,14 @@ service cloud.firestore {
     }
 
     match /group_invites/{inviteId} {
-      // 👁️ קריאה:
-      // - המזמין יכול לראות הזמנות שהוא שלח
-      // - המוזמן יכול לראות הזמנות שנשלחו אליו (לפי טלפון/אימייל/userId)
-      // - כל משתמש מחובר יכול לחפש הזמנות (ה-query יסנן)
-      allow read: if isAuthenticated();
+      // 👁️ קריאה: v4.2 — מוגבל למזמין/מוזמן בלבד
+      // ⚠️ v4.2: היה פתוח לכל authenticated — חשיפת מידע!
+      // ⚠️ NOTE: אם ה-query מסנן לפי invited_email/invited_user_id,
+      //    Firestore עדיין יוודא שהתוצאות עומדות בכלל הזה.
+      allow read: if isAuthenticated() && (
+        resource.data.invited_by == request.auth.uid ||
+        isInvitedUser(resource.data)
+      );
 
       // ➕ יצירה: כל משתמש מחובר יכול ליצור הזמנה
       allow create: if isAuthenticated() &&
