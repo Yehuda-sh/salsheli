@@ -78,7 +78,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           const SizedBox(height: kSpacingSmall),
           Text(
             widget.purchased > 0
-                ? 'קנייה מוצלחת! ⚡'
+                ? AppStrings.shopping.summarySuccess
                 : AppStrings.shopping.summaryTitle,
             style: TextStyle(fontSize: kFontSizeLarge + 2, fontWeight: FontWeight.bold, color: cs.onSurface),
             textAlign: TextAlign.center,
@@ -138,7 +138,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                   Icon(Icons.store_outlined, size: 18, color: cs.onSurfaceVariant),
                   const SizedBox(width: 6),
                   Text(
-                    'מאיפה קנית?',
+                    AppStrings.shopping.storeQuestion,
                     style: TextStyle(
                       fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.w600,

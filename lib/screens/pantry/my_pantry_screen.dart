@@ -429,7 +429,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         productName: name,
                                         quantity: qty.toInt(),
                                         unit: unit,
-                                        category: 'כללי',
+                                        category: AppStrings.inventory.defaultCategory,
                                         location: 'general',
                                       );
                                     },
