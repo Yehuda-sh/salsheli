@@ -190,7 +190,67 @@ async function main() {
       [uids.yuval]: { role: 'editor', shared_at: now.toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
       [uids.noa]: { role: 'editor', shared_at: now.toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: false },
     },
-    pending_requests: [],
+    pending_requests: [
+      // יובל (editor) מבקש להוסיף 3 מוצרים — ממתין לאישור
+      {
+        id: 'req_yuval_1',
+        list_id: 'list_cohen_weekly',
+        requester_id: uids.yuval,
+        type: 'addItem',
+        status: 'pending',
+        created_at: new Date(now - 2*3600000).toISOString(),
+        request_data: { name: 'במבה', quantity: 3, unit: "יח'", category: 'ממתקים וחטיפים', type: 'product' },
+        reviewer_id: null, reviewed_at: null,
+        requester_name: 'יובל כהן', reviewer_name: null,
+      },
+      {
+        id: 'req_yuval_2',
+        list_id: 'list_cohen_weekly',
+        requester_id: uids.yuval,
+        type: 'addItem',
+        status: 'pending',
+        created_at: new Date(now - 1*3600000).toISOString(),
+        request_data: { name: 'שוקולד פרה חלב 100ג עלית', quantity: 2, unit: "יח'", category: 'ממתקים וחטיפים', type: 'product' },
+        reviewer_id: null, reviewed_at: null,
+        requester_name: 'יובל כהן', reviewer_name: null,
+      },
+      // נועה (editor) מבקשת להוסיף מוצר — ממתין לאישור
+      {
+        id: 'req_noa_1',
+        list_id: 'list_cohen_weekly',
+        requester_id: uids.noa,
+        type: 'addItem',
+        status: 'pending',
+        created_at: new Date(now - 30*60000).toISOString(),
+        request_data: { name: 'נייר טואלט 3שכבות32גTNX', quantity: 1, unit: "יח'", category: 'מוצרי ניקיון', type: 'product' },
+        reviewer_id: null, reviewed_at: null,
+        requester_name: 'נועה כהן', reviewer_name: null,
+      },
+      // בקשה שכבר אושרה (לדוגמה — יובל ביקש לפני יומיים, רונית אישרה)
+      {
+        id: 'req_yuval_old',
+        list_id: 'list_cohen_weekly',
+        requester_id: uids.yuval,
+        type: 'addItem',
+        status: 'approved',
+        created_at: new Date(now - 48*3600000).toISOString(),
+        request_data: { name: 'לחם 9 דגנים קל 500 גרם', quantity: 1, unit: "יח'", category: 'לחם ומאפים', type: 'product' },
+        reviewer_id: uids.ronit, reviewed_at: new Date(now - 47*3600000).toISOString(),
+        requester_name: 'יובל כהן', reviewer_name: 'רונית כהן',
+      },
+      // בקשה שנדחתה (נועה ביקשה, אבי דחה)
+      {
+        id: 'req_noa_old',
+        list_id: 'list_cohen_weekly',
+        requester_id: uids.noa,
+        type: 'addItem',
+        status: 'rejected',
+        created_at: new Date(now - 24*3600000).toISOString(),
+        request_data: { name: 'אל סבון לידיים מארז3*500', quantity: 1, unit: "יח'", category: 'היגיינה אישית', type: 'product' },
+        reviewer_id: uids.avi, reviewed_at: new Date(now - 23*3600000).toISOString(),
+        requester_name: 'נועה כהן', reviewer_name: 'אבי כהן',
+      },
+    ],
     active_shoppers: [],
     items: cohenWeeklyItems.map((p, i) => ({
       id: `item_cw_${i}`,
@@ -206,7 +266,7 @@ async function main() {
     })),
   };
   await db.collection('households').doc(householdIds.cohen).collection('shared_lists').doc(cohenWeeklyList.id).set(cohenWeeklyList);
-  console.log('   📝 קניות שבועיות (כהן) — 9 פריטים, active');
+  console.log('   📝 קניות שבועיות (כהן) — 9 פריטים + 5 בקשות (3 ממתינות), active');
 
   // Cohen: Completed list from last week
   const cohenLastWeekItems = pickRandom(products.filter(p => p.category !== 'תרופות'), 12);

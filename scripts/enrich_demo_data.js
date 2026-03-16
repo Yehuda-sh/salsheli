@@ -283,7 +283,25 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
+    shared_with: [uids.avi, uids.noa],
+    shared_users: {
+      [uids.noa]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [
+      // נועה (editor) מבקשת להוסיף חלה לשבת
+      {
+        id: 'req_noa_bk1',
+        list_id: 'list_cohen_bakery',
+        requester_id: uids.noa,
+        type: 'addItem',
+        status: 'pending',
+        created_at: hoursAgo(1).toISOString(),
+        request_data: { name: 'מיץ תפוזים סחוט שמוטי1ל', quantity: 2, unit: "יח'", category: 'משקאות', type: 'product' },
+        reviewer_id: null, reviewed_at: null,
+        requester_name: 'נועה כהן', reviewer_name: null,
+      },
+    ],
+    active_shoppers: [],
     items: bakeryProducts.map((p, i) => ({
       id: `item_bk_${i}`, name: p.name, quantity: randomInt(1, 3), unit: p.unit || "יח'",
       unit_price: p.price || 0, category: p.category, type: 'product',
@@ -291,7 +309,7 @@ async function main() {
       emoji: p.icon || null, notes: i === 0 ? 'הגדול, לא הקטן' : null,
     })),
   });
-  console.log('   📝 מאפייה לשבת (כהן) — bakery, active');
+  console.log('   📝 מאפייה לשבת (כהן) — bakery + 1 בקשה ממתינה, active');
 
   // Cohen: Butcher list (active, partially checked)
   const butcherProducts = pickRandom(products.filter(p => p.category === 'בשר ועוף' || p.category === 'דגים'), 6);
