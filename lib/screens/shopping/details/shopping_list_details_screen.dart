@@ -500,14 +500,38 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ),
             ),
 
-            // FAB: משימה חדשה
+            // FABs: הוספת מוצר + משימה
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: canEdit
-                ? FloatingActionButton.small(
-                    heroTag: 'add_task_btn',
-                    backgroundColor: kStickyCyan,
-                    tooltip: AppStrings.listDetails.addTaskButton,
-                    onPressed: () => _handleAddTask(currentList),
-                    child: Icon(Icons.assignment_add, color: cs.onSurface),
+                ? Padding(
+                    padding: EdgeInsets.only(bottom: currentList.status == ShoppingList.statusActive && currentList.items.isNotEmpty ? 60 : 0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        // משימה
+                        FloatingActionButton.small(
+                          heroTag: 'add_task_btn',
+                          backgroundColor: kStickyCyan,
+                          tooltip: AppStrings.listDetails.addTaskButton,
+                          onPressed: () => _handleAddTask(currentList),
+                          child: Icon(Icons.assignment_add, color: cs.onSurface),
+                        ),
+                        const SizedBox(height: 12),
+                        // מוצר מהקטלוג (גדול)
+                        FloatingActionButton(
+                          heroTag: 'add_product_btn',
+                          backgroundColor: kStickyYellow,
+                          tooltip: AppStrings.listDetails.addProductButton,
+                          elevation: 4,
+                          onPressed: () {
+                            unawaited(HapticFeedback.lightImpact());
+                            _navigateToPopulateScreen(currentList);
+                          },
+                          child: Icon(Icons.add_shopping_cart, size: 28, color: cs.onSurface),
+                        ),
+                      ],
+                    ),
                   )
                 : null,
           ),
