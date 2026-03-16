@@ -13,6 +13,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 
 class HouseholdMembersScreen extends StatefulWidget {
   const HouseholdMembersScreen({super.key});
@@ -367,7 +368,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                 // Content
                 Expanded(
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const AppLoadingSkeleton(sectionCount: 3, showHero: false)
                       : _error != null
                           ? Center(
                               child: Text(_error!,

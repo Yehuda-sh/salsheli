@@ -29,6 +29,7 @@ import '../../screens/shopping/details/shopping_list_details_screen.dart';
 import '../../services/notifications_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 
 class NotificationsCenterScreen extends StatefulWidget {
   const NotificationsCenterScreen({super.key});
@@ -208,9 +209,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     final brand = theme.extension<AppBrand>();
 
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
+      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
 
     if (_error != null) {

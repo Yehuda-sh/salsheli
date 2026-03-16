@@ -53,6 +53,7 @@ import '../../../config/filters_config.dart';
 import '../active/active_shopping_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../who_brings/who_brings_screen.dart';
+import '../../../widgets/common/app_loading_skeleton.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -678,7 +679,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                   // 📋 תוכן
                   Expanded(
                     child: _isLoading
-                        ? const Center(child: CircularProgressIndicator())
+                        ? const AppLoadingSkeleton(sectionCount: 3, showHero: false)
                         : _errorMessage != null
                         ? Center(child: Text(AppStrings.common.unknownError(_errorMessage ?? '')))
                         : filteredItems.isEmpty && allItems.isNotEmpty

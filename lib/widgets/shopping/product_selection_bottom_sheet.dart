@@ -34,6 +34,7 @@ import '../common/animated_button.dart';
 import '../common/notebook_background.dart';
 import 'add_edit_product_dialog.dart';
 import '../../config/filters_config.dart';
+import '../common/app_loading_skeleton.dart';
 
 class ProductSelectionBottomSheet extends StatefulWidget {
   final ShoppingList list;
@@ -546,7 +547,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     ShoppingList? currentList,
   ) {
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
 
     if (provider.hasError) {

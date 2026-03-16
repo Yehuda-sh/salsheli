@@ -29,6 +29,7 @@ import 'package:memozap/l10n/app_strings.dart';
 
 import '../../core/ui_constants.dart';
 import '../../providers/shopping_lists_provider.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
@@ -61,22 +62,7 @@ class ShoppingSummaryScreen extends StatelessWidget {
                 // 1️⃣ Loading State
                 if (provider.isLoading) {
                   _log('   ⏳ Loading...');
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(color: cs.primary),
-                        SizedBox(height: kSpacingMedium),
-                        Text(
-                          'טוען סיכום...',
-                          style: TextStyle(
-                            fontSize: kFontSizeBody,
-                            color: cs.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
                 }
 
                 // 2️⃣ Error State

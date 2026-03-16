@@ -44,6 +44,7 @@ import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -937,7 +938,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         }
       });
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(body: const AppLoadingSkeleton(sectionCount: 4, showHero: true));
     }
 
     // פרטי משתמש - תמיד יש user בשלב זה

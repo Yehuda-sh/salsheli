@@ -32,6 +32,7 @@ import '../../services/pending_invites_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 
 class PendingInvitesScreen extends StatefulWidget {
   const PendingInvitesScreen({super.key});
@@ -320,16 +321,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     // 🔄 טעינה ראשונית - spinner במרכז
     if (_isInitialLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(color: brand?.stickyCyan ?? cs.primary),
-            const SizedBox(height: kSpacingMedium),
-            Text(AppStrings.pendingInvitesScreen.loading),
-          ],
-        ),
-      );
+      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
 
     // ❌ שגיאה - עם Pull-to-Refresh

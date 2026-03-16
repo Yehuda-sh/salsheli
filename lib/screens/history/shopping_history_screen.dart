@@ -27,6 +27,7 @@ import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית
@@ -114,7 +115,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
       body: Consumer<ReceiptProvider>(
         builder: (context, provider, _) {
               if (provider.isLoading) {
-                return const Center(child: CircularProgressIndicator());
+                return const AppLoadingSkeleton(sectionCount: 4, showHero: false);
               }
 
               if (provider.hasError) {

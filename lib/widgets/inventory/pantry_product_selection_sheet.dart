@@ -33,6 +33,7 @@ import '../../repositories/local_products_repository.dart';
 import '../common/add_location_dialog.dart';
 import '../common/notebook_background.dart';
 import '../../config/filters_config.dart';
+import '../common/app_loading_skeleton.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
   const PantryProductSelectionSheet({super.key});
@@ -632,16 +633,7 @@ class _PantryProductSelectionSheetState
 
   Widget _buildProductsList(ColorScheme cs) {
     if (_isLoading) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: kSpacingMedium),
-            Text(AppStrings.inventory.loadingProducts),
-          ],
-        ),
-      );
+      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
 
     if (_errorMessage != null) {

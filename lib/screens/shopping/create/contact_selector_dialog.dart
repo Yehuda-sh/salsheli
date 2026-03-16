@@ -28,6 +28,7 @@ import '../../../models/selected_contact.dart';
 import '../../../providers/user_context.dart';
 import '../../../repositories/firebase_user_repository.dart';
 import '../../../services/saved_contacts_service.dart';
+import '../../../widgets/common/app_loading_skeleton.dart';
 
 /// סוג קלט לאיש קשר חדש
 enum _ContactInputType { email, phone }
@@ -498,7 +499,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 // === Contacts List ===
                 Expanded(
                   child: _isLoading
-                      ? Center(child: CircularProgressIndicator())
+                      ? const AppLoadingSkeleton(sectionCount: 2, showHero: false)
                       : _filteredContacts.isEmpty
                           ? Center(
                               child: Column(
