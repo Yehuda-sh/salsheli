@@ -335,7 +335,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(AppStrings.suggestionsToday.addedToList(widget.suggestion.productName)),
+                child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
               ),
             ],
           ),
