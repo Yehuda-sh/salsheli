@@ -140,11 +140,18 @@ class ShoppingListsProvider with ChangeNotifier {
 
   /// מחשב את ה-role של משתמש ברשימה מסוימת
   UserRole _calculateUserRole(ShoppingList list, String userId) {
-    // 🆕 Use ShoppingList's built-in method (O(1) Map lookup)
+    // 1. בדוק שם ספציפי ברשימה (creator = owner, sharedUsers = role)
     final role = list.getUserRole(userId);
+    if (role != null) return role;
 
-    // ברירת מחדל - Viewer (אם נמצא ברשימה אבל לא ב-sharedUsers)
-    return role ?? UserRole.viewer;
+    // 2. רשימות household (לא פרטיות) — חברי הבית הם admin אוטומטית
+    //    אם הרשימה מופיעה ברשימות שלי = אני חבר בית
+    if (!list.isPrivate) {
+      return UserRole.admin;
+    }
+
+    // 3. ברירת מחדל — viewer
+    return UserRole.viewer;
   }
 
   // === חיבור UserContext ===
