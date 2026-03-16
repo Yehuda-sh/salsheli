@@ -1103,8 +1103,8 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       child: ClipOval(
                         child: Image.asset(
                           'assets/images/empty_cart.webp',
-                          width: 120,
-                          height: 120,
+                          width: 160,
+                          height: 160,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -1153,14 +1153,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 Navigator.pushNamed(context, '/create-list');
               },
             ),
-            const SizedBox(height: kSpacingLarge),
-            Text(
-              AppStrings.shopping.orScanReceiptHint,
-              textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
+            const SizedBox(height: kSpacingMedium),
           ],
         ),
       ),
