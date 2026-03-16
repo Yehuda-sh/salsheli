@@ -365,7 +365,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final userContext = context.watch<UserContext>();
     final strings = AppStrings.homeDashboard;
 
     // ברכה קצרה לפי שעה

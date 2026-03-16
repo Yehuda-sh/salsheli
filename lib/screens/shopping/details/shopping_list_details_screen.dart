@@ -25,7 +25,6 @@ import '../../../repositories/shopping_lists_repository.dart';
 import '../../../services/category_detection_service.dart';
 import '../../../services/pending_requests_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/common/app_loading_skeleton.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/pending_requests_section.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
@@ -715,7 +714,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
   // ===== ITEMS LIST =====
 
   Widget _buildItemsList(ShoppingList currentList, ThemeData theme) {
-    final cs = theme.colorScheme;
     final items = currentList.items;
     final canManage = currentList.canCurrentUserManage;
     final canEdit = currentList.canCurrentUserEdit;

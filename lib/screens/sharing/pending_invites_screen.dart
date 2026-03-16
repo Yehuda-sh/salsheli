@@ -317,7 +317,6 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
   Widget _buildContent() {
     final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
 
     // 🔄 טעינה ראשונית - spinner במרכז
     if (_isInitialLoading) {
