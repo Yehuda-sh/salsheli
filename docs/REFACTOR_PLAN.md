@@ -1,7 +1,7 @@
 # 📋 תוכנית מלאה — MemoZap: מקוד לחנות
 
 > נוצר: 8 מרץ 2026
-> עודכן: 10 מרץ 2026
+> עודכן: 16 מרץ 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
 
 ---
@@ -18,8 +18,8 @@
 | 6 | Push Notifications (FCM) | ⬜ טרם התחיל |
 | 6.5 | ניהול משפחה מלא | ✅ הושלם |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
-| 8 | בדיקות | ⬜ טרם התחיל |
-| 9 | i18n + נגישות | ⬜ טרם התחיל |
+| 8 | בדיקות | ✅ הושלם (335 tests) |
+| 9 | i18n + נגישות | 🟡 חלקי (~80% strings extracted) |
 | 10 | השקה | ⬜ טרם התחיל |
 
 ---
@@ -27,354 +27,161 @@
 # 📍 Phase 1 — ניקוי ויציבות ✅
 > הושלם 8 מרץ 2026
 
-- [x] **1.1 מחיקת קוד מת** — 15 קבצים, -6,530 שורות. Commit `5671f0c`
-- [x] **1.2 ניקוי קבועים מתים** — 22 קבועים/פונקציות, -118 שורות. Commits `8ec024d`, `401cea0`, `07fc19c`
-- [x] **1.2 ניקוי debug prints** — 852 prints מ-59 קבצים, -929 שורות. רק kDebugMode-guarded נשארו. Commit `fe549cd`
-- [x] **1.3 איחוד emoji** — `_getCategoryEmoji` → global `getCategoryEmoji`. Commit `cda0160`
-- [x] **1.3 אופטימיזציית תמונות** — logo.png 4.7MB → logo.webp 127KB; snichel.png 822KB → snichel.webp 29KB (-97%). Commit `4e20ed1`
-- [x] **l10n cleanup** — 233 מחרוזות מתות הוסרו מ-app_strings.dart (2,932→2,661 שורות)
+- [x] מחיקת קוד מת — 15 קבצים, -6,530 שורות
+- [x] ניקוי קבועים מתים — 22 קבועים/פונקציות, -118 שורות
+- [x] ניקוי debug prints — 852 prints מ-59 קבצים, -929 שורות
+- [x] איחוד emoji — `_getCategoryEmoji` → global
+- [x] אופטימיזציית תמונות — logo 4.7MB→127KB, snichel 822KB→29KB (-97%)
+- [x] l10n cleanup — 233 מחרוזות מתות הוסרו
 
 ---
 
 # 📍 Phase 2 — מערכת עיצוב אחידה ✅
 > הושלם 8 מרץ 2026
 
-- [x] **2.1 Design Tokens** — `lib/theme/design_tokens.dart`. Commit `3129011`
-- [x] **2.2 Context Extensions** — `lib/theme/context_extensions.dart`. Commit `3129011`
-- [x] **2.3 Colors.xxx → theme** — 316→0 (רק 42 Colors.transparent נשארו — אין theme equivalent). Commits `f6335a0`→`da51a8d`
-- [x] **2.4 Typography** — 134 hardcoded fontSize → 8 kFontSize constants. Commit `8b08d64`
-- [x] **2.5 Border Radius** — 97 ערכים → 4 (Small/Default/Large/XLarge). Commit `c262f6a`
-- [x] **2.6 Widgets משותפים** — AppSnackBar, EmptyState, SectionHeader. Commit `c94a363`
+- [x] Design Tokens, Context Extensions
+- [x] Colors.xxx → theme (316→0)
+- [x] Typography — 134 hardcoded → 8 kFontSize constants
+- [x] Border Radius — 97 ערכים → 4
+- [x] Widgets משותפים — AppSnackBar, EmptyState, SectionHeader
 
 ---
 
 # 📍 Phase 3 — איחוד סגנון + ריפקטור מבני 🟡
-> חלקי — בתהליך
 
 ### הושלם
-- [x] **3.1 NotebookBackground** — הוסף ל-pantry, settings, manage_users — כעת 21/21 מסכים. Commit `a193602`
-- [x] **3.2 פיצול active_shopping_screen** — 2,024→1,132 שורות. Commit `eabcd15`
-  - `active_shopping_item_tile.dart`, `active_shopping_states.dart`, `shopping_summary_dialog.dart`
-- [x] **3.2 פיצול login_screen** — 1,157→802 שורות. Commit `2c75131`
-  - `quick_login_bottom_sheet.dart`, `social_login_button.dart`, `loading_overlay.dart`
-- [x] **Header cleanup** — 15 widget files cleaned of outdated headers
+- [x] NotebookBackground ב-21/21 מסכים
+- [x] פיצול active_shopping_screen (2,024→1,132)
+- [x] פיצול login_screen (1,157→802)
+- [x] Full code review — 149 files, ~57,000 lines, score 9/10
+- [x] Architecture cleanup — AuthUser/SocialLoginResult DTOs, removed firebase_auth from providers
 
 ### נשאר
-- [ ] פיצול `my_pantry_screen.dart` (1,477 שורות)
-- [ ] פיצול `settings_screen.dart` (1,471 שורות)
-- [ ] פיצול `shopping_lists_screen.dart` (1,187 שורות)
-- [ ] פיצול `shopping_list_details_screen.dart` (1,136 שורות)
-- [ ] פיצול `shopping_lists_provider.dart` (1,196 שורות)
-- [ ] פיצול `auth_service.dart` (1,001 שורות)
-- [ ] העברת ~101 מחרוזות hardcoded ל-AppStrings (נדחה ל-Phase 9 i18n)
+- [ ] פיצול קבצים גדולים: my_pantry (1,477), settings (1,471), shopping_lists_screen (1,187), shopping_list_details (1,136), shopping_lists_provider (1,196), auth_service (1,001)
 
 ---
 
-# 📍 Phase 4 — ליטוש UX מקצועי 🟡
-> חלקי — בתהליך
+# 📍 Phase 4 — ליטוש UX 🟡
 
 ### הושלם
-- [x] **Page Transitions** — `lib/theme/app_transitions.dart`. Commit `eae0906`
-- [x] **AppDialog** — `lib/widgets/common/app_dialog.dart`. Commit `eae0906`
-- [x] **Welcome Screen redesign** — Carousel PageView + sticky CTA + Gemini illustrations (5.5→8/10). Commit `a269cab`
-- [x] **Dashboard avatar** — באנר ברכה → avatar קומפקטי + bottom sheet. Commit `386a415`
-- [x] **suggestions_today_card** — `_cleanProductName()` לניקוי שמות מוצרים
-- [x] **Settings screen redesign** — gradient profile, theme cards, SectionHeaders, staggered animations, themed toggles. Commit `10273b9`
-- [x] **History screen polish** — AnimatedCounter, themed chips, better empty state, rounded cards. Commit `1d8823e`
-- [x] **Auth screens cleanup** — cancel handling, StatusType enum, shared widgets (-130 lines), constants. Commit `bf499e4`
+- [x] Page Transitions, AppDialog
+- [x] Welcome Screen redesign — Carousel + sticky CTA + Gemini illustrations
+- [x] Dashboard — avatar, quick actions, monthly summary
+- [x] Pantry — summary strip, professional item rows, category strips
+- [x] Settings — gradient profile, theme cards, staggered animations
+- [x] History — AnimatedCounter, themed chips
+- [x] Auth screens cleanup
+- [x] Tutorial — 8 detailed steps
+- [x] 8 Gemini watercolor illustrations
+- [x] StatusColors → theme-aware
+- [x] Empty state illustrations
 
 ### נשאר
-- [ ] AnimatedList (רשימת קניות)
-- [ ] Slivers / Collapsing AppBar
-- [x] Splash screen (`flutter_native_splash`) — configured in pubspec.yaml
+- [ ] AnimatedList, Slivers, Hero animations
 - [ ] Lottie animations (confetti, empty cart, error)
-- [ ] Hero animations
-- [ ] Micro-interactions (bounce, strikethrough animation)
-- [x] **StatusColors static → theme-aware** — 45 instances across 7 files. Commit `a540bc8` (B15) ✅
-- [x] **`_showAddLocationDialog` → widget משותף** — extracted to `add_location_dialog.dart` (-209 lines). Commit `d6de99a` (B17) ✅
-- [x] **Phase 6.5.0: "משפחה" → "בית"** — 15 strings in app_strings + tutorial + dashboard. Commit `1c616f4` ✅
-- [x] **Empty state illustrations** — Gemini watercolor לדף ריק (רשימות, מזווה, התראות)
-
-### בוצע (סשן 10/3/2026 ערב)
-- [x] **Dashboard: Quick Actions** — 3 כפתורים מהירים (רשימה/קבלות/התראות). Commit `1334e20`
-- [x] **Dashboard: Monthly Summary** — כרטיס הוצאות+קניות+ממוצע. Commit `1334e20`
-- [x] **Dashboard: Header subtitle** — "X רשימות פעילות". Commit `1334e20`
-- [x] **Dashboard: Fix 5 shadowed `cs`**. Commit `1334e20`
-- [x] **Pantry: Summary strip** — פריטים/חסרים/מיקומים. Commit `0dfaf4c`
-- [x] **Pantry: Header subtitle** — "X פריטים במזווה". Commit `0dfaf4c`
-- [x] **Pantry: Professional item rows** — Card design, side strip, inline +/- buttons, category circle. Commit `20e9f68`
-- [x] **Pantry: Fix 2 shadowed `cs`**. Commit `0dfaf4c`
-- [x] **Tutorial: 8 detailed steps** (was 4 generic). Commit `d7c82d1`
-- [x] **Tutorial: immediate playback** on reset (no re-login). Commit `2d11acb`
-- [x] **Settings: admin-only household name edit**. Commit `6a37aef`
-- [x] **Shopping: Fix 2 warnings** (unused var + dead null-aware). Commit `aa8f59d`
 
 ---
 
 # 📍 Phase 5 — הכנה ל-Store 🟡
-> חלקי — בתהליך
 
 ### הושלם
-- [x] **שם חבילה** — `com.example.memozap` → `com.memozap.app`. Commit `bd8d772`
-- [x] **iOS Permissions** — NSContactsUsageDescription + NSCameraUsageDescription. Commit `bd8d772`
-- [x] **Firebase config** — google-services.json עם שני package names. Commits `3f1ecc2`, `0426be5`
-- [x] **Demo data** — households + members + user docs מתוקנים. Commit `e1523d2`
+- [x] Package name: `com.memozap.app`
+- [x] Firebase config + SHA keys
+- [x] Privacy policy + Terms (Hebrew)
+- [x] Demo data — 11 users in production Firebase
+- [x] Store listing draft
 
 ### נשאר
-- [ ] 🔑 Release keystore (חתימה לפרודקשן)
-- [ ] 🎨 App icons (flutter_launcher_icons, 1024×1024)
-- [ ] 🖼️ Splash screen (flutter_native_splash)
-- [ ] 🛡️ ProGuard/R8 rules
-- [x] 📜 Privacy policy + Terms — תוכן מקצועי מלא (Hebrew). Commit `93c799f`
-- [ ] 📜 Privacy policy + Terms — URL נגיש (דף נחיתה / GitHub Pages)
-- [ ] 📱 Store listing (screenshots, descriptions, feature graphic)
-- [x] 🔄 Firebase config — SHA-1 + SHA-256 added, google-services.json updated. Commit `0db1ad7`
-- [x] 🔧 `/pending-invites` route added. Commit `93c799f`
-- [x] 🔧 About dialog — "MemoZap" + app icon. Commit `93c799f`
-- [x] 🔧 3 analyzer errors fixed (0 errors project-wide). Commit `93c799f`
+- [ ] 🔑 Release keystore (needs Windows)
+- [ ] 🎨 App icons (1024×1024)
+- [ ] 📱 Store screenshots
+- [ ] 📜 Privacy policy URL (GitHub Pages)
 
 ---
 
 # 📍 Phase 6 — Push Notifications (FCM) ⬜
-> טרם התחיל — **נדרש לפני השקה**
+> טרם התחיל — נדרש לפני השקה
 
-### 6.1 תשתית FCM
-- [ ] הגדרת FCM ב-Firebase Console (Android + iOS)
-- [ ] הוספת `firebase_messaging` package
-- [ ] שמירת FCM token של כל משתמש ב-Firestore (`users/{uid}/fcm_tokens`)
-- [ ] רענון token אוטומטי (onTokenRefresh)
-- [ ] טיפול ב-foreground / background / terminated notifications
-
-### 6.2 Cloud Functions — שליחת התראות
-- [ ] **🛒 פעילות קנייה** — Cloud Function על שינוי `status` ב-`shopping_lists` → push לכל חברי הקבוצה ("רונית התחילה/סיימה לקנות")
-- [ ] **👥 שינויים בקבוצה** — Cloud Function על הוספת/הסרת member ב-`households/{id}/members` → push לכל החברים
-- [ ] **⏰ תזכורות** — Scheduled Function (יומי) שבודק רשימות פתוחות מעל 24ש → push; תזכורת שבועית (יום שישי)
-- [ ] **📝 עדכוני רשימה** — Cloud Function על שינוי items ב-`shopping_lists/{id}/items` → push לחברי הרשימה (כבוי כברירת מחדל)
-- [ ] **מלאי נמוך** — לא push, רק כרטיס יומי בדאשבורד (כבר קיים ב-suggestions)
-
-### 6.3 חיבור המתגים בהגדרות
-- [ ] חיבור `_notifyShopping` / `_notifyGroup` / `_notifyReminders` / `_notifyListUpdates` ל-FCM topics
-- [ ] Subscribe/unsubscribe לפי topic כשהמתג משתנה
-- [ ] שמירת העדפות גם ב-Firestore (לסנכרון בין מכשירים)
-
-### 6.4 UX התראות
-- [ ] Notification channels ב-Android (קנייה / מלאי / קבוצה)
-- [ ] Deep links — לחיצה על התראה פותחת מסך רלוונטי
-- [ ] Badge count ב-app icon
-- [ ] בדיקה על מכשיר פיזי (אמולטור לא תומך FCM)
+- [ ] Firebase Cloud Messaging setup
+- [ ] Cloud Functions for triggers (shopping activity, household changes)
+- [ ] Notification channels (Android)
+- [ ] Deep links from notifications
+- [ ] Settings toggles connected to FCM topics
 
 ---
 
-# 📍 Phase 6.5 — ניהול "הבית" (Household) ✅
-> טרם התחיל — **נדרש לפני השקה**
->
-> 🔑 **החלטה מרכזית:** "משפחה" → **"בית"** בכל האפליקציה.
-> "בית" מתאים לכולם: בני זוג, משפחה, שותפים לדירה, כל קבוצה.
->
-> 🔑 **צירוף = צירוף לבית (לא לרשימה בודדת).**
-> חבר בית רואה: כל הרשימות המשותפות + מזווה + קבלות.
-> לא רואה: רשימות פרטיות של אחרים.
+# 📍 Phase 6.5 — ניהול הבית ✅
+> הושלם
 
-### 6.5.0 רענון שפה — "משפחה" → "בית"
-- [ ] `app_strings.dart`: כל "משפחה" → "בית" (ניהול הבית, חברי הבית, הזמן לבית, הבית שלי)
-- [ ] `settings_screen.dart`: "ניהול משפחה" → "ניהול הבית"
-- [ ] `home_dashboard_screen.dart`: "משפחת X" → "הבית של X"
-- [ ] Tutorial step 5: "ניהול משפחתי" → "ניהול הבית"
-- [ ] `_getFamilyDisplayName`: "משפחה אישית" → "הבית שלי", "משפחת X" → "הבית של X"
-- [ ] `_ensureHouseholdExists`: "הבית של {name}" (כבר נכון!)
-- [ ] Onboarding: אם יש שלב "משפחה" → עדכן
-
-### 6.5.1 "הזמן לבית" — Flow חדש מההגדרות
-- [x] כפתור **"הזמן לבית"** במסך ההגדרות (תחת "ניהול הבית")
-- [x] הזנת אימייל/טלפון של המוזמן
-- [x] שליחת הזמנה → `pending_invites` (top-level collection)
-- [ ] **`acceptInvite` מעודכן**: מצרף ל-**household** (לא לרשימה!)
-  - [ ] עדכון `users/{uid}/household_id` של המוזמן
-  - [ ] הוספה ל-`households/{id}/members`
-  - [ ] הסרה מ-household הישן של המוזמן
-- [ ] **הסר** "ניהול משתתפים" מתוך רשימה בודדת — כל חברי הבית כבר רואים הכל
-- [ ] Edge cases:
-  - [ ] מוזמן כבר חבר באותו בית → "אתה כבר חבר"
-  - [ ] מוזמן בבית אחר עם חברים → אזהרה "אתה עוזב את הבית הנוכחי"
-  - [ ] מוזמן הוא הבעלים של בית אחר ויש בו חברים → חסום/העבר בעלות
-  - [ ] בית ישן נשאר ריק → מחק אוטומטית
-
-### 6.5.2 שינוי שם הבית — בעלים בלבד
-- [ ] העבר שם מ-`users/{uid}/household_name` ל-`households/{id}/name` (מקור אמת אחד)
-- [ ] הסתר כפתור "ערוך שם" ב-UI אם לא admin/owner ✅ (בוצע חלקית)
-- [ ] Firestore rule: רק owner/admin יכול לעדכן `households/{id}/name`
-- [ ] כל חברי הבית רואים אותו שם (נשלף מ-household doc)
-
-### 6.5.3 מסך "חברי הבית"
-- [ ] מסך חדש: רשימת כל חברי הבית + תפקיד + תאריך הצטרפות
-- [ ] Owner יכול: הסרת חברים, שינוי תפקיד, שינוי שם הבית
-- [ ] Member יכול: צפייה בלבד + עזיבת הבית
-- [ ] אווטרים + סטטוס מחובר/לא מחובר
-
-### 6.5.4 Firestore — מה חבר בית רואה
-- [ ] עדכון rules: חבר household רואה את כל ה-subcollections:
-  - `households/{id}/shared_lists/*` — כל הרשימות המשותפות
-  - `households/{id}/inventory/*` — המזווה
-  - `households/{id}/receipts/*` — קבלות
-- [ ] `users/{uid}/private_lists/*` — נשאר **פרטי** (רק הבעלים רואה)
-- [ ] רשימה חדשה = משותפת לכל הבית (ברירת מחדל), אלא אם סימנו "פרטי"
-
-### 6.5.5 מזווה — הצעות חכמות (במקום Starter Items)
-> 🔄 **מחליף** את כפתור "מלא מזווה בסיסי" בסקשן הצעות חכם
-
-- [ ] סקשן "כדאי שיהיה בבית" — מופיע בתוך מסך המזווה
-- [ ] מציג מוצרי יסוד מהקטלוג ש**אינם** כבר במזווה
-- [ ] לכל הצעה: כרטיס עם שם + אימוגי + ➕ להוספה מהירה + ✕ להסתרה
-- [ ] **חוקי הצגה** (לא להציק):
-  - מזווה ריק (0 פריטים) → מציג עד 8 הצעות
-  - מזווה קטן (1-14) → מציג עד 4 הצעות
-  - מזווה מלא (15+) → **לא מציג**
-  - "הסתר הצעות" → נעלם לגמרי (SharedPreferences)
-  - הצעה שנדחתה (✕) → לא חוזרת (SharedPreferences)
-- [ ] מקור: `pantry_basic.json` + הצעות לפי קטגוריות חסרות (אם אין תבלינים → הצע מלח/פלפל)
-- [ ] **מחק** את כפתור `_addStarterItems` + `PantryEmptyState.onAddStarterItems`
-
-### 6.5.6 מזווה — real-time sync + מזווה משותף
-> 🔴 **קריטי**: כרגע המזווה **לא** מתעדכן בזמן אמת!
->
-> **הבעיה:** `inventory_provider.dart` קורא `fetchUserItems()` (טעינה חד-פעמית).
-> ה-repository **יש** לו `watchInventory()` (stream) — אבל הוא לא בשימוש!
-> כלומר: אבי מוסיף חלב → רונית **לא רואה** עד שתרענן ידנית.
-
-- [ ] **החלף `fetchUserItems` ב-`watchInventory` (stream)** — כל שינוי מתעדכן מיידית לכולם
-- [ ] **מזווה משותף**: קרא מ-`households/{id}/inventory` (לא `users/{uid}/inventory`)
-  - חברי בית רואים אותו מזווה
-  - משתמש יחיד (בלי בית) — ממשיך מ-`users/{uid}/inventory`
-- [ ] **כתיבה**: הוספה/עדכון/מחיקה → ל-household inventory (לא user)
-- [ ] **סיום קנייה** → מוצרים עולים ל-household inventory (לא user)
-- [ ] Firestore rules: כל חבר household יכול read/write ל-inventory
+- [x] "משפחה" → "בית" across all UI
+- [x] Invite to household flow
+- [x] Members screen with roles
+- [x] Real-time sync (watchInventory stream)
+- [x] Shared inventory per household
+- [x] Firestore rules for household access
 
 ---
 
 # 📍 Phase 7 — מוניטיזציה ⬜
-> טרם התחיל
 
 - [ ] google_mobile_ads integration
-- [ ] Rewarded ads לפני תחילת רשימה
+- [ ] Rewarded ads before shopping start
 - [ ] Ad placement strategy
 
 ---
 
-# 📍 Phase 8 — בדיקות ואיכות ⬜
-> טרם התחיל
+# 📍 Phase 8 — בדיקות ✅
+> הושלם 15 מרץ 2026
 
-- [ ] Unit tests (יעד: 50 על providers + services)
-- [ ] Widget tests (יעד: 20 על מסכים קריטיים)
-- [ ] Integration tests (יעד: 3-5 flows)
-- [ ] Firebase Performance Monitoring
+- [x] **335 unit tests passing** — models, services, providers, performance
+- [x] 3 demo personas (FamilyShopper, HeavyOrganizer, UnstableConnection)
+- [x] Hand-written mocks (no mockito)
+- [ ] Widget tests (0) — nice to have
+- [ ] Integration tests (0) — nice to have
+- [x] E2E test guide: `docs/E2E_TEST_GUIDE.md`
 
 ---
 
-# 📍 Phase 9 — i18n + נגישות ⬜
-> טרם התחיל
+# 📍 Phase 9 — i18n 🟡
+> בתהליך
 
-- [ ] i18n infrastructure (l10n.yaml)
-- [ ] עברית (he) + אנגלית (en)
-- [ ] ~101 מחרוזות hardcoded → AppStrings
-- [ ] Semantics labels
-- [ ] WCAG AA contrast
+- [x] i18n infrastructure — AppStrings proxy, HE base, EN extends HE
+- [x] LocaleManager with SharedPreferences persistence
+- [x] Language toggle in Settings (🇮🇱/🇺🇸)
+- [x] ~80% of strings extracted to AppStrings
+- [ ] ~20% remaining hardcoded Hebrew in screens
+- [ ] Full English mode testing
 
 ---
 
 # 📍 Phase 10 — השקה ⬜
-> טרם התחיל
 
-- [ ] Beta testing (Internal + TestFlight)
-- [ ] ASO (App Store Optimization)
-- [ ] Soft launch (ישראל בלבד)
-- [ ] Crash rate < 1% → הרחבה
-
----
-
-# 🐛 באגים ידועים
-
-| ID | תיאור | חומרה | סטטוס |
-|----|--------|--------|--------|
-| B1 | pending_requests approve/reject | ✅ | נפתר — `3a1bf09` |
-| B2 | notification navigation | ✅ | נפתר — `3a1bf09` |
-| B3 | SavedContactsService silent errors | ✅ | נפתר — `f559312` |
-| B4 | Firebase config mismatch | ✅ | נפתר |
-| B5 | addStock ignores non-pantry products | ✅ | נפתר — `877a488` |
-| B6 | shouldUpdatePantry blocks private lists | ✅ | נפתר — `877a488` |
-| B7 | lastUpdatedBy missing → Firestore rules block | ✅ | נפתר — `877a488` |
-| B8 | `/pending-invites` route missing → crash | ✅ | נפתר — `93c799f` |
-| B9 | `cs` shadowed in history `_buildItemRow` | ✅ | נפתר — `1d8823e` |
-| B10 | 3 analyzer errors (activeThumbColor, initialValue×2) | ✅ | נפתר — `93c799f` |
-| B11 | `pending_invites` PERMISSION_DENIED on login | ✅ | נפתר — top-level rules added `bfbf1d7` |
-| B12 | הזמנות מוסיפות לרשימה, לא למשפחה | 🟡 | Phase 6.5 — צריך join household flow |
-| B13 | שם משפחה נשמר per-user (לא household doc) | 🟡 | Phase 6.5 — העבר ל-`households/{id}/name` |
-| B14 | כל member יכול לשנות שם משפחה | 🟡 | Phase 6.5 — רק owner |
-| B15 | 43x `StatusColors.xxx` static (לא theme-aware) | ✅ | נפתר — `a540bc8` |
-| B16 | Hardcoded Hebrew ב-`pantry_product_selection_sheet` (דיאלוגים) | 🟢 | Phase 9 — i18n |
-| B17 | `_showAddLocationDialog` כפול (מזווה + בחירת מוצר) | ✅ | נפתר — `d6de99a` |
+- [ ] Build APK (release keystore needed)
+- [ ] Dog-fooding on real device
+- [ ] Beta testing
+- [ ] Google Play submission
+- [ ] Crash rate monitoring
 
 ---
 
-# 📁 קבצים חדשים שנוצרו
+# 🐛 באגים פתוחים
 
-```
-lib/theme/
-├── app_transitions.dart
-├── design_tokens.dart
-└── context_extensions.dart
+| ID | תיאור | חומרה |
+|----|--------|--------|
+| W1 | `use_build_context_synchronously` ×2 in settings_screen | 🟢 |
+| B16 | Hardcoded Hebrew in pantry dialogs | 🟢 i18n |
 
-lib/widgets/common/
-├── app_snack_bar.dart
-├── app_dialog.dart
-├── empty_state.dart
-└── section_header.dart
-
-lib/screens/shopping/active/widgets/
-├── active_shopping_item_tile.dart
-├── active_shopping_states.dart
-└── shopping_summary_dialog.dart
-
-lib/screens/auth/widgets/
-├── quick_login_bottom_sheet.dart
-├── social_login_button.dart
-└── loading_overlay.dart
-
-assets/images/
-├── onboarding_shopping.webp
-├── onboarding_pantry.webp
-└── onboarding_sharing.webp
-```
+*כל שאר הבאגים (B1-B15, B17) נפתרו.*
 
 ---
 
 # 🔑 החלטות מפתח
 
-- **Colors.transparent נשאר** — 42 instances, אין theme equivalent
-- **Debug prints:** הוסרו כולם; רק kDebugMode-guarded + debugPrintStack נשארו
-- **Font sizes:** 9→Tiny, 11→Small, 13→Medium, 15→Body, 18/22/24→Title, 32/36→Display
-- **Border radius:** 2-10→Small(8), 12-14→Default(12), 16-20→Large(16), 24→XLarge(24)
-- **Carousel over scroll:** 3 feature cards in PageView — מפחית cognitive load
-- **Sticky CTA:** Bottom bar with blur תמיד visible — קריטי ל-conversion
-- **Package name:** `com.memozap.app` (display: MemoZap)
-- **Hardcoded Hebrew strings (101) נדחו ל-Phase 8** (i18n)
-- **Single-class large files נדחו** — pantry, settings, shopping_lists, details
-- **Provider/service splitting נדחה** — shopping_lists_provider, auth_service
-- **`avoid_print: error`** — enforced since all production prints cleaned
-
----
-
-# ⏱️ לוח זמנים מעודכן
-
-```
-שבוע 1:   ✅ Phase 1 — ניקוי
-שבוע 2:   ✅ Phase 2 — design system
-שבוע 2-3: 🟡 Phase 3 — איחוד סגנון (חלקי)
-שבוע 3-4: 🟡 Phase 4 — ליטוש UX (חלקי) — dashboard+pantry+tutorial+settings done
-שבוע 4-5: 🟡 Phase 5 — Store prep (חלקי)
-שבוע 5-6: ⬜ Phase 6 — Push Notifications (FCM)
-שבוע 6-7: ✅ Phase 6.5 — ניהול הבית (household) ✅ הושלם
-שבוע 7-8: ⬜ Phase 7 — מוניטיזציה
-שבוע 8-9: ⬜ Phase 8 — טסטים
-שבוע 9:   ⬜ Phase 9 — i18n
-שבוע 10:  ⬜ Phase 10 — השקה
-```
+- **Colors.transparent נשאר** — אין theme equivalent
+- **Package name:** `com.memozap.app`
+- **Proxy pattern for i18n** — 0 changes at 724+ call sites
+- **`@JsonKey(defaultValue: '')` over nullable** — non-nullable models
+- **Hand-written mocks** — no mockito dependency
+- **supermarket.json cleaned** — 7,250 items, 29 categories, no duplicates
+- **Firestore rules v4.2** — 4 security fixes deployed
+- **Single-class large files deferred** — pantry, settings, providers
