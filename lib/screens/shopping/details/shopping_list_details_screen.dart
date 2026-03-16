@@ -238,9 +238,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
     });
 
     try {
-      // סימולציה של טעינה (במקרה שיש async operation)
-      await Future.delayed(const Duration(milliseconds: 300));
-
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -583,7 +580,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           ),
                         ),
                         Text(
-                          '${currentList.items.length} פריטים',
+                          AppStrings.listDetails.itemsCount(currentList.items.length),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: cs.onSurfaceVariant,
                             fontSize: kFontSizeTiny,
@@ -605,7 +602,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                       children: [
                         IconButton(
                           icon: const Icon(Icons.notifications),
-                          tooltip: 'בקשות ממתינות',
+                          tooltip: AppStrings.listDetails.pendingRequestsTooltip,
                           onPressed: () {
                             unawaited(HapticFeedback.lightImpact());
                             Navigator.of(context).push(
@@ -1085,13 +1082,15 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (item.category != null && item.category!.isNotEmpty)
+                        if (item.notes != null && item.notes!.isNotEmpty)
                           Text(
-                            item.category!,
+                            item.notes!,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onSurfaceVariant,
                               fontSize: kFontSizeTiny,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
@@ -1114,6 +1113,19 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> w
                         ),
                       ),
                     ),
+
+                  // 💰 מחיר (אם קיים)
+                  if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
+                    const SizedBox(width: kSpacingSmall),
+                    Text(
+                      '₪${item.unitPrice!.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: FontWeight.w600,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(width: kSpacingSmall),
 

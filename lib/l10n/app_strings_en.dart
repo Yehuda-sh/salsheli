@@ -1182,6 +1182,8 @@ class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
   String get addProductButton => 'Add Product';
   String get addTaskButton => 'Add Task';
   String get shareListTooltip => 'Share list';
+  @override
+  String get pendingRequestsTooltip => 'Pending requests';
   String get addFromCatalogTooltip => 'Add from catalog';
   String get deleteTitle => 'Delete Product';
   String deleteMessage(String name) => 'Delete "$name"?';

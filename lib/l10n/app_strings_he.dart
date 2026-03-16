@@ -1202,6 +1202,7 @@ class ShoppingListDetailsStrings {
   String get addProductButton => 'הוסף מוצר';
   String get addTaskButton => 'הוסף משימה';
   String get shareListTooltip => 'שתף רשימה';
+  String get pendingRequestsTooltip => 'בקשות ממתינות';
   String get addFromCatalogTooltip => 'הוסף מהקטלוג';
   String get deleteTitle => 'מחיקת מוצר';
   String deleteMessage(String name) => 'האם למחוק את "$name"?';
