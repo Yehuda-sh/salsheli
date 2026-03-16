@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:memozap/core/ui_constants.dart';
 import 'package:flutter/services.dart';
+import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/enums/shopping_item_status.dart';
 import 'package:memozap/models/unified_list_item.dart';
@@ -12,7 +12,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
   final void Function(ShoppingItemStatus) onStatusChanged;
   final void Function(int newQuantity) onQuantityChanged;
 
-  const ActiveShoppingItemTile({super.key, 
+  const ActiveShoppingItemTile({
+    super.key,
     required this.item,
     required this.status,
     required this.onStatusChanged,
@@ -40,29 +41,21 @@ class ActiveShoppingItemTile extends StatelessWidget {
         backgroundColor = null;
     }
 
-    // 🆕 Swipe-to-reveal: לחיצה = קניתי, החלקה = חושפת כפתורים
     return Dismissible(
       key: ValueKey('swipe_${item.id}'),
       confirmDismiss: (direction) async {
         unawaited(HapticFeedback.lightImpact());
         if (direction == DismissDirection.startToEnd) {
-          // החלקה ימינה (RTL: startToEnd = ימין) → אין במלאי
-          if (status == ShoppingItemStatus.outOfStock) {
-            onStatusChanged(ShoppingItemStatus.pending);
-          } else {
-            onStatusChanged(ShoppingItemStatus.outOfStock);
-          }
+          onStatusChanged(status == ShoppingItemStatus.outOfStock
+              ? ShoppingItemStatus.pending
+              : ShoppingItemStatus.outOfStock);
         } else {
-          // החלקה שמאלה → לא צריך
-          if (status == ShoppingItemStatus.notNeeded) {
-            onStatusChanged(ShoppingItemStatus.pending);
-          } else {
-            onStatusChanged(ShoppingItemStatus.notNeeded);
-          }
+          onStatusChanged(status == ShoppingItemStatus.notNeeded
+              ? ShoppingItemStatus.pending
+              : ShoppingItemStatus.notNeeded);
         }
-        return false; // לא להסיר מהרשימה
+        return false;
       },
-      // רקע החלקה ימינה — אין במלאי
       background: Container(
         height: kNotebookLineSpacing,
         alignment: AlignmentDirectional.centerStart,
@@ -83,7 +76,6 @@ class ActiveShoppingItemTile extends StatelessWidget {
           ],
         ),
       ),
-      // רקע החלקה שמאלה — לא צריך
       secondaryBackground: Container(
         height: kNotebookLineSpacing,
         alignment: AlignmentDirectional.centerEnd,
@@ -99,120 +91,213 @@ class ActiveShoppingItemTile extends StatelessWidget {
               AppStrings.shopping.legendNotNeeded,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
             ),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             Icon(Icons.block, color: cs.onSurfaceVariant, size: 20),
           ],
         ),
       ),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          unawaited(HapticFeedback.selectionClick());
-          if (status == ShoppingItemStatus.purchased) {
-            onStatusChanged(ShoppingItemStatus.pending);
-          } else {
-            onStatusChanged(ShoppingItemStatus.purchased);
-          }
-        },
-        child: Container(
-          height: kNotebookLineSpacing,
-          decoration: backgroundColor != null
-              ? BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                )
-              : null,
-          child: Row(
-            children: [
-              // ✅ אינדיקטור סטטוס (לא כפתור — לחיצה על כל השורה)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    status == ShoppingItemStatus.purchased
-                        ? Icons.check_circle
-                        : status == ShoppingItemStatus.outOfStock
-                            ? Icons.remove_shopping_cart
-                            : status == ShoppingItemStatus.notNeeded
-                                ? Icons.block
-                                : Icons.circle_outlined,
-                    key: ValueKey(status),
-                    color: status == ShoppingItemStatus.purchased
-                        ? kStickyGreen
-                        : status == ShoppingItemStatus.outOfStock
-                            ? cs.error
-                            : status == ShoppingItemStatus.notNeeded
-                                ? cs.onSurfaceVariant
-                                : cs.outline.withValues(alpha: 0.5),
-                    size: 28,
+      child: Container(
+        height: kNotebookLineSpacing,
+        decoration: backgroundColor != null
+            ? BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              )
+            : null,
+        child: Row(
+          children: [
+            // ═══════════════════════════════════════
+            // 🟢 Zone 1: Status icon + Main body (tap = toggle purchased)
+            // ═══════════════════════════════════════
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  unawaited(HapticFeedback.mediumImpact());
+                  onStatusChanged(status == ShoppingItemStatus.purchased
+                      ? ShoppingItemStatus.pending
+                      : ShoppingItemStatus.purchased);
+                },
+                child: Row(
+                  children: [
+                    // Status icon
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          _statusIcon,
+                          key: ValueKey(status),
+                          color: _statusColor(cs),
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingSmall),
+                    // Product name with animated strikethrough
+                    Expanded(
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          decoration: status == ShoppingItemStatus.purchased
+                              ? TextDecoration.lineThrough
+                              : null,
+                          decorationColor: kStickyGreen,
+                          decorationThickness: 2.0,
+                          color: status == ShoppingItemStatus.purchased ||
+                                  status == ShoppingItemStatus.notNeeded
+                              ? cs.onSurfaceVariant.withValues(alpha: 0.6)
+                              : cs.onSurface,
+                          fontWeight: FontWeight.w600,
+                          fontSize: kFontSizeBody,
+                          letterSpacing: 0.3,
+                          height: 1.2,
+                        ),
+                        child: Text(
+                          item.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ═══════════════════════════════════════
+            // 🔢 Zone 2: Quantity pill (tap = open picker)
+            // ═══════════════════════════════════════
+            GestureDetector(
+              onTap: () {
+                unawaited(HapticFeedback.lightImpact());
+                _showQuantityEditor(context, theme, cs);
+              },
+              child: Container(
+                width: 48,
+                height: 32,
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer,
+                  borderRadius: BorderRadius.circular(kBorderRadius),
+                  border: Border.all(color: cs.primary.withValues(alpha: 0.3)),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '×${item.quantity ?? 1}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onPrimaryContainer,
+                    fontSize: kFontSizeMedium,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(width: kSpacingSmall),
-
-              // 📝 שם המוצר + כמות
-              Expanded(
-                child: AnimatedDefaultTextStyle(
-                  duration: Duration(milliseconds: 200),
-                  style: theme.textTheme.bodyLarge!.copyWith(
-                    decoration: status == ShoppingItemStatus.purchased
-                        ? TextDecoration.lineThrough
-                        : null,
-                    color: status == ShoppingItemStatus.purchased ||
-                            status == ShoppingItemStatus.notNeeded
-                        ? cs.onSurfaceVariant.withValues(alpha: 0.6)
-                        : cs.onSurface,
-                    fontWeight: FontWeight.w600,
-                    fontSize: kFontSizeBody,
-                    letterSpacing: 0.3,
-                    height: 1.1,
-                  ),
+            // ═══════════════════════════════════════
+            // ⋮ Zone 3: Three-dot menu
+            // ═══════════════════════════════════════
+            PopupMenuButton<String>(
+              padding: EdgeInsets.zero,
+              iconSize: 22,
+              icon: Icon(Icons.more_vert, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+              onSelected: (value) {
+                unawaited(HapticFeedback.lightImpact());
+                switch (value) {
+                  case 'outOfStock':
+                    onStatusChanged(status == ShoppingItemStatus.outOfStock
+                        ? ShoppingItemStatus.pending
+                        : ShoppingItemStatus.outOfStock);
+                    break;
+                  case 'notNeeded':
+                    onStatusChanged(status == ShoppingItemStatus.notNeeded
+                        ? ShoppingItemStatus.pending
+                        : ShoppingItemStatus.notNeeded);
+                    break;
+                  case 'edit':
+                    _showQuantityEditor(context, theme, cs);
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'outOfStock',
                   child: Row(
                     children: [
-                      Flexible(
-                        child: Text(
-                          item.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      // 🔢 תג כמות — לחיץ לעריכה מהירה
-                      GestureDetector(
-                        onTap: () => _showQuantityEditor(context, theme, cs),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: cs.primaryContainer,
-                            borderRadius: BorderRadius.circular(kBorderRadius),
-                            border: Border.all(
-                              color: cs.primary.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Text(
-                            '×${item.quantity ?? 1}',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: cs.onPrimaryContainer,
-                              fontSize: kFontSizeMedium,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
+                      Icon(Icons.remove_shopping_cart,
+                          color: status == ShoppingItemStatus.outOfStock ? cs.error : cs.onSurface, size: 20),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(status == ShoppingItemStatus.outOfStock
+                          ? AppStrings.shopping.legendPending
+                          : AppStrings.shopping.legendOutOfStock),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
+                PopupMenuItem(
+                  value: 'notNeeded',
+                  child: Row(
+                    children: [
+                      Icon(Icons.block,
+                          color: status == ShoppingItemStatus.notNeeded ? cs.onSurfaceVariant : cs.onSurface, size: 20),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(status == ShoppingItemStatus.notNeeded
+                          ? AppStrings.shopping.legendPending
+                          : AppStrings.shopping.legendNotNeeded),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, color: cs.primary, size: 20),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(AppStrings.shopping.editQuantity),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  /// 🔢 עריכת כמות מהירה — bottom sheet עם +/−
+  // ═══════════════════════════════════════
+  // Helpers
+  // ═══════════════════════════════════════
+
+  IconData get _statusIcon {
+    switch (status) {
+      case ShoppingItemStatus.purchased:
+        return Icons.check_circle;
+      case ShoppingItemStatus.outOfStock:
+        return Icons.remove_shopping_cart;
+      case ShoppingItemStatus.notNeeded:
+        return Icons.block;
+      default:
+        return Icons.circle_outlined;
+    }
+  }
+
+  Color _statusColor(ColorScheme cs) {
+    switch (status) {
+      case ShoppingItemStatus.purchased:
+        return kStickyGreen;
+      case ShoppingItemStatus.outOfStock:
+        return cs.error;
+      case ShoppingItemStatus.notNeeded:
+        return cs.onSurfaceVariant;
+      default:
+        return cs.outline.withValues(alpha: 0.5);
+    }
+  }
+
+  // ═══════════════════════════════════════
+  // Quantity Picker with Quick-Pick Chips
+  // ═══════════════════════════════════════
+
   void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme cs) {
     final cs = Theme.of(context).colorScheme;
     int qty = item.quantity ?? 1;
@@ -225,86 +310,114 @@ class ActiveShoppingItemTile extends StatelessWidget {
       builder: (ctx) {
         return StatefulBuilder(
           builder: (ctx, setSheetState) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // ידית
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: cs.outline.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                  ),
-                  const SizedBox(height: kSpacingMedium),
-                  // שם המוצר
-                  Text(
-                    item.name,
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: kSpacingLarge),
-                  // +/- כמות
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // כפתור מינוס
-                      IconButton.filled(
-                        onPressed: qty > 1
-                            ? () {
-                                setSheetState(() => qty--);
-                              }
-                            : null,
-                        style: IconButton.styleFrom(
-                          backgroundColor: cs.errorContainer,
-                          foregroundColor: cs.onErrorContainer,
-                          minimumSize: const Size(48, 48),
-                        ),
-                        icon: Icon(Icons.remove, size: 24),
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Handle bar
+                    Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: cs.outline.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
-                      // כמות נוכחית
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                        child: Text(
-                          '$qty',
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: cs.primary,
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+                    // Product name
+                    Text(
+                      item.name,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: kSpacingLarge),
+
+                    // 🏷️ Quick-pick chips
+                    Wrap(
+                      spacing: kSpacingSmall,
+                      children: [1, 2, 4, 6, 12].map((q) {
+                        final isSelected = qty == q;
+                        return ChoiceChip(
+                          label: Text('$q'),
+                          selected: isSelected,
+                          onSelected: (_) {
+                            unawaited(HapticFeedback.lightImpact());
+                            setSheetState(() => qty = q);
+                          },
+                          selectedColor: cs.primaryContainer,
+                          labelStyle: TextStyle(
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            color: isSelected ? cs.onPrimaryContainer : cs.onSurface,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // +/- buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton.filled(
+                          onPressed: qty > 1
+                              ? () {
+                                  unawaited(HapticFeedback.lightImpact());
+                                  setSheetState(() => qty--);
+                                }
+                              : null,
+                          style: IconButton.styleFrom(
+                            backgroundColor: cs.errorContainer,
+                            foregroundColor: cs.onErrorContainer,
+                            minimumSize: const Size(48, 48),
+                          ),
+                          icon: const Icon(Icons.remove, size: 24),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                          child: Text(
+                            '$qty',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: cs.primary,
+                            ),
                           ),
                         ),
-                      ),
-                      // כפתור פלוס
-                      IconButton.filled(
-                        onPressed: qty < 99
-                            ? () {
-                                setSheetState(() => qty++);
-                              }
-                            : null,
-                        style: IconButton.styleFrom(
-                          backgroundColor: kStickyGreen.withValues(alpha: 0.2),
-                          foregroundColor: kStickyGreen,
-                          minimumSize: const Size(48, 48),
+                        IconButton.filled(
+                          onPressed: qty < 99
+                              ? () {
+                                  unawaited(HapticFeedback.lightImpact());
+                                  setSheetState(() => qty++);
+                                }
+                              : null,
+                          style: IconButton.styleFrom(
+                            backgroundColor: kStickyGreen.withValues(alpha: 0.2),
+                            foregroundColor: kStickyGreen,
+                            minimumSize: const Size(48, 48),
+                          ),
+                          icon: const Icon(Icons.add, size: 24),
                         ),
-                        icon: const Icon(Icons.add, size: 24),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: kSpacingLarge),
-                  // כפתור אישור
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        onQuantityChanged(qty);
-                        Navigator.pop(ctx);
-                      },
-                      child: Text(AppStrings.common.confirm),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: kSpacingSmall),
-                ],
+                    const SizedBox(height: kSpacingLarge),
+
+                    // Confirm button
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () {
+                          onQuantityChanged(qty);
+                          Navigator.pop(ctx);
+                        },
+                        child: Text(AppStrings.common.confirm),
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                  ],
+                ),
               ),
             );
           },
@@ -313,7 +426,3 @@ class ActiveShoppingItemTile extends StatelessWidget {
     );
   }
 }
-
-
-
-/// תוצאת דיאלוג סיכום קנייה

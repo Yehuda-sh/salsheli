@@ -484,6 +484,8 @@ class ShoppingStrings {
   String pendingItemsLeftWarning(int count) => '$count פריטים נשארו והרשימה פעילה';
   String get legendOutOfStock => 'אין במלאי';
   String get legendNotNeeded => 'לא צריך';
+  String get legendPending => 'ממתין';
+  String get editQuantity => 'ערוך כמות';
   String get retryLoadSemantics => 'לחץ פעמיים כדי לנסות לטעון את הרשימה מחדש';
   String get backToListSemantics => 'לחץ פעמיים כדי לחזור לרשימת הקניות';
   String get finishAndSaveSemantics => 'לחץ פעמיים כדי לסיים את הקנייה ולשמור את הנתונים';

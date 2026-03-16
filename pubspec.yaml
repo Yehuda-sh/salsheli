@@ -79,6 +79,7 @@ dependencies:
   # App Branding
   flutter_native_splash: ^2.4.0
   flutter_launcher_icons: ^0.14.3
+  wakelock_plus: ^1.4.0
 
 dev_dependencies:
   flutter_test:

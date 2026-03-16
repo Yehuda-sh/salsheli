@@ -473,6 +473,8 @@ class ShoppingStringsEn extends ShoppingStrings {
   String pendingItemsLeftWarning(int count) => '$count items remaining, list stays active';
   String get legendOutOfStock => 'Out of stock';
   String get legendNotNeeded => 'Not needed';
+  @override String get legendPending => 'Pending';
+  @override String get editQuantity => 'Edit quantity';
   String get retryLoadSemantics => 'Double tap to try loading the list again';
   String get backToListSemantics => 'Double tap to return to the shopping list';
   String get finishAndSaveSemantics => 'Double tap to finish shopping and save data';

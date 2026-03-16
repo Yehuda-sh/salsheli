@@ -43,6 +43,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../config/filters_config.dart';
 import '../../../core/ui_constants.dart';
@@ -90,6 +91,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   bool _hasSyncError = false;
   int _failedSyncCount = 0; // 🔧 ספירת כשלונות סנכרון רצופים
 
+  // 🔒 כפתור סיום מושבת עד אינטראקציה ראשונה
+  bool _hasUserInteracted = false;
+
   // 🧑 UserContext Listener
   late UserContext _userContext;
   bool _listenerAdded = false; // 🔧 עוקב אחרי הוספת listener
@@ -113,6 +117,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
     _userContext.addListener(_onUserContextChanged);
     _listenerAdded = true; // 🔧 מסמן שהוספנו listener
+
+    // ⏰ Wake Lock — מסך לא ייכבה בזמן קנייה
+    WakelockPlus.enable();
 
     // ⚠️ עטיפה ב-microtask למניעת setState במהלך build
     Future.microtask(_initializeScreen);
@@ -204,6 +211,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   @override
   void dispose() {
 
+    // ⏰ ביטול Wake Lock
+    WakelockPlus.disable();
+
     // ✅ ניקוי listener - רק אם הוסף
     if (_listenerAdded) {
       _userContext.removeListener(_onUserContextChanged);
@@ -221,7 +231,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// עדכון סטטוס פריט + שמירה אוטומטית עם debounce
   /// 🔢 עדכון כמות פריט
   void _updateItemQuantity(UnifiedListItem item, int newQuantity) {
-
+    _hasUserInteracted = true;
     final provider = context.read<ShoppingListsProvider>();
     // quantity נמצא בתוך productData
     final updatedProductData = Map<String, dynamic>.from(item.productData ?? {});
@@ -231,7 +241,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   }
 
   void _updateItemStatus(UnifiedListItem item, ShoppingItemStatus newStatus) {
-
+    _hasUserInteracted = true;
     // 🔄 עדכון מיידי ב-UI (optimistic update)
     setState(() {
       _itemStatuses[item.id] = newStatus;
@@ -852,15 +862,15 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     ),
                   ),
                 ),
-              // 🏁 כפתור סיום קנייה — מלבן מעוגל קטן
+              // 🏁 כפתור סיום קנייה — מושבת עד אינטראקציה ראשונה
               if (!_isSaving)
                 Padding(
                   padding: const EdgeInsets.only(left: 4),
                   child: TextButton.icon(
-                    onPressed: _finishShopping,
+                    onPressed: _hasUserInteracted ? _finishShopping : null,
                     style: TextButton.styleFrom(
-                      backgroundColor: kStickyGreen.withValues(alpha: 0.15),
-                      foregroundColor: kStickyGreen,
+                      backgroundColor: kStickyGreen.withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
+                      foregroundColor: _hasUserInteracted ? kStickyGreen : kStickyGreen.withValues(alpha: 0.4),
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
