@@ -91,38 +91,84 @@ class CategoriesData {
   }
 
   /// Synonyms mapping (Hebrew → English key)
+  /// Synonyms mapping (Hebrew → English key)
+  /// ⚠️ Matched by exact key, NOT substring! Use full category names.
   static const Map<String, String> synonyms = {
+    // חלב
     'חלב': 'dairy',
     'חלבי': 'dairy',
     'גבינה': 'dairy',
     'יוגורט': 'dairy',
+    'מוצרי חלב': 'dairy',
+    // תחליפי חלב
+    'תחליפי חלב': 'dairy_substitutes',
+    // ירקות
     'ירקות': 'vegetables',
     'ירק': 'vegetables',
+    'פירות וירקות': 'vegetables',
+    // פירות
     'פירות': 'fruits',
     'פרי': 'fruits',
+    'פירות יבשים': 'dried_fruits',
+    // בשר ודגים
     'בשר': 'meat_fish',
+    'בשר ודגים': 'meat_fish',
     'עוף': 'chicken',
     'דג': 'fish',
     'דגים': 'fish',
+    // תחליפי בשר
+    'תחליפי בשר': 'meat_substitutes',
+    // לחם ומאפים
     'לחם': 'bread_bakery',
     'מאפה': 'bread_bakery',
+    'לחם ומאפים': 'bread_bakery',
+    // ממתקים
     'ממתקים': 'sweets_snacks',
     'חטיפים': 'sweets_snacks',
+    'ממתקים וחטיפים': 'sweets_snacks',
+    // משקאות
     'משקאות': 'beverages',
     'שתייה': 'beverages',
+    // קפה ותה
     'קפה': 'coffee_tea',
     'תה': 'coffee_tea',
+    'קפה ותה': 'coffee_tea',
+    // תבלינים
     'תבלינים': 'spices',
+    'תבלינים ואפייה': 'spices',
+    // אורז ופסטה
     'אורז': 'rice_pasta',
     'פסטה': 'rice_pasta',
+    'אורז ופסטה': 'rice_pasta',
+    // דגנים וקטניות
+    'דגנים': 'cereals',
+    'קטניות': 'legumes_grains',
+    'קטניות ודגנים': 'legumes_grains',
+    // שימורים
     'שימורים': 'canned',
+    // קפואים
     'קפוא': 'frozen',
+    'קפואים': 'frozen',
+    // ניקיון והיגיינה
     'ניקיון': 'cleaning',
+    'מוצרי ניקיון': 'cleaning',
     'היגיינה': 'hygiene',
+    'היגיינה אישית': 'hygiene',
+    'מוצרי בית': 'cleaning',
+    // תינוקות וחיות
     'תינוק': 'baby_products',
+    'מוצרי תינוקות': 'baby_products',
     'חיות מחמד': 'pet_food',
+    'מזון לחיות מחמד': 'pet_food',
+    // קטגוריות חדשות (מ-supermarket.json)
+    'אגוזים וגרעינים': 'nuts_seeds',
+    'שמנים ורטבים': 'oils_sauces',
+    'ממרחים מתוקים': 'sweet_spreads',
+    'סלטים מוכנים': 'ready_salads',
+    // כללי
     'כלים': 'other',
     'שונות': 'other',
     'כללי': 'other',
+    'אחר': 'other',
   };
 }
