@@ -132,12 +132,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
               }
 
               // חשב סטטיסטיקות
-              final totalSpent = receipts.fold<double>(
+              final totalItems = receipts.fold<int>(
                 0,
-                (sum, r) => sum + r.totalAmount,
+                (sum, r) => sum + r.items.where((i) => i.isChecked).length,
               );
-              final avgPerTrip =
-                  receipts.isNotEmpty ? totalSpent / receipts.length : 0.0;
 
               return Column(
                 children: [
@@ -189,8 +187,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                   // 📊 סטטיסטיקות
                   Semantics(
                     label: '${strings.shoppingsLabel}: ${receipts.length}, '
-                        '${strings.totalLabel}: ₪${totalSpent.toStringAsFixed(0)}, '
-                        '${strings.averageLabel}: ₪${avgPerTrip.toStringAsFixed(0)}',
+                        '${strings.totalItemsLabel}: $totalItems',
                     child: Container(
                       margin: const EdgeInsets.symmetric(
                           horizontal: kSpacingMedium),
@@ -209,15 +206,9 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                             color: cs.onPrimaryContainer,
                           ),
                           _StatItem(
-                            icon: Icons.payments,
-                            label: strings.totalLabel,
-                            value: '₪${totalSpent.toStringAsFixed(0)}',
-                            color: cs.onPrimaryContainer,
-                          ),
-                          _StatItem(
-                            icon: Icons.trending_up,
-                            label: strings.averageLabel,
-                            value: '₪${avgPerTrip.toStringAsFixed(0)}',
+                            icon: Icons.shopping_bag,
+                            label: strings.totalItemsLabel,
+                            value: '$totalItems',
                             color: cs.onPrimaryContainer,
                           ),
                         ],
@@ -381,59 +372,33 @@ class _ReceiptTile extends StatelessWidget {
               color: receipt.isVirtual ? successColor : cs.primary,
             ),
           ),
-          title: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  receipt.storeName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: kFontSizeMedium,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Text(
-                '₪${receipt.totalAmount.toStringAsFixed(2)}',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: kFontSizeMedium,
-                  color: cs.primary,
-                ),
-              ),
-            ],
+          title: Text(
+            receipt.storeName,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: kFontSizeMedium,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          subtitle: Row(
-            children: [
-              Icon(Icons.calendar_today, size: 12, color: cs.onSurfaceVariant),
-              SizedBox(width: 4),
-              Text(
-                DateFormat('dd/MM/yyyy', locale).format(receipt.date),
-                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+          subtitle: Text(
+            DateFormat('dd/MM/yyyy  HH:mm', locale).format(receipt.date),
+            style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+          ),
+          trailing: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: kStickyGreen.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            child: Text(
+              strings.itemsCount(receipt.items.where((i) => i.isChecked).length),
+              style: TextStyle(
+                fontSize: kFontSizeSmall,
+                fontWeight: FontWeight.w600,
+                color: kStickyGreen,
               ),
-              SizedBox(width: kSpacingSmall),
-              Icon(Icons.shopping_bag, size: 12, color: cs.onSurfaceVariant),
-              SizedBox(width: 4),
-              Text(
-                strings.itemsCount(receipt.items.length),
-                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-              ),
-              if (receipt.isVirtual) ...[
-                const SizedBox(width: kSpacingSmall),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: successColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Text(
-                    strings.virtualTag,
-                    style: TextStyle(fontSize: kFontSizeTiny, color: successColor),
-                  ),
-                ),
-              ],
-            ],
+            ),
           ),
           // רשימת פריטים בהרחבה
           children: [

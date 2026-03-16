@@ -1280,11 +1280,12 @@ class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
   String get shoppingsLabel => 'Shopping trips';
   String get totalLabel => 'Total';
   String get averageLabel => 'Average';
+  String get totalItemsLabel => 'Items';
   String itemsCount(int count) => '$count items';
   String get virtualTag => 'Virtual';
   String get noResults => 'No shopping in this period';
-  String get emptyTitle => 'No shopping history';
-  String get emptySubtitle => 'Your shopping trips will appear here.\nComplete a shopping to see it here.';
+  String get emptyTitle => "You haven't finished shopping yet";
+  String get emptySubtitle => 'Completed lists will appear here so you can\ntrack your shopping! 🛒';
   String get defaultError => 'Error loading';
   String get retryButton => 'Try Again';
 }
