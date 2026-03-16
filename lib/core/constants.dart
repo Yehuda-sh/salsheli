@@ -1,28 +1,16 @@
 // 📄 lib/core/constants.dart
 //
 // קבועים לוגיים של האפליקציה (לא UI).
-// - Family size limits, Children age groups, Schema version
-// - Data limits עם severity levels
+// - Schema version, Data limits עם severity levels
 //
 // 📋 Features:
 // - ניהול מגבלות סמנטי (Soft vs Hard Limits)
 // - סטטוסים לניצול מכסה (LimitStatus)
-// - מיפוי גילאים משופר (Map עם תיאורים סמנטיים)
 //
 // 🔗 Related: ui_constants.dart (UI), repository_constants.dart (Firestore)
 //
 // 📝 Version: 4.0
 // 📅 Updated: 22/02/2026
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FAMILY SIZE
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// גודל משפחה מינימלי
-const int kMinFamilySize = 1;
-
-/// גודל משפחה מקסימלי
-const int kMaxFamilySize = 10;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SCHEMA VERSION

@@ -75,8 +75,6 @@ const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 /// שקיפות קווים כחולים — `color.withValues(alpha: kNotebookLineOpacity)`
 const double kNotebookLineOpacity = 0.5;
 
-/// שקיפות עדינה (Hybrid Premium: 3-8%) — `color.withValues(alpha: kNotebookLineOpacitySubtle)`
-const double kNotebookLineOpacitySubtle = 0.06;
 
 /// רווח בין קווים כחולים (מותאם לגובה שורת פריט)
 const double kNotebookLineSpacing = 48.0;
@@ -145,7 +143,6 @@ const double kListTilePaddingEnd = 8.0;     // ListTile end padding (RTL)
 // ═══════════════════════════════════════════════════════════════════════════
 
 const Duration kAnimationDurationShort = Duration(milliseconds: 150);  // Short animation
-const Duration kAnimationDurationMedium = Duration(milliseconds: 350); // Medium animation
 const Duration kAnimationDurationSlow = Duration(milliseconds: 2000);  // Slow animation (shimmer)
 
 const Duration kSnackBarDuration = Duration(seconds: 3);      // Default SnackBar
@@ -193,8 +190,6 @@ const double kCardElevation = 2.0;       // Card elevation (default)
 // ═══════════════════════════════════════════════════════════════════════════
 // שימוש: color.withValues(alpha: kOpacityMedium)
 
-const double kOpacityMinimal = 0.05; // Minimal opacity (shimmer effect)
-const double kOpacityVeryLow = 0.1;  // Very low opacity
 const double kOpacityLow = 0.2;      // Low opacity
 const double kOpacityLight = 0.3;   // Light opacity
 const double kOpacityMedium = 0.5;  // Medium opacity
@@ -205,8 +200,6 @@ const double kOpacityMedium = 0.5;  // Medium opacity
 
 const double kProgressIndicatorHeight = 6.0;  // Linear progress indicator height
 
-/// שקיפות רקע — `color.withValues(alpha: kProgressIndicatorBackgroundAlpha)`
-const double kProgressIndicatorBackgroundAlpha = 0.2;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SPLASH GRADIENT COLORS
@@ -244,7 +237,6 @@ const double kFontSizeDisplay = 34.0; // Display / hero text
 const double kIconSizeSmall = 16.0;    // Small icons
 const double kIconSizeMedium = 24.0;   // Medium icons (Material default)
 const double kIconSize = kIconSizeMedium; // Alias: default icon size
-const double kIconSizeProfile = 32.0;  // Profile icons
 const double kIconSizeLarge = 36.0;    // Large icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
@@ -253,7 +245,6 @@ const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
 // AVATAR SIZES
 // ═══════════════════════════════════════════════════════════════════════════
 
-const double kAvatarRadius = 32.0;       // Default avatar radius
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORM FIELD SIZES
@@ -295,5 +286,4 @@ const double kStickyLogoShadowSecondaryBlur = 12.0;   // Logo secondary shadow b
 const double kStickyLogoShadowSecondaryOffsetY = 8.0; // Logo secondary shadow Y offset
 
 // Logo Glow Effect
-const double kLogoGlowPadding = 32.0;  // Padding around logo for glow effect
 const double kShimmerAngle = 0.0;      // Shimmer effect angle (radians)
