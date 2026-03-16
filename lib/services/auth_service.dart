@@ -6,6 +6,7 @@
 // ✅ תיקונים:
 //    - AuthException typed exception עם AuthErrorCode enum
 //    - signOut() מחזיר bool להצלחה/כישלון
+//    - AuthUser & SocialLoginResult DTOs — חוסמים דליפת firebase_auth ל-providers
 //
 // 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
 
@@ -20,6 +21,70 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../l10n/app_strings.dart';
+
+// ========================================
+// 🆕 Auth DTOs — חוסמים דליפת firebase_auth
+// ========================================
+
+/// DTO פשוט למשתמש מאומת — חוסם דליפת firebase_auth.User ל-providers
+///
+/// מכיל רק את השדות שה-UI/Provider צריכים.
+/// UserContext מאזין ל-Stream<AuthUser?> במקום Stream<firebase_auth.User?>.
+class AuthUser {
+  final String uid;
+  final String? email;
+  final String? displayName;
+  final String? phoneNumber;
+
+  const AuthUser({
+    required this.uid,
+    this.email,
+    this.displayName,
+    this.phoneNumber,
+  });
+
+  /// יוצר AuthUser מ-firebase_auth.User
+  factory AuthUser.fromFirebaseUser(User user) {
+    return AuthUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      phoneNumber: user.phoneNumber,
+    );
+  }
+}
+
+/// תוצאת Social Login (Google/Apple) — חוסם דליפת UserCredential ל-providers
+///
+/// מכיל את כל המידע שה-Provider צריך כדי ליצור פרופיל למשתמש חדש,
+/// בלי לחשוף את firebase_auth.UserCredential.
+class SocialLoginResult {
+  final String uid;
+  final String? email;
+  final String? displayName;
+  final String? phoneNumber;
+  final bool isNewUser;
+
+  const SocialLoginResult({
+    required this.uid,
+    this.email,
+    this.displayName,
+    this.phoneNumber,
+    required this.isNewUser,
+  });
+
+  /// יוצר SocialLoginResult מ-firebase_auth.UserCredential
+  factory SocialLoginResult.fromCredential(UserCredential credential) {
+    final user = credential.user!;
+    return SocialLoginResult(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      phoneNumber: user.phoneNumber,
+      isNewUser: credential.additionalUserInfo?.isNewUser ?? false,
+    );
+  }
+}
 
 // ========================================
 // 🆕 Typed Auth Exceptions
@@ -271,12 +336,25 @@ class AuthService {
   }
 
   // === Getters ===
-  
-  /// Stream של מצב התחברות - מאזין לשינויים בזמן אמת
+
+  /// Stream של מצב התחברות — מחזיר AuthUser? במקום firebase_auth.User?
+  ///
+  /// חוסם דליפת firebase_auth ל-providers.
+  Stream<AuthUser?> get authUserChanges =>
+      _auth.authStateChanges().map((user) =>
+          user != null ? AuthUser.fromFirebaseUser(user) : null);
+
+  /// Stream מקורי של Firebase Auth — לשימוש פנימי בלבד
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  /// משתמש נוכחי (null אם לא מחובר)
+  /// משתמש נוכחי — firebase_auth.User (לשימוש פנימי בלבד)
   User? get currentUser => _auth.currentUser;
+
+  /// משתמש נוכחי כ-AuthUser DTO — בטוח לשימוש ב-providers
+  AuthUser? get currentAuthUser {
+    final user = _auth.currentUser;
+    return user != null ? AuthUser.fromFirebaseUser(user) : null;
+  }
 
   /// האם המשתמש מחובר
   bool get isSignedIn => _auth.currentUser != null;
@@ -413,14 +491,14 @@ class AuthService {
 
   /// התחברות עם Google
   ///
-  /// מתחבר או רושם משתמש דרך חשבון Google.
+  /// מחזיר [SocialLoginResult] — DTO שחוסם דליפת firebase_auth ל-providers.
   /// אם המשתמש מבטל את הפעולה, זורק [AuthException] עם קוד [AuthErrorCode.socialLoginCancelled].
   ///
   /// Example:
   /// ```dart
   /// try {
-  ///   final credential = await authService.signInWithGoogle();
-  ///   if (credential.additionalUserInfo?.isNewUser ?? false) {
+  ///   final result = await authService.signInWithGoogle();
+  ///   if (result.isNewUser) {
   ///     // משתמש חדש - צור פרופיל
   ///   }
   /// } on AuthException catch (e) {
@@ -429,7 +507,7 @@ class AuthService {
   ///   }
   /// }
   /// ```
-  Future<UserCredential> signInWithGoogle() async {
+  Future<SocialLoginResult> signInWithGoogle() async {
     try {
 
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
@@ -448,7 +526,7 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(credential);
 
-      return userCredential;
+      return SocialLoginResult.fromCredential(userCredential);
     } on AuthException {
       rethrow;
     } on FirebaseAuthException catch (e) {
@@ -464,14 +542,14 @@ class AuthService {
 
   /// התחברות עם Apple
   ///
-  /// מתחבר או רושם משתמש דרך חשבון Apple (iOS/macOS בלבד).
+  /// מחזיר [SocialLoginResult] — DTO שחוסם דליפת firebase_auth ל-providers.
   /// אם המשתמש מבטל את הפעולה, זורק [AuthException] עם קוד [AuthErrorCode.socialLoginCancelled].
   ///
   /// Example:
   /// ```dart
   /// try {
-  ///   final credential = await authService.signInWithApple();
-  ///   if (credential.additionalUserInfo?.isNewUser ?? false) {
+  ///   final result = await authService.signInWithApple();
+  ///   if (result.isNewUser) {
   ///     // משתמש חדש - צור פרופיל
   ///   }
   /// } on AuthException catch (e) {
@@ -480,7 +558,7 @@ class AuthService {
   ///   }
   /// }
   /// ```
-  Future<UserCredential> signInWithApple() async {
+  Future<SocialLoginResult> signInWithApple() async {
     try {
 
       // Generate nonce for security
@@ -502,7 +580,7 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(oauthCredential);
 
-      return userCredential;
+      return SocialLoginResult.fromCredential(userCredential);
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthException(

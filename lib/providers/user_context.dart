@@ -6,7 +6,6 @@
 // 🔗 Related: UserEntity, UserRepository, AuthService
 
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memozap/models/user_entity.dart';
@@ -54,7 +53,7 @@ class UserContext with ChangeNotifier {
   UserEntity? _user;
   bool _isLoading = false;
   String? _errorMessage;
-  StreamSubscription<firebase_auth.User?>? _authSubscription;
+  StreamSubscription<AuthUser?>? _authSubscription;
 
   // 🔒 דגל למניעת Race Condition בזמן רישום
   bool _isSigningUp = false;
@@ -271,19 +270,19 @@ class UserContext with ChangeNotifier {
   void _listenToAuthChanges() {
     _authSubscription?.cancel();
 
-    _authSubscription = _authService.authStateChanges.listen(
-      (firebaseUser) {
+    _authSubscription = _authService.authUserChanges.listen(
+      (authUser) {
         // 🔒 בדיקת dispose לפני טיפול באירוע
         if (_isDisposed) return;
 
-        if (firebaseUser != null) {
-          debugPrint('🟢 Auth state: user=${firebaseUser.uid}, email=${firebaseUser.email}');
+        if (authUser != null) {
+          debugPrint('🟢 Auth state: user=${authUser.uid}, email=${authUser.email}');
           // 🔒 אם בתהליך רישום - אל תיצור משתמש כאן
           if (_isSigningUp) return;
 
           // משתמש התחבר - טען את הפרטים מ-Firestore
           debugPrint('🟢 Loading user from Firestore...');
-          _loadUserFromFirestore(firebaseUser.uid).catchError((error) {
+          _loadUserFromFirestore(authUser.uid).catchError((error) {
             debugPrint('🔴 Auth listener catchError: $error');
             if (_isDisposed) return;
           });
@@ -311,9 +310,9 @@ class UserContext with ChangeNotifier {
   /// 🆕 v2.3: מנהל _isLoading בעצמו - UI מציג Loader בזמן טעינה ראשונית
   /// רענון נתוני המשתמש מ-Firestore (למשל אחרי הצטרפות לבית חדש)
   Future<void> refreshUser() async {
-    final userId = _authService.currentUser?.uid;
-    if (userId != null) {
-      await _loadUserFromFirestore(userId);
+    final uid = _authService.currentUserId;
+    if (uid != null) {
+      await _loadUserFromFirestore(uid);
     }
   }
 
@@ -327,13 +326,13 @@ class UserContext with ChangeNotifier {
       _user = await _repository.fetchUser(userId);
 
       if (_user == null) {
-        // צור משתמש חדש דרך Repository
-        final firebaseUser = _authService.currentUser;
-        if (firebaseUser != null && !_isDisposed) {
+        // צור משתמש חדש דרך AuthService wrapper
+        final authUser = _authService.currentAuthUser;
+        if (authUser != null && !_isDisposed) {
           _user = await _repository.createUser(
-            userId: firebaseUser.uid,
-            email: firebaseUser.email ?? '',
-            name: firebaseUser.displayName ?? 'משתמש חדש',
+            userId: authUser.uid,
+            email: authUser.email ?? '',
+            name: authUser.displayName ?? 'משתמש חדש',
           );
         }
       } else {
@@ -468,10 +467,10 @@ class UserContext with ChangeNotifier {
       operation: 'signInWithGoogle',
       errorMessagePrefix: 'שגיאה בהתחברות עם Google',
       action: () async {
-        final credential = await _authService.signInWithGoogle();
+        final result = await _authService.signInWithGoogle();
         // בדיקה אם משתמש חדש - יצירת פרופיל
-        if (credential.additionalUserInfo?.isNewUser ?? false) {
-          await _createUserFromSocialLogin(credential);
+        if (result.isNewUser) {
+          await _createUserFromSocialLogin(result);
         }
         // ה-listener של authStateChanges יטפל בטעינת המשתמש
       },
@@ -487,10 +486,10 @@ class UserContext with ChangeNotifier {
       operation: 'signInWithApple',
       errorMessagePrefix: 'שגיאה בהתחברות עם Apple',
       action: () async {
-        final credential = await _authService.signInWithApple();
+        final result = await _authService.signInWithApple();
         // בדיקה אם משתמש חדש - יצירת פרופיל
-        if (credential.additionalUserInfo?.isNewUser ?? false) {
-          await _createUserFromSocialLogin(credential);
+        if (result.isNewUser) {
+          await _createUserFromSocialLogin(result);
         }
         // ה-listener של authStateChanges יטפל בטעינת המשתמש
       },
@@ -499,19 +498,16 @@ class UserContext with ChangeNotifier {
 
   /// יצירת משתמש חדש מ-Social Login (Google/Apple)
   ///
-  /// מחלץ את פרטי המשתמש מ-credential ויוצר רשומה ב-Firestore.
-  Future<void> _createUserFromSocialLogin(firebase_auth.UserCredential credential) async {
-    final user = credential.user!;
-    final name = user.displayName ?? user.email?.split('@').first ?? 'משתמש';
-
+  /// מחלץ את פרטי המשתמש מ-SocialLoginResult ויוצר רשומה ב-Firestore.
+  Future<void> _createUserFromSocialLogin(SocialLoginResult result) async {
+    final name = result.displayName ?? result.email?.split('@').first ?? 'משתמש';
 
     _user = await _repository.createUser(
-      userId: user.uid,
+      userId: result.uid,
       name: name,
-      email: user.email ?? '',
-      phone: user.phoneNumber ?? '',
+      email: result.email ?? '',
+      phone: result.phoneNumber ?? '',
     );
-
   }
 
   /// התנתקות רגילה מהמערכת (שומר seenOnboarding)
@@ -652,9 +648,9 @@ class UserContext with ChangeNotifier {
 
     _errorMessage = null;
 
-    final currentUser = _authService.currentUser;
-    if (currentUser != null) {
-      await _loadUserFromFirestore(currentUser.uid);
+    final currentUserId = _authService.currentUserId;
+    if (currentUserId != null) {
+      await _loadUserFromFirestore(currentUserId);
     }
   }
 

@@ -8,11 +8,13 @@
 //
 // ✅ תיקונים:
 //    - try-catch לכל פעולות Firestore
-//    - kDebugMode logging לדיבוג
+//    - logging גם ב-release mode (dart:developer log)
 //    - NotificationQueryResult typed result לשאילתות
 //    - פעולות Create מחזירות Future<bool>
 //
 // 🔗 Related: AppNotification, FirestoreCollections
+
+import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -114,9 +116,9 @@ class NotificationQueryResult {
 /// 🏗️ Database Structure:
 ///     - /users/{userId}/notifications/{notificationId}
 ///
-/// Version: 2.0 - Subcollection support
+/// Version: 2.1 - Release-mode logging via dart:developer
 /// Created: 04/11/2025
-/// Last Updated: 14/12/2025
+/// Last Updated: 15/03/2026
 
 class NotificationsService {
   final FirebaseFirestore _firestore;
@@ -124,6 +126,31 @@ class NotificationsService {
 
   NotificationsService(this._firestore, [Uuid? uuid])
       : _uuid = uuid ?? const Uuid();
+
+  // ========================================
+  // Logging Helper
+  // ========================================
+
+  /// לוג שגיאה — פעיל גם ב-release mode (dart:developer)
+  ///
+  /// ב-debug: debugPrintStack מלא
+  /// ב-release: developer.log עם שם הפעולה והשגיאה
+  void _logError(String operation, Object error, [StackTrace? stackTrace]) {
+    if (kDebugMode) {
+      debugPrint('❌ NotificationsService.$operation: $error');
+      if (stackTrace != null) {
+        debugPrintStack(stackTrace: stackTrace);
+      }
+    } else {
+      developer.log(
+        '$operation failed: $error',
+        name: 'NotificationsService',
+        error: error,
+        stackTrace: stackTrace,
+        level: 900, // WARNING level
+      );
+    }
+  }
 
   // ========================================
   // Collection Reference
@@ -175,9 +202,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createInviteNotification', e, stackTrace);
       return false;
     }
   }
@@ -216,9 +241,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createRequestApprovedNotification', e, stackTrace);
       return false;
     }
   }
@@ -263,9 +286,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createRequestRejectedNotification', e, stackTrace);
       return false;
     }
   }
@@ -306,9 +327,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createRoleChangedNotification', e, stackTrace);
       return false;
     }
   }
@@ -345,9 +364,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createUserRemovedNotification', e, stackTrace);
       return false;
     }
   }
@@ -389,9 +406,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createWhoBringsVolunteerNotification', e, stackTrace);
       return false;
     }
   }
@@ -434,9 +449,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createNewVoteNotification', e, stackTrace);
       return false;
     }
   }
@@ -476,9 +489,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createVoteTieNotification', e, stackTrace);
       return false;
     }
   }
@@ -514,9 +525,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('createLowStockNotification', e, stackTrace);
       return false;
     }
   }
@@ -546,9 +555,7 @@ class NotificationsService {
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('getUserNotificationsResult', e, stackTrace);
       return NotificationQueryResult.error(e.toString());
     }
   }
@@ -575,9 +582,7 @@ class NotificationsService {
 
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('getUnreadNotificationsResult', e, stackTrace);
       return NotificationQueryResult.error(e.toString());
     }
   }
@@ -598,9 +603,7 @@ class NotificationsService {
 
       return NotificationQueryResult.count(count);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('getUnreadCountResult', e, stackTrace);
       return NotificationQueryResult.error(e.toString());
     }
   }
@@ -641,9 +644,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('markAsRead', e, stackTrace);
       return false;
     }
   }
@@ -671,9 +672,7 @@ class NotificationsService {
 
       return snapshot.docs.length;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('markAllAsRead', e, stackTrace);
       return -1;
     }
   }
@@ -695,9 +694,7 @@ class NotificationsService {
 
       return true;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('deleteNotification', e, stackTrace);
       return false;
     }
   }
@@ -729,9 +726,7 @@ class NotificationsService {
 
       return snapshot.docs.length;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('cleanupOldNotifications', e, stackTrace);
       return -1;
     }
   }
@@ -762,9 +757,7 @@ class NotificationsService {
 
       return stats;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
+      _logError('getNotificationStats', e, stackTrace);
       return {'total': 0, 'unread': 0, 'read': 0};
     }
   }

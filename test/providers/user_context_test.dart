@@ -154,6 +154,8 @@ class MockUserRepository implements UserRepository {
 
 /// Mock AuthService for testing
 class MockAuthService implements AuthService {
+  final StreamController<AuthUser?> _authUserController =
+      StreamController<AuthUser?>.broadcast();
   final StreamController<firebase_auth.User?> _authController =
       StreamController<firebase_auth.User?>.broadcast();
 
@@ -175,8 +177,11 @@ class MockAuthService implements AuthService {
     _currentUserId = userId;
     _currentUserEmail = email;
     _currentUserDisplayName = displayName;
-    // We can't easily emit a real firebase_auth.User, so we emit null
-    // and rely on the isSignedIn getter
+    _authUserController.add(AuthUser(
+      uid: userId,
+      email: email,
+      displayName: displayName,
+    ));
     _authController.add(null);
   }
 
@@ -185,6 +190,7 @@ class MockAuthService implements AuthService {
     _currentUserId = null;
     _currentUserEmail = null;
     _currentUserDisplayName = null;
+    _authUserController.add(null);
     _authController.add(null);
   }
 
@@ -204,7 +210,19 @@ class MockAuthService implements AuthService {
   firebase_auth.User? get currentUser => null;
 
   @override
+  AuthUser? get currentAuthUser => _isSignedIn
+      ? AuthUser(
+          uid: _currentUserId!,
+          email: _currentUserEmail,
+          displayName: _currentUserDisplayName,
+        )
+      : null;
+
+  @override
   bool get isEmailVerified => false;
+
+  @override
+  Stream<AuthUser?> get authUserChanges => _authUserController.stream;
 
   @override
   Stream<firebase_auth.User?> get authStateChanges => _authController.stream;
@@ -241,12 +259,12 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<firebase_auth.UserCredential> signInWithGoogle() async {
+  Future<SocialLoginResult> signInWithGoogle() async {
     throw UnimplementedError('Use simulateSignIn for testing');
   }
 
   @override
-  Future<firebase_auth.UserCredential> signInWithApple() async {
+  Future<SocialLoginResult> signInWithApple() async {
     throw UnimplementedError('Use simulateSignIn for testing');
   }
 
@@ -278,6 +296,7 @@ class MockAuthService implements AuthService {
   Future<void> updateDisplayName(String displayName) async {}
 
   void dispose() {
+    _authUserController.close();
     _authController.close();
   }
 }
