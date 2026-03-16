@@ -40,6 +40,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   // 📦 היסטוריה - pagination
   static const int _historyPageSize = 10;
   int _currentHistoryLimit = 10;
+  int _previousHistoryLimit = 10; // 🎬 למעקב אנימציית "טען עוד"
 
   // 🔄 האם כבר ביקשנו טעינה ראשונית
   bool _initialLoadRequested = false;
@@ -792,6 +793,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   HapticFeedback.selectionClick();
 
                   setState(() {
+                    _previousHistoryLimit = _currentHistoryLimit;
                     _currentHistoryLimit += _historyPageSize;
                   });
                 },
@@ -926,17 +928,19 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ),
       );
 
-      // 🎬 אנימציית כניסה רק בטעינה ראשונית, ורק לפריטים הראשונים
-      if (shouldAnimate && index < maxAnimatedItems) {
+      // 🎬 אנימציית כניסה - בטעינה ראשונית או ב"טען עוד"
+      final isNewlyLoaded = !isActive && index >= _previousHistoryLimit;
+      if ((shouldAnimate && index < maxAnimatedItems) || isNewlyLoaded) {
+        final animIndex = isNewlyLoaded ? index - _previousHistoryLimit : index;
         return TweenAnimationBuilder<double>(
           key: ValueKey('anim_${list.id}'),
           tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (index * 50)),
+          duration: Duration(milliseconds: 300 + (animIndex.clamp(0, 5) * 50)),
           curve: Curves.easeOut,
           builder: (context, value, child) {
             return Opacity(
               opacity: value,
-              child: Transform.translate(offset: Offset(20 * (1 - value), 0), child: child),
+              child: Transform.translate(offset: Offset(0, 20 * (1 - value)), child: child),
             );
           },
           child: cardWidget,
