@@ -44,6 +44,16 @@ function byCategory(products, ...cats) {
   return products.filter(p => cats.includes(p.category));
 }
 
+// Normalize units from JSON catalogs to app-standard values
+function normalizeUnit(unit) {
+  if (!unit) return "יח'";
+  const map = {
+    'קילוגרמים': 'ק"ג', 'גרם': "יח'", 'מ"ל': "יח'", 'ליטרים': "יח'",
+    'אגודה': "יח'", 'יחידה': "יח'", 'אריזה': "יח'", 'מטרים': "יח'",
+  };
+  return map[unit] || unit;
+}
+
 function locationForCategory(cat) {
   const map = {
     'מוצרי חלב': 'מקרר', 'בשר ודגים': 'מקפיא',
@@ -189,7 +199,7 @@ async function main() {
       id: opts.id || `item_${idx}`,
       name: p.name,
       quantity: opts.quantity || randomInt(1, 3),
-      unit: p.unit || "יח'",
+      unit: normalizeUnit(p.unit),
       unit_price: p.price || 0,
       category: p.category,
       type: opts.type || 'product',
@@ -259,7 +269,10 @@ async function main() {
   console.log('   📋 כהן: קניות שבועיות (14 items, 3 pending requests, editors+viewer)');
 
   // ──── COHEN: Greengrocer (ACTIVE SHOPPING by רונית!) ────
-  const greenProducts = pickRandom(products.filter(p => p.sourceFile === 'greengrocer'), 10);
+  // Filter out non-produce items that snuck into greengrocer (yogurt, juice, frozen)
+  const greenProducts = pickRandom(products.filter(p => p.sourceFile === 'greengrocer' &&
+    !p.name.includes('יוגורט') && !p.name.includes('פרוזן') && !p.name.includes('איילנד') &&
+    !p.name.includes('שייק') && !p.name.includes('מיץ') && !p.name.includes('סמוצ')), 10);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_green').set({
     id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'greengrocer',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
@@ -354,7 +367,7 @@ async function main() {
   function catItem(id, nameSubstr, quantity, unit, opts = {}) {
     const p = findProd(nameSubstr);
     if (!p) return { id, name: nameSubstr, quantity, unit, unit_price: 0, category: opts.category || null, type: 'product', is_checked: opts.isChecked || false, emoji: opts.emoji || null, notes: opts.notes || null };
-    return { id, name: p.name, quantity, unit: unit || p.unit || "יח'", unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
+    return { id, name: p.name, quantity, unit: unit || normalizeUnit(p.unit), unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
   }
 
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_birthday').set({
@@ -482,7 +495,7 @@ async function main() {
       console.warn(`   ⚠️ Product not found: "${nameSubstr}"`);
       return { id, name: nameSubstr, quantity, unit, unit_price: 0, category: opts.category || null, type: 'product', is_checked: opts.isChecked || false, emoji: opts.emoji || null, notes: opts.notes || null };
     }
-    return { id, name: p.name, quantity, unit: unit || p.unit || "יח'", unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
+    return { id, name: p.name, quantity, unit: unit || normalizeUnit(p.unit), unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
   }
 
   await db.collection('households').doc(hNaama).collection('shared_lists').doc('list_naama_bbq').set({
@@ -551,7 +564,7 @@ async function main() {
         id: `inv_${hId}_${i}`, product_name: p.name, category: p.category,
         location: locationForCategory(p.category),
         quantity: p._qty !== undefined ? p._qty : randomInt(1, 6),
-        unit: p.unit || "יח'", min_quantity: p._minQty || 2,
+        unit: normalizeUnit(p.unit), min_quantity: p._minQty || 2,
         expiry_date: p.category === 'מוצרי חלב' ? daysAgo(-randomInt(2, 20)).toISOString() : null,
         notes: p._notes || null, is_recurring: Math.random() > 0.3,
         emoji: p.icon || null, purchase_count: randomInt(0, 15), last_purchased: daysAgo(randomInt(1, 30)).toISOString(),
