@@ -48,8 +48,12 @@ function byCategory(products, ...cats) {
 function normalizeUnit(unit) {
   if (!unit) return "יח'";
   const map = {
-    'קילוגרמים': 'ק"ג', 'גרם': "יח'", 'מ"ל': "יח'", 'ליטרים': "יח'",
+    'קילוגרמים': 'ק"ג',
+    'גרם': "יח'", 'מ"ל': "יח'", 'ליטרים': "יח'", 'ליטר': "יח'",
     'אגודה': "יח'", 'יחידה': "יח'", 'אריזה': "יח'", 'מטרים': "יח'",
+    'פרוסה': "יח'", '100 גרם': "יח'", '100 מ"ל': "יח'",
+    'חבילה': "יח'", 'בקבוק': "יח'", 'בקבוק ליטר': "יח'", 'גליל': "יח'",
+    'אריזה 500 גרם': "יח'", 'מארז 12 יחידות': "יח'", 'שק 3 ק"ג': "יח'",
   };
   return map[unit] || unit;
 }
@@ -429,7 +433,10 @@ async function main() {
   console.log('   📋 לוי: קניות שבוע שעבר (10, completed)');
 
   // ──── TOMER: Private pharmacy ────
-  const pharmProducts = pickRandom(products.filter(p => p.sourceFile === 'pharmacy'), 6);
+  // Tomer is a single guy — no baby/feminine products
+  const pharmProducts = pickRandom(products.filter(p => p.sourceFile === 'pharmacy' &&
+    !['מוצרי תינוקות','היגיינה נשית'].includes(p.category) &&
+    !p.name.includes('חיתול') && !p.name.includes('תחבוש')), 6);
   await db.collection('households').doc(hTomer).collection('shared_lists').doc('list_tomer_pharm').set({
     id: 'list_tomer_pharm', name: 'סופרפארם 💊', status: 'active', type: 'pharmacy',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
