@@ -349,6 +349,14 @@ async function main() {
   console.log('   📋 כהן: צרכי בית (8, 3/8 checked)');
 
   // ──── COHEN: Birthday party (completed event) ────
+  // catalogItem helper defined later — move birthday after BBQ? No, just use inline search
+  function findProd(nameSubstr) { return products.find(p => p.name.includes(nameSubstr)); }
+  function catItem(id, nameSubstr, quantity, unit, opts = {}) {
+    const p = findProd(nameSubstr);
+    if (!p) return { id, name: nameSubstr, quantity, unit, unit_price: 0, category: opts.category || null, type: 'product', is_checked: opts.isChecked || false, emoji: opts.emoji || null, notes: opts.notes || null };
+    return { id, name: p.name, quantity, unit: unit || p.unit || "יח'", unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
+  }
+
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_birthday').set({
     id: 'list_cohen_birthday', name: 'יום הולדת נועה 🎂', status: 'completed', type: 'event',
     budget: 500, is_shared: true, is_private: false, created_by: uids.ronit,
@@ -356,15 +364,17 @@ async function main() {
     created_date: daysAgo(30).toISOString(), updated_date: daysAgo(28).toISOString(),
     shared_with: [uids.avi, uids.yuval], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      { id: 'item_bd_0', name: 'עוגת שוקולד', quantity: 1, unit: "יח'", unit_price: 120, category: 'לחם ומאפים', type: 'product', is_checked: true, emoji: '🎂', notes: '3 קומות!' },
-      { id: 'item_bd_1', name: 'נרות יום הולדת', quantity: 1, unit: 'חבילה', unit_price: 15, category: null, type: 'custom', is_checked: true, emoji: '🕯️', notes: null },
-      { id: 'item_bd_2', name: 'בלונים', quantity: 20, unit: "יח'", unit_price: 5, category: null, type: 'custom', is_checked: true, emoji: '🎈', notes: 'ורוד וזהב' },
-      { id: 'item_bd_3', name: 'צלחות חד פעמיות', quantity: 30, unit: "יח'", unit_price: 0.5, category: null, type: 'custom', is_checked: true, emoji: '🍽️', notes: null },
-      { id: 'item_bd_4', name: 'מיץ ענבים', quantity: 3, unit: 'בקבוק', unit_price: 12, category: 'משקאות', type: 'product', is_checked: true, emoji: '🍇', notes: null },
-      { id: 'item_bd_5', name: 'פיצה', quantity: 4, unit: 'מגש', unit_price: 50, category: null, type: 'custom', is_checked: true, emoji: '🍕', notes: 'להזמין מדומינוס' },
+      catItem('item_bd_0', 'עוגת שוקולד', 1, "יח'", { isChecked: true, notes: '3 קומות!' }),
+      makeTask('item_bd_1', 'נרות יום הולדת', '🕯️', { isChecked: true }),
+      makeTask('item_bd_2', 'בלונים ורוד וזהב', '🎈', { isChecked: true, notes: '20 יח\'' }),
+      catItem('item_bd_3', '100 כוסות פלסטיק', 1, "יח'", { isChecked: true }),
+      catItem('item_bd_4', 'במבה 80 גרם', 5, "יח'", { isChecked: true }),
+      catItem('item_bd_5', 'ביסלי גריל 200', 3, "יח'", { isChecked: true }),
+      catItem('item_bd_6', 'פריגת תפוזים', 3, "יח'", { isChecked: true }),
+      makeTask('item_bd_7', 'להזמין פיצה מדומינוס', '🍕', { isChecked: true, notes: '4 מגשים' }),
     ],
   });
-  console.log('   📋 כהן: יום הולדת נועה (completed event, 6 items)');
+  console.log('   📋 כהן: יום הולדת נועה (completed event, 8 items)');
 
   // ──── COHEN: Last week completed ────
   const lastWeekProducts = pickRandom(products.filter(p => p.category !== 'אחר'), 15);
@@ -457,6 +467,19 @@ async function main() {
   console.log('   📋 נעמה: שוק מחנה יהודה (8)');
 
   // ──── NAAMA: BBQ event ────
+  // All items from REAL catalog! lookup by name substring
+  function findProduct(nameSubstr) {
+    return products.find(p => p.name.includes(nameSubstr));
+  }
+  function catalogItem(id, nameSubstr, quantity, unit, opts = {}) {
+    const p = findProduct(nameSubstr);
+    if (!p) {
+      console.warn(`   ⚠️ Product not found: "${nameSubstr}"`);
+      return { id, name: nameSubstr, quantity, unit, unit_price: 0, category: opts.category || null, type: 'product', is_checked: opts.isChecked || false, emoji: opts.emoji || null, notes: opts.notes || null };
+    }
+    return { id, name: p.name, quantity, unit: unit || p.unit || "יח'", unit_price: p.price || 0, category: p.category, type: 'product', is_checked: opts.isChecked || false, emoji: p.icon || opts.emoji || null, notes: opts.notes || null };
+  }
+
   await db.collection('households').doc(hNaama).collection('shared_lists').doc('list_naama_bbq').set({
     id: 'list_naama_bbq', name: 'על האש 🔥 שישי', status: 'active', type: 'event',
     budget: 400, is_shared: false, is_private: false, created_by: uids.naama,
@@ -464,19 +487,23 @@ async function main() {
     created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(12).toISOString(),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      { id: 'item_bbq_0', name: 'סטייק אנטריקוט', quantity: 2, unit: 'ק"ג', unit_price: 119, category: 'בשר ודגים', type: 'product', is_checked: false, emoji: '🥩', notes: null },
-      { id: 'item_bbq_1', name: 'כנפיים', quantity: 2, unit: 'ק"ג', unit_price: 25, category: 'בשר ודגים', type: 'product', is_checked: false, emoji: '🍗', notes: 'מתובלות' },
-      { id: 'item_bbq_2', name: 'קבב', quantity: 1, unit: 'ק"ג', unit_price: 89, category: 'בשר ודגים', type: 'product', is_checked: false, emoji: '🥩', notes: null },
-      { id: 'item_bbq_3', name: 'פחם', quantity: 1, unit: 'שק', unit_price: 30, category: null, type: 'custom', is_checked: false, emoji: '🔥', notes: null },
-      { id: 'item_bbq_4', name: 'פיתות', quantity: 2, unit: 'חבילה', unit_price: 7, category: 'לחם ומאפים', type: 'product', is_checked: false, emoji: '🫓', notes: null },
-      { id: 'item_bbq_5', name: 'חומוס + טחינה + מטבוחה', quantity: 3, unit: "יח'", unit_price: 15, category: 'שימורים', type: 'product', is_checked: false, emoji: '🥗', notes: null },
-      { id: 'item_bbq_6', name: 'גולדסטאר 500 מ"ל', quantity: 12, unit: 'בקבוק', unit_price: 9, category: 'משקאות', type: 'product', is_checked: false, emoji: '🍺', notes: null },
-      { id: 'item_bbq_7', name: 'קולה 1.5 ליטר', quantity: 2, unit: 'בקבוק', unit_price: 9, category: 'משקאות', type: 'product', is_checked: false, emoji: '🥤', notes: null },
+      catalogItem('item_bbq_0', 'סטייק אנטריקוט', 2, 'ק"ג'),
+      catalogItem('item_bbq_1', 'כנפיים עוף', 2, 'ק"ג', { notes: 'מתובלות' }),
+      catalogItem('item_bbq_2', 'קבב אמיתי', 2, "יח'"),
+      catalogItem('item_bbq_3', 'שיפוד פרגית', 1, 'ק"ג'),
+      catalogItem('item_bbq_4', 'פיתה פיתה 8', 2, "יח'"),
+      catalogItem('item_bbq_5', 'חומוס עשיר ב40% טחינה', 1, "יח'"),
+      catalogItem('item_bbq_6', 'טחינה בלאדי רפי כהן', 1, "יח'"),
+      catalogItem('item_bbq_7', 'סלט מטבוחה 300', 2, "יח'"),
+      catalogItem('item_bbq_8', 'בירה גולדסטאר 6 יח', 2, "יח'"),
+      catalogItem('item_bbq_9', 'קוקה קולה 1.5 ליטר', 2, "יח'"),
+      catalogItem('item_bbq_10', 'מים מינרלים נביעות 1.5', 3, "יח'"),
       makeTask('item_bbq_t0', 'לנקות את המנגל', '🧹'),
       makeTask('item_bbq_t1', 'להביא כסאות מהמחסן', '🪑'),
+      makeTask('item_bbq_t2', 'לקנות פחם', '🔥', { notes: 'שק 4 ק"ג' }),
     ],
   });
-  console.log('   📋 נעמה: על האש (8 products + 2 tasks, budget 400₪)');
+  console.log('   📋 נעמה: על האש (11 products + 3 tasks, budget 400₪)');
 
   // ──── NAAMA: Budget list ────
   const budgetProducts = pickRandom(products.filter(p => p.price && p.price > 0 && p.category !== 'אחר'), 12);
