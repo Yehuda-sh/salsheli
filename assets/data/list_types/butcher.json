@@ -2422,5 +2422,95 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "חזה עוף שלם",
+    "barcode": "729abf4919d3d",
+    "price": 34.9,
+    "category": "עוף",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אנטריקוט בקר",
+    "barcode": "729fc484099d2",
+    "price": 119.0,
+    "category": "בקר",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "צלעות בקר (אסאדו)",
+    "barcode": "729aa7b939b72",
+    "price": 89.0,
+    "category": "בקר",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "בשר טחון בקר",
+    "barcode": "729d1d29c5fe3",
+    "price": 49.9,
+    "category": "בקר",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שיפוד פרגית",
+    "barcode": "729ad82ef6efc",
+    "price": 44.9,
+    "category": "עוף",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "קבב טלה",
+    "barcode": "729eee47b6f9c",
+    "price": 89.0,
+    "category": "טלה וכבש",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה סלמון",
+    "barcode": "729af9c752df2",
+    "price": 99.0,
+    "category": "דגים",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה דניס",
+    "barcode": "72967d9515463",
+    "price": 69.0,
+    "category": "דגים",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פילה אמנון",
+    "barcode": "7291ef44a86f6",
+    "price": 49.0,
+    "category": "דגים",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "המבורגר בקר 4 יח'",
+    "barcode": "72999fc303fa9",
+    "price": 39.9,
+    "category": "בקר",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
   }
 ]

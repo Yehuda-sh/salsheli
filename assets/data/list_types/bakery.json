@@ -3670,5 +3670,122 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "חלה לשבת מקמח מלא",
+    "barcode": "72914b61b4557",
+    "price": 18.0,
+    "category": "לחמים ולחמניות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "לחם כוסמין פרוס",
+    "barcode": "72969612122f2",
+    "price": 16.9,
+    "category": "לחמים ולחמניות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "לחם שאור מחמצת",
+    "barcode": "729d7b3deee4d",
+    "price": 22.0,
+    "category": "לחמים ולחמניות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "לחמניות בריוש 4 יח'",
+    "barcode": "729fa622d49c7",
+    "price": 14.9,
+    "category": "לחמים ולחמניות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "בורקס גבינה בולגרית",
+    "barcode": "7295971eed671",
+    "price": 8.0,
+    "category": "מאפים מזרחיים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "בורקס תפוח אדמה",
+    "barcode": "7295ab09dea54",
+    "price": 8.0,
+    "category": "מאפים מזרחיים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "סמבוסק בשר",
+    "barcode": "7295b35148a3a",
+    "price": 7.0,
+    "category": "מאפים מזרחיים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "מלאווח מרוקאי",
+    "barcode": "729a880f47a80",
+    "price": 10.0,
+    "category": "מאפים מזרחיים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "ג'חנון",
+    "barcode": "7298f2f8bbbc0",
+    "price": 12.0,
+    "category": "מאפים מזרחיים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "שטרודל תפוחים",
+    "barcode": "729726361cbea",
+    "price": 35.0,
+    "category": "מאפים מתוקים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "סופגנייה ריבה",
+    "barcode": "72970835ba7bf",
+    "price": 7.0,
+    "category": "מאפים מתוקים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "עוגת שוקולד",
+    "barcode": "7298517f84a53",
+    "price": 45.0,
+    "category": "עוגות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "עוגת תפוזים",
+    "barcode": "729fdc57afd49",
+    "price": 40.0,
+    "category": "עוגות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
   }
 ]

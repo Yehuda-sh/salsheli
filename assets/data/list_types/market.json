@@ -4426,5 +4426,113 @@
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
+  },
+  {
+    "name": "חומוס מנה",
+    "barcode": "7296234f7b789",
+    "price": 15.0,
+    "category": "מוצרי חלב",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "טחינה גולמית 500 גרם",
+    "barcode": "72959b8c0c265",
+    "price": 25.0,
+    "category": "מוצרי חלב",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "פלאפל מנה",
+    "barcode": "7297ee5fd2662",
+    "price": 15.0,
+    "category": "קפואים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "שווארמה מנה",
+    "barcode": "729c7cd5bcd98",
+    "price": 45.0,
+    "category": "בשר ודגים",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "סביח (חציל + ביצה + טחינה)",
+    "barcode": "7299d7241e2cc",
+    "price": 25.0,
+    "category": "מוצרי חלב",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "הלווה טורקית",
+    "barcode": "72918cd6476ac",
+    "price": 35.0,
+    "category": "פירות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "תמרים מג'הול 500 גרם",
+    "barcode": "729720f88da0f",
+    "price": 29.9,
+    "category": "פירות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "גרעיני חמניות 500 גרם",
+    "barcode": "729d8c2dc2c50",
+    "price": 14.9,
+    "category": "פירות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "זעתר מעורב 250 גרם",
+    "barcode": "729786200e298",
+    "price": 19.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "סומאק 200 גרם",
+    "barcode": "729b1432f0daa",
+    "price": 15.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "עמבה 500 מ\"ל",
+    "barcode": "729968f859409",
+    "price": 18.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "חריף תימני (סחוג) 250 גרם",
+    "barcode": "729d8f89ee2a9",
+    "price": 12.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
   }
 ]

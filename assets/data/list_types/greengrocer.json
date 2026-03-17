@@ -8950,5 +8950,86 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "עגבניות",
+    "barcode": "7299c7a73ce89",
+    "price": 6.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "עגבניות שרי",
+    "barcode": "729a2535d002a",
+    "price": 9.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "דלעת ערמונים",
+    "barcode": "72926593976e4",
+    "price": 6.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "פטריות שמפיניון 200 גרם",
+    "barcode": "729329d27b256",
+    "price": 9.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "רוקט (רוקולה)",
+    "barcode": "7298d482de1ac",
+    "price": 7.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "שומר",
+    "barcode": "729e418a02d47",
+    "price": 7.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "אפונה טרייה",
+    "barcode": "729f2e343d46e",
+    "price": 14.9,
+    "category": "ירקות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "ענבים",
+    "barcode": "729071078d1b0",
+    "price": 14.9,
+    "category": "פירות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
+  },
+  {
+    "name": "שזיפים",
+    "barcode": "72993d63edd6a",
+    "price": 12.9,
+    "category": "פירות",
+    "brand": null,
+    "icon": null,
+    "unit": "ק\"ג"
   }
 ]

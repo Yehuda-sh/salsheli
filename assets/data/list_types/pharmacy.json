@@ -4234,5 +4234,122 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "אקמול 500 מ\"ג 20 טבליות",
+    "barcode": "7299a63311fcd",
+    "price": 12.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "אקמול",
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "נורופן 200 מ\"ג 20 טבליות",
+    "barcode": "729b4c6c2f8c9",
+    "price": 19.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "נורופן",
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "אופטלגין 500 מ\"ג 20 טבליות",
+    "barcode": "7299ef690591a",
+    "price": 14.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "אופטלגין",
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "טבליות נגד חומצה 60 יח'",
+    "barcode": "729656af15133",
+    "price": 18.9,
+    "category": "תרופות ללא מרשם",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "סירופ שיעול לילדים",
+    "barcode": "729b69883400d",
+    "price": 24.9,
+    "category": "תרופות ללא מרשם",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "ויטמין C 1000 מ\"ג 30 טבליות",
+    "barcode": "729ffc6b1ca10",
+    "price": 29.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "ויטמין D3 1000 יח' 60 כמוסות",
+    "barcode": "72992d3634ef7",
+    "price": 39.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "אומגה 3 60 כמוסות",
+    "barcode": "72952e58ae347",
+    "price": 49.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "מולטי ויטמין 30 טבליות",
+    "barcode": "729b44ac192d4",
+    "price": 34.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "פלסטר עמיד למים 20 יח'",
+    "barcode": "72993237a8f50",
+    "price": 9.9,
+    "category": "עזרה ראשונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "חוסם שמש SPF50 200 מ\"ל",
+    "barcode": "729fc3852e647",
+    "price": 49.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "קרם ידיים ניבאה 100 מ\"ל",
+    "barcode": "729ab66c5a64b",
+    "price": 14.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": "ניבאה",
+    "icon": null,
+    "unit": "יח'"
+  },
+  {
+    "name": "מי מיסלר 400 מ\"ל",
+    "barcode": "729538f223cce",
+    "price": 24.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'"
   }
 ]
