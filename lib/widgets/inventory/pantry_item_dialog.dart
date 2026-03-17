@@ -47,12 +47,16 @@ class PantryItemDialog extends StatefulWidget {
   final PantryItemDialogMode mode;
   final InventoryItem? item; // רק ב-edit mode
   final VoidCallback? onSuccess;
+  final String? initialName; // pre-fill from barcode scan
+  final String? initialCategory; // pre-fill from barcode scan
 
   const PantryItemDialog({
     super.key,
     required this.mode,
     this.item,
     this.onSuccess,
+    this.initialName,
+    this.initialCategory,
   }) : assert(
           mode == PantryItemDialogMode.add || item != null,
           'Item is required in edit mode',
@@ -130,12 +134,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _expiryDate = item.expiryDate;
       _isRecurring = item.isRecurring;
     } else {
-      _nameController = TextEditingController();
+      _nameController = TextEditingController(text: widget.initialName ?? '');
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: AppStrings.inventory.defaultUnit);
       _minQuantityController = TextEditingController(text: '2');
       _notesController = TextEditingController();
-      _selectedCategory = 'other';
+      _selectedCategory = widget.initialCategory != null
+          ? FiltersConfig.hebrewCategoryToEnglish(widget.initialCategory!)
+          : 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
 

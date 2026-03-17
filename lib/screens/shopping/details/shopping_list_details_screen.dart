@@ -25,6 +25,7 @@ import '../../../repositories/shopping_lists_repository.dart';
 import '../../../services/category_detection_service.dart';
 import '../../../services/pending_requests_service.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/pending_requests_section.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
@@ -103,6 +104,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       _searchResults = [];
       _isSearching = false;
     });
+  }
+
+  /// 📷 סריקת ברקוד והוספה לרשימה
+  Future<void> _scanBarcodeAndAdd(ShoppingList currentList) async {
+    final productsProvider = context.read<ProductsProvider>();
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    final name = product['name'] as String? ?? '';
+    final category = product['category'] as String?;
+    await _addProductToList(name: name, currentList: currentList, category: category);
   }
 
   /// הוספת מוצר (מקטלוג או חופשי) — מכבד הרשאות Editor
@@ -475,6 +487,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                         MaterialPageRoute(builder: (_) => ManageUsersScreen(list: currentList)),
                       );
                     },
+                  ),
+                // סריקת ברקוד
+                if (canEdit)
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_scanner),
+                    tooltip: AppStrings.shopping.scanBarcode,
+                    onPressed: () => _scanBarcodeAndAdd(currentList),
                   ),
                 // קטלוג מלא
                 if (canEdit)

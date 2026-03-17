@@ -63,7 +63,7 @@ import '../../../widgets/common/notebook_background.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
-import 'widgets/barcode_scanner_sheet.dart';
+import '../../../widgets/common/barcode_scanner_sheet.dart';
 import 'widgets/shopping_summary_dialog.dart';
 
 class ActiveShoppingScreen extends StatefulWidget {
