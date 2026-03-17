@@ -1,7 +1,6 @@
 # 📐 DESIGN_AUDIT.md — UI/UX Standards Audit
 
 > עודכן: 16 מרץ 2026
-> מבוסס על עקרונות Material Design + UX סטנדרטיים
 
 ---
 
@@ -12,9 +11,13 @@
 | NotebookBackground בכל מסך | ✅ |
 | SafeArea / AppBar בכל מסך | ✅ |
 | Double-tap prevention על כפתורי submit | ✅ |
-| Confirm dialog לפני פעולות הרסניות (מחיקה, logout) | ✅ |
+| Confirm dialog לפני פעולות הרסניות | ✅ |
+| Back-button confirmation בקנייה פעילה | ✅ |
 | Consistent spacing (`kSpacing*`) | ✅ |
 | RTL support | ✅ |
+| 11 full-screen spinners → Skeleton Loading | ✅ |
+| Unified notification hub (AppBar bell) | ✅ |
+| Empty state illustrations + CTA | ✅ |
 
 ## 🎨 עיצוב ייחודי — שומרים!
 
@@ -22,37 +25,23 @@
 - **Dashboard** — watercolor illustrations 🎨
 - **Pantry** — highlighter markers 🖍️
 - **Create List** — StickyNotes 📝
-- **Shopping** — כרטיסים דינמיים ⚡
+- **Active Shopping** — 3-zone tiles, Wake Lock ⚡
 - **Settings** — Card sections מובנים
 
----
-
-## 🟡 שיפור: Spinners → Skeleton Loading
-
-33 `CircularProgressIndicator` עדיין קיימים. Skeleton shimmer נותן תחושת מהירות טובה יותר.
-
-| קובץ | spinners |
-|-------|----------|
-| settings_screen | 7 |
-| pantry_product_selection_sheet | 2 |
-| contact_selector_dialog | 2 |
-| active_shopping_screen | 2 |
-| pending_invites_screen | 2 |
-| suggestions_today_card | 2 |
-| +14 קבצים נוספים | 1 כ"א |
-
-**Reusable component קיים:** `AppLoadingSkeleton` — צריך רק להטמיע.
-
-**עדיפות:** Phase 2 (אחרי launch). לא חוסם.
-
----
-
-## ✅ Reusable Components (נוצרו 12/3)
+## ✅ Reusable Components
 
 - `AppSectionCard` — Card wrapper עם elevation + borderRadius
 - `AppErrorState` — אייקון + הודעה + retry
 - `AppLoadingSkeleton` — Skeleton shimmer loading
 - `AppScreenHeader` — כותרת מסך עם אייקון
 
+## 🟡 שיפורים אפשריים (Post-launch)
+
+| # | שיפור | עדיפות |
+|---|--------|--------|
+| 1 | AnimatedList / Slivers / Hero animations | 🟢 |
+| 2 | Remaining 22 button spinners → better UX | 🟢 |
+| 3 | Pull-to-refresh in pantry screen | 🟢 |
+
 ---
-*Created: 2026-03-12 | Updated: 2026-03-16*
+*Updated: 2026-03-16*

@@ -19,6 +19,8 @@
 | 8 | שירן גל | shiran.gal@demo.com | Admin | משתמש חדש | Onboarding, מסכים ריקים |
 | 9 | אורי שלום | ori.shalom@demo.com | Viewer | צופה בכהן | הרשאות צפייה בלבד |
 | 10 | ליאור דהן | lior.dahan@demo.com | Admin | לא פעיל | משתמש ישן/רדום |
+| 11 | נעמה רוזן | naama.rozen@demo.com | Admin | Power User | 35 מזווה, 30 קבלות, budget list |
+| 12 | יעל חדשה | yael.fresh@demo.com | Admin | הבית של יעל | **0 הכל — empty states** |
 | 11 | נעמה רוזן | naama.rozen@demo.com | Admin | Power User | כל הפיצ'רים |
 
 ---

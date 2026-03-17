@@ -1,7 +1,7 @@
 # 🔍 דוח Code Review — MemoZap
-**תאריך:** 12 מרץ 2026  
+**תאריך:** 12 מרץ 2026 | עודכן: 16 מרץ 2026
 **סוקר:** ראפטור 🦖  
-**גרסה:** 2.0 — סקירה מלאה של כל lib/
+**גרסה:** 3.0
 
 ---
 
@@ -14,21 +14,22 @@
 ### ארכיטקטורה
 - **Repository Pattern** — abstract interfaces + Firebase implementations
 - **Provider + ChangeNotifier** — single source of truth דרך `UserContext`
-- **Typed exceptions** — `AuthException`, `ShoppingListRepositoryException` וכו'
+- **Typed exceptions** — `AuthException`, `ShoppingListRepositoryException`
 - **ConfigValidation mixin** — validation אחיד ב-3 config files
 - **Immutable models** — `copyWith`, `List.unmodifiable`, sentinel pattern
+- **AuthUser/SocialLoginResult DTOs** — providers don't import firebase_auth
 
 ### Design System
 - **0 Colors.xxx** — הכל דרך theme
-- **NotebookBackground** — 22/24 screens
+- **NotebookBackground** — 21/21 screens
 - **Design Tokens** — `AppTokens` עם spacing, blur, animation
-- **Typography** — 8 `kFontSize*` constants
 - **Dark Mode** — צבעים מופחתי רוויה
 
 ### אבטחה
-- **Firestore Rules v4.1** — schema validation, audit trail, anti-spam
-- **Role-based access** — Owner/Admin/Editor/Viewer
+- **Firestore Rules v4.2** — schema validation, audit trail, anti-spam, 4 security fixes
+- **Role-based access** — Owner/Admin/Editor/Viewer with approval flow
 - **AuthException typed** — enum לסוגי שגיאות
+- **Null-safe models** — all 10 models with `@JsonKey(defaultValue: '')`
 
 ---
 
@@ -37,16 +38,16 @@
 ### 🔴 לתקן
 | # | בעיה | מיקום |
 |---|-------|-------|
-| B3 | SavedContactsService בולע שגיאות | `saved_contacts_service.dart` |
-| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart:564,1261` |
+| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart:566,1285` |
 
-### 🟡 DRY patterns (refactor עתידי)
+### 🟡 Refactor עתידי (Post-launch)
 | # | בעיה | היקף |
 |---|-------|------|
-| D1 | **BaseProvider mixin** — `_notifySafe()` + common getters זהים ב-5/6 providers | ~50 שורות כפולות |
+| D1 | **BaseProvider mixin** — `_notifySafe()` + common getters ב-5 providers | ~50 שורות כפולות |
 | D2 | **notifications_service** — 10 `createXNotification()` methods, 90% זהים | ~300 שורות |
 | D3 | **SocialAuthMixin** — נוצר, לא יושם ב-login+register | `social_auth_mixin.dart` |
-| D4 | **Deprecated methods** — 4 ב-pending_invites, 2 ב-onboarding (יש callers) | 6 methods |
+| D5 | **Dialog DRY** — `_confirmExit`, `_showErrorSnackBar` זהים ב-3 dialogs | ~80 שורות |
+| F1 | **File splitting** — 6 קבצים מעל 1,000 שורות | pantry, settings, providers... |
 
 ### 🟢 Dead code (נשאר — API עתידי)
 | service | dead methods |
@@ -55,40 +56,34 @@
 | suggestions_service | 5 methods |
 | shopping_patterns_service | 2 methods |
 
-### 🟡 DRY נוסף — widgets
-| # | בעיה | היקף |
-|---|-------|------|
-| D5 | **add_edit_product + add_edit_task + pantry_item_dialog** — `_confirmExit`, `_showErrorSnackBar`, `_handleCancel`, `_markChanged` זהים ב-3 dialogs | ~80 שורות כפולות |
-
 ---
 
-## 📈 מה בוצע בסקירה (12/3/2026)
+## 📈 מה בוצע (12-16 מרץ 2026)
 
-### קוד שנמחק
-| סוג | כמות | שורות |
-|-----|------|-------|
-| Empty `kDebugMode` blocks | ~348 | ~700 |
-| Dead getters/methods | 5 | ~25 |
-| Unused imports | ~12 | ~12 |
-| Deprecated methods (0 callers) | 5 | ~35 |
-| Duplicate widget (`SimpleTappableCard`) | 1 file | 194 |
-| Dead color constants | 44 | ~50 |
-| **סה"כ** | | **~1,016 שורות** |
+### שורות שנמחקו
+| סוג | שורות |
+|-----|-------|
+| Empty `kDebugMode` blocks | ~700 |
+| Onboarding flow (7 files) | ~3,258 |
+| Dead getters/methods/imports | ~70 |
+| Duplicate widgets | 194 |
+| Dead color constants | ~50 |
+| PendingRequestsSection rewrite | ~218 |
+| **סה"כ נמחק** | **~4,490** |
 
-### קוד שנוצר
-| קובץ | תפקיד |
-|------|--------|
+### קוד שנוצר/שודרג
+| קובץ/פיצ'ר | תפקיד |
+|-------------|--------|
 | `SocialAuthMixin` | DRY — shared Google/Apple login |
 | `ConfigValidation` mixin | DRY — shared config validation |
-| `AppSectionCard` | Reusable UI component |
-| `AppErrorState` | Reusable UI component |
-| `AppLoadingSkeleton` | Reusable UI component |
-| `AppScreenHeader` | Reusable UI component |
-
-### DRY fixes
-- `stickyColor` — 20-line switch → 1-line delegate to `ListTypes`
-- `ensureSanity()` — 48 duplicate lines → `ConfigValidation` mixin
-- `SimpleTappableCard` → `TappableCard(animateElevation: false)`
+| `AppSectionCard/ErrorState/LoadingSkeleton/ScreenHeader` | Reusable UI |
+| Active shopping screen | Wake Lock, 3-zone tiles, quantity picker, haptics |
+| List details screen | Planning redesign, inline search, dual FABs |
+| Shopping summary | Celebration animations |
+| Last Chance Banner | Horizontal chips layout |
+| Barcode scanner | mobile_scanner + catalog lookup |
+| PopScope back-button | Confirmation dialog in active shopping |
+| Edge case demo data | 12 users, all scenarios |
 
 ---
 
@@ -96,24 +91,13 @@
 
 | מדד | ערך |
 |-----|-----|
-| קבצי Dart | ~149 |
-| שורות קוד (lib/) | ~57,000 |
-| **כל lib/ נסקר** | ✅ 100% |
+| קבצי Dart | ~142 |
+| שורות קוד (lib/) | ~54,000 |
 | Errors | **0** |
 | Warnings | **2** (known, deferred) |
-| Info issues | ~400 |
-| Tests | 272/272 pass |
-| Widget/Integration tests | 0 |
+| Tests | **335/335** pass |
+| Demo users | **12** |
+| i18n coverage | ~85% |
 
 ---
-
-## 🎯 המלצות לשלב הבא
-
-1. **Widget tests** — TappableCard, StickyNote, ShoppingListTile
-2. **BaseProvider mixin** — חיסכון ~50 שורות כפולות
-3. **notifications_service refactor** — `_createNotification()` helper
-4. **Deprecated migration** — callers של pending_invites + onboarding
-5. **SocialAuthMixin integration** — יישום ב-login + register screens
-
----
-*🦖 ראפטור — Full lib/ Code Review | 12 March 2026*
+*🦖 ראפטור — Full lib/ Code Review | March 2026*
