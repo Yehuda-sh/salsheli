@@ -215,7 +215,7 @@ async function main() {
 
   // ──── COHEN: Weekly supermarket (active, shared) ────
   // Owner: רונית | Admin: אבי (household) | Editors: יובל, נועה | Viewer: אורי
-  const weeklyProducts = pickRandom(byCategory(products, 'מוצרי חלב','לחם ומאפים','פירות וירקות','ביצים','משקאות','שמנים ורטבים'), 14);
+  const weeklyProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && ['מוצרי חלב','לחם ומאפים','פירות וירקות','משקאות','שמנים ורטבים','אורז ופסטה','שימורים'].includes(p.category)), 14);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_weekly').set({
     id: 'list_cohen_weekly', name: 'קניות שבועיות', status: 'active', type: 'supermarket',
     budget: 800, is_shared: true, is_private: false, created_by: uids.ronit,
@@ -259,7 +259,7 @@ async function main() {
   console.log('   📋 כהן: קניות שבועיות (14 items, 3 pending requests, editors+viewer)');
 
   // ──── COHEN: Greengrocer (ACTIVE SHOPPING by רונית!) ────
-  const greenProducts = pickRandom(byCategory(products, 'פירות וירקות'), 10);
+  const greenProducts = pickRandom(products.filter(p => p.sourceFile === 'greengrocer'), 10);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_green').set({
     id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'greengrocer',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
@@ -315,7 +315,7 @@ async function main() {
   console.log('   📋 כהן: קצביה ליום שישי (6, 2/6 checked)');
 
   // ──── COHEN: Mixed products + tasks ────
-  const mixedProducts = pickRandom(byCategory(products, 'מוצרי חלב','שימורים','מוצרי ניקיון','ממתקים וחטיפים'), 6);
+  const mixedProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && ['מוצרי חלב','שימורים','מוצרי ניקיון','ממתקים וחטיפים'].includes(p.category)), 6);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_mixed').set({
     id: 'list_cohen_mixed', name: 'קניות + משימות לשבת', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.avi,
@@ -337,7 +337,7 @@ async function main() {
   console.log('   📋 כהן: קניות + משימות (6 products + 4 tasks, editor יובל)');
 
   // ──── COHEN: Household supplies ────
-  const houseProducts = pickRandom(byCategory(products, 'מוצרי בית','מוצרי ניקיון'), 8);
+  const houseProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && ['מוצרי בית','מוצרי ניקיון'].includes(p.category)), 8);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_household').set({
     id: 'list_cohen_household', name: 'צרכי בית 🏠', status: 'active', type: 'household',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
@@ -377,7 +377,7 @@ async function main() {
   console.log('   📋 כהן: יום הולדת נועה (completed event, 8 items)');
 
   // ──── COHEN: Last week completed ────
-  const lastWeekProducts = pickRandom(products.filter(p => p.category !== 'אחר'), 15);
+  const lastWeekProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.category !== 'אחר' && p.category !== 'כללי'), 15);
   await db.collection('households').doc(hCohen).collection('shared_lists').doc('list_cohen_lastweek').set({
     id: 'list_cohen_lastweek', name: 'קניות שבוע שעבר', status: 'completed', type: 'supermarket',
     budget: 750, is_shared: true, is_private: false, created_by: uids.avi,
@@ -392,7 +392,7 @@ async function main() {
   console.log('   📋 כהן: קניות שבוע שעבר (15, completed)');
 
   // ──── LEVI: Supermarket ────
-  const leviProducts = pickRandom(byCategory(products, 'מוצרי חלב','פירות וירקות','משקאות','אורז ופסטה','קפה ותה'), 9);
+  const leviProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && ['מוצרי חלב','פירות וירקות','משקאות','אורז ופסטה','קפה ותה'].includes(p.category)), 9);
   await db.collection('households').doc(hLevi).collection('shared_lists').doc('list_levi_weekly').set({
     id: 'list_levi_weekly', name: 'רשימה לסופר 🛒', status: 'active', type: 'supermarket',
     budget: 500, is_shared: true, is_private: false, created_by: uids.maya,
@@ -404,7 +404,7 @@ async function main() {
   console.log('   📋 לוי: רשימה לסופר (9, 3/9 checked)');
 
   // ──── LEVI: Completed ────
-  const leviCompletedProducts = pickRandom(products, 10);
+  const leviCompletedProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.category !== 'אחר' && p.category !== 'כללי'), 10);
   await db.collection('households').doc(hLevi).collection('shared_lists').doc('list_levi_done').set({
     id: 'list_levi_done', name: 'קניות שבוע שעבר', status: 'completed', type: 'supermarket',
     budget: 400, is_shared: true, is_private: false, created_by: uids.dan,
@@ -431,7 +431,7 @@ async function main() {
   console.log('   📋 תומר: סופרפארם (private, 6 + 1 task)');
 
   // ──── TOMER: Small supermarket ────
-  const tomerSuperProducts = pickRandom(byCategory(products, 'מוצרי חלב','לחם ומאפים','משקאות'), 5);
+  const tomerSuperProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && ['מוצרי חלב','לחם ומאפים','משקאות'].includes(p.category)), 5);
   await db.collection('households').doc(hTomer).collection('shared_lists').doc('list_tomer_super').set({
     id: 'list_tomer_super', name: 'AM:PM', status: 'active', type: 'supermarket',
     budget: 100, is_shared: false, is_private: false, created_by: uids.tomer,
@@ -443,7 +443,12 @@ async function main() {
   console.log('   📋 תומר: AM:PM (5 items, budget 100₪)');
 
   // ──── NAAMA: Big monthly list (performance test) ────
-  const bigProducts = pickRandom(products.filter(p => p.category !== 'אחר' && p.category !== 'כללי'), 50);
+  // Only supermarket-relevant categories (not pharmacy/butcher/bakery products)
+  const supermarketCategories = ['מוצרי חלב','לחם ומאפים','פירות וירקות','משקאות','שימורים',
+    'אורז ופסטה','תבלינים ואפייה','ממתקים וחטיפים','קפה ותה','מוצרי ניקיון','מוצרי בית',
+    'שמנים ורטבים','קפואים','בשר ודגים','דגנים','קטניות ודגנים','היגיינה אישית',
+    'מזון לחיות מחמד','ממרחים מתוקים','אגוזים וגרעינים','פירות יבשים','תחליפי חלב'];
+  const bigProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && supermarketCategories.includes(p.category)), 50);
   await db.collection('households').doc(hNaama).collection('shared_lists').doc('list_naama_big').set({
     id: 'list_naama_big', name: 'קניות חודשיות 🛒', status: 'active', type: 'supermarket',
     budget: 1500, is_shared: false, is_private: false, created_by: uids.naama,
@@ -506,7 +511,7 @@ async function main() {
   console.log('   📋 נעמה: על האש (11 products + 3 tasks, budget 400₪)');
 
   // ──── NAAMA: Budget list ────
-  const budgetProducts = pickRandom(products.filter(p => p.price && p.price > 0 && p.category !== 'אחר'), 12);
+  const budgetProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price && p.price > 0 && p.category !== 'אחר' && p.category !== 'כללי'), 12);
   await db.collection('households').doc(hNaama).collection('shared_lists').doc('list_naama_budget').set({
     id: 'list_naama_budget', name: 'קניות בתקציב 💰', status: 'active', type: 'supermarket',
     budget: 300, is_shared: false, is_private: false, created_by: uids.naama,
@@ -520,7 +525,7 @@ async function main() {
 
   // ──── NAAMA: Past completed lists (history) ────
   for (let m = 1; m <= 6; m++) {
-    const pastProducts = pickRandom(products.filter(p => p.category !== 'אחר'), randomInt(8, 18));
+    const pastProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.category !== 'אחר' && p.category !== 'כללי'), randomInt(8, 18));
     await db.collection('households').doc(hNaama).collection('shared_lists').doc(`list_naama_past_${m}`).set({
       id: `list_naama_past_${m}`, name: `קניות ${m === 1 ? 'שבוע שעבר' : `לפני ${m} שבועות`}`,
       status: 'completed', type: 'supermarket',
@@ -578,7 +583,7 @@ async function main() {
   console.log('   📦 תומר: 10 items');
 
   // Naama: 35 items (power user)
-  const naamaInventory = pickRandom(products.filter(p => p.category !== 'אחר' && p.category !== 'כללי'), 35);
+  const naamaInventory = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.category !== 'אחר' && p.category !== 'כללי'), 35);
   for (let i = 0; i < 5; i++) { naamaInventory[i]._qty = randomInt(0, 1); naamaInventory[i]._minQty = 3; }
   await createInventory(hNaama, naamaInventory, uids.naama);
   console.log('   📦 נעמה: 35 items (5 low)');
@@ -607,7 +612,7 @@ async function main() {
       const date = daysAgo(w * randomInt(2, 5));
       const shopperUid = shopperUids[w % shopperUids.length];
       const numItems = randomInt(5, 18);
-      const items = pickRandom(products.filter(p => p.price), numItems).map((p, i) => ({
+      const items = pickRandom(products.filter(p => p.price && p.sourceFile === 'supermarket' && p.category !== 'כללי'), numItems).map((p, i) => ({
         id: `rcpt_${i}`, name: p.name, quantity: randomInt(1, 4), unit_price: p.price || 0,
         is_checked: true, category: p.category,
         checked_by: shopperUid, checked_at: date.toISOString(),
