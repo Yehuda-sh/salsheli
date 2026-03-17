@@ -54,8 +54,10 @@ import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
+import '../../providers/products_provider.dart';
 import '../../widgets/common/add_location_dialog.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
 
@@ -203,6 +205,27 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// מציג bottom sheet לבחירת מוצר מהקטלוג
   void _addItemDialog() {
     PantryProductSelectionSheet.show(context);
+  }
+
+  /// 📷 סריקת ברקוד — פותח pantry dialog עם פרטי המוצר
+  Future<void> _scanBarcodeAndAddToPantry() async {
+    final productsProvider = context.read<ProductsProvider>();
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    // פתח dialog עם הנתונים מהקטלוג
+    final name = product['name'] as String? ?? '';
+    final category = product['category'] as String?;
+
+    if (!mounted) return;
+    unawaited(showDialog(
+      context: context,
+      builder: (ctx) => PantryItemDialog(
+        mode: PantryItemDialogMode.add,
+        initialName: name,
+        initialCategory: category,
+      ),
+    ));
   }
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
@@ -384,16 +407,31 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
                 padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
-                child: Semantics(
-                  button: true,
-                  label: strings.addItemLabel,
-                  child: FloatingActionButton(
-                    heroTag: 'pantry_add_btn',
-                    onPressed: _addItemDialog,
-                    backgroundColor: primaryColor,
-                    tooltip: strings.addItemTooltip,
-                    child: Icon(Icons.add, color: scheme.onPrimaryContainer),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // סריקת ברקוד
+                    FloatingActionButton.small(
+                      heroTag: 'pantry_scan_btn',
+                      onPressed: _scanBarcodeAndAddToPantry,
+                      backgroundColor: scheme.secondaryContainer,
+                      tooltip: AppStrings.shopping.scanBarcode,
+                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    // הוספה ידנית
+                    Semantics(
+                      button: true,
+                      label: strings.addItemLabel,
+                      child: FloatingActionButton(
+                        heroTag: 'pantry_add_btn',
+                        onPressed: _addItemDialog,
+                        backgroundColor: primaryColor,
+                        tooltip: strings.addItemTooltip,
+                        child: Icon(Icons.add, color: scheme.onPrimaryContainer),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               body: provider.isLoading
@@ -429,7 +467,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         productName: name,
                                         quantity: qty.toInt(),
                                         unit: unit,
-                                        category: 'כללי',
+                                        category: AppStrings.inventory.defaultCategory,
                                         location: 'general',
                                       );
                                     },

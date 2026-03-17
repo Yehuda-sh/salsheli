@@ -25,7 +25,7 @@ import '../../../repositories/shopping_lists_repository.dart';
 import '../../../services/category_detection_service.dart';
 import '../../../services/pending_requests_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/common/app_loading_skeleton.dart';
+import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/pending_requests_section.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
@@ -104,6 +104,17 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       _searchResults = [];
       _isSearching = false;
     });
+  }
+
+  /// 📷 סריקת ברקוד והוספה לרשימה
+  Future<void> _scanBarcodeAndAdd(ShoppingList currentList) async {
+    final productsProvider = context.read<ProductsProvider>();
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    final name = product['name'] as String? ?? '';
+    final category = product['category'] as String?;
+    await _addProductToList(name: name, currentList: currentList, category: category);
   }
 
   /// הוספת מוצר (מקטלוג או חופשי) — מכבד הרשאות Editor
@@ -477,6 +488,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       );
                     },
                   ),
+                // סריקת ברקוד
+                if (canEdit)
+                  IconButton(
+                    icon: const Icon(Icons.qr_code_scanner),
+                    tooltip: AppStrings.shopping.scanBarcode,
+                    onPressed: () => _scanBarcodeAndAdd(currentList),
+                  ),
                 // קטלוג מלא
                 if (canEdit)
                   IconButton(
@@ -493,17 +511,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             body: SafeArea(
               child: Column(
                 children: [
-                  // 📝 בקשות ממתינות (scrollable אם יותר מדי)
+                  // 📝 בקשות ממתינות
                   if (currentList.pendingRequestsForReview.isNotEmpty && currentList.canCurrentUserApprove)
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 150),
-                      child: SingleChildScrollView(
-                        child: PendingRequestsSection(
-                          listId: currentList.id,
-                          pendingRequests: currentList.pendingRequestsForReview,
-                          canApprove: currentList.canCurrentUserApprove,
-                        ),
-                      ),
+                    PendingRequestsSection(
+                      listId: currentList.id,
+                      pendingRequests: currentList.pendingRequestsForReview,
+                      canApprove: currentList.canCurrentUserApprove,
                     ),
 
                   // 🔍 שורת חיפוש + הוספה מהירה
@@ -720,7 +733,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
   // ===== ITEMS LIST =====
 
   Widget _buildItemsList(ShoppingList currentList, ThemeData theme) {
-    final cs = theme.colorScheme;
     final items = currentList.items;
     final canManage = currentList.canCurrentUserManage;
     final canEdit = currentList.canCurrentUserEdit;

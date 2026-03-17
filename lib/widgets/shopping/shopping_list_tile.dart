@@ -145,12 +145,12 @@ class ShoppingListTile extends StatelessWidget {
 
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeWhoBrings) {
-      return (Icons.people, 'מי מביא מה');
+      return (Icons.people, AppStrings.shopping.whoBringsWhat);
     }
 
     if (list.type == ShoppingList.typeEvent &&
         list.eventMode == ShoppingList.eventModeTasks) {
-      return (Icons.checklist, 'צ\'קליסט');
+      return (Icons.checklist, AppStrings.shopping.checklist);
     }
 
     return (Icons.shopping_cart_checkout, AppStrings.shopping.startShoppingButton);

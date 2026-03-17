@@ -47,12 +47,16 @@ class PantryItemDialog extends StatefulWidget {
   final PantryItemDialogMode mode;
   final InventoryItem? item; // רק ב-edit mode
   final VoidCallback? onSuccess;
+  final String? initialName; // pre-fill from barcode scan
+  final String? initialCategory; // pre-fill from barcode scan
 
   const PantryItemDialog({
     super.key,
     required this.mode,
     this.item,
     this.onSuccess,
+    this.initialName,
+    this.initialCategory,
   }) : assert(
           mode == PantryItemDialogMode.add || item != null,
           'Item is required in edit mode',
@@ -130,12 +134,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _expiryDate = item.expiryDate;
       _isRecurring = item.isRecurring;
     } else {
-      _nameController = TextEditingController();
+      _nameController = TextEditingController(text: widget.initialName ?? '');
       _quantityController = TextEditingController(text: '1');
-      _unitController = TextEditingController(text: 'יח\'');
+      _unitController = TextEditingController(text: AppStrings.inventory.defaultUnit);
       _minQuantityController = TextEditingController(text: '2');
       _notesController = TextEditingController();
-      _selectedCategory = 'other';
+      _selectedCategory = widget.initialCategory != null
+          ? FiltersConfig.hebrewCategoryToEnglish(widget.initialCategory!)
+          : 'other';
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
 
@@ -286,7 +292,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               Icon(Icons.bar_chart, size: 14, color: mutedColor),
               const SizedBox(width: 4),
               Text(
-                'סטטיסטיקות',
+                AppStrings.inventory.statisticsLabel,
                 style: TextStyle(
                   fontSize: smallFont,
                   fontWeight: FontWeight.w500,
@@ -334,7 +340,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     Icon(Icons.trending_up, size: 12, color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7)),
                     const SizedBox(width: 3),
                     Text(
-                      'פופולרי',
+                      AppStrings.inventory.popularLabel,
                       style: TextStyle(
                         fontSize: smallFont,
                         color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7),
@@ -358,9 +364,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       firstDate: now,
       lastDate: now.add(const Duration(days: 365 * 5)),
       locale: const Locale('he', 'IL'),
-      helpText: 'בחר תאריך תפוגה',
-      cancelText: 'ביטול',
-      confirmText: 'אישור',
+      helpText: AppStrings.inventory.selectExpiryDate,
+      cancelText: AppStrings.inventory.cancelLabel,
+      confirmText: AppStrings.inventory.confirmLabel,
     );
 
     if (picked != null && mounted) {
@@ -539,7 +545,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   Column(
                     children: [
                       Text(
-                        'כמות',
+                        AppStrings.inventory.quantityLabelShort,
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
                           color: cs.onSurfaceVariant,
@@ -570,7 +576,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           Icon(Icons.notifications_outlined, size: 14, color: cs.onSurfaceVariant),
                           const SizedBox(width: 2),
                           Text(
-                            'מינימום',
+                            AppStrings.inventory.minimumLabel,
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
                               color: cs.onSurfaceVariant,
@@ -678,7 +684,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     color: cs.onSurfaceVariant,
                   ),
                   title: Text(
-                    'הגדרות נוספות',
+                    AppStrings.inventory.advancedSettings,
                     style: TextStyle(
                       fontSize: 14,
                       color: cs.onSurfaceVariant,
@@ -750,7 +756,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       borderRadius: BorderRadius.circular(8),
                       child: InputDecorator(
                         decoration: InputDecoration(
-                          labelText: 'תאריך תפוגה',
+                          labelText: AppStrings.inventory.expiryDateLabel,
                           labelStyle: TextStyle(color: cs.onSurfaceVariant),
                           prefixIcon: Icon(Icons.event_outlined, color: cs.primary),
                           suffixIcon: _expiryDate != null
@@ -762,14 +768,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                                             _expiryDate = null;
                                             _hasChanges = true;
                                           }),
-                                  tooltip: 'נקה תאריך',
+                                  tooltip: AppStrings.inventory.clearDateTooltip,
                                 )
                               : const Icon(Icons.calendar_today, size: 18),
                         ),
                         child: Text(
                           _expiryDate != null
                               ? DateFormat('dd/MM/yyyy').format(_expiryDate!)
-                              : 'לא הוגדר',
+                              : AppStrings.inventory.notSetLabel,
                           style: TextStyle(
                             color: _expiryDate != null
                                 ? cs.onSurface
@@ -787,7 +793,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       maxLines: 2,
                       textInputAction: TextInputAction.done,
                       decoration: InputDecoration(
-                        labelText: 'הערות',
+                        labelText: AppStrings.inventory.notesLabel,
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
                         hintText: AppStrings.inventory.notesHint,
                         hintStyle: TextStyle(
@@ -812,9 +818,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                               });
                             },
                       title: Text(AppStrings.inventory.permanentProduct),
-                      subtitle: const Text(
-                        'יתווסף אוטומטית לרשימות חדשות',
-                        style: TextStyle(fontSize: 12),
+                      subtitle: Text(
+                        AppStrings.inventory.autoAddToLists,
+                        style: const TextStyle(fontSize: 12),
                       ),
                       secondary: Icon(
                         _isRecurring ? Icons.star : Icons.star_border,

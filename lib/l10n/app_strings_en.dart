@@ -402,6 +402,15 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get editListButton => 'Edit List';
   String get deleteListButton => 'Delete';
   String get summaryTitle => 'Shopping Summary';
+  @override String get summarySuccess => 'Shopping done! ⚡';
+  @override String get storeQuestion => 'Where did you shop?';
+  @override String get whoBringsWhat => 'Who brings what';
+  @override String get checklist => 'Checklist';
+  @override String get defaultInviteLabel => 'Invitation';
+  @override String get leaveShoppingTitle => 'Leave shopping?';
+  @override String get leaveShoppingMessage => 'Shopping is still active. You can come back later.';
+  @override String get continueShoppingButton => 'Keep shopping';
+  @override String get leaveButton => 'Leave';
   String get summaryOutOfStock => 'Out of stock';
   String get summaryNotMarked => 'Not marked';
   String get summaryBack => 'Back';
@@ -1067,6 +1076,22 @@ class InventoryStringsEn extends InventoryStrings {
   String get unknownSuggestionWarning => 'Unknown suggestion type - app update required';
   String get unknownSuggestionCannotDelete => 'Cannot delete unknown suggestion';
   String get unknownSuggestionUpdateApp => 'Update App';
+  @override String get defaultUnit => 'pcs';
+  @override String get statisticsLabel => 'Statistics';
+  @override String get popularLabel => 'Popular';
+  @override String get selectExpiryDate => 'Select expiry date';
+  @override String get cancelLabel => 'Cancel';
+  @override String get confirmLabel => 'Confirm';
+  @override String get quantityLabelShort => 'Quantity';
+  @override String get minimumLabel => 'Minimum';
+  @override String get advancedSettings => 'Advanced settings';
+  @override String get expiryDateLabel => 'Expiry date';
+  @override String get clearDateTooltip => 'Clear date';
+  @override String get notSetLabel => 'Not set';
+  @override String get notesLabel => 'Notes';
+  @override String get autoAddToLists => 'Auto-add to new lists';
+  @override String get defaultCategory => 'General';
+
   String get expiryAlertTitleExpired => 'Expired!';
   String get expiryAlertTitleExpiringSoon => 'Expiring Soon';
   String expiryAlertSubtitle(int expiredCount, int expiringSoonCount) {

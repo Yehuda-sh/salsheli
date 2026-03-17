@@ -31,6 +31,7 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/category_detection_service.dart';
 import '../common/animated_button.dart';
+import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
 import 'add_edit_product_dialog.dart';
 import '../../config/filters_config.dart';
@@ -84,6 +85,17 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     if (mounted && _productsProvider != null) {
       _productsProvider!.loadProducts();
     }
+  }
+
+  /// 📷 סריקת ברקוד → חיפוש שם המוצר
+  Future<void> _scanAndSearch(ProductsProvider productsProvider) async {
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    final name = product['name'] as String? ?? '';
+    _searchController.text = name;
+    unawaited(productsProvider.searchProducts(name));
+    setState(() {});
   }
 
   @override
@@ -431,7 +443,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                           productsProvider.clearSearch();
                         },
                       )
-                    : null,
+                    : IconButton(
+                        icon: const Icon(Icons.qr_code_scanner, size: 20),
+                        tooltip: AppStrings.shopping.scanBarcode,
+                        onPressed: () => _scanAndSearch(productsProvider),
+                      ),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 isDense: true,

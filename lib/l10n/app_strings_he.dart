@@ -413,6 +413,15 @@ class ShoppingStrings {
   String get editListButton => 'עריכת רשימה';
   String get deleteListButton => 'מחיקה';
   String get summaryTitle => 'סיכום קנייה';
+  String get summarySuccess => 'קנייה מוצלחת! ⚡';
+  String get storeQuestion => 'מאיפה קנית?';
+  String get whoBringsWhat => 'מי מביא מה';
+  String get checklist => 'צ\'קליסט';
+  String get defaultInviteLabel => 'הזמנה';
+  String get leaveShoppingTitle => 'לצאת מהקנייה?';
+  String get leaveShoppingMessage => 'הקנייה עדיין פעילה. אם תצא, תוכל לחזור אליה מאוחר יותר.';
+  String get continueShoppingButton => 'להמשיך לקנות';
+  String get leaveButton => 'לצאת';
   String get summaryOutOfStock => 'אזלו בחנות';
   String get summaryNotMarked => 'לא סומנו';
   String get summaryBack => 'חזור';
@@ -1086,6 +1095,23 @@ class InventoryStrings {
   String get unknownSuggestionWarning => 'סוג המלצה לא מוכר - נדרש עדכון אפליקציה';
   String get unknownSuggestionCannotDelete => 'לא ניתן למחוק המלצה לא מוכרת';
   String get unknownSuggestionUpdateApp => 'עדכן אפליקציה';
+  // Pantry item dialog
+  String get defaultUnit => 'יח\'';
+  String get statisticsLabel => 'סטטיסטיקות';
+  String get popularLabel => 'פופולרי';
+  String get selectExpiryDate => 'בחר תאריך תפוגה';
+  String get cancelLabel => 'ביטול';
+  String get confirmLabel => 'אישור';
+  String get quantityLabelShort => 'כמות';
+  String get minimumLabel => 'מינימום';
+  String get advancedSettings => 'הגדרות נוספות';
+  String get expiryDateLabel => 'תאריך תפוגה';
+  String get clearDateTooltip => 'נקה תאריך';
+  String get notSetLabel => 'לא הוגדר';
+  String get notesLabel => 'הערות';
+  String get autoAddToLists => 'יתווסף אוטומטית לרשימות חדשות';
+  String get defaultCategory => 'כללי';
+
   String get expiryAlertTitleExpired => 'פג תוקף!';
   String get expiryAlertTitleExpiringSoon => 'תפוגה קרובה';
   String expiryAlertSubtitle(int expiredCount, int expiringSoonCount) {

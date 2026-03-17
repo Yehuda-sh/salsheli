@@ -590,7 +590,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         return (
           Icons.person_add,
           strings.requestTypeInvite,
-          request.requestData['email'] as String? ?? 'הזמנה',
+          request.requestData['email'] as String? ?? AppStrings.shopping.defaultInviteLabel,
         );
       case RequestType.unknown:
         return (

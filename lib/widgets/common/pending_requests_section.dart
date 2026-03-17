@@ -1,43 +1,30 @@
 // 📄 lib/widgets/common/pending_requests_section.dart
 //
-// מציג בקשות ממתינות לאישור (הוספה/עריכה/מחיקה של פריטים).
-// מופיע בפתק כתום עם כפתורי אישור/דחייה למי שיש הרשאה.
-//
-// Features:
-//   - כניסה מדורגת (Staggered Entrance) עם flutter_animate
-//   - כרטיסים בעיצוב Glassmorphic עדין (BackdropFilter)
-//   - חתימת Haptic דינמית (Success vs Error)
-//   - אופטימיזציית RepaintBoundary
-//
-// 🔗 Related: PendingRequest, StickyNote
+// מציג בקשות ממתינות לאישור — כרטיסים קומפקטיים.
+// Version: 5.0 — Compact inline design (no StickyNote, no BackdropFilter)
+// Last Updated: 16/03/2026
 
-import 'package:memozap/l10n/app_strings.dart';
 import 'dart:async';
-import 'dart:ui' show ImageFilter;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/pending_requests_service.dart';
-import 'sticky_note.dart';
 
-/// Widget להצגת בקשות ממתינות
-///
-/// dynamic haptic signatures, RepaintBoundary optimization.
+/// Widget להצגת בקשות ממתינות — קומפקטי
 class PendingRequestsSection extends StatelessWidget {
   final String listId;
   final List<PendingRequest> pendingRequests;
-  final bool canApprove; // האם המשתמש יכול לאשר בקשות
+  final bool canApprove;
 
   const PendingRequestsSection({
     super.key,
@@ -48,336 +35,179 @@ class PendingRequestsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // אם אין בקשות - לא מציגים כלום
-    if (pendingRequests.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (pendingRequests.isEmpty) return const SizedBox.shrink();
 
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final cs = Theme.of(context).colorScheme;
 
-    // ✅ תמיכה ב-Dark Mode
-    final stickyColor = isDark ? kStickyOrangeDark : kStickyOrange;
-
-    // 🎨 RepaintBoundary isolates card animations from notebook background
-    return RepaintBoundary(
-      child: Semantics(
-        label: AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length),
-        container: true,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: kSpacingMedium),
-          child: StickyNote(
-            color: stickyColor,
-            rotation: 0.01,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // כותרת
-                Row(
-                  children: [
-                    const Icon(Icons.pending_actions, size: 20),
-                    const Gap(kSpacingSmall),
-                    Expanded(
-                      child: Text(
-                        'בקשות ממתינות (${pendingRequests.length})',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+      padding: const EdgeInsets.all(kSpacingSmall),
+      decoration: BoxDecoration(
+        color: kStickyOrange.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        border: Border.all(color: kStickyOrange.withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // כותרת
+          Row(
+            children: [
+              Icon(Icons.pending_actions, size: 18, color: cs.onSurface),
+              const SizedBox(width: 6),
+              Text(
+                '${AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length)} (${pendingRequests.length})',
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
                 ),
-                const Gap(kSpacingMedium),
-
-                // 🎬 רשימת בקשות עם כניסה מדורגת (Staggered Entrance)
-                ...pendingRequests.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final request = entry.value;
-                  return _RequestCard(
-                    request: request,
-                    listId: listId,
-                    canApprove: canApprove,
-                  )
-                      .animate()
-                      .fadeIn(
-                        duration: 300.ms,
-                        delay: (50 * index).ms,
-                      )
-                      .slideX(
-                        begin: 0.1,
-                        end: 0,
-                        curve: Curves.easeOutCubic,
-                        delay: (50 * index).ms,
-                      );
-                }),
-              ],
-            ),
+              ),
+            ],
           ),
-        ),
+          const SizedBox(height: kSpacingSmall),
+
+          // בקשות — שורה קומפקטית לכל אחת
+          ...pendingRequests.map((request) => _CompactRequestRow(
+            request: request,
+            listId: listId,
+            canApprove: canApprove,
+          )),
+        ],
       ),
     );
   }
 }
 
-/// כרטיס בקשה בודדת - Glassmorphic Premium
-///
-/// ✅ Version 4.0: Glassmorphic surface, shimmer processing, dynamic haptic
-class _RequestCard extends StatefulWidget {
+/// שורת בקשה קומפקטית — אייקון + שם + כמות + כפתורי ✓/✗
+class _CompactRequestRow extends StatefulWidget {
   final PendingRequest request;
   final String listId;
   final bool canApprove;
 
-  const _RequestCard({
+  const _CompactRequestRow({
     required this.request,
     required this.listId,
     required this.canApprove,
   });
 
   @override
-  State<_RequestCard> createState() => _RequestCardState();
+  State<_CompactRequestRow> createState() => _CompactRequestRowState();
 }
 
-class _RequestCardState extends State<_RequestCard> {
+class _CompactRequestRowState extends State<_CompactRequestRow> {
   bool _isProcessing = false;
+
+  String _getIcon(RequestType type) {
+    switch (type) {
+      case RequestType.addItem: return '➕';
+      case RequestType.editItem: return '✏️';
+      case RequestType.deleteItem: return '🗑️';
+      case RequestType.inviteToList:
+      case RequestType.inviteToHousehold: return '👥';
+      case RequestType.unknown: return '❓';
+    }
+  }
+
+  String _getContent(PendingRequest request) {
+    final data = request.requestData;
+    switch (request.type) {
+      case RequestType.addItem:
+        final name = data['name'] ?? '?';
+        final qty = data['quantity'] ?? 1;
+        return qty > 1 ? '$name ×$qty' : '$name';
+      case RequestType.editItem:
+        return data['changes']?.toString() ?? 'עריכה';
+      case RequestType.deleteItem:
+        return 'מחיקת ${data['itemName'] ?? 'פריט'}';
+      default:
+        return data['list_name']?.toString() ?? '?';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final userContext = context.read<UserContext>();
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final cs = Theme.of(context).colorScheme;
+    final request = widget.request;
+    final requesterName = request.requesterName ?? 'משתמש';
+    final successColor = kStickyGreen;
 
-    final requestTitle = _getRequestTitle(widget.request.type);
-    final requestContent = _getRequestContent(widget.request);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          // אייקון סוג
+          Text(_getIcon(request.type), style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 6),
 
-    // 🎨 Glassmorphic card surface
-    Widget cardWidget = ClipRRect(
-      borderRadius: BorderRadius.circular(kBorderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-        child: Container(
-          padding: const EdgeInsets.all(kSpacingMedium),
-          decoration: BoxDecoration(
-            color: cs.surface.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header - סוג בקשה + זמן
-              Row(
-                children: [
-                  Text(
-                    _getRequestIcon(widget.request.type),
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                  const Gap(kSpacingSmall),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          requestTitle,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          '${widget.request.requesterName ?? 'משתמש'} • ${widget.request.timeAgoText}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-
-              const Gap(kSpacingSmall),
-
-              // תוכן הבקשה
-              Text(
-                requestContent,
-                style: theme.textTheme.bodyMedium,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              // כפתורי אישור/דחייה (רק אם יש הרשאה)
-              if (widget.canApprove) ...[
-                const Gap(kSpacingMedium),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    // ✅ Loading indicator בזמן עיבוד
-                    if (_isProcessing)
-                      Padding(
-                        padding: const EdgeInsets.only(left: kSpacingSmall),
-                        child: SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(cs.primary),
-                          ),
-                        ),
-                      ),
-
-                    // דחה
-                    Tooltip(
-                      message: AppStrings.pendingInvitesScreen.rejectRequest,
-                      child: TextButton.icon(
-                        onPressed: _isProcessing
-                            ? null
-                            : () => _rejectRequest(userContext.userId!),
-                        icon: const Icon(Icons.close, size: 18),
-                        label: Text(AppStrings.pendingInvitesScreen.rejectButton),
-                        style: TextButton.styleFrom(
-                          foregroundColor: cs.error,
-                        ),
-                      ),
-                    ),
-                    const Gap(kSpacingSmall),
-                    // אשר
-                    Tooltip(
-                      message: AppStrings.pendingInvitesScreen.approveRequest,
-                      child: FilledButton.icon(
-                        onPressed: _isProcessing
-                            ? null
-                            : () => _approveRequest(userContext.userId!),
-                        icon: const Icon(Icons.check, size: 18),
-                        label: Text(AppStrings.pendingInvitesScreen.approveButton),
-                      ),
-                    ),
-                  ],
+          // תוכן
+          Expanded(
+            child: Text.rich(
+              TextSpan(children: [
+                TextSpan(
+                  text: '$requesterName: ',
+                  style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.w600, color: cs.onSurface),
                 ),
-              ],
-            ],
+                TextSpan(
+                  text: _getContent(request),
+                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                ),
+              ]),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
+
+          // כפתורי פעולה
+          if (widget.canApprove && !_isProcessing) ...[
+            // ✅ אשר
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: IconButton(
+                onPressed: () => _approve(),
+                icon: Icon(Icons.check_circle, size: 20, color: successColor),
+                padding: EdgeInsets.zero,
+                tooltip: AppStrings.pendingInvitesScreen.approveRequest,
+              ),
+            ),
+            // ❌ דחה
+            SizedBox(
+              width: 32,
+              height: 32,
+              child: IconButton(
+                onPressed: () => _reject(),
+                icon: Icon(Icons.cancel, size: 20, color: cs.error.withValues(alpha: 0.7)),
+                padding: EdgeInsets.zero,
+                tooltip: AppStrings.pendingInvitesScreen.rejectRequest,
+              ),
+            ),
+          ] else if (_isProcessing)
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
       ),
     );
-
-    // ✨ Shimmer effect during processing - subtle "action in progress" feel
-    if (_isProcessing) {
-      cardWidget = cardWidget
-          .animate(onPlay: (controller) => controller.repeat())
-          .shimmer(
-            duration: 1200.ms,
-            color: cs.onSurface.withValues(alpha: 0.04),
-          );
-    }
-
-    return Semantics(
-      label: '$requestTitle: $requestContent',
-      container: true,
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: kSpacingSmall),
-        child: cardWidget,
-      ),
-    );
   }
 
-  String _getRequestIcon(RequestType type) {
-    switch (type) {
-      case RequestType.addItem:
-        return '➕';
-      case RequestType.editItem:
-        return '✏️';
-      case RequestType.deleteItem:
-        return '🗑️';
-      case RequestType.inviteToList:
-      case RequestType.inviteToHousehold:
-        return '👥';
-      case RequestType.unknown:
-        return '❓';
-    }
-  }
-
-  String _getRequestTitle(RequestType type) {
-    switch (type) {
-      case RequestType.addItem:
-        return 'בקשה להוספת פריט';
-      case RequestType.editItem:
-        return 'בקשה לעריכת פריט';
-      case RequestType.deleteItem:
-        return 'בקשה למחיקת פריט';
-      case RequestType.inviteToList:
-      case RequestType.inviteToHousehold:
-        return 'הזמנה לרשימה';
-      case RequestType.unknown:
-        return 'בקשה לא מוכרת';
-    }
-  }
-
-  String _getRequestContent(PendingRequest request) {
-    final data = request.requestData;
-
-    switch (request.type) {
-      case RequestType.addItem:
-        final name = data['name'] ?? 'לא ידוע';
-        final quantity = data['quantity'] ?? 1;
-        return '$name (כמות: $quantity)';
-
-      case RequestType.editItem:
-        final changes = data['changes'] as Map<String, dynamic>?;
-        if (changes == null) return 'שינויים לא ידועים';
-        final parts = <String>[];
-        if (changes.containsKey('name')) {
-          parts.add('שם: ${changes['name']}');
-        }
-        if (changes.containsKey('quantity')) {
-          parts.add('כמות: ${changes['quantity']}');
-        }
-        return parts.join(', ');
-
-      case RequestType.deleteItem:
-        final itemName = data['itemName'] ?? 'פריט';
-        return 'מחיקת: $itemName';
-
-      case RequestType.inviteToList:
-      case RequestType.inviteToHousehold:
-        final listName = data['list_name'] ?? 'רשימה';
-        final role = data['role'] ?? 'משתמש';
-        return 'הזמנה לרשימה "$listName" כ-$role';
-
-      case RequestType.unknown:
-        return 'תוכן לא מוכר';
-    }
-  }
-
-  Future<void> _approveRequest(String reviewerId) async {
-    // ✅ מניעת לחיצות כפולות
+  Future<void> _approve() async {
     if (_isProcessing) return;
-
     setState(() => _isProcessing = true);
-
-    // ✅ Haptic - mediumImpact מיידי לתחילת פעולה
     unawaited(HapticFeedback.mediumImpact());
 
     try {
       final userContext = context.read<UserContext>();
       final listsProvider = context.read<ShoppingListsProvider>();
       final notificationsService = context.read<NotificationsService?>();
-      final pendingRequestsService = PendingRequestsService(
-        listsProvider.repository,
-        userContext,
-      );
+      final service = PendingRequestsService(listsProvider.repository, userContext);
 
-      // מצא את הרשימה
-      final list = listsProvider.lists.firstWhere(
-        (l) => l.id == widget.listId,
-        orElse: () => throw Exception('רשימה לא נמצאה'),
-      );
+      final list = listsProvider.lists.firstWhere((l) => l.id == widget.listId);
 
-      await pendingRequestsService.approveRequest(
+      await service.approveRequest(
         list: list,
         requestId: widget.request.id,
         approverName: userContext.displayName ?? 'משתמש',
@@ -385,53 +215,33 @@ class _RequestCardState extends State<_RequestCard> {
       );
 
       if (!mounted) return;
-
-      // ✅ Success Tick - double lightImpact
-      unawaited(HapticFeedback.lightImpact());
-      await Future.delayed(const Duration(milliseconds: 100));
-      if (!mounted) return;
-      unawaited(HapticFeedback.lightImpact());
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ הבקשה אושרה')),
+        const SnackBar(content: Text('✅ הבקשה אושרה'), backgroundColor: kStickyGreen),
       );
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.pendingInvitesScreen.approveError(e.toString()))),
       );
     } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  Future<void> _rejectRequest(String reviewerId) async {
-    // ✅ מניעת לחיצות כפולות
+  Future<void> _reject() async {
     if (_isProcessing) return;
-
     setState(() => _isProcessing = true);
-
-    // ✅ Haptic - heavyImpact לפעולת שלילה
     unawaited(HapticFeedback.heavyImpact());
 
     try {
       final userContext = context.read<UserContext>();
       final listsProvider = context.read<ShoppingListsProvider>();
       final notificationsService = context.read<NotificationsService?>();
-      final pendingRequestsService = PendingRequestsService(
-        listsProvider.repository,
-        userContext,
-      );
+      final service = PendingRequestsService(listsProvider.repository, userContext);
 
-      final list = listsProvider.lists.firstWhere(
-        (l) => l.id == widget.listId,
-        orElse: () => throw Exception('רשימה לא נמצאה'),
-      );
+      final list = listsProvider.lists.firstWhere((l) => l.id == widget.listId);
 
-      await pendingRequestsService.rejectRequest(
+      await service.rejectRequest(
         list: list,
         requestId: widget.request.id,
         rejecterName: userContext.displayName ?? 'משתמש',
@@ -439,20 +249,16 @@ class _RequestCardState extends State<_RequestCard> {
       );
 
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('❌ הבקשה נדחתה')),
+        SnackBar(content: const Text('❌ הבקשה נדחתה'), backgroundColor: Theme.of(context).colorScheme.error),
       );
     } catch (e) {
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.pendingInvitesScreen.rejectError(e.toString()))),
       );
     } finally {
-      if (mounted) {
-        setState(() => _isProcessing = false);
-      }
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 }

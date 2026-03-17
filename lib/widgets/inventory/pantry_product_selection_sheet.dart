@@ -31,6 +31,7 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
 import '../common/add_location_dialog.dart';
+import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
 import '../../config/filters_config.dart';
 import '../common/app_loading_skeleton.dart';
@@ -107,6 +108,30 @@ class _PantryProductSelectionSheetState
         _filterProducts();
       }
     });
+  }
+
+  /// 📷 סריקת ברקוד → חיפוש בקטלוג
+  Future<void> _scanAndSearch() async {
+    // Use LocalProductsRepository to look up — no ProductsProvider in pantry context
+    final result = await openBarcodeScanner(context);
+    if (result == null || !mounted) return;
+
+    // Search by barcode in the loaded products
+    final match = _allProducts.where(
+      (p) => (p['barcode'] as String?) == result.barcode
+    ).firstOrNull;
+
+    if (match != null) {
+      final name = match['name'] as String? ?? '';
+      _searchController.text = name;
+      setState(() => _searchQuery = name);
+      _filterProducts();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(AppStrings.shopping.barcodeNotFound(result.barcode)),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ));
+    }
   }
 
   /// 🆕 הוספת מוצר מותאם אישית (כשלא נמצא בקטלוג)
@@ -536,7 +561,11 @@ class _PantryProductSelectionSheetState
                             _filterProducts();
                           },
                         )
-                      : null,
+                      : IconButton(
+                          icon: const Icon(Icons.qr_code_scanner),
+                          tooltip: AppStrings.shopping.scanBarcode,
+                          onPressed: _scanAndSearch,
+                        ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
