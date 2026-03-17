@@ -207,15 +207,59 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     PantryProductSelectionSheet.show(context);
   }
 
-  /// 📷 סריקת ברקוד — פותח pantry dialog עם פרטי המוצר
+  /// 📷 סריקת ברקוד — בודק כפילויות ואז פותח pantry dialog
   Future<void> _scanBarcodeAndAddToPantry() async {
     final productsProvider = context.read<ProductsProvider>();
     final product = await scanAndLookupProduct(context, productsProvider);
     if (product == null || !mounted) return;
 
-    // פתח dialog עם הנתונים מהקטלוג
     final name = product['name'] as String? ?? '';
     final category = product['category'] as String?;
+
+    // 🔍 בדיקת כפילויות — חיפוש מוצר דומה במזווה
+    final inventoryProvider = context.read<InventoryProvider>();
+    final similar = _findSimilarItem(name, inventoryProvider.items);
+
+    if (similar != null && mounted) {
+      final action = await _showDuplicateDialog(name, similar);
+      if (!mounted) return;
+
+      switch (action) {
+        case _DuplicateAction.updateQuantity:
+          // עדכון כמות +1, שם לא משתנה
+          await inventoryProvider.addStock(similar.productName, 1);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${similar.productName} (+1) ✅'),
+                duration: kSnackBarDuration,
+              ),
+            );
+          }
+          return;
+        case _DuplicateAction.replaceProduct:
+          // החלפת מוצר — כל הפרטים משתנים, כמות = 1
+          final updatedItem = similar.copyWith(
+            productName: name,
+            category: category ?? similar.category,
+            quantity: 1,
+          );
+          await inventoryProvider.updateItem(updatedItem);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${similar.productName} → $name'),
+                duration: kSnackBarDuration,
+              ),
+            );
+          }
+          return;
+        case _DuplicateAction.addSeparate:
+          break; // ממשיך לפתיחת dialog רגיל
+        case null:
+          return; // ביטול
+      }
+    }
 
     if (!mounted) return;
     unawaited(showDialog(
@@ -226,6 +270,157 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         initialCategory: category,
       ),
     ));
+  }
+
+  /// 🔍 מחפש מוצר דומה במזווה לפי מילות מפתח
+  InventoryItem? _findSimilarItem(String scannedName, List<InventoryItem> items) {
+    if (items.isEmpty) return null;
+
+    final scannedLower = scannedName.toLowerCase();
+
+    // 1. התאמה מדויקת
+    final exact = items.where((i) => i.productName.trim().toLowerCase() == scannedLower.trim()).firstOrNull;
+    if (exact != null) return exact;
+
+    // 2. התאמת מילות מפתח (מינימום 2 מילים משותפות)
+    final scannedWords = _significantWords(scannedLower);
+    if (scannedWords.length < 2) return null;
+
+    InventoryItem? bestMatch;
+    int bestScore = 0;
+
+    for (final item in items) {
+      final itemWords = _significantWords(item.productName.toLowerCase());
+      if (itemWords.length < 2) continue;
+
+      // בדיקה: כל מילות הפריט הקיים מופיעות בשם הסרוק (או להיפך)
+      final itemInScanned = itemWords.where((w) => scannedWords.contains(w)).length;
+      final scannedInItem = scannedWords.where((w) => itemWords.contains(w)).length;
+
+      // כל מילות הפריט הקצר חייבות להופיע בארוך
+      final shorter = itemWords.length <= scannedWords.length ? itemWords : scannedWords;
+      final longer = itemWords.length <= scannedWords.length ? scannedWords : itemWords;
+      final allShorterInLonger = shorter.every((w) => longer.contains(w));
+
+      if (allShorterInLonger && shorter.length >= 2) {
+        final score = itemInScanned + scannedInItem;
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = item;
+        }
+      }
+    }
+
+    return bestMatch;
+  }
+
+  /// מילים משמעותיות (מסנן מספרים, יחידות מידה, גדלים)
+  static final _ignoreWords = {'גרם', 'ג', 'קג', 'מל', 'ליטר', 'ל', 'יח', 'מ"ל', 'ק"ג'};
+  List<String> _significantWords(String text) {
+    return text
+        .split(RegExp(r'[\s,.*+/]+'))
+        .where((w) => w.length > 1)
+        .where((w) => !_ignoreWords.contains(w))
+        .where((w) => int.tryParse(w) == null) // מסנן מספרים
+        .where((w) => !RegExp(r'^\d+[גקמל]$').hasMatch(w)) // 500ג, 1ק
+        .toList();
+  }
+
+  /// 🔔 דיאלוג כפילויות
+  Future<_DuplicateAction?> _showDuplicateDialog(String scannedName, InventoryItem existing) {
+    return showDialog<_DuplicateAction>(
+      context: context,
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Text('🔔 ', style: TextStyle(fontSize: 20)),
+              Expanded(
+                child: Text(
+                  AppStrings.pantry.similarProductFound,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${AppStrings.pantry.existingInPantry}:',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: cs.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Text('📦 ', style: TextStyle(fontSize: 16)),
+                    Expanded(
+                      child: Text(
+                        '${existing.productName} (${existing.quantity} ${existing.unit})',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '${AppStrings.pantry.scannedProduct}:',
+                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: cs.primaryContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Text('📷 ', style: TextStyle(fontSize: 16)),
+                    Expanded(
+                      child: Text(
+                        scannedName,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            // עדכן כמות
+            TextButton.icon(
+              onPressed: () => Navigator.pop(ctx, _DuplicateAction.updateQuantity),
+              icon: const Icon(Icons.add_circle_outline, size: 18),
+              label: Text(AppStrings.pantry.updateQuantity),
+            ),
+            // החלף מוצר
+            TextButton.icon(
+              onPressed: () => Navigator.pop(ctx, _DuplicateAction.replaceProduct),
+              icon: const Icon(Icons.swap_horiz, size: 18),
+              label: Text(AppStrings.pantry.replaceProduct),
+            ),
+            // הוסף בנפרד
+            TextButton.icon(
+              onPressed: () => Navigator.pop(ctx, _DuplicateAction.addSeparate),
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(AppStrings.pantry.addSeparately),
+            ),
+          ],
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+        );
+      },
+    );
   }
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
@@ -1512,4 +1707,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 }
+
+/// פעולות אפשריות כשמוצר דומה נמצא במזווה
+enum _DuplicateAction { updateQuantity, replaceProduct, addSeparate }
 

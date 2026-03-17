@@ -1697,6 +1697,14 @@ class PantryStrings {
   String get addBasicsButton => 'כן, הוסף!';
   String get emptyLabel => 'מזווה ריק';
   String get addFirstProduct => 'הוסף מוצר ראשון';
+
+  // Duplicate detection
+  String get similarProductFound => 'נמצא מוצר דומה במזווה';
+  String get existingInPantry => 'קיים במזווה';
+  String get scannedProduct => 'מוצר שנסרק';
+  String get updateQuantity => 'עדכן כמות';
+  String get replaceProduct => 'החלף מוצר';
+  String get addSeparately => 'הוסף בנפרד';
 }
 
 // ========================================

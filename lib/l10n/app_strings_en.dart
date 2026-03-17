@@ -1679,6 +1679,13 @@ class PantryStringsEn extends PantryStrings {
   @override String get addBasicsButton => 'Yes, add!';
   @override String get emptyLabel => 'Pantry empty';
   @override String get addFirstProduct => 'Add first product';
+
+  @override String get similarProductFound => 'Similar product found in pantry';
+  @override String get existingInPantry => 'Existing in pantry';
+  @override String get scannedProduct => 'Scanned product';
+  @override String get updateQuantity => 'Update quantity';
+  @override String get replaceProduct => 'Replace product';
+  @override String get addSeparately => 'Add separately';
 }
 
 // ========================================
