@@ -20,7 +20,7 @@ void main() {
             productName: 'חלב',
             category: 'מוצרי חלב',
             location: 'מקרר',
-            quantity: 2, // Below default threshold (5)
+            quantity: 1, // Below minQuantity (default 2)
             unit: 'יח\'',
           ),
           const InventoryItem(
@@ -28,7 +28,7 @@ void main() {
             productName: 'לחם',
             category: 'מאפים',
             location: 'ארון',
-            quantity: 10, // Above default threshold (5)
+            quantity: 10, // Above minQuantity (default 2)
             unit: 'יח\'',
           ),
         ];
@@ -98,7 +98,8 @@ void main() {
             productName: 'לחם',
             category: 'מאפים',
             location: 'ארון',
-            quantity: 4, // low urgency (close to threshold 5)
+            quantity: 4, // below minQuantity=5
+            minQuantity: 5,
             unit: 'יח\'',
           ),
           const InventoryItem(
@@ -106,7 +107,8 @@ void main() {
             productName: 'חלב',
             category: 'מוצרי חלב',
             location: 'מקרר',
-            quantity: 0, // critical urgency
+            quantity: 0, // critical urgency (below minQuantity=5)
+            minQuantity: 5,
             unit: 'יח\'',
           ),
           const InventoryItem(
@@ -114,7 +116,8 @@ void main() {
             productName: 'גבינה',
             category: 'מוצרי חלב',
             location: 'מקרר',
-            quantity: 2, // medium urgency
+            quantity: 2, // medium urgency (below minQuantity=5)
+            minQuantity: 5,
             unit: 'יח\'',
           ),
         ];

@@ -76,8 +76,9 @@ class SuggestionsService {
         continue;
       }
 
-      // קביעת סף (custom או default)
-      final threshold = customThresholds?[item.productName] ?? defaultThreshold;
+      // קביעת סף: custom > minQuantity מהפריט > default
+      final threshold = customThresholds?[item.productName]
+          ?? (item.minQuantity > 0 ? item.minQuantity : defaultThreshold);
 
       // בדיקה: האם המלאי נמוך מהסף
       if (item.quantity < threshold) {
