@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../providers/products_provider.dart';
 
 const _kDismissedKey = 'pantry_dismissed_suggestions';
 const _kHiddenUntilKey = 'pantry_suggestions_hidden_until';
@@ -47,6 +48,9 @@ class PantrySuggestions extends StatefulWidget {
   /// שמות המוצרים שכבר במזווה (lowercase)
   final Set<String> existingProductNames;
 
+  /// Provider לחיפוש בקטלוג
+  final ProductsProvider productsProvider;
+
   /// Callback להוספת מוצר למזווה
   final Future<void> Function(String name, String category, int quantity, String unit)
       onAddItem;
@@ -54,6 +58,7 @@ class PantrySuggestions extends StatefulWidget {
   const PantrySuggestions({
     required this.currentItemCount,
     required this.existingProductNames,
+    required this.productsProvider,
     required this.onAddItem,
     super.key,
   });
@@ -92,21 +97,30 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
       final data = json.decode(jsonStr) as Map<String, dynamic>;
       final items = data['items'] as List;
 
+      final allProducts = widget.productsProvider.allProducts;
       final suggestions = <_Suggestion>[];
+
       for (final item in items) {
-        final fullName = item['name'] as String;
+        final searchTerm = item['searchTerm'] as String;
         final displayName = item['displayName'] as String;
         final nameLower = displayName.toLowerCase();
 
         // Skip if already in pantry or dismissed
+        if (_dismissed.contains(nameLower)) continue;
+
+        // 🔍 חיפוש דינמי בקטלוג
+        final match = _findInCatalog(searchTerm, allProducts);
+        final fullName = match?['name'] as String? ?? searchTerm;
+        final category = match?['category'] as String? ?? 'כללי';
+
+        // Skip if product (by full name or display name) already in pantry
         if (widget.existingProductNames.contains(nameLower)) continue;
         if (widget.existingProductNames.contains(fullName.toLowerCase())) continue;
-        if (_dismissed.contains(nameLower)) continue;
 
         suggestions.add(_Suggestion(
           name: fullName,
           displayName: displayName,
-          category: (item['category'] as String?) ?? 'כללי',
+          category: category,
           emoji: (item['emoji'] as String?) ?? '📦',
           quantity: (item['quantity'] as num).toInt(),
           unit: item['unit'] as String,
@@ -120,6 +134,21 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     } catch (_) {
       setState(() => _loaded = true);
     }
+  }
+
+  /// 🔍 חיפוש מוצר בקטלוג לפי search term — מחזיר התאמה ראשונה
+  Map<String, dynamic>? _findInCatalog(
+    String searchTerm,
+    List<Map<String, dynamic>> products,
+  ) {
+    final lower = searchTerm.toLowerCase();
+    // חיפוש מוצר ששמו מכיל את כל מילות החיפוש
+    final words = lower.split(RegExp(r'\s+'));
+    for (final p in products) {
+      final name = (p['name'] as String? ?? '').toLowerCase();
+      if (words.every((w) => name.contains(w))) return p;
+    }
+    return null;
   }
 
   Future<void> _dismissSuggestion(String name) async {

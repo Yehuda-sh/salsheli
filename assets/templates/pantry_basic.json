@@ -1,169 +1,25 @@
 {
   "templateName": "מזווה בסיסי",
-  "description": "מוצרי יסוד נפוצים בישראל",
+  "description": "מוצרי יסוד נפוצים בישראל — שליפה דינמית מהקטלוג",
   "icon": "🏺",
   "items": [
-    {
-      "name": "סוכר לבן 1 ק\"ג",
-      "barcode": "7296073383666",
-      "category": "אפייה",
-      "displayName": "סוכר",
-      "emoji": "🍬",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "קמח לבן 1 ק\"ג",
-      "barcode": "7290003107216",
-      "category": "אפייה",
-      "displayName": "קמח",
-      "emoji": "🌾",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "אורז בסמטי קלאסי1ק סוגת",
-      "barcode": "7290003643004",
-      "category": "אורז ופסטה",
-      "displayName": "אורז",
-      "emoji": "🍚",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "פסטה ספגטי מס 8 אסם 500ג",
-      "barcode": "7290000060880",
-      "category": "אורז ופסטה",
-      "displayName": "פסטה",
-      "emoji": "🍝",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "שמן זית כתית מעולה 750 מ\"ל",
-      "barcode": "7294331420306",
-      "category": "שמנים ורטבים",
-      "displayName": "שמן זית",
-      "emoji": "🫒",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "רסק עגבניות 400 גרם",
-      "barcode": "7299346379465",
-      "category": "שימורים",
-      "displayName": "רסק עגבניות",
-      "emoji": "🍅",
-      "quantity": 2,
-      "unit": "יח'"
-    },
-    {
-      "name": "טונה בשמן 4*140ג סבסטיאן",
-      "barcode": "7296073729112",
-      "category": "בשר ודגים",
-      "displayName": "טונה",
-      "emoji": "🐟",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "קפה נמס עלית",
-      "barcode": "7290000176413",
-      "category": "קפה ותה",
-      "displayName": "קפה",
-      "emoji": "☕",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "תה ויסוצקי 25 שק",
-      "barcode": "7290000345260",
-      "category": "קפה ותה",
-      "displayName": "תה",
-      "emoji": "🍵",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "מלח שולחן מעולה 1ק סלית",
-      "barcode": "7290004063016",
-      "category": "תבלינים ואפייה",
-      "displayName": "מלח",
-      "emoji": "🧂",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "פלפל שחור טחון 100 גרם",
-      "barcode": "7290010002078",
-      "category": "תבלינים ואפייה",
-      "displayName": "פלפל שחור",
-      "emoji": "🌶️",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "חלב 3% בקרטון 2 ליטר",
-      "barcode": "7290010945306",
-      "category": "מוצרי חלב",
-      "displayName": "חלב",
-      "emoji": "🥛",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "ביצים חופש L 12 יח'",
-      "barcode": "7295455505566",
-      "category": "מוצרי חלב",
-      "displayName": "ביצים",
-      "emoji": "🥚",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "חמאה תנובה 200 גרם",
-      "barcode": "7292066152448",
-      "category": "מוצרי חלב",
-      "displayName": "חמאה",
-      "emoji": "🧈",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "טחינה גולמית אל ארז 500ג",
-      "barcode": "7290001216040",
-      "category": "שימורים",
-      "displayName": "טחינה",
-      "emoji": "🫙",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "קטשופ אסם בקבוק 750גר",
-      "barcode": "7290000072623",
-      "category": "שמנים ורטבים",
-      "displayName": "קטשופ",
-      "emoji": "🍅",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "קורנפלקס אלופים בדץ 850ג",
-      "barcode": "7290112494351",
-      "category": "דגני בוקר",
-      "displayName": "קורנפלקס",
-      "emoji": "🥣",
-      "quantity": 1,
-      "unit": "יח'"
-    },
-    {
-      "name": "נייר טואלט 3שכבות32גTNX",
-      "barcode": "7290103705602",
-      "category": "מוצרי ניקיון",
-      "displayName": "נייר טואלט",
-      "emoji": "🧻",
-      "quantity": 1,
-      "unit": "יח'"
-    }
+    {"searchTerm": "סוכר לבן", "displayName": "סוכר", "emoji": "🍬", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "קמח לבן", "displayName": "קמח", "emoji": "🌾", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "אורז בסמטי", "displayName": "אורז", "emoji": "🍚", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "פסטה ספגטי", "displayName": "פסטה", "emoji": "🍝", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "שמן זית כתית", "displayName": "שמן זית", "emoji": "🫒", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "רסק עגבניות", "displayName": "רסק עגבניות", "emoji": "🍅", "quantity": 2, "unit": "יח'"},
+    {"searchTerm": "טונה בשמן", "displayName": "טונה", "emoji": "🐟", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "קפה נמס", "displayName": "קפה", "emoji": "☕", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "תה ויסוצקי", "displayName": "תה", "emoji": "🍵", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "מלח שולחן", "displayName": "מלח", "emoji": "🧂", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "פלפל שחור טחון", "displayName": "פלפל שחור", "emoji": "🌶️", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "חלב 3%", "displayName": "חלב", "emoji": "🥛", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "ביצים חופש", "displayName": "ביצים", "emoji": "🥚", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "חמאה תנובה", "displayName": "חמאה", "emoji": "🧈", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "טחינה גולמית", "displayName": "טחינה", "emoji": "🫙", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "קטשופ", "displayName": "קטשופ", "emoji": "🍅", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "קורנפלקס אלופים", "displayName": "קורנפלקס", "emoji": "🥣", "quantity": 1, "unit": "יח'"},
+    {"searchTerm": "נייר טואלט", "displayName": "נייר טואלט", "emoji": "🧻", "quantity": 1, "unit": "יח'"}
   ]
 }

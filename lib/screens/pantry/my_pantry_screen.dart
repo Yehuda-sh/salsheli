@@ -655,6 +655,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                     existingProductNames: allItems
                                         .map((i) => i.productName.toLowerCase())
                                         .toSet(),
+                                    productsProvider: context.read<ProductsProvider>(),
                                     onAddItem: (name, category, qty, unit) async {
                                       final provider =
                                           context.read<InventoryProvider>();
