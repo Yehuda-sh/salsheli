@@ -655,14 +655,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                     existingProductNames: allItems
                                         .map((i) => i.productName.toLowerCase())
                                         .toSet(),
-                                    onAddItem: (name, qty, unit) async {
+                                    onAddItem: (name, category, qty, unit) async {
                                       final provider =
                                           context.read<InventoryProvider>();
                                       await provider.createItem(
                                         productName: name,
                                         quantity: qty.toInt(),
                                         unit: unit,
-                                        category: AppStrings.inventory.defaultCategory,
+                                        category: category,
                                         location: 'general',
                                       );
                                     },

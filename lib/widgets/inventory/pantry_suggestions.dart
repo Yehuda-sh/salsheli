@@ -25,6 +25,7 @@ const _kHiddenUntilKey = 'pantry_suggestions_hidden_until';
 class _Suggestion {
   final String name; // שם מלא מהקטלוג
   final String displayName; // שם גנרי להצגה
+  final String category; // קטגוריה מהקטלוג
   final String emoji;
   final int quantity;
   final String unit;
@@ -32,6 +33,7 @@ class _Suggestion {
   _Suggestion({
     required this.name,
     required this.displayName,
+    required this.category,
     required this.emoji,
     required this.quantity,
     required this.unit,
@@ -46,7 +48,7 @@ class PantrySuggestions extends StatefulWidget {
   final Set<String> existingProductNames;
 
   /// Callback להוספת מוצר למזווה
-  final Future<void> Function(String name, int quantity, String unit)
+  final Future<void> Function(String name, String category, int quantity, String unit)
       onAddItem;
 
   const PantrySuggestions({
@@ -104,6 +106,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
         suggestions.add(_Suggestion(
           name: fullName,
           displayName: displayName,
+          category: (item['category'] as String?) ?? 'כללי',
           emoji: (item['emoji'] as String?) ?? '📦',
           quantity: (item['quantity'] as num).toInt(),
           unit: item['unit'] as String,
@@ -215,7 +218,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
           // Add button
           InkWell(
             onTap: () async {
-              await widget.onAddItem(s.name, s.quantity, s.unit);
+              await widget.onAddItem(s.name, s.category, s.quantity, s.unit);
               if (mounted) {
                 setState(() {
                   _suggestions.remove(s);
