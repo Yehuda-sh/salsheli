@@ -23,33 +23,20 @@ const _kHiddenUntilKey = 'pantry_suggestions_hidden_until';
 
 /// Suggestion item from pantry_basic.json
 class _Suggestion {
-  final String name;
+  final String name; // שם מלא מהקטלוג
+  final String displayName; // שם גנרי להצגה
   final String emoji;
   final int quantity;
   final String unit;
 
   _Suggestion({
     required this.name,
+    required this.displayName,
     required this.emoji,
     required this.quantity,
     required this.unit,
   });
 }
-
-/// רשימת אימוגי לפי מוצר
-const _emojiMap = {
-  'קמח': '🌾',
-  'סוכר': '🍬',
-  'אורז': '🍚',
-  'פסטה': '🍝',
-  'שמן זית': '🫒',
-  'רסק עגבניות': '🍅',
-  'טונה בשמן': '🐟',
-  'קפה נמס': '☕',
-  'תה שחור': '🍵',
-  'מלח': '🧂',
-  'פלפל שחור': '🌶️',
-};
 
 class PantrySuggestions extends StatefulWidget {
   /// מספר הפריטים הנוכחי במזווה
@@ -105,16 +92,19 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
 
       final suggestions = <_Suggestion>[];
       for (final item in items) {
-        final name = item['fallbackName'] as String;
-        final nameLower = name.toLowerCase();
+        final fullName = item['name'] as String;
+        final displayName = item['displayName'] as String;
+        final nameLower = displayName.toLowerCase();
 
         // Skip if already in pantry or dismissed
         if (widget.existingProductNames.contains(nameLower)) continue;
+        if (widget.existingProductNames.contains(fullName.toLowerCase())) continue;
         if (_dismissed.contains(nameLower)) continue;
 
         suggestions.add(_Suggestion(
-          name: name,
-          emoji: _emojiMap[name] ?? '📦',
+          name: fullName,
+          displayName: displayName,
+          emoji: (item['emoji'] as String?) ?? '📦',
           quantity: (item['quantity'] as num).toInt(),
           unit: item['unit'] as String,
         ));
@@ -246,7 +236,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
                   Text(s.emoji, style: const TextStyle(fontSize: kFontSizeBody)),
                   const SizedBox(width: 4),
                   Text(
-                    s.name,
+                    s.displayName,
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
                       color: cs.onSurface,
@@ -261,7 +251,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
           ),
           // Dismiss button
           InkWell(
-            onTap: () => _dismissSuggestion(s.name),
+            onTap: () => _dismissSuggestion(s.displayName),
             borderRadius: const BorderRadius.horizontal(
               left: Radius.circular(kBorderRadiusLarge),
             ),
