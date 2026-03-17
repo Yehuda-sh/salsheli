@@ -7,7 +7,7 @@
 // - 1-14 → עד 4 הצעות
 // - 15+ → לא מציג
 // - הצעה שנדחתה → לא חוזרת (SharedPreferences)
-// - "הסתר הצעות" → נעלם לגמרי
+// - "הסתר הצעות" → נעלם ל-24 שעות, אחר כך חוזר
 
 import 'dart:convert';
 
@@ -19,7 +19,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 
 const _kDismissedKey = 'pantry_dismissed_suggestions';
-const _kHiddenKey = 'pantry_suggestions_hidden';
+const _kHiddenUntilKey = 'pantry_suggestions_hidden_until';
 
 /// Suggestion item from pantry_basic.json
 class _Suggestion {
@@ -87,7 +87,8 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
 
   Future<void> _loadSuggestions() async {
     final prefs = await SharedPreferences.getInstance();
-    _hidden = prefs.getBool(_kHiddenKey) ?? false;
+    final hiddenUntilMs = prefs.getInt(_kHiddenUntilKey) ?? 0;
+    _hidden = DateTime.now().millisecondsSinceEpoch < hiddenUntilMs;
     final dismissedJson = prefs.getStringList(_kDismissedKey) ?? [];
     _dismissed = dismissedJson.toSet();
 
@@ -139,7 +140,8 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
 
   Future<void> _hideAll() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_kHiddenKey, true);
+    final hideUntil = DateTime.now().add(const Duration(hours: 24));
+    await prefs.setInt(_kHiddenUntilKey, hideUntil.millisecondsSinceEpoch);
     setState(() => _hidden = true);
   }
 
