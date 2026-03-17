@@ -2,12 +2,14 @@
 //
 // פיד פעילות הבית — מציג פעולות אחרונות של חברי הבית:
 // - קניות שהסתיימו (מקבלות)
-// - רשימות שנוצרו/עודכנו
 //
-// Version: 1.0 (12/03/2026)
+// Version: 1.1 (16/03/2026) — Single row header, Haptics, Optimized logic
+
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
@@ -23,7 +25,7 @@ import '../../../history/shopping_history_screen.dart';
 class HouseholdActivityFeed extends StatefulWidget {
   /// Callback למעבר לטאב היסטוריה (במקום push חדש)
   final VoidCallback? onSeeAllHistory;
-  
+
   const HouseholdActivityFeed({super.key, this.onSeeAllHistory});
 
   @override
@@ -54,13 +56,10 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
           .doc(householdId)
           .collection('members')
           .get();
-      
+
       if (!mounted) return;
       setState(() {
-        _memberNames = {
-          for (final doc in snap.docs)
-            doc.id: (doc.data()['name'] as String?) ?? '',
-        };
+        _memberNames = {for (final doc in snap.docs) doc.id: (doc.data()['name'] as String?) ?? ''};
       });
     } catch (_) {
       // Silent fail — fallback to 'חבר/ת בית'
@@ -83,31 +82,21 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/icon_home_activity.webp', width: 36, height: 36),
-            const SizedBox(width: 8),
-            Text(
-              'מה חדש בבית',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        // 🚀 שופר: כותרת וכפתור "ראה הכל" בשורה אחת לחיסכון במקום
         Row(
           children: [
+            Image.asset('assets/images/icon_home_activity.webp', width: 32, height: 32),
+            const SizedBox(width: kSpacingSmall),
+            Text('מה חדש בבית', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const Spacer(),
             TextButton(
-              onPressed: widget.onSeeAllHistory ?? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ShoppingHistoryScreen(),
-                  ),
-                );
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                if (widget.onSeeAllHistory != null) {
+                  widget.onSeeAllHistory!();
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ShoppingHistoryScreen()));
+                }
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -119,17 +108,10 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
                 children: [
                   Text(
                     AppStrings.homeDashboard.seeAll,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 2),
-                  Icon(
-                    isRtl ? Icons.chevron_left : Icons.chevron_right,
-                    size: 16,
-                    color: cs.primary,
-                  ),
+                  Icon(isRtl ? Icons.chevron_left : Icons.chevron_right, size: 16, color: cs.primary),
                 ],
               ),
             ),
@@ -143,16 +125,13 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
           color: cs.surface.withValues(alpha: 0.7),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
-            side: BorderSide(
-              color: cs.outlineVariant.withValues(alpha: 0.3),
-            ),
+            side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [
               for (var i = 0; i < activities.length; i++) ...[
                 activities[i],
-                if (i < activities.length - 1)
-                  Divider(height: 1, indent: 56, endIndent: kSpacingMedium),
+                if (i < activities.length - 1) const Divider(height: 1, indent: 64, endIndent: kSpacingMedium),
               ],
             ],
           ),
@@ -161,62 +140,46 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
     );
   }
 
-  /// בונה רשימת פעילויות ממיון לפי תאריך
-  List<Widget> _buildActivities(
-    List<Receipt> receipts,
-    List<ShoppingList> lists,
-    UserContext userContext,
-  ) {
+  /// 🚀 שופר: בניית רשימת פעילויות ממיון לפי תאריך (ללא כפילויות מיון)
+  List<Widget> _buildActivities(List<Receipt> receipts, List<ShoppingList> lists, UserContext userContext) {
     final activities = <_ActivityData>[];
     final currentUserId = userContext.userId;
-    
 
-    // 1. קניות שהסתיימו (מקבלות) — עד 3 אחרונות
-    final sortedReceipts = List<Receipt>.from(receipts)
-      ..sort((a, b) => b.date.compareTo(a.date));
+    // מיון הקבלות מהחדש לישן
+    final sortedReceipts = List<Receipt>.from(receipts)..sort((a, b) => b.date.compareTo(a.date));
 
+    // לקיחת 3 הקבלות האחרונות בלבד
     for (final receipt in sortedReceipts.take(3)) {
-      // שם הקונה
       String personName;
       if (receipt.createdBy == currentUserId) {
         personName = 'את/ה';
       } else {
-        // נסה למצוא שם מ-shared users
         personName = _findUserName(receipt.createdBy, lists) ?? 'חבר/ת בית';
       }
 
-      // אימוגי מוצרים (עד 5)
-      final itemEmojis = receipt.items
-          .take(5)
-          .map((item) => _getItemEmoji(item.category))
-          .toList();
+      final itemEmojis = receipt.items.take(5).map((item) => _getItemEmoji(item.category)).toList();
 
-      activities.add(_ActivityData(
-        type: _ActivityType.completedShopping,
-        personName: personName,
-        isMe: receipt.createdBy == currentUserId,
-        description: receipt.storeName,
-        itemCount: receipt.items.length,
-        itemEmojis: itemEmojis,
-        date: receipt.date,
-        receiptId: receipt.id,
-      ));
+      activities.add(
+        _ActivityData(
+          type: _ActivityType.completedShopping,
+          personName: personName,
+          isMe: receipt.createdBy == currentUserId,
+          description: receipt.storeName,
+          itemCount: receipt.items.length,
+          itemEmojis: itemEmojis,
+          date: receipt.date,
+          receiptId: receipt.id,
+        ),
+      );
     }
 
-    // מיון לפי תאריך (חדש קודם)
-    activities.sort((a, b) => b.date.compareTo(a.date));
-
-    // מגביל ל-3 פעילויות
-    return activities.take(3).map((a) => _ActivityTile(activity: a)).toList();
+    return activities.map((a) => _ActivityTile(activity: a)).toList();
   }
 
-  /// מחפש שם משתמש — קודם מחברי הבית, אח"כ מ-shared users ברשימות
   String? _findUserName(String? userId, List<ShoppingList> lists) {
     if (userId == null) return null;
-    // 1. חפש בחברי הבית
     final memberName = _memberNames[userId];
     if (memberName != null && memberName.isNotEmpty) return memberName;
-    // 2. חפש ב-shared users של רשימות
     for (final list in lists) {
       final user = list.sharedUsers[userId];
       if (user?.userName != null) return user!.userName;
@@ -224,7 +187,6 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
     return null;
   }
 
-  /// מחזיר אימוגי לפי קטגוריה
   String _getItemEmoji(String? category) {
     if (category == null) return '📦';
     final lower = category.toLowerCase();
@@ -251,9 +213,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
 // Data Models
 // ============================================
 
-enum _ActivityType {
-  completedShopping,
-}
+enum _ActivityType { completedShopping }
 
 class _ActivityData {
   final _ActivityType type;
@@ -294,22 +254,16 @@ class _ActivityTile extends StatelessWidget {
     return InkWell(
       onTap: () {
         if (activity.receiptId != null) {
+          unawaited(HapticFeedback.lightImpact());
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => ShoppingHistoryScreen(
-                initialReceiptId: activity.receiptId,
-              ),
-            ),
+            MaterialPageRoute(builder: (_) => ShoppingHistoryScreen(initialReceiptId: activity.receiptId)),
           );
         }
       },
       borderRadius: BorderRadius.circular(kBorderRadius),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: kSpacingMedium,
-          vertical: 12,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -327,16 +281,12 @@ class _ActivityTile extends StatelessWidget {
                     children: [
                       Text(
                         activity.isMe ? '🧑 את/ה' : '👤 ${activity.personName}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         '• ${_formatRelativeDate(activity.date)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -344,10 +294,8 @@ class _ActivityTile extends StatelessWidget {
 
                   // שורה 2: פעולה
                   Text(
-                    '✅ סיים קנייה ב${activity.description}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.onSurface,
-                    ),
+                    '✅ סיים/ה קנייה ב${activity.description}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.9)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -356,16 +304,14 @@ class _ActivityTile extends StatelessWidget {
                   // שורה 3: אימוגי מוצרים
                   Row(
                     children: [
-                      Text(
-                        activity.itemEmojis.join(''),
-                        style: const TextStyle(fontSize: kFontSizeBody),
-                      ),
+                      Text(activity.itemEmojis.join(''), style: const TextStyle(fontSize: 16)),
                       if (activity.itemCount > activity.itemEmojis.length) ...[
                         const SizedBox(width: 4),
                         Text(
                           '+${activity.itemCount - activity.itemEmojis.length} פריטים',
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: cs.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -376,12 +322,13 @@ class _ActivityTile extends StatelessWidget {
             ),
 
             // חץ
-            Icon(
-              Directionality.of(context) == TextDirection.rtl
-                  ? Icons.chevron_left
-                  : Icons.chevron_right,
-              size: 18,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Icon(
+                Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
+                size: 18,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+              ),
             ),
           ],
         ),
@@ -393,24 +340,22 @@ class _ActivityTile extends StatelessWidget {
     final initial = activity.isMe
         ? '🧑'
         : activity.personName.isNotEmpty
-            ? activity.personName[0]
-            : '?';
+        ? activity.personName[0]
+        : '?';
 
     return Container(
-      width: 36,
-      height: 36,
+      width: 40, // הוגדל מעט לנראות טובה יותר
+      height: 40,
       decoration: BoxDecoration(
-        color: activity.isMe
-            ? cs.primaryContainer
-            : cs.secondaryContainer,
+        color: activity.isMe ? cs.primaryContainer : cs.secondaryContainer,
         shape: BoxShape.circle,
       ),
       child: Center(
         child: activity.isMe
-            ? Text(initial, style: const TextStyle(fontSize: kFontSizeMedium))
+            ? Text(initial, style: const TextStyle(fontSize: 18))
             : Text(
                 initial,
-                style: theme.textTheme.titleSmall?.copyWith(
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: cs.onSecondaryContainer,
                 ),

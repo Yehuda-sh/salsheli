@@ -7,8 +7,9 @@
 // ✅ Features:
 //    - אנימציית כניסה לבאנר (flutter_animate)
 //    - מעבר חלק בין מצבי באנר (AnimatedSwitcher)
+//    - קוד נקי עם אנימציות חכמות ללא Boilerplate
 //
-// Version: 3.1 (22/02/2026)
+// Version: 3.2 (22/02/2026)
 // 🔗 Related: ShoppingList, ActiveShopper
 
 import 'dart:async';
@@ -33,10 +34,7 @@ class ActiveShopperBanner extends StatelessWidget {
   const ActiveShopperBanner({super.key});
 
   /// מציאת רשימה עם קנייה פעילה של המשתמש הנוכחי
-  ShoppingList? _findMyActiveShopping(
-    ShoppingListsProvider listsProvider,
-    String? currentUserId,
-  ) {
+  ShoppingList? _findMyActiveShopping(ShoppingListsProvider listsProvider, String? currentUserId) {
     for (final list in listsProvider.lists) {
       if (list.isBeingShopped) {
         final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
@@ -48,10 +46,7 @@ class ActiveShopperBanner extends StatelessWidget {
   }
 
   /// מציאת רשימה עם קנייה פעילה של מישהו אחר
-  ShoppingList? _findOthersActiveShopping(
-    ShoppingListsProvider listsProvider,
-    String? currentUserId,
-  ) {
+  ShoppingList? _findOthersActiveShopping(ShoppingListsProvider listsProvider, String? currentUserId) {
     for (final list in listsProvider.lists) {
       if (list.isBeingShopped) {
         final activeShoppers = list.activeShoppers.where((s) => s.isActive).toList();
@@ -72,10 +67,10 @@ class ActiveShopperBanner extends StatelessWidget {
     if (myList != null) {
       return AnimatedSwitcher(
         duration: const Duration(milliseconds: 400),
-        child: _MyActiveShoppingBanner(key: const ValueKey('my_active'), list: myList)
-            .animate()
-            .fadeIn(duration: 300.ms)
-            .slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
+        child: _MyActiveShoppingBanner(
+          key: const ValueKey('my_active'),
+          list: myList,
+        ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
       );
     }
 
@@ -105,10 +100,7 @@ class ActiveShopperBanner extends StatelessWidget {
         list: othersList,
         shopperCount: shopperCount,
         firstShopperName: firstShopperName,
-      )
-          .animate()
-          .fadeIn(duration: 300.ms)
-          .slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
+      ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.2, end: 0.0, curve: Curves.easeOut),
     );
   }
 }
@@ -179,7 +171,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         strings.myActiveSubtitle(list.name, uncheckedCount),
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -197,17 +189,14 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                 // כפתור המשך
                 ElevatedButton.icon(
                   onPressed: () => _onContinue(context),
-                  icon: Icon(Icons.play_arrow, size: 18),
+                  icon: const Icon(Icons.play_arrow, size: 18),
                   label: Text(strings.continueButton),
                   style: ElevatedButton.styleFrom(
                     // ✅ FIX: Theme-aware colors
                     backgroundColor: cs.onPrimary,
                     foregroundColor: accentColor,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    textStyle: const TextStyle(
-                      fontSize: kFontSizeMedium,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    textStyle: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -221,11 +210,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
   void _onContinue(BuildContext context) {
     // ✅ FIX: unawaited for fire-and-forget
     unawaited(HapticFeedback.lightImpact());
-    Navigator.pushNamed(
-      context,
-      '/active-shopping',
-      arguments: list,
-    );
+    Navigator.pushNamed(context, '/active-shopping', arguments: list);
   }
 }
 
@@ -235,12 +220,7 @@ class _OthersShoppingBanner extends StatelessWidget {
   final int shopperCount;
   final String? firstShopperName;
 
-  const _OthersShoppingBanner({
-    super.key,
-    required this.list,
-    required this.shopperCount,
-    this.firstShopperName,
-  });
+  const _OthersShoppingBanner({super.key, required this.list, required this.shopperCount, this.firstShopperName});
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +283,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 2),
                       Text(
                         shopperCount == 1
                             ? strings.othersActiveSingle(list.name)
@@ -333,11 +313,11 @@ class _OthersShoppingBanner extends StatelessWidget {
                       backgroundColor: cs.onPrimary,
                       foregroundColor: successColor,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     // כפתור צפה
                     IconButton(
                       onPressed: () => _onViewList(context),
-                      icon: Icon(Icons.visibility_outlined),
+                      icon: const Icon(Icons.visibility_outlined),
                       // ✅ FIX: Theme-aware color
                       color: cs.onPrimary.withValues(alpha: 0.8),
                       tooltip: strings.viewListTooltip,
@@ -371,21 +351,13 @@ class _OthersShoppingBanner extends StatelessWidget {
 
     // ✅ FIX: unawaited for fire-and-forget
     unawaited(HapticFeedback.lightImpact());
-    Navigator.pushNamed(
-      context,
-      '/active-shopping',
-      arguments: list,
-    );
+    Navigator.pushNamed(context, '/active-shopping', arguments: list);
   }
 
   void _onViewList(BuildContext context) {
     // ✅ FIX: unawaited for fire-and-forget
     unawaited(HapticFeedback.lightImpact());
-    Navigator.pushNamed(
-      context,
-      '/active-shopping',
-      arguments: {'list': list, 'readOnly': true},
-    );
+    Navigator.pushNamed(context, '/active-shopping', arguments: {'list': list, 'readOnly': true});
   }
 }
 
@@ -394,6 +366,7 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
   final VoidCallback onPressed;
+
   /// ✅ FIX: Theme-aware color parameters
   final Color backgroundColor;
   final Color foregroundColor;
@@ -418,74 +391,37 @@ class _ActionButton extends StatelessWidget {
         foregroundColor: foregroundColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: Size.zero,
-        textStyle: const TextStyle(
-          fontSize: kFontSizeSmall,
-          fontWeight: FontWeight.bold,
-        ),
+        textStyle: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
       ),
     );
   }
 }
 
-/// אייקון פועם
-class _PulsingIcon extends StatefulWidget {
+/// אייקון פועם - נכתב מחדש באמצעות flutter_animate לקיצור קוד (Clean Code)
+class _PulsingIcon extends StatelessWidget {
   /// ✅ FIX: Theme-aware color parameter
   final Color backgroundColor;
 
-  const _PulsingIcon({required this.backgroundColor});
-
-  @override
-  State<_PulsingIcon> createState() => _PulsingIconState();
-}
-
-class _PulsingIconState extends State<_PulsingIcon>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _animation = Tween<double>(begin: 0.95, end: 1.05).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  const _PulsingIcon({super.key, required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Transform.scale(
-          scale: _animation.value,
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              // ✅ FIX: Theme-aware color
-              color: widget.backgroundColor.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            child: Icon(
-              Icons.shopping_cart,
-              // ✅ FIX: Theme-aware color
-              color: widget.backgroundColor,
-              size: 24,
-            ),
+    return Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            // ✅ FIX: Theme-aware color
+            color: backgroundColor.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(kBorderRadius),
           ),
-        );
-      },
-    );
+          child: Icon(
+            Icons.shopping_cart,
+            // ✅ FIX: Theme-aware color
+            color: backgroundColor,
+            size: 24,
+          ),
+        )
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .scaleXY(begin: 0.95, end: 1.05, duration: 1500.ms, curve: Curves.easeInOut);
   }
 }
