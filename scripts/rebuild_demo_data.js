@@ -178,15 +178,14 @@ async function main() {
     const meta = userMeta[u.key];
     const hId = `household_${u.household}`;
     await db.collection('users').doc(uids[u.key]).set({
+      // Only fields that exist in UserEntity model!
       id: uids[u.key], name: u.name, email: u.email, phone: u.phone,
       household_id: hId, household_name: HOUSEHOLDS[u.household].name,
+      profile_image_url: null,
       joined_at: daysAgo(meta.joinedDays).toISOString(),
       last_login_at: hoursAgo(meta.lastLoginHours).toISOString(),
-      preferred_stores: u.stores, favorite_products: [],
+      favorite_products: [],
       weekly_budget: u.budget, is_admin: u.householdRole === 'admin',
-      family_size: u.familySize, shopping_frequency: u.familySize > 2 ? 3 : 1,
-      shopping_days: [], has_children: u.familySize > 2, share_lists: true,
-      reminder_time: u.householdRole === 'admin' ? '09:00' : null,
       seen_onboarding: true, seen_tutorial: meta.seenTutorial,
     });
   }
