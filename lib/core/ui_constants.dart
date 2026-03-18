@@ -75,7 +75,6 @@ const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 /// שקיפות קווים כחולים — `color.withValues(alpha: kNotebookLineOpacity)`
 const double kNotebookLineOpacity = 0.5;
 
-
 /// רווח בין קווים כחולים (מותאם לגובה שורת פריט)
 const double kNotebookLineSpacing = 48.0;
 
@@ -200,7 +199,6 @@ const double kOpacityMedium = 0.5;  // Medium opacity
 
 const double kProgressIndicatorHeight = 6.0;  // Linear progress indicator height
 
-
 // ═══════════════════════════════════════════════════════════════════════════
 // SPLASH GRADIENT COLORS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -240,11 +238,6 @@ const double kIconSize = kIconSizeMedium; // Alias: default icon size
 const double kIconSizeLarge = 36.0;    // Large icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons
 const double kIconSizeXXLarge = 64.0;  // Extra extra large icons
-
-// ═══════════════════════════════════════════════════════════════════════════
-// AVATAR SIZES
-// ═══════════════════════════════════════════════════════════════════════════
-
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FORM FIELD SIZES
