@@ -584,8 +584,8 @@ class InventoryProvider with ChangeNotifier {
       // 🆕 מוצר חדש שלא קיים במזווה — צור אותו אוטומטית
       await createItem(
         productName: productName,
-        category: 'כללי',
-        location: 'כללי',
+        category: 'other',
+        location: 'other',
         quantity: quantity,
       );
       return;

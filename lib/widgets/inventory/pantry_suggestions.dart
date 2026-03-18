@@ -127,7 +127,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
         // 🔍 חיפוש דינמי בקטלוג
         final match = _findInCatalog(searchTerm, allProducts);
         final fullName = match?['name'] as String? ?? searchTerm;
-        final category = match?['category'] as String? ?? 'כללי';
+        final category = match?['category'] as String? ?? 'other';
 
         // Skip if product (by full name or display name) already in pantry
         if (widget.existingProductNames.contains(nameLower)) continue;

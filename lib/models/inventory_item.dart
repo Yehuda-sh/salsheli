@@ -62,11 +62,12 @@ class InventoryItem {
   final String productName;
 
   /// קטגוריה (e.g., "מוצרי חלב", "ירקות")
-  @JsonKey(defaultValue: 'כללי')
+  @JsonKey(defaultValue: 'other')
   final String category;
 
-  /// מיקום אחסון (e.g., "מקרר", "מקפיא", "ארון")
-  @JsonKey(defaultValue: 'כללי')
+  /// מיקום אחסון (e.g., "refrigerator", "freezer", "cabinet")
+  /// 📌 Uses ID, not Hebrew (UI resolves display name)
+  @JsonKey(defaultValue: 'other')
   final String location;
 
   /// כמות זמינה
@@ -291,9 +292,10 @@ class InventoryItem {
   ///
   /// מחזיר `true` אם:
   /// - פג תוקף
-  /// - מלאי קריטי (critical) או אזל לגמרי (full — כלומר הגיע ל-0)
+  /// - מלאי קריטי (critical)
+  /// - אזל לגמרי (quantity == 0)
   bool get needsUrgentAttention =>
-      isExpired || status == LimitStatus.critical || status == LimitStatus.full;
+      isExpired || status == LimitStatus.critical || quantity == 0;
 
   // ---- Equality & Debug ----
 
