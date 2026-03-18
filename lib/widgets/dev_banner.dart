@@ -47,6 +47,7 @@ class DevBanner extends StatelessWidget {
     return Positioned(
       top: 0,
       right: 0,
+      child: ExcludeSemantics(
       child: IgnorePointer(
         // 🎨 RepaintBoundary — מאזל את אנימציית הלופ מעץ הווידג'טים
         child: RepaintBoundary(
@@ -97,6 +98,7 @@ class DevBanner extends StatelessWidget {
                 angle: math.pi / 4, // shimmer רץ לאורך אלכסון הריבון
               ),
         ),
+      ),
       ),
     );
   }
