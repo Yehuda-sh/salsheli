@@ -110,6 +110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Expanded(
                   child: PageView(
                     controller: _pageController,
+                    reverse: true,
                     onPageChanged: _onUserSwipe,
                     children: [
                       _SimpleFeatureCard(
@@ -306,9 +307,11 @@ class _DotIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (index) {
+      children: List.generate(count, (i) {
+        final index = isRtl ? (count - 1 - i) : i;
         final isActive = index == current;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
