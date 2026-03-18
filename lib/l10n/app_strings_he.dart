@@ -1181,6 +1181,10 @@ class InventoryStrings {
   String get locationKitchenDesc => 'ארונות מטבח - כלים ומוצרי בישול';
   String get locationBathroom => 'אמבטיה';
   String get locationBathroomDesc => 'אמבטיה - מוצרי טיפוח וניקיון';
+  String get locationStorage => 'מחסן';
+  String get locationStorageDesc => 'מחסן - מארזים גדולים ומלאי';
+  String get locationServicePorch => 'מרפסת שירות';
+  String get locationServicePorchDesc => 'מרפסת שירות - כביסה וניקיון';
   String get locationOther => 'אחר';
   String get locationOtherDesc => 'מיקום אחר';
   String get locationUnknown => 'לא ידוע';

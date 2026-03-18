@@ -41,6 +41,10 @@ class LocationInfo {
         return AppStrings.inventory.locationKitchen;
       case StorageLocations.bathroom:
         return AppStrings.inventory.locationBathroom;
+      case StorageLocations.storage:
+        return AppStrings.inventory.locationStorage;
+      case StorageLocations.servicePorch:
+        return AppStrings.inventory.locationServicePorch;
       case StorageLocations.other:
         return AppStrings.inventory.locationOther;
       default:
@@ -61,6 +65,10 @@ class LocationInfo {
         return AppStrings.inventory.locationKitchenDesc;
       case StorageLocations.bathroom:
         return AppStrings.inventory.locationBathroomDesc;
+      case StorageLocations.storage:
+        return AppStrings.inventory.locationStorageDesc;
+      case StorageLocations.servicePorch:
+        return AppStrings.inventory.locationServicePorchDesc;
       case StorageLocations.other:
         return AppStrings.inventory.locationOtherDesc;
       default:
@@ -79,15 +87,19 @@ class StorageLocations {
   static const String freezer = 'freezer';
   static const String kitchen = 'kitchen';
   static const String bathroom = 'bathroom';
+  static const String storage = 'storage';
+  static const String servicePorch = 'service_porch';
   static const String other = 'other';
 
-  /// All location IDs (UX order: pantry → fridge → freezer → kitchen → bathroom → other)
+  /// All location IDs (UX order: pantry → fridge → freezer → kitchen → bathroom → storage → porch → other)
   static const List<String> all = [
     mainPantry,
     refrigerator,
     freezer,
     kitchen,
     bathroom,
+    storage,
+    servicePorch,
     other, // ✅ Always last (fallback)
   ];
 
@@ -117,6 +129,16 @@ class StorageLocations {
       id: bathroom,
       emoji: '🛁',
       icon: Icons.bathtub_outlined,
+    ),
+    storage: LocationInfo(
+      id: storage,
+      emoji: '📦',
+      icon: Icons.warehouse_outlined,
+    ),
+    servicePorch: LocationInfo(
+      id: servicePorch,
+      emoji: '🧺',
+      icon: Icons.local_laundry_service_outlined,
     ),
     other: LocationInfo(
       id: other,
