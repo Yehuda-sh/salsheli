@@ -234,40 +234,53 @@ class _SimpleFeatureCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Illustration
+          // Illustration — flex 3 so text always has room
           Flexible(
-            child: ExcludeSemantics(
-              child: Image.asset(
-                illustrationAsset,
-                fit: BoxFit.contain,
+            flex: 3,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                child: ExcludeSemantics(
+                  child: Image.asset(
+                    illustrationAsset,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  ),
+                ),
               ),
             ),
           ),
           const SizedBox(height: kSpacingMedium),
 
-          // Title
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: cs.onSurface.withValues(alpha: 0.87),
-              fontWeight: FontWeight.w800,
-              fontSize: kFontSizeTitle,
-            ),
-          ),
-          const SizedBox(height: kSpacingTiny),
-
-          // Description
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-            child: Text(
-              description,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.5),
-                fontSize: kFontSizeBody,
-                height: 1.4,
-              ),
+          // Title + Description — always visible
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: cs.onSurface.withValues(alpha: 0.87),
+                    fontWeight: FontWeight.w800,
+                    fontSize: kFontSizeTitle,
+                  ),
+                ),
+                const SizedBox(height: kSpacingTiny),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                  child: Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: cs.onSurface.withValues(alpha: 0.5),
+                      fontSize: kFontSizeBody,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
