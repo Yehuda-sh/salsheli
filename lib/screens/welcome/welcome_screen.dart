@@ -238,17 +238,15 @@ class _SimpleFeatureCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Illustration — flex 2, text flex 1
-          Flexible(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                child: ExcludeSemantics(
-                  child: Image.asset(
-                    illustrationAsset,
-                    fit: BoxFit.contain,
-                  ),
+          Expanded(
+            flex: 3,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              child: ExcludeSemantics(
+                child: Image.asset(
+                  illustrationAsset,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
                 ),
               ),
             ),
