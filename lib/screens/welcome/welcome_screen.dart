@@ -191,10 +191,19 @@ class _LogoSection extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/logo.png',
-              height: screenHeight * 0.09,
+              height: screenHeight * 0.08,
               fit: BoxFit.contain,
             ),
-            const SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingXTiny),
+            Text(
+              'MemoZap',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: cs.primary,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: kSpacingXTiny),
             Text(
               AppStrings.welcome.subtitle,
               textAlign: TextAlign.center,
