@@ -260,7 +260,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                         ),
                         child: Column(
                           children: [
-                            // שורה עליונה: קניות | פריטים
+                            // שורה עליונה: קניות | פריטים (כללי → פירוט)
                             Row(
                               children: [
                                 Expanded(
@@ -286,7 +286,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                               color: cs.onPrimaryContainer.withValues(alpha: 0.15),
                               height: kSpacingSmall,
                             ),
-                            // שורה תחתונה: סה"כ | ממוצע
+                            // שורה תחתונה: סה"כ | ממוצע (גדול → ממוצע)
                             Row(
                               children: [
                                 Expanded(
@@ -447,10 +447,7 @@ class _ReceiptTile extends StatelessWidget {
 
     final leadingColor = receipt.isVirtual ? successColor : cs.primary;
 
-    // חשב פריטים שסומנו מתוך כלל הפריטים
     final checkedCount = receipt.items.where((i) => i.isChecked).length;
-    final totalCount = receipt.items.length;
-    final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -503,38 +500,23 @@ class _ReceiptTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 2),
-              // תאריך + סכום
-              Row(
-                children: [
-                  Text(
-                    DateFormat('dd/MM/yyyy  HH:mm', locale)
-                        .format(receipt.date),
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: kSpacingSmall),
-                  // 💰 סכום הקנייה
-                  Text(
-                    '₪${receipt.totalAmount.toStringAsFixed(0)}',
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      fontWeight: FontWeight.w600,
-                      color: cs.primary,
-                    ),
-                  ),
-                ],
+              // תאריך
+              Text(
+                DateFormat('dd/MM/yyyy  HH:mm', locale)
+                    .format(receipt.date),
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-              const SizedBox(height: 6),
-              // 📊 Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                child: LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 4,
-                  backgroundColor: cs.outlineVariant.withValues(alpha: 0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(successColor),
+              const SizedBox(height: 4),
+              // 💰 סכום הקנייה — שורה נפרדת ובולטת
+              Text(
+                '₪${receipt.totalAmount.toStringAsFixed(0)}',
+                style: TextStyle(
+                  fontSize: kFontSizeBody,
+                  fontWeight: FontWeight.bold,
+                  color: cs.primary,
                 ),
               ),
             ],
