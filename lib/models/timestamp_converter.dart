@@ -56,14 +56,14 @@ class NullableTimestampConverter implements JsonConverter<DateTime?, Object?> {
 }
 
 // ---- Flexible Converters (lenient - for data from various sources) ----
-// 🔧 Lenient: לא זורקים על טיפוס לא תקין - מחזירים fallback + אזהרה בדיבאג
+// 🔧 Lenient: לא זורקים על טיפוס לא תקין - מחזירים fallback
 // שימושי לנתונים מ-FCM, גרסאות ישנות, או מקורות חיצוניים
 
 /// 🎯 ממיר גמיש לשדות DateTime (lenient - לא זורק!)
 /// 🇬🇧 Flexible DateTime converter (lenient - doesn't throw!)
 ///
 /// תומך ב: Timestamp, String, int (epoch), DateTime
-/// ⚠️ אם הטיפוס לא מוכר או null → מחזיר DateTime.now() + אזהרה בדיבאג
+/// ⚠️ אם הטיפוס לא מוכר או null → מחזיר DateTime.now()
 class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
   const FlexibleDateTimeConverter();
 
@@ -80,7 +80,7 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
     }
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    // טיפוס לא מוכר - fallback + אזהרה
+    // טיפוס לא מוכר - fallback
     return DateTime.now();
   }
 
@@ -92,7 +92,7 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
 /// 🇬🇧 Flexible nullable DateTime converter (lenient - doesn't throw!)
 ///
 /// תומך ב: Timestamp, String, int (epoch), DateTime, null
-/// ⚠️ אם הטיפוס לא מוכר → מחזיר null + אזהרה בדיבאג
+/// ⚠️ אם הטיפוס לא מוכר → מחזיר null
 class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dynamic> {
   const NullableFlexibleDateTimeConverter();
 
@@ -106,7 +106,7 @@ class NullableFlexibleDateTimeConverter implements JsonConverter<DateTime?, dyna
     }
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    // טיפוס לא מוכר - null + אזהרה
+    // טיפוס לא מוכר - null
     return null;
   }
 
