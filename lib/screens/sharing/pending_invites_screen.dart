@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
@@ -515,7 +516,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
               // זמן
               Text(
-                invite.timeAgoText,
+                timeago.format(invite.createdAt, locale: 'he'),
                 style: TextStyle(
                   fontSize: kFontSizeTiny,
                   color: cs.outline,

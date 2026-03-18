@@ -203,25 +203,6 @@ class PendingRequest {
   /// האם הבקשה נדחתה
   bool get isRejected => status.isRejected;
 
-  /// כמה זמן עבר מאז הבקשה (בדקות)
-  int get minutesAgo {
-    return DateTime.now().difference(createdAt).inMinutes;
-  }
-
-  /// טקסט של כמה זמן עבר
-  String get timeAgoText {
-    final minutes = minutesAgo;
-    if (minutes < 60) {
-      return 'לפני $minutes דק\'';
-    }
-    final hours = minutes ~/ 60;
-    if (hours < 24) {
-      return 'לפני $hours שעות';
-    }
-    final days = hours ~/ 24;
-    return 'לפני $days ימים';
-  }
-
   // === Request Data Helpers ===
   // 🔧 גישה בטוחה לנתוני הבקשה לפי type
 
