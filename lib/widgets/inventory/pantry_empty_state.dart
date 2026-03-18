@@ -215,10 +215,7 @@ class PantryEmptyState extends StatelessWidget {
                 Column(
                   children: [
                     if (onAddStarterItems != null) ...[
-                      greenNote
-                          .animate()
-                          .fadeIn(duration: 350.ms, delay: d3)
-                          .slideY(begin: 0.06, end: 0, duration: 350.ms, delay: d3, curve: Curves.easeOut),
+                      greenNote,
                       const Gap(kSpacingLarge),
                     ],
                     Center(child: _buildStatusBadge(context, cs, strings)),
