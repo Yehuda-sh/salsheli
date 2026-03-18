@@ -69,6 +69,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   late final List<Animation<Offset>> _slideAnims;
   static const int _sectionCount = 7;
   // Keys לשמירה מקומית - התראות
+  // TODO(fcm): הכפתורים נשמרים ב-SharedPreferences אבל עדיין לא מחוברים ל-FCM.
+  //   כשנחבר FCM — צריך לקרוא את הערכים האלה ב-NotificationsService ולסנן לפיהם.
   static const _kNotifyShopping = 'settings.notify.shopping';
   static const _kNotifyGroup = 'settings.notify.group';
   static const _kNotifyReminders = 'settings.notify.reminders';
@@ -176,6 +178,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(key, value);
     } catch (e) {
+      debugPrint('⚠️ Failed to save notification setting $key: $e');
     }
   }
 
@@ -424,13 +427,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         try {
                           await authService.deleteAccount();
 
-                          if (!mounted) return;
+                          if (!dialogCtx.mounted) return;
                           navigator.pop(true);
                         } on AuthException catch (e) {
+                          if (!dialogCtx.mounted) return;
                           setDialogState(() => isDeleting = false);
 
                           if (e.code == AuthErrorCode.requiresRecentLogin) {
-                            if (!mounted) return;
                             scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountRequiresReauth),
@@ -438,7 +441,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               ),
                             );
                           } else {
-                            if (!mounted) return;
                             scaffoldMessenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountError(e.message)),
@@ -447,8 +449,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             );
                           }
                         } catch (e) {
+                          if (!dialogCtx.mounted) return;
                           setDialogState(() => isDeleting = false);
-                          if (!mounted) return;
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
                               content: Text(AppStrings.settings.deleteAccountError(e.toString())),
@@ -473,17 +475,24 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     );
 
     if (confirmed == true && mounted) {
+      // ✅ GDPR: ניקוי נתונים מקומיים (SharedPreferences + state)
+      try {
+        await context.read<UserContext>().signOutAndClearAllData();
+      } catch (_) {
+        // Auth כבר נמחק — ניקוי מקומי נכשל, ממשיכים בכל מקרה
+        debugPrint('⚠️ signOutAndClearAllData failed after account deletion');
+      }
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppStrings.settings.deleteAccountSuccess),
           backgroundColor: cs.primary,
         ),
       );
-      await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) {
-        // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome (חשבון נמחק = משתמש חדש)
-        unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
-      }
+      // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome (חשבון נמחק = משתמש חדש)
+      // TODO(gdpr): להוסיף Cloud Function שמוחקת נתוני Firestore (users/{uid}, household membership, etc.)
+      unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
     }
   }
 
@@ -651,7 +660,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           if (usersQuery.docs.isNotEmpty) {
                             invitedUserId = usersQuery.docs.first.id;
                           }
-                        } catch (_) {}
+                        } catch (e) {
+                          debugPrint('⚠️ Failed to lookup invited user: $e');
+                        }
 
                         final result =
                             await service.createHouseholdInvite(
