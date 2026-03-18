@@ -6,6 +6,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -37,7 +38,7 @@ const kLocationEmojis = [
 Future<String?> showAddLocationDialog(BuildContext context) async {
   final cs = Theme.of(context).colorScheme;
   final controller = TextEditingController();
-  String selectedEmoji = '📍';
+  String selectedEmoji = kLocationEmojis.first;
 
   final result = await showDialog<String>(
     context: context,
@@ -64,8 +65,12 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       children: kLocationEmojis.map((emoji) {
                         final isSelected = emoji == selectedEmoji;
                         return GestureDetector(
-                          onTap: () => setDialogState(() => selectedEmoji = emoji),
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            setDialogState(() => selectedEmoji = emoji);
+                          },
                           child: Container(
+                            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                             padding: const EdgeInsets.all(kSpacingSmall),
                             decoration: BoxDecoration(
                               color: isSelected
@@ -97,6 +102,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       ),
                       autofocus: true,
                       textDirection: TextDirection.rtl,
+                      onChanged: (_) => setDialogState(() {}),
                     ),
                   ],
                 ),
@@ -113,9 +119,8 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       backgroundColor: cs.primaryContainer,
                       foregroundColor: cs.onPrimaryContainer,
                     ),
-                    onPressed: () async {
+                    onPressed: controller.text.trim().isEmpty ? null : () async {
                       final name = controller.text.trim();
-                      if (name.isEmpty) return;
 
                       final provider = dialogContext.read<LocationsProvider>();
                       final navigator = Navigator.of(dialogContext);
