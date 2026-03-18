@@ -402,7 +402,7 @@ class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
     // ✅ Listener for animation only (doesn't compete in gesture arena)
     // ✅ IconButton handles action, ripple, keyboard focus, a11y, tooltip
     return AnimatedScale(
-      scale: _isPressed ? 0.92 : 1.0,
+      scale: _isPressed ? 0.97 : 1.0,
       duration: const Duration(milliseconds: 100),
       curve: Curves.easeOutCubic,
       child: Listener(

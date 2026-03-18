@@ -838,7 +838,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       message: tooltip,
       child: AnimatedButton(
         haptic: ButtonHaptic.selection,
-        scaleTarget: 0.88,
+        scaleTarget: 0.97,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(20),
