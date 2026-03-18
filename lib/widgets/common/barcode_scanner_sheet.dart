@@ -26,6 +26,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
     facing: CameraFacing.back,
   );
   bool _hasScanned = false;
+  bool _torchOn = false;
 
   @override
   void dispose() {
@@ -73,10 +74,12 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
           const SizedBox(height: kSpacingSmall),
 
           // Scanner viewport
-          ClipRRect(
-            borderRadius: BorderRadius.circular(kBorderRadius),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+            child: ClipRRect(
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             child: SizedBox(
-              height: 250,
+              height: MediaQuery.of(context).size.height * 0.3,
               child: MobileScanner(
                 controller: _controller,
                 onDetect: _onDetect,
@@ -100,12 +103,34 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
               ),
             ),
           ),
-          const SizedBox(height: kSpacingMedium),
+          ),
+          const SizedBox(height: kSpacingSmall),
 
-          // Cancel button
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(AppStrings.common.cancel),
+          // Torch + Cancel buttons
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // 🔦 Torch toggle
+                IconButton(
+                  onPressed: () {
+                    _controller.toggleTorch();
+                    if (mounted) setState(() => _torchOn = !_torchOn);
+                  },
+                  icon: Icon(
+                    _torchOn ? Icons.flash_on : Icons.flash_off,
+                    color: _torchOn ? cs.primary : cs.onSurfaceVariant,
+                  ),
+                  tooltip: AppStrings.shopping.toggleFlash,
+                ),
+                // ביטול
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(AppStrings.common.cancel),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: kSpacingSmall),
         ],
