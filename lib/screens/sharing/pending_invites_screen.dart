@@ -30,6 +30,7 @@ import '../../models/pending_request.dart';
 import '../../providers/user_context.dart';
 import '../../services/pending_invites_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
@@ -328,46 +329,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       return RefreshIndicator(
         onRefresh: _loadInvites,
         child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
-            child: Center(
-              child: Container(
-                margin: const EdgeInsets.all(kSpacingLarge),
-                padding: const EdgeInsets.all(kSpacingXLarge),
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                  boxShadow: [
-                    BoxShadow(
-                      color: cs.scrim.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(kSpacingLarge),
-                      decoration: BoxDecoration(
-                        color: cs.errorContainer.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.error_outline, size: 64, color: cs.error),
-                    ),
-                    SizedBox(height: kSpacingLarge),
-                    Text(_error!, style: TextStyle(color: cs.error, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: kSpacingMedium),
-                    ElevatedButton.icon(
-                      onPressed: _loadInvites,
-                      icon: const Icon(Icons.refresh),
-                      label: Text(AppStrings.pendingInvitesScreen.retryButton),
-                    ),
-                  ],
-                ),
-              ),
+            child: AppErrorState(
+              message: _error!,
+              onAction: _loadInvites,
+              actionLabel: AppStrings.pendingInvitesScreen.retryButton,
             ),
           ),
         ),

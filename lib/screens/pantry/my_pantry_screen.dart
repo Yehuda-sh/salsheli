@@ -56,6 +56,7 @@ import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../providers/products_provider.dart';
 import '../../widgets/common/add_location_dialog.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -576,31 +577,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               return Scaffold(
                 backgroundColor: Colors.transparent,
                 body: SafeArea(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.error_outline, size: 64, color: scheme.error),
-                        const SizedBox(height: kSpacingMedium),
-                        Text(
-                          strings.loadingErrorTitle,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: kSpacingSmall),
-                        Text(
-                          provider.errorMessage ?? strings.loadingErrorDefault,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: kSpacingLarge),
-                        FilledButton.icon(
-                          onPressed: () => provider.loadItems(),
-                          icon: const Icon(Icons.refresh),
-                          label: Text(strings.retryButton),
-                        ),
-                      ],
-                    ),
+                  child: AppErrorState(
+                    title: strings.loadingErrorTitle,
+                    message: provider.errorMessage ?? strings.loadingErrorDefault,
+                    onAction: () => provider.loadItems(),
+                    actionLabel: strings.retryButton,
                   ),
                 ),
               );

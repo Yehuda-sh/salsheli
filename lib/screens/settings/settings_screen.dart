@@ -44,6 +44,7 @@ import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/widgets/common/skeleton_loader.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -976,28 +977,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     if (_errorMessage != null) {
       return Scaffold(
         backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: cs.error),
-              SizedBox(height: kSpacingMedium),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                child: Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: cs.error),
-                ),
-              ),
-              const SizedBox(height: kSpacingMedium),
-              FilledButton.icon(
-                onPressed: _retry,
-                icon: Icon(Icons.refresh),
-                label: Text(AppStrings.priceComparison.retry),
-              ),
-            ],
-          ),
+        body: AppErrorState(
+          message: _errorMessage!,
+          onAction: _retry,
         ),
       );
     }

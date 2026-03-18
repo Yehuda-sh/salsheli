@@ -14,6 +14,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 
@@ -73,9 +74,12 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                 }
 
                 if (provider.errorMessage != null) {
-                  return _ErrorState(
+                  return AppErrorState(
+                    title: AppStrings.shoppingSummary.loadError,
                     message: provider.errorMessage!,
-                    onBack: () => Navigator.of(context).pop(),
+                    onAction: () => Navigator.of(context).pop(),
+                    actionLabel: AppStrings.common.goBack,
+                    actionIcon: Icons.arrow_back,
                   );
                 }
 
@@ -372,41 +376,6 @@ class _StatColumn extends StatelessWidget {
           style: TextStyle(fontSize: kFontSizeTiny, color: cs.onSurfaceVariant),
         ),
       ],
-    );
-  }
-}
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onBack;
-
-  const _ErrorState({required this.message, required this.onBack});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.shoppingSummary;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error.withValues(alpha: 0.7)),
-            const SizedBox(height: kSpacingMedium),
-            Text(strings.loadError, style: TextStyle(fontSize: kFontSizeTitle, color: cs.onSurface)),
-            const SizedBox(height: kSpacingSmall),
-            Text(message, style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant)),
-            const SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
-              onPressed: onBack,
-              icon: const Icon(Icons.arrow_back),
-              label: Text(AppStrings.common.goBack),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

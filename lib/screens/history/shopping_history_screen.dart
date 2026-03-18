@@ -30,6 +30,7 @@ import '../../l10n/app_strings.dart';
 import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 
@@ -158,9 +159,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
               }
 
               if (provider.hasError) {
-                return _ErrorState(
+                return AppErrorState(
                   message: provider.errorMessage ?? strings.defaultError,
-                  onRetry: () => provider.retry(),
+                  onAction: () => provider.retry(),
+                  actionLabel: strings.retryButton,
                 );
               }
 
@@ -810,50 +812,3 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// ========================================
-// Widget: Error State
-// ========================================
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.shoppingHistory;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: cs.error.withValues(alpha: 0.7),
-            ),
-            const SizedBox(height: kSpacingMedium),
-            Text(
-              message,
-              style: TextStyle(color: cs.onSurfaceVariant),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingMedium),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.retryButton),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
