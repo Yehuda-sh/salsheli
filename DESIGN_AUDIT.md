@@ -30,8 +30,7 @@
 
 ## ✅ Reusable Components
 
-- `AppSectionCard` — Card wrapper עם elevation + borderRadius
-- `AppErrorState` — אייקון + הודעה + retry
+- `AppErrorState` — אייקון + הודעה + retry (בשימוש ב-5 מסכים)
 - `AppLoadingSkeleton` — Skeleton shimmer loading
 
 ## 🟡 שיפורים אפשריים (Post-launch)
