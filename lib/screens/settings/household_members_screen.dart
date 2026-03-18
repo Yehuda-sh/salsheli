@@ -27,7 +27,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   List<_MemberData> _members = [];
   bool _isLoading = true;
   String? _error;
-  bool _isAdmin = false;
+  bool _isOwner = false;
+  String? _householdCreatedBy;
   String? _currentUserId;
   String? _householdId;
 
@@ -45,12 +46,19 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     if (_householdId == null || _currentUserId == null) {
       setState(() {
         _isLoading = false;
-        _error = 'לא נמצא בית';
+        _error = AppStrings.household.householdNotFound;
       });
       return;
     }
 
     try {
+      // קרא את מסמך הבית כדי לזהות מי הבעלים
+      final householdDoc = await FirebaseFirestore.instance
+          .collection('households')
+          .doc(_householdId)
+          .get();
+      _householdCreatedBy = householdDoc.data()?['created_by'] as String?;
+
       final snap = await FirebaseFirestore.instance
           .collection('households')
           .doc(_householdId)
@@ -59,24 +67,32 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
       final members = snap.docs.map((doc) {
         final data = doc.data();
+        final memberId = doc.id;
+        // הבעלים = מי שיצר את הבית (owner > admin > member)
+        final isCreator = memberId == _householdCreatedBy;
+        final rawRole = data['role'] as String? ?? 'member';
+        final effectiveRole = isCreator ? 'owner' : rawRole;
+
         return _MemberData(
-          userId: doc.id,
+          userId: memberId,
           name: data['name'] as String? ?? 'משתמש',
-          role: data['role'] as String? ?? 'member',
+          role: effectiveRole,
           joinedAt: (data['joined_at'] as Timestamp?)?.toDate(),
           email: data['email'] as String?,
         );
       }).toList();
 
+      // מיון: owner ראשון, אח"כ admin, אח"כ member
       members.sort((a, b) {
-        if (a.role == 'admin' && b.role != 'admin') return -1;
-        if (a.role != 'admin' && b.role == 'admin') return 1;
+        const order = {'owner': 0, 'admin': 1, 'member': 2};
+        final cmp = (order[a.role] ?? 3).compareTo(order[b.role] ?? 3);
+        if (cmp != 0) return cmp;
         return a.name.compareTo(b.name);
       });
 
       final currentMember = members.where((m) => m.userId == _currentUserId);
-      _isAdmin =
-          currentMember.isNotEmpty && currentMember.first.role == 'admin';
+      final currentRole = currentMember.isNotEmpty ? currentMember.first.role : 'member';
+      _isOwner = currentRole == 'owner';
 
       setState(() {
         _members = members;
@@ -85,12 +101,17 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _error = 'שגיאה בטעינת חברי הבית';
+        _error = AppStrings.household.loadMembersError;
       });
     }
   }
 
   Future<void> _removeMember(_MemberData member) async {
+    // בעלים לא ניתן להסרה
+    if (member.role == 'owner') return;
+    // רק בעלים יכול להסיר אדמין
+    if (member.role == 'admin' && !_isOwner) return;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -155,7 +176,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('${member.name} הוסר מהבית')),
+          SnackBar(content: Text(AppStrings.household.memberRemoved(member.name))),
         );
         unawaited(_loadMembers());
       }
@@ -170,6 +191,10 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
   Future<void> _toggleRole(_MemberData member) async {
     if (_householdId == null) return;
+    // רק בעלים יכול לשנות תפקידים
+    if (!_isOwner) return;
+    // לא ניתן לשנות תפקיד של בעלים
+    if (member.role == 'owner') return;
     final newRole = member.role == 'admin' ? 'member' : 'admin';
     try {
       await FirebaseFirestore.instance
@@ -183,7 +208,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${member.name} ${newRole == 'admin' ? 'הפך למנהל' : 'הפך לחבר'}',
+              AppStrings.household.memberRoleChanged(member.name, newRole == 'admin' ? AppStrings.household.roleAdmin : AppStrings.household.roleMember),
             ),
           ),
         );
@@ -199,13 +224,21 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   }
 
   Future<void> _leaveHousehold() async {
+    // בעלים לא יכול לעזוב — חייב למחוק את הבית או להעביר בעלות
+    if (_isOwner) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.household.ownerCannotLeave)),
+        );
+      }
+      return;
+    }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(AppStrings.household.leaveHouseholdTitle),
-        content: const Text(
-          'בטוח שאתה רוצה לעזוב? תועבר לבית אישי חדש.',
-        ),
+        content: Text(AppStrings.household.leaveHouseholdConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -346,7 +379,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              '${_members.length} חברים',
+                              '${_members.length} ${AppStrings.household.membersCount}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: cs.onSurfaceVariant,
                               ),
@@ -405,7 +438,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   Widget _buildMemberCard(
       _MemberData member, ColorScheme cs, ThemeData theme) {
     final isCurrentUser = member.userId == _currentUserId;
-    final isAdmin = member.role == 'admin';
+    final isMemberOwner = member.role == 'owner';
+    final isMemberAdmin = member.role == 'admin' || isMemberOwner;
 
     return Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -425,9 +459,9 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isAdmin ? cs.primaryContainer : cs.surfaceContainerHighest,
+                color: isMemberAdmin ? cs.primaryContainer : cs.surfaceContainerHighest,
                 border: Border.all(
-                  color: isAdmin
+                  color: isMemberAdmin
                       ? cs.primary.withValues(alpha: 0.3)
                       : Colors.transparent,
                   width: 2,
@@ -438,7 +472,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                   member.name.isNotEmpty ? member.name[0] : '?',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isAdmin ? cs.primary : cs.onSurfaceVariant,
+                    color: isMemberAdmin ? cs.primary : cs.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -494,13 +528,15 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: isAdmin
-                          ? kStickyGreen.withValues(alpha: 0.15)
-                          : cs.surfaceContainerHighest,
+                      color: isMemberOwner
+                          ? cs.primary.withValues(alpha: 0.15)
+                          : isMemberAdmin
+                              ? kStickyGreen.withValues(alpha: 0.15)
+                              : cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
-                      isAdmin ? '👑 מנהל' : '👤 חבר',
+                      isMemberOwner ? '👑 בעלים' : isMemberAdmin ? '🛡️ מנהל' : '👤 חבר',
                       style: TextStyle(
                         fontSize: kFontSizeTiny,
                         color: cs.onSurfaceVariant,
@@ -511,8 +547,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
               ),
             ),
 
-            // Actions
-            if (_isAdmin && !isCurrentUser)
+            // Actions — רק בעלים רואה תפריט פעולות, ולא על עצמו ולא על בעלים אחר
+            if (_isOwner && !isCurrentUser && !isMemberOwner)
               PopupMenuButton<String>(
                 onSelected: (action) {
                   switch (action) {
@@ -528,13 +564,13 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          isAdmin
+                          member.role == 'admin'
                               ? Icons.person_outline
                               : Icons.admin_panel_settings,
                           size: kIconSizeSmall,
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        Text(isAdmin ? AppStrings.household.makeMember : AppStrings.household.makeAdmin),
+                        Text(member.role == 'admin' ? AppStrings.household.makeMember : AppStrings.household.makeAdmin),
                       ],
                     ),
                   ),

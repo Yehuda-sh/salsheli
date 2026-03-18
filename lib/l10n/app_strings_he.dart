@@ -899,6 +899,16 @@ class HouseholdStrings {
   String get makeMember => 'הפוך לחבר';
   String get removeFromHousehold => 'הסר מהבית';
   String roleChangeError(String error) => 'שגיאה בשינוי תפקיד: $error';
+  String get ownerCannotLeave => 'בעלים לא יכול לעזוב את הבית. ניתן למחוק את הבית או להעביר בעלות';
+  String get householdNotFound => 'לא נמצא בית';
+  String get loadMembersError => 'שגיאה בטעינת חברי הבית';
+  String get leaveHouseholdConfirm => 'בטוח שאתה רוצה לעזוב? תועבר לבית אישי חדש.';
+  String memberRemoved(String name) => '$name הוסר מהבית';
+  String memberRoleChanged(String name, String role) => '$name הפך ל$role';
+  String get membersCount => 'חברים';
+  String get roleOwner => 'בעלים';
+  String get roleAdmin => 'מנהל';
+  String get roleMember => 'חבר';
 }
 
 // ========================================

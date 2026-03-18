@@ -80,8 +80,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   bool _notifyReminders = true;
   bool _notifyListUpdates = false; // כבוי כברירת מחדל — יכול להציף
 
-  // הרשאות משפחה
+  // הרשאות משפחה (owner = בעלים, admin = מנהל)
   bool _isHouseholdAdmin = false;
+  bool _isHouseholdOwner = false;
 
   bool _loading = true;
   String? _errorMessage;
@@ -127,6 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       final householdId = userContext.householdId;
       final userId = userContext.userId;
       bool isAdmin = false;
+      bool isOwner = false;
       if (householdId != null && userId != null) {
         try {
           final memberDoc = await FirebaseFirestore.instance
@@ -135,8 +137,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               .collection('members')
               .doc(userId)
               .get();
-          isAdmin = memberDoc.exists &&
-              (memberDoc.data()?['role'] == 'admin' || memberDoc.data()?['role'] == 'owner');
+          final String? memberRole = memberDoc.exists ? (memberDoc.data()?['role'] as String?) : null;
+          // בדיקה אם הבעלים = created_by
+          final householdDoc = await FirebaseFirestore.instance
+              .collection('households').doc(householdId).get();
+          final createdBy = householdDoc.data()?['created_by'];
+          isOwner = userId == createdBy;
+          isAdmin = isOwner || memberRole == 'admin' || memberRole == 'owner';
         } catch (_) {
           // Silent — default to non-admin
         }
@@ -149,6 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
         _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
         _isHouseholdAdmin = isAdmin;
+        _isHouseholdOwner = isOwner;
         _loading = false;
         _errorMessage = null;
       });
