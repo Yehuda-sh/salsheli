@@ -211,7 +211,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                                       ),
                                       Container(
                                         width: 1,
-                                        height: 40,
+                                        height: kIconSizeLarge + kSpacingXTiny,
                                         color: cs.outline.withValues(alpha: 0.1),
                                       ),
                                       _StatColumn(
@@ -222,7 +222,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                                       ),
                                       Container(
                                         width: 1,
-                                        height: 40,
+                                        height: kIconSizeLarge + kSpacingXTiny,
                                         color: cs.outline.withValues(alpha: 0.1),
                                       ),
                                       _StatColumn(
@@ -284,7 +284,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                                       ),
                                     ),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
                                       decoration: BoxDecoration(
                                         color: (budgetDiff >= 0 ? successColor : cs.error).withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(kBorderRadius),
@@ -365,8 +365,8 @@ class _StatColumn extends StatelessWidget {
 
     return Column(
       children: [
-        Icon(icon, color: iconColor, size: 24),
-        const SizedBox(height: 4),
+        Icon(icon, color: iconColor, size: kIconSizeMedium),
+        const SizedBox(height: kSpacingXTiny),
         Text(
           value,
           style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
