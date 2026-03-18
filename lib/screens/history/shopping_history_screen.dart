@@ -1,19 +1,22 @@
 // 📄 lib/screens/history/shopping_history_screen.dart
 //
 // מסך היסטוריית קניות - צפייה בקבלות קודמות.
-// כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
-// שילוב: רקע מחברת + עיצוב Material נקי (AppBar + Cards)
+// כולל מיון, סינון וסטטיסטיקות הוצאות.
+// שילוב: רקע מחברת + Glass AppBar + אנימציות מדורגות
 //
 // ✅ Features:
-//    - אנימציות כניסה עם flutter_animate
-//    - משוב Haptic בסינון ומיון
-//    - נגישות משופרת לסטטיסטיקות
+//    - Glass blur AppBar
+//    - אנימציות כניסה מדורגות (AnimationController + Interval, פעם ראשונה בלבד)
+//    - סטטיסטיקות: קניות, פריטים, סה"כ, ממוצע
+//    - Empty state אנימטיבי עם CTA
+//    - Haptic feedback ב-refresh וסינון
+//    - נגישות משופרת
 //
-// Version: 4.0
-// Last Updated: 22/02/2026
+// Version: 5.0 (18/03/2026)
 // 🔗 Related: ReceiptProvider, Receipt
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,16 +42,80 @@ class ShoppingHistoryScreen extends StatefulWidget {
   State<ShoppingHistoryScreen> createState() => _ShoppingHistoryScreenState();
 }
 
-class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
+class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
+    with SingleTickerProviderStateMixin {
   String _filterPeriod = 'month'; // month, 3months, all
   String _sortBy = 'date'; // date, store, amount
+
+  /// אנימציות מדורגות — רצות רק בפעם הראשונה (כמו בהגדרות)
+  late final AnimationController _animController;
+  late final List<Animation<double>> _fadeAnims;
+  late final List<Animation<Offset>> _slideAnims;
+  static const int _sectionCount = 4; // filters, stats, list, empty
+
+  /// דגל — אנימציה כבר רצה?
+  bool _hasAnimated = false;
 
   @override
   void initState() {
     super.initState();
+
     // אם פתחו עם קבלה ספציפית - הצג הכל כדי שהיא תהיה גלויה
     if (widget.initialReceiptId != null) {
       _filterPeriod = 'all';
+    }
+
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnims = List.generate(_sectionCount, (i) {
+      final start = i * 0.15;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0, end: 1).animate(
+        CurvedAnimation(
+          parent: _animController,
+          curve: Interval(start, end, curve: Curves.easeOut),
+        ),
+      );
+    });
+    _slideAnims = List.generate(_sectionCount, (i) {
+      final start = i * 0.15;
+      final end = (start + 0.4).clamp(0.0, 1.0);
+      return Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
+          .animate(
+        CurvedAnimation(
+          parent: _animController,
+          curve: Interval(start, end, curve: Curves.easeOut),
+        ),
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  /// עוטף widget באנימציית כניסה מדורגת (רק בפעם הראשונה)
+  Widget _staggered(Widget child, int index) {
+    if (_hasAnimated || index >= _sectionCount) return child;
+    return FadeTransition(
+      opacity: _fadeAnims[index],
+      child: SlideTransition(
+        position: _slideAnims[index],
+        child: child,
+      ),
+    );
+  }
+
+  /// מפעיל את האנימציה פעם אחת
+  void _triggerEntryAnimation() {
+    if (!_hasAnimated) {
+      _animController.forward().then((_) {
+        if (mounted) setState(() => _hasAnimated = true);
+      });
     }
   }
 
@@ -66,56 +133,71 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-        title: Text(strings.title),
-        centerTitle: true,
-        actions: [
-          // מיון
-          PopupMenuButton<String>(
-            icon: Icon(Icons.sort, color: cs.primary),
-            tooltip: strings.sortTooltip,
-            onSelected: (value) {
-              unawaited(HapticFeedback.lightImpact());
-              setState(() => _sortBy = value);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'date',
-                child: Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByDate),
-                  ],
+            // 🧊 Glass blur effect
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: kGlassBlurSigma,
+                  sigmaY: kGlassBlurSigma,
+                ),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
                 ),
               ),
-              PopupMenuItem(
-                value: 'store',
-                child: Row(
-                  children: [
-                    const Icon(Icons.list_alt, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByList),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'amount',
-                child: Row(
-                  children: [
-                    const Icon(Icons.attach_money, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByAmount),
-                  ],
-                ),
+            ),
+            title: Text(strings.title),
+            centerTitle: true,
+            actions: [
+              // מיון
+              PopupMenuButton<String>(
+                icon: Icon(Icons.sort, color: cs.primary),
+                tooltip: strings.sortTooltip,
+                onSelected: (value) {
+                  unawaited(HapticFeedback.lightImpact());
+                  setState(() => _sortBy = value);
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'date',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 18),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(strings.sortByDate),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'store',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.list_alt, size: 18),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(strings.sortByList),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'amount',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.attach_money, size: 18),
+                        const SizedBox(width: kSpacingSmall),
+                        Text(strings.sortByAmount),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      body: Consumer<ReceiptProvider>(
-        builder: (context, provider, _) {
+          body: Consumer<ReceiptProvider>(
+            builder: (context, provider, _) {
               if (provider.isLoading) {
-                return const AppLoadingSkeleton(sectionCount: 4, showHero: false);
+                return const AppLoadingSkeleton(
+                  sectionCount: 4,
+                  showHero: false,
+                );
               }
 
               if (provider.hasError) {
@@ -128,134 +210,187 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
               final receipts = _filterAndSortReceipts(provider.receipts);
 
               if (provider.receipts.isEmpty) {
-                return _EmptyState();
+                return const _EmptyState();
               }
 
-              // חשב סטטיסטיקות
+              // 🎬 הפעל אנימציה פעם אחת כשיש דאטא
+              _triggerEntryAnimation();
+
+              // 📊 סטטיסטיקות
               final totalItems = receipts.fold<int>(
                 0,
                 (sum, r) => sum + r.items.where((i) => i.isChecked).length,
               );
+              final totalAmount = receipts.fold<double>(
+                0,
+                (sum, r) => sum + r.totalAmount,
+              );
+              final averageAmount =
+                  receipts.isNotEmpty ? totalAmount / receipts.length : 0.0;
 
               return Column(
                 children: [
                   // 🔍 סינון לפי תקופה
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingMedium,
-                      vertical: kSpacingSmall,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FilterChip(
-                          label: Text(strings.filterThisMonth),
-                          selected: _filterPeriod == 'month',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = 'month');
-                          },
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        FilterChip(
-                          label: Text(strings.filterThreeMonths),
-                          selected: _filterPeriod == '3months',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = '3months');
-                          },
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        FilterChip(
-                          label: Text(strings.filterAll),
-                          selected: _filterPeriod == 'all',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = 'all');
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // 📊 סטטיסטיקות
-                  Semantics(
-                    label: '${strings.shoppingsLabel}: ${receipts.length}, '
-                        '${strings.totalItemsLabel}: $totalItems',
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: kSpacingMedium),
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer,
-                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                  _staggered(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingMedium,
+                        vertical: kSpacingSmall,
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _StatItem(
-                            icon: Icons.receipt_long,
-                            label: strings.shoppingsLabel,
-                            value: '${receipts.length}',
-                            color: cs.onPrimaryContainer,
+                          FilterChip(
+                            label: Text(strings.filterThisMonth),
+                            selected: _filterPeriod == 'month',
+                            selectedColor:
+                                cs.primary.withValues(alpha: 0.15),
+                            checkmarkColor: cs.primary,
+                            onSelected: (_) {
+                              unawaited(HapticFeedback.lightImpact());
+                              setState(() => _filterPeriod = 'month');
+                            },
                           ),
-                          _StatItem(
-                            icon: Icons.shopping_bag,
-                            label: strings.totalItemsLabel,
-                            value: '$totalItems',
-                            color: cs.onPrimaryContainer,
+                          const SizedBox(width: kSpacingSmall),
+                          FilterChip(
+                            label: Text(strings.filterThreeMonths),
+                            selected: _filterPeriod == '3months',
+                            selectedColor:
+                                cs.primary.withValues(alpha: 0.15),
+                            checkmarkColor: cs.primary,
+                            onSelected: (_) {
+                              unawaited(HapticFeedback.lightImpact());
+                              setState(() => _filterPeriod = '3months');
+                            },
+                          ),
+                          const SizedBox(width: kSpacingSmall),
+                          FilterChip(
+                            label: Text(strings.filterAll),
+                            selected: _filterPeriod == 'all',
+                            selectedColor:
+                                cs.primary.withValues(alpha: 0.15),
+                            checkmarkColor: cs.primary,
+                            onSelected: (_) {
+                              unawaited(HapticFeedback.lightImpact());
+                              setState(() => _filterPeriod = 'all');
+                            },
                           ),
                         ],
                       ),
                     ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideY(begin: 0.1, end: 0.0, curve: Curves.easeOut),
+                    0,
+                  ),
 
-                  SizedBox(height: kSpacingSmall),
+                  // 📊 סטטיסטיקות
+                  _staggered(
+                    Semantics(
+                      label: '${strings.shoppingsLabel}: ${receipts.length}, '
+                          '${strings.totalItemsLabel}: $totalItems, '
+                          '${strings.totalLabel}: ₪${totalAmount.toStringAsFixed(0)}, '
+                          '${strings.averageLabel}: ₪${averageAmount.toStringAsFixed(0)}',
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: kSpacingMedium,
+                        ),
+                        padding: const EdgeInsets.all(kSpacingMedium),
+                        decoration: BoxDecoration(
+                          color: cs.primaryContainer,
+                          borderRadius:
+                              BorderRadius.circular(kBorderRadiusLarge),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _StatItem(
+                              icon: Icons.receipt_long,
+                              label: strings.shoppingsLabel,
+                              value: '${receipts.length}',
+                              color: cs.onPrimaryContainer,
+                            ),
+                            _StatItem(
+                              icon: Icons.shopping_bag,
+                              label: strings.totalItemsLabel,
+                              value: '$totalItems',
+                              color: cs.onPrimaryContainer,
+                            ),
+                            _StatItem(
+                              icon: Icons.payments_outlined,
+                              label: strings.totalLabel,
+                              value: '₪${totalAmount.toStringAsFixed(0)}',
+                              color: cs.onPrimaryContainer,
+                            ),
+                            _StatItem(
+                              icon: Icons.balance,
+                              label: strings.averageLabel,
+                              value: '₪${averageAmount.toStringAsFixed(0)}',
+                              color: cs.onPrimaryContainer,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    1,
+                  ),
+
+                  const SizedBox(height: kSpacingSmall),
 
                   // 📋 רשימת קבלות
                   Expanded(
                     child: receipts.isEmpty
-                        ? Center(
-                            child: Text(
-                              strings.noResults,
-                              style: TextStyle(color: cs.onSurfaceVariant),
+                        ? _staggered(
+                            Center(
+                              child: Text(
+                                strings.noResults,
+                                style: TextStyle(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
                             ),
+                            2,
                           )
-                        : RefreshIndicator(
-                            onRefresh: () => context.read<ReceiptProvider>().loadReceipts(),
-                            child: ListView.builder(
-                            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                            padding: const EdgeInsets.all(kSpacingMedium),
-                            itemCount: receipts.length,
-                            itemBuilder: (context, index) {
-                              final receipt = receipts[index];
-                              return _ReceiptTile(
-                                receipt: receipt,
-                                initiallyExpanded: receipt.id == widget.initialReceiptId,
-                              )
-                                  .animate()
-                                  .fadeIn(
-                                    duration: 250.ms,
-                                    delay: (50 * index).ms,
-                                  )
-                                  .slideY(
-                                    begin: 0.15,
-                                    end: 0.0,
-                                    duration: 250.ms,
-                                    delay: (50 * index).ms,
-                                    curve: Curves.easeOut,
+                        : _staggered(
+                            RefreshIndicator(
+                              onRefresh: () async {
+                                unawaited(HapticFeedback.mediumImpact());
+                                await context
+                                    .read<ReceiptProvider>()
+                                    .loadReceipts();
+                              },
+                              child: ListView.builder(
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                physics:
+                                    const AlwaysScrollableScrollPhysics(),
+                                padding:
+                                    const EdgeInsets.all(kSpacingMedium),
+                                itemCount: receipts.length,
+                                itemBuilder: (context, index) {
+                                  final receipt = receipts[index];
+                                  final clampedDelay =
+                                      (50 * index).clamp(0, 500);
+                                  return RepaintBoundary(
+                                    child: _ReceiptTile(
+                                      receipt: receipt,
+                                      initiallyExpanded: receipt.id ==
+                                          widget.initialReceiptId,
+                                    )
+                                        .animate()
+                                        .fadeIn(
+                                          duration: 250.ms,
+                                          delay: clampedDelay.ms,
+                                        )
+                                        .slideY(
+                                          begin: 0.15,
+                                          end: 0.0,
+                                          duration: 250.ms,
+                                          delay: clampedDelay.ms,
+                                          curve: Curves.easeOut,
+                                        ),
                                   );
-                            },
-                          ),
+                                },
+                              ),
+                            ),
+                            2,
                           ),
                   ),
                 ],
@@ -275,30 +410,30 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
     final now = DateTime.now();
     switch (_filterPeriod) {
       case 'month':
-        // תחילת החודש הנוכחי
         final firstOfMonth = DateTime(now.year, now.month, 1);
-        filtered = filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
+        filtered =
+            filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
         break;
       case '3months':
-        // תחילת 3 חודשים אחורה (כולל החודש הנוכחי)
-        final firstOf3MonthsAgo = DateTime(now.year, now.month - 2, 1);
-        filtered = filtered.where((r) => !r.date.isBefore(firstOf3MonthsAgo)).toList();
+        // בטוח גם בינואר/פברואר — Dart מנרמל חודשים שליליים
+        final threeMonthsAgo = DateTime(now.year, now.month - 2, 1);
+        filtered =
+            filtered.where((r) => !r.date.isBefore(threeMonthsAgo)).toList();
         break;
       case 'all':
-        // לא לסנן
         break;
     }
 
     // מיון
     switch (_sortBy) {
       case 'date':
-        filtered.sort((a, b) => b.date.compareTo(a.date)); // חדש קודם
+        filtered.sort((a, b) => b.date.compareTo(a.date));
         break;
       case 'store':
         filtered.sort((a, b) => a.storeName.compareTo(b.storeName));
         break;
       case 'amount':
-        filtered.sort((a, b) => b.totalAmount.compareTo(a.totalAmount)); // גבוה קודם
+        filtered.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
         break;
     }
 
@@ -383,27 +518,34 @@ class _ReceiptTile extends StatelessWidget {
           ),
           subtitle: Text(
             DateFormat('dd/MM/yyyy  HH:mm', locale).format(receipt.date),
-            style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              color: cs.onSurfaceVariant,
+            ),
           ),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: kStickyGreen.withValues(alpha: 0.12),
+              // ✅ FIX: theme-aware color instead of kStickyGreen
+              color: successColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(kBorderRadius),
             ),
             child: Text(
-              strings.itemsCount(receipt.items.where((i) => i.isChecked).length),
+              strings.itemsCount(
+                receipt.items.where((i) => i.isChecked).length,
+              ),
               style: TextStyle(
                 fontSize: kFontSizeSmall,
                 fontWeight: FontWeight.w600,
-                color: kStickyGreen,
+                // ✅ FIX: theme-aware color instead of kStickyGreen
+                color: successColor,
               ),
             ),
           ),
           // רשימת פריטים בהרחבה
           children: [
-            Divider(height: 1),
-            SizedBox(height: kSpacingSmall),
+            const Divider(height: 1),
+            const SizedBox(height: kSpacingSmall),
             if (receipt.items.isEmpty)
               Padding(
                 padding: const EdgeInsets.all(kSpacingMedium),
@@ -414,14 +556,21 @@ class _ReceiptTile extends StatelessWidget {
                 ),
               )
             else
-              ...receipt.items.map((item) => _buildItemRow(context, item, cs, successColor)),
+              ...receipt.items.map(
+                (item) => _buildItemRow(context, item, cs, successColor),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildItemRow(BuildContext context, ReceiptItem item, ColorScheme cs, Color successColor) {
+  Widget _buildItemRow(
+    BuildContext context,
+    ReceiptItem item,
+    ColorScheme cs,
+    Color successColor,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Row(
@@ -440,8 +589,8 @@ class _ReceiptTile extends StatelessWidget {
                 ? Icon(Icons.check, color: cs.onPrimary, size: 14)
                 : null,
           ),
-          SizedBox(width: kSpacingSmall),
-          // כמות - מיד אחרי ה-checkbox
+          const SizedBox(width: kSpacingSmall),
+          // כמות
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
@@ -457,13 +606,14 @@ class _ReceiptTile extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: kSpacingSmall),
+          const SizedBox(width: kSpacingSmall),
           // שם פריט
           Expanded(
             child: Text(
               item.name ?? '?',
               style: TextStyle(
-                decoration: item.isChecked ? TextDecoration.lineThrough : null,
+                decoration:
+                    item.isChecked ? TextDecoration.lineThrough : null,
                 color: item.isChecked
                     ? cs.onSurface.withValues(alpha: 0.5)
                     : cs.onSurface,
@@ -507,7 +657,8 @@ class _StatItem extends StatefulWidget {
   State<_StatItem> createState() => _StatItemState();
 }
 
-class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixin {
+class _StatItemState extends State<_StatItem>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
 
@@ -584,10 +735,12 @@ class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixi
 }
 
 // ========================================
-// Widget: Empty State
+// Widget: Empty State (אנימטיבי + CTA)
 // ========================================
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -599,7 +752,7 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Illustrated empty state — watercolor notebook
+            // תמונה עם אנימציית נשימה עדינה
             ClipOval(
               child: Image.asset(
                 'assets/images/empty_history.webp',
@@ -607,8 +760,15 @@ class _EmptyState extends StatelessWidget {
                 height: 140,
                 fit: BoxFit.cover,
               ),
-            ),
-            SizedBox(height: kSpacingLarge),
+            )
+                .animate(onPlay: (c) => c.repeat(reverse: true))
+                .scaleXY(
+                  begin: 1.0,
+                  end: 1.05,
+                  duration: 2000.ms,
+                  curve: Curves.easeInOut,
+                ),
+            const SizedBox(height: kSpacingLarge),
             Text(
               strings.emptyTitle,
               style: TextStyle(
@@ -617,7 +777,7 @@ class _EmptyState extends StatelessWidget {
                 color: cs.onSurface,
               ),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               strings.emptySubtitle,
               style: TextStyle(
@@ -626,10 +786,28 @@ class _EmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: kSpacingLarge),
+            // 🎯 CTA — כפתור יצירת רשימה ראשונה
+            FilledButton.icon(
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                Navigator.pushNamed(context, '/create-list');
+              },
+              icon: const Icon(Icons.add_shopping_cart),
+              label: Text(AppStrings.homeDashboard.newListButton),
+            ),
           ],
         ),
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 400.ms)
+        .slideY(
+          begin: 0.1,
+          end: 0,
+          duration: 400.ms,
+          curve: Curves.easeOut,
+        );
   }
 }
 
@@ -660,10 +838,9 @@ class _ErrorState extends StatelessWidget {
             Icon(
               Icons.error_outline,
               size: 64,
-              // ✅ FIX: Theme-aware error color
               color: cs.error.withValues(alpha: 0.7),
             ),
-            SizedBox(height: kSpacingMedium),
+            const SizedBox(height: kSpacingMedium),
             Text(
               message,
               style: TextStyle(color: cs.onSurfaceVariant),
