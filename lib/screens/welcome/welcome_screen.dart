@@ -190,7 +190,7 @@ class _LogoSection extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset(
-              'assets/images/logo.webp',
+              'assets/images/logo.png',
               height: screenHeight * 0.09,
               fit: BoxFit.contain,
             ),

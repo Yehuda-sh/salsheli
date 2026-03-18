@@ -189,7 +189,7 @@ class _AppLayoutState extends State<AppLayout> {
         children: [
           // 📓 App logo
           Image.asset(
-            'assets/images/logo.webp',
+            'assets/images/logo.png',
             width: 32,
             height: 32,
             fit: BoxFit.contain,
