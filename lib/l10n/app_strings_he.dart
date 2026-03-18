@@ -498,6 +498,7 @@ class ShoppingStrings {
   String get tryAgainButton => 'נסה שוב';
   String loadMoreLists(int remaining) => 'טען עוד רשימות ($remaining נותרו)';
   String get moreOptionsTooltip => 'אפשרויות נוספות';
+  String listTileSemantics(String name, int total, int checked) => '$name, $total פריטים, $checked סומנו';
   String get defaultShoppingListName => 'קניות כלליות';
   String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים ברשימה';
   String maxListsReached(int max) => 'הגעת למקסימום $max רשימות פעילות';

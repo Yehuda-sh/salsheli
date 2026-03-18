@@ -244,7 +244,7 @@ class ShoppingListTile extends StatelessWidget {
     final stickyColor = list.stickyColor;
 
     Widget card = Semantics(
-      label: '${list.name}, $totalCount פריטים, $checkedCount סומנו',
+      label: AppStrings.shopping.listTileSemantics(list.name, totalCount, checkedCount),
       button: true,
       child: Material(
         elevation: 1,

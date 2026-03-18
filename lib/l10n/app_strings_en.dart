@@ -484,6 +484,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get tryAgainButton => 'Try Again';
   String loadMoreLists(int remaining) => 'Load more lists ($remaining remaining)';
   String get moreOptionsTooltip => 'More options';
+  String listTileSemantics(String name, int total, int checked) => '$name, $total items, $checked checked';
   String get defaultShoppingListName => 'General Shopping';
   String maxItemsReached(int max) => 'You\'ve reached the maximum of $max items per list';
   String maxListsReached(int max) => 'You\'ve reached the maximum of $max active lists';
