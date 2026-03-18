@@ -244,9 +244,9 @@ class _SimpleFeatureCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Illustration — flex 3 so text always has room
+          // Illustration — flex 2, text flex 1
           Flexible(
-            flex: 3,
+            flex: 2,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
               child: ClipRRect(
@@ -261,11 +261,10 @@ class _SimpleFeatureCard extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: kSpacingMedium),
+          const SizedBox(height: kSpacingSmall),
 
           // Title + Description — always visible
-          Flexible(
-            child: Column(
+          Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -292,7 +291,6 @@ class _SimpleFeatureCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
         ],
       ),
     );
