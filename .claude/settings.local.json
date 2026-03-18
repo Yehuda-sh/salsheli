@@ -16,7 +16,11 @@
       "Bash(git push:*)",
       "Bash(git checkout:*)",
       "Bash(git merge:*)",
-      "Bash(gh pr:*)"
+      "Bash(gh pr:*)",
+      "Bash(xargs grep:*)",
+      "WebSearch",
+      "WebFetch(domain:emojiterra.com)",
+      "WebFetch(domain:yaytext.com)"
     ],
     "deny": [],
     "ask": []
