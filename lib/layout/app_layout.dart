@@ -24,7 +24,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
@@ -32,7 +31,6 @@ import 'package:provider/provider.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/inventory_provider.dart';
-import '../providers/user_context.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -54,16 +52,7 @@ class AppLayout extends StatefulWidget {
 
 class _AppLayoutState extends State<AppLayout> {
   @override
-  void initState() {
-    super.initState();
-    if (kDebugMode) {
-    }
-  }
-
-  @override
   void dispose() {
-    if (kDebugMode) {
-    }
     super.dispose();
   }
 
@@ -75,76 +64,6 @@ class _AppLayoutState extends State<AppLayout> {
         .fold(0, (sum, count) => sum + count);
   }
 
-  /// 🚪 Logout function with UserContext Provider
-  /// 
-  /// ✅ New in v3.0:
-  /// - Uses UserContext Provider (not SharedPreferences directly!)
-  /// - Clears Firebase Auth (not just local storage)
-  /// - Error handling with try-catch
-  /// - Context safety after async
-  /// - User feedback with SnackBar
-  // ignore: unused_element
-  Future<void> _logout(BuildContext context) async {
-    if (!mounted) return;
-
-    if (kDebugMode) {
-    }
-
-    // 💾 Save context before async (Context Safety)
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final navigator = Navigator.of(context);
-    final cs = Theme.of(context).colorScheme;
-
-    try {
-      // 🔐 Logout via UserContext Provider
-      // ✅ זה מנקה גם Firebase Auth וגם SharedPreferences!
-      await context.read<UserContext>().logout();
-      if (kDebugMode) {
-      }
-
-      // ✅ Context safety check
-      if (!mounted) return;
-
-      // 🏠 Navigate to login (Clear stack)
-      await navigator.pushNamedAndRemoveUntil('/login', (r) => false);
-      if (kDebugMode) {
-      }
-
-    } catch (e) {
-      if (kDebugMode) {
-      }
-
-      // ✅ Context safety check - אל תציג UI אם המסך נסגר
-      if (!mounted) return;
-
-      // 🚨 Show error to user
-      // ✅ שימוש ב-Theme colors במקום hardcoded
-      scaffoldMessenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.error_outline, color: cs.onErrorContainer),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Text(
-                  AppStrings.layout.logoutError,
-                  style: TextStyle(fontSize: 14, color: cs.onErrorContainer),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: cs.errorContainer,
-          duration: kSnackBarDurationLong,
-          action: SnackBarAction(
-            label: AppStrings.common.retry,
-            textColor: cs.onErrorContainer,
-            onPressed: () => _logout(context),
-          ),
-        ),
-      );
-    }
-  }
-
   /// 🔔 הצגת תפריט בחירת סוג הזמנות
   void _showNotificationsMenu(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -154,7 +73,7 @@ class _AppLayoutState extends State<AppLayout> {
       backgroundColor: cs.surface.withValues(alpha: 0.9),
       barrierColor: Colors.black.withValues(alpha: 0.3),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       ),
       builder: (context) {
         // ✅ RTL/LTR-aware chevron: forward direction
@@ -167,12 +86,12 @@ class _AppLayoutState extends State<AppLayout> {
             children: [
               // Handle bar
               Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
+                margin: const EdgeInsets.only(top: kSpacingSmallPlus),
+                width: kSpacingXLarge + kSpacingSmall,
+                height: kSpacingXTiny,
                 decoration: BoxDecoration(
                   color: cs.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(kSpacingXTiny / 2),
                 ),
               ),
               const SizedBox(height: kSpacingMedium),
@@ -362,63 +281,6 @@ class _AppLayoutState extends State<AppLayout> {
       textColor: cs.onError,
       label: _AnimatedBadgeCount(count: count),
       child: icon,
-    );
-  }
-}
-
-// === Animated Widgets ===
-
-/// 🎨 Animated Icon Button (Subtle Scale Effect on Press)
-///
-/// ✅ WhatsApp-like behavior:
-/// - אנימציה מתחילה ברגע המגע (tap-down) - לא אחרי שחרור
-/// - Scale עדין (0.92) - מספיק להרגיש, לא "קופץ"
-/// - Tooltip + Semantics לנגישות
-///
-/// New in v3.1 - Tap-down animation
-class _AnimatedIconButton extends StatefulWidget {
-  final String tooltip;
-  final Widget icon;
-  final VoidCallback onPressed;
-  final Color? color;
-
-  const _AnimatedIconButton({
-    required this.tooltip,
-    required this.icon,
-    required this.onPressed,
-    // ignore: unused_element_parameter  
-    this.color,
-  });
-
-  @override
-  State<_AnimatedIconButton> createState() => _AnimatedIconButtonState();
-}
-
-class _AnimatedIconButtonState extends State<_AnimatedIconButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    // ✅ Listener for animation only (doesn't compete in gesture arena)
-    // ✅ IconButton handles action, ripple, keyboard focus, a11y, tooltip
-    return AnimatedScale(
-      scale: _isPressed ? 0.97 : 1.0,
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeOutCubic,
-      child: Listener(
-        onPointerDown: (_) {
-          unawaited(HapticFeedback.lightImpact());
-          setState(() => _isPressed = true);
-        },
-        onPointerUp: (_) => setState(() => _isPressed = false),
-        onPointerCancel: (_) => setState(() => _isPressed = false),
-        child: IconButton(
-          icon: widget.icon,
-          color: widget.color,
-          tooltip: widget.tooltip,
-          onPressed: widget.onPressed,
-        ),
-      ),
     );
   }
 }
