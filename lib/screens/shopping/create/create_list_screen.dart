@@ -319,7 +319,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
     return Stack(
       children: [
         // 📓 רקע מחברת
-        NotebookBackground(),
+        const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -333,7 +333,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add_shopping_cart, size: 24, color: cs.primary),
+                Icon(Icons.add_shopping_cart, size: kIconSizeMedium, color: cs.primary),
                 const SizedBox(width: kSpacingSmall),
                 Flexible(
                   child: Text(
@@ -428,9 +428,9 @@ class _CreateListScreenState extends State<CreateListScreen> {
             Expanded(
               child: InkWell(
                 onTap: _isSubmitting ? null : _selectTemplate,
-                borderRadius: const BorderRadius.horizontal(
-                  right: Radius.circular(kBorderRadius),
-                ),
+                borderRadius: const BorderRadiusDirectional.horizontal(
+                  end: Radius.circular(kBorderRadius),
+                ).resolve(Directionality.of(context)),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
@@ -542,8 +542,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
         ),
         const SizedBox(height: kSpacingSmall),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: kSpacingSmall,
+          runSpacing: kSpacingSmall,
           alignment: WrapAlignment.center,
           children: types.map((type) => _buildTypeChip(type, theme)).toList(),
         ),
@@ -750,7 +750,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
             },
       borderRadius: BorderRadius.circular(kBorderRadius),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(kSpacingMedium),
         decoration: BoxDecoration(
           color: isSelected
@@ -766,8 +766,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
           children: [
             // Radio indicator
             Container(
-              width: 24,
-              height: 24,
+              width: kIconSizeMedium,
+              height: kIconSizeMedium,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
@@ -777,10 +777,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
                 color: isSelected ? cs.primary : Colors.transparent,
               ),
               child: isSelected
-                  ? Icon(Icons.check, size: 16, color: cs.onPrimary)
+                  ? Icon(Icons.check, size: kIconSizeSmall, color: cs.onPrimary)
                   : null,
             ),
-            SizedBox(width: kSpacingMedium),
+            const SizedBox(width: kSpacingMedium),
 
             // Icon
             Icon(
@@ -804,10 +804,10 @@ class _CreateListScreenState extends State<CreateListScreen> {
                         ),
                       ),
                       if (isRecommended) ...[
-                        SizedBox(width: kSpacingTiny),
+                        const SizedBox(width: kSpacingTiny),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
+                            horizontal: kSpacingTiny,
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
@@ -856,13 +856,13 @@ class _CreateListScreenState extends State<CreateListScreen> {
           // אנשי קשר שנבחרו
           if (_selectedContacts.isNotEmpty) ...[
             Wrap(
-              spacing: 8,
-              runSpacing: 4,
+              spacing: kSpacingSmall,
+              runSpacing: kSpacingXTiny,
               children: _selectedContacts.map((contact) {
                 return Chip(
                   avatar: contact.isPending
                       ? Icon(Icons.hourglass_empty,
-                          size: 16, color: cs.onSecondaryContainer)
+                          size: kIconSizeSmall, color: cs.onSecondaryContainer)
                       : CircleAvatar(
                           backgroundColor: cs.primaryContainer,
                           radius: 12,
@@ -875,7 +875,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     '${contact.displayName} (${contact.role.hebrewName})',
                     style: const TextStyle(fontSize: kFontSizeSmall),
                   ),
-                  deleteIcon: const Icon(Icons.close, size: 16),
+                  deleteIcon: const Icon(Icons.close, size: kIconSizeSmall),
                   onDeleted: _isSubmitting
                       ? null
                       : () {
@@ -899,11 +899,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ),
           // הודעה אם יש pending
           if (_selectedContacts.any((c) => c.isPending)) ...[
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Row(
               children: [
-                Icon(Icons.info_outline, size: 14, color: cs.tertiary),
-                SizedBox(width: 4),
+                Icon(Icons.info_outline, size: kFontSizeMedium, color: cs.tertiary),
+                const SizedBox(width: kSpacingXTiny),
                 Expanded(
                   child: Text(
                     AppStrings.createListDialog.pendingInviteNote,
