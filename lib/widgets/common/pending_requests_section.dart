@@ -9,7 +9,6 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -121,7 +120,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     switch (request.type) {
       case RequestType.addItem:
         final name = data['name'] ?? '?';
-        final qty = data['quantity'] ?? 1;
+        final qty = (data['quantity'] as num?) ?? 1;
         return qty > 1 ? '$name ×$qty' : '$name';
       case RequestType.editItem:
         return data['changes']?.toString() ?? strings.editItemFallback;
@@ -233,7 +232,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
         ],
       ),
     );
-    if (confirmed == true) _reject();
+    if (confirmed == true) unawaited(_reject());
   }
 
   Future<void> _processRequest({required bool isApprove}) async {
