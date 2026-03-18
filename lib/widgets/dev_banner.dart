@@ -17,6 +17,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:memozap/config/app_config.dart';
+import 'package:memozap/core/ui_constants.dart';
 
 /// 🏷️ באנר DEV - Glassmorphic ribbon בפינה ימנית עליונה
 ///
@@ -69,7 +70,7 @@ class DevBanner extends StatelessWidget {
                     child: Text(
                       'DEV',
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: kFontSizeTiny,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
                         color: Colors.white,
