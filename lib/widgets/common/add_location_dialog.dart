@@ -12,33 +12,24 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/locations_provider.dart';
 
-/// רשימת אמוג'י לבחירה — מיקומי אחסון בבית
-/// כל אימוג'י צריך להיות מובן במבט מהיר כ"מיקום"
+/// רשימת אימוג'י לבחירה — למיקומים מותאמים אישית בלבד
+/// (מיקומים מובנים כבר קיימים ב-StorageLocations עם אימוג'ים משלהם)
 /// מקור: Unicode Emoji v17.0 — Household Objects
 const kLocationEmojis = [
-  // מטבח ומזווה
-  '🍳', // מטבח
-  '❄️', // מקרר
-  '🧊', // מקפיא
-  '🫙', // מזווה / צנצנות
-  // בית — אחסון
-  '🏠', // בית כללי
-  '📦', // מחסן / קופסאות
-  '🗄️', // ארון / מגירות
-  '🧹', // חדר שירות / ניקיון
-  // אמבטיה וכביסה
-  '🛁', // אמבטיה
-  '🧺', // מכבסה / כביסה
-  // חדרים
+  // חדרים (אין להם מיקום מובנה)
   '🛏️', // חדר שינה
   '🛋️', // סלון
   '👶', // חדר ילדים
   '💼', // חדר עבודה / משרד
-  // חוץ
+  // אזורים נוספים
   '🚗', // רכב / חניה
   '🌤️', // מרפסת
-  // מיוחד
-  '📍', // מיקום מותאם אישית
+  '🏠', // בית כללי
+  '🧹', // חדר שירות
+  // אחסון מותאם
+  '🗄️', // ארון / מגירות
+  '🧰', // ארגז כלים
+  '📍', // מיקום אחר
 ];
 
 /// מציג דיאלוג להוספת מיקום חדש.
@@ -60,7 +51,8 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
               textDirection: TextDirection.rtl,
               child: AlertDialog(
                 title: Text(AppStrings.inventory.addLocationTitle),
-                content: Column(
+                content: SingleChildScrollView(
+                  child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(AppStrings.inventory.selectEmojiLabel,
@@ -107,6 +99,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       textDirection: TextDirection.rtl,
                     ),
                   ],
+                ),
                 ),
                 actions: [
                   TextButton(
