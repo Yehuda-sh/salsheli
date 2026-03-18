@@ -427,12 +427,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         body: Stack(
           children: [
             // 📓 רקע מחברת עדין מאוד - brand texture (Auth = נקי, מינימלי)
-            const NotebookBackground(
-              lineOpacity: 0.10,
-              lineColor: kNotebookBlueSoft,
-              showRedLine: false,
-              fadeEdges: true,
-            ),
+            const NotebookBackground.subtle(),
             // תוכן המסך
             SafeArea(
               child: Center(

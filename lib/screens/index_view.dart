@@ -137,12 +137,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
           // v4.0: 📓 NotebookBackground hint — רקע מחברת עדין מאוד
           const Opacity(
             opacity: 0.05,
-            child: NotebookBackground(
-              lineOpacity: 0.10,
-              lineColor: kNotebookBlueSoft,
-              showRedLine: false,
-              fadeEdges: true,
-            ),
+            child: NotebookBackground.subtle(),
           ),
 
           // 🌊 Wave Animation

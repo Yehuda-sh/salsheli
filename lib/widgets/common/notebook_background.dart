@@ -66,6 +66,16 @@ class NotebookBackground extends StatelessWidget {
     this.fadeEdges = false,
   });
 
+  /// גרסה עדינה למסכי Auth — קווים חלשים, בלי קו אדום, עם fade
+  const NotebookBackground.subtle({
+    super.key,
+  })  : lineOpacity = 0.10,
+        lineColor = kNotebookBlueSoft,
+        showRedLine = false,
+        redLineOpacity = null,
+        redLineWidth = null,
+        fadeEdges = true;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

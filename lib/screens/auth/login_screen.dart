@@ -416,12 +416,7 @@ class _LoginScreenState extends State<LoginScreen>
           body: Stack(
             children: [
               // 📓 רקע מחברת עדין - Paper & Ink design language
-              const NotebookBackground(
-                lineOpacity: 0.10,
-                lineColor: kNotebookBlueSoft,
-                showRedLine: false,
-                fadeEdges: true,
-              ),
+              const NotebookBackground.subtle(),
 
               // 🧪 DEV MODE - Quick Login Button (Glassmorphic)
               if (kDebugMode)
