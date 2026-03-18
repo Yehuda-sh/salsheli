@@ -58,9 +58,9 @@ class PendingRequestsSection extends StatelessWidget {
           Row(
             children: [
               Icon(Icons.pending_actions, size: 18, color: cs.onSurface),
-              const SizedBox(width: 6),
+              const SizedBox(width: kSpacingSmall),
               Text(
-                '${AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length)} (${pendingRequests.length})',
+                AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length),
                 style: TextStyle(
                   fontSize: kFontSizeSmall,
                   fontWeight: FontWeight.bold,
@@ -139,12 +139,12 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     final requesterName = request.requesterName ?? AppStrings.sharing.unknownUserFallback;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.only(bottom: kSpacingTiny),
       child: Row(
         children: [
           // אייקון סוג
           Text(_getIcon(request.type), style: const TextStyle(fontSize: 14)),
-          const SizedBox(width: 6),
+          const SizedBox(width: kSpacingSmall),
 
           // תוכן
           Expanded(
