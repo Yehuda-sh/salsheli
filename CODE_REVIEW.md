@@ -76,7 +76,7 @@
 |-------------|--------|
 | `SocialAuthMixin` | DRY — shared Google/Apple login |
 | `ConfigValidation` mixin | DRY — shared config validation |
-| `AppSectionCard/ErrorState/LoadingSkeleton/ScreenHeader` | Reusable UI |
+| `AppErrorState/AppLoadingSkeleton/SectionHeader` | Reusable UI |
 | Active shopping screen | Wake Lock, 3-zone tiles, quantity picker, haptics |
 | List details screen | Planning redesign, inline search, dual FABs |
 | Shopping summary | Celebration animations |

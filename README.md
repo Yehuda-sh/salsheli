@@ -74,7 +74,7 @@ lib/
 │   ├── sharing/    # Invites, Requests
 │   └── ...
 ├── widgets/        # Shared widgets
-│   └── common/     # NotebookBackground, StickyNote, EmptyState, etc.
+│   └── common/     # NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, etc.
 └── main.dart
 ```
 

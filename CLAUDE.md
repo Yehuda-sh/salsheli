@@ -100,7 +100,7 @@ flutter run          # הרצה
 | **Config** | `lib/config/list_types_config.dart`, `stores_config.dart`, `filters_config.dart` |
 | **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
-| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, EmptyState, AppSnackBar, AppDialog |
+| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, AppSnackBar, AppDialog |
 | **Strings** | `lib/l10n/app_strings.dart` |
 | **Security** | `firestore.rules` (v4.1), `firestore.indexes.json` |
 

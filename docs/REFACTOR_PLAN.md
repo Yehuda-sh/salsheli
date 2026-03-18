@@ -44,7 +44,7 @@
 - [x] Colors.xxx → theme (316→0)
 - [x] Typography — 134 hardcoded → 8 kFontSize constants
 - [x] Border Radius — 97 ערכים → 4
-- [x] Widgets משותפים — AppSnackBar, EmptyState, SectionHeader
+- [x] Widgets משותפים — AppSnackBar, AppErrorState, SectionHeader
 
 ---
 
