@@ -67,8 +67,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.remove_shopping_cart, color: cs.error, size: 20),
-            const SizedBox(width: 4),
+            Icon(Icons.remove_shopping_cart, color: cs.error, size: kIconSizeMedium),
+            const SizedBox(width: kSpacingXTiny),
             Text(
               AppStrings.shopping.legendOutOfStock,
               style: TextStyle(color: cs.error, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
@@ -91,8 +91,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
               AppStrings.shopping.legendNotNeeded,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(width: 4),
-            Icon(Icons.block, color: cs.onSurfaceVariant, size: 20),
+            const SizedBox(width: kSpacingXTiny),
+            Icon(Icons.block, color: cs.onSurfaceVariant, size: kIconSizeMedium),
           ],
         ),
       ),
@@ -122,7 +122,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                   children: [
                     // Status icon
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
                         child: Icon(
@@ -176,7 +176,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
               child: Container(
                 width: 48,
                 height: 32,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
+                margin: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
                 decoration: BoxDecoration(
                   color: cs.primaryContainer,
                   borderRadius: BorderRadius.circular(kBorderRadius),
@@ -199,7 +199,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
             // ═══════════════════════════════════════
             PopupMenuButton<String>(
               padding: EdgeInsets.zero,
-              iconSize: 22,
+              iconSize: kIconSizeMedium,
               icon: Icon(Icons.more_vert, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
               onSelected: (value) {
                 unawaited(HapticFeedback.lightImpact());
@@ -225,7 +225,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(Icons.remove_shopping_cart,
-                          color: status == ShoppingItemStatus.outOfStock ? cs.error : cs.onSurface, size: 20),
+                          color: status == ShoppingItemStatus.outOfStock ? cs.error : cs.onSurface, size: kIconSizeMedium),
                       const SizedBox(width: kSpacingSmall),
                       Text(status == ShoppingItemStatus.outOfStock
                           ? AppStrings.shopping.legendPending
@@ -238,7 +238,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(Icons.block,
-                          color: status == ShoppingItemStatus.notNeeded ? cs.onSurfaceVariant : cs.onSurface, size: 20),
+                          color: status == ShoppingItemStatus.notNeeded ? cs.onSurfaceVariant : cs.onSurface, size: kIconSizeMedium),
                       const SizedBox(width: kSpacingSmall),
                       Text(status == ShoppingItemStatus.notNeeded
                           ? AppStrings.shopping.legendPending
@@ -250,7 +250,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                   value: 'edit',
                   child: Row(
                     children: [
-                      Icon(Icons.edit, color: cs.primary, size: 20),
+                      Icon(Icons.edit, color: cs.primary, size: kIconSizeMedium),
                       const SizedBox(width: kSpacingSmall),
                       Text(AppStrings.shopping.editQuantity),
                     ],
@@ -298,7 +298,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
   // Quantity Picker with Quick-Pick Chips
   // ═══════════════════════════════════════
 
-  void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme cs) {
+  void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
     int qty = item.quantity ?? 1;
 
@@ -318,8 +318,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
                   children: [
                     // Handle bar
                     Container(
-                      width: 40,
-                      height: 4,
+                      width: kSpacingXLarge + kSpacingSmall,
+                      height: kSpacingXTiny,
                       decoration: BoxDecoration(
                         color: cs.outline.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -374,7 +374,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                             foregroundColor: cs.onErrorContainer,
                             minimumSize: const Size(48, 48),
                           ),
-                          icon: const Icon(Icons.remove, size: 24),
+                          icon: const Icon(Icons.remove, size: kIconSizeMedium),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
@@ -398,7 +398,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                             foregroundColor: kStickyGreen,
                             minimumSize: const Size(48, 48),
                           ),
-                          icon: const Icon(Icons.add, size: 24),
+                          icon: const Icon(Icons.add, size: kIconSizeMedium),
                         ),
                       ],
                     ),
