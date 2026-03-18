@@ -47,9 +47,13 @@ Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
 /// // יצירה רגילה
 /// final loc = CustomLocation(key: 'wine_fridge', name: 'מקרר יינות', emoji: '🍷');
 ///
-/// // יצירה אוטומטית מ-שם
+/// // יצירה אוטומטית מ-שם (English)
 /// final loc2 = CustomLocation.fromName('Garden Shed', emoji: '🌿');
 /// // key => 'garden_shed'
+///
+/// // יצירה אוטומטית מ-שם (Hebrew — hash fallback)
+/// final loc3 = CustomLocation.fromName('מדף תבלינים', emoji: '🧂');
+/// // key => 'custom_1a2b3c'
 ///
 /// // צבע מזהה עקבי
 /// loc.color; // => Color (מתוך פלטת Sticky Notes)
@@ -67,7 +71,7 @@ class CustomLocation {
 
   /// אמוג'י לתצוגה
   /// readValue: מחזיר null אם ריק → משתמש בברירת מחדל מה-constructor
-  @JsonKey(readValue: _readEmoji, defaultValue: '')
+  @JsonKey(readValue: _readEmoji, defaultValue: '📍')
   final String emoji;
 
   /// מזהה המשתמש שיצר את המיקום (לסנכרון משק בית)
@@ -84,8 +88,11 @@ class CustomLocation {
   /// יצירה אוטומטית מ-שם — ה-key נוצר באמצעות [normalizeKey]
   ///
   /// ```dart
-  /// final loc = CustomLocation.fromName('מדף תבלינים', emoji: '🧂');
-  /// // key => 'mdf_tvlynym' (normalized)
+  /// final loc = CustomLocation.fromName('Wine Fridge', emoji: '🍷');
+  /// // key => 'wine_fridge'
+  ///
+  /// final loc2 = CustomLocation.fromName('מדף תבלינים', emoji: '🧂');
+  /// // key => 'custom_1a2b3c' (Hebrew fallback with hash)
   /// ```
   factory CustomLocation.fromName(
     String name, {
@@ -139,7 +146,7 @@ class CustomLocation {
   /// - "My Location" → "my_location"
   /// - "  _test_  " → "test"
   /// - "a__b" → "a_b"
-  /// - "מדף תבלינים" → "custom_location" (fallback for Hebrew-only)
+  /// - "מדף תבלינים" → `custom_{hash}` (fallback for Hebrew-only)
   static String normalizeKey(String input) {
     final normalized = input
         .trim()
@@ -149,8 +156,12 @@ class CustomLocation {
         .replaceAll(RegExp(r'_+'), '_') // collapse multiple underscores
         .replaceAll(RegExp(r'^_|_$'), ''); // trim leading/trailing underscores
 
-    // Fallback: אם ה-input היה רק תווים לא-לטיניים, תן key ברירת מחדל
-    return normalized.isEmpty ? 'custom_location' : normalized;
+    // Fallback: אם ה-input היה רק תווים לא-לטיניים, תן key ייחודי מבוסס hash
+    if (normalized.isEmpty) {
+      final hash = input.trim().hashCode.abs().toRadixString(36);
+      return 'custom_$hash';
+    }
+    return normalized;
   }
 
   /// האם ה-key תקין (לא ריק ובפורמט נורמלי)
