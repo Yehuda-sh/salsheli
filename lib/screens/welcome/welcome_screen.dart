@@ -15,6 +15,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -385,19 +386,19 @@ class _BottomSection extends StatelessWidget {
             children: [
               // === Benefits — compact, inline ===
               _BenefitChip(
-                icon: Icons.group_rounded,
+                icon: FontAwesomeIcons.userGroup,
                 text: AppStrings.welcome.benefit1Title,
                 color: cs.primary,
               ),
               const SizedBox(height: kSpacingTiny),
               _BenefitChip(
-                icon: Icons.checklist_rounded,
+                icon: FontAwesomeIcons.listCheck,
                 text: AppStrings.welcome.benefit2Title,
                 color: cs.primary,
               ),
               const SizedBox(height: kSpacingTiny),
               _BenefitChip(
-                icon: Icons.kitchen_rounded,
+                icon: FontAwesomeIcons.jar,
                 text: AppStrings.welcome.benefit3Title,
                 color: cs.primary,
               ),
