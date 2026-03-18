@@ -1,6 +1,7 @@
 // 📄 lib/widgets/common/offline_banner.dart
 //
 // 🔌 באנר "אין חיבור לאינטרנט" — מוצג בראש המסך כשאין רשת
+// אנימציית slide-down/up חלקה
 
 import 'dart:async';
 
@@ -8,6 +9,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 
 class OfflineBanner extends StatefulWidget {
   const OfflineBanner({super.key});
@@ -18,19 +20,21 @@ class OfflineBanner extends StatefulWidget {
 
 class _OfflineBannerState extends State<OfflineBanner> {
   bool _isOffline = false;
+  late final Connectivity _connectivity;
   late final StreamSubscription<List<ConnectivityResult>> _subscription;
 
   @override
   void initState() {
     super.initState();
-    _subscription = Connectivity().onConnectivityChanged.listen((results) {
+    _connectivity = Connectivity();
+    _subscription = _connectivity.onConnectivityChanged.listen((results) {
       final offline = results.every((r) => r == ConnectivityResult.none);
       if (mounted && _isOffline != offline) {
         setState(() => _isOffline = offline);
       }
     });
     // Check initial state
-    Connectivity().checkConnectivity().then((results) {
+    _connectivity.checkConnectivity().then((results) {
       if (mounted) {
         setState(() => _isOffline =
             results.every((r) => r == ConnectivityResult.none));
@@ -46,33 +50,36 @@ class _OfflineBannerState extends State<OfflineBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isOffline) return const SizedBox.shrink();
-
     final cs = Theme.of(context).colorScheme;
 
-    return AnimatedContainer(
+    return AnimatedSize(
       duration: const Duration(milliseconds: 300),
-      width: double.infinity,
-      color: cs.errorContainer,
-      padding: const EdgeInsets.symmetric(
-        vertical: kSpacingTiny,
-        horizontal: kSpacingMedium,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.wifi_off, size: kIconSizeSmall, color: cs.onErrorContainer),
-          const SizedBox(width: kSpacingSmall),
-          Text(
-            'אין חיבור לאינטרנט',
-            style: TextStyle(
-              fontSize: kFontSizeSmall,
-              color: cs.onErrorContainer,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+      curve: Curves.easeInOut,
+      child: _isOffline
+          ? Container(
+              width: double.infinity,
+              color: cs.errorContainer,
+              padding: const EdgeInsets.symmetric(
+                vertical: kSpacingTiny,
+                horizontal: kSpacingMedium,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.wifi_off, size: kIconSizeSmall, color: cs.onErrorContainer),
+                  const SizedBox(width: kSpacingSmall),
+                  Text(
+                    AppStrings.layout.offline,
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: cs.onErrorContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox(width: double.infinity, height: 0),
     );
   }
 }
