@@ -5,8 +5,7 @@
 // - רקע מחברת עדין (NotebookBackground.subtle)
 // - Logo image + subtitle
 // - Carousel פשוט — illustration + title + description
-// - Benefits strip — 3 icon+text rows
-// - Sticky CTA בתחתית
+// - Benefits + CTA בתחתית (unified bottom section)
 //
 // 🔗 Related: ui_constants.dart, app_theme.dart, NotebookBackground
 
@@ -86,26 +85,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
-
-    // Dynamic spacer for bottom bar (register + login + legal + paddings)
-    final bottomBarHeight = kButtonHeight + kSpacingSmallPlus + 44 +
-        kSpacingSmall + 44 + kSpacingSmallPlus + bottomPadding + kSpacingSmall;
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
-          // רקע מחברת עדין — per CLAUDE.md: auth screens are clean
           const NotebookBackground.subtle(),
 
-          // תוכן ראשי
+          // === Content ===
           SafeArea(
             bottom: false,
             child: Column(
               children: [
-                // === לוגו ===
+                // === Logo ===
                 _LogoSection(screenHeight: screenHeight)
                     .animate()
                     .fadeIn(duration: 400.ms, curve: Curves.easeOut)
@@ -136,34 +130,26 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 ),
 
-                // === Dots — below carousel ===
+                // === Dots ===
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
+                  padding: const EdgeInsets.only(bottom: kSpacingSmall),
                   child: _DotIndicator(
                     count: 3,
                     current: _currentPage,
                     activeColor: cs.primary,
                     inactiveColor: cs.outlineVariant,
                   ),
-                ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
-
-                // === Benefits strip ===
-                const _BenefitsStrip()
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: 300.ms),
-
-                // Dynamic spacer for bottom bar
-                SizedBox(height: bottomBarHeight),
+                ),
               ],
             ),
           ),
 
-          // === Sticky Bottom CTA ===
+          // === Bottom Section: Benefits + CTA + Legal (unified) ===
           Positioned(
             left: 0,
             right: 0,
             bottom: 0,
-            child: _StickyBottomBar(
+            child: _BottomSection(
               bottomPadding: bottomPadding,
               onRegister: _handleRegister,
               onLogin: _handleLogin,
@@ -171,8 +157,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               onPrivacy: () => _handleLegalLink(() => showPrivacyPolicyDialog(context)),
             )
                 .animate()
-                .fadeIn(duration: 400.ms, delay: 400.ms)
-                .slideY(begin: 0.2, duration: 400.ms, delay: 400.ms),
+                .fadeIn(duration: 400.ms, delay: 300.ms)
+                .slideY(begin: 0.15, duration: 400.ms, delay: 300.ms),
           ),
         ],
       ),
@@ -204,17 +190,16 @@ class _LogoSection extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/logo.webp',
-              height: screenHeight * 0.1,
+              height: screenHeight * 0.09,
               fit: BoxFit.contain,
             ),
-            const SizedBox(height: kSpacingSmallPlus),
+            const SizedBox(height: kSpacingSmall),
             Text(
               AppStrings.welcome.subtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.75),
+                color: cs.onSurface.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.3,
               ),
             ),
           ],
@@ -225,7 +210,7 @@ class _LogoSection extends StatelessWidget {
 }
 
 // ============================================================
-// Simple Feature Card (Carousel page)
+// Simple Feature Card
 // ============================================================
 
 class _SimpleFeatureCard extends StatelessWidget {
@@ -245,58 +230,47 @@ class _SimpleFeatureCard extends StatelessWidget {
     final cs = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingSmall),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 340),
-          child: Semantics(
-            label: '$title - $description',
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Illustration — flexible, with subtle background
-                Flexible(
-                  child: ExcludeSemantics(
-                    child: Container(
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-                      ),
-                      child: Image.asset(
-                        illustrationAsset,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: kSpacingMedium),
-
-                // Title
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.87),
-                    fontWeight: FontWeight.w800,
-                    fontSize: kFontSizeTitle,
-                  ),
-                ),
-                const SizedBox(height: kSpacingSmall),
-
-                // Description
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurface.withValues(alpha: 0.55),
-                    fontSize: kFontSizeBody,
-                  ),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingXLarge),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Illustration
+          Flexible(
+            child: ExcludeSemantics(
+              child: Image.asset(
+                illustrationAsset,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: kSpacingMedium),
+
+          // Title
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: cs.onSurface.withValues(alpha: 0.87),
+              fontWeight: FontWeight.w800,
+              fontSize: kFontSizeTitle,
+            ),
+          ),
+          const SizedBox(height: kSpacingTiny),
+
+          // Description
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.5),
+                fontSize: kFontSizeBody,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -328,12 +302,12 @@ class _DotIndicator extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
-          margin: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
-          width: isActive ? 28 : 10,
-          height: 10,
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          width: isActive ? 24 : 8,
+          height: 8,
           decoration: BoxDecoration(
-            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(5),
+            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.35),
+            borderRadius: BorderRadius.circular(kSpacingXTiny),
           ),
         );
       }),
@@ -342,124 +316,17 @@ class _DotIndicator extends StatelessWidget {
 }
 
 // ============================================================
-// Benefits Strip
+// Bottom Section (Benefits + CTA + Legal — unified)
 // ============================================================
 
-class _BenefitsStrip extends StatelessWidget {
-  const _BenefitsStrip();
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Separator
-          Divider(
-            height: 1,
-            thickness: 0.5,
-            color: cs.outlineVariant.withValues(alpha: 0.25),
-            indent: kSpacingXLarge,
-            endIndent: kSpacingXLarge,
-          ),
-          const SizedBox(height: kSpacingSmallPlus),
-          _BenefitRow(
-            icon: Icons.group_rounded,
-            color: kStickyCyan,
-            title: AppStrings.welcome.benefit1Title,
-            subtitle: AppStrings.welcome.benefit1Subtitle,
-          ),
-          const SizedBox(height: kSpacingSmall),
-          _BenefitRow(
-            icon: Icons.checklist_rounded,
-            color: kStickyGreen,
-            title: AppStrings.welcome.benefit2Title,
-            subtitle: AppStrings.welcome.benefit2Subtitle,
-          ),
-          const SizedBox(height: kSpacingSmall),
-          _BenefitRow(
-            icon: Icons.kitchen_rounded,
-            color: kStickyOrange,
-            title: AppStrings.welcome.benefit3Title,
-            subtitle: AppStrings.welcome.benefit3Subtitle,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BenefitRow extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String title;
-  final String subtitle;
-
-  const _BenefitRow({
-    required this.icon,
-    required this.color,
-    required this.title,
-    required this.subtitle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Container(
-          width: kIconSizeLarge,
-          height: kIconSizeLarge,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          ),
-          child: Icon(icon, size: kIconSizeMedium - 4, color: color),
-        ),
-        const SizedBox(width: kSpacingSmallPlus),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: kFontSizeMedium,
-                  fontWeight: FontWeight.w700,
-                  color: cs.onSurface.withValues(alpha: 0.87),
-                ),
-              ),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: cs.onSurface.withValues(alpha: 0.55),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ============================================================
-// Sticky Bottom Bar
-// ============================================================
-
-class _StickyBottomBar extends StatelessWidget {
+class _BottomSection extends StatelessWidget {
   final double bottomPadding;
   final VoidCallback onRegister;
   final VoidCallback onLogin;
   final VoidCallback onTerms;
   final VoidCallback onPrivacy;
 
-  const _StickyBottomBar({
+  const _BottomSection({
     required this.bottomPadding,
     required this.onRegister,
     required this.onLogin,
@@ -476,34 +343,55 @@ class _StickyBottomBar extends StatelessWidget {
 
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
         child: Container(
           padding: EdgeInsets.only(
             left: kSpacingMedium,
             right: kSpacingMedium,
-            top: kSpacingSmallPlus,
+            top: kSpacingMedium,
             bottom: bottomPadding + kSpacingSmall,
           ),
           decoration: BoxDecoration(
-            color: bgColor.withValues(alpha: 0.88),
+            color: bgColor.withValues(alpha: 0.92),
             border: Border(
               top: BorderSide(
-                color: cs.outlineVariant.withValues(alpha: 0.15),
+                color: cs.outlineVariant.withValues(alpha: 0.12),
                 width: 0.5,
               ),
             ),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withValues(alpha: 0.08),
-                blurRadius: kSpacingSmallPlus,
-                offset: const Offset(0, -4),
+                color: cs.shadow.withValues(alpha: 0.06),
+                blurRadius: kSpacingMedium,
+                offset: const Offset(0, -2),
               ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // CTA ראשי — register
+              // === Benefits — compact, inline ===
+              _BenefitChip(
+                icon: Icons.group_rounded,
+                text: AppStrings.welcome.benefit1Title,
+                color: cs.primary,
+              ),
+              const SizedBox(height: kSpacingTiny),
+              _BenefitChip(
+                icon: Icons.checklist_rounded,
+                text: AppStrings.welcome.benefit2Title,
+                color: cs.primary,
+              ),
+              const SizedBox(height: kSpacingTiny),
+              _BenefitChip(
+                icon: Icons.kitchen_rounded,
+                text: AppStrings.welcome.benefit3Title,
+                color: cs.primary,
+              ),
+
+              const SizedBox(height: kSpacingMedium),
+
+              // === Register button ===
               SizedBox(
                 width: double.infinity,
                 height: kButtonHeight,
@@ -525,58 +413,56 @@ class _StickyBottomBar extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: kSpacingSmallPlus),
+              const SizedBox(height: kSpacingSmall),
 
-              // Login — text link only
+              // === Login text link ===
               TextButton(
                 onPressed: onLogin,
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(44, 36),
+                ),
                 child: Text(
                   AppStrings.welcome.loginLink,
                   style: TextStyle(
-                    fontSize: kFontSizeBody,
+                    fontSize: kFontSizeMedium,
                     fontWeight: FontWeight.w600,
                     color: cs.primary,
                   ),
                 ),
               ),
 
-              const SizedBox(height: kSpacingSmall),
-
-              // Legal links
+              // === Legal links ===
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
                     onPressed: onTerms,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
-                      minimumSize: const Size(44, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
+                      minimumSize: const Size(44, 32),
                     ),
                     child: Text(
                       AppStrings.welcome.termsOfService,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.5),
+                        color: cs.onSurface.withValues(alpha: 0.45),
                         decoration: TextDecoration.underline,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
-                    child: Text(
-                      '|',
-                      style: TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontSize: kFontSizeSmall),
-                    ),
+                  Text(
+                    '|',
+                    style: TextStyle(color: cs.onSurface.withValues(alpha: 0.25), fontSize: kFontSizeSmall),
                   ),
                   TextButton(
                     onPressed: onPrivacy,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
-                      minimumSize: const Size(44, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
+                      minimumSize: const Size(44, 32),
                     ),
                     child: Text(
                       AppStrings.welcome.privacyPolicy,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.5),
+                        color: cs.onSurface.withValues(alpha: 0.45),
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -587,6 +473,44 @@ class _StickyBottomBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+// ============================================================
+// Benefit Chip (compact — icon + text in one line)
+// ============================================================
+
+class _BenefitChip extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color color;
+
+  const _BenefitChip({
+    required this.icon,
+    required this.text,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: kIconSizeSmall, color: color.withValues(alpha: 0.6)),
+        const SizedBox(width: kSpacingTiny),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: kFontSizeSmall,
+            color: cs.onSurface.withValues(alpha: 0.55),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
