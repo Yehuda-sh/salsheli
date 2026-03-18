@@ -1,18 +1,19 @@
 // 📄 lib/screens/history/shopping_history_screen.dart
 //
 // מסך היסטוריית קניות - צפייה בקבלות קודמות.
-// כולל מיון, סינון וסטטיסטיקות הוצאות.
+// כולל סינון וסטטיסטיקות הוצאות.
 // שילוב: רקע מחברת + Glass AppBar + אנימציות מדורגות
 //
 // ✅ Features:
 //    - Glass blur AppBar
 //    - אנימציות כניסה מדורגות (AnimationController + Interval, פעם ראשונה בלבד)
-//    - סטטיסטיקות: קניות, פריטים, סה"כ, ממוצע
+//    - סטטיסטיקות 2×2: קניות, פריטים, סה"כ, ממוצע
+//    - כרטיסי קבלות עם סכום + progress bar
 //    - Empty state אנימטיבי עם CTA
 //    - Haptic feedback ב-refresh וסינון
 //    - נגישות משופרת
 //
-// Version: 5.0 (18/03/2026)
+// Version: 5.1 (18/03/2026)
 // 🔗 Related: ReceiptProvider, Receipt
 
 import 'dart:async';
@@ -45,13 +46,12 @@ class ShoppingHistoryScreen extends StatefulWidget {
 class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     with SingleTickerProviderStateMixin {
   String _filterPeriod = 'month'; // month, 3months, all
-  String _sortBy = 'date'; // date, store, amount
 
   /// אנימציות מדורגות — רצות רק בפעם הראשונה (כמו בהגדרות)
   late final AnimationController _animController;
   late final List<Animation<double>> _fadeAnims;
   late final List<Animation<Offset>> _slideAnims;
-  static const int _sectionCount = 4; // filters, stats, list, empty
+  static const int _sectionCount = 3; // filters, stats, list
 
   /// דגל — אנימציה כבר רצה?
   bool _hasAnimated = false;
@@ -147,49 +147,6 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             ),
             title: Text(strings.title),
             centerTitle: true,
-            actions: [
-              // מיון
-              PopupMenuButton<String>(
-                icon: Icon(Icons.sort, color: cs.primary),
-                tooltip: strings.sortTooltip,
-                onSelected: (value) {
-                  unawaited(HapticFeedback.lightImpact());
-                  setState(() => _sortBy = value);
-                },
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    value: 'date',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_today, size: 18),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(strings.sortByDate),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'store',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.list_alt, size: 18),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(strings.sortByList),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 'amount',
-                    child: Row(
-                      children: [
-                        const Icon(Icons.attach_money, size: 18),
-                        const SizedBox(width: kSpacingSmall),
-                        Text(strings.sortByAmount),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
           body: Consumer<ReceiptProvider>(
             builder: (context, provider, _) {
@@ -281,7 +238,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                     0,
                   ),
 
-                  // 📊 סטטיסטיקות
+                  // 📊 סטטיסטיקות — Grid 2×2
                   _staggered(
                     Semantics(
                       label: '${strings.shoppingsLabel}: ${receipts.length}, '
@@ -292,38 +249,64 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                         margin: const EdgeInsets.symmetric(
                           horizontal: kSpacingMedium,
                         ),
-                        padding: const EdgeInsets.all(kSpacingMedium),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingMedium,
+                          vertical: kSpacingSmall,
+                        ),
                         decoration: BoxDecoration(
                           color: cs.primaryContainer,
                           borderRadius:
                               BorderRadius.circular(kBorderRadiusLarge),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        child: Column(
                           children: [
-                            _StatItem(
-                              icon: Icons.receipt_long,
-                              label: strings.shoppingsLabel,
-                              value: '${receipts.length}',
-                              color: cs.onPrimaryContainer,
+                            // שורה עליונה: קניות | פריטים
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _StatItem(
+                                    icon: Icons.receipt_long,
+                                    label: strings.shoppingsLabel,
+                                    value: '${receipts.length}',
+                                    color: cs.onPrimaryContainer,
+                                  ),
+                                ),
+                                _buildStatDivider(cs),
+                                Expanded(
+                                  child: _StatItem(
+                                    icon: Icons.shopping_bag,
+                                    label: strings.totalItemsLabel,
+                                    value: '$totalItems',
+                                    color: cs.onPrimaryContainer,
+                                  ),
+                                ),
+                              ],
                             ),
-                            _StatItem(
-                              icon: Icons.shopping_bag,
-                              label: strings.totalItemsLabel,
-                              value: '$totalItems',
-                              color: cs.onPrimaryContainer,
+                            Divider(
+                              color: cs.onPrimaryContainer.withValues(alpha: 0.15),
+                              height: kSpacingSmall,
                             ),
-                            _StatItem(
-                              icon: Icons.payments_outlined,
-                              label: strings.totalLabel,
-                              value: '₪${totalAmount.toStringAsFixed(0)}',
-                              color: cs.onPrimaryContainer,
-                            ),
-                            _StatItem(
-                              icon: Icons.balance,
-                              label: strings.averageLabel,
-                              value: '₪${averageAmount.toStringAsFixed(0)}',
-                              color: cs.onPrimaryContainer,
+                            // שורה תחתונה: סה"כ | ממוצע
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _StatItem(
+                                    icon: Icons.payments_outlined,
+                                    label: strings.totalLabel,
+                                    value: '₪${totalAmount.toStringAsFixed(0)}',
+                                    color: cs.onPrimaryContainer,
+                                  ),
+                                ),
+                                _buildStatDivider(cs),
+                                Expanded(
+                                  child: _StatItem(
+                                    icon: Icons.balance,
+                                    label: strings.averageLabel,
+                                    value: '₪${averageAmount.toStringAsFixed(0)}',
+                                    color: cs.onPrimaryContainer,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -337,16 +320,13 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                   // 📋 רשימת קבלות
                   Expanded(
                     child: receipts.isEmpty
-                        ? _staggered(
-                            Center(
-                              child: Text(
-                                strings.noResults,
-                                style: TextStyle(
-                                  color: cs.onSurfaceVariant,
-                                ),
+                        ? Center(
+                            child: Text(
+                              strings.noResults,
+                              style: TextStyle(
+                                color: cs.onSurfaceVariant,
                               ),
                             ),
-                            2,
                           )
                         : _staggered(
                             RefreshIndicator(
@@ -402,11 +382,20 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     );
   }
 
-  /// סינון ומיון קבלות
+  /// קו מפריד אנכי בין סטטיסטיקות
+  Widget _buildStatDivider(ColorScheme cs) {
+    return Container(
+      width: 1,
+      height: 32,
+      color: cs.onPrimaryContainer.withValues(alpha: 0.15),
+    );
+  }
+
+  /// סינון ומיון קבלות (מיון ברירת מחדל: חדש קודם)
   List<Receipt> _filterAndSortReceipts(List<Receipt> receipts) {
     var filtered = receipts.toList();
 
-    // סינון לפי תקופה (לפי חודש קלנדרי, לא חלון נע)
+    // סינון לפי תקופה
     final now = DateTime.now();
     switch (_filterPeriod) {
       case 'month':
@@ -415,7 +404,6 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
         break;
       case '3months':
-        // בטוח גם בינואר/פברואר — Dart מנרמל חודשים שליליים
         final threeMonthsAgo = DateTime(now.year, now.month - 2, 1);
         filtered =
             filtered.where((r) => !r.date.isBefore(threeMonthsAgo)).toList();
@@ -424,18 +412,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
         break;
     }
 
-    // מיון
-    switch (_sortBy) {
-      case 'date':
-        filtered.sort((a, b) => b.date.compareTo(a.date));
-        break;
-      case 'store':
-        filtered.sort((a, b) => a.storeName.compareTo(b.storeName));
-        break;
-      case 'amount':
-        filtered.sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
-        break;
-    }
+    // מיון ברירת מחדל: חדש קודם
+    filtered.sort((a, b) => b.date.compareTo(a.date));
 
     return filtered;
   }
@@ -468,6 +446,11 @@ class _ReceiptTile extends StatelessWidget {
     final successColor = theme.extension<AppBrand>()?.success ?? cs.primary;
 
     final leadingColor = receipt.isVirtual ? successColor : cs.primary;
+
+    // חשב פריטים שסומנו מתוך כלל הפריטים
+    final checkedCount = receipt.items.where((i) => i.isChecked).length;
+    final totalCount = receipt.items.length;
+    final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
@@ -516,28 +499,57 @@ class _ReceiptTile extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          subtitle: Text(
-            DateFormat('dd/MM/yyyy  HH:mm', locale).format(receipt.date),
-            style: TextStyle(
-              fontSize: kFontSizeSmall,
-              color: cs.onSurfaceVariant,
-            ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 2),
+              // תאריך + סכום
+              Row(
+                children: [
+                  Text(
+                    DateFormat('dd/MM/yyyy  HH:mm', locale)
+                        .format(receipt.date),
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+                  // 💰 סכום הקנייה
+                  Text(
+                    '₪${receipt.totalAmount.toStringAsFixed(0)}',
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      fontWeight: FontWeight.w600,
+                      color: cs.primary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              // 📊 Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 4,
+                  backgroundColor: cs.outlineVariant.withValues(alpha: 0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(successColor),
+                ),
+              ),
+            ],
           ),
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              // ✅ FIX: theme-aware color instead of kStickyGreen
               color: successColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(kBorderRadius),
             ),
             child: Text(
-              strings.itemsCount(
-                receipt.items.where((i) => i.isChecked).length,
-              ),
+              strings.itemsCount(checkedCount),
               style: TextStyle(
                 fontSize: kFontSizeSmall,
                 fontWeight: FontWeight.w600,
-                // ✅ FIX: theme-aware color instead of kStickyGreen
                 color: successColor,
               ),
             ),
@@ -696,40 +708,45 @@ class _StatItemState extends State<_StatItem>
     final targetNum = double.tryParse(numericStr) ?? 0;
     final prefix = widget.value.contains('₪') ? '₪' : '';
 
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(widget.icon, color: widget.color, size: 20),
-            const SizedBox(width: 4),
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, _) {
-                final current = (targetNum * _animation.value);
-                final display = targetNum == targetNum.toInt().toDouble()
-                    ? '$prefix${current.toInt()}'
-                    : '$prefix${current.toStringAsFixed(0)}';
-                return Text(
-                  display,
-                  style: TextStyle(
-                    fontSize: kFontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                    color: widget.color,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-        Text(
-          widget.label,
-          style: TextStyle(
-            fontSize: kFontSizeSmall,
-            color: cs.onSurfaceVariant,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(widget.icon, color: widget.color, size: 20),
+              const SizedBox(width: 4),
+              AnimatedBuilder(
+                animation: _animation,
+                builder: (context, _) {
+                  final current = (targetNum * _animation.value);
+                  final display = targetNum == targetNum.toInt().toDouble()
+                      ? '$prefix${current.toInt()}'
+                      : '$prefix${current.toStringAsFixed(0)}';
+                  return Text(
+                    display,
+                    style: TextStyle(
+                      fontSize: kFontSizeLarge,
+                      fontWeight: FontWeight.bold,
+                      color: widget.color,
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ),
-      ],
+          const SizedBox(height: 2),
+          Text(
+            widget.label,
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
