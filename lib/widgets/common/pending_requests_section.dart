@@ -115,15 +115,16 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
 
   String _getContent(PendingRequest request) {
     final data = request.requestData;
+    final strings = AppStrings.sharing;
     switch (request.type) {
       case RequestType.addItem:
         final name = data['name'] ?? '?';
         final qty = data['quantity'] ?? 1;
         return qty > 1 ? '$name ×$qty' : '$name';
       case RequestType.editItem:
-        return data['changes']?.toString() ?? 'עריכה';
+        return data['changes']?.toString() ?? strings.editItemFallback;
       case RequestType.deleteItem:
-        return 'מחיקת ${data['itemName'] ?? 'פריט'}';
+        return '${strings.deleteItemFallback} ${data['itemName'] ?? ''}';
       default:
         return data['list_name']?.toString() ?? '?';
     }
@@ -198,70 +199,50 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     );
   }
 
-  Future<void> _approve() async {
+  Future<void> _approve() => _processRequest(isApprove: true);
+  Future<void> _reject() => _processRequest(isApprove: false);
+
+  Future<void> _processRequest({required bool isApprove}) async {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
-    unawaited(HapticFeedback.mediumImpact());
+    unawaited(isApprove ? HapticFeedback.mediumImpact() : HapticFeedback.heavyImpact());
 
     try {
       final userContext = context.read<UserContext>();
       final listsProvider = context.read<ShoppingListsProvider>();
       final notificationsService = context.read<NotificationsService?>();
       final service = PendingRequestsService(listsProvider.repository, userContext);
+      final userName = userContext.displayName ?? AppStrings.sharing.unknownUserFallback;
 
       final list = listsProvider.lists.where((l) => l.id == widget.listId).firstOrNull;
       if (list == null) throw Exception('List not found');
 
-      await service.approveRequest(
-        list: list,
-        requestId: widget.request.id,
-        approverName: userContext.displayName ?? AppStrings.sharing.unknownUserFallback,
-        notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
-      );
+      if (isApprove) {
+        await service.approveRequest(
+          list: list, requestId: widget.request.id, approverName: userName,
+          notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
+        );
+      } else {
+        await service.rejectRequest(
+          list: list, requestId: widget.request.id, rejecterName: userName,
+          notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
+        );
+      }
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.sharing.requestApprovedSuccess)),
+        SnackBar(
+          content: Text(isApprove ? AppStrings.sharing.requestApprovedSuccess : AppStrings.sharing.requestRejectedSuccess),
+          backgroundColor: isApprove ? null : Theme.of(context).colorScheme.error,
+        ),
       );
     } catch (e) {
       if (!mounted) return;
+      final errorMsg = isApprove
+          ? AppStrings.pendingInvitesScreen.approveError(e.toString())
+          : AppStrings.pendingInvitesScreen.rejectError(e.toString());
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.pendingInvitesScreen.approveError(e.toString()))),
-      );
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
-    }
-  }
-
-  Future<void> _reject() async {
-    if (_isProcessing) return;
-    setState(() => _isProcessing = true);
-    unawaited(HapticFeedback.heavyImpact());
-
-    try {
-      final userContext = context.read<UserContext>();
-      final listsProvider = context.read<ShoppingListsProvider>();
-      final notificationsService = context.read<NotificationsService?>();
-      final service = PendingRequestsService(listsProvider.repository, userContext);
-
-      final list = listsProvider.lists.where((l) => l.id == widget.listId).firstOrNull;
-      if (list == null) throw Exception('List not found');
-
-      await service.rejectRequest(
-        list: list,
-        requestId: widget.request.id,
-        rejecterName: userContext.displayName ?? AppStrings.sharing.unknownUserFallback,
-        notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
-      );
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.sharing.requestRejectedSuccess), backgroundColor: Theme.of(context).colorScheme.error),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppStrings.pendingInvitesScreen.rejectError(e.toString()))),
+        SnackBar(content: Text(errorMsg)),
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
