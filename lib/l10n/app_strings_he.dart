@@ -422,6 +422,13 @@ class ShoppingStrings {
   String get summarySuccess => 'קנייה מוצלחת! ⚡';
   String get storeQuestion => 'מאיפה קנית?';
   String get whoBringsWhat => 'מי מביא מה';
+  String get whoBringsTitle => 'מי מביא?';
+  String get whoBringsHint => 'לחץ על "אני מביא" כדי להתנדב להביא פריט';
+  String get whoBringsFullLabel => 'מלא! ✓';
+  String whoBringsItemFull(String name) => '$name כבר מלא!';
+  String get whoBringsEmptyTitle => 'אין פריטים ברשימה';
+  String get whoBringsEmptySubtitle => 'הוסף פריטים כדי שחברי הקבוצה יוכלו להתנדב';
+  String get anonymousUser => 'אנונימי';
   String get checklist => 'צ\'קליסט';
   String get defaultInviteLabel => 'הזמנה';
   String get leaveShoppingTitle => 'לצאת מהקנייה?';

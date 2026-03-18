@@ -58,7 +58,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
   Future<void> _volunteer(UnifiedListItem item) async {
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
-    final displayName = userContext.displayName ?? 'אנונימי';
+    final displayName = userContext.displayName ?? AppStrings.shopping.anonymousUser;
 
     if (userId == null) return;
 
@@ -70,7 +70,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
     // בדוק אם הפריט מלא
     if (item.isVolunteersFull) {
-      _showSnackBar('${item.name} כבר מלא!');
+      _showSnackBar(AppStrings.shopping.whoBringsItemFull(item.name));
       return;
     }
 
@@ -214,6 +214,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
         }
       }
     } catch (e) {
+      debugPrint('WhoBringsScreen: notification send failed — $e');
     }
   }
 
@@ -271,8 +272,8 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: kIconSizeLarge + kSpacingXTiny,
+                        height: kIconSizeLarge + kSpacingXTiny,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
@@ -295,7 +296,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             Text(
-                              'מי מביא?',
+                              AppStrings.shopping.whoBringsTitle,
                               style: TextStyle(
                                 fontSize: kFontSizeSmall,
                                 color: cs.onSurfaceVariant,
@@ -348,7 +349,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                   ),
                 ),
 
-                SizedBox(height: kSpacingSmall),
+                const SizedBox(height: kSpacingSmall),
 
                 // 📝 הוראות
                 Padding(
@@ -361,11 +362,11 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: 18, color: cs.primary),
-                        SizedBox(width: kSpacingSmall),
+                        Icon(Icons.info_outline, size: kIconSizeSmall + 2, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Text(
-                            'לחץ על "אני מביא" כדי להתנדב להביא פריט',
+                            AppStrings.shopping.whoBringsHint,
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
                               color: cs.onSurfaceVariant,
@@ -470,7 +471,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 children: [
                   // אייקון סטטוס
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(kSpacingSmall),
                     decoration: BoxDecoration(
                       color: isFull
                           ? cs.primary.withValues(alpha: 0.2)
@@ -480,7 +481,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                     child: Icon(
                       isFull ? Icons.check_circle : Icons.group_add,
                       color: isFull ? cs.primary : cs.tertiary,
-                      size: 24,
+                      size: kIconSizeMedium,
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
@@ -526,14 +527,14 @@ class _WhoBringsItemTile extends StatelessWidget {
                 ],
               ),
 
-              SizedBox(height: kSpacingSmall),
+              const SizedBox(height: kSpacingSmall),
 
               // === שמות מתנדבים ===
               if (volunteerCount > 0) ...[
                 Row(
                   children: [
-                    Icon(Icons.people, size: 16, color: cs.outline),
-                    SizedBox(width: kSpacingTiny),
+                    Icon(Icons.people, size: kIconSizeSmall, color: cs.outline),
+                    const SizedBox(width: kSpacingTiny),
                     Expanded(
                       child: Text(
                         item.getVolunteerDisplay(maxNames: 3),
@@ -555,24 +556,24 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור ביטול
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onCancelVolunteer,
-                  icon: Icon(Icons.close, size: 18),
+                  icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
                   label: Text(AppStrings.shopping.cancelVolunteerButton),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
                     side: BorderSide(color: cs.error),
-                    minimumSize: Size(double.infinity, 40),
+                    minimumSize: const Size(double.infinity, 44),
                   ),
                 )
               else if (!isFull)
                 // כפתור התנדבות
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : onVolunteer,
-                  icon: Icon(Icons.volunteer_activism, size: 18),
+                  icon: const Icon(Icons.volunteer_activism, size: kIconSizeSmall + 2),
                   label: Text(AppStrings.shopping.iBringButton),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,
-                    minimumSize: Size(double.infinity, 40),
+                    minimumSize: const Size(double.infinity, 44),
                   ),
                 )
               else
@@ -588,10 +589,10 @@ class _WhoBringsItemTile extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check, color: cs.primary, size: 20),
-                      SizedBox(width: kSpacingTiny),
+                      Icon(Icons.check, color: cs.primary, size: kIconSizeMedium),
+                      const SizedBox(width: kSpacingTiny),
                       Text(
-                        'מלא! ✓',
+                        AppStrings.shopping.whoBringsFullLabel,
                         style: TextStyle(
                           color: cs.primary,
                           fontWeight: FontWeight.bold,
@@ -633,8 +634,8 @@ class _StatItem extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(width: 4),
+            Icon(icon, color: color, size: kIconSizeMedium),
+            const SizedBox(width: kSpacingXTiny),
             Text(
               value,
               style: TextStyle(
@@ -672,20 +673,20 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(
             Icons.list_alt,
-            size: 64,
+            size: kIconSizeXXLarge,
             color: cs.onSurfaceVariant.withValues(alpha: 0.5),
           ),
-          SizedBox(height: kSpacingMedium),
+          const SizedBox(height: kSpacingMedium),
           Text(
-            'אין פריטים ברשימה',
+            AppStrings.shopping.whoBringsEmptyTitle,
             style: TextStyle(
               fontSize: kFontSizeMedium,
               color: cs.onSurfaceVariant,
             ),
           ),
-          SizedBox(height: kSpacingSmall),
+          const SizedBox(height: kSpacingSmall),
           Text(
-            'הוסף פריטים כדי שחברי הקבוצה יוכלו להתנדב',
+            AppStrings.shopping.whoBringsEmptySubtitle,
             style: TextStyle(
               fontSize: kFontSizeSmall,
               color: cs.onSurfaceVariant.withValues(alpha: 0.7),

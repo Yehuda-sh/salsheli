@@ -408,6 +408,13 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get summarySuccess => 'Shopping done! ⚡';
   @override String get storeQuestion => 'Where did you shop?';
   @override String get whoBringsWhat => 'Who brings what';
+  @override String get whoBringsTitle => 'Who brings?';
+  @override String get whoBringsHint => 'Tap "I\'ll bring" to volunteer for an item';
+  @override String get whoBringsFullLabel => 'Full! ✓';
+  @override String whoBringsItemFull(String name) => '$name is already full!';
+  @override String get whoBringsEmptyTitle => 'No items in list';
+  @override String get whoBringsEmptySubtitle => 'Add items so group members can volunteer';
+  @override String get anonymousUser => 'Anonymous';
   @override String get checklist => 'Checklist';
   @override String get defaultInviteLabel => 'Invitation';
   @override String get leaveShoppingTitle => 'Leave shopping?';
