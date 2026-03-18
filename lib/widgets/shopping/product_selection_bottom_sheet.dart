@@ -137,7 +137,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     setState(() => _addingProductId = productId);
 
-
     try {
       final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
 
@@ -210,7 +209,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     setState(() => _addingProductId = productId);
 
-
     final newItem = ReceiptItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: productName,
@@ -224,20 +222,15 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       await provider.addItemToList(
         widget.list.id,
-        newItem.name ?? 'מוצר ללא שם',
+        newItem.name ?? AppStrings.shopping.productNoNameFallback,
         newItem.quantity,
-        newItem.unit ?? "יח'",
+        newItem.unit ?? AppStrings.pantry.unitAbbreviation,
         category: detectedCategory,
       );
 
-      final originalCategory = product['category'] as String?;
-      if (originalCategory != detectedCategory && originalCategory != null) {
-      } else {
-      }
-
       if (!mounted) return;
       setState(() => _addingProductId = null);
-      _showFeedback(AppStrings.shopping.productAddedToList(newItem.name ?? 'מוצר'));
+      _showFeedback(AppStrings.shopping.productAddedToList(newItem.name ?? AppStrings.shopping.productNoName));
     } catch (e) {
       if (!mounted) return;
 
@@ -297,11 +290,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                     // Handle bar
                     Container(
                       margin: const EdgeInsets.only(top: kSpacingSmall),
-                      width: 40,
-                      height: 4,
+                      width: kSpacingXLarge + kSpacingSmall,
+                      height: kSpacingXTiny,
                       decoration: BoxDecoration(
                         color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(kSpacingXTiny / 2),
                       ),
                     ),
 
@@ -357,9 +350,9 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   child: FloatingActionButton(
                     heroTag: 'add_custom_product',
                     backgroundColor: kStickyYellow,
-                    tooltip: 'הוסף מוצר חדש',
+                    tooltip: AppStrings.shopping.addNewProductTooltip,
                     onPressed: _handleAddCustomProduct,
-                    child: Icon(Icons.edit_note, color: cs.onSurface, size: 28),
+                    child: Icon(Icons.edit_note, color: cs.onSurface, size: kIconSizeLarge),
                   ),
                 ),
 
@@ -368,7 +361,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   valueListenable: _feedbackNotifier,
                   builder: (context, message, _) {
                     return Positioned(
-                      top: 80,
+                      top: kSpacingXLarge * 2 + kSpacingMedium,
                       left: kSpacingMedium,
                       right: kSpacingMedium,
                       child: AnimatedSwitcher(
@@ -409,20 +402,20 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            height: 48,
+            height: kMinInteractiveDimension,
             decoration: BoxDecoration(
               // Dark-mode aware: surfaceContainerHighest adapts automatically
               color: cs.surfaceContainerHighest.withValues(alpha: 0.65),
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               border: Border.all(color: cs.outline.withValues(alpha: 0.18)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
+                  blurRadius: kSpacingSmallPlus,
                   offset: const Offset(0, 2),
                 ),
               ],
@@ -432,11 +425,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
                 hintText: AppStrings.common.searchProductHint,
-                hintStyle: const TextStyle(fontSize: 14),
-                prefixIcon: const Icon(Icons.search, size: 20),
+                hintStyle: const TextStyle(fontSize: kFontSizeMedium),
+                prefixIcon: const Icon(Icons.search, size: kIconSizeMedium),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: 18),
+                        icon: const Icon(Icons.clear, size: kIconSizeSmall + 2),
                         onPressed: () {
                           unawaited(HapticFeedback.selectionClick());
                           _searchController.clear();
@@ -444,12 +437,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                         },
                       )
                     : IconButton(
-                        icon: const Icon(Icons.qr_code_scanner, size: 20),
+                        icon: const Icon(Icons.qr_code_scanner, size: kIconSizeMedium),
                         tooltip: AppStrings.shopping.scanBarcode,
                         onPressed: () => _scanAndSearch(productsProvider),
                       ),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 isDense: true,
               ),
               onChanged: (value) {
@@ -473,7 +466,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     if (categories.isEmpty) return const SizedBox.shrink();
 
     return SizedBox(
-      height: 40,
+      height: kIconSizeLarge + kSpacingXTiny,
       child: ListView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
@@ -494,7 +487,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             final (i, category) = e;
             final delay = Duration(milliseconds: (i + 1) * 30);
             return Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsetsDirectional.only(start: kSpacingSmall),
               child: _buildCompactFilterChip(
                 label: category,
                 emoji: FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)),
@@ -518,6 +511,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     required bool isSelected,
     required VoidCallback onTap,
   }) {
+    final cs = Theme.of(context).colorScheme;
+
     return AnimatedScale(
       scale: isSelected ? 1.05 : 1.0,
       duration: const Duration(milliseconds: 150),
@@ -526,26 +521,26 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         label: Text(
           '$emoji $label',
           style: TextStyle(
-            fontSize: 13,
+            fontSize: kFontSizeSmall,
             color: isSelected
-                ? Theme.of(context).colorScheme.onSurface
-                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.87),
+                ? cs.onSurface
+                : cs.onSurface.withValues(alpha: 0.87),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
         selected: isSelected,
         onSelected: (_) => onTap(),
-        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+        backgroundColor: cs.surface.withValues(alpha: 0.8),
         selectedColor: kStickyCyan,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge + kSpacingXTiny),
           side: BorderSide(
             color: isSelected
-                ? Theme.of(context).colorScheme.outline.withValues(alpha: 0.12)
+                ? cs.outline.withValues(alpha: 0.12)
                 : Colors.transparent,
           ),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
         visualDensity: VisualDensity.compact,
       ),
     );
@@ -571,7 +566,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error),
+            Icon(Icons.error_outline, size: kIconSizeXXLarge, color: cs.error),
             const Gap(kSpacingMedium),
             Text(provider.errorMessage ?? AppStrings.common.unknownErrorGeneric),
             const Gap(kSpacingLarge),
@@ -590,7 +585,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inbox, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+            Icon(Icons.inbox, size: kIconSizeXXLarge, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
             const Gap(kSpacingMedium),
             Text(
               provider.searchQuery.isNotEmpty
@@ -617,10 +612,10 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       child: ListView.builder(
         controller: scrollController,
         padding: const EdgeInsets.only(
-          top: kNotebookLineSpacing - 8,
+          top: kNotebookLineSpacing - kSpacingSmall,
           left: kNotebookRedLineOffset + kSpacingSmall,
           right: kSpacingMedium,
-          bottom: 100, // מקום ל-FAB
+          bottom: kSpacingXLarge * 3 + kSpacingXTiny,
         ),
         itemCount: products.length,
         itemBuilder: (context, index) {
@@ -677,9 +672,9 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           child: Row(
             children: [
               // 🏷️ אייקון קטגוריה
-              Text(FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)), style: const TextStyle(fontSize: 18)),
+              Text(FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)), style: const TextStyle(fontSize: kFontSizeBody)),
 
-              const Gap(6),
+              const Gap(kSpacingTiny),
 
               // 📝 שם המוצר + גודל + מותג
               Expanded(
@@ -691,7 +686,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                         child: Text(
                           name,
                           style: TextStyle(
-                            fontSize: 15,
+                            fontSize: kFontSizeMedium,
                             fontWeight: FontWeight.bold,
                             color: isInList ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
                             height: 1.0,
@@ -701,22 +696,22 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                         ),
                       ),
                       if (size != null) ...[
-                        const SizedBox(width: 4),
+                        const SizedBox(width: kSpacingXTiny),
                         Text(
                           size,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: kFontSizeSmall,
                             color: cs.onSurface.withValues(alpha: 0.5),
                             height: 1.0,
                           ),
                         ),
                       ],
                       if (brand != null && brand.isNotEmpty) ...[
-                        const SizedBox(width: 4),
+                        const SizedBox(width: kSpacingXTiny),
                         Text(
                           '· $brand',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: kFontSizeTiny,
                             color: cs.onSurface.withValues(alpha: 0.35),
                             height: 1.0,
                           ),
@@ -744,17 +739,17 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       height: kNotebookLineSpacing,
       child: Row(
         children: [
-          Text(FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)), style: const TextStyle(fontSize: 18)),
-          const Gap(6),
+          Text(FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)), style: const TextStyle(fontSize: kFontSizeBody)),
+          const Gap(kSpacingTiny),
           Expanded(
             child: Text(
               name,
-              style: TextStyle(fontSize: 15, color: cs.onSurface.withValues(alpha: 0.3)),
+              style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurface.withValues(alpha: 0.3)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          Icon(Icons.error_outline, color: cs.error.withValues(alpha: 0.5), size: 20),
+          Icon(Icons.error_outline, color: cs.error.withValues(alpha: 0.5), size: kIconSizeMedium),
         ],
       ),
     );
@@ -772,7 +767,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       child: Icon(
         Icons.add_circle_outline,
         color: isAdding ? kStickyGreen : kStickyGreen.withValues(alpha: 0.6),
-        size: 24,
+        size: kIconSizeMedium,
       ),
     );
   }
@@ -786,17 +781,17 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         _buildQuantityButton(
           icon: Icons.add,
           color: kStickyGreen,
-          tooltip: 'הוסף כמות',
+          tooltip: AppStrings.shopping.increaseQuantityTooltip,
           onTap: () => _updateProductQuantity(product, currentQuantity + 1),
         ),
 
         // 🔢 מספר עם AnimatedSwitcher pulse
         Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          margin: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
           decoration: BoxDecoration(
             color: kStickyCyan,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall + 2),
           ),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 200),
@@ -810,7 +805,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: kFontSizeMedium,
               ),
             ),
           ),
@@ -820,7 +815,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         _buildQuantityButton(
           icon: Icons.remove,
           color: kStickyPink,
-          tooltip: 'הפחת כמות',
+          tooltip: AppStrings.shopping.decreaseQuantityTooltip,
           onTap: () => _updateProductQuantity(product, currentQuantity - 1),
         ),
       ],
@@ -841,17 +836,17 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         scaleTarget: 0.97,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge + kSpacingXTiny),
           child: Padding(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(kSpacingSmall),
             child: Container(
-              width: 28,
-              height: 28,
+              width: kSpacingLarge + kSpacingXTiny,
+              height: kSpacingLarge + kSpacingXTiny,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(14),
+                shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: 16),
+              child: Icon(icon, color: Colors.white, size: kIconSizeSmall),
             ),
           ),
         ),
@@ -879,14 +874,14 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
+                blurRadius: kSpacingSmallPlus,
+                offset: const Offset(0, kSpacingXTiny),
               ),
             ],
           ),
           child: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 24),
+              const Icon(Icons.check_circle, color: Colors.white, size: kIconSizeMedium),
               const Gap(kSpacingSmall),
               Expanded(
                 child: Text(
@@ -894,7 +889,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
-                    fontSize: 16,
+                    fontSize: kFontSizeBody,
                   ),
                 ),
               ),
@@ -904,10 +899,4 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🏷️ Category Emoji
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  // ✅ Removed _getCategoryEmoji — use FiltersConfig.getCategoryEmoji directly
 }

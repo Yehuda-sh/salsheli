@@ -503,6 +503,10 @@ class ShoppingStrings {
   String get legendPending => 'ממתין';
   String get editQuantity => 'ערוך כמות';
   String get scanBarcode => 'סרוק ברקוד';
+  String get addNewProductTooltip => 'הוסף מוצר חדש';
+  String get increaseQuantityTooltip => 'הוסף כמות';
+  String get decreaseQuantityTooltip => 'הפחת כמות';
+  String get productNoNameFallback => 'מוצר ללא שם';
   String get cameraError => 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.';
   String get toggleFlash => 'הדלק/כבה פנס';
   String get barcodeFoundAdd => 'המוצר לא ברשימה. להוסיף?';

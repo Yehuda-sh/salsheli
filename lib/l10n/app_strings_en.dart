@@ -489,6 +489,10 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get legendPending => 'Pending';
   @override String get editQuantity => 'Edit quantity';
   @override String get scanBarcode => 'Scan barcode';
+  @override String get addNewProductTooltip => 'Add new product';
+  @override String get increaseQuantityTooltip => 'Increase quantity';
+  @override String get decreaseQuantityTooltip => 'Decrease quantity';
+  @override String get productNoNameFallback => 'Unnamed product';
   @override String get barcodeFoundAdd => 'Product not in list. Add it?';
   @override String get addToListButton => 'Add to list';
   @override String barcodeNotFound(String code) => 'Barcode $code not found';
