@@ -12,10 +12,16 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/locations_provider.dart';
 
-/// רשימת אמוג'י לבחירה
+/// רשימת אמוג'י לבחירה — ממוינים לפי רלוונטיות למיקומי אחסון בבית
 const kLocationEmojis = [
-  '📍', '🏠', '❄️', '🧊', '📦', '🛁', '🧺', '🚗', '🧼', '🧂',
-  '🍹', '🍕', '🎁', '🎒', '🧰', '🎨', '📚', '🔧', '🏺', '🗄️',
+  // מיקומי אחסון עיקריים
+  '🏠', '❄️', '🧊', '📦', '🗄️', '🛁',
+  // מטבח ומזווה
+  '🍽️', '🧂', '🫙', '🥫', '🧴', '🧼',
+  // חדרים ואזורים
+  '🛏️', '🚗', '🧺', '🧹', '🪴', '📍',
+  // כללי
+  '🧰', '🎒',
 ];
 
 /// מציג דיאלוג להוספת מיקום חדש.
@@ -74,6 +80,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                     const SizedBox(height: kSpacingMedium),
                     TextField(
                       controller: controller,
+                      maxLength: 30,
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.locationNameLabel,
                         hintText: AppStrings.inventory.locationNameHint,
@@ -100,12 +107,14 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       final name = controller.text.trim();
                       if (name.isEmpty) return;
 
-                      final provider = context.read<LocationsProvider>();
+                      final provider = dialogContext.read<LocationsProvider>();
                       final navigator = Navigator.of(dialogContext);
-                      final messenger = ScaffoldMessenger.of(context);
+                      final messenger = ScaffoldMessenger.of(dialogContext);
 
                       final success =
                           await provider.addLocation(name, emoji: selectedEmoji);
+
+                      if (!dialogContext.mounted) return;
 
                       if (success) {
                         final newLoc = provider.customLocations.lastOrNull;
