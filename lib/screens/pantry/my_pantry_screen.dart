@@ -106,10 +106,19 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     });
   }
 
-  /// 🏷️ מיקומים דינמיים - נגזרים מהפריטים בפועל
+  /// Backward compat: שמות עבריים ישנים → IDs חדשים
+  static const _legacyLocationMap = {
+    'מזווה': 'main_pantry', 'מקרר': 'refrigerator', 'מקפיא': 'freezer',
+    'מטבח': 'kitchen', 'אמבטיה': 'bathroom', 'מחסן': 'storage',
+    'מרפסת שירות': 'service_porch', 'כללי': 'other',
+  };
+
+  String _normalizeLocation(String loc) => _legacyLocationMap[loc] ?? loc;
+
+  /// 🏷️ מיקומים דינמיים - נגזרים מהפריטים בפועל (עם נרמול legacy)
   List<String> _getAvailableLocations(List<InventoryItem> items) {
     final locations = items
-        .map((item) => item.location)
+        .map((item) => _normalizeLocation(item.location))
         .where((loc) => loc.isNotEmpty)
         .toSet()
         .toList();
@@ -171,9 +180,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         }
       }
 
-      // סינון לפי מיקום
+      // סינון לפי מיקום (עם נרמול legacy)
       if (_selectedLocation != null) {
-        if (item.location != _selectedLocation) {
+        if (_normalizeLocation(item.location) != _selectedLocation) {
           return false;
         }
       }
@@ -192,7 +201,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final grouped = <String, List<InventoryItem>>{};
 
     for (var item in items) {
-      String location = item.location;
+      String location = _normalizeLocation(item.location);
       if (location.trim().isEmpty) {
         location = 'other'; // ברירת מחדל
       }
