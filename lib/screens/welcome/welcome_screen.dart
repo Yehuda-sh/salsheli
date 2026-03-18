@@ -142,7 +142,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: _DotIndicator(
                     count: 3,
                     current: _currentPage,
-                    activeColor: brand?.accent ?? cs.primary,
+                    activeColor: cs.primary,
                     inactiveColor: cs.outlineVariant,
                   ),
                 ).animate().fadeIn(duration: 300.ms, delay: 200.ms),
@@ -204,16 +204,17 @@ class _LogoSection extends StatelessWidget {
           children: [
             Image.asset(
               'assets/images/logo.webp',
-              height: screenHeight * 0.08,
+              height: screenHeight * 0.1,
               fit: BoxFit.contain,
             ),
-            const SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmallPlus),
             Text(
               AppStrings.welcome.subtitle,
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.65),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: cs.onSurface.withValues(alpha: 0.75),
                 fontWeight: FontWeight.w600,
+                letterSpacing: 0.3,
               ),
             ),
           ],
@@ -253,12 +254,19 @@ class _SimpleFeatureCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Illustration — flexible, takes available space
+                // Illustration — flexible, with subtle background
                 Flexible(
                   child: ExcludeSemantics(
-                    child: Image.asset(
-                      illustrationAsset,
-                      fit: BoxFit.contain,
+                    child: Container(
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      decoration: BoxDecoration(
+                        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
+                      ),
+                      child: Image.asset(
+                        illustrationAsset,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
@@ -342,11 +350,22 @@ class _BenefitsStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Separator
+          Divider(
+            height: 1,
+            thickness: 0.5,
+            color: cs.outlineVariant.withValues(alpha: 0.25),
+            indent: kSpacingXLarge,
+            endIndent: kSpacingXLarge,
+          ),
+          const SizedBox(height: kSpacingSmallPlus),
           _BenefitRow(
             icon: Icons.group_rounded,
             color: kStickyCyan,
@@ -393,13 +412,13 @@ class _BenefitRow extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: kSpacingXLarge,
-          height: kSpacingXLarge,
+          width: kIconSizeLarge,
+          height: kIconSizeLarge,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           ),
-          child: Icon(icon, size: kIconSizeSmall, color: color),
+          child: Icon(icon, size: kIconSizeMedium - 4, color: color),
         ),
         const SizedBox(width: kSpacingSmallPlus),
         Expanded(
