@@ -181,7 +181,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     controller.text = (current - 1).toString();
                   }
                 },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
             padding: const EdgeInsets.all(4),
             child: Icon(Icons.remove_circle_outline, color: cs.primary, size: 24),
@@ -196,7 +196,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             textAlign: TextAlign.center,
             style: TextStyle(
               color: cs.onSurface,
-              fontSize: 16,
+              fontSize: kFontSizeBody,
               fontWeight: FontWeight.bold,
             ),
             decoration: InputDecoration(
@@ -220,7 +220,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     controller.text = (current + 1).toString();
                   }
                 },
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
             padding: const EdgeInsets.all(4),
             child: Icon(Icons.add_circle_outline, color: cs.primary, size: 24),
@@ -275,13 +275,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   Widget _buildStatistics(InventoryItem item, ColorScheme cs) {
     final dateFormat = DateFormat('dd/MM/yyyy');
     final mutedColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
-    const smallFont = 11.0;
+    const smallFont = kFontSizeTiny;
 
     return Container(
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -522,7 +522,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               // שם המוצר
               TextField(
                 controller: _nameController,
-                style: TextStyle(color: cs.onSurface, fontSize: 16),
+                style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
@@ -686,7 +686,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   title: Text(
                     AppStrings.inventory.advancedSettings,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: kFontSizeSmall,
                       color: cs.onSurfaceVariant,
                     ),
                   ),
@@ -753,7 +753,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     // תאריך תפוגה
                     InkWell(
                       onTap: _isLoading ? null : _selectExpiryDate,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       child: InputDecorator(
                         decoration: InputDecoration(
                           labelText: AppStrings.inventory.expiryDateLabel,
@@ -820,7 +820,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       title: Text(AppStrings.inventory.permanentProduct),
                       subtitle: Text(
                         AppStrings.inventory.autoAddToLists,
-                        style: const TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: kFontSizeTiny),
                       ),
                       secondary: Icon(
                         _isRecurring ? Icons.star : Icons.star_border,
