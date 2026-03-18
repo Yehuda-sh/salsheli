@@ -1383,6 +1383,9 @@ class SharingStrings {
   String get retryButton => 'נסה שוב';
   String maxGroupsReached(int max) => 'הגעת למקסימום $max קבוצות';
   String groupsNearLimit(int current, int max) => 'יש לך $current מתוך $max קבוצות';
+  String get rejectRequestTitle => 'דחיית בקשה';
+  String get rejectRequestConfirm => 'בטוח שברצונך לדחות את הבקשה?';
+  String get rejectRequestButton => 'דחה';
 }
 
 // ========================================

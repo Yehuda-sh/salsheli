@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -101,6 +102,7 @@ class _CompactRequestRow extends StatefulWidget {
 
 class _CompactRequestRowState extends State<_CompactRequestRow> {
   bool _isProcessing = false;
+  bool _isDismissed = false;
 
   String _getIcon(RequestType type) {
     switch (type) {
@@ -138,7 +140,14 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     final request = widget.request;
     final requesterName = request.requesterName ?? AppStrings.sharing.unknownUserFallback;
 
-    return Padding(
+    return AnimatedOpacity(
+      opacity: _isDismissed ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 300),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        child: _isDismissed
+            ? const SizedBox.shrink()
+            : Padding(
       padding: const EdgeInsets.only(bottom: kSpacingTiny),
       child: Row(
         children: [
@@ -164,43 +173,68 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
             ),
           ),
 
-          // כפתורי פעולה
+          // כפתורי פעולה (44x44 — תקן נגישות מובייל)
           if (widget.canApprove && !_isProcessing) ...[
             // ✅ אשר
             SizedBox(
-              width: 32,
-              height: 32,
+              width: 44,
+              height: 44,
               child: IconButton(
-                onPressed: () => _approve(),
-                icon: Icon(Icons.check_circle, size: 20, color: successColor),
+                onPressed: _approve,
+                icon: Icon(Icons.check_circle, size: 24, color: successColor),
                 padding: EdgeInsets.zero,
                 tooltip: AppStrings.pendingInvitesScreen.approveRequest,
               ),
             ),
-            // ❌ דחה
+            // ❌ דחה (עם אישור)
             SizedBox(
-              width: 32,
-              height: 32,
+              width: 44,
+              height: 44,
               child: IconButton(
-                onPressed: () => _reject(),
-                icon: Icon(Icons.cancel, size: 20, color: cs.error.withValues(alpha: 0.7)),
+                onPressed: _confirmAndReject,
+                icon: Icon(Icons.cancel, size: 24, color: cs.error.withValues(alpha: 0.7)),
                 padding: EdgeInsets.zero,
                 tooltip: AppStrings.pendingInvitesScreen.rejectRequest,
               ),
             ),
           ] else if (_isProcessing)
             const SizedBox(
-              width: 20,
-              height: 20,
+              width: 24,
+              height: 24,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
         ],
       ),
+    ),
+    ),
     );
   }
 
   Future<void> _approve() => _processRequest(isApprove: true);
   Future<void> _reject() => _processRequest(isApprove: false);
+
+  /// דיאלוג אישור לפני דחייה — מניעת טעויות
+  Future<void> _confirmAndReject() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppStrings.sharing.rejectRequestTitle),
+        content: Text(AppStrings.sharing.rejectRequestConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppStrings.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            child: Text(AppStrings.sharing.rejectRequestButton),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) _reject();
+  }
 
   Future<void> _processRequest({required bool isApprove}) async {
     if (_isProcessing) return;
@@ -230,6 +264,8 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       }
 
       if (!mounted) return;
+      // אנימציית יציאה
+      setState(() => _isDismissed = true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(isApprove ? AppStrings.sharing.requestApprovedSuccess : AppStrings.sharing.requestRejectedSuccess),
