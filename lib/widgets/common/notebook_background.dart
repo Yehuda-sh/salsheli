@@ -19,17 +19,8 @@ import '../../theme/app_theme.dart';
 /// מציג רקע נייר עם קווים כמו במחברת בית ספר אמיתית.
 ///
 /// ```dart
-/// NotebookBackground(
-///   lineOpacity: kNotebookLineOpacitySubtle,
-///   lineColor: kNotebookBlueSoft,
-///   showRedLine: false,
-///   fadeEdges: true,
-/// )
-/// ```
-///
-/// דוגמה (קלאסי - כמו קודם):
-/// ```dart
-/// const NotebookBackground() // ברירת מחדל = קווים בולטים
+/// const NotebookBackground()                // קלאסי — קווים בולטים
+/// const NotebookBackground.subtle()         // עדין — למסכי Auth
 /// ```
 class NotebookBackground extends StatelessWidget {
   /// עוצמת הקווים האופקיים (0.0 = שקוף, 1.0 = מלא)
@@ -82,6 +73,8 @@ class NotebookBackground extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
+    final bgColor = brand?.paperBackground ??
+        (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground);
     final effectiveLineColor = lineColor ?? brand?.notebookBlue ?? kNotebookBlue;
     final effectiveLineOpacity = lineOpacity ?? kNotebookLineOpacity;
 
@@ -92,8 +85,7 @@ class NotebookBackground extends StatelessWidget {
         child: SizedBox.expand(
           child: CustomPaint(
             painter: _NotebookPainter(
-              paperBackground: brand?.paperBackground ??
-                  (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground),
+              paperBackground: bgColor,
               notebookBlue: effectiveLineColor,
               lineOpacity: effectiveLineOpacity,
               notebookRed: brand?.notebookRed ?? kNotebookRed,
@@ -109,61 +101,39 @@ class NotebookBackground extends StatelessWidget {
 
     // Fade edges - gradient עדין למעלה ולמטה
     if (fadeEdges) {
-      final bgColor = brand?.paperBackground ??
-          (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground);
-
       background = Stack(
         children: [
           background,
-          // Fade למעלה
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 80,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      bgColor,
-                      bgColor.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-                child: const SizedBox.expand(),
-              ),
-            ),
-          ),
-          // Fade למטה
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 80,
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      bgColor,
-                      bgColor.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
-                child: const SizedBox.expand(),
-              ),
-            ),
-          ),
+          _buildFadeEdge(bgColor, top: true),
+          _buildFadeEdge(bgColor, top: false),
         ],
       );
     }
 
     return background;
+  }
+
+  /// Fade gradient edge (top or bottom)
+  Widget _buildFadeEdge(Color bgColor, {required bool top}) {
+    return Positioned(
+      top: top ? 0 : null,
+      bottom: top ? null : 0,
+      left: 0,
+      right: 0,
+      height: 80,
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: top ? Alignment.topCenter : Alignment.bottomCenter,
+              end: top ? Alignment.bottomCenter : Alignment.topCenter,
+              colors: [bgColor, bgColor.withValues(alpha: 0)],
+            ),
+          ),
+          child: const SizedBox.expand(),
+        ),
+      ),
+    );
   }
 }
 
