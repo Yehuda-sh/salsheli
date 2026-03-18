@@ -426,16 +426,16 @@ class AppTheme {
         ),
       ),
 
-      // כרטיסים - Cards (M3 Surface Containers)
+      // כרטיסים - Cards (שקופים חלקית — רקע מחברת נראה מאחורה)
       cardTheme: CardThemeData(
-        elevation: 2,
-        // Surface Containers: רמות שונות של רקע
-        // surfaceContainerLow = קרוב לרקע
-        // surfaceContainerHigh = בולט יותר
-        color: dark ? scheme.surfaceContainerHigh : scheme.surfaceContainerLow,
+        elevation: 0,
+        color: scheme.surface.withValues(alpha: 0.85),
         margin: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+        ),
       ),
 
       // ListTile — טוב ל־RTL
