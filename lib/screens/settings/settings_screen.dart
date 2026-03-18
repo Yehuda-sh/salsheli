@@ -1032,8 +1032,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 פרופיל אישי — Premium gradient ring
                 _animatedSection(0, Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingLarge),
                     child: Column(
@@ -1094,8 +1098,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 התראות
                 _animatedSection(1, Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1151,8 +1159,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 הגדרות כלליות — Theme cards
                 _animatedSection(2, Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1218,8 +1230,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 ניהול משפחה
                 _animatedSection(3, Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1278,8 +1294,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 קישורים מהירים
                 _animatedSection(4, Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Column(
                     children: [
                       ListTile(
@@ -1312,8 +1332,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 מידע
                 _animatedSection(5, Card(
-                  elevation: 1,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                  ),
                   child: Column(
                     children: [
                       ListTile(
@@ -1363,7 +1387,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 התנתקות
                 _animatedSection(6, Card(
-                  elevation: 1,
+                  elevation: 0,
+                  color: cs.surface.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(color: cs.error.withValues(alpha: 0.2)),
+                  ),
                   child: ListTile(
                     leading: Icon(Icons.logout, color: cs.error),
                     title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error)),
@@ -1377,8 +1406,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 if (kDebugMode) ...[
                   SizedBox(height: kSpacingSmall),
                   Card(
-                    elevation: 1,
-                    color: cs.tertiaryContainer,
+                    elevation: 0,
+                    color: cs.tertiaryContainer.withValues(alpha: 0.85),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                     child: ListTile(
                       leading: Icon(Icons.bug_report, color: cs.tertiary),
                       title: Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: cs.tertiary)),
@@ -1392,8 +1422,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔹 מחיקת חשבון (GDPR)
                 Card(
-                  elevation: 1,
-                  color: cs.errorContainer,
+                  elevation: 0,
+                  color: cs.errorContainer.withValues(alpha: 0.85),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                   child: ListTile(
                     leading: Icon(Icons.delete_forever, color: cs.error),
                     title: Text(
