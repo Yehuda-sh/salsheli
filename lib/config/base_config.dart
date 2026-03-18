@@ -31,9 +31,7 @@ mixin ConfigValidation {
       performValidation();
       _validationCache[type] = true;
     } catch (e) {
-      if (kDebugMode) {
-        throw AssertionError('❌ $type validation failed: $e');
-      }
+      throw AssertionError('❌ $type validation failed: $e');
     }
   }
   
