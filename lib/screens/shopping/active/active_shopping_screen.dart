@@ -499,7 +499,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       for (final r in receipts.take(20)) {
         if (r.storeName.isNotEmpty) stores.add(r.storeName);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('ActiveShopping: failed to collect stores — $e');
+    }
     // הסר את שם הרשימה הנוכחית (לא רלוונטי)
     stores.remove(widget.list.name);
     return stores.take(6).toList();
@@ -766,7 +768,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                  Icon(Icons.shopping_cart, size: kIconSizeMedium, color: cs.primary),
                   const SizedBox(width: kSpacingSmall),
                   Flexible(
                     child: Text(
@@ -797,7 +799,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                  Icon(Icons.shopping_cart, size: kIconSizeMedium, color: cs.primary),
                   const SizedBox(width: kSpacingSmall),
                   Flexible(
                     child: Text(
@@ -828,7 +830,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                  Icon(Icons.shopping_cart, size: kIconSizeMedium, color: cs.primary),
                   const SizedBox(width: kSpacingSmall),
                   Flexible(
                     child: Text(
@@ -914,7 +916,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.shopping_cart, size: 24, color: cs.primary),
+                    Icon(Icons.shopping_cart, size: kIconSizeMedium, color: cs.primary),
                     const SizedBox(width: kSpacingSmall),
                     Flexible(
                       child: Text(
@@ -968,7 +970,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 IconButton(
                   onPressed: _scanBarcode,
                   tooltip: AppStrings.shopping.scanBarcode,
-                  icon: Icon(Icons.qr_code_scanner, size: 22, color: cs.primary),
+                  icon: Icon(Icons.qr_code_scanner, size: kIconSizeMedium, color: cs.primary),
                 ),
               // ⚠️ אינדיקציה לבעיית סנכרון - לחיץ לניסיון חוזר
               if (_hasSyncError)
@@ -981,7 +983,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     backgroundColor: cs.error,
                     child: const Icon(
                       Icons.cloud_off,
-                      size: 22,
+                      size: kIconSizeMedium,
                     ),
                   ),
                 ),
@@ -994,20 +996,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     style: TextButton.styleFrom(
                       backgroundColor: kStickyGreen.withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
                       foregroundColor: _hasUserInteracted ? kStickyGreen : kStickyGreen.withValues(alpha: 0.4),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                     ),
-                    icon: const Icon(Icons.check, size: 18),
+                    icon: const Icon(Icons.check, size: kIconSizeSmall + 2),
                     label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                 )
               else
                 const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+                  padding: const EdgeInsets.all(kSpacingSmallPlus),
+                  child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
             ],
           ),
@@ -1029,7 +1031,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                         child: SizedBox(
-                          height: 6,
+                          height: kProgressIndicatorHeight,
                           child: Row(
                             children: [
                               if (purchased > 0)
@@ -1056,29 +1058,29 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: kSpacingXTiny),
                       // סטטיסטיקות + מקרא בשורה אחת קומפקטית
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle, color: kStickyGreen, size: 14),
-                          SizedBox(width: 2),
+                          Icon(Icons.check_circle, color: kStickyGreen, size: kFontSizeMedium),
+                          const SizedBox(width: 2),
                           Text('$purchased/$total', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
-                            SizedBox(width: 10),
-                            Icon(Icons.remove_shopping_cart, color: cs.error, size: 14),
-                            SizedBox(width: 2),
+                            const SizedBox(width: kSpacingSmallPlus - 2),
+                            Icon(Icons.remove_shopping_cart, color: cs.error, size: kFontSizeMedium),
+                            const SizedBox(width: 2),
                             Text('$outOfStock', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                           ],
                           if (notNeeded > 0) ...[
-                            SizedBox(width: 10),
-                            Icon(Icons.block, color: cs.onSurfaceVariant, size: 14),
-                            SizedBox(width: 2),
+                            const SizedBox(width: kSpacingSmallPlus - 2),
+                            Icon(Icons.block, color: cs.onSurfaceVariant, size: kFontSizeMedium),
+                            const SizedBox(width: 2),
                             Text('$notNeeded', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant)),
                           ],
-                          SizedBox(width: 10),
-                          Icon(Icons.shopping_cart, color: cs.primary, size: 14),
-                          SizedBox(width: 2),
+                          const SizedBox(width: kSpacingSmallPlus - 2),
+                          Icon(Icons.shopping_cart, color: cs.primary, size: kFontSizeMedium),
+                          const SizedBox(width: 2),
                           Text('${total - completed}', style: TextStyle(fontSize: kFontSizeSmall, color: cs.primary, fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -1168,7 +1170,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   duration: kAnimationDurationShort,
                                   child: Icon(
                                     Icons.expand_more,
-                                    size: 24,
+                                    size: kIconSizeMedium,
                                     color: cs.primary,
                                   ),
                                 ),
