@@ -210,7 +210,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
     return result ?? false;
   }
 
-  void _handleCancel() async {
+  Future<void> _handleCancel() async {
     if (await _confirmExit()) {
       unawaited(HapticFeedback.lightImpact());
       if (mounted) Navigator.pop(context);
@@ -297,10 +297,18 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
       );
     }
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(kSpacingMedium),
-      child: StickyNote(
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final nav = Navigator.of(context);
+        final shouldExit = await _confirmExit();
+        if (shouldExit && mounted) nav.pop();
+      },
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(kSpacingMedium),
+        child: StickyNote(
         color: stickyColor,
         rotation: -0.01,
         padding: 0,
@@ -384,19 +392,10 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
 
                   // ⚡ עדיפות — Dropdown עם אימוג'י
                   DropdownButtonFormField<String>(
-                    value: _selectedPriority,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.listDetails.priorityLabel,
-                      prefixIcon: const Icon(Icons.flag_outlined),
-                      border: defaultBorder,
-                      enabledBorder: defaultBorder,
-                      focusedBorder: focusedBorder,
-                      filled: true,
-                      fillColor: inputFillColor,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingSmall,
-                        vertical: kSpacingSmallPlus,
-                      ),
+                    initialValue: _selectedPriority,
+                    decoration: fieldDecoration(
+                      label: AppStrings.listDetails.priorityLabel,
+                      icon: Icons.flag_outlined,
                     ),
                     icon: Icon(
                       Icons.expand_more,
@@ -474,6 +473,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
               ),
             ),
           ),
+          ),
         ),
       ),
     );
@@ -526,19 +526,21 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                   ),
                 ),
                 if (hasDate)
-                  GestureDetector(
-                    onTap: () {
+                  IconButton(
+                    onPressed: () {
                       unawaited(HapticFeedback.selectionClick());
                       setState(() {
                         _selectedDueDate = null;
                         _hasChanges = true;
                       });
                     },
-                    child: Icon(
+                    icon: Icon(
                       Icons.close,
                       size: kIconSizeSmall,
                       color: cs.onSurfaceVariant,
                     ),
+                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    padding: EdgeInsets.zero,
                   ),
               ],
             ),
