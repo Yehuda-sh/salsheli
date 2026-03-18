@@ -127,12 +127,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         activeColor: brand?.accent ?? cs.primary,
                         inactiveColor: cs.outlineVariant,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: kSpacingXTiny),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.swipe, size: 14, color: cs.onSurface.withValues(alpha: 0.3)),
-                          const SizedBox(width: 4),
+                          Icon(Icons.swipe, size: kFontSizeMedium, color: cs.onSurface.withValues(alpha: 0.3)),
+                          const SizedBox(width: kSpacingXTiny),
                           Text(
                             AppStrings.welcome.moreGroupsHint,
                             style: theme.textTheme.bodySmall?.copyWith(
@@ -317,10 +317,10 @@ class _StickyBottomBar extends StatelessWidget {
               // כפתור התחברות
               SizedBox(
                 width: double.infinity,
-                height: kButtonHeight - 4,
+                height: kButtonHeight - kSpacingXTiny,
                 child: OutlinedButton.icon(
                   onPressed: onLogin,
-                  icon: Icon(Icons.login_rounded, size: 18),
+                  icon: const Icon(Icons.login_rounded, size: kIconSizeSmall + 2),
                   label: Text(
                     AppStrings.welcome.loginLink,
                     style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.w600),
@@ -344,7 +344,7 @@ class _StickyBottomBar extends StatelessWidget {
                   TextButton(
                     onPressed: onTerms,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
                       minimumSize: const Size(44, 44),
                     ),
                     child: Text(
@@ -362,7 +362,7 @@ class _StickyBottomBar extends StatelessWidget {
                   TextButton(
                     onPressed: onPrivacy,
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
                       minimumSize: const Size(44, 44),
                     ),
                     child: Text(
@@ -409,7 +409,7 @@ class _DotIndicator extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOut,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
           width: isActive ? 28 : 10,
           height: 10,
           decoration: BoxDecoration(
@@ -661,6 +661,7 @@ class _MiniShoppingList extends StatefulWidget {
 class _MiniShoppingListState extends State<_MiniShoppingList> {
   final List<bool> _checked = [false, false, false];
   Timer? _animTimer;
+  Timer? _secondAnimTimer;
 
   @override
   void initState() {
@@ -669,7 +670,7 @@ class _MiniShoppingListState extends State<_MiniShoppingList> {
     _animTimer = Timer(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       setState(() => _checked[0] = true);
-      Future.delayed(const Duration(milliseconds: 700), () {
+      _secondAnimTimer = Timer(const Duration(milliseconds: 700), () {
         if (!mounted) return;
         setState(() => _checked[1] = true);
       });
@@ -679,6 +680,7 @@ class _MiniShoppingListState extends State<_MiniShoppingList> {
   @override
   void dispose() {
     _animTimer?.cancel();
+    _secondAnimTimer?.cancel();
     super.dispose();
   }
 
@@ -705,14 +707,20 @@ class _MiniPantry extends StatefulWidget {
 
 class _MiniPantryState extends State<_MiniPantry> {
   bool _showWarning = false;
+  Timer? _animTimer;
 
   @override
   void initState() {
     super.initState();
-    // Show the warning icon after a delay
-    Future.delayed(const Duration(milliseconds: 1200), () {
+    _animTimer = Timer(const Duration(milliseconds: 1200), () {
       if (mounted) setState(() => _showWarning = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _animTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -742,14 +750,20 @@ class _MiniSharing extends StatefulWidget {
 
 class _MiniSharingState extends State<_MiniSharing> {
   bool _thirdOnline = false;
+  Timer? _animTimer;
 
   @override
   void initState() {
     super.initState();
-    // Third user "comes online" after delay
-    Future.delayed(const Duration(milliseconds: 1500), () {
+    _animTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted) setState(() => _thirdOnline = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _animTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -780,17 +794,17 @@ class _MiniListItemWithQty extends StatelessWidget {
     final successColor = brand?.success ?? cs.primary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
       child: Row(
         children: [
           Icon(
             checked ? Icons.check_box : Icons.check_box_outline_blank,
-            size: 18,
+            size: kIconSizeSmall + 2,
             color: checked ? successColor : cs.onSurfaceVariant,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny, vertical: 1),
             decoration: BoxDecoration(
               color: cs.onSurfaceVariant.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -800,7 +814,7 @@ class _MiniListItemWithQty extends StatelessWidget {
               style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onSurfaceVariant, height: 1.2),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Text(
               text,
@@ -834,20 +848,20 @@ class _MiniPantryItem extends StatelessWidget {
     final successColor = brand?.success ?? cs.primary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
       child: Row(
         children: [
           Icon(
             isLow ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-            size: 18,
+            size: kIconSizeSmall + 2,
             color: isLow ? warningColor : successColor,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Text(text, style: TextStyle(fontSize: kFontSizeBody, height: 1.3, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny + 1, vertical: 2),
             decoration: BoxDecoration(
               color: isLow ? warningColor.withValues(alpha: 0.15) : cs.onSurfaceVariant.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -883,7 +897,7 @@ class _MiniShareUser extends StatelessWidget {
     final bgColor = avatarColor ?? cs.primaryContainer;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
       child: Row(
         children: [
           Container(
@@ -907,7 +921,7 @@ class _MiniShareUser extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Text(name, style: TextStyle(fontSize: kFontSizeBody, height: 1.3, color: cs.onSurface.withValues(alpha: 0.87))),
           ),
@@ -919,7 +933,7 @@ class _MiniShareUser extends StatelessWidget {
               color: isOnline ? successColor : cs.onSurfaceVariant.withValues(alpha: 0.3),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Text(
             isOnline ? AppStrings.welcome.statusOnline : AppStrings.welcome.statusOffline,
             style: TextStyle(fontSize: kFontSizeTiny, height: 1.2, color: cs.onSurfaceVariant),
