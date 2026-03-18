@@ -216,7 +216,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     return result ?? false;
   }
 
-  void _handleCancel() async {
+  Future<void> _handleCancel() async {
     if (await _confirmExit()) {
       unawaited(HapticFeedback.lightImpact());
       if (mounted) Navigator.pop(context);
@@ -323,10 +323,18 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
       );
     }
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(kSpacingMedium),
-      child: StickyNote(
+    return PopScope(
+      canPop: !_hasChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final nav = Navigator.of(context);
+        final shouldExit = await _confirmExit();
+        if (shouldExit && mounted) nav.pop();
+      },
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(kSpacingMedium),
+        child: StickyNote(
         color: stickyColor,
         rotation: 0.01,
         padding: 0,
@@ -402,7 +410,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   // 🏷️ קטגוריה — Glassmorphic Dropdown
                   if (widget.categories.isNotEmpty) ...[
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.categoryLabel,
                         icon: Icons.category_outlined,
@@ -535,6 +543,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
               ),
             ),
           ),
+        ),
         ),
       ),
     );
