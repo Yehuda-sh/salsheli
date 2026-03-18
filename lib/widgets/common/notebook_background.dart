@@ -1,12 +1,8 @@
 // 📄 lib/widgets/common/notebook_background.dart
 //
 // רקע מחברת עם קווים - CustomPaint יעיל.
-//
-// ✅ פרמטרים חדשים:
-//    - lineOpacity: עוצמת הקווים (ברירת מחדל: kNotebookLineOpacity)
-//    - lineColor: צבע קווים מותאם (ברירת מחדל: מ-AppBrand)
-//    - showRedLine: הצגת קו אדום (ברירת מחדל: true)
-//    - fadeEdges: fade עדין למעלה ולמטה (ברירת מחדל: false)
+// Constructors: NotebookBackground() — קלאסי, NotebookBackground.subtle() — עדין (Auth)
+// RTL-aware, Dark Mode, Theme-aware (AppBrand), fadeEdges אופציונלי.
 //
 // 🔗 Related: ui_constants.dart, app_theme.dart (AppBrand)
 
