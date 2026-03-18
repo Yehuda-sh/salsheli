@@ -141,7 +141,7 @@ class UserEntity {
 
   /// 🇮🇱 רשימת מוצרים מועדפים (barcodes)
   /// 🇬🇧 List of favorite products (barcodes)
-  @JsonKey(name: 'favorite_products')
+  @JsonKey(name: 'favorite_products', defaultValue: <String>[])
   final List<String> favoriteProducts;
 
   /// 🇮🇱 תקציב שבועי מתוכנן (₪)
@@ -153,17 +153,17 @@ class UserEntity {
 
   /// 🇮🇱 האם מנהל משק הבית
   /// 🇬🇧 Is household admin
-  @JsonKey(name: 'is_admin')
+  @JsonKey(name: 'is_admin', defaultValue: false)
   final bool isAdmin;
 
   /// 🇮🇱 האם עבר את תהליך ה-Onboarding
   /// 🇬🇧 Whether completed onboarding process
-  @JsonKey(name: 'seen_onboarding')
+  @JsonKey(name: 'seen_onboarding', defaultValue: false)
   final bool seenOnboarding;
 
   /// 🇮🇱 האם ראה את הדרכת הבית
   /// 🇬🇧 Whether seen home tutorial
-  @JsonKey(name: 'seen_tutorial')
+  @JsonKey(name: 'seen_tutorial', defaultValue: false)
   final bool seenTutorial;
 
   const UserEntity({
@@ -262,7 +262,7 @@ class UserEntity {
 
   /// 🇮🇱 המרת רשימה מ-JSON
   /// 🇬🇧 Convert list from JSON
-  /// 🔧 תומך ב-Map<dynamic,dynamic> (Firestore) וגם Map<String,dynamic>
+  /// 🔧 תומך ב-`Map<dynamic,dynamic>` (Firestore) וגם `Map<String,dynamic>`
   static List<UserEntity> listFromJson(List<dynamic>? arr) => (arr ?? [])
       .whereType<Map>()
       .map((m) => UserEntity.fromJson(Map<String, dynamic>.from(m)))
