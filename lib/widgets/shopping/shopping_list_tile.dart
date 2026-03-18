@@ -94,31 +94,30 @@ class ShoppingListTile extends StatelessWidget {
               onTap: onPressed,
               haptic: ButtonHaptic.medium, // CTA haptic
               child: Container(
+                constraints: const BoxConstraints(minHeight: 44),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(kBorderRadius),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: kSpacingMedium,
-                    vertical: kSpacingSmallPlus,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
-                      const Gap(kSpacingSmall),
-                      Text(
-                        label,
-                        style: TextStyle(
-                          fontSize: kFontSizeBody,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.primary,
-                        ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingMedium,
+                  vertical: kSpacingSmall,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: theme.colorScheme.primary, size: kIconSizeMedium),
+                    const Gap(kSpacingSmall),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: kFontSizeBody,
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -151,6 +150,7 @@ class ShoppingListTile extends StatelessWidget {
 
   /// פס התקדמות אורגני - קצוות מעוגלים, 6px, ירוק ב-100%
   Widget _buildOrganicProgress(BuildContext context, ThemeData theme) {
+    if (list.items.isEmpty) return const SizedBox.shrink();
     final progress = list.items.where((item) => item.isChecked).length / list.items.length;
     final isComplete = progress >= 1.0;
 
@@ -160,7 +160,7 @@ class ShoppingListTile extends StatelessWidget {
         : theme.colorScheme.primary;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall / 2),
       child: LinearProgressIndicator(
         value: progress,
         minHeight: kProgressIndicatorHeight,
@@ -273,12 +273,12 @@ class ShoppingListTile extends StatelessWidget {
             children: [
               // 🎨 Colored side strip — לפי סוג רשימה
               Container(
-                width: 5,
+                width: kSpacingTiny,
                 decoration: BoxDecoration(
                   color: stickyColor,
-                  borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(kBorderRadius),
-                  ),
+                  borderRadius: const BorderRadiusDirectional.horizontal(
+                    end: Radius.circular(kBorderRadius),
+                  ).resolve(Directionality.of(context)),
                 ),
               ),
               // 📋 Card content
@@ -303,8 +303,8 @@ class ShoppingListTile extends StatelessWidget {
                     vertical: kSpacingSmallPlus,
                   ),
                   leading: Container(
-                    width: 40,
-                    height: 40,
+                    width: kIconSizeLarge + kSpacingXTiny,
+                    height: kIconSizeLarge + kSpacingXTiny,
                     decoration: BoxDecoration(
                       color: stickyColor.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -371,7 +371,7 @@ class ShoppingListTile extends StatelessWidget {
                             label: AppStrings.shopping.editListButton,
                             child: Row(
                               children: [
-                                const Icon(Icons.edit, size: 20),
+                                const Icon(Icons.edit, size: kIconSizeMedium),
                                 const Gap(kSpacingSmall),
                                 Text(AppStrings.shopping.editListButton),
                               ],
@@ -384,7 +384,7 @@ class ShoppingListTile extends StatelessWidget {
                             label: AppStrings.shopping.deleteListButton,
                             child: Row(
                               children: [
-                                Icon(Icons.delete, size: 20, color: deleteColor),
+                                Icon(Icons.delete, size: kIconSizeMedium, color: deleteColor),
                                 const Gap(kSpacingSmall),
                                 Text(
                                   AppStrings.shopping.deleteListButton,
