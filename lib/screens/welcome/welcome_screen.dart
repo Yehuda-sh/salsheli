@@ -95,7 +95,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           const NotebookBackground.subtle(),
 
-          // === Content ===
+          // === Content — single Column, no overlap ===
           SafeArea(
             bottom: false,
             child: Column(
@@ -132,34 +132,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
 
                 // === Dots ===
-                Padding(
-                  padding: const EdgeInsets.only(bottom: kSpacingSmall),
-                  child: _DotIndicator(
-                    count: 3,
-                    current: _currentPage,
-                    activeColor: cs.primary,
-                    inactiveColor: cs.outlineVariant,
-                  ),
+                _DotIndicator(
+                  count: 3,
+                  current: _currentPage,
+                  activeColor: cs.primary,
+                  inactiveColor: cs.outlineVariant,
                 ),
+                const SizedBox(height: kSpacingSmall),
+
+                // === Bottom Section: Benefits + CTA + Legal ===
+                _BottomSection(
+                  bottomPadding: bottomPadding,
+                  onRegister: _handleRegister,
+                  onLogin: _handleLogin,
+                  onTerms: () => _handleLegalLink(() => showTermsOfServiceDialog(context)),
+                  onPrivacy: () => _handleLegalLink(() => showPrivacyPolicyDialog(context)),
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 300.ms)
+                    .slideY(begin: 0.15, duration: 400.ms, delay: 300.ms),
               ],
             ),
-          ),
-
-          // === Bottom Section: Benefits + CTA + Legal (unified) ===
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _BottomSection(
-              bottomPadding: bottomPadding,
-              onRegister: _handleRegister,
-              onLogin: _handleLogin,
-              onTerms: () => _handleLegalLink(() => showTermsOfServiceDialog(context)),
-              onPrivacy: () => _handleLegalLink(() => showPrivacyPolicyDialog(context)),
-            )
-                .animate()
-                .fadeIn(duration: 400.ms, delay: 300.ms)
-                .slideY(begin: 0.15, duration: 400.ms, delay: 300.ms),
           ),
         ],
       ),
