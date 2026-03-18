@@ -6,6 +6,8 @@
 // Version: 6.0 - Clean UI with menu
 // Updated: 01/01/2026
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -109,7 +111,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'shopping_lists_add_btn',
         onPressed: () {
-          HapticFeedback.mediumImpact();
+          unawaited(HapticFeedback.mediumImpact());
           Navigator.pushNamed(context, '/create-list');
         },
         backgroundColor: kStickyYellow,
@@ -167,7 +169,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ],
             onSelected: _handleMenuAction,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
               decoration: BoxDecoration(
                 color: _hasActiveFilters
                     ? cs.primaryContainer
@@ -182,10 +184,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 children: [
                   Icon(
                     Icons.tune,
-                    size: 18,
+                    size: kIconSizeSmall + 2,
                     color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
                   ),
-                  SizedBox(width: 6),
+                  const SizedBox(width: kSpacingTiny),
                   Text(
                     _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
                     style: TextStyle(
@@ -196,10 +198,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   ),
                   // Badge נקודה כשיש סינון
                   if (_hasActiveFilters) ...[
-                    SizedBox(width: 4),
+                    const SizedBox(width: kSpacingXTiny),
                     Container(
-                      width: 8,
-                      height: 8,
+                      width: kSpacingSmall,
+                      height: kSpacingSmall,
                       decoration: BoxDecoration(
                         color: cs.primary,
                         shape: BoxShape.circle,
@@ -235,7 +237,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       value: value,
       child: Row(
         children: [
-          Icon(icon, size: 20, color: color),
+          Icon(icon, size: kIconSizeMedium, color: color),
           const SizedBox(width: kSpacingMedium),
           Expanded(
             child: Column(
@@ -261,7 +263,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
           ),
           if (isActive)
-            Icon(Icons.check_circle, size: 18, color: cs.primary),
+            Icon(Icons.check_circle, size: kIconSizeSmall + 2, color: cs.primary),
         ],
       ),
     );
@@ -269,7 +271,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// טיפול בבחירה מהתפריט
   void _handleMenuAction(String action) {
-    HapticFeedback.selectionClick();
+    unawaited(HapticFeedback.selectionClick());
 
     switch (action) {
       case 'search':
@@ -312,7 +314,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               // כותרת
               Row(
                 children: [
-                  const Icon(Icons.search, size: 24),
+                  const Icon(Icons.search, size: kIconSizeMedium),
                   const SizedBox(width: kSpacingSmall),
                   Text(
                     AppStrings.shopping.searchListTitle,
@@ -406,7 +408,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             // כותרת
             Row(
               children: [
-                const Icon(Icons.filter_list, size: 24),
+                const Icon(Icons.filter_list, size: kIconSizeMedium),
                 const SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.shopping.filterByTypeTitle,
@@ -449,7 +451,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       ),
       selected: isSelected,
       onSelected: (selected) {
-        HapticFeedback.selectionClick();
+        unawaited(HapticFeedback.selectionClick());
         setState(() {
           _selectedType = key;
           _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
@@ -479,7 +481,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             // כותרת
             Row(
               children: [
-                const Icon(Icons.sort, size: 24),
+                const Icon(Icons.sort, size: kIconSizeMedium),
                 const SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.shopping.sortTitle,
@@ -527,7 +529,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       ),
       onTap: () {
-        HapticFeedback.selectionClick();
+        unawaited(HapticFeedback.selectionClick());
         setState(() {
           _sortBy = value;
           _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
@@ -539,7 +541,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// 🧹 ניקוי כל הסינונים
   void _clearAllFilters() {
-    HapticFeedback.lightImpact();
+    unawaited(HapticFeedback.lightImpact());
     setState(() {
       _searchQuery = '';
       _selectedType = 'all';
@@ -562,7 +564,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       child: Row(
         children: [
           // אייקון סינון
-          Icon(Icons.filter_alt, size: 16, color: cs.primary),
+          Icon(Icons.filter_alt, size: kIconSizeSmall, color: cs.primary),
           const SizedBox(width: kSpacingSmall),
 
           // תגיות סינון (לחיצות לפתיחת Sheet)
@@ -582,12 +584,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
           // כפתור ניקוי
           IconButton(
-            icon: const Icon(Icons.close, size: 18),
+            icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
             onPressed: _clearAllFilters,
             tooltip: AppStrings.shopping.clearFilterLabel,
             visualDensity: VisualDensity.compact,
             padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
         ],
       ),
@@ -600,7 +602,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
         decoration: BoxDecoration(
           color: cs.surface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -610,11 +612,11 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           children: [
             Text(
               label,
-              style: TextStyle(fontSize: kFontSizeSmall),
+              style: const TextStyle(fontSize: kFontSizeSmall),
             ),
             if (onTap != null) ...[
-              SizedBox(width: 2),
-              Icon(Icons.edit, size: 10, color: cs.onSurface.withValues(alpha: 0.45)),
+              const SizedBox(width: 2),
+              Icon(Icons.edit, size: kFontSizeTiny, color: cs.onSurface.withValues(alpha: 0.45)),
             ],
           ],
         ),
@@ -785,7 +787,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 icon: Icons.expand_more,
                 onPressed: () {
                   // ✨ Haptic feedback למשוב מישוש
-                  HapticFeedback.selectionClick();
+                  unawaited(HapticFeedback.selectionClick());
 
                   setState(() {
                     _previousHistoryLimit = _currentHistoryLimit;
@@ -834,7 +836,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
           // הערה קטנה (למשל: "לפי עדכון אחרון")
           if (subtitle != null) ...[
-            SizedBox(width: kSpacingTiny),
+            const SizedBox(width: kSpacingTiny),
             Text(
               subtitle,
               style: TextStyle(
@@ -843,7 +845,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               ),
             ),
           ],
-          SizedBox(width: kSpacingSmall),
+          const SizedBox(width: kSpacingSmall),
           // מונה פריטים
           Container(
             padding: const EdgeInsets.symmetric(
@@ -961,7 +963,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           children: [
             TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               curve: Curves.elasticOut,
               builder: (context, value, child) {
                 return Transform.scale(
@@ -974,12 +976,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 );
               },
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             Text(
               AppStrings.shopping.loadingListsError,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               provider.errorMessage ?? AppStrings.shopping.somethingWentWrong,
               style: TextStyle(color: cs.error),
@@ -993,7 +995,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               onPressed: () {
 
                 // ✨ Haptic feedback למשוב מישוש
-                HapticFeedback.lightImpact();
+                unawaited(HapticFeedback.lightImpact());
 
                 provider.loadLists();
               },
@@ -1045,12 +1047,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 );
               },
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             Text(
               AppStrings.shopping.noListsFoundTitle,
-              style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(AppStrings.shopping.noListsFoundSubtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(
@@ -1147,7 +1149,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               onPressed: () {
 
                 // ✨ Haptic feedback למשוב מישוש
-                HapticFeedback.mediumImpact();
+                unawaited(HapticFeedback.mediumImpact());
 
                 Navigator.pushNamed(context, '/create-list');
               },
