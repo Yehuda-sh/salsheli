@@ -142,8 +142,8 @@ class StorageLocations {
     ),
     other: LocationInfo(
       id: other,
-      emoji: '📦',
-      icon: Icons.inventory_2,
+      emoji: '📍',
+      icon: Icons.more_horiz,
     ),
   };
 }
