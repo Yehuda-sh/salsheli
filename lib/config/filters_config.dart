@@ -52,11 +52,13 @@ class FiltersConfig with ConfigValidation {
 
   /// Check if category exists
   static bool isValidCategory(String key) {
+    _instance.ensureValid();
     return CategoriesData.data.containsKey(key);
   }
 
   /// Get all category keys in UI order
   static List<String> getAllCategories() {
+    _instance.ensureValid();
     return CategoriesData.order;
   }
 
