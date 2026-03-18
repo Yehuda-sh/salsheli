@@ -40,6 +40,14 @@ Object? _readUserId(Map<dynamic, dynamic> json, String key) =>
 Object? _readJoinedAt(Map<dynamic, dynamic> json, String key) =>
     json['joined_at'] ?? json['joinedAt'];
 
+/// קורא is_starter או isStarter (תאימות לאחור)
+Object? _readIsStarter(Map<dynamic, dynamic> json, String key) =>
+    json['is_starter'] ?? json['isStarter'];
+
+/// קורא is_active או isActive (תאימות לאחור)
+Object? _readIsActive(Map<dynamic, dynamic> json, String key) =>
+    json['is_active'] ?? json['isActive'];
+
 /// 🇮🇱 קונה פעיל בקנייה משותפת
 /// 🇬🇧 Active shopper in collaborative shopping
 @immutable
@@ -60,12 +68,12 @@ class ActiveShopper {
 
   /// 🇮🇱 האם זה האדם שהתחיל את הקנייה (הראשון)
   /// 🇬🇧 Is this the person who started the shopping (first one)
-  @JsonKey(name: 'is_starter', defaultValue: false)
+  @JsonKey(name: 'is_starter', readValue: _readIsStarter, defaultValue: false)
   final bool isStarter;
 
   /// 🇮🇱 האם עדיין פעיל (או שעזב)
   /// 🇬🇧 Is still active (or left)
-  @JsonKey(name: 'is_active', defaultValue: true)
+  @JsonKey(name: 'is_active', readValue: _readIsActive, defaultValue: true)
   final bool isActive;
 
   // ---- Helper Getters ----
