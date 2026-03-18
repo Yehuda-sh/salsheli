@@ -75,9 +75,9 @@ class _LegalContentDialog extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Dialog(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
+          constraints: BoxConstraints(
             maxWidth: 500,
-            maxHeight: 600,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -151,7 +151,8 @@ class _LegalContentDialog extends StatelessWidget {
 }
 
 // ============================================================
-// תוכן משפטי (placeholder - יש להחליף בתוכן אמיתי)
+// תוכן משפטי
+// TODO(i18n): להעביר ל-AppStrings כשמוסיפים תרגום לאנגלית
 // ============================================================
 
 const String _termsOfServiceContent = '''
