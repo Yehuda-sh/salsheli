@@ -104,8 +104,8 @@ class TappableCard extends StatefulWidget {
     this.haptic = ButtonHaptic.selection,
     this.curve = Curves.easeInOut,
     this.animateElevation = true,
-    this.initialElevation = 2,
-    this.pressedElevation = 0, // ✅ Goes DOWN for consistent "pressed" feel
+    this.initialElevation = 0, // ✅ Matches CardTheme default (semi-transparent)
+    this.pressedElevation = 0,
     this.animateScale = true,
     this.tooltip,
     this.semanticLabel,

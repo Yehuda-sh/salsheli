@@ -16,7 +16,7 @@
 //
 // 🎬 Animations (v3.0):
 // - AnimatedCounter על סטטיסטיקות (0 → value)
-// - SimpleTappableCard על כרטיסי סטטיסטיקות (scale + haptic)
+// - TappableCard על כרטיסי סטטיסטיקות (scale + haptic)
 // - Skeleton Screen ל-Loading State
 //
 // 🔗 תלויות:

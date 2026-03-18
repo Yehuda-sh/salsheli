@@ -87,21 +87,12 @@ class ShoppingListTile extends StatelessWidget {
             ),
           ),
         ),
-        Tooltip(
-          message: label,
-          child: Semantics(
-            label: label,
-            button: true,
-            child: TappableCard(
+        TappableCard(
+              tooltip: label,
+              semanticLabel: label,
               animateElevation: false,
-              onTap: onPressed != null
-                  ? () {
-                      // 📳 Haptic: mediumImpact לכפתור CTA
-                      unawaited(HapticFeedback.mediumImpact());
-                      onPressed();
-                    }
-                  : null,
-              haptic: ButtonHaptic.none, // Handled manually above
+              onTap: onPressed,
+              haptic: ButtonHaptic.medium, // CTA haptic
               child: Container(
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(
@@ -131,8 +122,6 @@ class ShoppingListTile extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ),
       ],
     );
   }
