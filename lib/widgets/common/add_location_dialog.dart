@@ -3,6 +3,7 @@
 // 🎯 דיאלוג משותף להוספת מיקום אחסון חדש
 // משמש ב: my_pantry_screen, pantry_product_selection_sheet
 
+import 'dart:async' show unawaited;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -36,18 +37,18 @@ const kLocationEmojis = [
 /// מציג דיאלוג להוספת מיקום חדש.
 /// מחזיר את ה-key של המיקום החדש, או null אם בוטל.
 Future<String?> showAddLocationDialog(BuildContext context) async {
-  final cs = Theme.of(context).colorScheme;
   final controller = TextEditingController();
   String selectedEmoji = kLocationEmojis.first;
 
   final result = await showDialog<String>(
     context: context,
-    barrierColor: cs.scrim.withValues(alpha: 0.3),
+    barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.3),
     builder: (dialogContext) {
       return BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
         child: StatefulBuilder(
           builder: (ctx, setDialogState) {
+            final cs = Theme.of(ctx).colorScheme;
             return Directionality(
               textDirection: TextDirection.rtl,
               child: AlertDialog(
@@ -66,7 +67,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                         final isSelected = emoji == selectedEmoji;
                         return GestureDetector(
                           onTap: () {
-                            HapticFeedback.selectionClick();
+                            unawaited(HapticFeedback.selectionClick());
                             setDialogState(() => selectedEmoji = emoji);
                           },
                           child: Container(
