@@ -1378,6 +1378,9 @@ class SharingStrings {
   String get onlyOwnerCanChangePermissions => 'רק הבעלים יכול לשנות הרשאות';
   String get mustBeOwnerOrAdmin => 'חייבים להיות בעלים או מנהל לביצוע פעולה זו';
   String get requestCreated => 'הבקשה נשלחה לאישור הבעלים/מנהלים';
+  String editorRequestsMixed(int approved, int rejected) => '✅ $approved בקשות אושרו | ❌ $rejected נדחו';
+  String editorRequestsApproved(int count) => '✅ $count מהבקשות שלך אושרו!';
+  String editorRequestsRejected(int count) => '❌ $count מהבקשות שלך נדחו';
   String get requestWaitingApproval => 'הפריט ימתין לאישור לפני שיופיע ברשימה';
   String get notificationInviteTitle => 'הזמנה לרשימה משותפת';
   String notificationInviteBody(String listName, String inviterName) => '$inviterName הזמין אותך לרשימה "$listName"';

@@ -142,7 +142,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           requestData: {
             'name': name,
             'quantity': quantity,
-            'unit': "יח'",
+            'unit': AppStrings.pantry.unitAbbreviation,
             'category': category,
             'type': 'product',
           },
@@ -164,7 +164,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           currentList.id,
           name,
           quantity,
-          "יח'",
+          AppStrings.pantry.unitAbbreviation,
           category: category,
         );
 
@@ -359,11 +359,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
       String message;
       if (approved > 0 && rejected > 0) {
-        message = '✅ $approved בקשות אושרו | ❌ $rejected נדחו';
+        message = AppStrings.sharing.editorRequestsMixed(approved, rejected);
       } else if (approved > 0) {
-        message = '✅ $approved מהבקשות שלך אושרו!';
+        message = AppStrings.sharing.editorRequestsApproved(approved);
       } else {
-        message = '❌ $rejected מהבקשות שלך נדחו';
+        message = AppStrings.sharing.editorRequestsRejected(rejected);
       }
 
       await Future.delayed(const Duration(milliseconds: 500));
@@ -553,7 +553,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           onPressed: () => _handleAddTask(currentList),
                           child: Icon(Icons.assignment_add, color: cs.onSurface),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: kSpacingSmallPlus),
                         // מוצר מהקטלוג (גדול)
                         FloatingActionButton(
                           heroTag: 'add_product_btn',
@@ -564,7 +564,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                             unawaited(HapticFeedback.lightImpact());
                             _navigateToPopulateScreen(currentList);
                           },
-                          child: Icon(Icons.add_shopping_cart, size: 28, color: cs.onSurface),
+                          child: Icon(Icons.add_shopping_cart, size: kIconSizeLarge - kSpacingSmall, color: cs.onSurface),
                         ),
                       ],
                     ),
@@ -598,19 +598,19 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               decoration: InputDecoration(
                 hintText: AppStrings.listDetails.quickSearchHint,
                 hintStyle: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
-                prefixIcon: const Icon(Icons.search, size: 20),
+                prefixIcon: const Icon(Icons.search, size: kIconSizeMedium),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // כפתור הוספה חופשית (טקסט שהוקלד)
                           IconButton(
-                            icon: Icon(Icons.add_circle, color: cs.primary, size: 22),
+                            icon: Icon(Icons.add_circle, color: cs.primary, size: kIconSizeMedium),
                             tooltip: AppStrings.listDetails.addFreeText,
                             onPressed: () => _addFreeTextProduct(_searchController.text, currentList),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const Icon(Icons.clear, size: kIconSizeSmall + 2),
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
@@ -620,7 +620,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       )
                     : null,
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 isDense: true,
               ),
               onChanged: _onSearchChanged,
@@ -663,13 +663,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 return ListTile(
                   dense: true,
                   visualDensity: VisualDensity.compact,
-                  leading: Text(emoji, style: const TextStyle(fontSize: 20)),
+                  leading: Text(emoji, style: const TextStyle(fontSize: kFontSizeLarge)),
                   title: Text(name, style: const TextStyle(fontSize: kFontSizeMedium)),
                   subtitle: price != null && price > 0
                       ? Text('₪${price.toStringAsFixed(2)}', style: TextStyle(fontSize: kFontSizeSmall, color: cs.primary))
                       : null,
                   trailing: isInList
-                      ? Icon(Icons.check_circle, color: cs.primary, size: 20)
+                      ? Icon(Icons.check_circle, color: cs.primary, size: kIconSizeMedium)
                       : IconButton(
                           icon: Icon(Icons.add_circle_outline, color: cs.primary),
                           onPressed: () => _quickAddProduct(product, currentList),
@@ -700,7 +700,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
             decoration: BoxDecoration(
               color: cs.primaryContainer.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(kBorderRadius),
@@ -713,7 +713,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           const SizedBox(width: kSpacingSmall),
           if (categoryCount > 1)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
               decoration: BoxDecoration(
                 color: cs.tertiaryContainer.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(kBorderRadius),
@@ -811,9 +811,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       fontSize: kFontSizeBody,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kSpacingSmall),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                     decoration: BoxDecoration(
                       color: cs.surface.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(kBorderRadius),
@@ -859,7 +859,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         color: cs.error.withValues(alpha: 0.7),
         child: Row(children: [
           Icon(Icons.delete_outline, color: cs.onPrimary),
-          const SizedBox(width: 8),
+          const SizedBox(width: kSpacingSmall),
           Text(AppStrings.common.delete, style: TextStyle(color: cs.onPrimary, fontWeight: FontWeight.bold)),
         ]),
       ),
@@ -925,7 +925,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 // כמות
                 if ((item.quantity ?? 1) > 1)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
                     decoration: BoxDecoration(
                       color: cs.primaryContainer,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -945,7 +945,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 ],
                 // עריכה
                 if (canEdit)
-                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant.withValues(alpha: 0.4), size: 20),
+                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant.withValues(alpha: 0.4), size: kIconSizeMedium),
               ],
             ),
           ),

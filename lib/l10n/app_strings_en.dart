@@ -1563,6 +1563,9 @@ class SharingStringsEn extends SharingStrings {
   String get onlyOwnerCanChangePermissions => 'Only the owner can change permissions';
   String get mustBeOwnerOrAdmin => 'Must be an owner or admin to perform this action';
   String get requestCreated => 'Request sent for owner/admin approval';
+  String editorRequestsMixed(int approved, int rejected) => '✅ $approved requests approved | ❌ $rejected rejected';
+  String editorRequestsApproved(int count) => '✅ $count of your requests were approved!';
+  String editorRequestsRejected(int count) => '❌ $count of your requests were rejected';
   String get requestWaitingApproval => 'Item will wait for approval before appearing in the list';
   String get notificationInviteTitle => 'Shared list invitation';
   String notificationInviteBody(String listName, String inviterName) => '$inviterName invited you to list "$listName"';
