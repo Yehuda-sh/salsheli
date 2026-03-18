@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../providers/shopping_lists_provider.dart';
@@ -38,14 +39,16 @@ class PendingRequestsSection extends StatelessWidget {
     if (pendingRequests.isEmpty) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final warningColor = brand?.warning ?? kStickyOrange;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
-        color: kStickyOrange.withValues(alpha: 0.15),
+        color: warningColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: kStickyOrange.withValues(alpha: 0.3)),
+        border: Border.all(color: warningColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -129,9 +132,10 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final successColor = brand?.success ?? kStickyGreen;
     final request = widget.request;
-    final requesterName = request.requesterName ?? 'משתמש';
-    final successColor = kStickyGreen;
+    final requesterName = request.requesterName ?? AppStrings.sharing.unknownUserFallback;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
@@ -205,18 +209,19 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       final notificationsService = context.read<NotificationsService?>();
       final service = PendingRequestsService(listsProvider.repository, userContext);
 
-      final list = listsProvider.lists.firstWhere((l) => l.id == widget.listId);
+      final list = listsProvider.lists.where((l) => l.id == widget.listId).firstOrNull;
+      if (list == null) throw Exception('List not found');
 
       await service.approveRequest(
         list: list,
         requestId: widget.request.id,
-        approverName: userContext.displayName ?? 'משתמש',
+        approverName: userContext.displayName ?? AppStrings.sharing.unknownUserFallback,
         notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
       );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ הבקשה אושרה'), backgroundColor: kStickyGreen),
+        SnackBar(content: Text(AppStrings.sharing.requestApprovedSuccess)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -239,18 +244,19 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       final notificationsService = context.read<NotificationsService?>();
       final service = PendingRequestsService(listsProvider.repository, userContext);
 
-      final list = listsProvider.lists.firstWhere((l) => l.id == widget.listId);
+      final list = listsProvider.lists.where((l) => l.id == widget.listId).firstOrNull;
+      if (list == null) throw Exception('List not found');
 
       await service.rejectRequest(
         list: list,
         requestId: widget.request.id,
-        rejecterName: userContext.displayName ?? 'משתמש',
+        rejecterName: userContext.displayName ?? AppStrings.sharing.unknownUserFallback,
         notificationsService: notificationsService ?? NotificationsService(FirebaseFirestore.instance),
       );
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: const Text('❌ הבקשה נדחתה'), backgroundColor: Theme.of(context).colorScheme.error),
+        SnackBar(content: Text(AppStrings.sharing.requestRejectedSuccess), backgroundColor: Theme.of(context).colorScheme.error),
       );
     } catch (e) {
       if (!mounted) return;
