@@ -1,29 +1,32 @@
-# סקריפטים
+# Scripts
 
-## `demo_data_cohen_family.dart`
-יצירת נתוני דמו למשפחת כהן ב-Firebase Emulator.
-
-```bash
-dart run scripts/demo_data_cohen_family.dart           # יוצר נתונים
-dart run scripts/demo_data_cohen_family.dart --clean   # מוחק ויוצר מחדש
-```
-
-## `update_products.dart`
-עדכון מוצרים ומחירים מ-Shufersal.
+## `rebuild_demo_data.js` (Main)
+יצירת נתוני דמו מלאים ב-Firebase Production.
+12 משתמשים, 7 בתים, ~27 רשימות, מזווה, קבלות, התראות.
 
 ```bash
-dart run scripts/update_products.dart
+node scripts/rebuild_demo_data.js
 ```
 
-## סקריפטי הרצה עם לוגים נקיים
-הרצת `flutter run` עם סינון רעשי Android (GoogleApiManager, Choreographer וכו').
+**חשוב:** כשמשנים מבנה נתונים באפליקציה (models, configs) — לעדכן גם את הסקריפט!
 
-| מערכת הפעלה | סקריפט | הרצה |
-|-------------|--------|------|
-| Windows (PowerShell) | `run_clean.ps1` | `.\run_clean.ps1` |
-| Windows (CMD) | `run_filtered.bat` | `run_filtered.bat` |
-| Linux/Mac | `run_clean.sh` | `./run_clean.sh` |
+## `debug_token_server.js`
+שרת debug ליצירת Firebase custom tokens (עוקף reCAPTCHA).
+לשימוש עם emulator בלבד.
+
+```bash
+node scripts/debug_token_server.js
+# ואז בדפדפן: http://localhost:9877/token?email=avi.cohen@demo.com
+```
+
+## `fix_supermarket_json.py`
+ניקוי וקטגוריזציה אוטומטית של `assets/data/list_types/supermarket.json`.
+להרצה כשמעדכנים את קטלוג המוצרים.
+
+```bash
+python scripts/fix_supermarket_json.py
+```
 
 ## קבצי תצורה
 
-- `firebase-service-account.json` - credentials ל-Firebase
+- `firebase-service-account.json` — credentials ל-Firebase (לא ב-git)
