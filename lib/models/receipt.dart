@@ -37,7 +37,7 @@ class Receipt {
   final String id;
 
   /// שם החנות
-  @JsonKey(defaultValue: 'חנות ללא שם')
+  @JsonKey(defaultValue: '')
   final String storeName;
 
   /// תאריך הקנייה
@@ -186,7 +186,7 @@ class Receipt {
   }) {
     return Receipt(
       id: const Uuid().v4(),
-      storeName: '$storeName (וירטואלי)',
+      storeName: storeName,
       date: date ?? DateTime.now(),
       totalAmount: 0.0, // מחיר משומן יהיה אחרי קישור קבלה אמיתית
       items: List.unmodifiable(items),
@@ -195,7 +195,7 @@ class Receipt {
       isVirtual: true,
       createdBy: createdBy,
       householdId: householdId,
-      fileUrl: null, // אין סריקה
+      // fileUrl omitted — virtual receipts have no scan
     );
   }
 
@@ -245,7 +245,7 @@ class ReceiptItem {
   /// קטגוריה (אם זמינה)
   final String? category;
 
-  /// יחידת מידה (אם זימנה)
+  /// יחידת מידה (אם זמינה)
   final String? unit;
 
   /// 🆕 מזהה המשתמש שסימן את הפריט (קנייה משותפת)
