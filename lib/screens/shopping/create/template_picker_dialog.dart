@@ -34,13 +34,13 @@ class TemplatePickerDialog extends StatelessWidget {
           width: double.maxFinite,
           child: templates.isEmpty
               ? Padding(
-                  padding: const EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(kSpacingXLarge),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(strings.noTemplatesAvailable, style: TextStyle(fontSize: kFontSizeBody, color: cs.outline)),
-                        SizedBox(height: 8),
+                        const SizedBox(height: kSpacingSmall),
                         Text(
                           strings.noTemplatesMessage,
                           style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
@@ -56,12 +56,12 @@ class TemplatePickerDialog extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final template = templates[index];
                     return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
+                      margin: const EdgeInsets.only(bottom: kSpacingSmall),
                       child: ListTile(
                         leading: Text(template.icon, style: const TextStyle(fontSize: kFontSizeDisplay)),
                         title: Text(template.name, style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold)),
                         subtitle: template.description != null ? Text(template.description!) : null,
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: kIconSizeSmall),
                         onTap: () {
                           unawaited(HapticFeedback.selectionClick());
                           Navigator.pop(context, template);
