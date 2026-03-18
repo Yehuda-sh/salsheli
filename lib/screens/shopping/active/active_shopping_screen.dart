@@ -637,11 +637,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           final userId = _userContext.user?.id;
           final listName = widget.list.name;
 
-          // המר UnifiedListItem ל-ReceiptItem
+          // המר UnifiedListItem ל-ReceiptItem (כולל unitPrice!)
           final receiptItems = purchasedItems.map((item) => ReceiptItem(
             id: item.id,
             name: item.name,
             quantity: item.quantity ?? 1,
+            unitPrice: item.unitPrice ?? 0.0,
             isChecked: true,
             category: item.category,
             checkedBy: userId,
@@ -654,6 +655,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             items: receiptItems,
           );
         } catch (e) {
+          debugPrint('❌ Failed to create receipt: $e');
         }
       }
 
