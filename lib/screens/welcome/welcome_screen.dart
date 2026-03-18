@@ -254,8 +254,7 @@ class _SimpleFeatureCard extends StatelessWidget {
                 child: ExcludeSemantics(
                   child: Image.asset(
                     illustrationAsset,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
