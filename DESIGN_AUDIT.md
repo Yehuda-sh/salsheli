@@ -33,7 +33,6 @@
 - `AppSectionCard` — Card wrapper עם elevation + borderRadius
 - `AppErrorState` — אייקון + הודעה + retry
 - `AppLoadingSkeleton` — Skeleton shimmer loading
-- `AppScreenHeader` — כותרת מסך עם אייקון
 
 ## 🟡 שיפורים אפשריים (Post-launch)
 
