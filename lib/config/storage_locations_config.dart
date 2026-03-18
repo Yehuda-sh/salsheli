@@ -52,21 +52,25 @@ class StorageLocationsConfig with ConfigValidation {
 
   /// Get location icon
   static IconData getIcon(String locationId) {
+    _instance.ensureValid();
     return getLocationInfo(locationId).icon;
   }
 
   /// Get full location info (main API)
   static LocationInfo getLocationInfo(String locationId) {
+    _instance.ensureValid();
     return StorageLocations.data[locationId] ?? StorageLocations.data[StorageLocations.other]!;
   }
 
   /// Check if location is valid
   static bool isValidLocation(String locationId) {
+    _instance.ensureValid();
     return StorageLocations.data.containsKey(locationId);
   }
 
   /// Get all location info
   static List<LocationInfo> getAllLocationInfo() {
+    _instance.ensureValid();
     return StorageLocations.all.map(getLocationInfo).toList();
   }
 
