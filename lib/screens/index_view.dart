@@ -212,31 +212,29 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// 📋 תוכן טעינה מרכזי
   Widget _buildLoadingContent(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // 💫 Logo עם Pulsing Circle
         // v4.0: RepaintBoundary — בידוד אנימציות לוגו + shimmer
         RepaintBoundary(
-          child: _buildAnimatedLogo(cs),
+          child: _buildAnimatedLogo(),
         ),
         const SizedBox(height: kSpacingXLarge),
 
         // 📝 שם האפליקציה
         // v4.0: flutter_animate — fadeIn → slideY → shimmer
-        _buildAppName(cs),
+        _buildAppName(),
         const SizedBox(height: kSpacingSmallPlus),
 
         // 🔄 Progress indicator
-        _buildLoadingIndicator(cs),
+        _buildLoadingIndicator(),
       ],
     );
   }
 
   /// 💫 Logo מונפש עם Pulsing Circle
-  Widget _buildAnimatedLogo(ColorScheme _) {
+  Widget _buildAnimatedLogo() {
     final cs = Theme.of(context).colorScheme;
     final scaleAnimation = CurvedAnimation(
       parent: _logoController,
@@ -323,7 +321,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                       BoxShadow(
                         color: cs.shadow.withValues(alpha: 0.2),
                         blurRadius: 20,
-                        offset: Offset(0, 10),
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
@@ -343,7 +341,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// 📝 שם האפליקציה מונפש
   /// v4.0: flutter_animate — fadeIn → slideY → shimmer (replaces manual SlideTransition)
-  Widget _buildAppName(ColorScheme cs) {
+  Widget _buildAppName() {
     final cs = Theme.of(context).colorScheme;
     return Semantics(
       header: true,
@@ -381,7 +379,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// 🔄 Loading Indicator עם הודעות מתחלפות
   /// v4.0: Blur transition בהחלפת הודעות
-  Widget _buildLoadingIndicator(ColorScheme cs) {
+  Widget _buildLoadingIndicator() {
     final cs = Theme.of(context).colorScheme;
     return FadeTransition(
       opacity: CurvedAnimation(
@@ -394,8 +392,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
           children: [
             // עיגול טעינה
             SizedBox(
-              width: 40,
-              height: 40,
+              width: kIconSizeLarge + kSpacingXTiny,
+              height: kIconSizeLarge + kSpacingXTiny,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -567,7 +565,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 color: cs.onError,
                               ),
                             ),
-                            SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingLarge),
 
                             // טקסט
                             Text(
@@ -578,7 +576,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 color: cs.onSurface,
                               ),
                             ),
-                            SizedBox(height: kSpacingSmall),
+                            const SizedBox(height: kSpacingSmall),
                             Text(
                               AppStrings.index.errorMessage,
                               style: TextStyle(
@@ -596,7 +594,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                 unawaited(HapticFeedback.lightImpact());
                                 widget.onRetry();
                               },
-                              icon: Icon(Icons.refresh),
+                              icon: const Icon(Icons.refresh),
                               label: Text(AppStrings.index.retryButton),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: cs.primary,
