@@ -89,9 +89,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Dynamic spacer for bottom bar
-    final bottomBarHeight = kButtonHeight + kSpacingSmallPlus + kButtonHeightSmall +
-        kSpacingSmall + 44 + kSpacingSmall + bottomPadding;
+    // Dynamic spacer for bottom bar (register + login + legal + paddings)
+    final bottomBarHeight = kButtonHeight + kSpacingSmallPlus + 44 +
+        kSpacingSmall + 44 + kSpacingSmallPlus + bottomPadding + kSpacingSmall;
 
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
