@@ -74,12 +74,12 @@ class ListTypeTag extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(list.typeEmoji, style: const TextStyle(fontSize: 14)),
+          Text(list.typeEmoji, style: const TextStyle(fontSize: kFontSizeMedium)),
           const Gap(kSpacingXTiny),
           Text(
             list.typeName,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: kFontSizeSmall,
               fontWeight: FontWeight.w600,
               color: theme.colorScheme.onSurface,
             ),
@@ -150,7 +150,7 @@ class PrivacyTag extends StatelessWidget {
           ),
           const Gap(kSpacingXTiny),
           Text(
-            'אישית',
+            AppStrings.shopping.privateLabel,
             style: TextStyle(
               color: theme.colorScheme.onTertiaryContainer,
               fontSize: kFontSizeTiny,

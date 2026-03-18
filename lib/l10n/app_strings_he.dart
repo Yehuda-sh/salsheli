@@ -382,6 +382,7 @@ class ShoppingStrings {
   String get listEmpty => 'הרשימה ריקה';
   String get noItemsToBuy => 'אין פריטים לקנייה';
   String get sharedLabel => 'משותפת';
+  String get privateLabel => 'אישית';
   String get startShoppingButton => 'התחל קנייה';
   String get addProductsToStart => 'הוסף מוצרים כדי להתחיל';
   String listDeleted(String name) => 'הרשימה "$name" נמחקה';

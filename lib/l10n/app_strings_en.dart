@@ -368,6 +368,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get listEmpty => 'List is empty';
   String get noItemsToBuy => 'No items to buy';
   String get sharedLabel => 'Shared';
+  String get privateLabel => 'Personal';
   String get startShoppingButton => 'Start Shopping';
   String get addProductsToStart => 'Add products to get started';
   String listDeleted(String name) => 'List "$name" deleted';
