@@ -127,8 +127,8 @@ class StickyButton extends StatelessWidget {
         ? theme.colorScheme.onSurfaceVariant
         : (textColor ??
             (ThemeData.estimateBrightnessForColor(buttonColor) == Brightness.light
-                ? Colors.black
-                : Colors.white));
+                ? theme.colorScheme.onSurface
+                : theme.colorScheme.surface));
 
     // ✅ AnimatedButton is effect-only - Material+InkWell handles tap with ripple
     final isEnabled = onPressed != null && !isLoading;
@@ -136,7 +136,7 @@ class StickyButton extends StatelessWidget {
 
     // 🎨 גרדיאנט לעומק פיזי - נייר שתופס אור
     final effectiveColor = isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor;
-    final gradientBottom = Color.lerp(effectiveColor, Colors.black, 0.05)!;
+    final gradientBottom = Color.lerp(effectiveColor, shadowColor, 0.05)!;
 
     final Widget buttonWidget = RepaintBoundary(
       child: Semantics(
