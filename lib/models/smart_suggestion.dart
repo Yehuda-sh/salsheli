@@ -52,7 +52,7 @@ class SmartSuggestion {
 
   /// 🇮🇱 קטגוריה
   /// 🇬🇧 Category
-  @JsonKey(defaultValue: 'כללי')
+  @JsonKey(defaultValue: 'other')
   final String category;
 
   /// 🇮🇱 מלאי נוכחי במזווה
@@ -200,23 +200,6 @@ class SmartSuggestion {
   int get stockPercentage {
     if (threshold <= 0) return 100;
     return ((currentStock / threshold) * 100).clamp(0, 100).round();
-  }
-
-  /// 🇮🇱 טקסט תיאור המלאי
-  /// 🇬🇧 Stock description text
-  ///
-  /// ⚠️ Deprecated: Use AppStrings.inventory.stockOutOfStock /
-  /// stockOnlyOneLeft / stockOnlyFewLeft in UI layer instead.
-  /// Models should not contain hardcoded localized strings.
-  @Deprecated('Use AppStrings.inventory stock methods in UI layer')
-  String get stockDescription {
-    if (isOutOfStock) {
-      return 'נגמר! צריך לקנות';
-    } else if (currentStock == 1) {
-      return 'נשאר 1 $unit בלבד';
-    } else {
-      return 'נשארו רק $currentStock $unit';
-    }
   }
 
   // ---- JSON Serialization ----
