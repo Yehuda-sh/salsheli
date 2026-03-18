@@ -504,9 +504,10 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
           onTap: _selectDate,
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
             padding: const EdgeInsets.symmetric(
               horizontal: kSpacingSmall,
-              vertical: kSpacingSmallPlus,
+              vertical: kSpacingSmall,
             ),
             decoration: BoxDecoration(
               color: fillColor,
