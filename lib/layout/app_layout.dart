@@ -195,7 +195,7 @@ class _AppLayoutState extends State<AppLayout> {
                 trailing: Icon(forwardChevron),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.of(context).pushNamed('/pending-group-invites');
+                  Navigator.of(context).pushNamed('/pending-invites');
                 },
               ),
               // הזמנות לרשימות
