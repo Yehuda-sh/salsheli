@@ -238,15 +238,15 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                           unawaited(HapticFeedback.lightImpact());
                           Navigator.of(context).pop();
                         },
-                        tooltip: 'סגור',
+                        tooltip: AppStrings.common.close,
                         style: IconButton.styleFrom(
                           backgroundColor: cs.surface.withValues(alpha: 0.8),
                         ),
                         visualDensity: VisualDensity.compact,
                       ),
-                      SizedBox(width: kSpacingSmall),
-                      Icon(Icons.checklist, size: 24, color: cs.primary),
-                      SizedBox(width: kSpacingSmall),
+                      const SizedBox(width: kSpacingSmall),
+                      Icon(Icons.checklist, size: kIconSizeMedium, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -273,7 +273,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
                       if (_hasSyncError)
                         IconButton(
-                          icon: Icon(Icons.cloud_off, color: kStickyOrange, size: 20),
+                          icon: Icon(Icons.cloud_off, color: kStickyOrange, size: kIconSizeMedium),
                           tooltip: AppStrings.common.syncError,
                           onPressed: _showSyncErrorSnackbar,
                         ),
@@ -287,7 +287,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             child: Row(
                               children: [
                                 Icon(Icons.check_box, color: kStickyGreen),
-                                SizedBox(width: kSpacingSmall),
+                                const SizedBox(width: kSpacingSmall),
                                 Text(AppStrings.checklist.checkAll),
                               ],
                             ),
@@ -348,9 +348,9 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     ),
                                   ),
                                   if (allChecked) ...[
-                                    SizedBox(width: kSpacingSmall),
+                                    const SizedBox(width: kSpacingSmall),
                                     Icon(Icons.celebration,
-                                        color: cs.tertiary, size: 28)
+                                        color: cs.tertiary, size: kIconSizeLarge - kSpacingSmall)
                                       .animate(onPlay: (c) => c.repeat(reverse: true, count: 3))
                                       .scaleXY(begin: 1.0, end: 1.2, duration: 400.ms, curve: Curves.easeInOut),
                                   ],
@@ -365,7 +365,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                               // בר התקדמות מונפש
                               TweenAnimationBuilder<double>(
                                 tween: Tween<double>(begin: 0, end: progress),
-                                duration: Duration(milliseconds: 400),
+                                duration: const Duration(milliseconds: 400),
                                 curve: Curves.easeOut,
                                 builder: (context, value, child) {
                                   return ClipRRect(
@@ -376,13 +376,13 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         allChecked ? kStickyGreen : cs.primary,
                                       ),
-                                      minHeight: 8,
+                                      minHeight: kSpacingSmall,
                                     ),
                                   );
                                 },
                               ),
 
-                              SizedBox(height: kSpacingTiny),
+                              const SizedBox(height: kSpacingTiny),
 
                               // אחוזים
                               Text(
@@ -470,7 +470,7 @@ class _ChecklistItemTile extends StatelessWidget {
             onTap: onToggle,
             borderRadius: BorderRadius.circular(kBorderRadius),
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.all(kSpacingMedium),
               decoration: BoxDecoration(
                 color: isChecked
@@ -487,9 +487,9 @@ class _ChecklistItemTile extends StatelessWidget {
               children: [
                 // Checkbox מונפש
                 AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  width: 28,
-                  height: 28,
+                  duration: const Duration(milliseconds: 200),
+                  width: kIconSizeLarge - kSpacingSmall,
+                  height: kIconSizeLarge - kSpacingSmall,
                   decoration: BoxDecoration(
                     color: isChecked ? kStickyGreen : Colors.transparent,
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -499,7 +499,7 @@ class _ChecklistItemTile extends StatelessWidget {
                     ),
                   ),
                   child: isChecked
-                      ? Icon(Icons.check, color: cs.onPrimary, size: 20)
+                      ? Icon(Icons.check, color: cs.onPrimary, size: kIconSizeMedium)
                       : null,
                 ),
 
@@ -508,7 +508,7 @@ class _ChecklistItemTile extends StatelessWidget {
                 // שם הפריט
                 Expanded(
                   child: AnimatedDefaultTextStyle(
-                    duration: Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     style: TextStyle(
                       fontSize: kFontSizeMedium,
                       fontWeight: FontWeight.w500,
@@ -528,7 +528,7 @@ class _ChecklistItemTile extends StatelessWidget {
                     message: item.notes!,
                     child: Icon(
                       Icons.notes,
-                      size: 18,
+                      size: kIconSizeSmall + 2,
                       color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                   ),
@@ -557,10 +557,10 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(
             Icons.checklist,
-            size: 64,
+            size: kIconSizeXXLarge,
             color: cs.onSurfaceVariant.withValues(alpha: 0.5),
           ),
-          SizedBox(height: kSpacingMedium),
+          const SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.checklist.emptyTitle,
             style: TextStyle(
@@ -568,7 +568,7 @@ class _EmptyState extends StatelessWidget {
               color: cs.onSurfaceVariant,
             ),
           ),
-          SizedBox(height: kSpacingSmall),
+          const SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.checklist.emptySubtitle,
             style: TextStyle(
