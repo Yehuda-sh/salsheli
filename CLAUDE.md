@@ -28,10 +28,11 @@
 
 | Token | Values |
 |-------|--------|
-| Spacing | 8-pt grid via `AppTokens` (4, 8, 12, 16, 24, 32) |
+| Spacing | `kSpacing*` via `ui_constants.dart` (XTiny=4, Tiny=6, Small=8, SmallPlus=12, Medium=16, Large=24, XLarge=32) |
 | Border Radius | `kBorderRadiusSmall(8)`, `Default(12)`, `Large(16)`, `XLarge(24)` |
 | Typography | `kFontSizeTiny(10)` → `kFontSizeDisplay(34)` — 8 sizes |
-| Colors | **Theme only** — `Theme.of(context).colorScheme` or `context.cs` |
+| Icons | `kIconSizeSmall(16)`, `Medium(24)`, `Large(36)`, `XLarge(48)`, `XXLarge(64)` |
+| Colors | **Theme only** — `Theme.of(context).colorScheme` |
 | Background | `NotebookBackground()` on all 21 screens |
 | Imports | `package:memozap/` — NOT `package:salsheli/` |
 
@@ -39,7 +40,11 @@
 - ❌ No `Colors.xxx` (except `Colors.transparent`)
 - ❌ No hardcoded `fontSize:` — use `kFontSize*` constants
 - ❌ No hardcoded `BorderRadius` — use `kBorderRadius*` constants
-- ✅ Use `context.cs` / `context.tt` extensions for theme access
+- ❌ No hardcoded icon `size:` — use `kIconSize*` constants
+- ❌ No hardcoded spacing/padding — use `kSpacing*` constants
+- ❌ No hardcoded Hebrew strings — use `AppStrings`
+- ✅ Wrap `HapticFeedback.*()` calls with `unawaited()`
+- ✅ Add `const` to `SizedBox`, `EdgeInsets`, `Duration`, `Icon` where possible
 
 ---
 
@@ -95,12 +100,12 @@ flutter run          # הרצה
 
 | תחום | קבצים |
 |------|-------|
-| **Theme** | `lib/theme/design_tokens.dart`, `app_theme.dart`, `context_extensions.dart`, `app_transitions.dart` |
+| **Theme** | `lib/theme/app_theme.dart` (AppBrand extension, light/dark, dynamic colors) |
 | **Constants** | `lib/core/ui_constants.dart`, `status_colors.dart` |
 | **Config** | `lib/config/list_types_config.dart`, `stores_config.dart`, `filters_config.dart` |
 | **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
-| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, AppSnackBar, AppDialog |
+| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner |
 | **Strings** | `lib/l10n/app_strings.dart` |
 | **Security** | `firestore.rules` (v4.1), `firestore.indexes.json` |
 
@@ -122,6 +127,8 @@ flutter run          # הרצה
 
 - **B3:** SavedContactsService בולע שגיאות
 - **W1:** `use_build_context_synchronously` (2) ב-settings_screen (deferred)
+- **W2:** `directives_ordering` infos בכמה קבצים (pre-existing, cosmetic)
+- **W3:** `deprecated_member_use` — `RadioListTile.groupValue/onChanged` ב-contact_selector_dialog (Flutter 3.33+)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
