@@ -120,7 +120,7 @@ class AppNotification {
   @_ActionDataConverter()
   final Map<String, dynamic> actionData;
 
-  @JsonKey(name: 'is_read')
+  @JsonKey(name: 'is_read', defaultValue: false)
   final bool isRead;
 
   /// תאריך יצירה
