@@ -553,7 +553,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
   String get title => AppStringsEn.appName;
-  String get subtitle => 'Family groceries — all in one place';
+  String get subtitle => 'Your household groceries — all in one place';
   String get group1Emoji => '🛒';
   String get group1Title => 'Plan together';
   String get group1Question => 'A shopping list everyone can edit in real time';

@@ -572,7 +572,7 @@ class WelcomeStrings {
   const WelcomeStrings();
 
   String get title => AppStringsHe.appName;
-  String get subtitle => 'הקניות של המשפחה — במקום אחד';
+  String get subtitle => 'הקניות של הבית — במקום אחד';
   String get group1Emoji => '🛒';
   String get group1Title => 'תכננו ביחד';
   String get group1Question => 'רשימת קניות שכולם יכולים לערוך בזמן אמת';
