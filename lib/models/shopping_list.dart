@@ -59,7 +59,8 @@ class SharedUsersMapConverter
               result[userId] = user.copyWith(userId: userId);
             }
           }
-        } catch (e) {
+        } catch (_) {
+          // Skip malformed entries silently
         }
       }
       return result;
@@ -75,7 +76,8 @@ class SharedUsersMapConverter
           final user = SharedUser.fromJson(userData);
           // Set the userId from the map key
           result[key] = user.copyWith(userId: key);
-        } catch (e) {
+        } catch (_) {
+          // Skip malformed entries silently
         }
       }
       return result;
@@ -155,13 +157,13 @@ class ShoppingList {
 
   /// 🇮🇱 תאריך אירוע מתוכנן (אופציונלי) - למשל יום הולדת, אירוח
   /// 🇬🇧 Planned event date (optional) - e.g., birthday, hosting
-  @TimestampConverter()
+  @NullableTimestampConverter()
   @JsonKey(name: 'event_date')
   final DateTime? eventDate;
 
   /// 🇮🇱 תאריך יעד לסיום הקניות (אופציונלי) - דד-ליין
   /// 🇬🇧 Target date for completing the shopping (optional) - deadline
-  @TimestampConverter()
+  @NullableTimestampConverter()
   @JsonKey(name: 'target_date')
   final DateTime? targetDate;
 
@@ -264,7 +266,8 @@ class ShoppingList {
   static bool shouldUpdatePantry(String type, {required bool isPrivate}) {
     // רשימות אירוע - לא מעדכנות מזווה
     if (type == typeEvent) return false;
-    // כל שאר הרשימות (אישיות + משותפות) מעדכנות מזווה
+    // רשימות אישיות - לא מעדכנות מזווה משפחתי
+    if (isPrivate) return false;
     return true;
   }
 
@@ -281,11 +284,10 @@ class ShoppingList {
   /// 🇮🇱 מי התחיל את הקנייה (ה-Starter)
   /// 🇬🇧 Who started the shopping (the Starter)
   ActiveShopper? get starter {
-    try {
-      return activeShoppers.firstWhere((s) => s.isStarter);
-    } catch (_) {
-      return null;
+    for (final s in activeShoppers) {
+      if (s.isStarter) return s;
     }
+    return null;
   }
 
   /// 🇮🇱 רשימת קונים פעילים כרגע
