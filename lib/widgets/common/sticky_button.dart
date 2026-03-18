@@ -57,8 +57,8 @@ import 'animated_button.dart';
 /// דוגמה מתקדמת:
 /// ```dart
 /// StickyButton(
-///   color: Colors.pink.shade100,
-///   textColor: Colors.pink.shade900,
+///   color: Theme.of(context).colorScheme.errorContainer,
+///   textColor: Theme.of(context).colorScheme.onErrorContainer,
 ///   label: 'מחק',
 ///   icon: Icons.delete_outline,
 ///   elevation: 0.5,
@@ -118,7 +118,7 @@ class StickyButton extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     // ✅ ברירת מחדל: brand.accent (צבע מותג) לעקביות עם ElevatedButton
     final buttonColor = color ?? brand?.accent ?? theme.colorScheme.primary;
-    final isDisabled = onPressed == null;
+    final isDisabled = onPressed == null || isLoading;
     // ✅ צבע צל מ-Theme במקום Colors.black
     final shadowColor = theme.shadowColor;
 
@@ -253,6 +253,9 @@ class StickyButtonSmall extends StatelessWidget {
   /// פעולה בלחיצה
   final VoidCallback? onPressed;
 
+  /// האם להציג מצב טעינה
+  final bool isLoading;
+
   /// רמת צל (0.0-1.0, ברירת מחדל: 1.0)
   final double elevation;
 
@@ -269,6 +272,7 @@ class StickyButtonSmall extends StatelessWidget {
     required this.label,
     this.icon,
     this.onPressed,
+    this.isLoading = false,
     this.elevation = 1.0,
     this.tooltip,
     this.haptic = ButtonHaptic.light,
@@ -282,6 +286,7 @@ class StickyButtonSmall extends StatelessWidget {
       label: label,
       icon: icon,
       onPressed: onPressed,
+      isLoading: isLoading,
       height: kButtonHeightSmall,
       elevation: elevation,
       tooltip: tooltip,
