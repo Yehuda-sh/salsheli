@@ -293,7 +293,7 @@ class UnifiedListItem {
   /// 🇬🇧 Get volunteer names
   List<String> get volunteerNames {
     return volunteers
-        .map((v) => v['displayName'] as String? ?? 'אנונימי')
+        .map((v) => v['displayName'] as String? ?? '?')
         .toList();
   }
 
