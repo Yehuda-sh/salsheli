@@ -261,6 +261,9 @@ class MyApp extends StatelessWidget {
             }
             return null;
           },
+          onUnknownRoute: (_) => MaterialPageRoute(
+            builder: (_) => const MainNavigationScreen(),
+          ),
         ));
       },
     );
