@@ -79,6 +79,22 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     _loadSuggestions();
   }
 
+  @override
+  void didUpdateWidget(covariant PantrySuggestions oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.existingProductNames != oldWidget.existingProductNames) {
+      _filterExisting();
+    }
+  }
+
+  void _filterExisting() {
+    setState(() {
+      _suggestions.removeWhere((s) =>
+          widget.existingProductNames.contains(s.displayName.toLowerCase()) ||
+          widget.existingProductNames.contains(s.name.toLowerCase()));
+    });
+  }
+
   Future<void> _loadSuggestions() async {
     final prefs = await SharedPreferences.getInstance();
     final hiddenUntilMs = prefs.getInt(_kHiddenUntilKey) ?? 0;
@@ -131,7 +147,8 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
         _suggestions = suggestions;
         _loaded = true;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('PantrySuggestions: failed to load — $e');
       setState(() => _loaded = true);
     }
   }
@@ -151,13 +168,11 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     return null;
   }
 
-  Future<void> _dismissSuggestion(String name) async {
+  Future<void> _dismissSuggestion(_Suggestion suggestion) async {
     final prefs = await SharedPreferences.getInstance();
-    _dismissed.add(name.toLowerCase());
+    _dismissed.add(suggestion.displayName.toLowerCase());
     await prefs.setStringList(_kDismissedKey, _dismissed.toList());
-    setState(() {
-      _suggestions.removeWhere((s) => s.name.toLowerCase() == name.toLowerCase());
-    });
+    setState(() => _suggestions.remove(suggestion));
   }
 
   Future<void> _hideAll() async {
@@ -208,9 +223,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
               TextButton(
                 onPressed: _hideAll,
                 style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(0, 0),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  minimumSize: const Size(44, 44),
                 ),
                 child: Text(
                   AppStrings.pantry.hideSuggestions,
@@ -235,10 +248,13 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
   }
 
   Widget _buildChip(_Suggestion s, ColorScheme cs) {
+    const chipRadius = BorderRadius.all(Radius.circular(kBorderRadiusLarge));
+
     return Container(
+      constraints: const BoxConstraints(minHeight: 44),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        borderRadius: chipRadius,
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Row(
@@ -249,24 +265,22 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
             onTap: () async {
               await widget.onAddItem(s.name, s.category, s.quantity, s.unit);
               if (mounted) {
-                setState(() {
-                  _suggestions.remove(s);
-                });
+                setState(() => _suggestions.remove(s));
               }
             },
-            borderRadius: const BorderRadius.horizontal(
-              right: Radius.circular(kBorderRadiusLarge),
-            ),
+            borderRadius: const BorderRadiusDirectional.horizontal(
+              end: Radius.circular(kBorderRadiusLarge),
+            ).resolve(Directionality.of(context)),
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: kSpacingSmall,
-                vertical: kSpacingTiny,
+                vertical: kSpacingSmall,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(s.emoji, style: const TextStyle(fontSize: kFontSizeBody)),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: kSpacingXTiny),
                   Text(
                     s.displayName,
                     style: TextStyle(
@@ -274,7 +288,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
                       color: cs.onSurface,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: kSpacingXTiny),
                   Icon(Icons.add_circle_outline,
                       size: kIconSizeSmall, color: cs.primary),
                 ],
@@ -283,17 +297,17 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
           ),
           // Dismiss button
           InkWell(
-            onTap: () => _dismissSuggestion(s.displayName),
-            borderRadius: const BorderRadius.horizontal(
-              left: Radius.circular(kBorderRadiusLarge),
-            ),
+            onTap: () => _dismissSuggestion(s),
+            borderRadius: const BorderRadiusDirectional.horizontal(
+              start: Radius.circular(kBorderRadiusLarge),
+            ).resolve(Directionality.of(context)),
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: kSpacingTiny,
-                vertical: kSpacingTiny,
+                horizontal: kSpacingSmall,
+                vertical: kSpacingSmall,
               ),
               child: Icon(Icons.close,
-                  size: 14, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
+                  size: kIconSizeSmall, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
             ),
           ),
         ],
