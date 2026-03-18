@@ -1734,6 +1734,7 @@ class ContactSelectorStringsEn extends ContactSelectorStrings {
   String get emailLabel => 'Email';
   String get phoneLabel => 'Phone';
   String get emailHint => 'Enter email...';
+  @override String get phoneHint => '05X-XXXXXXX';
   String get invalidEmail => 'Please enter a valid email';
   String get invalidPhone => 'Please enter a valid phone number (05X-XXXXXXX)';
   String get contactAlreadySelected => 'This contact is already selected';

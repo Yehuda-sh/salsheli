@@ -1791,6 +1791,7 @@ class ContactSelectorStrings {
   String get emailLabel => 'אימייל';
   String get phoneLabel => 'טלפון';
   String get emailHint => 'הזן אימייל...';
+  String get phoneHint => '05X-XXXXXXX';
   String get invalidEmail => 'נא להזין אימייל תקין';
   String get invalidPhone => 'נא להזין מספר טלפון תקין (05X-XXXXXXX)';
   String get contactAlreadySelected => 'איש קשר זה כבר נבחר';

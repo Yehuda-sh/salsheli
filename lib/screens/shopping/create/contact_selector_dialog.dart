@@ -106,6 +106,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
         });
       }
     } catch (e) {
+      debugPrint('ContactSelector: failed to load contacts — $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -344,20 +345,20 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 // === Selected Contacts Chips ===
                 if (_selectedContacts.isNotEmpty) ...[
                   Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
+                    spacing: kSpacingSmall,
+                    runSpacing: kSpacingXTiny,
                     children: _selectedContacts.map((contact) {
                       return Chip(
                         avatar: contact.isPending
                             ? Icon(Icons.hourglass_empty,
-                                size: 18, color: cs.onPrimaryContainer)
+                                size: kIconSizeSmall + 2, color: cs.onPrimaryContainer)
                             : CircleAvatar(
                                 backgroundColor: cs.primaryContainer,
                                 child: Text(contact.initials,
                                     style: const TextStyle(fontSize: kFontSizeTiny)),
                               ),
                         label: Text(contact.displayName),
-                        deleteIcon: const Icon(Icons.close, size: 18),
+                        deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
                         onDeleted: () => _removeSelected(contact.email),
                       );
                     }).toList(),
@@ -437,7 +438,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                               decoration: InputDecoration(
                                 hintText: _inputType == _ContactInputType.email
                                     ? AppStrings.contactSelector.emailHint
-                                    : '05X-XXXXXXX',
+                                    : AppStrings.contactSelector.phoneHint,
                                 prefixIcon: Icon(
                                   _inputType == _ContactInputType.email
                                       ? Icons.email_outlined
@@ -471,7 +472,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                   ),
                                 )
                               : IconButton(
-                                  icon: Icon(Icons.check),
+                                  icon: const Icon(Icons.check),
                                   onPressed: _addNewContact,
                                   color: cs.primary,
                                 ),
@@ -506,8 +507,8 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.people_outline,
-                                      size: 48, color: cs.onSurfaceVariant),
-                                  SizedBox(height: kSpacingSmall),
+                                      size: kIconSizeXLarge, color: cs.onSurfaceVariant),
+                                  const SizedBox(height: kSpacingSmall),
                                   Text(
                                     _searchQuery.isEmpty
                                         ? AppStrings.contactSelector.noSavedContacts
@@ -611,7 +612,7 @@ class _ContactTile extends StatelessWidget {
               onChanged: onRoleChanged,
             )
           : IconButton(
-              icon: Icon(Icons.add_circle_outline),
+              icon: const Icon(Icons.add_circle_outline),
               onPressed: () => _showRolePicker(context),
             ),
       selected: isSelected,
