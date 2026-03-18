@@ -32,7 +32,7 @@ class CategoriesData {
     'spices': CategoryInfo(AppStrings.categories.spices, '🧂'),
     'coffee_tea': CategoryInfo(AppStrings.categories.coffeeTea, '☕'),
     'sweets_snacks': CategoryInfo(AppStrings.categories.sweetsSnacks, '🍬'),
-    'beef': CategoryInfo(AppStrings.categories.beef, '🥩'),
+    'beef': CategoryInfo(AppStrings.categories.beef, '🐄'),
     'chicken': CategoryInfo(AppStrings.categories.chicken, '🍗'),
     'turkey': CategoryInfo(AppStrings.categories.turkey, '🦃'),
     'lamb': CategoryInfo(AppStrings.categories.lamb, '🐑'),
@@ -51,46 +51,47 @@ class CategoriesData {
     'sweet_spreads': CategoryInfo(AppStrings.categories.sweetSpreads, '🍯'),
     'frozen': CategoryInfo(AppStrings.categories.frozen, '🧊'),
     'ready_salads': CategoryInfo(AppStrings.categories.readySalads, '🥗'),
-    'dairy_substitutes': CategoryInfo(AppStrings.categories.dairySubstitutes, '🥛'),
+    'dairy_substitutes': CategoryInfo(AppStrings.categories.dairySubstitutes, '🌾'),
     'hygiene': CategoryInfo(AppStrings.categories.hygiene, '🚿'),
     'cosmetics': CategoryInfo(AppStrings.categories.cosmetics, '💄'),
     'cleaning': CategoryInfo(AppStrings.categories.cleaning, '🧽'),
     'vitamins': CategoryInfo(AppStrings.categories.vitamins, '💊'),
     'baby_products': CategoryInfo(AppStrings.categories.babyProducts, '🍼'),
     'pet_food': CategoryInfo(AppStrings.categories.petFood, '🐕'),
-    'otc_medicine': CategoryInfo(AppStrings.categories.otcMedicine, '💊'),
+    'otc_medicine': CategoryInfo(AppStrings.categories.otcMedicine, '🩹'),
     'first_aid': CategoryInfo(AppStrings.categories.firstAid, '🏥'),
   };
 
   /// Fixed UI order (auto-generated from data keys, 'all' first, 'other' last)
-  static List<String> get order {
+  static final List<String> order = _buildOrder();
+
+  static List<String> _buildOrder() {
     final keys = data.keys.toList();
     final result = <String>[];
-    
+
     // 'all' always first
     if (keys.contains('all')) {
       result.add('all');
       keys.remove('all');
     }
-    
+
     // 'other' always last
     if (keys.contains('other')) {
       keys.remove('other');
     }
-    
+
     // Sort remaining alphabetically
     keys.sort();
     result.addAll(keys);
-    
+
     // Add 'other' last
     if (data.containsKey('other')) {
       result.add('other');
     }
-    
-    return result;
+
+    return List.unmodifiable(result);
   }
 
-  /// Synonyms mapping (Hebrew → English key)
   /// Synonyms mapping (Hebrew → English key)
   /// ⚠️ Matched by exact key, NOT substring! Use full category names.
   static const Map<String, String> synonyms = {
