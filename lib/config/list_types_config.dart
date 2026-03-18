@@ -59,7 +59,7 @@ class ListTypes with ConfigValidation {
   static final ListTypes _instance = ListTypes._();
 
   /// רשימת כל הסוגים (מחובר ל-AppStrings)
-  static List<ListTypeConfig> get all => [
+  static final List<ListTypeConfig> all = [
     ListTypeConfig(
       key: ListTypeKeys.supermarket,
       fullName: AppStrings.shopping.typeSupermarket,
@@ -133,6 +133,11 @@ class ListTypes with ConfigValidation {
     ),
   ];
 
+  /// Map for O(1) lookup by key
+  static final Map<String, ListTypeConfig> _byKey = {
+    for (final config in all) config.key: config,
+  };
+
   // ========================================
   // 🎨 Color API
   // ========================================
@@ -151,6 +156,8 @@ class ListTypes with ConfigValidation {
           return brand.stickyCyan;
         case ListTypeKeys.bakery:
           return brand.stickyYellow;
+        case ListTypeKeys.butcher:
+          return kStickyOrange;
         case ListTypeKeys.event:
           return brand.stickyPurple;
       }
@@ -166,19 +173,12 @@ class ListTypes with ConfigValidation {
   /// מצא config לפי key - תמיד מחזיר Config בטוח לשימוש ב-UI
   static ListTypeConfig getByKeySafe(String? key) {
     _instance.ensureValid();
-
-    if (key == null) return _otherConfig;
-
-    // חיפוש יעיל ברשימה
-    for (final config in all) {
-      if (config.key == key) return config;
-    }
-
-    return _otherConfig;
+    if (key == null) return _byKey[ListTypeKeys.other] ?? _fallbackConfig;
+    return _byKey[key] ?? _byKey[ListTypeKeys.other] ?? _fallbackConfig;
   }
 
-  /// Config ברירת מחדל (fallback)
-  static ListTypeConfig get _otherConfig => ListTypeConfig(
+  /// Config ברירת מחדל (fallback — only if 'other' missing from data)
+  static final ListTypeConfig _fallbackConfig = ListTypeConfig(
     key: ListTypeKeys.other,
     fullName: AppStrings.shopping.typeOther,
     shortName: AppStrings.shopping.typeOtherShort,
