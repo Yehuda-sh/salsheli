@@ -16,14 +16,15 @@
 //
 // 🔗 Related: list_types_config.dart, shopping_list.dart
 
-import 'package:flutter/foundation.dart';
+import 'base_config.dart';
 
 /// 🗂️ מפתחות סוגי רשימות
 ///
 /// משמש כ-Single Source of Truth למפתחות (keys) בלבד.
 /// ה-metadata (אמוג'י, שם, אייקון) מנוהל בנפרד ב-ListTypesConfig.
-class ListTypeKeys {
-  ListTypeKeys._(); // מניעת instances
+class ListTypeKeys with ConfigValidation {
+  ListTypeKeys._();
+  static final ListTypeKeys _instance = ListTypeKeys._();
 
   /// 🛒 סופרמרקט - כל המוצרים הכלליים
   static const String supermarket = 'supermarket';
@@ -66,39 +67,27 @@ class ListTypeKeys {
     other,
   ];
 
-  /// 🔍 בדיקת תקינות בזמן פיתוח
-  ///
-  /// מוודא שאין כפילויות במערך ה-all וששדה ה-fallback (other) נמצא במקום הנכון.
-  static void ensureSanity() {
-    if (!kDebugMode) return;
-
-    // 1️⃣ בדיקת כפילויות (באמצעות Set ליעילות)
-    final distinctKeys = all.toSet();
-    if (distinctKeys.length != all.length) {
-      // מציאת המפתח הכפול לטובת הודעת השגיאה
-      final duplicates = all.where((key) {
-        return all.indexOf(key) != all.lastIndexOf(key);
-      }).toSet();
-
-      assert(false, '❌ ListTypeKeys: נמצאו כפילויות ב-all: $duplicates');
-    }
-
-    // 2️⃣ בדיקה ש-other הוא הערך האחרון (קריטי ל-UI)
-    if (all.isNotEmpty && all.last != other) {
-      assert(
-        false,
-        '❌ ListTypeKeys: "$other" חייב להיות האיבר האחרון ב-all לצורך עקביות ב-UI. '
-        'נמצא: "${all.last}"',
-      );
-    }
-  }
+  /// Set for O(1) lookup in resolve()
+  static final Set<String> _allSet = all.toSet();
 
   /// המרת String למפתח מוכר (עם Fallback)
   /// שימושי בטעינת נתונים מה-Database (Firestore/Hive)
   static String resolve(String? key) {
+    _instance.ensureValid();
     if (key == null) return other;
     final normalized = key.trim().toLowerCase();
-    if (!all.contains(normalized)) return other;
+    if (!_allSet.contains(normalized)) return other;
     return normalized;
+  }
+
+  @override
+  void performValidation() {
+    ConfigValidation.validateNoDuplicates(all, 'ListTypeKeys.all');
+
+    if (all.isNotEmpty && all.last != other) {
+      throw AssertionError(
+        'ListTypeKeys: "$other" must be last in all, found: "${all.last}"',
+      );
+    }
   }
 }
