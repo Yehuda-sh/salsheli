@@ -242,7 +242,6 @@ class _SimpleFeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingSmall),
@@ -254,15 +253,16 @@ class _SimpleFeatureCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Illustration
-                ExcludeSemantics(
-                  child: Image.asset(
-                    illustrationAsset,
-                    height: screenHeight * 0.22,
-                    fit: BoxFit.contain,
+                // Illustration — flexible, takes available space
+                Flexible(
+                  child: ExcludeSemantics(
+                    child: Image.asset(
+                      illustrationAsset,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
-                const SizedBox(height: kSpacingLarge),
+                const SizedBox(height: kSpacingMedium),
 
                 // Title
                 Text(
