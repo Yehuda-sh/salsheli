@@ -497,6 +497,7 @@ class ShoppingStrings {
   String get legendPending => 'ממתין';
   String get editQuantity => 'ערוך כמות';
   String get scanBarcode => 'סרוק ברקוד';
+  String get cameraError => 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.';
   String get barcodeFoundAdd => 'המוצר לא ברשימה. להוסיף?';
   String get addToListButton => 'הוסף לרשימה';
   String barcodeNotFound(String code) => 'ברקוד $code לא נמצא';

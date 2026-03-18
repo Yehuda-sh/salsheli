@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../../../../core/ui_constants.dart';
-import '../../../../l10n/app_strings.dart';
+import '../../core/ui_constants.dart';
+import '../../l10n/app_strings.dart';
 
 /// תוצאת סריקת ברקוד
 class BarcodeScanResult {
@@ -34,7 +34,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
   }
 
   void _onDetect(BarcodeCapture capture) {
-    if (_hasScanned) return;
+    if (_hasScanned || !mounted) return;
     final barcode = capture.barcodes.firstOrNull?.rawValue;
     if (barcode == null || barcode.isEmpty) return;
 
@@ -80,6 +80,23 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
               child: MobileScanner(
                 controller: _controller,
                 onDetect: _onDetect,
+                errorBuilder: (context, error) => Container(
+                  color: cs.errorContainer,
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.no_photography_outlined, size: 48, color: cs.onErrorContainer),
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          AppStrings.shopping.cameraError,
+                          style: TextStyle(color: cs.onErrorContainer, fontSize: kFontSizeSmall),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
