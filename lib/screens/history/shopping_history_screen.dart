@@ -1,63 +1,158 @@
-// 📄 lib/screens/history/shopping_history_screen.dart
+// 📄 lib/screens/notifications/notifications_center_screen.dart
 //
-// מסך היסטוריית קניות - צפייה בקבלות קודמות.
-// כולל חיפוש, מיון, וסטטיסטיקות הוצאות.
-// שילוב: רקע מחברת + עיצוב Material נקי (AppBar + Cards)
+// מרכז ההתראות - מציג את כל ההתראות של המשתמש:
+// - הזמנות לרשימות/קבוצות
+// - אישורים ודחיות
+// - שינויי תפקיד
+// - התראות מלאי
+// ✨ v4.1: כפתור סמן הכל כנקרא, Shimmer מהיר, פעולות Inline להזמנות, מנגנון Undo למחיקה.
 //
-// ✅ Features:
-//    - אנימציות כניסה עם flutter_animate
-//    - משוב Haptic בסינון ומיון
-//    - נגישות משופרת לסטטיסטיקות
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
-// 🔗 Related: ReceiptProvider, Receipt
+// Version: 4.1 (16/03/2026)
+// 🔗 Related: NotificationsService, AppNotification
 
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../models/receipt.dart';
-import '../../providers/receipt_provider.dart';
+import '../../models/notification.dart';
+import '../../providers/shopping_lists_provider.dart';
+import '../../providers/user_context.dart';
+import '../../screens/shopping/details/shopping_list_details_screen.dart';
+import '../../services/notifications_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 
-class ShoppingHistoryScreen extends StatefulWidget {
-  /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית
-  final String? initialReceiptId;
-
-  const ShoppingHistoryScreen({super.key, this.initialReceiptId});
+class NotificationsCenterScreen extends StatefulWidget {
+  const NotificationsCenterScreen({super.key});
 
   @override
-  State<ShoppingHistoryScreen> createState() => _ShoppingHistoryScreenState();
+  State<NotificationsCenterScreen> createState() => _NotificationsCenterScreenState();
 }
 
-class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
-  String _filterPeriod = 'month'; // month, 3months, all
-  String _sortBy = 'date'; // date, store, amount
+class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
+  List<AppNotification> _notifications = [];
+  bool _isLoading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
-    // אם פתחו עם קבלה ספציפית - הצג הכל כדי שהיא תהיה גלויה
-    if (widget.initialReceiptId != null) {
-      _filterPeriod = 'all';
+    // Initialize Hebrew locale for timeago
+    timeago.setLocaleMessages('he', timeago.HeMessages());
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    final strings = AppStrings.notificationsCenter;
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      final userContext = context.read<UserContext>();
+      final userId = userContext.user?.id;
+
+      if (userId == null) {
+        if (!mounted) return;
+        setState(() {
+          _error = strings.userNotLoggedIn;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final service = context.read<NotificationsService>();
+      final result = await service.getUserNotificationsResult(userId: userId);
+
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+
+      if (result.isSuccess) {
+        setState(() {
+          _notifications = result.notifications ?? [];
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _error = result.errorMessage ?? strings.loadingError;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+      setState(() {
+        _error = strings.loadingError;
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<void> _markAsRead(AppNotification notification) async {
+    try {
+      final userContext = context.read<UserContext>();
+      final userId = userContext.user?.id;
+      if (userId == null) return;
+
+      final service = context.read<NotificationsService>();
+      await service.markAsRead(userId: userId, notificationId: notification.id);
+
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+
+      // Update local state
+      setState(() {
+        final index = _notifications.indexWhere((n) => n.id == notification.id);
+        if (index != -1) {
+          _notifications[index] = notification.copyWith(isRead: true, readAt: DateTime.now());
+        }
+      });
+    } catch (e) {}
+  }
+
+  Future<void> _markAllAsRead() async {
+    final strings = AppStrings.notificationsCenter;
+    final userContext = context.read<UserContext>();
+    final userId = userContext.user?.id;
+    if (userId == null) return;
+
+    final service = context.read<NotificationsService>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await service.markAllAsRead(userId: userId);
+
+      // ✅ FIX: mounted guard after async
+      if (!mounted) return;
+
+      // Update local state
+      setState(() {
+        _notifications = _notifications.map((n) => n.copyWith(isRead: true, readAt: DateTime.now())).toList();
+      });
+
+      messenger.showSnackBar(SnackBar(content: Text(strings.allMarkedAsRead), duration: const Duration(seconds: 2)));
+    } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final strings = AppStrings.shoppingHistory;
+    final strings = AppStrings.notificationsCenter;
 
+    final unreadCount = _notifications.where((n) => n.isUnread).length;
+
+    // ✅ FIX: NotebookBackground + transparent Scaffold
     return Stack(
       children: [
         const NotebookBackground(),
@@ -66,618 +161,354 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-        title: Text(strings.title),
-        centerTitle: true,
-        actions: [
-          // מיון
-          PopupMenuButton<String>(
-            icon: Icon(Icons.sort, color: cs.primary),
-            tooltip: strings.sortTooltip,
-            onSelected: (value) {
-              unawaited(HapticFeedback.lightImpact());
-              setState(() => _sortBy = value);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'date',
-                child: Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByDate),
-                  ],
-                ),
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
+                child: Container(color: cs.surface.withValues(alpha: 0.7)),
               ),
-              PopupMenuItem(
-                value: 'store',
-                child: Row(
-                  children: [
-                    const Icon(Icons.list_alt, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByList),
-                  ],
+            ),
+            title: Text(strings.title),
+            centerTitle: true,
+            actions: [
+              if (unreadCount > 0)
+                // 🚀 UX Improvement 1: כפתור מהיר ונקי לסמן הכל כנקרא
+                IconButton(
+                  icon: const Icon(Icons.done_all),
+                  color: cs.primary,
+                  tooltip: strings.markAllAsRead,
+                  onPressed: () {
+                    unawaited(HapticFeedback.mediumImpact());
+                    _markAllAsRead();
+                  },
                 ),
-              ),
-              PopupMenuItem(
-                value: 'amount',
-                child: Row(
-                  children: [
-                    const Icon(Icons.attach_money, size: 18),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(strings.sortByAmount),
-                  ],
-                ),
-              ),
             ],
           ),
-        ],
-      ),
-      body: Consumer<ReceiptProvider>(
-        builder: (context, provider, _) {
-              if (provider.isLoading) {
-                return const AppLoadingSkeleton(sectionCount: 4, showHero: false);
-              }
-
-              if (provider.hasError) {
-                return _ErrorState(
-                  message: provider.errorMessage ?? strings.defaultError,
-                  onRetry: () => provider.retry(),
-                );
-              }
-
-              final receipts = _filterAndSortReceipts(provider.receipts);
-
-              if (provider.receipts.isEmpty) {
-                return _EmptyState();
-              }
-
-              // חשב סטטיסטיקות
-              final totalItems = receipts.fold<int>(
-                0,
-                (sum, r) => sum + r.items.where((i) => i.isChecked).length,
-              );
-
-              return Column(
-                children: [
-                  // 🔍 סינון לפי תקופה
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingMedium,
-                      vertical: kSpacingSmall,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FilterChip(
-                          label: Text(strings.filterThisMonth),
-                          selected: _filterPeriod == 'month',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = 'month');
-                          },
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        FilterChip(
-                          label: Text(strings.filterThreeMonths),
-                          selected: _filterPeriod == '3months',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = '3months');
-                          },
-                        ),
-                        const SizedBox(width: kSpacingSmall),
-                        FilterChip(
-                          label: Text(strings.filterAll),
-                          selected: _filterPeriod == 'all',
-                          selectedColor: cs.primary.withValues(alpha: 0.15),
-                          checkmarkColor: cs.primary,
-                          onSelected: (_) {
-                            unawaited(HapticFeedback.lightImpact());
-                            setState(() => _filterPeriod = 'all');
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // 📊 סטטיסטיקות
-                  Semantics(
-                    label: '${strings.shoppingsLabel}: ${receipts.length}, '
-                        '${strings.totalItemsLabel}: $totalItems',
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: kSpacingMedium),
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      decoration: BoxDecoration(
-                        color: cs.primaryContainer,
-                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _StatItem(
-                            icon: Icons.receipt_long,
-                            label: strings.shoppingsLabel,
-                            value: '${receipts.length}',
-                            color: cs.onPrimaryContainer,
-                          ),
-                          _StatItem(
-                            icon: Icons.shopping_bag,
-                            label: strings.totalItemsLabel,
-                            value: '$totalItems',
-                            color: cs.onPrimaryContainer,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 300.ms)
-                      .slideY(begin: 0.1, end: 0.0, curve: Curves.easeOut),
-
-                  SizedBox(height: kSpacingSmall),
-
-                  // 📋 רשימת קבלות
-                  Expanded(
-                    child: receipts.isEmpty
-                        ? Center(
-                            child: Text(
-                              strings.noResults,
-                              style: TextStyle(color: cs.onSurfaceVariant),
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: () => context.read<ReceiptProvider>().loadReceipts(),
-                            child: ListView.builder(
-                            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                            padding: const EdgeInsets.all(kSpacingMedium),
-                            itemCount: receipts.length,
-                            itemBuilder: (context, index) {
-                              final receipt = receipts[index];
-                              return _ReceiptTile(
-                                receipt: receipt,
-                                initiallyExpanded: receipt.id == widget.initialReceiptId,
-                              )
-                                  .animate()
-                                  .fadeIn(
-                                    duration: 250.ms,
-                                    delay: (50 * index).ms,
-                                  )
-                                  .slideY(
-                                    begin: 0.15,
-                                    end: 0.0,
-                                    duration: 250.ms,
-                                    delay: (50 * index).ms,
-                                    curve: Curves.easeOut,
-                                  );
-                            },
-                          ),
-                          ),
-                  ),
-                ],
-              );
-            },
-          ),
+          body: _buildBody(cs, theme),
         ),
       ],
     );
   }
 
-  /// סינון ומיון קבלות
-  List<Receipt> _filterAndSortReceipts(List<Receipt> receipts) {
-    var filtered = receipts.toList();
+  Widget _buildBody(ColorScheme cs, ThemeData theme) {
+    final strings = AppStrings.notificationsCenter;
+    final brand = theme.extension<AppBrand>();
 
-    // סינון לפי תקופה (לפי חודש קלנדרי, לא חלון נע)
-    final now = DateTime.now();
-    switch (_filterPeriod) {
-      case 'month':
-        // תחילת החודש הנוכחי
-        final firstOfMonth = DateTime(now.year, now.month, 1);
-        filtered = filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
-        break;
-      case '3months':
-        // תחילת 3 חודשים אחורה (כולל החודש הנוכחי)
-        final firstOf3MonthsAgo = DateTime(now.year, now.month - 2, 1);
-        filtered = filtered.where((r) => !r.date.isBefore(firstOf3MonthsAgo)).toList();
-        break;
-      case 'all':
-        // לא לסנן
-        break;
+    if (_isLoading) {
+      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
 
-    // מיון
-    switch (_sortBy) {
-      case 'date':
-        filtered.sort((a, b) => b.date.compareTo(a.date)); // חדש קודם
-        break;
-      case 'store':
-        filtered.sort((a, b) => a.storeName.compareTo(b.storeName));
-        break;
-      case 'amount':
-        filtered.sort((a, b) => b.totalAmount.compareTo(a.totalAmount)); // גבוה קודם
-        break;
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Card(
+            elevation: 1,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingLarge),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.notifications_off_outlined, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  const SizedBox(height: kSpacingMedium),
+                  Text(
+                    _error!,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                  FilledButton.icon(
+                    onPressed: _loadNotifications,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(strings.retryButton),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ).animate().fadeIn(duration: 400.ms);
     }
 
-    return filtered;
+    if (_notifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipOval(
+                  child: Image.asset(
+                    'assets/images/empty_notifications.webp',
+                    width: 120,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                .animate(onPlay: (c) => c.repeat(reverse: true))
+                .scaleXY(begin: 1.0, end: 1.05, duration: 2000.ms, curve: Curves.easeInOut),
+            const SizedBox(height: 16),
+            Text(strings.emptyTitle, style: theme.textTheme.titleMedium?.copyWith(color: cs.onSurfaceVariant)),
+            const SizedBox(height: 8),
+            Text(
+              strings.emptySubtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+            ),
+          ],
+        ),
+      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut);
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadNotifications,
+      child: ListView.separated(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.only(
+          top: kSpacingSmall,
+          left: kSpacingSmall,
+          right: kSpacingSmall,
+          bottom: kSpacingXLarge + kSpacingLarge,
+        ),
+        itemCount: _notifications.length,
+        // ✅ FIX: Always scrollable for pull-to-refresh with few items
+        physics: const AlwaysScrollableScrollPhysics(),
+        separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
+        itemBuilder: (context, index) {
+          final notification = _notifications[index];
+          return RepaintBoundary(
+            child:
+                Dismissible(
+                      key: ValueKey(notification.id),
+                      // סווייפ ימינה (RTL) → סמן כנקרא
+                      background: Container(
+                        alignment: AlignmentDirectional.centerStart,
+                        padding: const EdgeInsetsDirectional.only(start: 20),
+                        color: (brand?.success ?? kStickyGreen).withValues(alpha: 0.2),
+                        child: Icon(Icons.check, color: brand?.success ?? kStickyGreen),
+                      ),
+                      // סווייפ שמאלה → מחיקה
+                      secondaryBackground: Container(
+                        alignment: AlignmentDirectional.centerEnd,
+                        padding: const EdgeInsetsDirectional.only(end: 20),
+                        color: cs.error.withValues(alpha: 0.2),
+                        child: Icon(Icons.delete_outline, color: cs.error),
+                      ),
+                      confirmDismiss: (direction) async {
+                        unawaited(HapticFeedback.lightImpact());
+                        if (direction == DismissDirection.startToEnd) {
+                          // סמן כנקרא
+                          unawaited(_markAsRead(notification));
+                          unawaited(HapticFeedback.mediumImpact());
+                          return false; // לא להסיר מהרשימה
+                        }
+                        // מחיקה — אישור
+                        unawaited(HapticFeedback.mediumImpact());
+                        return true;
+                      },
+                      onDismissed: (direction) {
+                        // 🚀 UX Improvement 4: שחזור מחיקה (Undo)
+                        if (direction == DismissDirection.endToStart) {
+                          final deletedNotification = _notifications[index];
+                          setState(() => _notifications.removeAt(index));
+
+                          ScaffoldMessenger.of(context).clearSnackBars();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('ההתראה נמחקה'),
+                              action: SnackBarAction(
+                                label: 'בטל',
+                                onPressed: () {
+                                  if (mounted) {
+                                    setState(() {
+                                      _notifications.insert(index, deletedNotification);
+                                    });
+                                  }
+                                },
+                              ),
+                              duration: const Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      child: _NotificationTile(
+                        notification: notification,
+                        onTap: () => _handleNotificationTap(notification),
+                        onMarkAsRead: () => _markAsRead(notification),
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(duration: 300.ms, delay: (40 * index).ms)
+                    .slideX(begin: -0.1, end: 0, duration: 300.ms, delay: (40 * index).ms, curve: Curves.easeOut),
+          );
+        },
+      ),
+    );
+  }
+
+  void _handleNotificationTap(AppNotification notification) {
+    // Mark as read
+    if (notification.isUnread) {
+      _markAsRead(notification);
+    }
+
+    // Navigate based on notification type
+    switch (notification.type) {
+      case NotificationType.invite:
+        Navigator.pushNamed(context, '/pending-invites');
+        break;
+      case NotificationType.requestApproved:
+      case NotificationType.requestRejected:
+        // Navigate to list if listId exists
+        if (notification.listId != null && mounted) {
+          final listsProvider = context.read<ShoppingListsProvider>();
+          try {
+            final list = listsProvider.lists.firstWhere((l) => l.id == notification.listId);
+            if (mounted) {
+              Navigator.of(context).push(MaterialPageRoute(builder: (_) => ShoppingListDetailsScreen(list: list)));
+            }
+          } catch (_) {
+            // רשימה לא נמצאה — אולי נמחקה
+          }
+        }
+        break;
+      default:
+        // Just mark as read, no navigation
+        break;
+    }
   }
 }
 
-// ========================================
-// Widget: כרטיס קבלה מתרחב
-// ========================================
+/// Individual notification tile
+class _NotificationTile extends StatelessWidget {
+  final AppNotification notification;
+  final VoidCallback onTap;
+  final VoidCallback onMarkAsRead;
 
-class _ReceiptTile extends StatelessWidget {
-  final Receipt receipt;
-  final bool initiallyExpanded;
-
-  const _ReceiptTile({required this.receipt, this.initiallyExpanded = false});
-
-  /// Format quantity to avoid "1.0" display
-  String _formatQuantity(num quantity) {
-    if (quantity == quantity.toInt()) {
-      return quantity.toInt().toString();
-    }
-    return quantity.toString();
-  }
+  const _NotificationTile({required this.notification, required this.onTap, required this.onMarkAsRead});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final strings = AppStrings.shoppingHistory;
-    final locale = Localizations.localeOf(context).languageCode;
-    final successColor = theme.extension<AppBrand>()?.success ?? cs.primary;
+    final brand = theme.extension<AppBrand>();
 
-    final leadingColor = receipt.isVirtual ? successColor : cs.primary;
+    final isUnread = notification.isUnread;
+    final timeAgo = timeago.format(notification.createdAt, locale: 'he');
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: Card(
-        elevation: 1,
-        clipBehavior: Clip.antiAlias,
-        shape: RoundedRectangleBorder(
+    Widget tile = Card(
+      elevation: isUnread ? 2 : 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: 0.3), width: 1) : BorderSide.none,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isUnread ? cs.primaryContainer.withValues(alpha: 0.15) : null,
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          side: BorderSide(
-            color: cs.outlineVariant.withValues(alpha: 0.2),
-            width: 0.5,
-          ),
         ),
-        child: ExpansionTile(
-          initiallyExpanded: initiallyExpanded,
-          iconColor: leadingColor,
-          collapsedIconColor: leadingColor,
-          tilePadding: const EdgeInsets.symmetric(
-            horizontal: kSpacingMedium,
-            vertical: kSpacingSmall,
-          ),
-          childrenPadding: const EdgeInsets.only(
-            left: kSpacingMedium,
-            right: kSpacingMedium,
-            bottom: kSpacingMedium,
-          ),
+        child: ListTile(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+          onTap: onTap,
           leading: Container(
-            padding: const EdgeInsets.all(10),
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: receipt.isVirtual
-                  ? successColor.withValues(alpha: 0.2)
-                  : cs.primaryContainer,
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              color: _getTypeColor(notification.type, cs, brand).withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(kBorderRadius),
             ),
-            child: Icon(
-              receipt.isVirtual ? Icons.shopping_cart : Icons.receipt,
-              color: receipt.isVirtual ? successColor : cs.primary,
+            child: Center(
+              child: Text(notification.type.emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
             ),
           ),
           title: Text(
-            receipt.storeName,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: kFontSizeMedium,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+            notification.title,
+            style: theme.textTheme.bodyLarge?.copyWith(fontWeight: isUnread ? FontWeight.bold : FontWeight.normal),
           ),
-          subtitle: Text(
-            DateFormat('dd/MM/yyyy  HH:mm', locale).format(receipt.date),
-            style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-          ),
-          trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: kStickyGreen.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(kBorderRadius),
-            ),
-            child: Text(
-              strings.itemsCount(receipt.items.where((i) => i.isChecked).length),
-              style: TextStyle(
-                fontSize: kFontSizeSmall,
-                fontWeight: FontWeight.w600,
-                color: kStickyGreen,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                notification.message,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-            ),
-          ),
-          // רשימת פריטים בהרחבה
-          children: [
-            Divider(height: 1),
-            SizedBox(height: kSpacingSmall),
-            if (receipt.items.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Text(
-                  AppStrings.receiptDetails.noItemsMessage,
-                  style: TextStyle(color: cs.onSurfaceVariant),
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 4),
+              Text(
+                timeAgo,
+                style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.7)),
+              ),
+              // 🚀 UX Improvement 3: פעולות מהירות (Inline Actions) להזמנות
+              if (notification.type == NotificationType.invite) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: brand?.success ?? kStickyGreen,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      onPressed: () {
+                        unawaited(HapticFeedback.mediumImpact());
+                        onTap(); // מפנה למסך ההזמנות לקבלת החלטה
+                      },
+                      child: const Text('בדוק הזמנה', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        foregroundColor: cs.error,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                      ),
+                      onPressed: () {
+                        unawaited(HapticFeedback.mediumImpact());
+                        // פעולת דחייה מהירה
+                        onMarkAsRead();
+                      },
+                      child: const Text('התעלם'),
+                    ),
+                  ],
                 ),
-              )
-            else
-              ...receipt.items.map((item) => _buildItemRow(context, item, cs, successColor)),
-          ],
+              ],
+            ],
+          ),
+          trailing: isUnread
+              ? Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(color: cs.primary, shape: BoxShape.circle),
+                )
+              : null,
         ),
       ),
     );
-  }
 
-  Widget _buildItemRow(BuildContext context, ReceiptItem item, ColorScheme cs, Color successColor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: Row(
-        children: [
-          // Checkbox indicator
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: item.isChecked
-                  ? successColor
-                  : cs.outlineVariant.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            ),
-            child: item.isChecked
-                ? Icon(Icons.check, color: cs.onPrimary, size: 14)
-                : null,
-          ),
-          SizedBox(width: kSpacingSmall),
-          // כמות - מיד אחרי ה-checkbox
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: cs.primaryContainer,
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            ),
-            child: Text(
-              '×${_formatQuantity(item.quantity)}',
-              style: TextStyle(
-                color: cs.onPrimaryContainer,
-                fontWeight: FontWeight.bold,
-                fontSize: kFontSizeSmall,
-              ),
-            ),
-          ),
-          SizedBox(width: kSpacingSmall),
-          // שם פריט
-          Expanded(
-            child: Text(
-              item.name ?? '?',
-              style: TextStyle(
-                decoration: item.isChecked ? TextDecoration.lineThrough : null,
-                color: item.isChecked
-                    ? cs.onSurface.withValues(alpha: 0.5)
-                    : cs.onSurface,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // מחיר
-          Text(
-            '₪${item.totalPrice.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: cs.primary,
-              fontSize: kFontSizeSmall,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ========================================
-// Widget: סטטיסטיקה
-// ========================================
-
-class _StatItem extends StatefulWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  State<_StatItem> createState() => _StatItemState();
-}
-
-class _StatItemState extends State<_StatItem> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _controller.forward();
-  }
-
-  @override
-  void didUpdateWidget(_StatItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.value != widget.value) {
-      _controller.forward(from: 0);
+    // 🚀 UX Improvement 2: Shimmer עדין ומהיר (ירד מ-3 שניות ל-1 שנייה)
+    if (isUnread) {
+      tile = tile
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .shimmer(delay: 1000.ms, duration: 1200.ms, color: cs.primary.withValues(alpha: 0.08));
     }
+
+    return tile;
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    // Extract numeric value for animation
-    final numericStr = widget.value.replaceAll(RegExp(r'[^\d.]'), '');
-    final targetNum = double.tryParse(numericStr) ?? 0;
-    final prefix = widget.value.contains('₪') ? '₪' : '';
-
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(widget.icon, color: widget.color, size: 20),
-            const SizedBox(width: 4),
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, _) {
-                final current = (targetNum * _animation.value);
-                final display = targetNum == targetNum.toInt().toDouble()
-                    ? '$prefix${current.toInt()}'
-                    : '$prefix${current.toStringAsFixed(0)}';
-                return Text(
-                  display,
-                  style: TextStyle(
-                    fontSize: kFontSizeLarge,
-                    fontWeight: FontWeight.bold,
-                    color: widget.color,
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
-        Text(
-          widget.label,
-          style: TextStyle(
-            fontSize: kFontSizeSmall,
-            color: cs.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ========================================
-// Widget: Empty State
-// ========================================
-
-class _EmptyState extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.shoppingHistory;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Illustrated empty state — watercolor notebook
-            ClipOval(
-              child: Image.asset(
-                'assets/images/empty_history.webp',
-                width: 140,
-                height: 140,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: kSpacingLarge),
-            Text(
-              strings.emptyTitle,
-              style: TextStyle(
-                fontSize: kFontSizeLarge,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
-            ),
-            SizedBox(height: kSpacingSmall),
-            Text(
-              strings.emptySubtitle,
-              style: TextStyle(
-                fontSize: kFontSizeBody,
-                color: cs.onSurfaceVariant,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ========================================
-// Widget: Error State
-// ========================================
-
-class _ErrorState extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _ErrorState({
-    required this.message,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.shoppingHistory;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              // ✅ FIX: Theme-aware error color
-              color: cs.error.withValues(alpha: 0.7),
-            ),
-            SizedBox(height: kSpacingMedium),
-            Text(
-              message,
-              style: TextStyle(color: cs.onSurfaceVariant),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kSpacingMedium),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(strings.retryButton),
-            ),
-          ],
-        ),
-      ),
-    );
+  /// ✅ FIX: Theme-aware colors from AppBrand
+  Color _getTypeColor(NotificationType type, ColorScheme cs, AppBrand? brand) {
+    switch (type) {
+      case NotificationType.invite:
+        return cs.primary;
+      case NotificationType.requestApproved:
+        return brand?.success ?? kStickyGreen;
+      case NotificationType.requestRejected:
+      case NotificationType.userRemoved:
+        return cs.error;
+      case NotificationType.roleChanged:
+        return brand?.warning ?? kStickyOrange;
+      case NotificationType.lowStock:
+        return brand?.accent ?? kStickyYellow;
+      default:
+        return cs.secondary;
+    }
   }
 }
