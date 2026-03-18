@@ -1725,6 +1725,18 @@ class PantryStrings {
   String get addBasicsButton => 'כן, הוסף!';
   String get emptyLabel => 'מזווה ריק';
   String get addFirstProduct => 'הוסף מוצר ראשון';
+  String get emptyMainTitle => 'בואו נמלא את המזווה! 🎉';
+  String get emptySubtitlePersonal => 'הוסף מוצרים כדי לדעת תמיד מה יש ומה חסר';
+  String get emptySubtitleGroup => 'הוסיפו מוצרים למזווה המשותף כדי לעקוב אחרי מה שיש בבית';
+  String get howToStartTitle => 'איך להתחיל?';
+  String get howToStartStep1 => 'לחץ על ״הוסף מוצר״ למטה';
+  String get howToStartStep2 => 'חפש מוצר מתוך 9,000+ מוצרים';
+  String get howToStartStep3 => 'הגדר כמות — וזהו! 🎯';
+  String get howToStartHint => '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות';
+  String get starterItemsTitle => 'רוצה להתחיל עם מוצרי יסוד?';
+  String get starterItemsSubtitle => 'קמח, סוכר, שמן, אורז ועוד - נוסיף אותם אוטומטית';
+  String pantryBadgeGroup(String name) => 'מזווה הבית — $name';
+  String get pantryBadgePersonal => 'המזווה שלך ✨';
 
   // Duplicate detection
   String get similarProductFound => 'נמצא מוצר דומה במזווה';
