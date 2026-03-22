@@ -274,18 +274,6 @@
     "defaultQty": 1
   },
   {
-    "name": "אפרסק חצאים 820 גרם",
-    "category": "פירות",
-    "price": 10.9,
-    "barcode": "7290002881278",
-    "brand": "---",
-    "unit": "גרם",
-    "size": "820.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ארטישוק",
     "category": "ירקות",
     "price": 29.9,
@@ -331,18 +319,6 @@
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בורקס תפוח אדמה 4יח 600ג",
-    "category": "פירות",
-    "price": 21.9,
-    "barcode": "7290121010375",
-    "brand": "גידרון תעשיות בע\"מ",
-    "unit": "גרם",
-    "size": "600.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -394,18 +370,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בליסטקס תות בליסטר",
-    "category": "פירות",
-    "price": 16.5,
-    "barcode": "7290012854392",
-    "brand": "בליסטקס פריגו",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "בננה",
     "category": "פירות",
     "price": 7.9,
@@ -439,18 +403,6 @@
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בננה ציפס בקופסא 140 גר",
-    "category": "פירות",
-    "price": 11.9,
-    "barcode": "7296073706151",
-    "brand": "---",
-    "unit": "גרם",
-    "size": "140.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -538,18 +490,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בצל קצוץ ומטוגן 180 גרם",
-    "category": "ירקות",
-    "price": 11.9,
-    "barcode": "7290012561405",
-    "brand": "דורות",
-    "unit": "גרם",
-    "size": "180.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "בצלצלי שאלוט יחידה",
     "category": "ירקות",
     "price": 15.9,
@@ -569,18 +509,6 @@
     "brand": "חוות פטריות תקוע",
     "unit": "גרם",
     "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ברוסקטות עם עגבניות 150ג",
-    "category": "ירקות",
-    "price": 12.9,
-    "barcode": "7296073449089",
-    "brand": "מנה י.א בע\"מ",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -726,42 +654,6 @@
     "icon": null,
     "unit": "ק\"ג",
     "defaultUnit": "יח'"
-  },
-  {
-    "name": "ורדי אפרסק 750 מ\"ל",
-    "category": "פירות",
-    "price": 27.9,
-    "barcode": "8002450204009",
-    "brand": "בוסקה",
-    "unit": "מ\"ל",
-    "size": "750.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ח.טורטיה שום בצל כל\"פ60ג",
-    "category": "ירקות",
-    "price": 9.5,
-    "barcode": "7290118425601",
-    "brand": "פרח",
-    "unit": "גרם",
-    "size": "60.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חומוס עם בצל מטוגן 380 ג",
-    "category": "ירקות",
-    "price": 15.9,
-    "barcode": "7290119373765",
-    "brand": "שטראוס גרופ בע\"מ",
-    "unit": "גרם",
-    "size": "380.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
   },
   {
     "name": "חטיפוני גזר 350גרם",
@@ -1028,18 +920,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חציל בטעם כבד 400 גרם",
-    "category": "ירקות",
-    "price": 18.5,
-    "barcode": "7290105366023",
-    "brand": "שטראוס גרופ בע\"מ",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "חציל בלדי",
     "category": "ירקות",
     "price": 9.9,
@@ -1121,30 +1001,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "טרופיקש משקה ענבים 200מ",
-    "category": "פירות",
-    "price": 2.9,
-    "barcode": "7290010609000",
-    "brand": "דודו הדיל",
-    "unit": "מ\"ל",
-    "size": "200.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "טרופיקש משקה ענבים10*200",
-    "category": "פירות",
-    "price": 13.9,
-    "barcode": "7290010609079",
-    "brand": "",
-    "unit": "ליטרים",
-    "size": "2.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1424,18 +1280,6 @@
     "defaultQty": 1
   },
   {
-    "name": "לימון בלאדי 250 גרם",
-    "category": "פירות",
-    "price": 18.5,
-    "barcode": "7290010154012",
-    "brand": "נטו",
-    "unit": "גרם",
-    "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ליצ׳י",
     "category": "פירות",
     "price": 34.9,
@@ -1479,18 +1323,6 @@
     "brand": "מור בריאות בע\"מ",
     "unit": "יח'",
     "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מארז אקטימל תות 8*100מ\"ל",
-    "category": "פירות",
-    "price": 23.9,
-    "barcode": "7290107938396",
-    "brand": "שטראוס בריאות בע\"מ",
-    "unit": "מ\"ל",
-    "size": "800.00 מיליליטרים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -1551,18 +1383,6 @@
     "brand": "",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מארז ונוס תות ידית+3",
-    "category": "פירות",
-    "price": 29.9,
-    "barcode": "7702018539468",
-    "brand": "גילט",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -1664,126 +1484,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מחית עגבניה 690 LIVATO",
-    "category": "ירקות",
-    "price": 14.9,
-    "barcode": "7296073644880",
-    "brand": "DAVIA S.P.A",
-    "unit": "גרם",
-    "size": "690.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית עגבניות בצנצנת 690ג",
-    "category": "ירקות",
-    "price": 13.9,
-    "barcode": "7290117266007",
-    "brand": "לה ספציאליטה איטליאנה",
-    "unit": "גרם",
-    "size": "690.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית עגבניות מאסטר שף690",
-    "category": "ירקות",
-    "price": 14.9,
-    "barcode": "7290117387726",
-    "brand": "Mazza Alimentari S.r.l",
-    "unit": "גרם",
-    "size": "690.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית עגבניות קלה 700 גרם",
-    "category": "ירקות",
-    "price": 16.9,
-    "barcode": "80042563",
-    "brand": "",
-    "unit": "גרם",
-    "size": "700.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח אפרסק פאוץ100ג",
-    "category": "פירות",
-    "price": 3.9,
-    "barcode": "7296073627548",
-    "brand": "AGROPHOENIX .SA",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח בננה בפאוץ100ג",
-    "category": "פירות",
-    "price": 3.9,
-    "barcode": "7296073627500",
-    "brand": ".SA AGROPHOENIX",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח גזר מנגו פאץ90",
-    "category": "פירות",
-    "price": 6.3,
-    "barcode": "8445291081574",
-    "brand": "נסטלה ספרד ס.א, מפעל סבר",
-    "unit": "גרם",
-    "size": "90.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח גזר פאוץ90ג",
-    "category": "פירות",
-    "price": 6.3,
-    "barcode": "8445291081543",
-    "brand": "נסטלה ספרד ס.א, מפעל סבר",
-    "unit": "גרם",
-    "size": "90.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח עץ ובננה190ג",
-    "category": "פירות",
-    "price": 6.9,
-    "barcode": "8445291028920",
-    "brand": "נסטלה פולסקה אס.איי",
-    "unit": "גרם",
-    "size": "190.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מט.לניקוי לימון 400י XPO",
-    "category": "פירות",
-    "price": 25.9,
-    "barcode": "7290020188007",
-    "brand": "סאסאטק אגש\"ח בע\"מ",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מיני כרובית 600 גרם",
     "category": "ירקות",
     "price": 22.9,
@@ -1791,18 +1491,6 @@
     "brand": "סנפרוסט",
     "unit": "גרם",
     "size": "600.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מיני מוצ'י מנגו 240 גרם",
-    "category": "פירות",
-    "price": 34.9,
-    "barcode": "4820077162472",
-    "brand": "ללס \"טירס ט.מ מוסאיק\"",
-    "unit": "גרם",
-    "size": "240.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -1976,78 +1664,6 @@
     "defaultQty": 1
   },
   {
-    "name": "ממרח אבוקדו גוואקמול",
-    "category": "ירקות",
-    "price": 12.9,
-    "barcode": "7453140789558",
-    "brand": "בני דרום",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח גוואקמולי אבוקדו220",
-    "category": "ירקות",
-    "price": 19.9,
-    "barcode": "7290115677959",
-    "brand": "סנטה אירפואטו",
-    "unit": "גרם",
-    "size": "220.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח לימון כבוש 200 גרם",
-    "category": "פירות",
-    "price": 17.5,
-    "barcode": "7290002862277",
-    "brand": "הררית",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח עגבניות מיובשות180",
-    "category": "ירקות",
-    "price": 18.9,
-    "barcode": "7290015858113",
-    "brand": "מדשא תעשיות מזון בע\"מ",
-    "unit": "גרם",
-    "size": "180.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח פלפלים קלויים 180 ג",
-    "category": "ירקות",
-    "price": 15.5,
-    "barcode": "7296073451969",
-    "brand": "פרסקו חצבה 2006 בע\"מ",
-    "unit": "גרם",
-    "size": "180.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח פלפלים קלויים 180גר",
-    "category": "ירקות",
-    "price": 18.9,
-    "barcode": "7290015858175",
-    "brand": "מדשא תעשיות מזון בע\"מ",
-    "unit": "גרם",
-    "size": "180.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מנגו",
     "category": "פירות",
     "price": 24.9,
@@ -2120,90 +1736,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מעדן אפרסק 284 גרם",
-    "category": "פירות",
-    "price": 19.9,
-    "barcode": "5014271370422",
-    "brand": "סאן דלפור - שמבור",
-    "unit": "גרם",
-    "size": "284.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן סויה ביו אפרסק150ג",
-    "category": "פירות",
-    "price": 5.9,
-    "barcode": "7290110329792",
-    "brand": "תנובה בע\"מ",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן סויה ביו טעם תות200",
-    "category": "פירות",
-    "price": 6.7,
-    "barcode": "7290110325312",
-    "brand": "תנובה בע\"מ",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן סויה בננה קרמל150ג",
-    "category": "פירות",
-    "price": 5.2,
-    "barcode": "7290116935942",
-    "brand": "תנובה בע\\\"מ\\n",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן סויה עם תות",
-    "category": "פירות",
-    "price": 5.9,
-    "barcode": "7290110329808",
-    "brand": "תנובה בע\"מ",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן תות שדה 284 גרם",
-    "category": "פירות",
-    "price": 19.9,
-    "barcode": "5014271400426",
-    "brand": "סאן דלפור - שמבור",
-    "unit": "גרם",
-    "size": "284.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מעדן תות שדה100%פרי284ג",
-    "category": "פירות",
-    "price": 9.9,
-    "barcode": "7290019297420",
-    "brand": "כללי",
-    "unit": "גרם",
-    "size": "284.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "משמש",
     "category": "פירות",
     "price": 22.9,
@@ -2213,138 +1745,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה אקטיביה תות1.2% 265",
-    "category": "פירות",
-    "price": 6.5,
-    "barcode": "7290107937542",
-    "brand": "שטראוס בריאות בע\"מ",
-    "unit": "גרם",
-    "size": "265.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה בננה יטבתה+פקק 250מ",
-    "category": "פירות",
-    "price": 6,
-    "barcode": "7290003029389",
-    "brand": "מחלבת יטבתה",
-    "unit": "מ\"ל",
-    "size": "250.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה גו אפרסק פסיפלור500",
-    "category": "פירות",
-    "price": 15.9,
-    "barcode": "7290116932781",
-    "brand": "תנובה בע\"מ",
-    "unit": "מ\"ל",
-    "size": "500.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה יוג.גו בננה קרמל500",
-    "category": "פירות",
-    "price": 15.9,
-    "barcode": "7290116932774",
-    "brand": "תנובה בע\"מ",
-    "unit": "מ\"ל",
-    "size": "500.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה יוג.גו מלון תות500מ",
-    "category": "פירות",
-    "price": 16.5,
-    "barcode": "7290116934228",
-    "brand": "תנובה בע\"מ",
-    "unit": "מ\"ל",
-    "size": "500.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה יוג.פרו תות ללס255ג",
-    "category": "פירות",
-    "price": 8.6,
-    "barcode": "7290110573737",
-    "brand": "שטראוס בריאות בע\"מ",
-    "unit": "גרם",
-    "size": "255.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה יופלה אפרסק בננה750",
-    "category": "פירות",
-    "price": 15.9,
-    "barcode": "7290116933818",
-    "brand": "תנובה",
-    "unit": "מ\"ל",
-    "size": "750.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה יופלה בננה תות750מל",
-    "category": "פירות",
-    "price": 16.9,
-    "barcode": "7290116933825",
-    "brand": "תנובה",
-    "unit": "מ\"ל",
-    "size": "750.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה סאפה ענבים 300 מ\"ל",
-    "category": "פירות",
-    "price": 8.9,
-    "barcode": "8850389103111",
-    "brand": "",
-    "unit": "מ\"ל",
-    "size": "300.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה קל מנגו 2 ליטר",
-    "category": "פירות",
-    "price": 5.5,
-    "barcode": "7290019056768",
-    "brand": "יפאורה תבורי בעמ",
-    "unit": "ליטרים",
-    "size": "2.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה קל ענבים קריסטל 2ל",
-    "category": "פירות",
-    "price": 5.5,
-    "barcode": "7290019056720",
-    "brand": "יפאורה תבורי בעמ",
-    "unit": "ליטרים",
-    "size": "2.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2408,102 +1808,6 @@
     "defaultQty": 1
   },
   {
-    "name": "נתחי טונה מעושן+לימון160",
-    "category": "פירות",
-    "price": 20.9,
-    "barcode": "7290019226994",
-    "brand": "---",
-    "unit": "גרם",
-    "size": "160.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סאן בנדטו אפרסק 400 מ\"ל",
-    "category": "פירות",
-    "price": 6.9,
-    "barcode": "8001620019160",
-    "brand": "אקווה מינרלה סאן בנדטו",
-    "unit": "מ\"ל",
-    "size": "400.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט גזר בלימון 300 גרם",
-    "category": "פירות",
-    "price": 24.9,
-    "barcode": "7290006666468",
-    "brand": "סלטי משני",
-    "unit": "גרם",
-    "size": "300.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט גזר מרוקאי 400 גרם",
-    "category": "ירקות",
-    "price": 14.9,
-    "barcode": "7296073725541",
-    "brand": "סלטי שמיר",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט כרוב אדום 400 גרם",
-    "category": "ירקות",
-    "price": 15.9,
-    "barcode": "7296073725473",
-    "brand": "סלטי שמיר",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט כרוב אדום יום יום120",
-    "category": "ירקות",
-    "price": 6.2,
-    "barcode": "7290103404758",
-    "brand": "שטראוס גרופ בע\"מ",
-    "unit": "גרם",
-    "size": "120.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט פלפל מרוקאי 300 גרם",
-    "category": "ירקות",
-    "price": 25.9,
-    "barcode": "7290006666529",
-    "brand": "סלטי משני",
-    "unit": "גרם",
-    "size": "300.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט פלפלים קלויים 400 גר",
-    "category": "ירקות",
-    "price": 18.5,
-    "barcode": "7290104721533",
-    "brand": "שטראוס גרופ בע\"מ",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלק",
     "category": "ירקות",
     "price": 5.9,
@@ -2513,18 +1817,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלק עלים )מנגולד( יחידה",
-    "category": "פירות",
-    "price": 7.9,
-    "barcode": "7290015979436",
-    "brand": "זנזורי",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2706,30 +1998,6 @@
     "defaultUnit": "יח'"
   },
   {
-    "name": "עגבניות חתוכות דק 3*400ג",
-    "category": "ירקות",
-    "price": 18.9,
-    "barcode": "7296073592556",
-    "brand": "DAVIA S.P.A",
-    "unit": "גרם",
-    "size": "1200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עגבניות חתוכות דק 400*3ג",
-    "category": "ירקות",
-    "price": 18.9,
-    "barcode": "7296073497745",
-    "brand": "SPA DORIA LA",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "עגבניות מגי",
     "category": "ירקות",
     "price": 7.9,
@@ -2739,42 +2007,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "עגבניות מרוסקות800ג יכין",
-    "category": "ירקות",
-    "price": 11.9,
-    "barcode": "7290000208022",
-    "brand": "זנלכל בע\"מ",
-    "unit": "גרם",
-    "size": "800.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עגבניות קצוצות יכין 240",
-    "category": "ירקות",
-    "price": 7.9,
-    "barcode": "7290000208947",
-    "brand": "זנלכל בע\\\"מ",
-    "unit": "גרם",
-    "size": "240.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עגבניות שלמ2*400ג LIVATO",
-    "category": "ירקות",
-    "price": 13.9,
-    "barcode": "7296073731573",
-    "brand": "DAVIA S.P.A",
-    "unit": "גרם",
-    "size": "2.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3516,54 +2748,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פריפלצת אגס 120 גרם",
-    "category": "פירות",
-    "price": 5,
-    "barcode": "7296073629764",
-    "brand": "DODACO",
-    "unit": "גרם",
-    "size": "120.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פריפלצת אגס גזר דלעת 120",
-    "category": "פירות",
-    "price": 5,
-    "barcode": "7296073629801",
-    "brand": "DODACO",
-    "unit": "גרם",
-    "size": "120.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פריפלצת בננה 120 גרם",
-    "category": "פירות",
-    "price": 5,
-    "barcode": "7296073629788",
-    "brand": "DODACO",
-    "unit": "גרם",
-    "size": "120.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פריפלצת תפוח בננה 120 גר",
-    "category": "פירות",
-    "price": 5,
-    "barcode": "7296073629757",
-    "brand": "DODACO",
-    "unit": "גרם",
-    "size": "120.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "צנון",
     "category": "ירקות",
     "price": 4.9,
@@ -3583,18 +2767,6 @@
     "brand": "D.O.O LAKI",
     "unit": "גרם",
     "size": "300.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קוביות עגבניות 800 גרם",
-    "category": "ירקות",
-    "price": 10.9,
-    "barcode": "7296073079859",
-    "brand": "פריניר",
-    "unit": "גרם",
-    "size": "800.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -3744,18 +2916,6 @@
     "defaultQty": 1
   },
   {
-    "name": "ר.עגבניות22% 100 ב.יהודה",
-    "category": "ירקות",
-    "price": 2.9,
-    "barcode": "7296073079903",
-    "brand": "פריניר",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "רוזמרין טרי",
     "category": "ירקות תיבול",
     "price": 3.9,
@@ -3799,42 +2959,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "רסק עגבניות 28% 400גרם",
-    "category": "ירקות",
-    "price": 7.9,
-    "barcode": "7290117266144",
-    "brand": "טיאנג'ין הונגבאו",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רסק עגבניות טבעי יכין100",
-    "category": "ירקות",
-    "price": 3.9,
-    "barcode": "7290018989333",
-    "brand": "זנלכל בע\"מ",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רסק תפו\"ע עם אפרסק4*113",
-    "category": "פירות",
-    "price": 12.9,
-    "barcode": "7290017058146",
-    "brand": "אינדיאן סאמר",
-    "unit": "גרם",
-    "size": "452.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4147,7 +3271,7 @@
   },
   {
     "name": "תפוח אדמה אגו שף",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 9.9,
     "barcode": "7290018619308",
     "brand": "גידולי אגו",
@@ -4171,7 +3295,7 @@
   },
   {
     "name": "תפוח אדמה אדום ארוז",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 7.9,
     "barcode": "7290000001692",
     "brand": "קטיף.",
@@ -4183,7 +3307,7 @@
   },
   {
     "name": "תפוח אדמה אדום תפזורת",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 7.9,
     "barcode": "7290000001722",
     "brand": "קטיף.",
@@ -4195,7 +3319,7 @@
   },
   {
     "name": "תפוח אדמה בייב שף",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 9.9,
     "barcode": "7290010868186",
     "brand": "גידולי אגו",
@@ -4207,7 +3331,7 @@
   },
   {
     "name": "תפוח אדמה גורמה לבן",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 9.9,
     "barcode": "7290005610127",
     "brand": "חבל מעון",
@@ -4219,7 +3343,7 @@
   },
   {
     "name": "תפוח אדמה לבן",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 6.9,
     "barcode": "7290001867037",
     "brand": "קטיף.",
@@ -4231,7 +3355,7 @@
   },
   {
     "name": "תפוח אדמה לבן ארוז",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 6.9,
     "barcode": "7290000001715",
     "brand": "קטיף.",
@@ -4243,7 +3367,7 @@
   },
   {
     "name": "תפוח אדמה לבן ברשת 1.5קג",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 14.9,
     "barcode": "7290018758960",
     "brand": "כללי",
@@ -4255,7 +3379,7 @@
   },
   {
     "name": "תפוח אדמה לבן גורמה",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 8.9,
     "barcode": "7290018825020",
     "brand": "חבל מעון",
@@ -4267,7 +3391,7 @@
   },
   {
     "name": "תפוח אדמה לבן תפזורת",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 6.9,
     "barcode": "7290000000596",
     "brand": "קטיף.",
@@ -4279,7 +3403,7 @@
   },
   {
     "name": "תפוח אדמה למיקרו יחידה",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 9.9,
     "barcode": "7290013492005",
     "brand": "צ'ילי זהבי בע\"מ",
@@ -4303,7 +3427,7 @@
   },
   {
     "name": "תפוח אדמה קטן לאפיה",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 4.9,
     "barcode": "7290000000503",
     "brand": "קטיף.",
