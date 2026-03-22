@@ -406,17 +406,30 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 ? SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                      child: FilledButton.icon(
-                        onPressed: () => _startShopping(currentList),
-                        icon: const Icon(Icons.shopping_cart_checkout),
-                        label: Text(
-                          AppStrings.shopping.startShoppingButton,
-                          style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cs.primary.withValues(alpha: 0.35),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: kSpacingMedium),
-                          backgroundColor: cs.primary,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
+                        child: FilledButton.icon(
+                          onPressed: () => _startShopping(currentList),
+                          icon: const Icon(Icons.shopping_cart_checkout),
+                          label: Text(
+                            AppStrings.shopping.startShoppingButton,
+                            style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
+                          ),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: kSpacingMedium),
+                            backgroundColor: cs.primary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                          ),
                         ),
                       ),
                     ),
@@ -1027,14 +1040,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                                     ),
                                     child: Text(
                                       '${item.quantity ?? 1} ${item.unit ?? "יח\'"}',
-                                      style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
+                                      style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
                                     ),
                                   ),
                                 if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
                                   const SizedBox(width: kSpacingSmall),
                                   Text(
                                     '₪${item.unitPrice!.toStringAsFixed(2)}',
-                                    style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.w600, color: cs.primary),
+                                    style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.w600, color: cs.primary),
                                   ),
                                 ],
                                 if (item.notes != null && item.notes!.isNotEmpty) ...[
