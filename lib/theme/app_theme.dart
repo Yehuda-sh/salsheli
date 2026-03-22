@@ -525,11 +525,17 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
         titleTextStyle: TextStyle(
           color: scheme.onSurface,
-          fontSize: kFontSizeLarge,
+          fontSize: kFontSizeTitle,
           fontWeight: FontWeight.bold,
+          letterSpacing: -0.3,
           fontFamily: 'Assistant',
         ),
-        contentTextStyle: TextStyle(color: scheme.onSurfaceVariant, fontFamily: 'Assistant'),
+        contentTextStyle: TextStyle(
+          color: scheme.onSurfaceVariant,
+          fontSize: kFontSizeBody,
+          height: 1.5,
+          fontFamily: 'Assistant',
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: scheme.surfaceContainerHigh,
