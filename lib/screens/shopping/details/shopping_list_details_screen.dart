@@ -737,8 +737,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     final canManage = currentList.canCurrentUserManage;
     final canEdit = currentList.canCurrentUserEdit;
 
-    // קיבוץ לפי קטגוריה אם מעל 8 פריטים
-    if (items.length >= 8) {
+    // קיבוץ לפי קטגוריה אם מעל 3 פריטים
+    if (items.length >= 3) {
       return _buildGroupedItems(items, currentList, theme);
     }
 
