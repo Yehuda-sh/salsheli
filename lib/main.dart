@@ -226,14 +226,19 @@ class MyApp extends StatelessWidget {
           home: const IndexScreen(),
           routes: {
             '/home': (context) => const MainNavigationScreen(),
-            '/login': (context) => const auth_login.LoginScreen(),
-            '/register': (context) => const auth_register.RegisterScreen(),
             '/create-list': (context) => const CreateListScreen(),
             '/notifications': (context) => const NotificationsCenterScreen(),
             '/receipts': (context) => const ShoppingHistoryScreen(),
             '/pending-invites': (context) => const PendingInvitesScreen(),
           },
           onGenerateRoute: (settings) {
+            // Auth routes — Shared Axis horizontal transition (notebook page flip)
+            if (settings.name == '/login') {
+              return _sharedAxisRoute(const auth_login.LoginScreen(), settings);
+            }
+            if (settings.name == '/register') {
+              return _sharedAxisRoute(const auth_register.RegisterScreen(), settings);
+            }
             if (settings.name == '/shopping-summary') {
               final listId = settings.arguments as String?;
               if (listId == null) return null;
@@ -268,4 +273,46 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+/// 🎬 Shared Axis horizontal transition — notebook page flip feel
+PageRouteBuilder<T> _sharedAxisRoute<T>(Widget page, RouteSettings settings) {
+  return PageRouteBuilder<T>(
+    settings: settings,
+    transitionDuration: const Duration(milliseconds: 400),
+    reverseTransitionDuration: const Duration(milliseconds: 350),
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      // Entering: slide in from start + fade in
+      final slideIn = Tween<Offset>(
+        begin: const Offset(-0.25, 0),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic));
+
+      final fadeIn = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+
+      // Exiting (when another screen pushes on top): slide out + fade out
+      final slideOut = Tween<Offset>(
+        begin: Offset.zero,
+        end: const Offset(0.25, 0),
+      ).animate(CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeInCubic));
+
+      final fadeOut = Tween<double>(begin: 1.0, end: 0.0)
+          .animate(CurvedAnimation(parent: secondaryAnimation, curve: Curves.easeIn));
+
+      return SlideTransition(
+        position: slideOut,
+        child: FadeTransition(
+          opacity: fadeOut,
+          child: SlideTransition(
+            position: slideIn,
+            child: FadeTransition(
+              opacity: fadeIn,
+              child: child,
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
