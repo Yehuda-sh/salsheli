@@ -84,6 +84,114 @@
     "defaultQty": 1
   },
   {
+    "name": "BB קרם לחות ללא שמן",
+    "category": "פארם",
+    "price": 65.9,
+    "barcode": "3600542415071",
+    "brand": "לוריאל",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "BBקרם לחות קלאסי 50מל",
+    "category": "פארם",
+    "price": 63.5,
+    "barcode": "3600542416405",
+    "brand": "לוריאל",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "BERRY ACAIקרם פנים 50מל",
+    "category": "פארם",
+    "price": 25.6,
+    "barcode": "5901887042273",
+    "brand": "PRODUKC ZAKLAD LTD ZIAJA",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "GLOWשמפו החלקה 410מ\"ל",
+    "category": "פארם",
+    "price": 19.9,
+    "barcode": "7290116535814",
+    "brand": "יוניליוור ישראל טיפוח",
+    "unit": "מ\"ל",
+    "size": "410.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "PARO 714 מברשת שיניים",
+    "category": "פארם",
+    "price": 33.9,
+    "barcode": "7610458007143",
+    "brand": "סיראם",
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "REVITALIFT קרם יום50מ\"ל",
+    "category": "פארם",
+    "price": 89.9,
+    "barcode": "3600523206834",
+    "brand": "קרלסרו, גרמניה",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "REVITALIFT קרם יום50מל",
+    "category": "פארם",
+    "price": 79.9,
+    "barcode": "3600523428663",
+    "brand": "קרלסרו, גרמניה",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "WIN חטיף חלבון קרם חלב65",
+    "category": "פארם",
+    "price": 16.9,
+    "barcode": "7290015130028",
+    "brand": "לוטמן בקלנד תעשיות מזון",
+    "unit": "גרם",
+    "size": "65.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "manuka קרם יום 50 מ\"ל",
+    "category": "פארם",
+    "price": 20.5,
+    "barcode": "5901887029663",
+    "brand": "PRODUKC ZAKLAD LTD ZIAJA",
+    "unit": "מ\"ל",
+    "size": "50.00 מיליליטרים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
     "name": "א.סבון ש. שועל קמיל1ליטר",
     "category": "פארם",
     "price": 33.9,
@@ -156,6 +264,16 @@
     "defaultQty": 1
   },
   {
+    "name": "אומגה 3 60 כמוסות",
+    "barcode": "7295245804343",
+    "price": 49.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
     "name": "אומגה 3 רכות 100 כמוסות",
     "category": "ויטמינים ותוספי תזונה",
     "price": 59.9,
@@ -178,6 +296,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "אופטלגין 500 מ\"ג 20 טבליות",
+    "barcode": "7299456905912",
+    "price": 14.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "אופטלגין",
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "אורה קרם שפורפרת 90 גר",
@@ -468,18 +596,6 @@
     "defaultQty": 1
   },
   {
-    "name": "אצבע.ש.קרם חלב פ.זמן108ג",
-    "category": "פארם",
-    "price": 14.7,
-    "barcode": "7290119373017",
-    "brand": "שטראוס גרופ בע\"מ",
-    "unit": "גרם",
-    "size": "108.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "אקמול",
     "category": "תרופות ללא מרשם",
     "price": 18.9,
@@ -490,6 +606,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "אקמול 500 מ\"ג 20 טבליות",
+    "barcode": "7299063311526",
+    "price": 12.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "אקמול",
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "אקמול ילדים סירופ",
@@ -720,18 +846,6 @@
     "defaultQty": 1
   },
   {
-    "name": "גלילי וופל+קרם אגוזים250",
-    "category": "פארם",
-    "price": 20.9,
-    "barcode": "5201004023360",
-    "brand": "א.ג פאפאגופולוס",
-    "unit": "גרם",
-    "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גליליות קרם אגוזים 375 ג",
     "category": "פארם",
     "price": 18.5,
@@ -852,30 +966,6 @@
     "defaultQty": 1
   },
   {
-    "name": "דאודורנט ספריי 150 מ\"ל",
-    "category": "פארם",
-    "price": 15.9,
-    "barcode": "6001087364621",
-    "brand": "יוניליוור ישראל טיפוח",
-    "unit": "מ\"ל",
-    "size": "150.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דאודורנט ספריי 150 מ\"ל",
-    "category": "פארם",
-    "price": 15.9,
-    "barcode": "6001087364652",
-    "brand": "יוניליוור ישראל טיפוח",
-    "unit": "מ\"ל",
-    "size": "150.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "דאודורנט ספריי אקס",
     "category": "היגיינה אישית",
     "price": 19.9,
@@ -972,54 +1062,6 @@
     "defaultQty": 1
   },
   {
-    "name": "וופל טורטינה קרם קרמל126",
-    "category": "פארם",
-    "price": 20.9,
-    "barcode": "8000380201396",
-    "brand": "א. לואקר",
-    "unit": "גרם",
-    "size": "126.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "וופל קרם קקאו 200ג לואקר",
-    "category": "פארם",
-    "price": 16.9,
-    "barcode": "8000380004669",
-    "brand": "א.לואקר קונפקט בע\"מ",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "וופל רושן קרם חלב 350 גר",
-    "category": "פארם",
-    "price": 24.9,
-    "barcode": "4823077635519",
-    "brand": "רושן",
-    "unit": "גרם",
-    "size": "350.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "וופל רושן קרם קקאו350 גר",
-    "category": "פארם",
-    "price": 24.9,
-    "barcode": "4823077635557",
-    "brand": "רושן",
-    "unit": "גרם",
-    "size": "350.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ויט קרם להסרת שיער 400מל",
     "category": "פארם",
     "price": 40.9,
@@ -1044,6 +1086,26 @@
     "defaultQty": 1
   },
   {
+    "name": "ויטמין C 1000 מ\"ג 30 טבליות",
+    "barcode": "7295526112013",
+    "price": 29.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
+    "name": "ויטמין D3 1000 יח' 60 כמוסות",
+    "barcode": "7299233634455",
+    "price": 39.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
     "name": "ויטמין D3 1000 יחידות 60 כמוסות",
     "category": "ויטמינים ותוספי תזונה",
     "price": 35.9,
@@ -1051,18 +1113,6 @@
     "brand": "סופהרב",
     "unit": "יחידה",
     "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ופל קרם חלב וניל200לואקר",
-    "category": "פארם",
-    "price": 17.9,
-    "barcode": "8000380004676",
-    "brand": "א.לואקר קונפקט בע\"מ",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -1092,16 +1142,14 @@
     "defaultQty": 1
   },
   {
-    "name": "חט.שוקולד קרם חלב38 קליק",
-    "category": "פארם",
-    "price": 6.7,
-    "barcode": "7290116534442",
-    "brand": "יוניליוור ישראל מזון",
-    "unit": "גרם",
-    "size": "38.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
+    "name": "חוסם שמש SPF50 200 מ\"ל",
+    "barcode": "7295238524647",
+    "price": 49.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חטיף חלבון קרם אגוזים60ג",
@@ -1272,6 +1320,16 @@
     "defaultQty": 1
   },
   {
+    "name": "טבליות נגד חומצה 60 יח'",
+    "barcode": "7296560515136",
+    "price": 18.9,
+    "category": "תרופות ללא מרשם",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
     "name": "טרזמה שמפו משקם 400 מ\"ל",
     "category": "פארם",
     "price": 17.9,
@@ -1368,6 +1426,18 @@
     "defaultQty": 1
   },
   {
+    "name": "מברשת שיניים iO6 שחור",
+    "category": "פארם",
+    "price": 1023,
+    "barcode": "4210201409199",
+    "brand": "---",
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
     "name": "מברשת שיניים אורל-בי קלאסיק",
     "category": "טיפוח הפה",
     "price": 8.9,
@@ -1392,11 +1462,11 @@
     "defaultQty": 1
   },
   {
-    "name": "מברשת שיניים חשמלית באטמ",
+    "name": "מברשת שיניים חשמלית iO2",
     "category": "פארם",
-    "price": 51.5,
-    "barcode": "8718951249608",
-    "brand": "קולגייט-פלמוליב",
+    "price": 349.9,
+    "barcode": "8700216611831",
+    "brand": "PROCTER&GAMBLE",
     "unit": "יח'",
     "size": "1.00 יחידה",
     "isWeighted": false,
@@ -1404,11 +1474,11 @@
     "defaultQty": 1
   },
   {
-    "name": "מברשת שיניים חשמלית iO2",
+    "name": "מברשת שיניים חשמלית באטמ",
     "category": "פארם",
-    "price": 349.9,
-    "barcode": "8700216611831",
-    "brand": "PROCTER&GAMBLE",
+    "price": 51.5,
+    "barcode": "8718951249608",
+    "brand": "קולגייט-פלמוליב",
     "unit": "יח'",
     "size": "1.00 יחידה",
     "isWeighted": false,
@@ -1444,18 +1514,6 @@
     "category": "פארם",
     "price": 39.9,
     "barcode": "8718951197183",
-    "brand": "---",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מברשת שיניים iO6 שחור",
-    "category": "פארם",
-    "price": 1023,
-    "barcode": "4210201409199",
     "brand": "---",
     "unit": "יח'",
     "size": "1.00 יחידה",
@@ -1548,6 +1606,16 @@
     "defaultQty": 1
   },
   {
+    "name": "מולטי ויטמין 30 טבליות",
+    "barcode": "7291440219234",
+    "price": 34.9,
+    "category": "ויטמינים ותוספי תזונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
     "name": "מולטי ויטמין יומי",
     "category": "ויטמינים ותוספי תזונה",
     "price": 49.9,
@@ -1594,6 +1662,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "מי מיסלר 400 מ\"ל",
+    "barcode": "7295385223226",
+    "price": 24.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מי פה ליסטרין קול מינט",
@@ -1708,30 +1786,6 @@
     "category": "פארם",
     "price": 19.9,
     "barcode": "6920354811852",
-    "brand": "קולגייט-פלמוליב",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משחת שיניים 100 גרם",
-    "category": "פארם",
-    "price": 19.9,
-    "barcode": "6920354815157",
-    "brand": "קולגייט-פלמוליב",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משחת שיניים 100 גרם",
-    "category": "פארם",
-    "price": 19.9,
-    "barcode": "6920354824265",
     "brand": "קולגייט-פלמוליב",
     "unit": "גרם",
     "size": "100.00 גרמים",
@@ -1894,6 +1948,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "נורופן 200 מ\"ג 20 טבליות",
+    "barcode": "7291426225822",
+    "price": 19.9,
+    "category": "תרופות ללא מרשם",
+    "brand": "נורופן",
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נייר טואלט 3 שכבות",
@@ -2208,6 +2272,16 @@
     "defaultQty": 1
   },
   {
+    "name": "סירופ שיעול לילדים",
+    "barcode": "7291698834005",
+    "price": 24.9,
+    "category": "תרופות ללא מרשם",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
+  },
+  {
     "name": "סכין קרם 100 יח,' 2 גרם",
     "category": "פארם",
     "price": 10.9,
@@ -2268,18 +2342,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סנסודיין משחת שיניים75מ",
-    "category": "פארם",
-    "price": 20,
-    "barcode": "5054563109385",
-    "brand": "HALEON",
-    "unit": "מ\"ל",
-    "size": "75.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ספריי לעיצוב שיער",
     "category": "אביזרי שיער",
     "price": 28.9,
@@ -2316,30 +2378,6 @@
     "defaultQty": 1
   },
   {
-    "name": "עוג.במילוי קרם אגוזים150",
-    "category": "פארם",
-    "price": 9.9,
-    "barcode": "7296073162001",
-    "brand": "ויסנזי",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עוג.במילוי קרם שוקולד150",
-    "category": "פארם",
-    "price": 10.9,
-    "barcode": "7296073161981",
-    "brand": "ויסנזי",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "עוג.ממולא קרם וניל100גר",
     "category": "פארם",
     "price": 14.9,
@@ -2371,18 +2409,6 @@
     "brand": "קסליני",
     "unit": "גרם",
     "size": "350.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עוגLOVITA. קרם שוקולד127",
-    "category": "פארם",
-    "price": 9.9,
-    "barcode": "4823077641367",
-    "brand": "---",
-    "unit": "גרם",
-    "size": "127.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -2446,6 +2472,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "פלסטר עמיד למים 20 יח'",
+    "barcode": "7299323708554",
+    "price": 9.9,
+    "category": "עזרה ראשונה",
+    "brand": null,
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פנטן קרם לחות מוגברת 300",
@@ -2938,6 +2974,16 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "קרם ידיים ניבאה 100 מ\"ל",
+    "barcode": "7290166250644",
+    "price": 14.9,
+    "category": "קוסמטיקה וטיפוח",
+    "brand": "ניבאה",
+    "icon": null,
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קרם ידיים פנגל 3*80מ\"ל",
@@ -3463,18 +3509,6 @@
     "brand": "שטראוס גרופ בע\"מ",
     "unit": "גרם",
     "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שוקולד במילוי קרם אגוזים",
-    "category": "פארם",
-    "price": 8.9,
-    "barcode": "7622202013188",
-    "brand": "מונדלז בולגריה פרודקשיין",
-    "unit": "גרם",
-    "size": "85.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -4126,230 +4160,5 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
-  },
-  {
-    "name": "BB קרם לחות ללא שמן",
-    "category": "פארם",
-    "price": 65.9,
-    "barcode": "3600542415071",
-    "brand": "לוריאל",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "BBקרם לחות קלאסי 50מל",
-    "category": "פארם",
-    "price": 63.5,
-    "barcode": "3600542416405",
-    "brand": "לוריאל",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "BERRY ACAIקרם פנים 50מל",
-    "category": "פארם",
-    "price": 25.6,
-    "barcode": "5901887042273",
-    "brand": "PRODUKC ZAKLAD LTD ZIAJA",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "GLOWשמפו החלקה 410מ\"ל",
-    "category": "פארם",
-    "price": 19.9,
-    "barcode": "7290116535814",
-    "brand": "יוניליוור ישראל טיפוח",
-    "unit": "מ\"ל",
-    "size": "410.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "manuka קרם יום 50 מ\"ל",
-    "category": "פארם",
-    "price": 20.5,
-    "barcode": "5901887029663",
-    "brand": "PRODUKC ZAKLAD LTD ZIAJA",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "PARO 714 מברשת שיניים",
-    "category": "פארם",
-    "price": 33.9,
-    "barcode": "7610458007143",
-    "brand": "סיראם",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "REVITALIFT קרם יום50מ\"ל",
-    "category": "פארם",
-    "price": 89.9,
-    "barcode": "3600523206834",
-    "brand": "קרלסרו, גרמניה",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "REVITALIFT קרם יום50מל",
-    "category": "פארם",
-    "price": 79.9,
-    "barcode": "3600523428663",
-    "brand": "קרלסרו, גרמניה",
-    "unit": "מ\"ל",
-    "size": "50.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "WIN חטיף חלבון קרם חלב65",
-    "category": "פארם",
-    "price": 16.9,
-    "barcode": "7290015130028",
-    "brand": "לוטמן בקלנד תעשיות מזון",
-    "unit": "גרם",
-    "size": "65.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "אקמול 500 מ\"ג 20 טבליות",
-    "barcode": "7299063311526",
-    "price": 12.9,
-    "category": "תרופות ללא מרשם",
-    "brand": "אקמול",
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "נורופן 200 מ\"ג 20 טבליות",
-    "barcode": "7291426225822",
-    "price": 19.9,
-    "category": "תרופות ללא מרשם",
-    "brand": "נורופן",
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "אופטלגין 500 מ\"ג 20 טבליות",
-    "barcode": "7299456905912",
-    "price": 14.9,
-    "category": "תרופות ללא מרשם",
-    "brand": "אופטלגין",
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "טבליות נגד חומצה 60 יח'",
-    "barcode": "7296560515136",
-    "price": 18.9,
-    "category": "תרופות ללא מרשם",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "סירופ שיעול לילדים",
-    "barcode": "7291698834005",
-    "price": 24.9,
-    "category": "תרופות ללא מרשם",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "ויטמין C 1000 מ\"ג 30 טבליות",
-    "barcode": "7295526112013",
-    "price": 29.9,
-    "category": "ויטמינים ותוספי תזונה",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "ויטמין D3 1000 יח' 60 כמוסות",
-    "barcode": "7299233634455",
-    "price": 39.9,
-    "category": "ויטמינים ותוספי תזונה",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "אומגה 3 60 כמוסות",
-    "barcode": "7295245804343",
-    "price": 49.9,
-    "category": "ויטמינים ותוספי תזונה",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "מולטי ויטמין 30 טבליות",
-    "barcode": "7291440219234",
-    "price": 34.9,
-    "category": "ויטמינים ותוספי תזונה",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "פלסטר עמיד למים 20 יח'",
-    "barcode": "7299323708554",
-    "price": 9.9,
-    "category": "עזרה ראשונה",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "חוסם שמש SPF50 200 מ\"ל",
-    "barcode": "7295238524647",
-    "price": 49.9,
-    "category": "קוסמטיקה וטיפוח",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "קרם ידיים ניבאה 100 מ\"ל",
-    "barcode": "7290166250644",
-    "price": 14.9,
-    "category": "קוסמטיקה וטיפוח",
-    "brand": "ניבאה",
-    "icon": null,
-    "unit": "יח'"
-  },
-  {
-    "name": "מי מיסלר 400 מ\"ל",
-    "barcode": "7295385223226",
-    "price": 24.9,
-    "category": "קוסמטיקה וטיפוח",
-    "brand": null,
-    "icon": null,
-    "unit": "יח'"
   }
 ]
