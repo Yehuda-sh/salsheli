@@ -27,6 +27,7 @@ import '../../../services/pending_requests_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/painters/perforation_painter.dart';
 import '../../../widgets/common/pending_requests_section.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
 import '../../../widgets/shopping/add_edit_task_dialog.dart';
@@ -306,11 +307,16 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
   }
 
   Future<void> _navigateToPopulateScreen(ShoppingList currentList) async {
+    final cs = Theme.of(context).colorScheme;
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => ProductSelectionBottomSheet(list: currentList),
+      barrierColor: cs.scrim.withValues(alpha: kDialogBarrierAlpha),
+      builder: (context) => BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: kDialogBlurSigma, sigmaY: kDialogBlurSigma),
+        child: ProductSelectionBottomSheet(list: currentList),
+      ),
     );
     if (mounted) setState(() {});
   }
@@ -439,11 +445,24 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
+                  // Highlighter effect — כאילו הודגש במרקר
                   Flexible(
-                    child: Text(
-                      currentList.name,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: currentList.stickyColor.withValues(alpha: 0.2),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(2),
+                          topRight: Radius.circular(6),
+                          bottomLeft: Radius.circular(6),
+                          bottomRight: Radius.circular(2),
+                        ),
+                      ),
+                      child: Text(
+                        currentList.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
@@ -739,10 +758,37 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ),
             ),
           const Spacer(),
-          // מיון/סינון עתידי
+          // סיכום מחיר אם יש
+          if (_totalEstimatedPrice(currentList) > 0)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CustomPaint(
+                  size: const Size(30, 1),
+                  painter: PerforationPainter(color: cs.outline.withValues(alpha: 0.3)),
+                ),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  '₪${_totalEstimatedPrice(currentList).toStringAsFixed(0)}',
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
+                    fontWeight: FontWeight.bold,
+                    color: cs.primary,
+                  ),
+                ),
+              ],
+            ),
         ],
       ),
     );
+  }
+
+  double _totalEstimatedPrice(ShoppingList list) {
+    return list.items.fold(0.0, (sum, item) {
+      final price = item.unitPrice ?? 0.0;
+      final qty = item.quantity ?? 1;
+      return sum + (price * qty);
+    });
   }
 
   // ===== ITEMS LIST =====
@@ -948,8 +994,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       ),
                       if (item.notes != null && item.notes!.isNotEmpty)
                         Text(
-                          item.notes!,
-                          style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant, fontSize: kFontSizeTiny),
+                          '✏️ ${item.notes!}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                            fontSize: kFontSizeTiny,
+                            fontStyle: FontStyle.italic,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
