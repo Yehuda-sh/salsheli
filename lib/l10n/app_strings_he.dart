@@ -629,9 +629,11 @@ class AuthStrings {
   String get loginTitle => 'התחברות';
   String get loginSubtitle => 'נעים לראות אותך שוב 👋';
   String get loginButton => 'התחבר';
+  String get loggingIn => 'מתחבר...';
   String get registerTitle => 'הרשמה';
   String get registerSubtitle => 'צור חשבון חדש ותוכל לשתף ולנהל רשימות יחד עם אחרים ✨';
   String get registerButton => 'הירשם';
+  String get registering => 'נרשם...';
   String get forgotPassword => 'שכחת סיסמה?';
   String get sendResetEmailButton => 'שלח קישור';
   String get resetEmailSent => 'מייל לאיפוס סיסמה נשלח בהצלחה!';

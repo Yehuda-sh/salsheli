@@ -645,15 +645,40 @@ class _LoginScreenState extends State<LoginScreen>
                                 .fadeIn(duration: 400.ms, delay: 200.ms),
                             SizedBox(height: kSpacingSmall),
 
-                            // 🔘 כפתור התחברות + shimmer CTA
-                            FilledButton.icon(
-                              onPressed: _isLoading ? null : _handleLogin,
-                              icon: Icon(Icons.login),
-                              label: Text(AppStrings.auth.loginButton),
-                              style: FilledButton.styleFrom(
-                                minimumSize: const Size.fromHeight(48),
-                                backgroundColor: brand?.success ?? cs.primary,
-                                foregroundColor: cs.onPrimary,
+                            // 🔘 כפתור התחברות — loading indicator פנימי + colored shadow
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (brand?.success ?? cs.primary).withValues(alpha: 0.3),
+                                    blurRadius: 16,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: FilledButton.icon(
+                                onPressed: _isLoading ? null : _handleLogin,
+                                icon: _isLoading
+                                    ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          color: cs.onPrimary,
+                                        ),
+                                      )
+                                    : Icon(Icons.login),
+                                label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
+                                  backgroundColor: brand?.success ?? cs.primary,
+                                  foregroundColor: cs.onPrimary,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                  ),
+                                ),
                               ),
                             )
                                 .animate()

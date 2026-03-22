@@ -630,22 +630,44 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
                             SizedBox(height: kSpacingLarge),
 
-                            // 🔘 כפתור הרשמה - auto-contrast foreground + shimmer CTA
+                            // 🔘 כפתור הרשמה — loading indicator פנימי + colored shadow
                             Builder(builder: (context) {
                               final ctaBg = brand?.success ?? cs.primary;
                               final ctaFg = ThemeData.estimateBrightnessForColor(ctaBg) == Brightness.light
                                   ? cs.onSurface
                                   : cs.onPrimary;
-                              return FilledButton.icon(
-                                onPressed: _isLoading ? null : _onRegisterPressed,
-                                icon: const Icon(Icons.app_registration),
-                                label: Text(AppStrings.auth.registerButton),
-                                style: FilledButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(kButtonHeight),
-                                  backgroundColor: ctaBg,
-                                  foregroundColor: ctaFg,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ctaBg.withValues(alpha: 0.3),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: FilledButton.icon(
+                                  onPressed: _isLoading ? null : _onRegisterPressed,
+                                  icon: _isLoading
+                                      ? SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: ctaFg,
+                                          ),
+                                        )
+                                      : const Icon(Icons.app_registration),
+                                  label: Text(_isLoading ? AppStrings.auth.registering : AppStrings.auth.registerButton),
+                                  style: FilledButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(kButtonHeight),
+                                    backgroundColor: ctaBg,
+                                    foregroundColor: ctaFg,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                    ),
                                   ),
                                 ),
                               );

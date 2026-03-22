@@ -33,17 +33,26 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final _pageController = PageController();
   int _currentPage = 0;
+  double _pageOffset = 0.0;
   Timer? _autoPlayTimer;
 
   @override
   void initState() {
     super.initState();
+    _pageController.addListener(_onPageScroll);
     _startAutoPlay();
+  }
+
+  void _onPageScroll() {
+    if (_pageController.hasClients) {
+      setState(() => _pageOffset = _pageController.page ?? 0.0);
+    }
   }
 
   @override
   void dispose() {
     _autoPlayTimer?.cancel();
+    _pageController.removeListener(_onPageScroll);
     _pageController.dispose();
     super.dispose();
   }
@@ -93,7 +102,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
-          const NotebookBackground.subtle(),
+          // Parallax: background moves at 30% of carousel speed
+          Transform.translate(
+            offset: Offset(_pageOffset * 30, 0),
+            child: const NotebookBackground.subtle(),
+          ),
 
           // === Content — single Column, no overlap ===
           SafeArea(
@@ -132,10 +145,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   ),
                 ),
 
-                // === Dots ===
-                _DotIndicator(
+                // === Dots (worm effect) ===
+                _WormDotIndicator(
                   count: 3,
-                  current: _currentPage,
+                  pageOffset: _pageOffset,
                   activeColor: cs.primary,
                   inactiveColor: cs.outlineVariant,
                 ),
@@ -292,15 +305,15 @@ class _SimpleFeatureCard extends StatelessWidget {
 // Dot Indicator
 // ============================================================
 
-class _DotIndicator extends StatelessWidget {
+class _WormDotIndicator extends StatelessWidget {
   final int count;
-  final int current;
+  final double pageOffset;
   final Color activeColor;
   final Color inactiveColor;
 
-  const _DotIndicator({
+  const _WormDotIndicator({
     required this.count,
-    required this.current,
+    required this.pageOffset,
     required this.activeColor,
     required this.inactiveColor,
   });
@@ -308,25 +321,77 @@ class _DotIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (i) {
-        final index = isRtl ? (count - 1 - i) : i;
-        final isActive = index == current;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeOut,
-          margin: const EdgeInsets.symmetric(horizontal: 3),
-          width: isActive ? 24 : 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: isActive ? activeColor : inactiveColor.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(kSpacingXTiny),
-          ),
-        );
-      }),
+    return SizedBox(
+      height: 10,
+      child: CustomPaint(
+        size: Size(count * 18.0, 10),
+        painter: _WormPainter(
+          count: count,
+          pageOffset: isRtl ? (count - 1 - pageOffset) : pageOffset,
+          activeColor: activeColor,
+          inactiveColor: inactiveColor.withValues(alpha: 0.35),
+        ),
+      ),
     );
   }
+}
+
+class _WormPainter extends CustomPainter {
+  final int count;
+  final double pageOffset;
+  final Color activeColor;
+  final Color inactiveColor;
+
+  _WormPainter({
+    required this.count,
+    required this.pageOffset,
+    required this.activeColor,
+    required this.inactiveColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const dotRadius = 4.0;
+    const spacing = 18.0;
+    final startX = (size.width - (count - 1) * spacing) / 2;
+    final y = size.height / 2;
+
+    // Draw inactive dots
+    final inactivePaint = Paint()..color = inactiveColor;
+    for (var i = 0; i < count; i++) {
+      canvas.drawCircle(Offset(startX + i * spacing, y), dotRadius, inactivePaint);
+    }
+
+    // Draw active "worm" that stretches between dots
+    final activePaint = Paint()..color = activeColor;
+    final currentIndex = pageOffset.floor().clamp(0, count - 1);
+    final nextIndex = (currentIndex + 1).clamp(0, count - 1);
+    final progress = pageOffset - currentIndex;
+
+    final fromX = startX + currentIndex * spacing;
+    final toX = startX + nextIndex * spacing;
+
+    // Worm: stretches from current to next based on progress
+    final wormLeft = lerpDouble(fromX, toX, (progress * 2).clamp(0, 1))! - dotRadius;
+    final wormRight = lerpDouble(fromX, toX, ((progress - 0.5) * 2).clamp(0, 1))! + dotRadius;
+
+    canvas.drawRRect(
+      RRect.fromLTRBR(
+        wormLeft < wormRight ? wormLeft : wormRight,
+        y - dotRadius,
+        wormLeft < wormRight ? wormRight : wormLeft,
+        y + dotRadius,
+        const Radius.circular(dotRadius),
+      ),
+      activePaint,
+    );
+  }
+
+  double? lerpDouble(double a, double b, double t) => a + (b - a) * t;
+
+  @override
+  bool shouldRepaint(covariant _WormPainter old) =>
+      pageOffset != old.pageOffset || activeColor != old.activeColor;
 }
 
 // ============================================================
@@ -405,10 +470,20 @@ class _BottomSection extends StatelessWidget {
 
               const SizedBox(height: kSpacingMedium),
 
-              // === Register button ===
-              SizedBox(
+              // === Register button with colored shadow ===
+              Container(
                 width: double.infinity,
                 height: kButtonHeight,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                  boxShadow: [
+                    BoxShadow(
+                      color: cs.primary.withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
                 child: FilledButton.icon(
                   onPressed: onRegister,
                   icon: const Icon(Icons.person_add),
@@ -420,9 +495,9 @@ class _BottomSection extends StatelessWidget {
                     backgroundColor: cs.primary,
                     foregroundColor: cs.onPrimary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(kBorderRadius),
+                      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     ),
-                    elevation: 2,
+                    elevation: 0,
                   ),
                 ),
               ),
