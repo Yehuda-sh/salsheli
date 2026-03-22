@@ -88036,5 +88036,29 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "פירה עם נקניקיות350ג",
+    "category": "קפואים",
+    "price": 22.9,
+    "barcode": "7290109581507",
+    "brand": "זוגלובק",
+    "unit": "גרם",
+    "size": "350.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פסטה עם נקניקיות350ג",
+    "category": "קפואים",
+    "price": 22.9,
+    "barcode": "7290109581514",
+    "brand": "נקניק נהריה כשר זוגלובק",
+    "unit": "גרם",
+    "size": "350.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
   }
 ]

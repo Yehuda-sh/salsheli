@@ -672,18 +672,6 @@
     "defaultQty": 1
   },
   {
-    "name": "טחון הודו 500 גרם",
-    "category": "הודו",
-    "price": 14.9,
-    "barcode": "7290000552934",
-    "brand": "טיבון ויל אחזקות בעמ",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "טילפיה פילה",
     "category": "דגים",
     "price": 44,
@@ -1728,18 +1716,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פירה עם נקניקיות350ג",
-    "category": "אחר",
-    "price": 22.9,
-    "barcode": "7290109581507",
-    "brand": "זוגלובק",
-    "unit": "גרם",
-    "size": "350.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "פירורי לחם",
     "category": "מוצרים נלווים",
     "price": 9.9,
@@ -1783,18 +1759,6 @@
     "brand": "",
     "unit": "יחידה",
     "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פסטה עם נקניקיות350ג",
-    "category": "אחר",
-    "price": 22.9,
-    "barcode": "7290109581514",
-    "brand": "נקניק נהריה כשר זוגלובק",
-    "unit": "גרם",
-    "size": "350.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
