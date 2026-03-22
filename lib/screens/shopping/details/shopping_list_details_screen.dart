@@ -558,7 +558,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ),
             ),
 
-            // FABs: הוספת מוצר + משימה
+            // FAB: הוספה — לחיצה קצרה = מוצר, ארוכה = משימה
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: canEdit
                 ? Padding(
@@ -567,17 +567,35 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // משימה
-                        FloatingActionButton.small(
-                          heroTag: 'add_task_btn',
-                          backgroundColor: kStickyCyan,
-                          tooltip: AppStrings.listDetails.addTaskButton,
-                          onPressed: () => _handleAddTask(currentList),
-                          child: Icon(Icons.assignment_add, color: cs.onSurface),
-                        ),
-                        const SizedBox(height: kSpacingSmallPlus),
-                        // מוצר מהקטלוג (גדול) — colored glow
+                        // משימה — FAB קטן
                         Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: kStickyCyan.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: FloatingActionButton.small(
+                            heroTag: 'add_task_btn',
+                            backgroundColor: kStickyCyan,
+                            elevation: 0,
+                            tooltip: AppStrings.listDetails.addTaskButton,
+                            onPressed: () {
+                              unawaited(HapticFeedback.lightImpact());
+                              _handleAddTask(currentList);
+                            },
+                            child: Icon(Icons.assignment_add, color: cs.onSurface, size: kIconSizeMedium),
+                          ),
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        // מוצר — FAB ראשי עם glow
+                        Container(
+                          width: 60,
+                          height: 60,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             boxShadow: [
@@ -591,13 +609,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           child: FloatingActionButton(
                             heroTag: 'add_product_btn',
                             backgroundColor: kStickyYellow,
-                            tooltip: AppStrings.listDetails.addProductButton,
                             elevation: 0,
+                            tooltip: AppStrings.listDetails.addProductButton,
                             onPressed: () {
                               unawaited(HapticFeedback.lightImpact());
                               _navigateToPopulateScreen(currentList);
                             },
-                            child: Icon(Icons.add_shopping_cart, size: kIconSizeLarge - kSpacingSmall, color: cs.onSurface),
+                            child: Icon(Icons.add_shopping_cart, size: kIconSizeLarge, color: cs.onSurface),
                           ),
                         ),
                       ],
@@ -972,65 +990,79 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ? () => isProduct ? _handleEditProduct(item) : _handleEditTask(item)
               : null,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
-            child: Row(
-              children: [
-                Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
-                const SizedBox(width: kSpacingSmall),
-                // שם + הערות
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        item.name,
-                        style: theme.textTheme.bodyLarge!.copyWith(
-                          fontSize: kFontSizeBody,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (item.notes != null && item.notes!.isNotEmpty)
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmallPlus),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Row(
+                children: [
+                  Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                  const SizedBox(width: kSpacingSmall),
+                  // שם + הערות + כמות/מחיר (2 שורות)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         Text(
-                          '✏️ ${item.notes!}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: cs.onSurfaceVariant.withValues(alpha: 0.6),
-                            fontSize: kFontSizeTiny,
-                            fontStyle: FontStyle.italic,
+                          item.name,
+                          style: theme.textTheme.bodyLarge!.copyWith(
+                            fontSize: kFontSizeBody,
+                            fontWeight: FontWeight.w500,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                    ],
-                  ),
-                ),
-                // כמות + יחידה
-                if (isProduct)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                    decoration: BoxDecoration(
-                      color: cs.primaryContainer,
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        // שורת meta: כמות + מחיר + הערה
+                        if (isProduct || (item.notes != null && item.notes!.isNotEmpty))
+                          Padding(
+                            padding: const EdgeInsets.only(top: kSpacingXTiny),
+                            child: Row(
+                              children: [
+                                if (isProduct)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 1),
+                                    decoration: BoxDecoration(
+                                      color: cs.primaryContainer.withValues(alpha: 0.7),
+                                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                                    ),
+                                    child: Text(
+                                      '${item.quantity ?? 1} ${item.unit ?? "יח\'"}',
+                                      style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
+                                    ),
+                                  ),
+                                if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
+                                  const SizedBox(width: kSpacingSmall),
+                                  Text(
+                                    '₪${item.unitPrice!.toStringAsFixed(2)}',
+                                    style: TextStyle(fontSize: kFontSizeTiny, fontWeight: FontWeight.w600, color: cs.primary),
+                                  ),
+                                ],
+                                if (item.notes != null && item.notes!.isNotEmpty) ...[
+                                  const SizedBox(width: kSpacingSmall),
+                                  Expanded(
+                                    child: Text(
+                                      '✏️ ${item.notes!}',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: cs.onSurfaceVariant.withValues(alpha: 0.6),
+                                        fontSize: kFontSizeTiny,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                      ],
                     ),
-                    child: Text(
-                      '${item.quantity ?? 1} ${item.unit ?? "יח\'"}',
-                      style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
-                    ),
                   ),
-                // מחיר
-                if (isProduct && item.unitPrice != null && item.unitPrice! > 0) ...[
-                  const SizedBox(width: kSpacingSmall),
-                  Text(
-                    '₪${item.unitPrice!.toStringAsFixed(2)}',
-                    style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.w600, color: cs.primary),
-                  ),
+                  // עריכה
+                  if (canEdit)
+                    Icon(Icons.chevron_left, color: cs.onSurfaceVariant.withValues(alpha: 0.4), size: kIconSizeMedium),
                 ],
-                // עריכה
-                if (canEdit)
-                  Icon(Icons.chevron_left, color: cs.onSurfaceVariant.withValues(alpha: 0.4), size: kIconSizeMedium),
-              ],
+              ),
             ),
           ),
         ),
