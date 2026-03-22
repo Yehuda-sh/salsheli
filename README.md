@@ -34,7 +34,7 @@ Smart family shopping list manager with a unique **Notebook + Sticky Notes** des
 |----------|-----------|
 | Framework | Flutter 3.8+ |
 | Language | Dart 3.8.1+ |
-| Backend | Firebase (Auth, Firestore, Storage, Crashlytics, Analytics) |
+| Backend | Firebase (Auth, Firestore, Storage, Crashlytics, Analytics, Messaging) |
 | State Management | Provider |
 | Design System | Notebook + Sticky Notes (Material 3) |
 | Package | `com.memozap.app` |
@@ -45,11 +45,11 @@ Smart family shopping list manager with a unique **Notebook + Sticky Notes** des
 
 | Token | Values |
 |-------|--------|
-| Spacing | 8-pt grid (4, 8, 12, 16, 24, 32) |
+| Spacing | 8-pt grid (4, 6, 8, 12, 16, 24, 32) |
 | Border Radius | Small(8), Default(12), Large(16), XLarge(24) |
 | Typography | 8 sizes (Tiny→Display) via `kFontSize*` constants |
 | Colors | Theme-only — zero `Colors.xxx` in screens |
-| Background | `NotebookBackground` on all 21 screens |
+| Background | `NotebookBackground` on all 22 screens |
 
 ---
 
@@ -57,24 +57,27 @@ Smart family shopping list manager with a unique **Notebook + Sticky Notes** des
 
 ```
 lib/
+├── config/         # Business logic config, filters (8)
 ├── core/           # Constants, status colors
-├── config/         # Business logic config, filters
 ├── l10n/           # Localization (AppStrings)
-├── models/         # Data models (26)
+├── layout/         # Layout helpers
+├── models/         # Data models (14)
 ├── providers/      # State providers (7)
 ├── repositories/   # Firebase repositories (13)
-├── services/       # Business logic services (17)
+├── services/       # Business logic services (12)
 ├── theme/          # Design tokens, app theme, transitions
-├── screens/        # App screens (21)
+├── screens/        # App screens (22)
 │   ├── auth/       # Login, Register + widgets/
 │   ├── home/       # Dashboard + widgets/
-│   ├── shopping/   # Lists, Details, Active, Create + widgets/
+│   ├── shopping/   # Lists, Details, Active, Create, Checklist, WhoBrings + widgets/
+│   ├── history/    # Shopping history
 │   ├── pantry/     # Inventory management
-│   ├── settings/   # Settings, Manage Users
+│   ├── notifications/ # Notifications center
+│   ├── settings/   # Settings, Manage Users, Household Members
 │   ├── sharing/    # Invites, Requests
-│   └── ...
+│   └── welcome/    # Welcome / onboarding
 ├── widgets/        # Shared widgets
-│   └── common/     # NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, etc.
+│   └── common/     # NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, etc. (15)
 └── main.dart
 ```
 
