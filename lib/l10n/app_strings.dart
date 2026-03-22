@@ -58,5 +58,6 @@ class AppStrings {
   static ChecklistStrings get checklist => _isEnglish ? AppStringsEn.checklist : AppStringsHe.checklist;
   static ContactSelectorStrings get contactSelector => _isEnglish ? AppStringsEn.contactSelector : AppStringsHe.contactSelector;
   static ShoppingSummaryStrings get shoppingSummary => _isEnglish ? AppStringsEn.shoppingSummary : AppStringsHe.shoppingSummary;
+  static TutorialStrings get tutorial => _isEnglish ? AppStringsEn.tutorial : AppStringsHe.tutorial;
   static LegalStrings get legal => _isEnglish ? AppStringsEn.legal : AppStringsHe.legal;
 }

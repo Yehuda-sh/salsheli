@@ -181,6 +181,8 @@ class AppStringsEn {
   // ========================================
   static const contactSelector = ContactSelectorStringsEn();
   static const shoppingSummary = ShoppingSummaryStringsEn();
+  // Tutorial — uses Hebrew base (tutorial content stays in Hebrew for now)
+  static const tutorial = TutorialStrings();
   // Legal — uses Hebrew base (legal content stays in Hebrew for now)
   static const legal = LegalStrings();
 }

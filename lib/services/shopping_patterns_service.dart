@@ -37,10 +37,12 @@
 // ```
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
 import '../providers/user_context.dart';
+import '../repositories/constants/repository_constants.dart';
 
 
 class ShoppingPatternsService {
@@ -90,7 +92,7 @@ class ShoppingPatternsService {
               })
           .toList();
 
-      await _firestore.collection('shopping_patterns').doc(patternId).set({
+      await _firestore.collection(FirestoreCollections.shoppingPatterns).doc(patternId).set({
         'userId': userId,
         'householdId': householdId,
         'storeType': listType,
@@ -100,7 +102,7 @@ class ShoppingPatternsService {
       });
 
     } catch (e) {
-      // לא זורקים שגיאה - זה תכונה משנית
+      if (kDebugMode) debugPrint('⚠️ ShoppingPatterns.save: $e');
     }
   }
 
@@ -152,7 +154,8 @@ class ShoppingPatternsService {
       // החזר רשימה חדשה עם הפריטים המסודרים
       return shoppingList.copyWith(items: sortedItems);
     } catch (e) {
-      return shoppingList; // במקרה של שגיאה - החזר את הרשימה המקורית
+      if (kDebugMode) debugPrint('⚠️ ShoppingPatterns.sort: $e');
+      return shoppingList;
     }
   }
 
@@ -203,7 +206,7 @@ class ShoppingPatternsService {
   }) async {
     try {
       final snapshot = await _firestore
-          .collection('shopping_patterns')
+          .collection(FirestoreCollections.shoppingPatterns)
           .where('userId', isEqualTo: userId)
           .where('householdId', isEqualTo: householdId) // ✅ CRITICAL!
           .where('storeType', isEqualTo: storeType)
@@ -214,6 +217,7 @@ class ShoppingPatternsService {
       final patterns = snapshot.docs.map((doc) => doc.data()).toList();
       return patterns;
     } catch (e) {
+      if (kDebugMode) debugPrint('⚠️ ShoppingPatterns.load: $e');
       return [];
     }
   }
@@ -235,7 +239,7 @@ class ShoppingPatternsService {
 
       final cutoffDate = DateTime.now().subtract(const Duration(days: 90));
       final snapshot = await _firestore
-          .collection('shopping_patterns')
+          .collection(FirestoreCollections.shoppingPatterns)
           .where('userId', isEqualTo: userId)
           .where('householdId', isEqualTo: householdId)
           .where('createdAt', isLessThan: Timestamp.fromDate(cutoffDate))

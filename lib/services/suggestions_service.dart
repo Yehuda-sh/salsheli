@@ -238,13 +238,7 @@ class SuggestionsService {
 
   /// 🇮🇱 קבלת טקסט תיאור משך זמן
   /// 🇬🇧 Get duration description text
-  static String getDurationText(Duration? duration) {
-    if (duration == null) return 'לעולם לא';
-    if (duration.inDays == 1) return 'יום אחד';
-    if (duration.inDays == 7) return 'שבוע';
-    if (duration.inDays == 30) return 'חודש';
-    return '${duration.inDays} ימים';
-  }
+  // NOTE: getDurationText removed — dead code (0 usages).
 
   // ---- Statistics & Analysis ----
 

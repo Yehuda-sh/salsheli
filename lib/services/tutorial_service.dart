@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/ui_constants.dart';
+import '../l10n/app_strings.dart';
 import '../providers/user_context.dart';
 
 /// שירות הדרכה אינטראקטיבית
@@ -79,7 +80,7 @@ class TutorialService {
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black87,
+      barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.87),
       builder: (dialogContext) => _TutorialDialog(
         onComplete: () => markHomeTutorialAsSeen(context),
       ),
@@ -104,51 +105,24 @@ class _TutorialDialogState extends State<_TutorialDialog> {
   int _currentStep = 0;
 
   // שלבי ההדרכה
-  static const List<_TutorialStep> _steps = [
-    _TutorialStep(
-      icon: Icons.waving_hand,
-      title: 'ברוכים הבאים ל-MemoZap! 🎉',
-      description: 'האפליקציה שתנהל לכם את הקניות, המזווה והבית — במקום אחד.\n\nבואו נכיר בקצרה!',
-    ),
-    _TutorialStep(
-      icon: Icons.shopping_cart_outlined,
-      title: 'יצירת רשימת קניות 🛒',
-      description: 'לחצו על כפתור ➕ רשימה חדשה בדף הבית.\n\nבחרו סוג חנות (סופר, ירקן, מאפייה...) והוסיפו מוצרים מהקטלוג או ידנית.\n\nאפשר לבחור כמות, קטגוריה ועדיפות לכל פריט.',
-    ),
-    _TutorialStep(
-      icon: Icons.shopping_bag_outlined,
-      title: 'מצב קנייה פעיל 🏃',
-      description: 'כשמגיעים לחנות — לחצו "התחל קנייה".\n\nהמסך עובר למצב קנייה: סמנו פריטים ✓ תוך כדי הליכה, ראו את ההתקדמות, והוסיפו מוצרים שמצאתם בדרך.\n\nבסיום — תקבלו סיכום עם סכום כולל.',
-    ),
-    _TutorialStep(
-      icon: Icons.kitchen_outlined,
-      title: 'המזווה הביתי 📦',
-      description: 'המזווה עוקב אחרי מה שיש בבית.\n\n🔄 אוטומטי: כשמסיימים קנייה — המוצרים עולים למזווה.\n✏️ ידני: לחצו ➕ במזווה להוסיף מוצרים בעצמכם.\n\nכשמשהו אוזל — תופיע הצעה חכמה בדף הבית להוסיף אותו לרשימה הבאה.',
-    ),
-    _TutorialStep(
-      icon: Icons.family_restroom,
-      title: 'ניהול הבית 🏠',
-      description: 'כך מצרפים חברי בית:\n\n1️⃣ הגדרות → ניהול הבית → הזמן לבית\n2️⃣ שלחו הזמנה באימייל\n3️⃣ המוזמן מאשר ומצטרף\n\nמרגע ההצטרפות — כולם רואים את אותן רשימות ומזווה בזמן אמת. בלי להתקשר לשאול "מה לקנות?" 😄',
-    ),
-    _TutorialStep(
-      icon: Icons.history_outlined,
-      title: 'היסטוריה וסטטיסטיקות 📊',
-      description: 'כל קנייה נשמרת כקבלה עם תאריך, חנות וסכום.\n\nבטאב 📜 היסטוריה תראו:\n• כמה הוצאתם החודש\n• ממוצע לקנייה\n• פירוט לפי חנות\n\nאפשר לסנן לפי תקופה ולמיין לפי תאריך, חנות או סכום.',
-    ),
-    _TutorialStep(
-      icon: Icons.explore_outlined,
-      title: 'הניווט שלכם 🧭',
-      description: '🏠 בית — סיכום יומי, הצעות חכמות ורשימות פעילות\n\n📦 מזווה — כל המוצרים בבית + הוספה ידנית\n\n📜 היסטוריה — קבלות, הוצאות וסטטיסטיקות\n\n⚙️ הגדרות — פרופיל, הבית, התראות, ערכת נושא',
-    ),
-    _TutorialStep(
-      icon: Icons.rocket_launch,
-      title: 'מוכנים! 🚀',
-      description: 'התחילו ביצירת רשימת הקניות הראשונה שלכם.\n\n💡 טיפ: הוסיפו מוצרים מהקטלוג — הם יזכרו אותם לפעם הבאה!\n\nאפשר תמיד לחזור להדרכה דרך ⚙️ הגדרות → הצג הדרכה מחדש.',
-    ),
-  ];
+  static List<_TutorialStep> _steps() {
+    final s = AppStrings.tutorial;
+    return [
+      _TutorialStep(icon: Icons.waving_hand, title: s.welcomeTitle, description: s.welcomeDesc),
+      _TutorialStep(icon: Icons.shopping_cart_outlined, title: s.shoppingTitle, description: s.shoppingDesc),
+      _TutorialStep(icon: Icons.shopping_bag_outlined, title: s.activeShoppingTitle, description: s.activeShoppingDesc),
+      _TutorialStep(icon: Icons.kitchen_outlined, title: s.pantryTitle, description: s.pantryDesc),
+      _TutorialStep(icon: Icons.family_restroom, title: s.householdTitle, description: s.householdDesc),
+      _TutorialStep(icon: Icons.history_outlined, title: s.historyTitle, description: s.historyDesc),
+      _TutorialStep(icon: Icons.explore_outlined, title: s.navigationTitle, description: s.navigationDesc),
+      _TutorialStep(icon: Icons.rocket_launch, title: s.readyTitle, description: s.readyDesc),
+    ];
+  }
+
+  late final List<_TutorialStep> _stepsList = _steps();
 
   void _nextStep() {
-    if (_currentStep < _steps.length - 1) {
+    if (_currentStep < _stepsList.length - 1) {
       setState(() => _currentStep++);
     } else {
       widget.onComplete();
@@ -163,8 +137,8 @@ class _TutorialDialogState extends State<_TutorialDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final step = _steps[_currentStep];
-    final isLast = _currentStep == _steps.length - 1;
+    final step = _stepsList[_currentStep];
+    final isLast = _currentStep == _stepsList.length - 1;
     final cs = Theme.of(context).colorScheme;
 
     return Directionality(
@@ -182,7 +156,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
               borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: cs.shadow.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -194,7 +168,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
                 // Progress dots
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(_steps.length, (index) {
+                  children: List.generate(_stepsList.length, (index) {
                     final isActive = index == _currentStep;
                     return AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -203,7 +177,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
                       height: 8,
                       decoration: BoxDecoration(
                         color: isActive ? cs.primary : cs.outline.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall / 2),
                       ),
                     );
                   }),
@@ -256,7 +230,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
                       TextButton(
                         onPressed: _skip,
                         child: Text(
-                          'דלג',
+                          AppStrings.tutorial.skip,
                           style: TextStyle(color: cs.outline),
                         ),
                       ),
@@ -265,7 +239,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
                     // Next/Finish button
                     FilledButton(
                       onPressed: _nextStep,
-                      child: Text(isLast ? 'בואו נתחיל! 🚀' : 'הבא'),
+                      child: Text(isLast ? AppStrings.tutorial.letsStart : AppStrings.tutorial.next),
                     ),
                   ],
                 ),

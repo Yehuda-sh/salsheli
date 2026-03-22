@@ -358,26 +358,7 @@ class TemplateService {
     return isPrivate ? 'tasks' : 'who_brings';
   }
 
-  // 📌 Note: _getIconForSource is kept for potential future use
-  // (e.g., showing source icons in UI)
-  /// מחזיר אייקון לפי מקור המוצר
-  // ignore: unused_element
-  static String _getIconForSource(String source) {
-    switch (source) {
-      case 'butcher':
-        return '🥩';
-      case 'bakery':
-        return '🍞';
-      case 'greengrocer':
-        return '🥬';
-      case 'pharmacy':
-        return '💊';
-      case 'supermarket':
-      case 'market':
-      default:
-        return '🛒';
-    }
-  }
+  // NOTE: _getIconForSource removed — dead code (0 usages).
 
   /// 🏺 טוען פריטי starter למזווה (Onboarding)
   ///

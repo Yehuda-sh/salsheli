@@ -43,7 +43,8 @@ class FirestoreCollections {
   static const String joinRequests = 'join_requests';
   static const String householdInfo = 'info';
 
-  // ✅ Legacy constants REMOVED (shoppingLists, inventory, receipts)
+  // === Other top-level collections ===
+  static const String shoppingPatterns = 'shopping_patterns';
   static const String customLocations = 'custom_locations';
 }
 
