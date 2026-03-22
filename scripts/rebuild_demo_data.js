@@ -133,9 +133,9 @@ function makeProductItem(product, idx, opts = {}) {
     checkedBy: opts.checkedBy || null,
     checkedAt: opts.checkedAt || null,
     productData: {
-      quantity: opts.quantity || randomInt(1, 3),
+      quantity: opts.quantity || product.defaultQty || randomInt(1, 3),
       unitPrice: product.price || 0,
-      unit: normalizeUnit(product.unit),
+      unit: normalizeUnit(product.defaultUnit || product.unit),
       ...(product.barcode ? { barcode: product.barcode } : {}),
       ...(product.brand ? { brand: product.brand } : {}),
     },
