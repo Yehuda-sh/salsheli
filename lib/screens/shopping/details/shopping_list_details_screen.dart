@@ -959,7 +959,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
   ) {
     final cs = theme.colorScheme;
     final isProduct = item.type == ItemType.product;
-    final emoji = isProduct ? FiltersConfig.getCategoryEmoji(item.category ?? '') : '📋';
+    final emoji = isProduct
+        ? FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(item.category ?? ''))
+        : '📋';
 
     return Dismissible(
       key: Key(item.id),
