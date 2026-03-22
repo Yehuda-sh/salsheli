@@ -350,8 +350,8 @@ class AppTheme {
     // צבעי מילוי דקים לשדות טופס
     // Light: שקוף יותר (6% opacity)
     // Dark: קצת יותר בולט (8% opacity)
-    final fillOnLight = scheme.surfaceContainerHighest.withValues(alpha: 0.06);
-    final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: 0.08);
+    final fillOnLight = scheme.surfaceContainerHighest.withValues(alpha: 0.5);
+    final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: 0.3);
 
     return ThemeData(
       useMaterial3: true, // Flutter 3.16+ זה ברירת מחדל, אבל מפורש = ברור יותר
@@ -446,30 +446,31 @@ class AppTheme {
       ),
 
       // שדות קלט - TextField, TextFormField
+      // Premium soft style: רקע רך, בלי border רגיל, border דק רק ב-focus
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
         filled: true,
         fillColor: dark ? fillOnDark : fillOnLight,
         contentPadding: const EdgeInsets.symmetric(horizontal: kInputPadding, vertical: kInputPadding),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: scheme.outline),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          borderSide: BorderSide.none,
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: brand.accent, width: kBorderWidthFocused),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          borderSide: BorderSide(color: brand.accent, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: scheme.error),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          borderSide: BorderSide(color: scheme.error, width: 1.0),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          borderSide: BorderSide(color: scheme.error, width: kBorderWidthFocused),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
         ),
       ),
 
