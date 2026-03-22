@@ -87964,5 +87964,77 @@
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
+  },
+  {
+    "name": "עוגיית חלבון דאבל שוקולד",
+    "category": "ממתקים וחטיפים",
+    "price": 16.5,
+    "barcode": "7290018703991",
+    "brand": "מדיטרנד",
+    "unit": "גרם",
+    "size": "60.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "אול אין סופט עוגיות 55גר",
+    "category": "ממתקים וחטיפים",
+    "price": 16.5,
+    "barcode": "7290019766018",
+    "brand": "מדיטרנד",
+    "unit": "גרם",
+    "size": "55.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "אול אין קרם עוגיות60 גרם",
+    "category": "ממתקים וחטיפים",
+    "price": 14.9,
+    "barcode": "7290018703304",
+    "brand": "מדיטרנד",
+    "unit": "גרם",
+    "size": "60.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "אול אין שוק.לבן עוגיות60",
+    "category": "ממתקים וחטיפים",
+    "price": 14.9,
+    "barcode": "7290018043134",
+    "brand": "מדיטרנד",
+    "unit": "גרם",
+    "size": "60.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חלבון שוקולד עוגיות60ג",
+    "category": "ממתקים וחטיפים",
+    "price": 16.9,
+    "barcode": "7290119371129",
+    "brand": "פרנקוניה שוקולדאנורקה ג'",
+    "unit": "גרם",
+    "size": "60.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שוקולד לבן עוגיות 100גרם",
+    "category": "ממתקים וחטיפים",
+    "price": 8.9,
+    "barcode": "7290119382576",
+    "brand": "שטראוס גרופ בע\"מ",
+    "unit": "גרם",
+    "size": "100.00 גרמים",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
   }
 ]
