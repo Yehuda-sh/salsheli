@@ -37,6 +37,7 @@ import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../theme/app_theme.dart';
+import '../common/app_dialog.dart';
 
 enum PantryItemDialogMode {
   add,
@@ -67,9 +68,9 @@ class PantryItemDialog extends StatefulWidget {
     BuildContext context, {
     VoidCallback? onSuccess,
   }) {
-    return showDialog<bool>(
+    return AppDialog.show<bool>(
       context: context,
-      builder: (_) => PantryItemDialog(
+      child: PantryItemDialog(
         mode: PantryItemDialogMode.add,
         onSuccess: onSuccess,
       ),
@@ -82,9 +83,9 @@ class PantryItemDialog extends StatefulWidget {
     InventoryItem item, {
     VoidCallback? onSuccess,
   }) {
-    return showDialog<bool>(
+    return AppDialog.show<bool>(
       context: context,
-      builder: (_) => PantryItemDialog(
+      child: PantryItemDialog(
         mode: PantryItemDialogMode.edit,
         item: item,
         onSuccess: onSuccess,

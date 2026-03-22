@@ -520,7 +520,7 @@ class AppTheme {
       // דיאלוגים/BottomSheet (M3 Surface Containers)
       dialogTheme: DialogThemeData(
         // surfaceContainerHighest = הכי בולט (דיאלוגים)
-        backgroundColor: scheme.surfaceContainerHighest,
+        backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: 0.95),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
         titleTextStyle: TextStyle(

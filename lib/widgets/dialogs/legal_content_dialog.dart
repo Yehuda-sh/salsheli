@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../common/app_dialog.dart';
 
 /// סוג התוכן המשפטי
 enum LegalContentType {
@@ -36,9 +37,9 @@ Future<void> showLegalContentDialog({
   required BuildContext context,
   required LegalContentType type,
 }) {
-  return showDialog(
+  return AppDialog.show(
     context: context,
-    builder: (context) => _LegalContentDialog(type: type),
+    child: _LegalContentDialog(type: type),
   );
 }
 

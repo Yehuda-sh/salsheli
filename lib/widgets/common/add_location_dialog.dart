@@ -4,7 +4,6 @@
 // משמש ב: my_pantry_screen, pantry_product_selection_sheet
 
 import 'dart:async' show unawaited;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,7 @@ import 'package:provider/provider.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/locations_provider.dart';
+import 'app_dialog.dart';
 
 /// רשימת אימוג'י לבחירה — למיקומים מותאמים אישית בלבד
 /// (מיקומים מובנים כבר קיימים ב-StorageLocations עם אימוג'ים משלהם)
@@ -40,13 +40,9 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
   final controller = TextEditingController();
   String selectedEmoji = kLocationEmojis.first;
 
-  final result = await showDialog<String>(
+  final result = await AppDialog.show<String>(
     context: context,
-    barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.3),
-    builder: (dialogContext) {
-      return BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
-        child: StatefulBuilder(
+    child: StatefulBuilder(
           builder: (ctx, setDialogState) {
             final cs = Theme.of(ctx).colorScheme;
             return Directionality(
@@ -110,7 +106,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(dialogContext),
+                    onPressed: () => Navigator.pop(ctx),
                     child: Text(AppStrings.common.cancel),
                   ),
                   ElevatedButton.icon(
@@ -123,14 +119,14 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                     onPressed: controller.text.trim().isEmpty ? null : () async {
                       final name = controller.text.trim();
 
-                      final provider = dialogContext.read<LocationsProvider>();
-                      final navigator = Navigator.of(dialogContext);
-                      final messenger = ScaffoldMessenger.of(dialogContext);
+                      final provider = ctx.read<LocationsProvider>();
+                      final navigator = Navigator.of(ctx);
+                      final messenger = ScaffoldMessenger.of(ctx);
 
                       final success =
                           await provider.addLocation(name, emoji: selectedEmoji);
 
-                      if (!dialogContext.mounted) return;
+                      if (!ctx.mounted) return;
 
                       if (success) {
                         final newLoc = provider.customLocations.lastOrNull;
@@ -149,8 +145,6 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
             );
           },
         ),
-      );
-    },
   );
 
   return result;

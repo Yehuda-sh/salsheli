@@ -32,6 +32,7 @@ import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
 import '../../theme/app_theme.dart';
 import '../common/sticky_button.dart';
+import '../common/app_dialog.dart';
 import '../common/sticky_note.dart';
 
 class AddEditTaskDialog extends StatefulWidget {
@@ -558,26 +559,11 @@ Future<void> showAddEditTaskDialog(
   UnifiedListItem? item,
   required void Function(UnifiedListItem item) onSave,
 }) {
-  final barrierColor = Theme.of(context).colorScheme.scrim.withValues(alpha: 0.5);
-
-  return showGeneralDialog(
+  return AppDialog.show(
     context: context,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: barrierColor,
-    pageBuilder: (context, animation, secondaryAnimation) {
-      return ScaleTransition(
-        scale: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutBack,
-        ),
-        child: FadeTransition(
-          opacity: animation,
-          child: AddEditTaskDialog(
-            item: item,
-            onSave: onSave,
-          ),
-        ),
-      );
-    },
+    child: AddEditTaskDialog(
+      item: item,
+      onSave: onSave,
+    ),
   );
 }

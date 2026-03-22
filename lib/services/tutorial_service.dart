@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/user_context.dart';
+import '../widgets/common/app_dialog.dart';
 
 /// שירות הדרכה אינטראקטיבית
 class TutorialService {
@@ -77,11 +78,10 @@ class TutorialService {
 
     if (!context.mounted) return;
 
-    await showDialog<void>(
+    await AppDialog.show<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.87),
-      builder: (dialogContext) => _TutorialDialog(
+      child: _TutorialDialog(
         onComplete: () => markHomeTutorialAsSeen(context),
       ),
     );
