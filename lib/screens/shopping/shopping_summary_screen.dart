@@ -1,8 +1,8 @@
 // 📄 lib/screens/shopping/shopping_summary_screen.dart
 //
 // מסך סיכום קנייה — מוצג לאחר סיום רשימת קניות.
-// Version: 5.0 — Celebration redesign
-// Last Updated: 16/03/2026
+// Version: 6.0 — Receipt-style redesign with torn paper edges
+// Last Updated: 22/03/2026
 
 import 'dart:async';
 
@@ -17,6 +17,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/painters/perforation_painter.dart';
 
 class ShoppingSummaryScreen extends StatefulWidget {
   final String listId;
@@ -110,17 +111,17 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                         : '💪';
 
                 return SingleChildScrollView(
-                  padding: const EdgeInsets.all(kSpacingMedium),
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                   child: Column(
                     children: [
                       const SizedBox(height: kSpacingLarge),
 
-                      // 🎉 כותרת חגיגית
+                      // 🎉 כותרת חגיגית (מעל הקבלה)
                       ScaleTransition(
                         scale: Tween<double>(begin: 0.3, end: 1.0).animate(_scaleEmoji),
                         child: Text(celebrationEmoji, style: const TextStyle(fontSize: 72)),
                       ),
-                      const SizedBox(height: kSpacingMedium),
+                      const SizedBox(height: kSpacingSmall),
                       FadeTransition(
                         opacity: _fadeIn,
                         child: Text(
@@ -132,180 +133,27 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                           ),
                         ),
                       ),
-                      const SizedBox(height: kSpacingTiny),
-                      FadeTransition(
-                        opacity: _fadeIn,
-                        child: Text(
-                          list.name,
-                          style: TextStyle(fontSize: kFontSizeTitle, color: cs.onSurfaceVariant),
-                        ),
-                      ),
 
-                      const SizedBox(height: kSpacingXLarge),
+                      const SizedBox(height: kSpacingLarge),
 
-                      // 📊 כרטיס סטטיסטיקות ראשי
+                      // 🧾 קבלה — receipt style with torn edges
                       SlideTransition(
                         position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(_slideUp),
                         child: FadeTransition(
                           opacity: _slideUp,
-                          child: Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(kSpacingLarge),
-                              child: Column(
-                                children: [
-                                  // אחוז הצלחה — עיגול גדול
-                                  SizedBox(
-                                    width: 120,
-                                    height: 120,
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 120,
-                                          height: 120,
-                                          child: CircularProgressIndicator(
-                                            value: successRate / 100,
-                                            strokeWidth: 10,
-                                            backgroundColor: cs.surfaceContainerHighest,
-                                            valueColor: AlwaysStoppedAnimation(
-                                              successRate >= 80 ? successColor : cs.tertiary,
-                                            ),
-                                          ),
-                                        ),
-                                        Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              '${successRate.toStringAsFixed(0)}%',
-                                              style: TextStyle(
-                                                fontSize: kFontSizeXLarge,
-                                                fontWeight: FontWeight.bold,
-                                                color: cs.onSurface,
-                                              ),
-                                            ),
-                                            Text(
-                                              strings.successRate,
-                                              style: TextStyle(fontSize: kFontSizeTiny, color: cs.onSurfaceVariant),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: kSpacingLarge),
-                                  Divider(height: 1, color: cs.outline.withValues(alpha: 0.1)),
-                                  const SizedBox(height: kSpacingMedium),
-
-                                  // שורת מספרים
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _StatColumn(
-                                        icon: Icons.check_circle,
-                                        iconColor: successColor,
-                                        value: '$purchased',
-                                        label: strings.purchasedLabel,
-                                      ),
-                                      Container(
-                                        width: 1,
-                                        height: kIconSizeLarge + kSpacingXTiny,
-                                        color: cs.outline.withValues(alpha: 0.1),
-                                      ),
-                                      _StatColumn(
-                                        icon: Icons.remove_shopping_cart,
-                                        iconColor: cs.error,
-                                        value: '$missing',
-                                        label: strings.missingLabel,
-                                      ),
-                                      Container(
-                                        width: 1,
-                                        height: kIconSizeLarge + kSpacingXTiny,
-                                        color: cs.outline.withValues(alpha: 0.1),
-                                      ),
-                                      _StatColumn(
-                                        icon: Icons.shopping_bag,
-                                        iconColor: cs.primary,
-                                        value: '$total',
-                                        label: strings.totalLabel,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                          child: _ReceiptCard(
+                            listName: list.name,
+                            purchased: purchased,
+                            missing: missing,
+                            total: total,
+                            successRate: successRate,
+                            successColor: successColor,
+                            spentAmount: spentAmount,
+                            budget: budget,
+                            budgetDiff: budgetDiff,
                           ),
                         ),
                       ),
-
-                      const SizedBox(height: kSpacingMedium),
-
-                      // 💰 תקציב (רק אם הוגדר)
-                      if (budget > 0)
-                        SlideTransition(
-                          position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(_slideUp),
-                          child: FadeTransition(
-                            opacity: _slideUp,
-                            child: Card(
-                              elevation: 1,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(kSpacingMedium),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 24,
-                                      backgroundColor: (budgetDiff >= 0 ? successColor : cs.error).withValues(alpha: 0.15),
-                                      child: Icon(
-                                        budgetDiff >= 0 ? Icons.savings : Icons.money_off,
-                                        color: budgetDiff >= 0 ? successColor : cs.error,
-                                      ),
-                                    ),
-                                    const SizedBox(width: kSpacingMedium),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            strings.budgetTitle,
-                                            style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                                          ),
-                                          Text(
-                                            '₪${spentAmount.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: kFontSizeLarge,
-                                              fontWeight: FontWeight.bold,
-                                              color: cs.onSurface,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
-                                      decoration: BoxDecoration(
-                                        color: (budgetDiff >= 0 ? successColor : cs.error).withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(kBorderRadius),
-                                      ),
-                                      child: Text(
-                                        budgetDiff >= 0
-                                            ? strings.budgetRemaining('₪${budgetDiff.toStringAsFixed(0)}')
-                                            : strings.budgetOver('₪${budgetDiff.abs().toStringAsFixed(0)}'),
-                                        style: TextStyle(
-                                          fontSize: kFontSizeSmall,
-                                          fontWeight: FontWeight.w600,
-                                          color: budgetDiff >= 0 ? successColor : cs.error,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
 
                       const SizedBox(height: kSpacingXLarge),
 
@@ -340,6 +188,332 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
       ),
     );
   }
+}
+
+// ========================================
+// 🧾 Receipt Card — torn paper receipt
+// ========================================
+
+class _ReceiptCard extends StatelessWidget {
+  final String listName;
+  final int purchased;
+  final int missing;
+  final int total;
+  final double successRate;
+  final Color successColor;
+  final double spentAmount;
+  final double budget;
+  final double budgetDiff;
+
+  const _ReceiptCard({
+    required this.listName,
+    required this.purchased,
+    required this.missing,
+    required this.total,
+    required this.successRate,
+    required this.successColor,
+    required this.spentAmount,
+    required this.budget,
+    required this.budgetDiff,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.shoppingSummary;
+
+    return Column(
+      children: [
+        // ═══ Top torn edge ═══
+        ClipPath(
+          clipper: _TornEdgeClipper(isTop: true),
+          child: Container(
+            height: 14,
+            decoration: BoxDecoration(
+              color: cs.surface,
+              boxShadow: [
+                BoxShadow(
+                  color: cs.shadow.withValues(alpha: 0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // ═══ Receipt body ═══
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: cs.surface,
+            boxShadow: [
+              BoxShadow(
+                color: cs.shadow.withValues(alpha: 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
+            child: Column(
+              children: [
+                // ── Header: שם רשימה + תאריך ──
+                Icon(Icons.receipt_long, size: kIconSizeMedium, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                const SizedBox(height: kSpacingTiny),
+                Text(
+                  listName,
+                  style: TextStyle(
+                    fontSize: kFontSizeTitle,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                Text(
+                  _formattedDate(),
+                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // ── Perforation ──
+                CustomPaint(
+                  size: const Size(double.infinity, 1),
+                  painter: PerforationPainter(
+                    color: cs.outline.withValues(alpha: 0.25),
+                    dashWidth: 6,
+                    dashGap: 4,
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // ── Success circle ──
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircularProgressIndicator(
+                          value: successRate / 100,
+                          strokeWidth: 8,
+                          backgroundColor: cs.surfaceContainerHighest,
+                          valueColor: AlwaysStoppedAnimation(
+                            successRate >= 80 ? successColor : cs.tertiary,
+                          ),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${successRate.toStringAsFixed(0)}%',
+                            style: TextStyle(
+                              fontSize: kFontSizeLarge,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
+                            ),
+                          ),
+                          Text(
+                            strings.successRate,
+                            style: TextStyle(fontSize: kFontSizeTiny, color: cs.onSurfaceVariant),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // ── Perforation ──
+                CustomPaint(
+                  size: const Size(double.infinity, 1),
+                  painter: PerforationPainter(
+                    color: cs.outline.withValues(alpha: 0.25),
+                    dashWidth: 6,
+                    dashGap: 4,
+                  ),
+                ),
+
+                const SizedBox(height: kSpacingMedium),
+
+                // ── Stats row ──
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _StatColumn(
+                      icon: Icons.check_circle,
+                      iconColor: successColor,
+                      value: '$purchased',
+                      label: strings.purchasedLabel,
+                    ),
+                    Container(
+                      width: 1,
+                      height: kIconSizeLarge,
+                      color: cs.outline.withValues(alpha: 0.1),
+                    ),
+                    _StatColumn(
+                      icon: Icons.remove_shopping_cart,
+                      iconColor: cs.error,
+                      value: '$missing',
+                      label: strings.missingLabel,
+                    ),
+                    Container(
+                      width: 1,
+                      height: kIconSizeLarge,
+                      color: cs.outline.withValues(alpha: 0.1),
+                    ),
+                    _StatColumn(
+                      icon: Icons.shopping_bag,
+                      iconColor: cs.primary,
+                      value: '$total',
+                      label: strings.totalLabel,
+                    ),
+                  ],
+                ),
+
+                // ── Budget section (only if set) ──
+                if (budget > 0) ...[
+                  const SizedBox(height: kSpacingMedium),
+
+                  // ── Perforation ──
+                  CustomPaint(
+                    size: const Size(double.infinity, 1),
+                    painter: PerforationPainter(
+                      color: cs.outline.withValues(alpha: 0.25),
+                      dashWidth: 6,
+                      dashGap: 4,
+                    ),
+                  ),
+
+                  const SizedBox(height: kSpacingMedium),
+
+                  // ── Budget row ──
+                  Row(
+                    children: [
+                      Icon(
+                        budgetDiff >= 0 ? Icons.savings : Icons.money_off,
+                        color: budgetDiff >= 0 ? successColor : cs.error,
+                        size: kIconSizeMedium,
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.budgetTitle,
+                              style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                            ),
+                            Text(
+                              '₪${spentAmount.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
+                        decoration: BoxDecoration(
+                          color: (budgetDiff >= 0 ? successColor : cs.error).withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Text(
+                          budgetDiff >= 0
+                              ? strings.budgetRemaining('₪${budgetDiff.toStringAsFixed(0)}')
+                              : strings.budgetOver('₪${budgetDiff.abs().toStringAsFixed(0)}'),
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            fontWeight: FontWeight.w600,
+                            color: budgetDiff >= 0 ? successColor : cs.error,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+
+                const SizedBox(height: kSpacingSmall),
+              ],
+            ),
+          ),
+        ),
+
+        // ═══ Bottom torn edge ═══
+        ClipPath(
+          clipper: _TornEdgeClipper(isTop: false),
+          child: Container(
+            height: 14,
+            color: cs.surface,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formattedDate() {
+    final now = DateTime.now();
+    return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+  }
+}
+
+// ========================================
+// ✂️ Torn edge clipper — zigzag paper effect
+// ========================================
+
+class _TornEdgeClipper extends CustomClipper<Path> {
+  final bool isTop;
+
+  _TornEdgeClipper({required this.isTop});
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    const zigzagHeight = 7.0;
+    const zigzagWidth = 12.0;
+
+    if (isTop) {
+      // Top edge: zigzag at top, straight at bottom
+      path.moveTo(0, zigzagHeight);
+      var x = 0.0;
+      while (x < size.width) {
+        path.lineTo(x + zigzagWidth / 2, 0);
+        path.lineTo(x + zigzagWidth, zigzagHeight);
+        x += zigzagWidth;
+      }
+      path.lineTo(size.width, size.height);
+      path.lineTo(0, size.height);
+    } else {
+      // Bottom edge: straight at top, zigzag at bottom
+      path.moveTo(0, 0);
+      path.lineTo(size.width, 0);
+      path.lineTo(size.width, size.height - zigzagHeight);
+      var x = size.width;
+      while (x > 0) {
+        path.lineTo(x - zigzagWidth / 2, size.height);
+        path.lineTo(x - zigzagWidth, size.height - zigzagHeight);
+        x -= zigzagWidth;
+      }
+    }
+
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant _TornEdgeClipper oldClipper) => isTop != oldClipper.isTop;
 }
 
 // ========================================
