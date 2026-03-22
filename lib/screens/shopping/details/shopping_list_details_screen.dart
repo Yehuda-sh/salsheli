@@ -909,7 +909,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           fontSize: kFontSizeBody,
                           fontWeight: FontWeight.w500,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       if (item.notes != null && item.notes!.isNotEmpty)
@@ -922,8 +922,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     ],
                   ),
                 ),
-                // כמות
-                if ((item.quantity ?? 1) > 1)
+                // כמות + יחידה
+                if (isProduct)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
                     decoration: BoxDecoration(
@@ -931,7 +931,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
-                      '×${item.quantity}',
+                      '${item.quantity ?? 1} ${item.unit ?? "יח\'"}',
                       style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
                     ),
                   ),
