@@ -2892,18 +2892,6 @@
     "defaultQty": 1
   },
   {
-    "name": "אורגנו בשקית 20 גרם",
-    "category": "תבלינים ואפייה",
-    "price": 6.9,
-    "barcode": "7296073729006",
-    "brand": "תבליני טעם וריח",
-    "unit": "גרם",
-    "size": "20.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "אורגנו יחידה",
     "category": "תבלינים ואפייה",
     "price": 7.9,
@@ -2981,18 +2969,6 @@
     "price": 14.9,
     "barcode": "7296073705253",
     "brand": "SETIA LAL CHAMAN",
-    "unit": "קילוגרמים",
-    "size": "1.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "אורז בסמטי 1 ק\"ג ARNO",
-    "category": "אורז ופסטה",
-    "price": 14.9,
-    "barcode": "7296073725930",
-    "brand": "LIMITED FOODS LT",
     "unit": "קילוגרמים",
     "size": "1.00 קילוגרמים",
     "isWeighted": false,
@@ -6125,18 +6101,6 @@
     "price": 15.9,
     "barcode": "7290002862031",
     "brand": "הררית",
-    "unit": "גרם",
-    "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "אריסה חריפה 250 גרם",
-    "category": "תבלינים ואפייה",
-    "price": 16.9,
-    "barcode": "7290017121093",
-    "brand": "מדשא תעשיות מזון בע\"מ",
     "unit": "גרם",
     "size": "250.00 גרמים",
     "isWeighted": false,
@@ -10044,18 +10008,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בצק עלים 1 ק\"ג",
-    "category": "קפואים",
-    "price": 20.9,
-    "barcode": "7296073528562",
-    "brand": "ARABATZIS",
-    "unit": "קילוגרמים",
-    "size": "1.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "בצק עלים חמאה מעדנות600ג",
     "category": "קפואים",
     "price": 31.5,
@@ -10145,18 +10097,6 @@
     "price": 26.9,
     "barcode": "7290018091883",
     "brand": "אראבאטזיס",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "בצק פילו 500 גרם",
-    "category": "קפואים",
-    "price": 20.9,
-    "barcode": "7290008343466",
-    "brand": "שגמור בע\"מ",
     "unit": "גרם",
     "size": "500.00 גרמים",
     "isWeighted": false,
@@ -10392,35 +10332,11 @@
     "defaultQty": 1
   },
   {
-    "name": "ברוקולי ארוז",
-    "category": "פירות וירקות",
-    "price": 11.9,
-    "barcode": "7296073373476",
-    "brand": "קטיף.",
-    "unit": "גרם",
-    "size": "350.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ברוקולי מוקפא 800 גרם",
     "category": "פירות וירקות",
     "price": 19.9,
     "barcode": "7296073705529",
     "brand": "י.ש.ירקות עלים בע\"מ",
-    "unit": "גרם",
-    "size": "800.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ברוקולי מוקפא 800 גרם",
-    "category": "פירות וירקות",
-    "price": 17.9,
-    "barcode": "7296073692621",
-    "brand": "גרין פרוסט פוד בע\"מ",
     "unit": "גרם",
     "size": "800.00 גרמים",
     "isWeighted": false,
@@ -10745,18 +10661,6 @@
     "price": 89.9,
     "barcode": "7290003451678",
     "brand": "בלדי",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בשר ראש מוכשר קפוא",
-    "category": "קפואים",
-    "price": 89.9,
-    "barcode": "7290003796786",
-    "brand": "לחוביץ",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
@@ -12461,18 +12365,6 @@
     "price": 5.81,
     "barcode": "7290000048185",
     "brand": "מחלבת אלון תבור",
-    "unit": "גרם",
-    "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "גבינה לבנה 5% שומן 250 ג",
-    "category": "מוצרי חלב",
-    "price": 5.81,
-    "barcode": "7290000474502",
-    "brand": null,
     "unit": "גרם",
     "size": "250.00 גרמים",
     "isWeighted": false,
@@ -15696,18 +15588,6 @@
     "defaultQty": 1
   },
   {
-    "name": "גרעיני תירס מתוק",
-    "category": "שימורים",
-    "price": 10.9,
-    "barcode": "7290117265604",
-    "brand": "הזה סאנקינג פוד קו.",
-    "unit": "100 גרם",
-    "size": "520 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גרעיני תירס מתוק 175*3 ג",
     "category": "שימורים",
     "price": 16.9,
@@ -17489,18 +17369,6 @@
     "price": 13.9,
     "barcode": "7290000961804",
     "brand": "א.מ.תקומה עשבי תיבול",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "דלעת ארוזה",
-    "category": "פירות וירקות",
-    "price": 13.9,
-    "barcode": "7296073725602",
-    "brand": "פרסקו חצבה 2006 בע\"מ",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
@@ -21540,18 +21408,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חזה הודו ברביקיו במשקל",
-    "category": "בשר ודגים",
-    "price": 95,
-    "barcode": "7290000150277",
-    "brand": "מוצרי עוף טוב",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "חזה הודו גולן זוגלובק",
     "category": "בשר ודגים",
     "price": 111,
@@ -23172,18 +23028,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חלב נטול לקטוז 2% 1 ליטר",
-    "category": "מוצרי חלב",
-    "price": 9.9,
-    "barcode": "7290116930695",
-    "brand": "תנובה בע\"מ",
-    "unit": "ליטרים",
-    "size": "1.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "חלב נטול לקטוז וניל2% 1ל",
     "category": "מוצרי חלב",
     "price": 13.9,
@@ -24204,18 +24048,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חמאת בוטנים טבעית 510גרם",
-    "category": "מוצרי חלב",
-    "price": 15.9,
-    "barcode": "7290113197169",
-    "brand": "סופר נוטרי פודס",
-    "unit": "גרם",
-    "size": "510.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "חמאת בוטנים טבעית 760 גר",
     "category": "מוצרי חלב",
     "price": 27.9,
@@ -24931,18 +24763,6 @@
     "brand": null,
     "unit": "100 גרם",
     "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חתיכות הרינג מלוח מצונן",
-    "category": "כללי",
-    "price": 24.9,
-    "barcode": "4810168001056",
-    "brand": "סנטה ברמור",
-    "unit": "גרם",
-    "size": "260.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -30036,18 +29856,6 @@
     "defaultQty": 1
   },
   {
-    "name": "כרישה )לוף( יחידה",
-    "category": "כללי",
-    "price": 9.9,
-    "barcode": "7296073706526",
-    "brand": "אליגם שיווק חקלאי בע\"מ",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "כרישה חתוכה לוף/פרסה",
     "category": "פירות וירקות",
     "price": 14.9,
@@ -30209,18 +30017,6 @@
     "price": 131,
     "barcode": "7290000365046",
     "brand": "טירת צבי",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כתף בקר מעושן במשקל",
-    "category": "בשר ודגים",
-    "price": 135,
-    "barcode": "7290009149814",
-    "brand": "מוצרי עוף טוב",
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
@@ -30437,18 +30233,6 @@
     "price": 12.9,
     "barcode": "7296073132462",
     "brand": "אינדוסטריה אגריקולה אקספ",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "לבבות דקל פרוסים 400ג",
-    "category": "כללי",
-    "price": 11.9,
-    "barcode": "7296073705147",
-    "brand": "אלימנטוס אי קונסרבס",
     "unit": "גרם",
     "size": "400.00 גרמים",
     "isWeighted": false,
@@ -39948,18 +39732,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מלפפונים בחומץ 18-25 560",
-    "category": "תבלינים ואפייה",
-    "price": 15.5,
-    "barcode": "7290113192522",
-    "brand": "בית השיטה תעשיות מזון",
-    "unit": "גרם",
-    "size": "560.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מלפפונים בחומץ 7-9 540גר",
     "category": "תבלינים ואפייה",
     "price": 10.9,
@@ -40188,18 +39960,6 @@
     "defaultQty": 1
   },
   {
-    "name": "ממרח ארטישוק 180 גרם",
-    "category": "מוצרי בית",
-    "price": 18.9,
-    "barcode": "7290015858144",
-    "brand": "מדשא תעשיות מזון בע\"מ",
-    "unit": "גרם",
-    "size": "180.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ממרח בטעם שוקולד השחר1קג",
     "category": "ממתקים וחטיפים",
     "price": 29.5,
@@ -40327,18 +40087,6 @@
     "brand": "פרסקו חצבה 2006 בע\"מ",
     "unit": "100 גרם",
     "size": "180 גר",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ממרח זיתים ירוקים",
-    "category": "שימורים",
-    "price": 17.5,
-    "barcode": "7290003438013",
-    "brand": "אוליביה",
-    "unit": "100 גרם",
-    "size": "190 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -46200,18 +45948,6 @@
     "defaultQty": 1
   },
   {
-    "name": "משקה סויה אלטרנטיב 1ליטר",
-    "category": "משקאות",
-    "price": 13.3,
-    "barcode": "7290110324926",
-    "brand": "תנובה בע\"מ",
-    "unit": "ליטרים",
-    "size": "1.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "משקה סויה אלפרו",
     "category": "מוצרי חלב",
     "price": 17.7,
@@ -46709,18 +46445,6 @@
     "price": 15.3,
     "barcode": "7290110325626",
     "brand": "תנובה בע\"מ",
-    "unit": "ליטרים",
-    "size": "1.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "משקה שקדים ללת\"ס 1 ליטר",
-    "category": "משקאות",
-    "price": 18.9,
-    "barcode": "7290017325453",
-    "brand": "ליקואטס",
     "unit": "ליטרים",
     "size": "1.00 ליטרים",
     "isWeighted": false,
@@ -47885,18 +47609,6 @@
     "price": 89,
     "barcode": "7290009954234",
     "brand": "טרה",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "נועם גב.צהובה9%חריץ משקל",
-    "category": "מוצרי חלב",
-    "price": 85,
-    "barcode": "7290005079665",
-    "brand": null,
     "unit": "קילוגרמים",
     "size": "0.00 קילוגרמים",
     "isWeighted": true,
@@ -51372,18 +51084,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סחוג ירוק 150 גרם",
-    "category": "כללי",
-    "price": 16.9,
-    "barcode": "7290006666826",
-    "brand": "סלטי משני",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סחוג תימני",
     "category": "שמנים ורטבים",
     "price": 18.5,
@@ -52344,18 +52044,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סכיני גילוח חד פעמי 5יח",
-    "category": "מוצרי ניקיון",
-    "price": 9.9,
-    "barcode": "7290014648098",
-    "brand": "נינגבי הווארד",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סכיני גילוח מאך-3 4 יח",
     "category": "היגיינה אישית",
     "price": 60.9,
@@ -52512,18 +52200,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סלט חזרת 250 גרם",
-    "category": "סלטים מוכנים",
-    "price": 18.5,
-    "barcode": "7290010154241",
-    "brand": "נטו",
-    "unit": "גרם",
-    "size": "250.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלט חציל בטעם כבד",
     "category": "סלטים מוכנים",
     "price": 13.9,
@@ -52579,18 +52255,6 @@
     "brand": "שטראוס",
     "unit": "100 גרם",
     "size": "250 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט טורקי",
-    "category": "סלטים מוכנים",
-    "price": 20.9,
-    "barcode": "7290115207507",
-    "brand": "מפעל צבר",
-    "unit": "100 גרם",
-    "size": "360 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -53136,18 +52800,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סלמי פפרוני במשקל",
-    "category": "כללי",
-    "price": 76,
-    "barcode": "7290000318868",
-    "brand": "יחיעם",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "סלמי פפרוני פיקנטי320גר",
     "category": "אחר",
     "price": 29.9,
@@ -53400,59 +53052,11 @@
     "defaultQty": 1
   },
   {
-    "name": "סלרי עלים יחידה",
-    "category": "פירות וירקות",
-    "price": 6.9,
-    "barcode": "7290015979122",
-    "brand": "זנזורי",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלרי עלים יחידה",
-    "category": "פירות וירקות",
-    "price": 6.9,
-    "barcode": "7296073706939",
-    "brand": "יראון",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלרי קצוץ יחידה",
     "category": "פירות וירקות",
     "price": 7.9,
     "barcode": "7290000000794",
     "brand": "יראון עבודות חקלאיות",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלרי קצוץ יחידה",
-    "category": "פירות וירקות",
-    "price": 7.9,
-    "barcode": "7290010192144",
-    "brand": "קטיף.",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלרי קצוץ יחידה",
-    "category": "פירות וירקות",
-    "price": 3.9,
-    "barcode": "7296073707769",
-    "brand": "אליגם שיווק חקלאי בע\"מ",
     "unit": "יח'",
     "size": "1.00 יחידה",
     "isWeighted": false,
@@ -54583,18 +54187,6 @@
     "brand": "החברה המרכזית לייצור משק",
     "unit": "ליטר",
     "size": "1.56 ליטר",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ספרייט זירו",
-    "category": "משקאות",
-    "price": 6.9,
-    "barcode": "7290013585233",
-    "brand": "קוקה קולה",
-    "unit": "100 מ\"ל",
-    "size": "330 מ\"ל",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -57048,18 +56640,6 @@
     "defaultQty": 1
   },
   {
-    "name": "עלי גפן ממולאים אורז400ג",
-    "category": "אורז ופסטה",
-    "price": 16.9,
-    "barcode": "7290121223621",
-    "brand": "אל רהאב גרופ תעשיות מזון",
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "עלי דפנה 20 גרם בשקית",
     "category": "אורז ופסטה",
     "price": 7.2,
@@ -57137,18 +56717,6 @@
     "price": 16.9,
     "barcode": "7290005270000",
     "brand": "אדריה בע\"מ",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "עלי סיגר 500 גרם",
-    "category": "כללי",
-    "price": 11.9,
-    "barcode": "7290002255215",
-    "brand": "חטיפי אלקיים בע\"מ",
     "unit": "גרם",
     "size": "500.00 גרמים",
     "isWeighted": false,
@@ -57329,30 +56897,6 @@
     "price": 22.9,
     "barcode": "8718879000138",
     "brand": "KARSTEN",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ענבים ירוקים יחידה",
-    "category": "פירות וירקות",
-    "price": 22.9,
-    "barcode": "6009631273290",
-    "brand": "דרום אפריקה",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ענבים ירוקים יחידה",
-    "category": "פירות וירקות",
-    "price": 22.9,
-    "barcode": "6009900585673",
-    "brand": "VIDAFRUIT",
     "unit": "גרם",
     "size": "500.00 גרמים",
     "isWeighted": false,
@@ -58884,18 +58428,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פטריות בייבי מלך היער",
-    "category": "מזון לחיות מחמד",
-    "price": 14.9,
-    "barcode": "7290020174345",
-    "brand": "כללי",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "פטריות חתוכות 290*3 גרם",
     "category": "מזון לחיות מחמד",
     "price": 16.9,
@@ -58977,18 +58509,6 @@
     "size": "200.00 גרמים",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פטריות פורטובלו בודד",
-    "category": "מזון לחיות מחמד",
-    "price": 7.9,
-    "barcode": "7290014079236",
-    "brand": "מרינה",
-    "unit": "גרם",
-    "size": "220.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -59109,18 +58629,6 @@
     "size": "220.00 גרמים",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פטריות שמפניון-בודד",
-    "category": "מזון לחיות מחמד",
-    "price": 7.9,
-    "barcode": "7290006265500",
-    "brand": "מרינה",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -62508,18 +62016,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פסטרמה איטלקית במשקל",
-    "category": "היגיינה אישית",
-    "price": 95,
-    "barcode": "7290009149777",
-    "brand": "מוצרי עוף טוב",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "פסטרמה אקסמעושנת דק120",
     "category": "בשר ודגים",
     "price": 18.5,
@@ -62563,18 +62059,6 @@
     "brand": null,
     "unit": "100 גרם",
     "size": "250 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פסטרמה בדבש זוגלובק",
-    "category": "בשר ודגים",
-    "price": 31.9,
-    "barcode": "7290006742292",
-    "brand": "זוגלובק",
-    "unit": "100 גרם",
-    "size": "330 ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -63372,18 +62856,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פפריקה מתוקה בשמן",
-    "category": "תבלינים ואפייה",
-    "price": 19.9,
-    "barcode": "7290001946121",
-    "brand": null,
-    "unit": "גרם",
-    "size": "400.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "פפריקה מתוקה בשמן 300גר",
     "category": "תבלינים ואפייה",
     "price": 17.9,
@@ -63597,18 +63069,6 @@
     "size": "150 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פקאן סיני",
-    "category": "מוצרי בית",
-    "price": 119,
-    "barcode": "7290000976884",
-    "brand": "דין שיווק",
-    "unit": "גרם",
-    "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -63857,18 +63317,6 @@
     "price": 24.9,
     "barcode": "7290113560055",
     "brand": "ג'י.אס.קיי קונסיומר הלת'",
-    "unit": "מ\"ל",
-    "size": "500.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרודונטקס מי פה 500 מ\"ל",
-    "category": "כללי",
-    "price": 25,
-    "barcode": "7290113560512",
-    "brand": "הליון",
     "unit": "מ\"ל",
     "size": "500.00 מיליליטרים",
     "isWeighted": false,
@@ -65724,18 +65172,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פתיתים אפויים אורז 500 ג",
-    "category": "אורז ופסטה",
-    "price": 7.9,
-    "barcode": "7296073725954",
-    "brand": "שיבולים בני דרום",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "פתיתים אפויים קוסקוס 500",
     "category": "אורז ופסטה",
     "price": 7.9,
@@ -67320,18 +66756,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צמד פטריות מעורב",
-    "category": "מזון לחיות מחמד",
-    "price": 10.9,
-    "barcode": "7290018192658",
-    "brand": "מרינה",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "צמד פטריות פורטובלו",
     "category": "פירות וירקות",
     "price": 10.9,
@@ -67481,18 +66905,6 @@
     "price": 6.9,
     "barcode": "7290005610509",
     "brand": "קטיף.",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "צנונית יחידה",
-    "category": "פירות וירקות",
-    "price": 6.9,
-    "barcode": "7296073706557",
-    "brand": "אליגם שיווק חקלאי בע\"מ",
     "unit": "יח'",
     "size": "1.00 יחידה",
     "isWeighted": false,
@@ -68604,18 +68016,6 @@
     "defaultQty": 1
   },
   {
-    "name": "קולגייט אופטיק וייט 75מל",
-    "category": "מזון לחיות מחמד",
-    "price": 24.9,
-    "barcode": "8718951763517",
-    "brand": null,
-    "unit": "מ\"ל",
-    "size": "75.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קולגייט טוטאל טרטר",
     "category": "היגיינה אישית",
     "price": 22.9,
@@ -69540,18 +68940,6 @@
     "defaultQty": 1
   },
   {
-    "name": "קוקה קולה זירו 1.5 ליטר",
-    "category": "משקאות",
-    "price": 9.5,
-    "barcode": "7290110115869",
-    "brand": "החברה המרכזית לייצור משק",
-    "unit": "ליטרים",
-    "size": "1.50 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קוקה קולה זירו 330*6 מ\"ל",
     "category": "משקאות",
     "price": 25.9,
@@ -70121,18 +69509,6 @@
     "price": 4.9,
     "barcode": "7296073530091",
     "brand": "מיה",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קורנפלור 200 גרם",
-    "category": "כללי",
-    "price": 3.9,
-    "barcode": "835811006053",
-    "brand": "ר.ס. חברה ליבוא וייצור מ",
     "unit": "גרם",
     "size": "200.00 גרמים",
     "isWeighted": false,
@@ -71496,35 +70872,11 @@
     "defaultQty": 1
   },
   {
-    "name": "קמח חיטה לבן בהיר 1 ק\"ג",
-    "category": "תבלינים ואפייה",
-    "price": 4.7,
-    "barcode": "7290003060009",
-    "brand": null,
-    "unit": "קילוגרמים",
-    "size": "1.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קמח חיטה לבן מנופה 1 ק\"ג",
     "category": "תבלינים ואפייה",
     "price": 8.4,
     "barcode": "7296073472797",
     "brand": "שטיבל בע\"מ",
-    "unit": "קילוגרמים",
-    "size": "1.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קמח חיטה לבן מנופה 1 ק\"ג",
-    "category": "תבלינים ואפייה",
-    "price": 9.9,
-    "barcode": "8033020444525",
-    "brand": null,
     "unit": "קילוגרמים",
     "size": "1.00 קילוגרמים",
     "isWeighted": false,
@@ -73039,18 +72391,6 @@
     "brand": "לואיג'י לוואצה אס.פי.אי",
     "unit": "100 גרם",
     "size": "13",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קפסולות קפה אינטנסו",
-    "category": "קפה ותה",
-    "price": 18.9,
-    "barcode": "8711000371183",
-    "brand": "ג'ייקובס דאו אגברטס צרפת",
-    "unit": "100 גרם",
-    "size": "52 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -76056,18 +75396,6 @@
     "defaultQty": 1
   },
   {
-    "name": "רוטב סויה בסגנון יפני300",
-    "category": "תבלינים ואפייה",
-    "price": 9.9,
-    "barcode": "7290013725691",
-    "brand": "כללי",
-    "unit": "מ\"ל",
-    "size": "300.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "רוטב סויה דל נתרן 444מ\"ל",
     "category": "תבלינים ואפייה",
     "price": 24.9,
@@ -76399,30 +75727,6 @@
     "brand": "אסם תעשיות מזון בע\"מ",
     "unit": "100 מ\"ל",
     "size": "290 מ\"ל",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רוטב צ'ילי מתוק",
-    "category": "שמנים ורטבים",
-    "price": 15.9,
-    "barcode": "7290013358530",
-    "brand": "קי.אר.אס. ספייסי פוד",
-    "unit": "100 מ\"ל",
-    "size": "700 מ\"ל",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רוטב צ'ילי מתוק",
-    "category": "שמנים ורטבים",
-    "price": 19.9,
-    "barcode": "7290120870574",
-    "brand": "באקו",
-    "unit": "100 גרם",
-    "size": "750 ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -78264,18 +77568,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שוק.חלב עם אגוזי לוז100ג",
-    "category": "מוצרי חלב",
-    "price": 10.9,
-    "barcode": "4820005193059",
-    "brand": "מאלבי פודס בע\"מ",
-    "unit": "גרם",
-    "size": "100.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שוק.חלב שברי אגוזים 100ג",
     "category": "מוצרי חלב",
     "price": 9.9,
@@ -79584,18 +78876,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שוקיים עוף טרי ארוז שלי",
-    "category": "בשר ודגים",
-    "price": 35.9,
-    "barcode": "7290005590238",
-    "brand": "עוף הגליל",
-    "unit": "קילוגרמים",
-    "size": "0.00 קילוגרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "שוקיים עוף טרי שופרסל",
     "category": "בשר ודגים",
     "price": 34.9,
@@ -80892,18 +80172,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שמן שומשום 150 מ\"ל",
-    "category": "פירות וירקות",
-    "price": 14.9,
-    "barcode": "7290013725707",
-    "brand": "כללי",
-    "unit": "מ\"ל",
-    "size": "150.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שמן שפתיים 650",
     "category": "תבלינים ואפייה",
     "price": 69.9,
@@ -81281,18 +80549,6 @@
     "price": 16.5,
     "barcode": "7290017068374",
     "brand": "מיה",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שמרים יבשים 500 גרם",
-    "category": "תבלינים ואפייה",
-    "price": 15.9,
-    "barcode": "7290118990826",
-    "brand": "נפטון מוצרי מזון (1990)",
     "unit": "גרם",
     "size": "500.00 גרמים",
     "isWeighted": false,
@@ -84053,18 +83309,6 @@
     "price": 22.9,
     "barcode": "8006540990506",
     "brand": "פרוקטר & גמבל",
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "תחבושות אולוויז כפול20יח",
-    "category": "שימורים",
-    "price": 22.9,
-    "barcode": "8700216640428",
-    "brand": "כללי",
     "unit": "יח'",
     "size": "1.00 יחידה",
     "isWeighted": false,
@@ -86994,7 +86238,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חלב תנובה 1% 1 ליטר",
@@ -87003,7 +86248,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שוקו תנובה 1 ליטר",
@@ -87012,7 +86258,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שוקו תנובה 250 מ\"ל",
@@ -87021,7 +86268,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קוטג' תנובה 5% 250 גרם",
@@ -87030,7 +86278,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לבן תנובה 3% 500 גרם",
@@ -87039,7 +86288,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שמנת מתוקה תנובה 38% 250 מ\"ל",
@@ -87048,7 +86298,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "גבינה צהובה עמק 28% 200 גרם",
@@ -87057,7 +86308,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חמאה תנובה 200 גרם",
@@ -87066,7 +86318,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "יוגורט דנונה 1.5% 200 גרם",
@@ -87075,7 +86328,8 @@
     "category": "מוצרי חלב",
     "brand": "שטראוס",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מילקי שוקולד 4 יח'",
@@ -87084,7 +86338,8 @@
     "category": "מוצרי חלב",
     "brand": "שטראוס",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פודינג שוקולד 4 יח'",
@@ -87093,7 +86348,8 @@
     "category": "מוצרי חלב",
     "brand": "שטראוס",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שמנת חמוצה 15% 200 גרם",
@@ -87102,7 +86358,8 @@
     "category": "מוצרי חלב",
     "brand": "תנובה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחם אחיד פרוס 750 גרם",
@@ -87111,7 +86368,8 @@
     "category": "לחם ומאפים",
     "brand": "אנג'ל",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחם שיפון פרוס",
@@ -87120,7 +86378,8 @@
     "category": "לחם ומאפים",
     "brand": "אנג'ל",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פיתה לבנה 5 יח'",
@@ -87129,7 +86388,8 @@
     "category": "לחם ומאפים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חלה לשבת",
@@ -87138,7 +86398,8 @@
     "category": "לחם ומאפים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחמניות המבורגר 4 יח'",
@@ -87147,7 +86408,8 @@
     "category": "לחם ומאפים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "טורטיה גדולה 6 יח'",
@@ -87156,7 +86418,8 @@
     "category": "לחם ומאפים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מצות יהודה 1 ק\"ג",
@@ -87165,7 +86428,8 @@
     "category": "לחם ומאפים",
     "brand": "יהודה",
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חזה עוף טרי מחיר לק\"ג",
@@ -87174,7 +86438,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שוקיים עוף טרי מחיר לק\"ג",
@@ -87183,7 +86448,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "כנפיים עוף טרי מחיר לק\"ג",
@@ -87192,7 +86458,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בשר טחון בקר טרי מחיר לק\"ג",
@@ -87201,7 +86468,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שניצל עוף טרי מחיר לק\"ג",
@@ -87210,7 +86478,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "ק\"ג"
+    "unit": "ק\"ג",
+    "defaultUnit": "יח'"
   },
   {
     "name": "סלמון נורבגי טרי 200 גרם",
@@ -87219,7 +86488,8 @@
     "category": "בשר ודגים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נקניקיות הודו עוף 400 גרם",
@@ -87228,7 +86498,8 @@
     "category": "בשר ודגים",
     "brand": "זוגלובק",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "עגבניות שרי",
@@ -87237,7 +86508,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מלפפון",
@@ -87246,7 +86518,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בצל יבש",
@@ -87255,7 +86528,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שום",
@@ -87264,7 +86538,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "גזר",
@@ -87273,7 +86548,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "תפוח אדמה",
@@ -87282,7 +86558,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בטטה",
@@ -87291,7 +86568,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "אבוקדו",
@@ -87300,7 +86578,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בננות",
@@ -87309,7 +86588,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "תפוחי עץ",
@@ -87318,7 +86598,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לימון",
@@ -87327,7 +86608,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פלפל אדום",
@@ -87336,7 +86618,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חסה",
@@ -87345,7 +86628,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "כוסברה",
@@ -87354,7 +86638,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פטרוזיליה",
@@ -87363,7 +86648,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נענע",
@@ -87372,7 +86658,8 @@
     "category": "פירות וירקות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מים מינרלים נביעות 1.5 ליטר",
@@ -87381,7 +86668,8 @@
     "category": "משקאות",
     "brand": "נביעות",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מים מינרלים נביעות 6 בקבוקים",
@@ -87390,7 +86678,8 @@
     "category": "משקאות",
     "brand": "נביעות",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קולה 1.5 ליטר",
@@ -87399,7 +86688,8 @@
     "category": "משקאות",
     "brand": "קוקה קולה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קולה זירו 1.5 ליטר",
@@ -87408,7 +86698,8 @@
     "category": "משקאות",
     "brand": "קוקה קולה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ספרייט 1.5 ליטר",
@@ -87417,7 +86708,8 @@
     "category": "משקאות",
     "brand": "קוקה קולה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פריגת תפוזים 1 ליטר",
@@ -87426,7 +86718,8 @@
     "category": "משקאות",
     "brand": "פריגת",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מיץ תפוזים סחוט 1 ליטר",
@@ -87435,7 +86728,8 @@
     "category": "משקאות",
     "brand": "פריגת",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "גולדסטאר 500 מ\"ל",
@@ -87444,7 +86738,8 @@
     "category": "משקאות",
     "brand": "גולדסטאר",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מכבי בירה 500 מ\"ל",
@@ -87453,7 +86748,8 @@
     "category": "משקאות",
     "brand": "מכבי",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קפה נמס עלית 200 גרם",
@@ -87462,7 +86758,8 @@
     "category": "קפה ותה",
     "brand": "עלית",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קפה טורקי עלית 200 גרם",
@@ -87471,7 +86768,8 @@
     "category": "קפה ותה",
     "brand": "עלית",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "תה ויסוצקי קלאסי 25 שקיקים",
@@ -87480,7 +86778,8 @@
     "category": "קפה ותה",
     "brand": "ויסוצקי",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "תה נענע ויסוצקי 25 שקיקים",
@@ -87489,7 +86788,8 @@
     "category": "קפה ותה",
     "brand": "ויסוצקי",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "טחינה אל ארז 500 גרם",
@@ -87498,7 +86798,8 @@
     "category": "תבלינים ואפייה",
     "brand": "אל ארז",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חומוס שופרסל 400 גרם",
@@ -87507,7 +86808,8 @@
     "category": "שימורים",
     "brand": "שופרסל",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שמן זית כתית מעולה 750 מ\"ל",
@@ -87516,7 +86818,8 @@
     "category": "שמנים ורטבים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "במבה 80 גרם",
@@ -87525,7 +86828,8 @@
     "category": "ממתקים וחטיפים",
     "brand": "אוסם",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שוקולד פרה אדום 100 גרם",
@@ -87534,7 +86838,8 @@
     "category": "ממתקים וחטיפים",
     "brand": "עלית",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שוקולד פסק זמן",
@@ -87543,7 +86848,8 @@
     "category": "ממתקים וחטיפים",
     "brand": "עלית",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קרמבו שטראוס 6 יח'",
@@ -87552,7 +86858,8 @@
     "category": "ממתקים וחטיפים",
     "brand": "שטראוס",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "עוגיות אוראו 176 גרם",
@@ -87561,7 +86868,8 @@
     "category": "ממתקים וחטיפים",
     "brand": "אוראו",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "סנו מקס מסיר שומנים 750 מ\"ל",
@@ -87570,7 +86878,8 @@
     "category": "מוצרי ניקיון",
     "brand": "סנו",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "אקונומיקה סנו 4 ליטר",
@@ -87579,7 +86888,8 @@
     "category": "מוצרי ניקיון",
     "brand": "סנו",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נוזל כלים פיירי 750 מ\"ל",
@@ -87588,7 +86898,8 @@
     "category": "מוצרי ניקיון",
     "brand": "פיירי",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נוזל כביסה סנו מקסימה 3 ליטר",
@@ -87597,7 +86908,8 @@
     "category": "מוצרי ניקיון",
     "brand": "סנו",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "נייר טואלט טאצ' 32 גלילים",
@@ -87606,7 +86918,8 @@
     "category": "מוצרי בית",
     "brand": "טאצ'",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מגבות נייר סנו 6 גלילים",
@@ -87615,7 +86928,8 @@
     "category": "מוצרי בית",
     "brand": "סנו",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שקיות אשפה 75×90 גדולות 25 יח'",
@@ -87624,7 +86938,8 @@
     "category": "מוצרי בית",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "טונה בשמן 160 גרם",
@@ -87633,7 +86948,8 @@
     "category": "שימורים",
     "brand": "סטארקיסט",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "תירס מתוק 3 יח'",
@@ -87642,7 +86958,8 @@
     "category": "שימורים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "זיתים ירוקים ללא חרצן 560 גרם",
@@ -87651,7 +86968,8 @@
     "category": "שימורים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "רסק עגבניות 400 גרם",
@@ -87660,7 +86978,8 @@
     "category": "שימורים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ספגטי 500 גרם",
@@ -87669,7 +86988,8 @@
     "category": "אורז ופסטה",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פתיתים 500 גרם",
@@ -87678,7 +86998,8 @@
     "category": "אורז ופסטה",
     "brand": "אוסם",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קוסקוס 500 גרם",
@@ -87687,7 +87008,8 @@
     "category": "אורז ופסטה",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בורקס גבינה 800 גרם",
@@ -87696,7 +87018,8 @@
     "category": "קפואים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שניצל עוף מוכן 700 גרם",
@@ -87705,7 +87028,8 @@
     "category": "קפואים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "פיצה משפחתית קפואה",
@@ -87714,7 +87038,8 @@
     "category": "קפואים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ירקות מוקפאים מעורבים 800 גרם",
@@ -87723,7 +87048,8 @@
     "category": "קפואים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ביצים חופש L 12 יח'",
@@ -87732,7 +87058,8 @@
     "category": "מוצרי חלב",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ביצים M 12 יח'",
@@ -87741,7 +87068,8 @@
     "category": "מוצרי חלב",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שמפו הד אנד שולדרס 400 מ\"ל",
@@ -87750,7 +87078,8 @@
     "category": "היגיינה אישית",
     "brand": "הד אנד שולדרס",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "משחת שיניים קולגייט 125 מ\"ל",
@@ -87759,7 +87088,8 @@
     "category": "היגיינה אישית",
     "brand": "קולגייט",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "דאודורנט ספריי רקסונה 200 מ\"ל",
@@ -87768,6 +87098,7 @@
     "category": "היגיינה אישית",
     "brand": "רקסונה",
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   }
 ]

@@ -174,7 +174,8 @@
     "category": "לחמים ולחמניות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "חלה מתוקה קלועה 450 גרם",
@@ -326,18 +327,6 @@
     "price": 8.38,
     "barcode": "7290000574035",
     "brand": "דגנית עין בר תעשיות מזון",
-    "unit": "גרם",
-    "size": "750.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "לחם אחיד פרוס 750 גרם",
-    "category": "לחמים ולחמניות",
-    "price": 8.38,
-    "barcode": "7290002079477",
-    "brand": "מאפיית דוידוביץ ובניו בע",
     "unit": "גרם",
     "size": "750.00 גרמים",
     "isWeighted": false,
@@ -735,7 +724,8 @@
     "category": "לחמים ולחמניות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחם כוסמין+חיטה מלאה750ג",
@@ -1104,7 +1094,8 @@
     "category": "לחמים ולחמניות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחם שיפון 100%פרוס 750ג",
@@ -1257,7 +1248,8 @@
     "category": "לחמים ולחמניות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "לחמניות בשקית 75*6 גרם",
@@ -2466,7 +2458,8 @@
     "category": "מאפים מזרחיים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "בורקס גבינה ביקרי 800 גר",
@@ -2583,7 +2576,8 @@
     "category": "מאפים מזרחיים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "ג'חנון",
@@ -2592,7 +2586,8 @@
     "category": "מאפים מזרחיים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מיני בורקס גבינה 800 גרם",
@@ -2637,7 +2632,8 @@
     "category": "מאפים מזרחיים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "מעמול אגוזים",
@@ -2682,7 +2678,8 @@
     "category": "מאפים מזרחיים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "קובאנה יתימית",
@@ -2931,7 +2928,8 @@
     "category": "מאפים מתוקים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "עוגיית חלבון דאבל שוקולד",
@@ -3036,7 +3034,8 @@
     "category": "מאפים מתוקים",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "שמרית עם קינמון וצימוקים",
@@ -3741,7 +3740,8 @@
     "category": "עוגות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "עוגת שוקולד (פרוסה)",
@@ -3786,7 +3786,8 @@
     "category": "עוגות",
     "brand": null,
     "icon": null,
-    "unit": "יח'"
+    "unit": "יח'",
+    "defaultUnit": "יח'"
   },
   {
     "name": "עוגת תפוחים",

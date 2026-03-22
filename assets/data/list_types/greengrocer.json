@@ -574,18 +574,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בננה צ'יפס",
-    "category": "פירות",
-    "price": 45,
-    "barcode": "7290000978024",
-    "brand": "דין שיווק",
-    "unit": "גרם",
-    "size": "0.00 גרמים",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "בננה ציפס בקופסא 140 גר",
     "category": "פירות",
     "price": 11.9,
@@ -7407,30 +7395,6 @@
     "size": "",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "תפוצ'יפס ט.שמנת ובצל50גר",
-    "category": "ירקות",
-    "price": 5.2,
-    "barcode": "7290005200786",
-    "brand": "שטראוס פריטו ליי בע\"מ",
-    "unit": "גרם",
-    "size": "50.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "תפוצ'יפס שמנת בצל 200גרם",
-    "category": "ירקות",
-    "price": 12.5,
-    "barcode": "7290104722530",
-    "brand": "שטראוס פריטו ליי בע\"מ",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
