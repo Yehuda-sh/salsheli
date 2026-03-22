@@ -209,28 +209,23 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     setState(() => _addingProductId = productId);
 
-    final newItem = ReceiptItem(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: productName,
-      unitPrice: (product['price'] as num?)?.toDouble() ?? 0.0,
-      barcode: product['barcode'] as String?,
-      manufacturer: product['brand'] as String?,
-    );
+    final productUnit = product['defaultUnit'] as String? ?? AppStrings.pantry.unitAbbreviation;
+    final productQty = product['defaultQty'] as int? ?? 1;
 
     try {
       final detectedCategory = CategoryDetectionService.detectFromProductJson(product);
 
       await provider.addItemToList(
         widget.list.id,
-        newItem.name ?? AppStrings.shopping.productNoNameFallback,
-        newItem.quantity,
-        newItem.unit ?? AppStrings.pantry.unitAbbreviation,
+        productName,
+        productQty,
+        productUnit,
         category: detectedCategory,
       );
 
       if (!mounted) return;
       setState(() => _addingProductId = null);
-      _showFeedback(AppStrings.shopping.productAddedToList(newItem.name ?? AppStrings.shopping.productNoName));
+      _showFeedback(AppStrings.shopping.productAddedToList(productName));
     } catch (e) {
       if (!mounted) return;
 
