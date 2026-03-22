@@ -14,6 +14,8 @@
 // Version 5.0 - Hybrid: NotebookBackground + AppBar
 // Last Updated: 27/01/2026
 
+import 'dart:async' show unawaited;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -541,61 +543,80 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ),
         ),
         const SizedBox(height: kSpacingSmall),
-        Wrap(
-          spacing: kSpacingSmall,
-          runSpacing: kSpacingSmall,
-          alignment: WrapAlignment.center,
-          children: types.map((type) => _buildTypeChip(type, theme)).toList(),
+        // Grid 3×3 of type icons
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: kSpacingSmall,
+            mainAxisSpacing: kSpacingSmall,
+            childAspectRatio: 1.1,
+          ),
+          itemCount: types.length,
+          itemBuilder: (context, index) => _buildTypeGridItem(types[index], theme),
         ),
       ],
     );
   }
 
-  Widget _buildTypeChip(String type, ThemeData theme) {
+  Widget _buildTypeGridItem(String type, ThemeData theme) {
     final typeInfo = ListTypes.getByKeySafe(type);
-
+    final cs = theme.colorScheme;
     final isSelected = _type == type;
+    final accentColor = ListTypes.getColor(type, cs, theme.extension<AppBrand>());
 
-    return FilterChip(
-      selected: isSelected,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(typeInfo.fullName),
-          const SizedBox(width: kSpacingXTiny),
-          Text(typeInfo.emoji, style: const TextStyle(fontSize: kIconSizeSmall)),
-        ],
-      ),
-      onSelected: _isSubmitting
+    return GestureDetector(
+      onTap: _isSubmitting
           ? null
-          : (selected) {
-              if (selected) {
-                setState(() {
-                  _type = type;
-                  // 🎯 עדכון eventMode כשעוברים לאירוע
-                  if (type == ShoppingList.typeEvent) {
-                    _eventMode = _visibility == ListVisibility.private
-                        ? ShoppingList.eventModeTasks
-                        : ShoppingList.eventModeWhoBrings;
-                  } else {
-                    _eventMode = null;
-                  }
-                });
-              }
+          : () {
+              unawaited(HapticFeedback.selectionClick());
+              setState(() {
+                _type = type;
+                if (type == ShoppingList.typeEvent) {
+                  _eventMode = _visibility == ListVisibility.private
+                      ? ShoppingList.eventModeTasks
+                      : ShoppingList.eventModeWhoBrings;
+                } else {
+                  _eventMode = null;
+                }
+              });
             },
-      backgroundColor: theme.colorScheme.surface,
-      selectedColor: theme.colorScheme.primaryContainer,
-      checkmarkColor: theme.colorScheme.primary,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? theme.colorScheme.onPrimaryContainer
-            : theme.colorScheme.onSurface,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-      ),
-      side: BorderSide(
-        color: isSelected
-            ? theme.colorScheme.primary
-            : theme.colorScheme.outline.withValues(alpha: kOpacityLight),
+      child: AnimatedScale(
+        scale: isSelected ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? accentColor.withValues(alpha: 0.15)
+                : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            border: Border.all(
+              color: isSelected ? accentColor : cs.outline.withValues(alpha: 0.1),
+              width: isSelected ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
+              const SizedBox(height: kSpacingXTiny),
+              Text(
+                typeInfo.shortName,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
+                  letterSpacing: 0.3,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
