@@ -424,15 +424,18 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: currentList.stickyColor.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    child: Center(
-                      child: Text(currentList.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                  Hero(
+                    tag: 'list_hero_${currentList.id}',
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: currentList.stickyColor.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      child: Center(
+                        child: Text(currentList.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                      ),
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),

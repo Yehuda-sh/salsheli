@@ -302,15 +302,18 @@ class ShoppingListTile extends StatelessWidget {
                     horizontal: kSpacingMedium,
                     vertical: kSpacingSmallPlus,
                   ),
-                  leading: Container(
-                    width: kIconSizeLarge + kSpacingXTiny,
-                    height: kIconSizeLarge + kSpacingXTiny,
-                    decoration: BoxDecoration(
-                      color: stickyColor.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    child: Center(
-                      child: Text(list.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                  leading: Hero(
+                    tag: 'list_hero_${list.id}',
+                    child: Container(
+                      width: kIconSizeLarge + kSpacingXTiny,
+                      height: kIconSizeLarge + kSpacingXTiny,
+                      decoration: BoxDecoration(
+                        color: stickyColor.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      child: Center(
+                        child: Text(list.typeEmoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                      ),
                     ),
                   ),
                   title: Text(
@@ -336,6 +339,8 @@ class ShoppingListTile extends StatelessWidget {
                             const SharedTag(),
                           if (!list.isShared && list.isPrivate)
                             const PrivacyTag(),
+                          if (list.isBeingShopped)
+                            _LiveBadge(color: theme.colorScheme.error),
                         ],
                       ),
                       const Gap(kSpacingSmall),
@@ -434,5 +439,73 @@ class ShoppingListTile extends StatelessWidget {
 
     // 🎨 RepaintBoundary isolates card animations from scroll repaints
     return RepaintBoundary(child: card);
+  }
+}
+
+/// 🔴 LIVE badge — pulsing dot + text for active shopping
+class _LiveBadge extends StatefulWidget {
+  final Color color;
+  const _LiveBadge({required this.color});
+
+  @override
+  State<_LiveBadge> createState() => _LiveBadgeState();
+}
+
+class _LiveBadgeState extends State<_LiveBadge> with SingleTickerProviderStateMixin {
+  late AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+          decoration: BoxDecoration(
+            color: widget.color.withValues(alpha: 0.1 + _pulse.value * 0.08),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            border: Border.all(color: widget.color.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: widget.color.withValues(alpha: 0.6 + _pulse.value * 0.4),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                'LIVE',
+                style: TextStyle(
+                  fontSize: kFontSizeTiny,
+                  fontWeight: FontWeight.w800,
+                  color: widget.color,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
