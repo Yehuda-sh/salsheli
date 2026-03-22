@@ -565,48 +565,58 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         if (activeLists.isEmpty)
           Card(
             elevation: 0,
-            color: cs.secondaryContainer.withValues(alpha: 0.3),
+            color: cs.secondaryContainer.withValues(alpha: 0.2),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               side: BorderSide(
-                color: cs.secondary.withValues(alpha: 0.2),
+                color: cs.secondary.withValues(alpha: 0.15),
               ),
             ),
             child: InkWell(
               onTap: () {
+                unawaited(HapticFeedback.lightImpact());
                 Navigator.pushNamed(context, '/create-list');
               },
-              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               child: Padding(
-                padding: const EdgeInsets.all(kSpacingLarge),
+                padding: const EdgeInsets.symmetric(vertical: kSpacingXLarge, horizontal: kSpacingLarge),
                 child: Column(
                   children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: cs.secondary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                      ),
-                      child: Icon(
-                        Icons.add_shopping_cart,
-                        size: 32,
-                        color: cs.secondary,
-                      ),
+                    // Illustration
+                    Image.asset(
+                      'assets/images/empty_cart.webp',
+                      height: 100,
+                      fit: BoxFit.contain,
                     ),
-                    SizedBox(height: kSpacingMedium),
+                    const SizedBox(height: kSpacingMedium),
                     Text(
                       strings.noActiveLists,
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.titleMedium?.copyWith(
                         color: cs.onSurface,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: kSpacingTiny),
                     Text(
                       strings.createListHint,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.secondary,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+                    // CTA button
+                    FilledButton.icon(
+                      onPressed: () {
+                        unawaited(HapticFeedback.mediumImpact());
+                        Navigator.pushNamed(context, '/create-list');
+                      },
+                      icon: const Icon(Icons.add),
+                      label: Text(strings.createFirstList),
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                        ),
                       ),
                     ),
                   ],

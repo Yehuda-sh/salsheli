@@ -1667,7 +1667,8 @@ class HomeDashboardStrings {
   String get familyOf => 'הבית של ';
   String get activeListsTitle => 'רשימות פעילות';
   String get noActiveLists => 'אין רשימות פעילות';
-  String get createListHint => 'לחץ כאן ליצירת רשימה חדשה';
+  String get createListHint => 'המחברת שלך מוכנה... מה קונים היום?';
+  String get createFirstList => 'צור רשימה ראשונה';
   String get emptyList => 'רשימה ריקה';
   String get completed => 'הושלם! ✓';
   String remainingItems(int count) => 'נותרו $count פריטים';
