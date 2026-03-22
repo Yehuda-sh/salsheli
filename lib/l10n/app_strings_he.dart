@@ -1555,6 +1555,8 @@ class SuggestionsTodayCardStrings {
   String addedToListName(String productName) => 'נוסף "$productName" לרשימה';
   String dismissedForWeek(String productName) => 'דחיתי "$productName" לשבוע';
   String suggestionError(String error) => 'שגיאה: $error';
+  String get addAll => 'הוסף הכל';
+  String addedAll(int count, String listName) => '$count פריטים נוספו ל"$listName"';
 }
 
 // ========================================

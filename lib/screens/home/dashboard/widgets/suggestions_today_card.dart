@@ -163,6 +163,9 @@ class _SuggestionsCarousel extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
+                // "הוסף הכל" button
+                _AddAllButton(suggestions: suggestions),
+                const SizedBox(width: kSpacingSmall),
                 // Badge עם shimmer
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -663,5 +666,89 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     }
 
     return animated;
+  }
+}
+
+/// כפתור "הוסף הכל" — מוסיף את כל ההצעות לרשימה הפעילה הראשונה
+class _AddAllButton extends StatefulWidget {
+  final List<SmartSuggestion> suggestions;
+  const _AddAllButton({required this.suggestions});
+
+  @override
+  State<_AddAllButton> createState() => _AddAllButtonState();
+}
+
+class _AddAllButtonState extends State<_AddAllButton> {
+  bool _isAdding = false;
+
+  Future<void> _addAll() async {
+    if (_isAdding) return;
+    setState(() => _isAdding = true);
+
+    final listsProvider = context.read<ShoppingListsProvider>();
+    final suggestionsProvider = context.read<SuggestionsProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final activeLists = listsProvider.lists.where((l) => l.status == 'active').toList();
+    if (activeLists.isEmpty) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(AppStrings.suggestionsToday.noActiveLists),
+      ));
+      if (mounted) setState(() => _isAdding = false);
+      return;
+    }
+
+    final targetList = activeLists.first;
+    int added = 0;
+
+    for (final suggestion in widget.suggestions) {
+      try {
+        final item = suggestion.toUnifiedListItem();
+        await listsProvider.addUnifiedItem(targetList.id, item);
+        await suggestionsProvider.addSuggestionById(suggestion.id, targetList.id);
+        added++;
+      } catch (_) {
+        // Skip failed items
+      }
+    }
+
+    if (!mounted) return;
+    setState(() => _isAdding = false);
+
+    unawaited(HapticFeedback.mediumImpact());
+    messenger.showSnackBar(SnackBar(
+      content: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.white, size: 18),
+          const SizedBox(width: kSpacingSmall),
+          Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
+        ],
+      ),
+      backgroundColor: kStickyGreen,
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 28,
+      child: TextButton.icon(
+        onPressed: _isAdding ? null : _addAll,
+        icon: _isAdding
+            ? const SizedBox(
+                width: 14, height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.playlist_add, size: 16),
+        label: Text(
+          AppStrings.suggestionsToday.addAll,
+          style: const TextStyle(fontSize: kFontSizeTiny),
+        ),
+        style: TextButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+          foregroundColor: kStickyOrangeDark,
+        ),
+      ),
+    );
   }
 }
