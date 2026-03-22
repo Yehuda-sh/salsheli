@@ -505,20 +505,36 @@ class _ChecklistItemTile extends StatelessWidget {
 
                 const SizedBox(width: kSpacingMedium),
 
-                // שם הפריט
+                // שם הפריט — strikethrough animation
                 Expanded(
-                  child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 200),
-                    style: TextStyle(
-                      fontSize: kFontSizeMedium,
-                      fontWeight: FontWeight.w500,
-                      decoration:
-                          isChecked ? TextDecoration.lineThrough : null,
-                      color: isChecked
-                          ? cs.onSurface.withValues(alpha: 0.5)
-                          : cs.onSurface,
-                    ),
-                    child: Text(item.name),
+                  child: Stack(
+                    alignment: AlignmentDirectional.centerStart,
+                    children: [
+                      Text(
+                        item.name,
+                        style: TextStyle(
+                          fontSize: kFontSizeMedium,
+                          fontWeight: FontWeight.w500,
+                          color: isChecked
+                              ? cs.onSurface.withValues(alpha: 0.5)
+                              : cs.onSurface,
+                        ),
+                      ),
+                      // Animated strikethrough line
+                      if (isChecked)
+                        Positioned.fill(
+                          child: Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 400),
+                              curve: Curves.easeOut,
+                              height: 1.5,
+                              width: isChecked ? double.infinity : 0,
+                              color: cs.onSurface.withValues(alpha: 0.4),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
 

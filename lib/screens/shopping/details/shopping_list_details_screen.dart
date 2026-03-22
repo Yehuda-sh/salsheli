@@ -557,17 +557,29 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           child: Icon(Icons.assignment_add, color: cs.onSurface),
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
-                        // מוצר מהקטלוג (גדול)
-                        FloatingActionButton(
-                          heroTag: 'add_product_btn',
-                          backgroundColor: kStickyYellow,
-                          tooltip: AppStrings.listDetails.addProductButton,
-                          elevation: 4,
-                          onPressed: () {
-                            unawaited(HapticFeedback.lightImpact());
-                            _navigateToPopulateScreen(currentList);
-                          },
-                          child: Icon(Icons.add_shopping_cart, size: kIconSizeLarge - kSpacingSmall, color: cs.onSurface),
+                        // מוצר מהקטלוג (גדול) — colored glow
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: kStickyYellow.withValues(alpha: 0.4),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: FloatingActionButton(
+                            heroTag: 'add_product_btn',
+                            backgroundColor: kStickyYellow,
+                            tooltip: AppStrings.listDetails.addProductButton,
+                            elevation: 0,
+                            onPressed: () {
+                              unawaited(HapticFeedback.lightImpact());
+                              _navigateToPopulateScreen(currentList);
+                            },
+                            child: Icon(Icons.add_shopping_cart, size: kIconSizeLarge - kSpacingSmall, color: cs.onSurface),
+                          ),
                         ),
                       ],
                     ),
@@ -792,6 +804,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           FiltersConfig.hebrewCategoryToEnglish(category),
         );
 
+        final allChecked = categoryItems.every((i) => i.isChecked);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -801,8 +815,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               padding: const EdgeInsets.only(right: kSpacingMedium, top: 4, bottom: 4),
               margin: const EdgeInsets.only(top: kSpacingMedium),
               decoration: BoxDecoration(
-                color: highlightColor,
-                border: Border(right: BorderSide(color: cs.onSurface.withValues(alpha: 0.12), width: 4)),
+                color: allChecked ? kStickyGreen.withValues(alpha: 0.1) : highlightColor,
+                border: BorderDirectional(start: BorderSide(color: highlightColors[catIndex % highlightColors.length], width: 4)),
               ),
               child: Row(
                 children: [
@@ -812,26 +826,43 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: kFontSizeBody,
+                      color: allChecked ? cs.onSurface.withValues(alpha: 0.5) : null,
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: cs.surface.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(kBorderRadius),
+                  // ✅ badge או count
+                  if (allChecked)
+                    Icon(Icons.check_circle, size: kIconSizeSmall, color: kStickyGreen)
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: cs.surface.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                      ),
+                      child: Text('${categoryItems.length}', style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                     ),
-                    child: Text('${categoryItems.length}', style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
-                  ),
                 ],
               ),
             ),
-            // פריטים
+            // פריטים עם side strip + opacity
             ...categoryItems.map((item) {
               final originalIndex = currentList.items.indexOf(item);
-              return Padding(
-                padding: EdgeInsets.only(left: kNotebookRedLineOffset + kSpacingSmall, right: kSpacingMedium),
-                child: _buildPlanningCard(item, originalIndex, currentList, theme, canManage, canEdit),
+              return AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: item.isChecked ? 0.5 : 1.0,
+                child: Container(
+                  margin: EdgeInsets.only(left: kNotebookRedLineOffset + kSpacingSmall, right: kSpacingMedium),
+                  decoration: BoxDecoration(
+                    border: BorderDirectional(
+                      start: BorderSide(
+                        color: highlightColors[catIndex % highlightColors.length],
+                        width: 3,
+                      ),
+                    ),
+                  ),
+                  child: _buildPlanningCard(item, originalIndex, currentList, theme, canManage, canEdit),
+                ),
               );
             }),
           ],
