@@ -774,18 +774,6 @@
     "defaultQty": 1
   },
   {
-    "name": "גבינת קרם ט.טבעי 5% 200ג",
-    "category": "פארם",
-    "price": 14.2,
-    "barcode": "7290004128340",
-    "brand": "תנובה",
-    "unit": "גרם",
-    "size": "200.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גוט טו בי שמפו יבש רענן",
     "category": "פארם",
     "price": 25,

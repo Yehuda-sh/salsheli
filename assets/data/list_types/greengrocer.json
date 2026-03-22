@@ -252,18 +252,6 @@
     "defaultQty": 1
   },
   {
-    "name": "אנשובי בשמן חמני. ולימון",
-    "category": "פירות",
-    "price": 26.9,
-    "barcode": "8009867006462",
-    "brand": "באליסטרי BALISTRERI",
-    "unit": "גרם",
-    "size": "80.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "אספרגוס",
     "category": "ירקות",
     "price": 49.9,
@@ -467,7 +455,7 @@
   },
   {
     "name": "בזיליקום",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 4.9,
     "barcode": "GREEN-026",
     "brand": "",
@@ -1066,18 +1054,6 @@
     "defaultQty": 1
   },
   {
-    "name": "דאב ק.ידיים שמן אבוקדו75",
-    "category": "ירקות",
-    "price": 14.9,
-    "barcode": "8710447275306",
-    "brand": "יוניליוור פולין",
-    "unit": "מ\"ל",
-    "size": "75.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "דאודורנט דאב-אגס150מ\"ל",
     "category": "פירות",
     "price": 19.9,
@@ -1400,18 +1376,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חטיפי קרקר שמנת בצל150ג",
-    "category": "ירקות",
-    "price": 13.9,
-    "barcode": "7290115207644",
-    "brand": "אסם תעשיות מזון בע\"מ",
-    "unit": "גרם",
-    "size": "150.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "חליטת לימון ג'ינג'ר20שק",
     "category": "פירות",
     "price": 17.9,
@@ -1677,7 +1641,7 @@
   },
   {
     "name": "חסה ערבית חסלט- מהדרין",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 7.9,
     "barcode": "7290003996018",
     "brand": "קטיף.",
@@ -2061,7 +2025,7 @@
   },
   {
     "name": "כוסברה",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 2.9,
     "barcode": "GREEN-024",
     "brand": "",
@@ -2097,7 +2061,7 @@
   },
   {
     "name": "כוסברה חסלט - מהדרין יח",
-    "category": "פירות",
+    "category": "ירקות תיבול",
     "price": 6.9,
     "barcode": "7290003996056",
     "brand": "קטיף.",
@@ -2157,7 +2121,7 @@
   },
   {
     "name": "כרוב אדום חסלט-מהדרין יח",
-    "category": "פירות",
+    "category": "ירקות",
     "price": 14.9,
     "barcode": "7290003996124",
     "brand": "קטיף.",
@@ -3428,18 +3392,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מעד.תפוז ללא תוס.סוכר284",
-    "category": "פירות",
-    "price": 19.9,
-    "barcode": "5014271360423",
-    "brand": "סאן דלפור - שמבור",
-    "unit": "גרם",
-    "size": "284.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מעדן אפרסק 284 גרם",
     "category": "פירות",
     "price": 19.9,
@@ -3885,7 +3837,7 @@
   },
   {
     "name": "נענע",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 2.9,
     "barcode": "GREEN-025",
     "brand": "",
@@ -3999,42 +3951,6 @@
     "brand": "סאפה פובליק קומפני לימיט",
     "unit": "ליטרים",
     "size": "1.00 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סוכריות מאסט לימון 80גרם",
-    "category": "פירות",
-    "price": 9.9,
-    "barcode": "7290112336644",
-    "brand": "מיישקו",
-    "unit": "גרם",
-    "size": "80.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סוכריות מאסט פטל לימון80",
-    "category": "פירות",
-    "price": 10.9,
-    "barcode": "7290112337474",
-    "brand": "מיישקו",
-    "unit": "גרם",
-    "size": "80.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סוכריות תפוז לל\"ס 80 גרם",
-    "category": "פירות",
-    "price": 9.9,
-    "barcode": "7296073659570",
-    "brand": "DOLCIARIA SERRA",
-    "unit": "גרם",
-    "size": "80.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -4995,7 +4911,7 @@
   },
   {
     "name": "פטרוזיליה",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 2.9,
     "barcode": "GREEN-023",
     "brand": "",
@@ -5043,7 +4959,7 @@
   },
   {
     "name": "פטרוזיליה חסלט - מהדרין",
-    "category": "פירות",
+    "category": "ירקות תיבול",
     "price": 6.9,
     "barcode": "7290003996049",
     "brand": "קטיף.",
@@ -5079,7 +4995,7 @@
   },
   {
     "name": "פטרוזיליה שורש",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 9.9,
     "barcode": "GREEN-078",
     "brand": "",
@@ -6252,18 +6168,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צ'יפס גלי עגבניות 45 גרם",
-    "category": "ירקות",
-    "price": 5.5,
-    "barcode": "7290118427285",
-    "brand": "יורופסנקס",
-    "unit": "גרם",
-    "size": "45.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ציפס פלפל צ'ילי 45*32גרם",
     "category": "ירקות",
     "price": 5.5,
@@ -6564,18 +6468,6 @@
     "defaultQty": 1
   },
   {
-    "name": "קמח תפוח אדמה 500 גרם",
-    "category": "פירות",
-    "price": 6.9,
-    "barcode": "7290018711705",
-    "brand": "ר.ס חברה לייבוא ויצוא",
-    "unit": "גרם",
-    "size": "500.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קפס.למדיח לימון50י פיניש",
     "category": "פירות",
     "price": 54.9,
@@ -6607,18 +6499,6 @@
     "brand": "גלידת שטראוס בע\"מ",
     "unit": "ליטרים",
     "size": "1.33 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קרקר עגבניות אורגנו 80 ג",
-    "category": "ירקות",
-    "price": 9.9,
-    "barcode": "7296073661320",
-    "brand": "ANITIN",
-    "unit": "גרם",
-    "size": "80.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -6991,7 +6871,7 @@
   },
   {
     "name": "שמיר",
-    "category": "ירקות",
+    "category": "ירקות תיבול",
     "price": 2.9,
     "barcode": "GREEN-027",
     "brand": "",
