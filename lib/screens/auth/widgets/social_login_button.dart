@@ -52,6 +52,12 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
                   ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
                   : cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(kBorderRadius),
+              border: Border.all(
+                color: isDisabled
+                    ? cs.outlineVariant.withValues(alpha: 0.3)
+                    : cs.outlineVariant.withValues(alpha: 0.5),
+                width: 1,
+              ),
               boxShadow: isDisabled
                   ? null
                   : [

@@ -427,6 +427,17 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             SizedBox(height: kSpacingMedium),
 
+                            // 🎨 Logo — branding continuity from Welcome
+                            Image.asset(
+                              'assets/images/logo.png',
+                              height: 48,
+                              fit: BoxFit.contain,
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms)
+                                .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutCubic),
+                            const SizedBox(height: kSpacingSmallPlus),
+
                             // 📝 כותרת - staggered animation
                             Text(
                               AppStrings.auth.loginTitle,
@@ -562,11 +573,10 @@ class _LoginScreenState extends State<LoginScreen>
                                       : _handleForgotPassword,
                                   style: TextButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: kSpacingSmall,
+                                      horizontal: kSpacingSmallPlus,
+                                      vertical: kSpacingSmall,
                                     ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
+                                    minimumSize: const Size(48, 44),
                                   ),
                                   child: Text(
                                     AppStrings.auth.forgotPassword,
@@ -590,7 +600,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: (brand?.success ?? cs.primary).withValues(alpha: 0.3),
+                                    color: cs.primary.withValues(alpha: 0.3),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -611,7 +621,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
                                 style: FilledButton.styleFrom(
                                   minimumSize: const Size.fromHeight(48),
-                                  backgroundColor: brand?.success ?? cs.primary,
+                                  backgroundColor: cs.primary,
                                   foregroundColor: cs.onPrimary,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(

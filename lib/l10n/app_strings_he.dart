@@ -729,6 +729,11 @@ class AuthStrings {
   String get phoneFieldSemanticLabel => 'שדה טלפון נייד ישראלי, חובה';
   String get loginLinkSemanticLabel => 'יש לך חשבון? לחץ לעבור למסך התחברות';
   String socialRegisterSemanticLabel(String provider) => 'הירשם או התחבר באמצעות $provider';
+
+  // Loading overlay messages
+  String get loadingChecking => 'בודק פרטים...';
+  String get loadingConnecting => 'מתחבר לשרת...';
+  String get loadingAlmostThere => 'כמעט שם...';
 }
 
 // ========================================

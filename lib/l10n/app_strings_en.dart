@@ -709,6 +709,14 @@ class AuthStringsEn extends AuthStrings {
   String get phoneFieldSemanticLabel => 'Israeli mobile phone field, required';
   String get loginLinkSemanticLabel => 'Have an account? Tap to go to login screen';
   String socialRegisterSemanticLabel(String provider) => 'Sign up or log in with $provider';
+
+  // Loading overlay messages
+  @override
+  String get loadingChecking => 'Checking details...';
+  @override
+  String get loadingConnecting => 'Connecting to server...';
+  @override
+  String get loadingAlmostThere => 'Almost there...';
 }
 
 // ========================================
