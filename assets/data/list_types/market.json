@@ -25,7 +25,7 @@
   },
   {
     "name": "אפונה ירוקה וגזר קפוא",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 20.9,
     "barcode": "7296073224907",
     "brand": "DUJARDIN",
@@ -55,30 +55,6 @@
     "brand": "שטראוס בריאות בע\"\\מ",
     "unit": "ק\"ג",
     "size": "10816 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ארוחת נודלס בטעם בשר",
-    "category": "בשר ודגים",
-    "price": 4.9,
-    "barcode": "7290003121083",
-    "brand": "טאט הוי פוד",
-    "unit": "100 גרם",
-    "size": "85",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ארוחת נודלס בטעם עוף",
-    "category": "בשר ודגים",
-    "price": 5.9,
-    "barcode": "7290002715504",
-    "brand": "",
-    "unit": "100 גרם",
-    "size": "70 ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -127,18 +103,6 @@
     "brand": "מחלבת מושבה",
     "unit": "ק\"ג",
     "size": "0.00 קילוגרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "בונזו בשר",
-    "category": "בשר ודגים",
-    "price": 55.9,
-    "barcode": "7290005111761",
-    "brand": "united pet food",
-    "unit": "ק\"ג",
-    "size": "3 ק\"ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -204,42 +168,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בייבי ביס טעם בננה",
-    "category": "פירות",
-    "price": 10,
-    "barcode": "7290011618216",
-    "brand": "want-want",
-    "unit": "100 גרם",
-    "size": "50 גר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בייגלה דקים שמנת ובצל",
-    "category": "מוצרי חלב",
-    "price": 14.9,
-    "barcode": "7290112491794",
-    "brand": "בייגל את בייגל מזון",
-    "unit": "100 גרם",
-    "size": "300",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "בייגלה פיטנס בטטה",
-    "category": "ירקות",
-    "price": 13.9,
-    "barcode": "7290115208269",
-    "brand": "אסם תעשיות מזון בע\"מ",
-    "unit": "100 גרם",
-    "size": "150 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "ביצים 12 יח",
     "category": "מוצרי חלב",
     "price": 13,
@@ -289,7 +217,7 @@
   },
   {
     "name": "בצל קצוץ מוקפא",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 18.9,
     "barcode": "7290000104225",
     "brand": "סנפרוסט בע\"\\מ",
@@ -349,7 +277,7 @@
   },
   {
     "name": "ג'אמפ מנגו פסיפלורה 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 7.9,
     "barcode": "7290000136516",
     "brand": "טמפו משקאות בעמ",
@@ -361,7 +289,7 @@
   },
   {
     "name": "ג'אמפ ענבים",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 7.9,
     "barcode": "7290000136523",
     "brand": "טמפו משקאות בע\"\\ם.",
@@ -373,7 +301,7 @@
   },
   {
     "name": "ג'אמפ תות בננה",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 7.9,
     "barcode": "7290000136561",
     "brand": "טמפו משקאות בע\"\\מ",
@@ -381,18 +309,6 @@
     "size": "1.5 ליטר",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "ג'לטין טהור מדגים",
-    "category": "מוצרי חלב",
-    "price": 12.9,
-    "barcode": "835811007494",
-    "brand": "גואנגדונג מיניאנג",
-    "unit": "100 גרם",
-    "size": "142 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -540,30 +456,6 @@
     "defaultQty": 1
   },
   {
-    "name": "גל גילוח אדג לעור רגיל",
-    "category": "בשר ודגים",
-    "price": 19.9,
-    "barcode": "7290000560533",
-    "brand": "אנרגייזר",
-    "unit": "100 גרם",
-    "size": "198.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "גל גילוח אדג נגד חתכים",
-    "category": "בשר ודגים",
-    "price": 19.9,
-    "barcode": "7290000560021",
-    "brand": "אנרגייזר",
-    "unit": "100 גרם",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גל.קרמיסימו ריבת חלב 1.33",
     "category": "מוצרי חלב",
     "price": 26.9,
@@ -571,18 +463,6 @@
     "brand": "גלידת שטראוס בע\"מ",
     "unit": "ליטר",
     "size": "1.33 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "גלידה אייס קפה ובננה",
-    "category": "פירות",
-    "price": 31.9,
-    "barcode": "7290018011737",
-    "brand": "תמרה בע\"מ",
-    "unit": "100 מ\"ל",
-    "size": "475",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -619,30 +499,6 @@
     "brand": "---",
     "unit": "100 גרם",
     "size": "65",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "גלילי ופל אגוזים",
-    "category": "פירות",
-    "price": 6.9,
-    "barcode": "7296073663775",
-    "brand": "גילרו בע\"מ",
-    "unit": "100 גרם",
-    "size": "100 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "גליליות רושן חלב",
-    "category": "מוצרי חלב",
-    "price": 10.9,
-    "barcode": "4823077618161",
-    "brand": "ROSHEN",
-    "unit": "100 גרם",
-    "size": "140 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -685,7 +541,7 @@
   },
   {
     "name": "גרעין אבטיח",
-    "category": "פירות",
+    "category": "חטיפים",
     "price": 18.9,
     "barcode": "7296073706014",
     "brand": "---",
@@ -711,95 +567,11 @@
     "name": "גרעיני חמניות 500 גרם",
     "barcode": "7293822322259",
     "price": 14.9,
-    "category": "פירות",
+    "category": "חטיפים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
     "defaultUnit": "יח'"
-  },
-  {
-    "name": "דאב ספריי מלפפון",
-    "category": "ירקות",
-    "price": 15.5,
-    "barcode": "7290003806591",
-    "brand": "יוניליוור UK",
-    "unit": "100 מ\"ל",
-    "size": "150 מל",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דאב ספריי ניחוח אגס 150 מ",
-    "category": "פירות",
-    "price": 19.9,
-    "barcode": "7290116532424",
-    "brand": "יוניליוור UK",
-    "unit": "100 מ\"ל",
-    "size": "",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "דגני בוקר הלו קיטי",
-    "category": "בשר ודגים",
-    "price": 26.9,
-    "barcode": "4005528115218",
-    "brand": "",
-    "unit": "100 גרם",
-    "size": "311 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דגני בוקר קיטקט",
-    "category": "בשר ודגים",
-    "price": 24.5,
-    "barcode": "8445290964595",
-    "brand": "איטנקורט",
-    "unit": "100 גרם",
-    "size": "330 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דגני טבעות דבש לל\"ג",
-    "category": "בשר ודגים",
-    "price": 18.5,
-    "barcode": "7296073642022",
-    "brand": "סררה פודס",
-    "unit": "100 גרם",
-    "size": "375 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דגני קוקו פבלס",
-    "category": "בשר ודגים",
-    "price": 25.9,
-    "barcode": "884912129512",
-    "brand": "---",
-    "unit": "100 גרם",
-    "size": "311 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "דגש אבקת מרק בטעם עוף",
-    "category": "בשר ודגים",
-    "price": 26.9,
-    "barcode": "7290017894522",
-    "brand": "אף. סי. תבליני הגליל",
-    "unit": "100 גרם",
-    "size": "400",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
   },
   {
     "name": "דלעת ארוזה",
@@ -886,22 +658,10 @@
     "defaultQty": 1
   },
   {
-    "name": "האני בנצ'סחתיכות תות",
-    "category": "פירות",
-    "price": 26.9,
-    "barcode": "884912359483",
-    "brand": "",
-    "unit": "100 גרם",
-    "size": "312",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "הלווה טורקית",
     "barcode": "7291823647609",
     "price": 35.0,
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
@@ -932,20 +692,8 @@
     "defaultQty": 1
   },
   {
-    "name": "ופלים לואקר ט.אגוזים",
-    "category": "פירות",
-    "price": 15.9,
-    "barcode": "8000380007219",
-    "brand": "א. לואקר",
-    "unit": "100 גרם",
-    "size": "175 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "זיתיםעגבניות מיובשות",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 17.9,
     "barcode": "7290019621737",
     "brand": "",
@@ -959,27 +707,15 @@
     "name": "זעתר מעורב 250 גרם",
     "barcode": "7297862004298",
     "price": 19.9,
-    "category": "ירקות",
+    "category": "תבלינים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
     "defaultUnit": "יח'"
   },
   {
-    "name": "זרעי עגבניות שרי מיקס",
-    "category": "מוצרי חלב",
-    "price": 9.9,
-    "barcode": "7290107779869",
-    "brand": "גדות אגרו בע\"\\מ",
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ח. תפוחים אורגני",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 21.9,
     "barcode": "8017938005122",
     "brand": "",
@@ -1001,7 +737,7 @@
   },
   {
     "name": "חומץ תפוחי עץ",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 15.5,
     "barcode": "7290010970261",
     "brand": "ג.מ טעם הארץ בע\"\\ם",
@@ -1013,24 +749,12 @@
   },
   {
     "name": "חזה עוף פרוס ארוז קפוא",
-    "category": "מוצרי חלב",
+    "category": "בשר ודגים",
     "price": 44.9,
     "barcode": "7290001303283",
     "brand": "עוף עוז",
     "unit": "ק\"ג",
     "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חט.שוקו.חלבחמאת בוטנ",
-    "category": "מוצרי חלב",
-    "price": 7.9,
-    "barcode": "7290003444009",
-    "brand": "הרשי",
-    "unit": "100 גרם",
-    "size": "42 ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -1097,7 +821,7 @@
   },
   {
     "name": "חלבה וניל בארכה",
-    "category": "מוצרי חלב",
+    "category": "ממרחים ורטבים",
     "price": 17.9,
     "barcode": "7290001407844",
     "brand": "רושדי תעשיות מזון בע\"\\מ",
@@ -1171,7 +895,7 @@
     "name": "חריף תימני (סחוג) 250 גרם",
     "barcode": "7293858944203",
     "price": 12.9,
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
@@ -1203,7 +927,7 @@
   },
   {
     "name": "טבעות בצל",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 22.9,
     "barcode": "7290000334684",
     "brand": "תפוגן תעשיות בע\"מ",
@@ -1263,7 +987,7 @@
   },
   {
     "name": "טורטיה מוגברת חלבון",
-    "category": "מוצרי חלב",
+    "category": "מאפים",
     "price": 13.9,
     "barcode": "7296073597230",
     "brand": "דליברדס יורופ",
@@ -1285,7 +1009,7 @@
   },
   {
     "name": "טרו ריבת תות",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 16.9,
     "barcode": "7290112197573",
     "brand": "סימה",
@@ -1381,7 +1105,7 @@
   },
   {
     "name": "יופלה אפרסקתות 3%",
-    "category": "פירות",
+    "category": "מוצרי חלב",
     "price": 36.9,
     "barcode": "7290004121525",
     "brand": "מחלבת אלון תבור",
@@ -1440,18 +1164,6 @@
     "defaultQty": 1
   },
   {
-    "name": "כיף תחליב רח.חלב ודבש",
-    "category": "מוצרי חלב",
-    "price": 12.9,
-    "barcode": "7290108356113",
-    "brand": "קוסמופארם",
-    "unit": "100 מ\"ל",
-    "size": "700",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "כנפים עוף טרי שלי קג",
     "category": "בשר ודגים",
     "price": 13.9,
@@ -1465,7 +1177,7 @@
   },
   {
     "name": "כרוב לבן אורגני",
-    "category": "מוצרי חלב",
+    "category": "ירקות",
     "price": 15.9,
     "barcode": "7290000916248",
     "brand": "",
@@ -1477,7 +1189,7 @@
   },
   {
     "name": "כרוב לבן שלם חסלט-מהדרין",
-    "category": "מוצרי חלב",
+    "category": "ירקות",
     "price": 14.9,
     "barcode": "7290003996117",
     "brand": "קטיף.",
@@ -1489,7 +1201,7 @@
   },
   {
     "name": "כרובית מוקפאת",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 28.9,
     "barcode": "7290000104744",
     "brand": "סנפרוסט בע\"\\מ",
@@ -1525,7 +1237,7 @@
   },
   {
     "name": "לביבות בטטה קארי",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 39.9,
     "barcode": "7290115201451",
     "brand": "טבעול )מקבוצת אסם השקעות",
@@ -1537,7 +1249,7 @@
   },
   {
     "name": "לביבות כרובית",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 33.5,
     "barcode": "7290002587590",
     "brand": "שלושת האופים",
@@ -1560,20 +1272,8 @@
     "defaultQty": 1
   },
   {
-    "name": "לה קרמריה תותים",
-    "category": "פירות",
-    "price": 25.9,
-    "barcode": "7290106576858",
-    "brand": "נגה גלידות שותפות מוגבלת",
-    "unit": "ליטר",
-    "size": "1.40 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "לחמניות המבורגר ל.ג",
-    "category": "בשר ודגים",
+    "category": "מאפים",
     "price": 15.9,
     "barcode": "7296073345107",
     "brand": "פאלאס",
@@ -1581,30 +1281,6 @@
     "size": "904 ג",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מ.שיניים הלבנה עדינה",
-    "category": "פירות",
-    "price": 29.9,
-    "barcode": "7290113560383",
-    "brand": "---",
-    "unit": "100 מ\"ל",
-    "size": "275",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מאגדת 4 שייק פרי תות",
-    "category": "פירות",
-    "price": 15.9,
-    "barcode": "7290101114659",
-    "brand": "פלקו בעמ",
-    "unit": "100 גרם",
-    "size": "260 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -1632,32 +1308,8 @@
     "defaultQty": 1
   },
   {
-    "name": "מאגדת מנגו פספלורה",
-    "category": "פירות",
-    "price": 32.9,
-    "barcode": "4770237060523",
-    "brand": "פיינה זבדגיס",
-    "unit": "100 גרם",
-    "size": "264 גר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מאגדת שוקו בננה מצופים",
-    "category": "פירות",
-    "price": 29.9,
-    "barcode": "7290018652886",
-    "brand": "---",
-    "unit": "100 גרם",
-    "size": "476.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מאפה דונאטס תות",
-    "category": "פירות",
+    "category": "מאפים",
     "price": 21.5,
     "barcode": "7290017040554",
     "brand": "---",
@@ -1669,24 +1321,12 @@
   },
   {
     "name": "מחית עגבניות טבעית",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 18,
     "barcode": "7290018989487",
     "brand": "זנלכל",
     "unit": "100 גרם",
     "size": "4003 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מחית תפוח אגס בפאוץ",
-    "category": "פירות",
-    "price": 4.9,
-    "barcode": "7296073627562",
-    "brand": ".SA AGROPHOENIX",
-    "unit": "100 גרם",
-    "size": "100 ג",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
@@ -1704,30 +1344,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מחית תפוח בפאוץ",
-    "category": "פירות",
-    "price": 4.9,
-    "barcode": "7296073627555",
-    "brand": ".SA AGROPHOENIX",
-    "unit": "100 גרם",
-    "size": "100 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מטבעות שוק.חלב",
-    "category": "מוצרי חלב",
-    "price": 24.9,
-    "barcode": "7290019079736",
-    "brand": "---",
-    "unit": "100 גרם",
-    "size": "250 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מטחנת מלח שום פלפל",
     "category": "תבלינים",
     "price": 15.9,
@@ -1740,32 +1356,8 @@
     "defaultQty": 1
   },
   {
-    "name": "מטרנה מחית תפוח בננה",
-    "category": "פירות",
-    "price": 6.3,
-    "barcode": "8445291050358",
-    "brand": "נסטלה ספרד ס.א, מפעל סבר",
-    "unit": "100 גרם",
-    "size": "90 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מטרנה מחית תפוח עץ",
-    "category": "פירות",
-    "price": 6.9,
-    "barcode": "8445291028838",
-    "brand": "נסטלה פולסקה אס.איי",
-    "unit": "100 גרם",
-    "size": "190 גר",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "מיני דק שניצל שומשום",
-    "category": "מוצרי חלב",
+    "category": "בשר ודגים",
     "price": 31.9,
     "barcode": "7290008409049",
     "brand": "תנובה גליל שותפות מוגבלת",
@@ -1789,7 +1381,7 @@
   },
   {
     "name": "מיץ תפוגזר",
-    "category": "ירקות",
+    "category": "משקאות",
     "price": 16.9,
     "barcode": "7290016682250",
     "brand": "פריניב",
@@ -1836,20 +1428,8 @@
     "defaultQty": 1
   },
   {
-    "name": "מיקס מיני דגני בוקר",
-    "category": "בשר ודגים",
-    "price": 21.9,
-    "barcode": "7613037276091",
-    "brand": "SPISAS",
-    "unit": "100 גרם",
-    "size": "200 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מכבי שנדי אפרסק",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 37.9,
     "barcode": "7290011133375",
     "brand": "טמפו משקאות בע\"מ",
@@ -1897,7 +1477,7 @@
   },
   {
     "name": "מלפפון בחומץ 7-9",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 10.9,
     "barcode": "7290113192546",
     "brand": "בית-השיטה עסיס תעשיות מז",
@@ -1921,7 +1501,7 @@
   },
   {
     "name": "ממרח חלבה מלאה עשירה",
-    "category": "מוצרי חלב",
+    "category": "ממרחים ורטבים",
     "price": 18.9,
     "barcode": "7290011498511",
     "brand": "שקד תבור",
@@ -1933,7 +1513,7 @@
   },
   {
     "name": "ממרח עגבניות ובזיליקום",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 29.9,
     "barcode": "5292874002326",
     "brand": "גרין ויה",
@@ -1945,7 +1525,7 @@
   },
   {
     "name": "ממרח עגבניות מיובשות",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 15.9,
     "barcode": "7296073723417",
     "brand": "פרסקו חצבה 2006 בע\"מ",
@@ -2017,7 +1597,7 @@
   },
   {
     "name": "מקלוני ירקות בטטה גזר",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 39.9,
     "barcode": "7290118425007",
     "brand": "טבעול",
@@ -2029,7 +1609,7 @@
   },
   {
     "name": "מקלוני ירקות כרובית",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 39.9,
     "barcode": "7290118424987",
     "brand": "טבעול",
@@ -2052,18 +1632,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מרק בטעם עוף קנור",
-    "category": "בשר ודגים",
-    "price": 21.9,
-    "barcode": "7290107645591",
-    "brand": "יוניליוור ישראל מזון",
-    "unit": "100 גרם",
-    "size": "400 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מרק בצל",
     "category": "ירקות",
     "price": 32.9,
@@ -2073,42 +1641,6 @@
     "size": "400 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מרק היום עוףאטריות",
-    "category": "בשר ודגים",
-    "price": 15.3,
-    "barcode": "7290112490759",
-    "brand": "יוניליוור ישראל מזון",
-    "unit": "100 גרם",
-    "size": "74 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מרק עוף אמיתי",
-    "category": "בשר ודגים",
-    "price": 29.9,
-    "barcode": "7290100685334",
-    "brand": "אסם תעשיות מזון בע\"מ",
-    "unit": "100 גרם",
-    "size": "400 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מש.שיניים טוטאל הלבנה",
-    "category": "פירות",
-    "price": 22.9,
-    "barcode": "8718951689985",
-    "brand": "קולגייט-פלמוליב",
-    "unit": "100 מ\"ל",
-    "size": "100",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -2137,7 +1669,7 @@
   },
   {
     "name": "משקה אלוורה מלון",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 15.9,
     "barcode": "8850389115336",
     "brand": "סאפה פובליק קומפני לימיט",
@@ -2197,7 +1729,7 @@
   },
   {
     "name": "משקה סאפה אפרסק",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 10.2,
     "barcode": "8850389104637",
     "brand": "",
@@ -2364,18 +1896,6 @@
     "defaultQty": 1
   },
   {
-    "name": "נקסט פיין אדג' פאקט",
-    "category": "בשר ודגים",
-    "price": 330,
-    "barcode": "7290115190465",
-    "brand": "",
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "נתחי טונה בשמן זית",
     "category": "בשר ודגים",
     "price": 31.9,
@@ -2388,20 +1908,8 @@
     "defaultQty": 1
   },
   {
-    "name": "ס.דליס שוק.חלב ל.ג",
-    "category": "מוצרי חלב",
-    "price": 16.9,
-    "barcode": "8423207208260",
-    "brand": "ביסצ'ורי",
-    "unit": "100 גרם",
-    "size": "136 גר",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סאפה אלוורה טעם אפרסק 1 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 15.9,
     "barcode": "8850389105849",
     "brand": "סאפה פובליק קומפני לימיט",
@@ -2425,7 +1933,7 @@
     "name": "סומאק 200 גרם",
     "barcode": "7291143250305",
     "price": 15.9,
-    "category": "ירקות",
+    "category": "תבלינים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
@@ -2481,7 +1989,7 @@
   },
   {
     "name": "סירופ בטעם מנגו אננס 1 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 12.9,
     "barcode": "7290018989678",
     "brand": "זנלכל בע\\\"מ",
@@ -2493,7 +2001,7 @@
   },
   {
     "name": "סירופ תפוז דיאט",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 13.5,
     "barcode": "7290000272443",
     "brand": "אסם תעשיות מזון בע\"מ",
@@ -2505,7 +2013,7 @@
   },
   {
     "name": "סירופ תפוחים דיאט",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 19.9,
     "barcode": "7290003009183",
     "brand": "גת",
@@ -2517,7 +2025,7 @@
   },
   {
     "name": "סלט איקרה לבנה",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 17.9,
     "barcode": "4810168064204",
     "brand": "סנטה ברמור",
@@ -2541,7 +2049,7 @@
   },
   {
     "name": "סלט גזר מרוקאי",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 12.5,
     "barcode": "7296073236887",
     "brand": "סלטי שמיר",
@@ -2577,7 +2085,7 @@
   },
   {
     "name": "סלט שום כתוש",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 18.5,
     "barcode": "7290010154685",
     "brand": "---",
@@ -2721,7 +2229,7 @@
   },
   {
     "name": "עגבניות חתוכות ליבאטו",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 8.9,
     "barcode": "7296073592563",
     "brand": "DAVIA S.P.A",
@@ -2733,7 +2241,7 @@
   },
   {
     "name": "עגבניות מקולפות",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 9.9,
     "barcode": "7296073079842",
     "brand": "פריניר",
@@ -2745,7 +2253,7 @@
   },
   {
     "name": "עגבניות מרוסק 100%",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 18,
     "barcode": "7290018989746",
     "brand": "זנלכל",
@@ -2757,7 +2265,7 @@
   },
   {
     "name": "עגבניות מרוסקות",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 10.9,
     "barcode": "7296073079866",
     "brand": "פריניר",
@@ -2769,7 +2277,7 @@
   },
   {
     "name": "עגבניות קצוצות דק",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 21.9,
     "barcode": "7290107973861",
     "brand": "קונסורזיו קאסאלאסקו",
@@ -2781,7 +2289,7 @@
   },
   {
     "name": "עגבניות שלמות מקולפ",
-    "category": "ירקות",
+    "category": "שימורים",
     "price": 11.5,
     "barcode": "7290002019183",
     "brand": "פריניר",
@@ -2793,7 +2301,7 @@
   },
   {
     "name": "עוגת דבש אגוזים תפוח",
-    "category": "פירות",
+    "category": "מאפים",
     "price": 24.9,
     "barcode": "7290006451385",
     "brand": "גידרון תעשיות בע\"מ",
@@ -2819,7 +2327,7 @@
     "name": "עמבה 500 מ\"ל",
     "barcode": "7299685859406",
     "price": 18.9,
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "brand": null,
     "icon": null,
     "unit": "יח'",
@@ -2850,20 +2358,8 @@
     "defaultQty": 1
   },
   {
-    "name": "ערגליות מיניס תות",
-    "category": "פירות",
-    "price": 14.5,
-    "barcode": "7290118422723",
-    "brand": "אסם תעשיות מזון בע\"מ",
-    "unit": "100 גרם",
-    "size": "300 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "פאנטה תות",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 8.9,
     "barcode": "7290110115333",
     "brand": "---",
@@ -2871,18 +2367,6 @@
     "size": "1.5 ליטר",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פאקט נקסט אדג' פאקט",
-    "category": "בשר ודגים",
-    "price": 330,
-    "barcode": "7290115190441",
-    "brand": "פיליפ מוריס",
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2905,18 +2389,6 @@
     "brand": "מבשלות בירה בינלאומיות ב",
     "unit": "ליטר",
     "size": "1.50 ליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פיטנס חט.דגנים פ.יער 6 יח",
-    "category": "בשר ודגים",
-    "price": 18.9,
-    "barcode": "5900020029669",
-    "brand": "סי. פי. פולין",
-    "unit": "100 גרם",
-    "size": "141.00 גרמים",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -2959,7 +2431,7 @@
   },
   {
     "name": "פילה דג זהבון 80%דג 1 ק",
-    "category": "מוצרי חלב",
+    "category": "בשר ודגים",
     "price": 24.9,
     "barcode": "7290019308683",
     "brand": "דאליאן הונגדאו",
@@ -3067,7 +2539,7 @@
   },
   {
     "name": "פילה סלמון ר.עגבניות",
-    "category": "פירות",
+    "category": "בשר ודגים",
     "price": 12.5,
     "barcode": "4751007733229",
     "brand": "KARAVELLA",
@@ -3091,7 +2563,7 @@
   },
   {
     "name": "פיתות כוסמין 8 יח",
-    "category": "פירות",
+    "category": "מאפים",
     "price": 16.5,
     "barcode": "7296073427315",
     "brand": "מאפיית אורן משי בע\"\\מ",
@@ -3110,18 +2582,6 @@
     "icon": null,
     "unit": "יח'",
     "defaultUnit": "יח'"
-  },
-  {
-    "name": "פלמוליב מוצק סחלב",
-    "category": "מוצרי חלב",
-    "price": 10.9,
-    "barcode": "8693495052047",
-    "brand": "קולגייט-פלמוליב",
-    "unit": "100 גרם",
-    "size": "904 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
   },
   {
     "name": "פלפל חריף",
@@ -3185,7 +2645,7 @@
   },
   {
     "name": "פלפל שחור גרוס דק",
-    "category": "ירקות",
+    "category": "תבלינים",
     "price": 18.2,
     "barcode": "7290010002092",
     "brand": "א.ל ייצור ושיווק תבלינים",
@@ -3197,7 +2657,7 @@
   },
   {
     "name": "פלפל שיפקה חריף",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 8.9,
     "barcode": "7296073093169",
     "brand": "קבוצת יבנה",
@@ -3209,7 +2669,7 @@
   },
   {
     "name": "פלפלים אדומים קלויים",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 15.9,
     "barcode": "7290004219505",
     "brand": "קוראהן פזלרמה וי דיס אי.",
@@ -3245,7 +2705,7 @@
   },
   {
     "name": "פרוט&ווג תפוח אוכמניות",
-    "category": "מוצרי חלב",
+    "category": "משקאות",
     "price": 13.9,
     "barcode": "7290019153917",
     "brand": "יפאורה תבורי בעמ",
@@ -3257,7 +2717,7 @@
   },
   {
     "name": "פרוט&ווג' תפוז גזר 1 ל",
-    "category": "מוצרי חלב",
+    "category": "משקאות",
     "price": 13.9,
     "barcode": "7290019153931",
     "brand": "יפאורה תבורי בעמ",
@@ -3269,7 +2729,7 @@
   },
   {
     "name": "פרוסות נקניק ברביקיו",
-    "category": "מוצרי חלב",
+    "category": "בשר ודגים",
     "price": 13.9,
     "barcode": "7290000363318",
     "brand": "טיב טירת צבי 2000",
@@ -3281,7 +2741,7 @@
   },
   {
     "name": "פריגורט תות אורגני",
-    "category": "פירות",
+    "category": "מוצרי חלב",
     "price": 21.9,
     "barcode": "7290016606164",
     "brand": "חוות גבעות עולם",
@@ -3293,7 +2753,7 @@
   },
   {
     "name": "פריגת אפרסק",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 9.5,
     "barcode": "7290110115067",
     "brand": "מבשלות בירה בינלאומיות ב",
@@ -3305,7 +2765,7 @@
   },
   {
     "name": "פריגת ענבים",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 7.9,
     "barcode": "7290001594391",
     "brand": "---",
@@ -3317,7 +2777,7 @@
   },
   {
     "name": "פריגת צלול ענבים",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 9.5,
     "barcode": "7290110115081",
     "brand": "מבשלות בירה לישראל בע\"\\מ",
@@ -3329,7 +2789,7 @@
   },
   {
     "name": "פריגת תפוחים",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 9.5,
     "barcode": "7290110115029",
     "brand": "",
@@ -3337,42 +2797,6 @@
     "size": "1.5 ליטר",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פריכ.דקות דגניםקטניות",
-    "category": "בשר ודגים",
-    "price": 14.9,
-    "barcode": "7290118420811",
-    "brand": "פרח תעשיות מזון בע\"מ",
-    "unit": "100 גרם",
-    "size": "80",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פריכונים תירסשומשום",
-    "category": "ירקות",
-    "price": 10.9,
-    "barcode": "7290000065977",
-    "brand": "פרח תעשיות מזון בע\"\\מ",
-    "unit": "100 גרם",
-    "size": "80 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרינגלס שמנת בצל",
-    "category": "מוצרי חלב",
-    "price": 13.9,
-    "barcode": "38000232176",
-    "brand": "פרינגלס מנופקצ'ורינג קונ",
-    "unit": "100 גרם",
-    "size": "158 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3388,20 +2812,8 @@
     "defaultQty": 1
   },
   {
-    "name": "פתיבר קוקיז בטעם חמאה",
-    "category": "מוצרי חלב",
-    "price": 13.5,
-    "barcode": "7290118425496",
-    "brand": "אסם תעשיות מזון בע\"מ",
-    "unit": "100 גרם",
-    "size": "155",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "צ'ונגו שומשום",
-    "category": "ירקות",
+    "category": "בשר ודגים",
     "price": 39.9,
     "barcode": "7290014749245",
     "brand": "מוצרי עוף טוב",
@@ -3425,7 +2837,7 @@
   },
   {
     "name": "ציפס בטטה זיגזג קפוא",
-    "category": "ירקות",
+    "category": "קפואים",
     "price": 18.9,
     "barcode": "7296073459309",
     "brand": "תפוגן תעשיות בע\"מ",
@@ -3448,30 +2860,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צנצנת בזוקה ענבים לל\"ס",
-    "category": "פירות",
-    "price": 12.9,
-    "barcode": "7290119382989",
-    "brand": "אסקום קונפקשיין",
-    "unit": "100 גרם",
-    "size": "66",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "צנצנת קוביות תות",
-    "category": "מוצרי חלב",
-    "price": 13.5,
-    "barcode": "7290110556563",
-    "brand": "אסקום קונפקשיין",
-    "unit": "100 גרם",
-    "size": "58 גרם",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קבב פטריות טבעוני",
     "category": "בשר ודגים",
     "price": 19.9,
@@ -3479,18 +2867,6 @@
     "brand": "מרינה",
     "unit": "100 גרם",
     "size": "360",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קואלה קריספ דגני בוקר",
-    "category": "בשר ודגים",
-    "price": 33.9,
-    "barcode": "58449860037",
-    "brand": "נייטשר פאת'\\",
-    "unit": "100 גרם",
-    "size": "326",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -3605,7 +2981,7 @@
   },
   {
     "name": "קונפיטורת תות לייט",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 19.7,
     "barcode": "7290110577872",
     "brand": "יד מרדכי",
@@ -3628,18 +3004,6 @@
     "defaultQty": 1
   },
   {
-    "name": "קמח תפוח אדמה לל\"ג",
-    "category": "פירות",
-    "price": 12.5,
-    "barcode": "7296073365952",
-    "brand": "נטורל קייקס בע\"\\מ",
-    "unit": "100 גרם",
-    "size": "500 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קציצות דג סלמון לבשול",
     "category": "בשר ודגים",
     "price": 29.9,
@@ -3649,18 +3013,6 @@
     "size": "75",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קצפיות מרנג טעם תות",
-    "category": "פירות",
-    "price": 22.5,
-    "barcode": "7296073565567",
-    "brand": "אחדות ביח\"ר לטחינה",
-    "unit": "100 גרם",
-    "size": "180 ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -3677,7 +3029,7 @@
   },
   {
     "name": "רוגלך שומשום",
-    "category": "ירקות",
+    "category": "מאפים",
     "price": 15.9,
     "barcode": "7290119040360",
     "brand": "---",
@@ -3689,7 +3041,7 @@
   },
   {
     "name": "רוטב עגבניות פריניר",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 8.9,
     "barcode": "7290016087529",
     "brand": "פריניר",
@@ -3701,7 +3053,7 @@
   },
   {
     "name": "רוטב שום לייט לסלט",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 16.5,
     "barcode": "7290112964625",
     "brand": "אסם תעשיות מזון בע\"מ",
@@ -3713,7 +3065,7 @@
   },
   {
     "name": "רוטב שום שמיר הלמנס",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 15.9,
     "barcode": "7290116534909",
     "brand": "יוניליוור ישראל מזון",
@@ -3737,7 +3089,7 @@
   },
   {
     "name": "רסק תפו\"עתות שדה",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 12.9,
     "barcode": "7290017058139",
     "brand": "אינדיאן סאמר קו אופ אינק",
@@ -3749,7 +3101,7 @@
   },
   {
     "name": "רסק תפוחי עץ ללת\"ס",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 13.9,
     "barcode": "7290117266021",
     "brand": "---",
@@ -3761,7 +3113,7 @@
   },
   {
     "name": "רסק תפוחים טבעי",
-    "category": "פירות",
+    "category": "ממרחים ורטבים",
     "price": 13.9,
     "barcode": "7290013903594",
     "brand": "טעמי הגליל",
@@ -3807,7 +3159,7 @@
   },
   {
     "name": "שוופס מים בטעם תפוח 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 8.9,
     "barcode": "7290019056256",
     "brand": "יפאורה תבורי בעמ",
@@ -3819,7 +3171,7 @@
   },
   {
     "name": "שוופס מים טעם ענבים 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 7.9,
     "barcode": "7290019056249",
     "brand": "יפאורה תבורי בעמ",
@@ -3831,7 +3183,7 @@
   },
   {
     "name": "שום גבישי אורגני",
-    "category": "ירקות",
+    "category": "תבלינים",
     "price": 18.9,
     "barcode": "80655404",
     "brand": "קנהמלה",
@@ -3843,7 +3195,7 @@
   },
   {
     "name": "שום כתוש דורות",
-    "category": "ירקות",
+    "category": "תבלינים",
     "price": 17.9,
     "barcode": "7290002253006",
     "brand": "דורות",
@@ -3855,7 +3207,7 @@
   },
   {
     "name": "שום קלוף בקופסא",
-    "category": "ירקות",
+    "category": "תבלינים",
     "price": 12.9,
     "barcode": "7296073612926",
     "brand": "JINXIANG WANXING GARLIC",
@@ -3962,20 +3314,8 @@
     "defaultQty": 1
   },
   {
-    "name": "שימורי שעועית לבנה",
-    "category": "פירות",
-    "price": 8.9,
-    "barcode": "7290100704936",
-    "brand": "לה דוריה",
-    "unit": "100 גרם",
-    "size": "400 ג",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שיני שום כבושים בחומץ",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 13.2,
     "barcode": "7290012019036",
     "brand": "ליני דשן פוד",
@@ -3999,7 +3339,7 @@
   },
   {
     "name": "שמן שומשום כבישה קרה 250 מ",
-    "category": "ירקות",
+    "category": "ממרחים ורטבים",
     "price": 32.9,
     "barcode": "7290010970100",
     "brand": "ג.מ טעם הארץ בע\"\\ם",
@@ -4047,7 +3387,7 @@
   },
   {
     "name": "שניצל גונגל",
-    "category": "מוצרי חלב",
+    "category": "בשר ודגים",
     "price": 46.9,
     "barcode": "7290008409124",
     "brand": "תנובה גליל שותפות מוגבלת",
@@ -4118,18 +3458,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שעועית לבנה",
-    "category": "פירות",
-    "price": 9.9,
-    "barcode": "7290112348142",
-    "brand": "קונסרב איטליה",
-    "unit": "100 גרם",
-    "size": "380 גרם",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "שריר בשר מס 8 קפוא קג",
     "category": "בשר ודגים",
     "price": 29.9,
@@ -4137,18 +3465,6 @@
     "brand": "בלדי",
     "unit": "ק\"ג",
     "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "ת.רחצ.יוגורט וניל דבש",
-    "category": "מוצרי חלב",
-    "price": 10,
-    "barcode": "7290117860892",
-    "brand": "טרופיקל דגיל בע\\\"מ",
-    "unit": "100 מ\"ל",
-    "size": "650",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -4167,7 +3483,7 @@
   },
   {
     "name": "תבלין גריל עוף",
-    "category": "בשר ודגים",
+    "category": "תבלינים",
     "price": 14,
     "barcode": "7290010002320",
     "brand": "א.ל ייצור ושיווק תבלינים",
@@ -4175,18 +3491,6 @@
     "size": "100 גרם",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "תבנית אלומיניום עבה דגם",
-    "category": "פירות",
-    "price": 16.9,
-    "barcode": "7290019014959",
-    "brand": "---",
-    "unit": "יחידה",
-    "size": "1.00 יחידה",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -4214,20 +3518,8 @@
     "defaultQty": 1
   },
   {
-    "name": "תח.רחצה יוגורט שקדים 700 מ",
-    "category": "מוצרי חלב",
-    "price": 15.5,
-    "barcode": "7290117860991",
-    "brand": "טרופיקל דגיל בע\"\\מ",
-    "unit": "100 מ\"ל",
-    "size": "650.00 מיליליטרים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "תירוש מיץ ענבים לבן 1 ל",
-    "category": "מוצרי חלב",
+    "category": "משקאות",
     "price": 21.9,
     "barcode": "7290017812588",
     "brand": "יקבי כרמל",
@@ -4273,7 +3565,7 @@
   },
   {
     "name": "תפוזינה מנגו עסיס 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 8.9,
     "barcode": "7290019056409",
     "brand": "יפאורה תבורי בע\"\\מ",
@@ -4285,7 +3577,7 @@
   },
   {
     "name": "תפוזינה משק\"ל ענבים 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 8.9,
     "barcode": "7290019056362",
     "brand": "יפאורה תבורי בע\"\\מ",
@@ -4297,7 +3589,7 @@
   },
   {
     "name": "תפוזינה תפוזים לייט 1.5 ל",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 8.9,
     "barcode": "7290019056430",
     "brand": "יפאורה תבורי בע\"\\מ",
@@ -4357,7 +3649,7 @@
   },
   {
     "name": "תרכיז תפוחים",
-    "category": "פירות",
+    "category": "משקאות",
     "price": 27.9,
     "barcode": "7290014562462",
     "brand": "",
