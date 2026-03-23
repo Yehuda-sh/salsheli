@@ -1,11 +1,8 @@
 name: Firebase App Distribution
-
 on:
   push:
     branches:
-      - main
-      - dev
-
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
