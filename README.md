@@ -1,6 +1,6 @@
 # MemoZap 📝
 
-> Smart family shopping list app | Built with Flutter + Firebase
+> Smart family shopping list app | Built with Flutter + Firebase | שלום
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
