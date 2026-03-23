@@ -1,6 +1,9 @@
 <!-- android/app/src/main/AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet permission (required by Shorebird for OTA updates) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <!-- Contacts permission for inviting group members -->
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
