@@ -1,9 +1,12 @@
-name: Firebase App Distribution
+name: Firebase App Distribution (Full Build)
 
 on:
   push:
     branches:
-      - '**'
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -24,14 +27,19 @@ jobs:
         with:
           channel: 'stable'
 
+      - name: Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+        with:
+          token: ${{ secrets.SHOREBIRD_TOKEN }}
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Generate code
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build Shorebird Release
+        run: shorebird release android --force
 
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
