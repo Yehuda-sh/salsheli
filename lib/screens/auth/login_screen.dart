@@ -355,51 +355,6 @@ class _LoginScreenState extends State<LoginScreen>
               // 📓 רקע מחברת עדין - Paper & Ink design language
               const NotebookBackground.subtle(),
 
-              // 🧪 DEV MODE - Quick Login Button (Glassmorphic)
-              if (kDebugMode)
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
-                  left: 8,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: cs.tertiary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                          border: Border.all(
-                            color: cs.tertiary.withValues(alpha: 0.3),
-                            width: 0.5,
-                          ),
-                        ),
-                        child: InkWell(
-                          onTap: _showQuickLoginDialog,
-                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.bug_report, size: kIconSizeSmall, color: cs.tertiary),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'DEV',
-                                  style: TextStyle(
-                                    fontSize: kFontSizeSmall,
-                                    fontWeight: FontWeight.bold,
-                                    color: cs.tertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-
               // תוכן המסך
               SafeArea(
                 child: Center(
@@ -733,6 +688,51 @@ class _LoginScreenState extends State<LoginScreen>
                   ),
                 ),
               ),
+
+              // 🧪 DEV MODE - Quick Login Button (Glassmorphic) — above scroll content
+              if (kDebugMode)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 8,
+                  left: 8,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: cs.tertiary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                          border: Border.all(
+                            color: cs.tertiary.withValues(alpha: 0.3),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: InkWell(
+                          onTap: _showQuickLoginDialog,
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.bug_report, size: kIconSizeSmall, color: cs.tertiary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'DEV',
+                                  style: TextStyle(
+                                    fontSize: kFontSizeSmall,
+                                    fontWeight: FontWeight.bold,
+                                    color: cs.tertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
 
               // 🌫️ Loading overlay עם Glassmorphism + טקסט משתנה
               if (_isLoading)
