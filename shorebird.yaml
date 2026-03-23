@@ -1,0 +1,7 @@
+# Shorebird Code Push Configuration
+# Generated for MemoZap
+#
+# IMPORTANT: Replace <YOUR_APP_ID> with your actual Shorebird app_id
+# after running: shorebird init
+#
+app_id: <YOUR_APP_ID>
