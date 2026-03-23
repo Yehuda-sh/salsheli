@@ -77,7 +77,7 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
                     children: [
                       FaIcon(
                         widget.icon,
-                        size: 18,
+                        size: kIconSizeSmall,
                         color: isDisabled
                             ? widget.color.withValues(alpha: 0.5)
                             : widget.color,

@@ -6,7 +6,11 @@
 // Usage:
 // ```dart
 // class _LoginScreenState extends State<LoginScreen>
-//     with SocialAuthMixin {
+//     with SingleTickerProviderStateMixin, SocialAuthMixin {
+//   @override
+//   bool get isAuthLoading => _isLoading;
+//   @override
+//   void setAuthLoading(bool v) => setState(() => _isLoading = v);
 //   @override
 //   void onSocialAuthError(String message) {
 //     _showStatus(message, type: StatusType.error);
@@ -27,40 +31,40 @@ import '../../../services/auth_service.dart';
 
 /// 🔐 Mixin for shared social authentication logic
 mixin SocialAuthMixin<T extends StatefulWidget> on State<T> {
-  bool _socialAuthLoading = false;
+  /// Override: return true when any auth is in progress
+  bool get isAuthLoading;
 
-  bool get isSocialAuthLoading => _socialAuthLoading;
+  /// Override: set the screen's loading state
+  void setAuthLoading(bool loading);
 
-  /// Override to show error messages in UI
+  /// Override: show error messages in UI
   void onSocialAuthError(String message);
-
-  /// Override for custom loading state management (optional)
-  void onSocialAuthLoadingChanged(bool loading) {
-    setState(() => _socialAuthLoading = loading);
-  }
 
   /// 🔵 Google Sign In
   Future<void> handleGoogleSignIn() async {
-    if (_socialAuthLoading) return;
+    if (isAuthLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
-    onSocialAuthLoadingChanged(true);
+    if (kDebugMode) debugPrint('🔵 handleGoogleSignIn() | Starting...');
+    setAuthLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
       await userContext.signInWithGoogle();
 
+      if (kDebugMode) debugPrint('✅ handleGoogleSignIn() | Success');
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
-        onSocialAuthLoadingChanged(false);
+        setAuthLoading(false);
         await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('❌ handleGoogleSignIn: $e');
+      if (kDebugMode) debugPrint('❌ handleGoogleSignIn() | Error: $e');
       if (mounted) {
-        onSocialAuthLoadingChanged(false);
+        setAuthLoading(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           onSocialAuthError(e.toString().replaceAll('Exception: ', ''));
@@ -71,26 +75,29 @@ mixin SocialAuthMixin<T extends StatefulWidget> on State<T> {
 
   /// 🍎 Apple Sign In
   Future<void> handleAppleSignIn() async {
-    if (_socialAuthLoading) return;
+    if (isAuthLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
-    onSocialAuthLoadingChanged(true);
+    if (kDebugMode) debugPrint('🍎 handleAppleSignIn() | Starting...');
+    setAuthLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
       await userContext.signInWithApple();
 
+      if (kDebugMode) debugPrint('✅ handleAppleSignIn() | Success');
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
-        onSocialAuthLoadingChanged(false);
+        setAuthLoading(false);
         await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
       }
     } catch (e) {
-      if (kDebugMode) debugPrint('❌ handleAppleSignIn: $e');
+      if (kDebugMode) debugPrint('❌ handleAppleSignIn() | Error: $e');
       if (mounted) {
-        onSocialAuthLoadingChanged(false);
+        setAuthLoading(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           onSocialAuthError(e.toString().replaceAll('Exception: ', ''));

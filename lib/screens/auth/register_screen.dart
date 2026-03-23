@@ -41,8 +41,8 @@ import '../../core/status_colors.dart' show StatusColors, StatusType;
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
-import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
+import 'mixins/social_auth_mixin.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'widgets/loading_overlay.dart';
 import 'widgets/social_login_button.dart';
@@ -54,7 +54,7 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
+class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin, SocialAuthMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -82,6 +82,19 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   // 🎯 מעקב ולידציה למשוב תחושתי
   final Map<String, bool> _fieldWasValid = {};
+
+  // 🔐 SocialAuthMixin overrides
+  @override
+  bool get isAuthLoading => _isLoading;
+
+  @override
+  void setAuthLoading(bool loading) => setState(() => _isLoading = loading);
+
+  @override
+  void onSocialAuthError(String message) {
+    unawaited(_errorHaptic());
+    _showStatus(message, type: StatusType.error);
+  }
 
   @override
   void initState() {
@@ -230,7 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
 
         // ⏱️ המתנה קצרה לפני ניווט
-        await Future.delayed(const Duration(milliseconds: 1500));
+        await Future.delayed(const Duration(milliseconds: 500));
 
         if (mounted) {
           if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');
@@ -265,78 +278,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   void _onRegisterPressed() {
     unawaited(HapticFeedback.mediumImpact());
     unawaited(_handleRegister());
-  }
-
-  /// 🔵 התחברות עם Google
-  Future<void> _handleGoogleSignIn() async {
-    if (_isLoading) return;
-
-    unawaited(HapticFeedback.lightImpact());
-    setState(() => _isLoading = true);
-
-    try {
-      final userContext = context.read<UserContext>();
-
-      await userContext.signInWithGoogle();
-
-      // 🔹 שמירת seenOnboarding
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seenOnboarding', true);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // ✅ בדיקת ביטול לפי error code (לא string matching)
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
-        }
-      }
-    }
-  }
-
-  /// 🍎 התחברות עם Apple
-  Future<void> _handleAppleSignIn() async {
-    if (_isLoading) return;
-
-    unawaited(HapticFeedback.lightImpact());
-    setState(() => _isLoading = true);
-
-    try {
-      final userContext = context.read<UserContext>();
-
-      await userContext.signInWithApple();
-
-      // 🔹 שמירת seenOnboarding
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seenOnboarding', true);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // ✅ בדיקת ביטול לפי error code (לא string matching)
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
-        }
-      }
-    }
   }
 
   /// 🎨 Helper method לבניית שדה טופס
@@ -713,7 +654,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
                                     color: kGoogleRed,
-                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                    onPressed: _isLoading ? null : handleGoogleSignIn,
                                   ),
                                 ),
                                 SizedBox(width: kSpacingSmall),
@@ -723,7 +664,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     icon: FontAwesomeIcons.apple,
                                     label: 'Apple',
                                     color: cs.onSurface, // שחור/לבן לפי Theme
-                                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                                    onPressed: _isLoading ? null : handleAppleSignIn,
                                   ),
                                 ),
                               ],

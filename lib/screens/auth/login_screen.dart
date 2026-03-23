@@ -37,8 +37,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/status_colors.dart';
-import '../../services/auth_service.dart';
 import '../../core/ui_constants.dart';
+import 'mixins/social_auth_mixin.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../theme/app_theme.dart';
@@ -52,7 +52,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, SocialAuthMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -66,6 +66,17 @@ class _LoginScreenState extends State<LoginScreen>
 
   // 🎯 Focus node for auto-focus
   final FocusNode _emailFocusNode = FocusNode();
+
+  // 🔐 SocialAuthMixin overrides
+  @override
+  bool get isAuthLoading => _isLoading;
+
+  @override
+  void setAuthLoading(bool loading) => setState(() => _isLoading = loading);
+
+  @override
+  void onSocialAuthError(String message) =>
+      _showStatus(message, type: StatusType.error);
 
   @override
   void initState() {
@@ -183,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen>
         _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
 
         // ⏱️ המתנה קצרה לפני ניווט (feedback ויזואלי)
-        await Future.delayed(const Duration(milliseconds: 1500));
+        await Future.delayed(const Duration(milliseconds: 500));
 
         if (mounted) {
           // ✅ FIX: ניווט ל-Index במקום Home
@@ -211,80 +222,6 @@ class _LoginScreenState extends State<LoginScreen>
   void _navigateToRegister() {
     if (kDebugMode) debugPrint('🔄 _navigateToRegister() | Navigating to register screen');
     Navigator.pushReplacementNamed(context, '/register');
-  }
-
-  /// 🔵 התחברות עם Google
-  Future<void> _handleGoogleSignIn() async {
-    if (_isLoading) return;
-
-    unawaited(HapticFeedback.lightImpact());
-    if (kDebugMode) debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
-    setState(() => _isLoading = true);
-
-    try {
-      final userContext = context.read<UserContext>();
-
-      await userContext.signInWithGoogle();
-
-      if (kDebugMode) debugPrint('✅ _handleGoogleSignIn() | Success');
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seenOnboarding', true);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          final errorMsg = e.toString().replaceAll('Exception: ', '');
-          _showStatus(errorMsg, type: StatusType.error);
-        }
-      }
-    }
-  }
-
-  /// 🍎 התחברות עם Apple
-  Future<void> _handleAppleSignIn() async {
-    if (_isLoading) return;
-
-    unawaited(HapticFeedback.lightImpact());
-    if (kDebugMode) debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
-    setState(() => _isLoading = true);
-
-    try {
-      final userContext = context.read<UserContext>();
-
-      await userContext.signInWithApple();
-
-      if (kDebugMode) debugPrint('✅ _handleAppleSignIn() | Success');
-
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seenOnboarding', true);
-
-      if (mounted) {
-        setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          final errorMsg = e.toString().replaceAll('Exception: ', '');
-          _showStatus(errorMsg, type: StatusType.error);
-        }
-      }
-    }
   }
 
   /// 🔑 איפוס סיסמה - שליחת מייל דרך Firebase Auth
@@ -444,8 +381,8 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.bug_report, size: 16, color: cs.tertiary),
-                                SizedBox(width: 4),
+                                Icon(Icons.bug_report, size: kIconSizeSmall, color: cs.tertiary),
+                                const SizedBox(width: 4),
                                 Text(
                                   'DEV',
                                   style: TextStyle(
@@ -504,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 .animate()
                                 .fadeIn(duration: 400.ms)
                                 .slideX(begin: -0.1, curve: Curves.easeOutCubic),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               AppStrings.auth.loginSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
@@ -541,11 +478,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
                                 }
-                                if (!value.contains('@')) {
+                                if (!value.contains('@') || !value.contains('.') ||
+                                    value.indexOf('.') <= value.indexOf('@') + 1) {
                                   return AppStrings.auth.emailInvalid;
                                 }
                                 return null;
@@ -668,7 +607,7 @@ class _LoginScreenState extends State<LoginScreen>
                                           color: cs.onPrimary,
                                         ),
                                       )
-                                    : Icon(Icons.login),
+                                    : const Icon(Icons.login),
                                 label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
                                 style: FilledButton.styleFrom(
                                   minimumSize: const Size.fromHeight(48),
@@ -725,7 +664,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     icon: FontAwesomeIcons.google,
                                     label: 'Google',
                                     color: kGoogleRed,
-                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                    onPressed: _isLoading ? null : handleGoogleSignIn,
                                   ),
                                 ),
                                 SizedBox(width: kSpacingSmall),
@@ -735,7 +674,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     icon: FontAwesomeIcons.apple,
                                     label: 'Apple',
                                     color: cs.onSurface,
-                                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                                    onPressed: _isLoading ? null : handleAppleSignIn,
                                   ),
                                 ),
                               ],
