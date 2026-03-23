@@ -22,5 +22,6 @@
 # Keep annotations
 -keepattributes *Annotation*
 
-# Google Play Core (for in-app updates/reviews)
+# Google Play Core (for in-app updates/reviews & deferred components)
 -keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.play.core.**
