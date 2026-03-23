@@ -38,4 +38,6 @@ jobs:
         run: flutter pub run build_runner build --delete-conflicting-outputs
 
       - name: Create Shorebird Patch
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
         run: shorebird patch --platforms android --release-version ${{ vars.SHOREBIRD_RELEASE_VERSION || '1.0.0+1' }}
