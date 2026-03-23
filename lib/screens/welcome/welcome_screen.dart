@@ -558,6 +558,15 @@ class _BottomSection extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // === Build date ===
+              Text(
+                'Build: 2026-03-23',
+                style: TextStyle(
+                  fontSize: kFontSizeTiny,
+                  color: cs.onSurface.withValues(alpha: 0.2),
+                ),
+              ),
             ],
           ),
         ),
