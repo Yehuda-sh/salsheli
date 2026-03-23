@@ -60,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _devModeEnabled = false;
-  int _devTapCount = 0;
 
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
@@ -396,16 +395,16 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: kSpacingSmallPlus),
 
                             // 📝 כותרת - staggered animation
-                            // 🧪 5 taps on title to enable DEV quick login
+                            // 🧪 Long press on title to enable DEV quick login
                             GestureDetector(
-                              onTap: () {
-                                _devTapCount++;
-                                if (_devTapCount >= 5 && !_devModeEnabled) {
-                                  setState(() => _devModeEnabled = true);
-                                  unawaited(HapticFeedback.heavyImpact());
-                                  _showStatus('DEV mode enabled', type: StatusType.success);
-                                }
-                              },
+                              behavior: HitTestBehavior.opaque,
+                              onLongPress: _devModeEnabled
+                                  ? null
+                                  : () {
+                                      setState(() => _devModeEnabled = true);
+                                      unawaited(HapticFeedback.heavyImpact());
+                                      _showStatus('DEV mode enabled', type: StatusType.success);
+                                    },
                               child: Text(
                                 AppStrings.auth.loginTitle,
                                 style: theme.textTheme.headlineLarge?.copyWith(
