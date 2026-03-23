@@ -461,8 +461,9 @@ class _LoginScreenState extends State<LoginScreen>
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
                                 }
-                                if (!value.contains('@') || !value.contains('.') ||
-                                    value.indexOf('.') <= value.indexOf('@') + 1) {
+                                final atIndex = value.indexOf('@');
+                                if (atIndex < 1 ||
+                                    value.indexOf('.', atIndex) <= atIndex + 1) {
                                   return AppStrings.auth.emailInvalid;
                                 }
                                 return null;
