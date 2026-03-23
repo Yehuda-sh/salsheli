@@ -23,6 +23,9 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 
+// Updated automatically — change this string to verify new builds.
+const _kBuildTimestamp = '2026-03-23 10:50:00';
+
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -561,7 +564,7 @@ class _BottomSection extends StatelessWidget {
 
               // === Build date ===
               Text(
-                'Build: 2026-03-23',
+                'Build: ${_kBuildTimestamp}',
                 style: TextStyle(
                   fontSize: kFontSizeTiny,
                   color: cs.onSurface.withValues(alpha: 0.2),
