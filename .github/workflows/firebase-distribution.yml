@@ -1,11 +1,8 @@
 name: Firebase App Distribution
-
 on:
   push:
     branches:
-      - main
-      - dev
-
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -41,3 +38,26 @@ jobs:
           token: ${{ secrets.FIREBASE_TOKEN }}
           groups: testers
           file: build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+## 🚀 איך לעשות את זה:
+
+### **אופציה 1: דרך Claude Code (הכי מהיר)**
+
+**תגיד ל-Claude Code:**
+```
+ערוך את הקובץ .github/workflows/firebase-distribution.yml
+ושנה את השורות:
+  push:
+    branches:
+      - main
+      - dev
+
+ל:
+  push:
+    branches:
+      - '**'
+
+זה יאפשר ל-workflow לרוץ על כל branch
