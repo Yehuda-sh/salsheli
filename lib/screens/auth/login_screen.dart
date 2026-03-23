@@ -59,6 +59,8 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _devModeEnabled = false;
+  int _devTapCount = 0;
 
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
@@ -394,15 +396,26 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: kSpacingSmallPlus),
 
                             // 📝 כותרת - staggered animation
-                            Text(
-                              AppStrings.auth.loginTitle,
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                fontSize: kFontSizeDisplay,
-                                color: cs.onSurface,
-                                letterSpacing: 1,
+                            // 🧪 5 taps on title to enable DEV quick login
+                            GestureDetector(
+                              onTap: () {
+                                _devTapCount++;
+                                if (_devTapCount >= 5 && !_devModeEnabled) {
+                                  setState(() => _devModeEnabled = true);
+                                  unawaited(HapticFeedback.heavyImpact());
+                                  _showStatus('DEV mode enabled', type: StatusType.success);
+                                }
+                              },
+                              child: Text(
+                                AppStrings.auth.loginTitle,
+                                style: theme.textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: kFontSizeDisplay,
+                                  color: cs.onSurface,
+                                  letterSpacing: 1,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms)
@@ -690,7 +703,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
 
               // 🧪 DEV MODE - Quick Login Button (Glassmorphic) — above scroll content
-              if (kDebugMode)
+              if (kDebugMode || _devModeEnabled)
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 8,
                   left: 8,
