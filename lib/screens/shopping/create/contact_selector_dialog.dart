@@ -6,16 +6,17 @@
 // - טעינת אנשי קשר שמורים (SavedContacts)
 // - חיפוש לפי שם/אימייל
 // - בחירת תפקיד (Admin/Editor/Viewer) לכל איש קשר
-// - הוספת אימייל חדש (משתמש לא רשום)
+// - הוספת אימייל/טלפון חדש (משתמש לא רשום)
+// - RadioGroup (Flutter 3.33+) לבחירת סוג קלט
 //
 // 🔗 Related:
 // - create_list_screen.dart - מסך יצירת רשימה
 // - selected_contact.dart - מודל איש קשר נבחר
 // - saved_contacts_service.dart - שירות אנשי קשר שמורים
 //
-// Version: 1.0
+// Version: 1.1
 // Created: 06/01/2026
-// Last Updated: 13/01/2026
+// Last Updated: 24/03/2026
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

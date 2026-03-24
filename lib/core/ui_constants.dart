@@ -12,7 +12,7 @@
 // - צבעי Dark Mode מופחתי רוויה (Desaturated)
 // - Border Radius מורחב (כולל Super)
 //
-// 📝 Version: 4.0
+// 📝 Version: 4.1 — Added kGlassBlurMedium constant
 // 📅 Updated: 22/02/2026
 
 import 'dart:ui';

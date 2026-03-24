@@ -16,8 +16,8 @@
 //     - Empty State
 //     - Loading State
 //
-// Version 2.1 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version 2.2 - Design tokens + withValues + NotebookBackground logged-out
+// Last Updated: 24/03/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;

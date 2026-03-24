@@ -28,8 +28,8 @@
 // - LocationsProvider: מיקומים מותאמים
 // - UserContext: אווטארים שיתופיים
 //
-// Version: 6.0 - Hybrid Premium (Collaborative + Sensory)
-// Last Updated: 22/02/2026
+// Version: 6.1 - Design tokens compliance (hardcoded sizes → constants)
+// Last Updated: 24/03/2026
 
 import 'dart:async';
 import 'dart:ui' as ui;

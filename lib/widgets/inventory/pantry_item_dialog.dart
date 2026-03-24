@@ -17,8 +17,8 @@
 // - StorageLocationsConfig: הגדרות מיקומים
 // - InventoryProvider: ניהול state
 //
-// Version: 2.0
-// Last Updated: 16/12/2025
+// Version: 2.1 - Design tokens (hardcoded sizes → kSpacing/kFontSize constants)
+// Last Updated: 24/03/2026
 
 import 'dart:async';
 

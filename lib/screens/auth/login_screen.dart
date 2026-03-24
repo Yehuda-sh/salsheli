@@ -19,8 +19,8 @@
 //     - v3.1: Form validation, shake, haptic, social login
 //     - v4.0 (22/02/2026): NotebookBackground, staggered animations, glassmorphic overlay
 //
-// Version: 4.0
-// Last Updated: 22/02/2026
+// Version: 4.1 - Dev menu (5-tap on title) + design tokens
+// Last Updated: 24/03/2026
 
 import 'dart:async';
 import 'dart:ui';

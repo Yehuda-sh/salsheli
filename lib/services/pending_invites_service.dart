@@ -18,7 +18,7 @@
 // - notifications_service.dart - התראות
 // - pending_request.dart - מודל בקשה ממתינה
 //
-// 📝 Version: 1.1
+// 📝 Version: 1.2 — Security comment on email auth source
 // Created: 30/11/2025
 
 import 'package:cloud_firestore/cloud_firestore.dart';

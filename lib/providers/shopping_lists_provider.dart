@@ -3,9 +3,8 @@
 // 🎯 Purpose: Provider לניהול רשימות קניות - ניהול state מרכזי של כל הרשימות
 //
 // 📦 Dependencies:
-// - ShoppingListsRepository: ממשק לטעינת/שמירת רשימות
+// - ShoppingListsRepository: ממשק לטעינת/שמירת רשימות (abstract only — no concrete cast)
 // - UserContext: household_id + auth state
-// - FirebaseShoppingListsRepository: מימוש Firebase של Repository
 //
 // ✨ Features:
 // - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
@@ -44,8 +43,8 @@
 // 2. updateUserContext() → _onUserChanged() → loadLists()
 // 3. CRUD operations → Repository → loadLists() → notifyListeners()
 //
-// Version: 2.1 (FirebaseShoppingListsRepository - naming consistency)
-// Last Updated: 09/10/2025
+// Version: 2.2 (identical() guard, abstract-only repository usage)
+// Last Updated: 24/03/2026
 //
 
 import 'dart:async';

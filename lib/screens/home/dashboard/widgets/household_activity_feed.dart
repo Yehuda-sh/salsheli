@@ -3,7 +3,7 @@
 // פיד פעילות הבית — מציג פעולות אחרונות של חברי הבית:
 // - קניות שהסתיימו (מקבלות)
 //
-// Version: 1.1 (16/03/2026) — Single row header, Haptics, Optimized logic
+// Version: 1.2 (24/03/2026) — Hebrew strings → AppStrings, design tokens
 
 import 'dart:async';
 

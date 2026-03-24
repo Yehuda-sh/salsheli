@@ -12,8 +12,8 @@
 // - pending_invites_service.dart - שירות ניהול הזמנות
 // - invite_users_screen.dart - מסך שליחת הזמנות
 //
-// Version 3.0 - Hybrid: NotebookBackground + AppBar
-// Last Updated: 13/01/2026
+// Version 3.1 - Emoji icons → Material Icons
+// Last Updated: 24/03/2026
 
 import 'dart:async';
 

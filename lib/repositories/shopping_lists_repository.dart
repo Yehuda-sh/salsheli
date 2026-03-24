@@ -25,9 +25,10 @@
 //     - v2.0: הוספת sharing + roles
 //     - v3.0 (14/12/2025): Dual collection (private + shared)
 //     - v4.0 (22/02/2026): getListById, ארגון לפי קטגוריות, תיעוד מלא
+//     - v4.1 (24/03/2026): addSharedUserToPrivateList added to interface
 //
-// Version: 4.0
-// Last Updated: 22/02/2026
+// Version: 4.1
+// Last Updated: 24/03/2026
 
 import '../models/shopping_list.dart';
 

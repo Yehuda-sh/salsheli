@@ -14,8 +14,8 @@
 //     - Strict (Timestamp/NullableTimestamp): זורק על טיפוס לא תקין
 //     - Lenient (Flexible...): מחזיר fallback + אזהרה בדיבאג
 //
-// Version: 1.1 - Added lenient behavior to Flexible converters
-// Last Updated: 13/01/2026
+// Version: 1.2 - debugPrint warnings on Flexible converter fallbacks
+// Last Updated: 24/03/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

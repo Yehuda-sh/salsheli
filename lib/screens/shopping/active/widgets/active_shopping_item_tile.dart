@@ -1,3 +1,10 @@
+// 📄 lib/screens/shopping/active/widgets/active_shopping_item_tile.dart
+//
+// 🎯 Single item tile for active shopping mode
+//    Swipe-to-check, status indicators, haptic feedback
+//
+// 🔗 Related: active_shopping_screen.dart
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

@@ -10,8 +10,8 @@
 // 3. משתמש מקבל התראה
 // 4. משתמש מתווסף לשותפים ברשימה
 //
-// Version 2.0 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version 2.1 - Emoji icons → Material Icons
+// Last Updated: 24/03/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';

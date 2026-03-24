@@ -31,8 +31,8 @@
 // 3. עריכת הגדרות → שמירה אוטומטית
 // 4. התנתקות → ניקוי + חזרה ל-login
 //
-// Version: 3.5 - Clean Material Design (no Sticky Notes)
-// Last Updated: 27/01/2026
+// Version: 3.6 - Fix use_build_context_synchronously warnings
+// Last Updated: 24/03/2026
 
 import 'dart:async';
 

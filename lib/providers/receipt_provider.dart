@@ -11,6 +11,7 @@
 // - ✏️ CRUD מלא: יצירה, עדכון, מחיקה של קבלות
 // - 📊 State management: isLoading, hasError, isEmpty
 // - 🔄 Auto-sync: רענון אוטומטי כשמשתמש מתחבר/מתנתק
+// - 🛡️ Dispose-safe: _isDisposed guard + _notifySafe() prevents post-dispose crash
 // - 🐛 Logging מפורט: כל פעולה עם debugPrint
 //
 // 📝 Usage:
@@ -38,8 +39,8 @@
 // 2. UserContext changes → _onUserChanged() → _loadReceipts()
 // 3. CRUD operations → Repository → Update local state → notifyListeners()
 //
-// Version: 3.2 (isLoading bug fix + kDebugMode + retention policy: 1 year)
-// Last Updated: 18/02/2026
+// Version: 3.3 (_isDisposed guard + _notifySafe)
+// Last Updated: 24/03/2026
 //
 
 import 'dart:async';

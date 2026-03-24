@@ -1,7 +1,7 @@
 // 📄 File: lib/screens/shopping/active_shopping_screen.dart
 //
-// Version 4.0 - Hybrid Premium: Responsive + Collaborative
-// Last Updated: 22/02/2026
+// Version 4.1 - Design tokens + hardcoded sizes → kSpacing/kFontSize/kIconSize
+// Last Updated: 24/03/2026
 //
 // 🎯 Purpose: מסך קנייה פעילה - המשתמש בחנות וקונה מוצרים
 //

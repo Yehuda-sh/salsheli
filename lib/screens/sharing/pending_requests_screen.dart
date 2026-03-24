@@ -11,8 +11,8 @@
 // 4. Owner/Admin לוחץ ❌ → rejectRequest() → בקשה נמחקת
 // 5. Badge: getPendingRequestsCount() מציג כמה בקשות ממתינות
 //
-// Version: 1.0
-// Last Updated: 04/11/2025
+// Version: 1.1 - Emoji icons → Material Icons
+// Last Updated: 24/03/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';

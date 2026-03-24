@@ -14,8 +14,8 @@
 // - unified_list_item.dart - מודל פריט עם volunteers
 // - shopping_lists_provider.dart - עדכון מתנדבים
 //
-// Version 2.0 - No AppBar (Immersive)
-// Last Updated: 13/01/2026
+// Version 2.1 - Emoji icons → Material Icons + design tokens
+// Last Updated: 24/03/2026
 
 import 'package:memozap/l10n/app_strings.dart';
 import 'dart:async';
