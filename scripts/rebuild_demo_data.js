@@ -542,7 +542,7 @@ async function main() {
 
   // ── TOMER: Pharmacy (private) ──
   const pharmProducts = pickRandom(products.filter(p => p.sourceFile === 'pharmacy'), 5);
-  await db.collection('households').doc(hIds.tomer).collection('shared_lists').doc('list_tomer_pharm').set({
+  await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_pharm').set({
     id: 'list_tomer_pharm', name: 'סופרפארם 💊', status: 'active', type: 'pharmacy',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false,
@@ -556,7 +556,7 @@ async function main() {
   console.log('   📋 תומר: סופרפארם (pharmacy, private, 5 products + 1 task)');
 
   // ── TOMER: "Other" type list ──
-  await db.collection('households').doc(hIds.tomer).collection('shared_lists').doc('list_tomer_misc').set({
+  await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_misc').set({
     id: 'list_tomer_misc', name: 'דברים לקנות 📝', status: 'active', type: 'other',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false,
@@ -572,7 +572,7 @@ async function main() {
 
   // ── NAAMA: Large supermarket list (performance test) ──
   const naamaProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), 50);
-  await db.collection('households').doc(hIds.naama).collection('shared_lists').doc('list_naama_big').set({
+  await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_big').set({
     id: 'list_naama_big', name: 'קניות חודשיות 🛒', status: 'active', type: 'supermarket',
     budget: 2000, is_shared: false, is_private: true, created_by: uids.naama,
     format: 'personal', created_from_template: false,
@@ -585,7 +585,7 @@ async function main() {
   // ── NAAMA: 8 completed past lists (history) ──
   for (let w = 1; w <= 8; w++) {
     const pastProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), randomInt(8, 15));
-    await db.collection('households').doc(hIds.naama).collection('shared_lists').doc(`list_naama_past_${w}`).set({
+    await db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_past_${w}`).set({
       id: `list_naama_past_${w}`, name: `קניות שבוע ${w}`, status: 'completed', type: 'supermarket',
       budget: null, is_shared: false, is_private: true, created_by: uids.naama,
       format: 'personal', created_from_template: false,
@@ -598,7 +598,7 @@ async function main() {
 
   // ── NAAMA: Budget list ──
   const budgetProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price && p.price < 30), 10);
-  await db.collection('households').doc(hIds.naama).collection('shared_lists').doc('list_naama_budget').set({
+  await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget').set({
     id: 'list_naama_budget', name: 'קניות בתקציב 💰', status: 'active', type: 'supermarket',
     budget: 300, is_shared: false, is_private: true, created_by: uids.naama,
     format: 'personal', created_from_template: false,
@@ -769,37 +769,71 @@ async function main() {
   console.log('   🔔 ליאור: 1 notification (45 days old, unread)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 8. PENDING INVITES — under users/{uid}/pending_invites
+  // 8. PENDING INVITES — top-level pending_invites collection (PendingRequest schema)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n✉️ Creating pending invites...');
 
   // Dan invites Naama to Levi household (pending)
-  await db.collection('users').doc(uids.naama).collection('pending_invites').doc('invite_dan_naama').set({
-    id: 'invite_dan_naama', type: 'inviteToHousehold',
-    from_user_id: uids.dan, from_user_name: 'דן לוי', from_user_email: 'dan.levi@demo.com',
-    to_user_id: uids.naama, to_user_email: 'naama.rozen@demo.com',
-    household_id: hIds.levi, household_name: 'משפחת לוי',
-    status: 'pending', created_at: daysAgo(5).toISOString(),
+  await db.collection('pending_invites').doc('invite_dan_naama').set({
+    id: 'invite_dan_naama',
+    list_id: hIds.levi, // reused for householdId in household invites
+    requester_id: uids.dan,
+    type: 'inviteToHousehold',
+    status: 'pending',
+    created_at: daysAgo(5).toISOString(),
+    requester_name: 'דן לוי',
+    reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
+    request_data: {
+      invited_user_id: uids.naama,
+      invited_user_email: 'naama.rozen@demo.com',
+      invited_user_name: 'נעמה רוזן',
+      household_id: hIds.levi,
+      household_name: 'משפחת לוי',
+      role: 'editor',
+    },
   });
   console.log('   ✉️ דן → נעמה: הצטרפי ללוי (pending)');
 
   // Naama invites Avi to her household (pending)
-  await db.collection('users').doc(uids.avi).collection('pending_invites').doc('invite_naama_avi').set({
-    id: 'invite_naama_avi', type: 'inviteToHousehold',
-    from_user_id: uids.naama, from_user_name: 'נעמה רוזן', from_user_email: 'naama.rozen@demo.com',
-    to_user_id: uids.avi, to_user_email: 'avi.cohen@demo.com',
-    household_id: hIds.naama, household_name: 'הבית של נעמה',
-    status: 'pending', created_at: hoursAgo(3).toISOString(),
+  await db.collection('pending_invites').doc('invite_naama_avi').set({
+    id: 'invite_naama_avi',
+    list_id: hIds.naama,
+    requester_id: uids.naama,
+    type: 'inviteToHousehold',
+    status: 'pending',
+    created_at: hoursAgo(3).toISOString(),
+    requester_name: 'נעמה רוזן',
+    reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
+    request_data: {
+      invited_user_id: uids.avi,
+      invited_user_email: 'avi.cohen@demo.com',
+      invited_user_name: 'אבי כהן',
+      household_id: hIds.naama,
+      household_name: 'הבית של נעמה',
+      role: 'editor',
+    },
   });
   console.log('   ✉️ נעמה → אבי: הצטרף לבית שלי (pending)');
 
   // Old rejected invite
-  await db.collection('users').doc(uids.tomer).collection('pending_invites').doc('invite_old_rejected').set({
-    id: 'invite_old_rejected', type: 'inviteToHousehold',
-    from_user_id: uids.lior, from_user_name: 'ליאור דהן', from_user_email: 'lior.dahan@demo.com',
-    to_user_id: uids.tomer, to_user_email: 'tomer.bar@demo.com',
-    household_id: hIds.lior, household_name: 'הבית של ליאור',
-    status: 'rejected', created_at: daysAgo(60).toISOString(), reviewed_at: daysAgo(59).toISOString(),
+  await db.collection('pending_invites').doc('invite_old_rejected').set({
+    id: 'invite_old_rejected',
+    list_id: hIds.lior,
+    requester_id: uids.lior,
+    type: 'inviteToHousehold',
+    status: 'rejected',
+    created_at: daysAgo(60).toISOString(),
+    requester_name: 'ליאור דהן',
+    reviewer_id: uids.tomer, reviewed_at: daysAgo(59).toISOString(),
+    rejection_reason: null, reviewer_name: 'תומר בר', list_name: null,
+    request_data: {
+      invited_user_id: uids.tomer,
+      invited_user_email: 'tomer.bar@demo.com',
+      invited_user_name: 'תומר בר',
+      household_id: hIds.lior,
+      household_name: 'הבית של ליאור',
+      role: 'editor',
+    },
   });
   console.log('   ✉️ ליאור → תומר: הזמנה ישנה (rejected)');
 
