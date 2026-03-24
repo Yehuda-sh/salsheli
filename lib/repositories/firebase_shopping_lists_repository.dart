@@ -714,6 +714,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         data[FirestoreFields.isPrivate] = isPrivate;
         return ShoppingList.fromJson(data);
       } catch (e) {
+        debugPrint('⚠️ Failed to parse document ${doc.id}: $e');
         return null;
       }
     }).whereType<ShoppingList>().toList();

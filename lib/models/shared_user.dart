@@ -87,6 +87,8 @@ Object? _readCanStartShopping(Map<dynamic, dynamic> json, String key) =>
 @immutable
 @JsonSerializable()
 class SharedUser {
+  static final _sentinel = Object();
+
   /// מזהה המשתמש (המפתח במפה - לא נשמר ב-JSON של הערך)
   @JsonKey(includeFromJson: false, includeToJson: false)
   final String userId;
@@ -193,18 +195,18 @@ class SharedUser {
     String? userId,
     UserRole? role,
     DateTime? sharedAt,
-    String? userName,
-    String? userEmail,
-    String? userAvatar,
+    Object? userName = _sentinel,
+    Object? userEmail = _sentinel,
+    Object? userAvatar = _sentinel,
     bool? canStartShopping,
   }) {
     return SharedUser(
       userId: userId ?? this.userId,
       role: role ?? this.role,
       sharedAt: sharedAt ?? this.sharedAt,
-      userName: userName ?? this.userName,
-      userEmail: userEmail ?? this.userEmail,
-      userAvatar: userAvatar ?? this.userAvatar,
+      userName: userName == _sentinel ? this.userName : userName as String?,
+      userEmail: userEmail == _sentinel ? this.userEmail : userEmail as String?,
+      userAvatar: userAvatar == _sentinel ? this.userAvatar : userAvatar as String?,
       canStartShopping: canStartShopping ?? this.canStartShopping,
     );
   }

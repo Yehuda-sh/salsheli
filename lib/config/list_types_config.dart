@@ -157,7 +157,7 @@ class ListTypes with ConfigValidation {
         case ListTypeKeys.bakery:
           return brand.stickyYellow;
         case ListTypeKeys.butcher:
-          return kStickyOrange;
+          return brand.stickyOrange;
         case ListTypeKeys.event:
           return brand.stickyPurple;
       }

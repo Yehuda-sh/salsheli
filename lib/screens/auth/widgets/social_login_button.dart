@@ -69,7 +69,7 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
                 borderRadius: BorderRadius.circular(kBorderRadius),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: kSpacingSmall + 4,
+                    vertical: kSpacingSmallPlus,
                     horizontal: kSpacingMedium,
                   ),
                   child: Row(
@@ -77,7 +77,7 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
                     children: [
                       FaIcon(
                         widget.icon,
-                        size: 18,
+                        size: kIconSizeSmall,
                         color: isDisabled
                             ? widget.color.withValues(alpha: 0.5)
                             : widget.color,

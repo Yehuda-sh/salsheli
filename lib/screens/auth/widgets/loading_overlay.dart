@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:memozap/core/ui_constants.dart';
+import 'package:memozap/l10n/app_strings.dart';
 
 class LoadingOverlay extends StatefulWidget {
   final Color color;
@@ -12,10 +13,10 @@ class LoadingOverlay extends StatefulWidget {
 }
 
 class _LoadingOverlayState extends State<LoadingOverlay> {
-  static const _messages = [
-    'בודק פרטים...',
-    'מתחבר לשרת...',
-    'כמעט שם...',
+  List<String> get _messages => [
+    AppStrings.auth.loadingCheckingDetails,
+    AppStrings.auth.loadingConnecting,
+    AppStrings.auth.loadingAlmostThere,
   ];
 
   int _messageIndex = 0;

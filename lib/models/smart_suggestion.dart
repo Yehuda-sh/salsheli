@@ -35,6 +35,8 @@ part 'smart_suggestion.g.dart';
 @immutable
 @JsonSerializable(explicitToJson: true)
 class SmartSuggestion {
+  static final _sentinel = Object();
+
   /// 🇮🇱 מזהה ייחודי להמלצה
   /// 🇬🇧 Unique suggestion identifier
   @JsonKey(defaultValue: '')
@@ -228,9 +230,9 @@ class SmartSuggestion {
     String? unit,
     SuggestionStatus? status,
     DateTime? suggestedAt,
-    DateTime? dismissedUntil,
-    DateTime? addedAt,
-    String? addedToListId,
+    Object? dismissedUntil = _sentinel,
+    Object? addedAt = _sentinel,
+    Object? addedToListId = _sentinel,
   }) {
     return SmartSuggestion(
       id: id ?? this.id,
@@ -243,9 +245,9 @@ class SmartSuggestion {
       unit: unit ?? this.unit,
       status: status ?? this.status,
       suggestedAt: suggestedAt ?? this.suggestedAt,
-      dismissedUntil: dismissedUntil ?? this.dismissedUntil,
-      addedAt: addedAt ?? this.addedAt,
-      addedToListId: addedToListId ?? this.addedToListId,
+      dismissedUntil: dismissedUntil == _sentinel ? this.dismissedUntil : dismissedUntil as DateTime?,
+      addedAt: addedAt == _sentinel ? this.addedAt : addedAt as DateTime?,
+      addedToListId: addedToListId == _sentinel ? this.addedToListId : addedToListId as String?,
     );
   }
 

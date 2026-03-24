@@ -75,7 +75,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
         return _MemberData(
           userId: memberId,
-          name: data['name'] as String? ?? 'משתמש',
+          name: data['name'] as String? ?? AppStrings.household.userFallback,
           role: effectiveRole,
           joinedAt: (data['joined_at'] as Timestamp?)?.toDate(),
           email: data['email'] as String?,
@@ -150,7 +150,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             .collection('households')
             .doc(personalHouseholdId),
         {
-          'name': 'הבית שלי',
+          'name': AppStrings.household.myHome,
           'created_at': FieldValue.serverTimestamp(),
           'created_by': member.userId,
         },
@@ -272,7 +272,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
       batch.set(
         FirebaseFirestore.instance.collection('households').doc(personalId),
         {
-          'name': 'הבית שלי',
+          'name': AppStrings.household.myHome,
           'created_at': FieldValue.serverTimestamp(),
           'created_by': _currentUserId,
         },
@@ -285,7 +285,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             .doc(_currentUserId!),
         {
           'user_id': _currentUserId,
-          'name': _members.firstWhere((m) => m.userId == _currentUserId, orElse: () => _MemberData(userId: '', name: 'משתמש', role: '')).name,
+          'name': _members.firstWhere((m) => m.userId == _currentUserId, orElse: () => _MemberData(userId: '', name: AppStrings.household.userFallback, role: '')).name,
           'role': 'admin',
           'joined_at': FieldValue.serverTimestamp(),
         },
@@ -321,7 +321,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final userContext = context.watch<UserContext>();
-    final householdName = userContext.householdName ?? 'הבית שלי';
+    final householdName = userContext.householdName ?? AppStrings.household.myHome;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -391,7 +391,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                       if (_members.length > 1)
                         IconButton(
                           icon: Icon(Icons.exit_to_app, color: cs.error),
-                          tooltip: 'עזוב את הבית',
+                          tooltip: AppStrings.household.leaveHouseholdTooltip,
                           onPressed: _leaveHousehold,
                         ),
                     ],
@@ -510,7 +510,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                                 BorderRadius.circular(kBorderRadiusSmall),
                           ),
                           child: Text(
-                            'אני',
+                            AppStrings.household.meLabel,
                             style: TextStyle(
                               fontSize: kFontSizeTiny,
                               color: cs.onPrimaryContainer,
@@ -536,7 +536,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),
                     child: Text(
-                      isMemberOwner ? '👑 בעלים' : isMemberAdmin ? '🛡️ מנהל' : '👤 חבר',
+                      isMemberOwner ? AppStrings.household.roleOwnerLabel : isMemberAdmin ? AppStrings.household.roleAdminLabel : AppStrings.household.roleMemberLabel,
                       style: TextStyle(
                         fontSize: kFontSizeTiny,
                         color: cs.onSurfaceVariant,

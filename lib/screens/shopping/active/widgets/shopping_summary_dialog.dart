@@ -147,7 +147,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '(אופציונלי)',
+                    AppStrings.common.optional,
                     style: TextStyle(
                       fontSize: kFontSizeTiny,
                       color: cs.onSurfaceVariant.withValues(alpha: 0.6),
@@ -185,7 +185,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                               : null,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: isSelected ? 0.15 : 0.06),
+                              color: cs.shadow.withValues(alpha: isSelected ? 0.15 : 0.06),
                               blurRadius: isSelected ? 6 : 3,
                               offset: const Offset(1, 2),
                             ),
@@ -285,7 +285,6 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
 
   /// דיאלוג בחירת אפשרות עבור פריטים ב-pending
   Widget _buildPendingOptionsDialog(ColorScheme cs) {
-    final cs = Theme.of(context).colorScheme;
     return AlertDialog(
       title: Row(
         children: [

@@ -2,7 +2,7 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// Version: 4.2 (March 2026)
+// Version: 4.3 (March 2026)
 //
 // ✅ Strict Schema Validation & Audit Trail
 // 📅 Last Updated: March 2026
@@ -14,6 +14,7 @@ rules_version = '2';
 //     - Schema validation helpers
 //
 // 📅 History:
+//     v4.3 (24/03/2026) — Fix: household delete restricted to creator, receipts schema validation + created_by, group update restricted fields, pending_invites validation
 //     v4.2 (15/03/2026) — Fix: household delete, notification sender_id, group_invites read, editor active_shoppers
 //     v4.0 (22/02/2026) — Schema validation, Audit Trail, anti-spam, helper functions
 //     v3.0 (14/12/2025) — Nested Subcollections, Map-Based permissions
@@ -239,9 +240,11 @@ service cloud.firestore {
       // עדכון: רק חברי משק הבית
       allow update: if isHouseholdMember(householdId);
 
-      // מחיקה: רק חבר בית שהוא גם היוצר (או admin)
+      // מחיקה: רק היוצר של משק הבית
       // ⚠️ v4.2: היה פתוח לכל authenticated — תוקן
-      allow delete: if isHouseholdMember(householdId);
+      // ⚠️ v4.3: היה פתוח לכל member — תוקן. רק created_by יכול למחוק
+      allow delete: if isHouseholdMember(householdId) &&
+                    resource.data.created_by == request.auth.uid;
 
       // === Shared Lists (Subcollection) ===
       // Path: /households/{householdId}/shared_lists/{listId}
@@ -302,10 +305,22 @@ service cloud.firestore {
         allow delete: if isHouseholdMember(householdId);
       }
 
-      // === Receipts (Subcollection) ===
+      // === 🔒 Receipts (Subcollection) — v4.3 Schema Validated ===
       // Path: /households/{householdId}/receipts/{receiptId}
       match /receipts/{receiptId} {
-        allow read, write: if isHouseholdMember(householdId);
+        allow read: if isHouseholdMember(householdId);
+
+        // ➕ יצירה: חבר משק הבית + חובת created_by
+        allow create: if isHouseholdMember(householdId) &&
+                      request.resource.data.created_by == request.auth.uid;
+
+        // ✏️ עדכון: רק היוצר של הקבלה
+        allow update: if isHouseholdMember(householdId) &&
+                      resource.data.created_by == request.auth.uid;
+
+        // 🗑️ מחיקה: רק היוצר של הקבלה
+        allow delete: if isHouseholdMember(householdId) &&
+                      resource.data.created_by == request.auth.uid;
       }
 
       // === Members (Subcollection) ===
@@ -373,8 +388,14 @@ service cloud.firestore {
       allow create: if isAuthenticated() &&
                     request.resource.data.created_by == request.auth.uid;
 
-      // ✏️ עדכון: חברי הקבוצה בלבד
-      allow update: if isAuthenticated() && isGroupMember(groupId);
+      // ✏️ עדכון: חברי הקבוצה — אבל רק היוצר יכול לשנות created_by ו-members
+      allow update: if isAuthenticated() && isGroupMember(groupId) &&
+                    (
+                      // היוצר יכול לעדכן הכל
+                      resource.data.created_by == request.auth.uid ||
+                      // חברים אחרים לא יכולים לשנות created_by או members
+                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['created_by', 'members']))
+                    );
 
       // 🗑️ מחיקה: רק היוצר
       allow delete: if isAuthenticated() &&
@@ -547,7 +568,10 @@ service cloud.firestore {
         resource.data.request_data.invited_user_id == request.auth.uid ||
         resource.data.requester_id == request.auth.uid
       );
-      allow create: if isAuthenticated();
+      // ➕ יצירה: v4.3 — חובת requester_id תואם ל-UID + ולידציה בסיסית
+      allow create: if isAuthenticated() &&
+                    request.resource.data.requester_id == request.auth.uid &&
+                    request.resource.data.request_data is map;
       allow update: if isAuthenticated() && (
         resource.data.request_data.invited_user_id == request.auth.uid ||
         resource.data.requester_id == request.auth.uid

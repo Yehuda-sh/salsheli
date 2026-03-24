@@ -250,6 +250,7 @@ class FirebaseReceiptRepository implements ReceiptRepository {
         data['id'] ??= doc.id;
         return Receipt.fromJson(data);
       } catch (e) {
+        debugPrint('⚠️ Failed to parse document ${doc.id}: $e');
         return null;
       }
     }).whereType<Receipt>().toList();

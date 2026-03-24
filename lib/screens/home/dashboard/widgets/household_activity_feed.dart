@@ -87,7 +87,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
           children: [
             Image.asset('assets/images/icon_home_activity.webp', width: 32, height: 32),
             const SizedBox(width: kSpacingSmall),
-            Text('מה חדש בבית', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            Text(AppStrings.homeDashboard.activityFeedTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const Spacer(),
             TextButton(
               onPressed: () {
@@ -152,9 +152,9 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
     for (final receipt in sortedReceipts.take(3)) {
       String personName;
       if (receipt.createdBy == currentUserId) {
-        personName = 'את/ה';
+        personName = AppStrings.homeDashboard.youLabel;
       } else {
-        personName = _findUserName(receipt.createdBy, lists) ?? 'חבר/ת בית';
+        personName = _findUserName(receipt.createdBy, lists) ?? AppStrings.homeDashboard.householdMember;
       }
 
       final itemEmojis = receipt.items.take(5).map((item) => _getItemEmoji(item.category)).toList();
@@ -280,7 +280,7 @@ class _ActivityTile extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        activity.isMe ? '🧑 את/ה' : '👤 ${activity.personName}',
+                        activity.isMe ? '🧑 ${AppStrings.homeDashboard.youLabel}' : '👤 ${activity.personName}',
                         style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface),
                       ),
                       const SizedBox(width: 6),
@@ -294,7 +294,7 @@ class _ActivityTile extends StatelessWidget {
 
                   // שורה 2: פעולה
                   Text(
-                    '✅ סיים/ה קנייה ב${activity.description}',
+                    AppStrings.homeDashboard.completedShoppingAt(activity.description),
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.9)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -308,7 +308,7 @@ class _ActivityTile extends StatelessWidget {
                       if (activity.itemCount > activity.itemEmojis.length) ...[
                         const SizedBox(width: 4),
                         Text(
-                          '+${activity.itemCount - activity.itemEmojis.length} פריטים',
+                          AppStrings.homeDashboard.plusItems(activity.itemCount - activity.itemEmojis.length),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: cs.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
@@ -368,11 +368,12 @@ class _ActivityTile extends StatelessWidget {
     final now = DateTime.now();
     final diff = now.difference(date);
 
-    if (diff.inMinutes < 60) return 'לפני ${diff.inMinutes} דק\'';
-    if (diff.inHours < 24) return 'לפני ${diff.inHours} שע\'';
-    if (diff.inDays == 0) return 'היום';
-    if (diff.inDays == 1) return 'אתמול';
-    if (diff.inDays < 7) return 'לפני ${diff.inDays} ימים';
+    final strings = AppStrings.homeDashboard;
+    if (diff.inMinutes < 60) return strings.minutesAgo(diff.inMinutes);
+    if (diff.inHours < 24) return strings.hoursAgo(diff.inHours);
+    if (diff.inDays == 0) return strings.today;
+    if (diff.inDays == 1) return strings.yesterday;
+    if (diff.inDays < 7) return strings.daysAgo(diff.inDays);
     return '${date.day}/${date.month}';
   }
 }

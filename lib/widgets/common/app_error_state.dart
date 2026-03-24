@@ -49,7 +49,7 @@ class AppErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64, color: cs.error.withValues(alpha: 0.7)),
+            Icon(icon, size: kIconSizeXXLarge, color: cs.error.withValues(alpha: 0.7)),
             const SizedBox(height: kSpacingMedium),
             if (title != null) ...[
               Text(

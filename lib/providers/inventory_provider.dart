@@ -611,7 +611,13 @@ class InventoryProvider with ChangeNotifier {
         }
 
         try {
-          await _repository.saveUserItem(updatedItem, userId);
+          // 🔒 v4.3: שמירה לפי mode — כמו createItem/updateItem
+          if (_currentMode == InventoryMode.household &&
+              _subscribedHouseholdId != null) {
+            await _repository.saveItem(updatedItem, _subscribedHouseholdId!);
+          } else {
+            await _repository.saveUserItem(updatedItem, userId);
+          }
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם
           _items = previousItems;
