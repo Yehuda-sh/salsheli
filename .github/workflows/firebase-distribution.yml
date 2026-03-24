@@ -16,34 +16,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2  # needed to detect changed files
-
-      # 🔍 Detect what changed — skip unnecessary steps
-      - name: Detect changes
-        id: changes
-        run: |
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "all")
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          # Check if models/serializable files changed (need build_runner)
-          if echo "$CHANGED" | grep -qE '\.(g\.dart|freezed\.dart)$|lib/models/|pubspec\.(yaml|lock)'; then
-            echo "needs_codegen=true" >> $GITHUB_OUTPUT
-          else
-            echo "needs_codegen=false" >> $GITHUB_OUTPUT
-          fi
-
-          # Check if dependencies changed
-          if echo "$CHANGED" | grep -q 'pubspec'; then
-            echo "deps_changed=true" >> $GITHUB_OUTPUT
-          else
-            echo "deps_changed=false" >> $GITHUB_OUTPUT
-          fi
-
-          echo "🔍 needs_codegen=${{ steps.changes.outputs.needs_codegen || 'detecting...' }}"
-          echo "🔍 deps_changed=${{ steps.changes.outputs.deps_changed || 'detecting...' }}"
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -70,9 +42,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # 🚀 Cache build_runner output
+      # 🚀 Cache build_runner output (.g.dart files not in git — must always run)
       - name: Cache build_runner
-        if: steps.changes.outputs.needs_codegen == 'true'
         uses: actions/cache@v4
         with:
           path: .dart_tool/build
@@ -80,14 +51,7 @@ jobs:
           restore-keys: build-runner-
 
       - name: Generate code
-        if: steps.changes.outputs.needs_codegen == 'true'
-        run: |
-          echo "🔨 Models changed — running build_runner..."
-          dart run build_runner build --delete-conflicting-outputs
-
-      - name: Skip codegen
-        if: steps.changes.outputs.needs_codegen == 'false'
-        run: echo "⏭️ No model changes — skipping build_runner (saving ~60s)"
+        run: dart run build_runner build --delete-conflicting-outputs
 
       # 🚀 Cache Gradle (biggest time saver — saves ~2-3 minutes)
       - name: Cache Gradle
