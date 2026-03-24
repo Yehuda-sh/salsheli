@@ -56,7 +56,7 @@ class CategoriesData {
     'frozen': CategoryInfo(() => AppStrings.categories.frozen, '🧊'),
     'ready_salads': CategoryInfo(() => AppStrings.categories.readySalads, '🥗'),
     'dairy_substitutes': CategoryInfo(() => AppStrings.categories.dairySubstitutes, '🌾'),
-    'hygiene': CategoryInfo(() => AppStrings.categories.hygiene, '🚿'),
+    'hygiene': CategoryInfo(() => AppStrings.categories.hygiene, '🧴'),
     'cosmetics': CategoryInfo(() => AppStrings.categories.cosmetics, '💄'),
     'cleaning': CategoryInfo(() => AppStrings.categories.cleaning, '🧽'),
     'vitamins': CategoryInfo(() => AppStrings.categories.vitamins, '💊'),
@@ -160,6 +160,27 @@ class CategoriesData {
     'היגיינה': 'hygiene',
     'היגיינה אישית': 'hygiene',
     'מוצרי בית': 'cleaning',
+    // קוסמטיקה וטיפוח
+    'קוסמטיקה': 'cosmetics',
+    'קוסמטיקה וטיפוח': 'cosmetics',
+    'איפור': 'cosmetics',
+    'טיפוח': 'cosmetics',
+    // פארם ורפואה
+    'פארם': 'otc_medicine',
+    'תרופות ללא מרשם': 'otc_medicine',
+    'מוצרי עזר רפואיים': 'first_aid',
+    'עזרה ראשונה': 'first_aid',
+    // ויטמינים
+    'ויטמינים ותוספי תזונה': 'vitamins',
+    'ויטמינים': 'vitamins',
+    // גילוח והיגיינה נשית
+    'מוצרי גילוח': 'hygiene',
+    'היגיינה נשית': 'hygiene',
+    'טיפוח הפה': 'hygiene',
+    // שיער
+    'אביזרי שיער': 'cosmetics',
+    // מזון בריאות
+    'מזון בריאות': 'other',
     // תינוקות וחיות
     'תינוק': 'baby_products',
     'מוצרי תינוקות': 'baby_products',

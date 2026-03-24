@@ -168,66 +168,70 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     int minValue = 0,
     int maxValue = 999,
   }) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // כפתור מינוס
-        InkWell(
-          onTap: _isLoading
-              ? null
-              : () {
-                  final current = int.tryParse(controller.text) ?? 0;
-                  if (current > minValue) {
-                    unawaited(HapticFeedback.selectionClick());
-                    controller.text = (current - 1).toString();
-                  }
-                },
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingSmallPlus),
-            child: Icon(Icons.remove_circle_outline, color: cs.primary, size: kIconSizeMedium),
-          ),
-        ),
-        // ערך
-        SizedBox(
-          width: 40,
-          child: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: cs.onSurface,
-              fontSize: kFontSizeBody,
-              fontWeight: FontWeight.bold,
+    // Force LTR so +/- buttons stay in consistent visual order (- left, + right)
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // כפתור מינוס
+          InkWell(
+            onTap: _isLoading
+                ? null
+                : () {
+                    final current = int.tryParse(controller.text) ?? 0;
+                    if (current > minValue) {
+                      unawaited(HapticFeedback.selectionClick());
+                      controller.text = (current - 1).toString();
+                    }
+                  },
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingSmallPlus),
+              child: Icon(Icons.remove_circle_outline, color: cs.primary, size: kIconSizeMedium),
             ),
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
-              contentPadding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
-              isDense: true,
-              border: InputBorder.none,
+          ),
+          // ערך
+          SizedBox(
+            width: 40,
+            child: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: kFontSizeBody,
+                fontWeight: FontWeight.bold,
+              ),
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
+                contentPadding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
+                isDense: true,
+                border: InputBorder.none,
+              ),
+              enabled: !_isLoading,
             ),
-            enabled: !_isLoading,
           ),
-        ),
-        // כפתור פלוס
-        InkWell(
-          onTap: _isLoading
-              ? null
-              : () {
-                  final current = int.tryParse(controller.text) ?? 0;
-                  if (current < maxValue) {
-                    unawaited(HapticFeedback.selectionClick());
-                    controller.text = (current + 1).toString();
-                  }
-                },
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          child: Padding(
-            padding: const EdgeInsets.all(kSpacingSmallPlus),
-            child: Icon(Icons.add_circle_outline, color: cs.primary, size: kIconSizeMedium),
+          // כפתור פלוס
+          InkWell(
+            onTap: _isLoading
+                ? null
+                : () {
+                    final current = int.tryParse(controller.text) ?? 0;
+                    if (current < maxValue) {
+                      unawaited(HapticFeedback.selectionClick());
+                      controller.text = (current + 1).toString();
+                    }
+                  },
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingSmallPlus),
+              child: Icon(Icons.add_circle_outline, color: cs.primary, size: kIconSizeMedium),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
