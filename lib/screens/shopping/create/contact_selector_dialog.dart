@@ -14,7 +14,7 @@
 // - selected_contact.dart - מודל איש קשר נבחר
 // - saved_contacts_service.dart - שירות אנשי קשר שמורים
 //
-// Version: 1.1
+// Version: 1.1 — deprecated_member_use suppressed (RadioGroup needs Flutter 3.33+)
 // Created: 06/01/2026
 // Last Updated: 24/03/2026
 
@@ -399,33 +399,42 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Radio buttons for email/phone
-                      RadioGroup<_ContactInputType>(
-                        groupValue: _inputType,
-                        onChanged: (value) {
-                          if (value != null) setState(() => _inputType = value);
-                        },
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: RadioListTile<_ContactInputType>(
-                                title: Text(
-                                    AppStrings.contactSelector.emailLabel),
-                                value: _ContactInputType.email,
-                                dense: true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
+                      // ignore: deprecated_member_use — RadioGroup requires Flutter 3.33+
+                      Row(
+                        children: [
+                          Expanded(
+                            // ignore: deprecated_member_use
+                            child: RadioListTile<_ContactInputType>(
+                              title: Text(
+                                  AppStrings.contactSelector.emailLabel),
+                              value: _ContactInputType.email,
+                              // ignore: deprecated_member_use
+                              groupValue: _inputType,
+                              // ignore: deprecated_member_use
+                              onChanged: (value) {
+                                setState(() => _inputType = value!);
+                              },
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
                             ),
-                            Expanded(
-                              child: RadioListTile<_ContactInputType>(
-                                title: Text(
-                                    AppStrings.contactSelector.phoneLabel),
-                                value: _ContactInputType.phone,
-                                dense: true,
-                                contentPadding: EdgeInsets.zero,
-                              ),
+                          ),
+                          Expanded(
+                            // ignore: deprecated_member_use
+                            child: RadioListTile<_ContactInputType>(
+                              title: Text(
+                                  AppStrings.contactSelector.phoneLabel),
+                              value: _ContactInputType.phone,
+                              // ignore: deprecated_member_use
+                              groupValue: _inputType,
+                              // ignore: deprecated_member_use
+                              onChanged: (value) {
+                                setState(() => _inputType = value!);
+                              },
+                              dense: true,
+                              contentPadding: EdgeInsets.zero,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: kSpacingSmall),
                       // Input field
