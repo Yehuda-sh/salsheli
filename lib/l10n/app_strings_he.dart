@@ -350,6 +350,7 @@ class CommonStrings {
   String unknownError(String error) => 'שגיאה: $error';
   String get unknownErrorGeneric => 'שגיאה לא ידועה';
   String get connected => 'מחובר';
+  String get optional => '(אופציונלי)';
 }
 
 // ========================================
@@ -729,6 +730,11 @@ class AuthStrings {
   String get phoneFieldSemanticLabel => 'שדה טלפון נייד ישראלי, חובה';
   String get loginLinkSemanticLabel => 'יש לך חשבון? לחץ לעבור למסך התחברות';
   String socialRegisterSemanticLabel(String provider) => 'הירשם או התחבר באמצעות $provider';
+
+  // Loading overlay messages
+  String get loadingCheckingDetails => 'בודק פרטים...';
+  String get loadingConnecting => 'מתחבר לשרת...';
+  String get loadingAlmostThere => 'כמעט שם...';
 }
 
 // ========================================
@@ -932,6 +938,13 @@ class HouseholdStrings {
   String get roleOwner => 'בעלים';
   String get roleAdmin => 'מנהל';
   String get roleMember => 'חבר';
+  String get myHome => 'הבית שלי';
+  String get leaveHouseholdTooltip => 'עזוב את הבית';
+  String get userFallback => 'משתמש';
+  String get meLabel => 'אני';
+  String get roleOwnerLabel => '👑 בעלים';
+  String get roleAdminLabel => '🛡️ מנהל';
+  String get roleMemberLabel => '👤 חבר';
 }
 
 // ========================================
@@ -1681,6 +1694,21 @@ class HomeDashboardStrings {
   String get yesterday => 'אתמול';
   String daysAgo(int days) => 'לפני $days ימים';
   String dateFormat(int day, int month, int year) => '$day/$month/$year';
+
+  // Activity feed
+  String get activityFeedTitle => 'מה חדש בבית';
+  String get youLabel => 'את/ה';
+  String get householdMember => 'חבר/ת בית';
+  String completedShoppingAt(String store) => '✅ סיים/ה קנייה ב$store';
+  String plusItems(int count) => '+$count פריטים';
+  String minutesAgo(int minutes) => 'לפני $minutes דק\'';
+  String hoursAgo(int hours) => 'לפני $hours שע\'';
+
+  // Active lists subtitle
+  String activeListsSubtitle(int count) => '$count רשימות פעילות';
+
+  // User info fallback
+  String get userFallback => 'משתמש';
 }
 
 // ========================================

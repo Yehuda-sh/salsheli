@@ -652,25 +652,31 @@ class NotificationsService {
   /// ✅ Mark all as read (for user)
   ///
   /// ✅ מחזיר מספר ההתראות שעודכנו, או -1 בשגיאה
+  /// ✅ Chunked into batches of 500 (Firestore batch limit)
   Future<int> markAllAsRead({required String userId}) async {
     try {
-      final batch = _firestore.batch();
-
       // 🆕 שימוש ב-subcollection - לא צריך where על user_id
       final snapshot = await _notificationsCollection(userId)
           .where('is_read', isEqualTo: false)
           .get();
 
-      for (final doc in snapshot.docs) {
-        batch.update(doc.reference, {
-          'is_read': true,
-          'read_at': FieldValue.serverTimestamp(),
-        });
+      final docs = snapshot.docs;
+
+      // Firestore batch limit is 500 operations
+      const batchLimit = 500;
+      for (var i = 0; i < docs.length; i += batchLimit) {
+        final batch = _firestore.batch();
+        final end = (i + batchLimit < docs.length) ? i + batchLimit : docs.length;
+        for (var j = i; j < end; j++) {
+          batch.update(docs[j].reference, {
+            'is_read': true,
+            'read_at': FieldValue.serverTimestamp(),
+          });
+        }
+        await batch.commit();
       }
 
-      await batch.commit();
-
-      return snapshot.docs.length;
+      return docs.length;
     } catch (e, stackTrace) {
       _logError('markAllAsRead', e, stackTrace);
       return -1;

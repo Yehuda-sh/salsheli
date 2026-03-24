@@ -54,6 +54,7 @@ class ReceiptProvider with ChangeNotifier {
   UserContext? _userContext;
   bool _listening = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
+  bool _isDisposed = false; // v4.3: מניעת notifyListeners אחרי dispose
 
   /// מדיניות שמירה: קבלות ישנות מ-365 ימים נמחקות בטעינה
   static const _retentionDays = 365;
@@ -61,6 +62,11 @@ class ReceiptProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   List<Receipt> _receipts = [];
+
+  /// v4.3: שליחת notifyListeners בטוחה — לא קורסת אחרי dispose
+  void _notifySafe() {
+    if (!_isDisposed) notifyListeners();
+  }
 
   ReceiptProvider({
     required UserContext userContext,
@@ -111,7 +117,7 @@ class ReceiptProvider with ChangeNotifier {
       _loadReceipts();
     } else {
       _receipts = [];
-      notifyListeners();
+      _notifySafe();
     }
   }
 
@@ -119,13 +125,13 @@ class ReceiptProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
       _receipts = [];
-      notifyListeners();
+      _notifySafe();
       return;
     }
 
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
+    _notifySafe();
 
     try {
       final allReceipts = await _repository.fetchReceipts(householdId);
@@ -157,14 +163,14 @@ class ReceiptProvider with ChangeNotifier {
       if (kDebugMode) {
         debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
       }
-      notifyListeners();
+      _notifySafe();
       return;
     }
 
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
-  
+
   /// טוען את כל הקבלות מחדש מה-Repository
   /// 
   /// Example:
@@ -206,7 +212,7 @@ class ReceiptProvider with ChangeNotifier {
     _receipts = [];
     _errorMessage = null;
     _isLoading = false;
-    notifyListeners();
+    _notifySafe();
   }
 
   /// בודק אם קבלה עם אותו קישור כבר קיימת
@@ -280,13 +286,13 @@ class ReceiptProvider with ChangeNotifier {
 
       // אופטימיזציה: הוספה local במקום ריענון מלא
       _receipts.add(saved);
-      notifyListeners();
+      _notifySafe();
 
       return saved;
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.createReceipt: $e');
       _errorMessage = 'שגיאה ביצירת קבלה';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -309,14 +315,14 @@ class ReceiptProvider with ChangeNotifier {
       final index = _receipts.indexWhere((r) => r.id == updated.id);
       if (index != -1) {
         _receipts[index] = updated;
-        notifyListeners();
+        _notifySafe();
       } else {
         await _loadReceipts();
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.updateReceipt: $e');
       _errorMessage = 'שגיאה בעדכון קבלה';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
@@ -336,17 +342,18 @@ class ReceiptProvider with ChangeNotifier {
 
       // אופטימיזציה: מחיקה local במקום ריענון מלא
       _receipts.removeWhere((r) => r.id == receiptId);
-      notifyListeners();
+      _notifySafe();
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.deleteReceipt: $e');
       _errorMessage = 'שגיאה במחיקת קבלה';
-      notifyListeners();
+      _notifySafe();
       rethrow;
     }
   }
 
   @override
   void dispose() {
+    _isDisposed = true;
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
     }

@@ -437,7 +437,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               const SizedBox(height: 2),
               Text(
                 activeListsCount > 0
-                    ? '$activeListsCount רשימות פעילות'
+                    ? AppStrings.homeDashboard.activeListsSubtitle(activeListsCount)
                     : familyName ?? '',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
@@ -485,7 +485,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: kSpacingMedium),
             // שם
             Text(
-              userName ?? 'משתמש',
+              userName ?? AppStrings.homeDashboard.userFallback,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             if (familyName != null) ...[

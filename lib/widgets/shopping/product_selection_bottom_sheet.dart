@@ -265,8 +265,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         expand: false,
         builder: (context, scrollController) {
           return Container(
-            decoration: const BoxDecoration(
-              color: kPaperBackground,
+            decoration: BoxDecoration(
+              color: cs.surface,
               borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
             ),
             child: Stack(
@@ -409,7 +409,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               border: Border.all(color: cs.outline.withValues(alpha: 0.18)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: cs.shadow.withValues(alpha: 0.08),
                   blurRadius: kSpacingSmallPlus,
                   offset: const Offset(0, 2),
                 ),
@@ -424,7 +424,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                 prefixIcon: const Icon(Icons.search, size: kIconSizeMedium),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear, size: kIconSizeSmall + 2),
+                        icon: const Icon(Icons.clear, size: kIconSizeSmall),
                         onPressed: () {
                           unawaited(HapticFeedback.selectionClick());
                           _searchController.clear();
@@ -797,8 +797,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             child: Text(
               '$currentQuantity',
               key: ValueKey(currentQuantity),
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: kFontSizeMedium,
               ),
@@ -841,7 +841,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                 color: color,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: kIconSizeSmall),
+              child: Icon(icon, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall),
             ),
           ),
         ),
@@ -865,10 +865,10 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           decoration: BoxDecoration(
             color: kStickyGreen.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(kBorderRadius),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+            border: Border.all(color: cs.onPrimary.withValues(alpha: 0.3)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: cs.shadow.withValues(alpha: 0.15),
                 blurRadius: kSpacingSmallPlus,
                 offset: const Offset(0, kSpacingXTiny),
               ),
@@ -876,13 +876,13 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           ),
           child: Row(
             children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: kIconSizeMedium),
+              Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeMedium),
               const Gap(kSpacingSmall),
               Expanded(
                 child: Text(
                   message,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: kFontSizeBody,
                   ),

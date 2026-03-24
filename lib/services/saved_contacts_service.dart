@@ -83,27 +83,34 @@ class SavedContactsService {
     required String contactUserEmail,
     String? contactUserAvatar,
   }) async {
+    try {
+      final docRef = _getUserContactsRef(currentUserId).doc(contactUserId);
+      final existingDoc = await docRef.get();
 
-    final docRef = _getUserContactsRef(currentUserId).doc(contactUserId);
-    final existingDoc = await docRef.get();
-
-    if (existingDoc.exists) {
-      // איש קשר קיים - עדכון זמן הזמנה אחרונה
-      await docRef.update({
-        'last_invited_at': FieldValue.serverTimestamp(),
-        // עדכון פרטים אם השתנו
-        'user_name': contactUserName,
-        'user_avatar': contactUserAvatar,
-      });
-    } else {
-      // איש קשר חדש - יצירה
-      final contact = SavedContact.fromUserDetails(
-        userId: contactUserId,
-        userName: contactUserName,
-        userEmail: contactUserEmail,
-        userAvatar: contactUserAvatar,
-      );
-      await docRef.set(contact.toJson());
+      if (existingDoc.exists) {
+        // איש קשר קיים - עדכון זמן הזמנה אחרונה
+        await docRef.update({
+          'last_invited_at': FieldValue.serverTimestamp(),
+          // עדכון פרטים אם השתנו
+          'user_name': contactUserName,
+          'user_avatar': contactUserAvatar,
+        });
+      } else {
+        // איש קשר חדש - יצירה
+        final contact = SavedContact.fromUserDetails(
+          userId: contactUserId,
+          userName: contactUserName,
+          userEmail: contactUserEmail,
+          userAvatar: contactUserAvatar,
+        );
+        await docRef.set(contact.toJson());
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('❌ SavedContactsService.saveContact: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      rethrow;
     }
   }
 
@@ -112,7 +119,15 @@ class SavedContactsService {
     required String currentUserId,
     required String contactUserId,
   }) async {
+    try {
       await _getUserContactsRef(currentUserId).doc(contactUserId).delete();
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        debugPrint('❌ SavedContactsService.deleteContact: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
+      rethrow;
+    }
   }
 
   /// בדיקה אם איש קשר קיים
