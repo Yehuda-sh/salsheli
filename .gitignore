@@ -38,7 +38,7 @@ build/
 **/ios/Flutter/.last_build_id
 
 # קבצים שנוצרים אוטומטית ע"י מחוללים
-**/*.g.dart
+# *.g.dart — committed to git for faster CI builds
 **/*.freezed.dart
 **/*.gen.dart
 lib/gen/

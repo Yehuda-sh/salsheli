@@ -16,6 +16,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      # 🔍 Detect if models changed — skip build_runner if not needed
+      - name: Detect changes
+        id: changes
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "all")
+          if echo "$CHANGED" | grep -qE 'lib/models/.*\.dart$|pubspec\.(yaml|lock)'; then
+            echo "needs_codegen=true" >> $GITHUB_OUTPUT
+            echo "🔨 Model files changed — will run build_runner"
+          else
+            echo "needs_codegen=false" >> $GITHUB_OUTPUT
+            echo "⏭️ No model changes — will skip build_runner"
+          fi
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -42,16 +57,12 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      # 🚀 Cache build_runner output (.g.dart files not in git — must always run)
-      - name: Cache build_runner
-        uses: actions/cache@v4
-        with:
-          path: .dart_tool/build
-          key: build-runner-${{ hashFiles('lib/models/**') }}
-          restore-keys: build-runner-
-
+      # 🚀 Run build_runner only when models changed (.g.dart files are in git)
       - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        if: steps.changes.outputs.needs_codegen == 'true'
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          echo "✅ Code generation complete"
 
       # 🚀 Cache Gradle (biggest time saver — saves ~2-3 minutes)
       - name: Cache Gradle
