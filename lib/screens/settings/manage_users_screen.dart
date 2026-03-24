@@ -402,8 +402,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                 padding: const EdgeInsets.all(kSpacingMedium),
                 child: Row(
                   children: [
-                    Icon(Icons.group, size: 24, color: cs.primary),
-                    SizedBox(width: kSpacingSmall),
+                    Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
+                    const SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         strings.title,

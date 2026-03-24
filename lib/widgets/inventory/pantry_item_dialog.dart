@@ -184,7 +184,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 },
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
-            padding: const EdgeInsets.all(kSpacingXTiny),
+            padding: const EdgeInsets.all(kSpacingSmallPlus),
             child: Icon(Icons.remove_circle_outline, color: cs.primary, size: kIconSizeMedium),
           ),
         ),
@@ -223,7 +223,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 },
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
-            padding: const EdgeInsets.all(kSpacingXTiny),
+            padding: const EdgeInsets.all(kSpacingSmallPlus),
             child: Icon(Icons.add_circle_outline, color: cs.primary, size: kIconSizeMedium),
           ),
         ),

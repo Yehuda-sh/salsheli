@@ -85,7 +85,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
         // 🚀 שופר: כותרת וכפתור "ראה הכל" בשורה אחת לחיסכון במקום
         Row(
           children: [
-            Image.asset('assets/images/icon_home_activity.webp', width: 32, height: 32),
+            Image.asset('assets/images/icon_home_activity.webp', width: kIconSizeLarge, height: kIconSizeLarge),
             const SizedBox(width: kSpacingSmall),
             Text(AppStrings.homeDashboard.activityFeedTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const Spacer(),
@@ -99,7 +99,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
                 }
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
@@ -111,7 +111,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.primary, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 2),
-                  Icon(isRtl ? Icons.chevron_left : Icons.chevron_right, size: 16, color: cs.primary),
+                  Icon(isRtl ? Icons.chevron_left : Icons.chevron_right, size: kIconSizeSmall, color: cs.primary),
                 ],
               ),
             ),
@@ -263,7 +263,7 @@ class _ActivityTile extends StatelessWidget {
       },
       borderRadius: BorderRadius.circular(kBorderRadius),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -280,7 +280,7 @@ class _ActivityTile extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        activity.isMe ? '🧑 ${AppStrings.homeDashboard.youLabel}' : '👤 ${activity.personName}',
+                        activity.isMe ? AppStrings.homeDashboard.youLabel : activity.personName,
                         style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface),
                       ),
                       const SizedBox(width: 6),
@@ -304,7 +304,7 @@ class _ActivityTile extends StatelessWidget {
                   // שורה 3: אימוגי מוצרים
                   Row(
                     children: [
-                      Text(activity.itemEmojis.join(''), style: const TextStyle(fontSize: 16)),
+                      Text(activity.itemEmojis.join(''), style: const TextStyle(fontSize: kFontSizeBody)),
                       if (activity.itemCount > activity.itemEmojis.length) ...[
                         const SizedBox(width: 4),
                         Text(
@@ -323,10 +323,10 @@ class _ActivityTile extends StatelessWidget {
 
             // חץ
             Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: const EdgeInsets.only(top: kSpacingSmall),
               child: Icon(
                 Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
-                size: 18,
+                size: kIconSizeSmallPlus,
                 color: cs.onSurfaceVariant.withValues(alpha: 0.4),
               ),
             ),
@@ -337,22 +337,20 @@ class _ActivityTile extends StatelessWidget {
   }
 
   Widget _buildAvatar(ColorScheme cs, ThemeData theme) {
-    final initial = activity.isMe
-        ? '🧑'
-        : activity.personName.isNotEmpty
+    final initial = activity.personName.isNotEmpty
         ? activity.personName[0]
         : '?';
 
     return Container(
-      width: 40, // הוגדל מעט לנראות טובה יותר
-      height: 40,
+      width: kButtonHeightSmall,
+      height: kButtonHeightSmall,
       decoration: BoxDecoration(
         color: activity.isMe ? cs.primaryContainer : cs.secondaryContainer,
         shape: BoxShape.circle,
       ),
       child: Center(
         child: activity.isMe
-            ? Text(initial, style: const TextStyle(fontSize: 18))
+            ? Icon(Icons.person, size: kIconSizeSmallPlus, color: cs.onPrimaryContainer)
             : Text(
                 initial,
                 style: theme.textTheme.titleMedium?.copyWith(
