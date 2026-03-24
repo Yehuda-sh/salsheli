@@ -4,10 +4,10 @@ on:
     branches:
       - '**'
 
-# ביטול builds קודמים על אותו branch כשיש push חדש
+# רק build אחד בו-זמנית לכל branch — ממתין לסיום הקודם (לא מבטל)
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
