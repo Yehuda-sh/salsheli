@@ -201,6 +201,18 @@ abstract class ShoppingListsRepository {
     String? userEmail,
   );
 
+  /// הוספת משתמש משותף לרשימה פרטית (לא household)
+  ///
+  /// משמש כאשר משתף רשימה עם אנשים ספציפיים מחוץ למשפחה.
+  Future<void> addSharedUserToPrivateList({
+    required String ownerId,
+    required String listId,
+    required String sharedUserId,
+    required String role,
+    String? userName,
+    String? userEmail,
+  });
+
   /// מסיר משתמש משותף מהרשימה
   ///
   /// Parameters:

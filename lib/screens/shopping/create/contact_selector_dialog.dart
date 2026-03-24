@@ -398,33 +398,33 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Radio buttons for email/phone
-                      Row(
-                        children: [
-                          Expanded(
-                            child: RadioListTile<_ContactInputType>(
-                              title: Text(AppStrings.contactSelector.emailLabel),
-                              value: _ContactInputType.email,
-                              groupValue: _inputType,
-                              onChanged: (value) {
-                                setState(() => _inputType = value!);
-                              },
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
+                      RadioGroup<_ContactInputType>(
+                        groupValue: _inputType,
+                        onChanged: (value) {
+                          setState(() => _inputType = value);
+                        },
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: RadioListTile<_ContactInputType>(
+                                title: Text(
+                                    AppStrings.contactSelector.emailLabel),
+                                value: _ContactInputType.email,
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: RadioListTile<_ContactInputType>(
-                              title: Text(AppStrings.contactSelector.phoneLabel),
-                              value: _ContactInputType.phone,
-                              groupValue: _inputType,
-                              onChanged: (value) {
-                                setState(() => _inputType = value!);
-                              },
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
+                            Expanded(
+                              child: RadioListTile<_ContactInputType>(
+                                title: Text(
+                                    AppStrings.contactSelector.phoneLabel),
+                                value: _ContactInputType.phone,
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: kSpacingSmall),
                       // Input field

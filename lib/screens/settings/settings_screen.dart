@@ -1300,10 +1300,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         subtitle: Text(AppStrings.settings.showOnboardingSubtitle),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () async {
-                          await TutorialService.resetTutorial(context);
+                          final ctx = context;
+                          await TutorialService.resetTutorial(ctx);
                           if (!mounted) return;
                           // הצג את ההדרכה מיידית
-                          await TutorialService.showHomeTutorialIfNeeded(context);
+                          await TutorialService.showHomeTutorialIfNeeded(ctx);
                         },
                       ),
                     ],

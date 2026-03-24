@@ -10,10 +10,13 @@
 import '../l10n/app_strings.dart';
 
 /// מידע על קטגוריה: שם (מהתרגום) + אמוג'י
+/// label is resolved lazily so it updates on locale switch
 class CategoryInfo {
-  final String label;
+  final String Function() _labelFn;
   final String emoji;
-  const CategoryInfo(this.label, this.emoji);
+  CategoryInfo(this._labelFn, this.emoji);
+
+  String get label => _labelFn();
 }
 
 /// Categories data - auto-generated list order
@@ -22,44 +25,44 @@ class CategoriesData {
 
   /// All categories data (key → info)
   static final Map<String, CategoryInfo> data = {
-    'all': CategoryInfo(AppStrings.categories.all, '📋'),
-    'other': CategoryInfo(AppStrings.categories.other, '📦'),
-    'dairy': CategoryInfo(AppStrings.categories.dairy, '🥛'),
-    'vegetables': CategoryInfo(AppStrings.categories.vegetables, '🥬'),
-    'fruits': CategoryInfo(AppStrings.categories.fruits, '🍎'),
-    'meat_fish': CategoryInfo(AppStrings.categories.meatFish, '🥩'),
-    'rice_pasta': CategoryInfo(AppStrings.categories.ricePasta, '🍝'),
-    'spices': CategoryInfo(AppStrings.categories.spices, '🧂'),
-    'coffee_tea': CategoryInfo(AppStrings.categories.coffeeTea, '☕'),
-    'sweets_snacks': CategoryInfo(AppStrings.categories.sweetsSnacks, '🍬'),
-    'beef': CategoryInfo(AppStrings.categories.beef, '🐄'),
-    'chicken': CategoryInfo(AppStrings.categories.chicken, '🍗'),
-    'turkey': CategoryInfo(AppStrings.categories.turkey, '🦃'),
-    'lamb': CategoryInfo(AppStrings.categories.lamb, '🐑'),
-    'fish': CategoryInfo(AppStrings.categories.fish, '🐟'),
-    'meat_substitutes': CategoryInfo(AppStrings.categories.meatSubstitutes, '🌱'),
-    'bread_bakery': CategoryInfo(AppStrings.categories.breadBakery, '🍞'),
-    'cookies_sweets': CategoryInfo(AppStrings.categories.cookiesSweets, '🍪'),
-    'cakes': CategoryInfo(AppStrings.categories.cakes, '🎂'),
-    'canned': CategoryInfo(AppStrings.categories.canned, '🥫'),
-    'legumes_grains': CategoryInfo(AppStrings.categories.legumesGrains, '🫘'),
-    'cereals': CategoryInfo(AppStrings.categories.cereals, '🥣'),
-    'dried_fruits': CategoryInfo(AppStrings.categories.driedFruits, '🍇'),
-    'nuts_seeds': CategoryInfo(AppStrings.categories.nutsSeeds, '🥜'),
-    'beverages': CategoryInfo(AppStrings.categories.beverages, '🥤'),
-    'oils_sauces': CategoryInfo(AppStrings.categories.oilsSauces, '🫒'),
-    'sweet_spreads': CategoryInfo(AppStrings.categories.sweetSpreads, '🍯'),
-    'frozen': CategoryInfo(AppStrings.categories.frozen, '🧊'),
-    'ready_salads': CategoryInfo(AppStrings.categories.readySalads, '🥗'),
-    'dairy_substitutes': CategoryInfo(AppStrings.categories.dairySubstitutes, '🌾'),
-    'hygiene': CategoryInfo(AppStrings.categories.hygiene, '🚿'),
-    'cosmetics': CategoryInfo(AppStrings.categories.cosmetics, '💄'),
-    'cleaning': CategoryInfo(AppStrings.categories.cleaning, '🧽'),
-    'vitamins': CategoryInfo(AppStrings.categories.vitamins, '💊'),
-    'baby_products': CategoryInfo(AppStrings.categories.babyProducts, '🍼'),
-    'pet_food': CategoryInfo(AppStrings.categories.petFood, '🐕'),
-    'otc_medicine': CategoryInfo(AppStrings.categories.otcMedicine, '🩹'),
-    'first_aid': CategoryInfo(AppStrings.categories.firstAid, '🏥'),
+    'all': CategoryInfo(() => AppStrings.categories.all, '📋'),
+    'other': CategoryInfo(() => AppStrings.categories.other, '📦'),
+    'dairy': CategoryInfo(() => AppStrings.categories.dairy, '🥛'),
+    'vegetables': CategoryInfo(() => AppStrings.categories.vegetables, '🥬'),
+    'fruits': CategoryInfo(() => AppStrings.categories.fruits, '🍎'),
+    'meat_fish': CategoryInfo(() => AppStrings.categories.meatFish, '🥩'),
+    'rice_pasta': CategoryInfo(() => AppStrings.categories.ricePasta, '🍝'),
+    'spices': CategoryInfo(() => AppStrings.categories.spices, '🧂'),
+    'coffee_tea': CategoryInfo(() => AppStrings.categories.coffeeTea, '☕'),
+    'sweets_snacks': CategoryInfo(() => AppStrings.categories.sweetsSnacks, '🍬'),
+    'beef': CategoryInfo(() => AppStrings.categories.beef, '🐄'),
+    'chicken': CategoryInfo(() => AppStrings.categories.chicken, '🍗'),
+    'turkey': CategoryInfo(() => AppStrings.categories.turkey, '🦃'),
+    'lamb': CategoryInfo(() => AppStrings.categories.lamb, '🐑'),
+    'fish': CategoryInfo(() => AppStrings.categories.fish, '🐟'),
+    'meat_substitutes': CategoryInfo(() => AppStrings.categories.meatSubstitutes, '🌱'),
+    'bread_bakery': CategoryInfo(() => AppStrings.categories.breadBakery, '🍞'),
+    'cookies_sweets': CategoryInfo(() => AppStrings.categories.cookiesSweets, '🍪'),
+    'cakes': CategoryInfo(() => AppStrings.categories.cakes, '🎂'),
+    'canned': CategoryInfo(() => AppStrings.categories.canned, '🥫'),
+    'legumes_grains': CategoryInfo(() => AppStrings.categories.legumesGrains, '🫘'),
+    'cereals': CategoryInfo(() => AppStrings.categories.cereals, '🥣'),
+    'dried_fruits': CategoryInfo(() => AppStrings.categories.driedFruits, '🍇'),
+    'nuts_seeds': CategoryInfo(() => AppStrings.categories.nutsSeeds, '🥜'),
+    'beverages': CategoryInfo(() => AppStrings.categories.beverages, '🥤'),
+    'oils_sauces': CategoryInfo(() => AppStrings.categories.oilsSauces, '🫒'),
+    'sweet_spreads': CategoryInfo(() => AppStrings.categories.sweetSpreads, '🍯'),
+    'frozen': CategoryInfo(() => AppStrings.categories.frozen, '🧊'),
+    'ready_salads': CategoryInfo(() => AppStrings.categories.readySalads, '🥗'),
+    'dairy_substitutes': CategoryInfo(() => AppStrings.categories.dairySubstitutes, '🌾'),
+    'hygiene': CategoryInfo(() => AppStrings.categories.hygiene, '🚿'),
+    'cosmetics': CategoryInfo(() => AppStrings.categories.cosmetics, '💄'),
+    'cleaning': CategoryInfo(() => AppStrings.categories.cleaning, '🧽'),
+    'vitamins': CategoryInfo(() => AppStrings.categories.vitamins, '💊'),
+    'baby_products': CategoryInfo(() => AppStrings.categories.babyProducts, '🍼'),
+    'pet_food': CategoryInfo(() => AppStrings.categories.petFood, '🐕'),
+    'otc_medicine': CategoryInfo(() => AppStrings.categories.otcMedicine, '🩹'),
+    'first_aid': CategoryInfo(() => AppStrings.categories.firstAid, '🏥'),
   };
 
   /// Fixed UI order (auto-generated from data keys, 'all' first, 'other' last)

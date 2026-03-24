@@ -18,6 +18,7 @@
 // Last Updated: 13/01/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 /// 🎯 ממיר לשדות DateTime לא nullable
@@ -70,17 +71,20 @@ class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
   @override
   DateTime fromJson(dynamic json) {
     if (json == null) {
+      debugPrint('[FlexibleDateTimeConverter] null value → fallback to now()');
       return DateTime.now();
     }
     if (json is Timestamp) return json.toDate();
     if (json is String) {
       final parsed = DateTime.tryParse(json);
       if (parsed != null) return parsed;
+      debugPrint('[FlexibleDateTimeConverter] unparseable string "$json" → fallback to now()');
       return DateTime.now();
     }
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
     // טיפוס לא מוכר - fallback
+    debugPrint('[FlexibleDateTimeConverter] unknown type ${json.runtimeType} → fallback to now()');
     return DateTime.now();
   }
 

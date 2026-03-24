@@ -413,12 +413,10 @@ class ShoppingListsProvider with ChangeNotifier {
 
       // 🆕 הוספת משתמשים משותפים (רק רשומים - pending מטופל ב-UI)
       if (sharedContacts != null && sharedContacts.isNotEmpty && isPrivate) {
-        final firebaseRepo = _repository as FirebaseShoppingListsRepository;
-
         for (final contact in sharedContacts) {
           if (!contact.isPending && contact.userId != null) {
             // משתמש רשום → הוסף ישירות
-            await firebaseRepo.addSharedUserToPrivateList(
+            await _repository.addSharedUserToPrivateList(
               ownerId: userId,
               listId: newList.id,
               sharedUserId: contact.userId!,
