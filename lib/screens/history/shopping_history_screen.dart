@@ -477,7 +477,7 @@ class _ReceiptTile extends StatelessWidget {
             bottom: kSpacingMedium,
           ),
           leading: Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(kSpacingSmallPlus),
             decoration: BoxDecoration(
               color: receipt.isVirtual
                   ? successColor.withValues(alpha: 0.2)
@@ -501,7 +501,7 @@ class _ReceiptTile extends StatelessWidget {
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 2),
+              const SizedBox(height: kSpacingXTiny),
               // תאריך
               Text(
                 DateFormat('dd/MM/yyyy  HH:mm', locale)
@@ -511,7 +511,7 @@ class _ReceiptTile extends StatelessWidget {
                   color: cs.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: kSpacingXTiny),
               // 💰 סכום הקנייה — שורה נפרדת ובולטת
               Text(
                 '₪${receipt.totalAmount.toStringAsFixed(0)}',
@@ -524,7 +524,7 @@ class _ReceiptTile extends StatelessWidget {
             ],
           ),
           trailing: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
             decoration: BoxDecoration(
               color: successColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(kBorderRadius),
@@ -573,8 +573,8 @@ class _ReceiptTile extends StatelessWidget {
         children: [
           // Checkbox indicator
           Container(
-            width: 20,
-            height: 20,
+            width: kIconSizeSmallPlus,
+            height: kIconSizeSmallPlus,
             decoration: BoxDecoration(
               color: item.isChecked
                   ? successColor
@@ -582,13 +582,13 @@ class _ReceiptTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: item.isChecked
-                ? Icon(Icons.check, color: cs.onPrimary, size: 14)
+                ? Icon(Icons.check, color: cs.onPrimary, size: kIconSizeSmall)
                 : null,
           ),
           const SizedBox(width: kSpacingSmall),
           // כמות
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
             decoration: BoxDecoration(
               color: cs.primaryContainer,
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -700,8 +700,8 @@ class _StatItemState extends State<_StatItem>
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(widget.icon, color: widget.color, size: 20),
-              const SizedBox(width: 4),
+              Icon(widget.icon, color: widget.color, size: kIconSizeSmallPlus),
+              const SizedBox(width: kSpacingXTiny),
               AnimatedBuilder(
                 animation: _animation,
                 builder: (context, _) {
@@ -721,7 +721,7 @@ class _StatItemState extends State<_StatItem>
               ),
             ],
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: kSpacingXTiny),
           Text(
             widget.label,
             style: TextStyle(
