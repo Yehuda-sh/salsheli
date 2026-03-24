@@ -16,7 +16,7 @@
 //     - Sub-types: task/whoBrings (via itemSubType)
 //     - Helpers for easy access
 //
-// Version: 2.2 - Removed unused voting helpers + fromReceiptItem migration
+// Version: 2.3 - checkedAt: String? → DateTime? with NullableFlexibleDateTimeConverter
 // Last Updated: 22/02/2026
 //
 
@@ -25,6 +25,7 @@ import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 import 'enums/item_type.dart';
+import 'timestamp_converter.dart' show NullableFlexibleDateTimeConverter;
 
 part 'unified_list_item.g.dart';
 
@@ -94,6 +95,9 @@ List<Map<String, dynamic>> _safeParseListOfMaps(dynamic value) {
       .toList();
 }
 
+/// Sentinel for copyWith nullable field clearing
+const _sentinel = Object();
+
 /// 🇮🇱 פריט מאוחד ברשימה (מוצר או משימה)
 /// 🇬🇧 Unified list item (product or task)
 @immutable
@@ -155,8 +159,9 @@ class UnifiedListItem {
 
   /// 🆕 מתי סומן הפריט
   /// 🔄 readValue: תמיכה ב-checked_at וגם checkedAt
+  @NullableFlexibleDateTimeConverter()
   @JsonKey(name: 'checked_at', readValue: _readCheckedAt)
-  final String? checkedAt;
+  final DateTime? checkedAt;
 
   const UnifiedListItem({
     required this.id,
@@ -488,6 +493,7 @@ class UnifiedListItem {
   ///
   /// **הערה:** productData ו-taskData מועתקים (shallow copy via Map.from) לשמירה על immutability.
   /// אם אתה רוצה לשנות ערך ב-productData, העבר Map חדש עם הערכים הרצויים.
+  /// nullable fields (checkedBy, checkedAt) support clearing via sentinel pattern.
   UnifiedListItem copyWith({
     String? id,
     String? name,
@@ -499,8 +505,8 @@ class UnifiedListItem {
     String? imageUrl,
     Map<String, dynamic>? productData,
     Map<String, dynamic>? taskData,
-    String? checkedBy,
-    String? checkedAt,
+    Object? checkedBy = _sentinel,
+    Object? checkedAt = _sentinel,
   }) {
     return UnifiedListItem(
       id: id ?? this.id,
@@ -518,8 +524,8 @@ class UnifiedListItem {
       taskData: taskData != null
           ? Map<String, dynamic>.from(taskData)
           : (this.taskData != null ? Map<String, dynamic>.from(this.taskData!) : null),
-      checkedBy: checkedBy ?? this.checkedBy,
-      checkedAt: checkedAt ?? this.checkedAt,
+      checkedBy: checkedBy == _sentinel ? this.checkedBy : checkedBy as String?,
+      checkedAt: checkedAt == _sentinel ? this.checkedAt : checkedAt as DateTime?,
     );
   }
 

@@ -28,7 +28,7 @@
 - **Haptic feedback** — `unawaited()` עם רמות מגע מותאמות
 
 ### אבטחה
-- **Firestore Rules v4.3** — schema validation, audit trail, anti-spam
+- **Firestore Rules v4.4** — schema validation, audit trail, anti-spam, inventory hasOnly
 - **Role-based access** — Owner/Admin/Editor/Viewer with approval flow
 - **AuthException typed** — enum לסוגי שגיאות
 
@@ -112,13 +112,13 @@
 ### לתקן (עדיפות בינונית)
 | # | בעיה | מיקום | סטטוס |
 |---|-------|-------|--------|
-| S6 | `getUserHouseholdId()` — `get()` call budget (10 per rule eval) | `firestore.rules` | פתוח |
-| S7 | Inventory validation חלקית — חסר `hasOnly` על שדות | `firestore.rules` | פתוח |
+| ~~S6~~ | ~~`getUserHouseholdId()` — `get()` call budget~~ | `firestore.rules` | ✅ תוקן — single call via `isHouseholdMember()` |
+| ~~S7~~ | ~~Inventory validation חלקית — חסר `hasOnly` על שדות~~ | `firestore.rules` | ✅ תוקן — `hasOnly(inventoryAllowedFields())` |
 | M2 | `ShoppingList` — string-typed enums (`status`, `type`, `format`) | `shopping_list.dart` | פתוח |
 | ~~M3~~ | ~~`FlexibleDateTimeConverter` — returns `DateTime.now()` on null/invalid~~ | `timestamp_converter.dart` | ✅ תוקן — fallback → epoch sentinel |
-| M6 | `UnifiedListItem.checkedAt` — `String?` instead of `DateTime?` | `unified_list_item.dart` | פתוח |
-| M8 | `ShoppingListsProvider._repository` cast to concrete type | `shopping_lists_provider.dart:413` | פתוח |
-| M9 | CRUD reloads full list + real-time updates → double fetch | `shopping_lists_provider.dart` | פתוח |
+| ~~M6~~ | ~~`UnifiedListItem.checkedAt` — `String?` instead of `DateTime?`~~ | `unified_list_item.dart` | ✅ תוקן — `DateTime?` + sentinel copyWith |
+| ~~M8~~ | ~~`ShoppingListsProvider._repository` cast to concrete type~~ | `shopping_lists_provider.dart` | ✅ כבר תקין — abstract interface |
+| ~~M9~~ | ~~CRUD reloads full list + real-time updates → double fetch~~ | `shopping_lists_provider.dart` | ✅ תוקן — הוסר `loadLists()` מ-5 CRUD methods |
 | ~~P1~~ | ~~`CategoryInfo.label` captured at init, doesn't update on locale switch~~ | `filters_data.dart` | ✅ כבר מיושם עם lazy `_labelFn()` |
 
 ### Refactor עתידי (Post-launch)
@@ -161,15 +161,20 @@
 | Warnings | **0** (W1, W3 resolved) |
 | Tests | 17 test files |
 | i18n coverage | ~95% |
-| Firestore Rules | v4.3 |
+| Firestore Rules | v4.4 |
 
 ---
 
 ## היסטוריה
 
-### סשן 4 (24 מרץ 2026) — תיקוני Warnings + Data Quality
+### סשן 4 (24 מרץ 2026) — תיקוני Warnings + Data Quality + Performance
 - W3: החלפת `RadioListTile` deprecated → `Radio` + `GestureDetector`
 - M3: `FlexibleDateTimeConverter` fallback — `DateTime.now()` → epoch sentinel
+- M6: `checkedAt` — `String?` → `DateTime?` + `NullableFlexibleDateTimeConverter` + sentinel copyWith
+- M8: אומת — כבר תקין (abstract interface)
+- M9: הוסר `loadLists()` מ-5 CRUD methods — stream listener מטפל בעדכונים
+- S6: `getUserHouseholdId()` — single call במקום double (חיסכון ב-get() budget)
+- S7: Inventory — `hasOnly(inventoryAllowedFields())` מונע שדות שרירותיים
 - P1: אומת — כבר מיושם עם lazy `_labelFn()`
 - תיקוני אימוג'י, קטגוריות, שמות מוצרים, RTL כפתורי +/-
 
@@ -194,4 +199,4 @@
 - Edge case demo data
 
 ---
-*Code Review v4.1 — Warnings resolved, data quality fixes | March 2026*
+*Code Review v4.2 — All medium-priority issues resolved | March 2026*

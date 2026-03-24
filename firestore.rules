@@ -2,7 +2,7 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// Version: 4.3 (March 2026)
+// Version: 4.4 (March 2026) — S6: getUserHouseholdId budget fix, S7: inventory hasOnly
 //
 // ✅ Strict Schema Validation & Audit Trail
 // 📅 Last Updated: March 2026
@@ -78,9 +78,18 @@ service cloud.firestore {
     // 🆕 v4.0: Validation Helper Functions
     // =========================================================
 
-    // ולידציית סכימה למזווה — שדות חובה עם ערכים תקינים
+    // שדות מותרים למזווה — מונע הוספת שדות שרירותיים (S7)
+    function inventoryAllowedFields() {
+      return ['product_name', 'category', 'location', 'quantity', 'unit',
+              'min_quantity', 'expiry_date', 'notes', 'is_recurring',
+              'last_purchased', 'purchase_count', 'emoji', 'updated_at',
+              'last_updated_by'];
+    }
+
+    // ולידציית סכימה למזווה — שדות חובה עם ערכים תקינים + hasOnly
     function isValidInventoryData(data) {
-      return data.product_name is string &&
+      return data.keys().hasOnly(inventoryAllowedFields()) &&
+             data.product_name is string &&
              data.product_name.size() >= 2 &&
              data.quantity is number &&
              data.quantity >= 0 &&
@@ -136,9 +145,10 @@ service cloud.firestore {
     match /users/{userId} {
       // קריאה: רק הבעלים יכול לקרוא את הפרופיל המלא שלו
       // משתמשים אחרים יכולים לקרוא רק אם הם באותו משק בית או קבוצה
+      // S6 fix: single getUserHouseholdId() call — saves get() budget
       allow read: if isDocOwner(userId) ||
-                  (isAuthenticated() && getUserHouseholdId() != null &&
-                   getUserHouseholdId() == get(/databases/$(database)/documents/users/$(userId)).data.household_id);
+                  (isAuthenticated() &&
+                   isHouseholdMember(get(/databases/$(database)/documents/users/$(userId)).data.household_id));
       allow write: if isDocOwner(userId);
 
       // === Private Lists (Subcollection) ===

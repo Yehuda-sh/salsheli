@@ -20,7 +20,8 @@ UnifiedListItem _$UnifiedListItemFromJson(Map<String, dynamic> json) =>
           _readProductData(json, 'productData') as Map<String, dynamic>?,
       taskData: _readTaskData(json, 'taskData') as Map<String, dynamic>?,
       checkedBy: _readCheckedBy(json, 'checked_by') as String?,
-      checkedAt: _readCheckedAt(json, 'checked_at') as String?,
+      checkedAt: const NullableFlexibleDateTimeConverter()
+          .fromJson(_readCheckedAt(json, 'checked_at')),
     );
 
 Map<String, dynamic> _$UnifiedListItemToJson(UnifiedListItem instance) =>
@@ -35,7 +36,8 @@ Map<String, dynamic> _$UnifiedListItemToJson(UnifiedListItem instance) =>
       'productData': instance.productData,
       'taskData': instance.taskData,
       'checked_by': instance.checkedBy,
-      'checked_at': instance.checkedAt,
+      'checked_at': const NullableFlexibleDateTimeConverter()
+          .toJson(instance.checkedAt),
     };
 
 const _$ItemTypeEnumMap = {

@@ -427,7 +427,7 @@ class ShoppingListsProvider with ChangeNotifier {
         }
       }
 
-      await loadLists();
+      // Stream listener (_startWatchingLists) handles UI update automatically
 
       // 📊 Analytics: track list creation (fire and forget)
       unawaited(AnalyticsService.instance.logCreateList(
@@ -464,7 +464,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     try {
       await _repository.deleteList(id, userId, householdId, isPrivate);
-      await loadLists();
+      // Stream listener handles UI update
     } catch (e) {
       _errorMessage = 'שגיאה במחיקת רשימה $id: ${e.toString()}';
       _notifySafe();
@@ -486,7 +486,7 @@ class ShoppingListsProvider with ChangeNotifier {
     }
 
     await _repository.saveList(list, userId, householdId);
-    await loadLists();
+    // Stream listener handles UI update
   }
 
   /// מעדכן רשימה קיימת
@@ -506,7 +506,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     try {
       await _repository.saveList(updated, userId, householdId);
-      await loadLists();
+      // Stream listener handles UI update
     } catch (e) {
       _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
       _notifySafe();
@@ -537,7 +537,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
     try {
       await _repository.shareListToHousehold(listId, userId, householdId);
-      await loadLists();
+      // Stream listener handles UI update
     } catch (e) {
       _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${e.toString()}';
       _notifySafe();
@@ -997,7 +997,7 @@ class ShoppingListsProvider with ChangeNotifier {
         return item.copyWith(
           isChecked: true,
           checkedBy: userId,
-          checkedAt: DateTime.now().toIso8601String(),
+          checkedAt: DateTime.now(),
         );
       });
 
@@ -1059,7 +1059,7 @@ class ShoppingListsProvider with ChangeNotifier {
           return item.copyWith(
             isChecked: true,
             checkedBy: userId,
-            checkedAt: DateTime.now().toIso8601String(),
+            checkedAt: DateTime.now(),
           );
         }
         // לא purchased → נקה את הסימון
