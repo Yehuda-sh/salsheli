@@ -353,8 +353,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                       const SizedBox(width: kSpacingSmall),
                       // House icon in colored circle
                       Container(
-                        width: 40,
-                        height: 40,
+                        width: kIconSizeLarge + kSpacingXTiny,
+                        height: kIconSizeLarge + kSpacingXTiny,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
@@ -455,8 +455,8 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
           children: [
             // Avatar
             Container(
-              width: 48,
-              height: 48,
+              width: kIconSizeXLarge,
+              height: kIconSizeXLarge,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isMemberAdmin ? cs.primaryContainer : cs.surfaceContainerHighest,
@@ -464,7 +464,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                   color: isMemberAdmin
                       ? cs.primary.withValues(alpha: 0.3)
                       : Colors.transparent,
-                  width: 2,
+                  width: kBorderWidthFocused,
                 ),
               ),
               child: Center(

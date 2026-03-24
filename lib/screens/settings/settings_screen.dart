@@ -369,7 +369,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           return AlertDialog(
             title: Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: cs.error, size: 28),
+                Icon(Icons.warning_amber_rounded, color: cs.error, size: kIconSizeMedium),
                 SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.settings.deleteAccountTitle,
@@ -463,8 +463,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 style: FilledButton.styleFrom(backgroundColor: cs.error),
                 child: isDeleting
                     ? SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: kIconSizeSmallPlus,
+                        height: kIconSizeSmallPlus,
                         child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
                       )
                     : Text(AppStrings.settings.deleteAccountButton),
@@ -550,8 +550,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       },
                 child: isSaving
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: kIconSizeSmall,
+                        height: kIconSizeSmall,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(AppStrings.settings.editHouseholdNameSave),
@@ -620,8 +620,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               ElevatedButton.icon(
                 icon: isSending
                     ? const SizedBox(
-                        width: 16,
-                        height: 16,
+                        width: kIconSizeSmall,
+                        height: kIconSizeSmall,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.send, size: kIconSizeSmall),
@@ -745,8 +745,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   // Handle bar
                   Center(
                     child: Container(
-                      width: 40,
-                      height: 4,
+                      width: kSpacingXLarge + kSpacingSmall,
+                      height: kSpacingXTiny,
                       decoration: BoxDecoration(
                         color: cs.onSurfaceVariant.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -789,15 +789,15 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           setBottomSheetState(() => selectedAvatar = avatar);
                         },
                         child: Container(
-                          width: 48,
-                          height: 48,
+                          width: kIconSizeXLarge,
+                          height: kIconSizeXLarge,
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? cs.primary.withValues(alpha: 0.2)
                                 : cs.surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(kBorderRadius),
                             border: isSelected
-                                ? Border.all(color: cs.primary, width: 2)
+                                ? Border.all(color: cs.primary, width: kBorderWidthFocused)
                                 : null,
                           ),
                           child: Center(
@@ -998,7 +998,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   padding: const EdgeInsets.only(bottom: kSpacingMedium),
                   child: Row(
                     children: [
-                      Icon(Icons.settings_outlined, size: 24, color: cs.primary),
+                      Icon(Icons.settings_outlined, size: kIconSizeMedium, color: cs.primary),
                       SizedBox(width: kSpacingSmall),
                       Text(
                         AppStrings.settings.title,
@@ -1026,7 +1026,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       children: [
                         // Avatar with gradient ring
                         Container(
-                          padding: const EdgeInsets.all(3),
+                          padding: const EdgeInsets.all(kSpacingXTiny),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
@@ -1293,7 +1293,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           Navigator.pushNamed(context, '/pending-invites');
                         },
                       ),
-                      Divider(height: 1),
+                      const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.school_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.showOnboardingAgain),
@@ -1337,8 +1337,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               borderRadius: BorderRadius.circular(kBorderRadius),
                               child: Image.asset(
                                 'assets/images/app_icon.png',
-                                width: 48,
-                                height: 48,
+                                width: kIconSizeXLarge,
+                                height: kIconSizeXLarge,
                                 errorBuilder: (_, __, ___) => Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
                               ),
                             ),
@@ -1348,14 +1348,14 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           );
                         },
                       ),
-                      Divider(height: 1),
+                      const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.termsOfService),
                         trailing: Icon(Icons.chevron_left),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
-                      Divider(height: 1),
+                      const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.privacyPolicy),

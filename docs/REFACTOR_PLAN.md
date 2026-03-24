@@ -112,11 +112,35 @@
 # 📍 Phase 6 — Push Notifications (FCM) ⬜
 > טרם התחיל — **אפשר להשיק בלי**
 
-- [ ] Firebase Cloud Messaging setup
-- [ ] Cloud Functions for triggers
-- [ ] Notification channels (Android)
-- [ ] Deep links from notifications
-- [ ] Settings toggles connected to FCM topics
+### 6.1 Android Setup
+- [ ] הוספת `POST_NOTIFICATIONS` permission ל-AndroidManifest.xml (חובה Android 13+)
+- [ ] הוספת notification channel ב-AndroidManifest (default channel + high priority)
+- [ ] הוספת `<meta-data>` ל-default notification icon + color
+
+### 6.2 FCM Token Management
+- [ ] `FirebaseMessaging.instance.getToken()` — שמירת token ב-Firestore (`users/{uid}/fcmToken`)
+- [ ] `onTokenRefresh` listener — עדכון token כשמשתנה
+- [ ] מחיקת token ב-logout
+
+### 6.3 Foreground / Background / Cold Start
+- [ ] `onMessage` — הצגת local notification כשהאפליקציה פתוחה
+- [ ] `onMessageOpenedApp` — ניווט למסך הנכון כשלוחצים על התראה (אפליקציה ברקע)
+- [ ] `getInitialMessage` — ניווט כשהאפליקציה נפתחת מהתראה (cold start)
+- [ ] `@pragma('vm:entry-point') onBackgroundMessage` — handler ל-background messages
+
+### 6.4 Permission Flow
+- [ ] בקשת permission מהמשתמש (popup) — אחרי onboarding, לא מיד
+- [ ] fallback אם נדחה — הסבר למה חשוב + קישור להגדרות
+- [ ] שמירת סטטוס permission ב-UserContext
+
+### 6.5 Cloud Functions (Server-side triggers)
+- [ ] Cloud Function: שליחת FCM כשנוצרת התראה חדשה ב-Firestore
+- [ ] Triggers: הזמנה לבית, שינוי תפקיד, מלאי נמוך, רשימה שותפה עודכנה
+- [ ] Batching — איחוד התראות (לא לשלוח 10 pushים ברצף)
+
+### 6.6 Settings Integration
+- [ ] Settings toggles מחוברים ל-FCM topics (השתקת סוגי התראות)
+- [ ] Deep links from notifications — ניווט למסך הרלוונטי
 
 > **הערה:** האפליקציה כבר תומכת בהתראות in-app (Firestore subcollection).
 > FCM push הוא שדרוג — לא חוסם launch.

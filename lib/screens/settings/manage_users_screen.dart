@@ -450,7 +450,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           children: [
             Icon(
               Icons.error_outline,
-              size: 64,
+              size: kIconSizeXXLarge,
               color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: kSpacingMedium),
@@ -541,7 +541,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             ),
             if (isCurrentUser)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -582,7 +582,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: 20),
+                        Icon(Icons.edit, size: kIconSizeSmallPlus),
                         SizedBox(width: kSpacingSmall),
                         Text(strings.editRole),
                       ],
@@ -592,7 +592,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'remove',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, size: 20, color: cs.error),
+                        Icon(Icons.delete, size: kIconSizeSmallPlus, color: cs.error),
                         SizedBox(width: kSpacingSmall),
                         Text(strings.removeUser, style: TextStyle(color: cs.error)),
                       ],
