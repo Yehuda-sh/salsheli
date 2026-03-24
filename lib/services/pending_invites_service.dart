@@ -574,6 +574,8 @@ class PendingInvitesService {
       }
 
       // ✅ Auth check: invited_user_id may be UID or email (for email-based invites)
+      // SECURITY: acceptingUserEmail comes from UserContext.userEmail which is sourced
+      // from Firebase Auth (verified email), NOT from user input. This is safe.
       final invitedUserId = invite.requestData['invited_user_id'] as String;
       final isAuthorized = invitedUserId == acceptingUserId ||
           (acceptingUserEmail != null &&

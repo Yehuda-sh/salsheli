@@ -13,7 +13,7 @@ class LoadingOverlay extends StatefulWidget {
 }
 
 class _LoadingOverlayState extends State<LoadingOverlay> {
-  List<String> get _messages => [
+  late final List<String> _messages = [
     AppStrings.auth.loadingCheckingDetails,
     AppStrings.auth.loadingConnecting,
     AppStrings.auth.loadingAlmostThere,

@@ -90,6 +90,17 @@
         { "fieldPath": "household_id", "order": "ASCENDING" },
         { "fieldPath": "updated_date", "order": "DESCENDING" }
       ]
+    },
+
+    {
+      "collectionGroup": "pending_invites",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "request_data.invited_user_email", "order": "ASCENDING" },
+        { "fieldPath": "request_data.household_id", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
