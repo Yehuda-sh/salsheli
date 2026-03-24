@@ -88576,5 +88576,113 @@
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
+  },
+  {
+    "name": "בורקס גבינה מעדנות - 800 גרם",
+    "barcode": "7290000238173",
+    "price": 27.5,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "בורקס יפו גבינה מעדנות",
+    "barcode": "7290014218321",
+    "price": 23.2,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "בורקס יפו תפוח אדמה מעדנות",
+    "barcode": "7290014218338",
+    "price": 20.9,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "בורקס פילו גבינה מעדנות מעדנות",
+    "barcode": "7290013117212",
+    "price": 26.9,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "בצק עלים חמאה מרודד, למגוון מאפים מתוקים ומלוחים,",
+    "barcode": "7290006272430",
+    "price": 34.9,
+    "brand": "מעדנות בע\"מ",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "VictoryNewSource"
+  },
+  {
+    "name": "חטיפי פיצה 650 גר מעדנות",
+    "barcode": "7290006272072",
+    "price": 39.9,
+    "brand": null,
+    "unit": "יחידות",
+    "category": "קפואים",
+    "source": "VictoryNewSource"
+  },
+  {
+    "name": "מאפה פילו במילוי גבינות, מוקפא",
+    "barcode": "7290013117243",
+    "price": 25.9,
+    "brand": "מעדנות בע\"מ",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "VictoryNewSource"
+  },
+  {
+    "name": "מיני בורקס גבינה מעדנות - 800 גרם",
+    "barcode": "7290006271655",
+    "price": 33.9,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "מיני בורקס תפוח אדמה 800 גר מעדנות",
+    "barcode": "7290006271648",
+    "price": 27.9,
+    "brand": "מעדנות בע\"מ",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "VictoryNewSource"
+  },
+  {
+    "name": "פיצה מרגריטה ללא גלוטן מעדנות",
+    "barcode": "7290020239143",
+    "price": 32.9,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
+  },
+  {
+    "name": "פיצה משפחתית עם 100% גבינה, מוקפא",
+    "barcode": "7290005559907",
+    "price": 25.9,
+    "brand": "מעדנות בע\"מ",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "VictoryNewSource"
+  },
+  {
+    "name": "ריבועי בצק עלים מעדנות",
+    "barcode": "7290000240541",
+    "price": 26.9,
+    "brand": "תנובה מותגים",
+    "unit": "גרם",
+    "category": "קפואים",
+    "source": "wolt-api"
   }
 ]
