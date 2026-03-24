@@ -897,6 +897,9 @@ class SettingsStrings {
   String get showOnboardingSubtitle => 'צפה שוב בהדרכת האפליקציה';
   String get about => 'אודות';
   String get aboutDescription => 'אפליקציה חכמה לניהול קניות ומזווה ביתי';
+  String versionLabel(String version) => 'גרסה $version';
+  String get quickLinksTitle => 'קישורים מהירים';
+  String get infoTitle => 'מידע';
   String get termsOfService => 'תנאי שימוש';
   String get privacyPolicy => 'מדיניות פרטיות';
   String get debugResetOnboarding => 'מוחק seenOnboarding - חוזר ל-Welcome';

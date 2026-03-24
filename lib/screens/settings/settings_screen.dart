@@ -1282,8 +1282,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
                   ),
-                  child: Column(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: kSpacingMedium),
+                    child: Column(
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                        child: SectionHeader(
+                          leading: Icon(Icons.link, color: cs.primary, size: kIconSizeMedium),
+                          title: AppStrings.settings.quickLinksTitle,
+                        ),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
                       ListTile(
                         leading: Icon(Icons.mail_outline, color: cs.primary),
                         title: Text(AppStrings.settings.pendingInvitesTitle),
@@ -1309,6 +1319,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                     ],
                   ),
+                  ),
                 )),
 
                 SizedBox(height: kSpacingMedium),
@@ -1321,12 +1332,22 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
                   ),
-                  child: Column(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: kSpacingMedium),
+                    child: Column(
                     children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                        child: SectionHeader(
+                          leading: Icon(Icons.info_outline, color: cs.primary, size: kIconSizeMedium),
+                          title: AppStrings.settings.infoTitle,
+                        ),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
                       ListTile(
                         leading: Icon(Icons.info_outline, color: cs.primary),
                         title: Text(AppStrings.settings.about),
-                        subtitle: const Text('גרסה 1.0.0'), // TODO: package_info_plus
+                        subtitle: Text(AppStrings.settings.versionLabel('1.0.0')), // TODO: package_info_plus
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
                           showAboutDialog(
@@ -1363,6 +1384,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         onTap: () => showPrivacyPolicyDialog(context),
                       ),
                     ],
+                  ),
                   ),
                 )),
 

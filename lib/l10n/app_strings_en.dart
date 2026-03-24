@@ -873,6 +873,9 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get showOnboardingSubtitle => 'View the app tutorial again';
   @override String get about => 'About';
   @override String get aboutDescription => 'Smart app for managing shopping and home pantry';
+  @override String versionLabel(String version) => 'Version $version';
+  @override String get quickLinksTitle => 'Quick Links';
+  @override String get infoTitle => 'Info';
   @override String get termsOfService => 'Terms of Service';
   @override String get privacyPolicy => 'Privacy Policy';
   @override String get debugResetOnboarding => 'Deletes seenOnboarding - returns to Welcome';
