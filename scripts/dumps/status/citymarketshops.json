@@ -1,0 +1,130 @@
+{
+    "20260324190454": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:04:54.747683+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:04:54.750004+02:00",
+            "execption": "No pages to scrape",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 212, in _scrape\n    download_urls, file_names = self.collect_files_details_from_site(\n                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        limit=limit,\n        ^^^^^^^^^^^^\n    ...<9 lines>...\n        random_selection=random_selection,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\multipage_web.py\", line 101, in collect_files_details_from_site\n    assert len(main_page_requests) > 0, \"No pages to scrape\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: No pages to scrape\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:04:54.751526+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\CityMarketShops",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324190906": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:09:06.301855+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:09:06.303796+02:00",
+            "execption": "No pages to scrape",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 212, in _scrape\n    download_urls, file_names = self.collect_files_details_from_site(\n                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        limit=limit,\n        ^^^^^^^^^^^^\n    ...<9 lines>...\n        random_selection=random_selection,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\multipage_web.py\", line 101, in collect_files_details_from_site\n    assert len(main_page_requests) > 0, \"No pages to scrape\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: No pages to scrape\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:09:06.305221+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\CityMarketShops",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324192015": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:20:15.581639+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:20:21.199062+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290000000003-066-202603241129.xml.gz"
+            ],
+            "links_collected_from_site": [
+                "http://www.citymarket-shops.co.il//downloadFile/6aab99e3-e7e0-47b6-9533-a0465e6f06da"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2026-03-24 19:20:23.532391+02:00",
+            "results": [
+                {
+                    "file_name": "PriceFull7290000000003-066-202603241129.xml.gz",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:20:23.535080+02:00",
+            "folder_size": {
+                "size": 815,
+                "unit": "MB",
+                "folder": "scripts/dumps\\CityMarketShops",
+                "folder_content": [
+                    "scripts/dumps\\CityMarketShops\\PriceFull7290000000003-066-202603241129.xml.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "verified_downloads": [
+        {
+            "file_name": "PriceFull7290000000003-066-202603241129.xml.gz",
+            "when": "2026-03-24 19:20:23.533428+02:00"
+        }
+    ]
+}

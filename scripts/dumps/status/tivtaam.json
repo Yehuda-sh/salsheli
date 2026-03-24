@@ -1,0 +1,72 @@
+{
+    "20260324190454": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:04:54.800740+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:04:54.802639+02:00",
+            "execption": "File type PriceFull not supported",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 55, in _scrape\n    files = self.collect_files_details_from_site(\n        limit=limit,\n    ...<9 lines>...\n        random_selection=random_selection,\n    )\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 132, in collect_files_details_from_site\n    for filter_arg in self.build_filter_arg(store_id, when_date, files_types):\n                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 103, in build_filter_arg\n    for type_pattern in self.get_type_pattern(files_types):\n                        ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 93, in get_type_pattern\n    raise ValueError(f\"File type {file_type} not supported\")\nValueError: File type PriceFull not supported\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:04:54.804326+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\TivTaam",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324190906": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:09:06.344105+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:09:06.346048+02:00",
+            "execption": "File type PriceFull not supported",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 55, in _scrape\n    files = self.collect_files_details_from_site(\n        limit=limit,\n    ...<9 lines>...\n        random_selection=random_selection,\n    )\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 132, in collect_files_details_from_site\n    for filter_arg in self.build_filter_arg(store_id, when_date, files_types):\n                      ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 103, in build_filter_arg\n    for type_pattern in self.get_type_pattern(files_types):\n                        ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\cerberus.py\", line 93, in get_type_pattern\n    raise ValueError(f\"File type {file_type} not supported\")\nValueError: File type PriceFull not supported\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:09:06.347967+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\TivTaam",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ]
+}

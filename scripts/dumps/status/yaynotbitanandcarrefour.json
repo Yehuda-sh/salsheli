@@ -1,0 +1,60 @@
+{
+    "20260324192019": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:20:19.376318+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:20:20.201899+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290055700007-0002-202603240510.gz"
+            ],
+            "links_collected_from_site": [
+                "https://prices.carrefour.co.il/20260324/PriceFull7290055700007-0002-202603240510.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2026-03-24 19:20:20.860321+02:00",
+            "results": [
+                {
+                    "file_name": "PriceFull7290055700007-0002-202603240510.gz",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:20:20.862707+02:00",
+            "folder_size": {
+                "size": 1804245,
+                "unit": "MB",
+                "folder": "scripts/dumps\\YaynotBitanAndCarrefour",
+                "folder_content": [
+                    "scripts/dumps\\YaynotBitanAndCarrefour\\PriceFull7290055700007-0002-202603240510.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "verified_downloads": [
+        {
+            "file_name": "PriceFull7290055700007-0002-202603240510.gz",
+            "when": "2026-03-24 19:20:20.861204+02:00"
+        }
+    ]
+}

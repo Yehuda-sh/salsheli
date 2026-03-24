@@ -1,0 +1,117 @@
+{
+    "20260324191933": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:19:33.268073+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:19:39.552806+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290700100008-000-103-20260324-185225.gz.xml.gz"
+            ],
+            "links_collected_from_site": [
+                "https://hazihinamprod01.blob.core.windows.net/regulatories/PriceFull7290700100008-000-103-20260324-185225.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2026-03-24 19:19:41.262561+02:00",
+            "results": [
+                {
+                    "file_name": "PriceFull7290700100008-000-103-20260324-185225.gz.xml.gz",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:19:41.265171+02:00",
+            "folder_size": {
+                "size": 7872747,
+                "unit": "MB",
+                "folder": "scripts/dumps\\HaziHinam",
+                "folder_content": [
+                    "scripts/dumps\\HaziHinam\\PriceFull7290700100008-000-103-20260324-185225.gz.xml.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324192019": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:20:19.274499+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:20:23.978562+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290700100008-000-103-20260324-064922.gz.xml.gz"
+            ],
+            "links_collected_from_site": [
+                "https://hazihinamprod01.blob.core.windows.net/regulatories/PriceFull7290700100008-000-103-20260324-064922.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2026-03-24 19:20:25.553439+02:00",
+            "results": [
+                {
+                    "file_name": "PriceFull7290700100008-000-103-20260324-064922.gz.xml.gz",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:20:25.556742+02:00",
+            "folder_size": {
+                "size": 15630200,
+                "unit": "MB",
+                "folder": "scripts/dumps\\HaziHinam",
+                "folder_content": [
+                    "scripts/dumps\\HaziHinam\\PriceFull7290700100008-000-103-20260324-064922.gz.xml.xml",
+                    "scripts/dumps\\HaziHinam\\PriceFull7290700100008-000-103-20260324-185225.gz.xml.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "verified_downloads": [
+        {
+            "file_name": "PriceFull7290700100008-000-103-20260324-185225.gz.xml.gz",
+            "when": "2026-03-24 19:19:41.263511+02:00"
+        },
+        {
+            "file_name": "PriceFull7290700100008-000-103-20260324-064922.gz.xml.gz",
+            "when": "2026-03-24 19:20:25.554570+02:00"
+        }
+    ]
+}

@@ -1,0 +1,60 @@
+{
+    "20260324192022": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:20:22.792187+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:20:23.580555+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290058159628-064-202603241036"
+            ],
+            "links_collected_from_site": [
+                "http://maayan2000.binaprojects.com//Download.aspx?FileNm=PriceFull7290058159628-064-202603241036.gz"
+            ]
+        },
+        {
+            "status": "downloaded",
+            "when": "2026-03-24 19:20:24.362437+02:00",
+            "results": [
+                {
+                    "file_name": "PriceFull7290058159628-064-202603241036",
+                    "downloaded": true,
+                    "extract_succefully": true,
+                    "error": null,
+                    "restart_and_retry": false
+                }
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:20:24.365719+02:00",
+            "folder_size": {
+                "size": 1767572,
+                "unit": "MB",
+                "folder": "scripts/dumps\\Maayan2000",
+                "folder_content": [
+                    "scripts/dumps\\Maayan2000\\PriceFull7290058159628-064-202603241036.aspx.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ],
+    "verified_downloads": [
+        {
+            "file_name": "PriceFull7290058159628-064-202603241036",
+            "when": "2026-03-24 19:20:24.363506+02:00"
+        }
+    ]
+}

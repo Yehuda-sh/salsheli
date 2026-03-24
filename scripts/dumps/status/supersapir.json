@@ -1,0 +1,111 @@
+{
+    "20260324190454": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:04:54.791999+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:04:54.795754+02:00",
+            "execption": "File type PriceFull not supported",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 212, in _scrape\n    download_urls, file_names = self.collect_files_details_from_site(\n                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        limit=limit,\n        ^^^^^^^^^^^^\n    ...<9 lines>...\n        random_selection=random_selection,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 140, in collect_files_details_from_site\n    urls_to_collect_link_from = self.get_request_url(\n        files_types=files_types, store_id=store_id, when_date=when_date\n    )\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\apsx.py\", line 47, in get_request_url\n    for query_params in self._get_all_possible_query_string_params(\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        files_types=files_types, store_id=store_id, when_date=when_date\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ):\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\bina.py\", line 87, in _get_all_possible_query_string_params\n    for files_type in self.file_type_ids(files_types):\n                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\bina.py\", line 53, in file_type_ids\n    raise ValueError(f\"File type {file_type} not supported\")\nValueError: File type PriceFull not supported\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:04:54.797254+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\SuperSapir",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324190906": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:09:06.337657+02:00",
+            "limit": 3,
+            "files_requested": [
+                "PriceFull"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "fail",
+            "when": "2026-03-24 19:09:06.339717+02:00",
+            "execption": "File type PriceFull not supported",
+            "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 212, in _scrape\n    download_urls, file_names = self.collect_files_details_from_site(\n                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        limit=limit,\n        ^^^^^^^^^^^^\n    ...<9 lines>...\n        random_selection=random_selection,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\web.py\", line 140, in collect_files_details_from_site\n    urls_to_collect_link_from = self.get_request_url(\n        files_types=files_types, store_id=store_id, when_date=when_date\n    )\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\apsx.py\", line 47, in get_request_url\n    for query_params in self._get_all_possible_query_string_params(\n                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        files_types=files_types, store_id=store_id, when_date=when_date\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ):\n    ^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\bina.py\", line 87, in _get_all_possible_query_string_params\n    for files_type in self.file_type_ids(files_types):\n                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^\n  File \"C:\\Users\\Lunix\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\il_supermarket_scarper\\engines\\bina.py\", line 53, in file_type_ids\n    raise ValueError(f\"File type {file_type} not supported\")\nValueError: File type PriceFull not supported\n",
+            "download_urls": [],
+            "file_names": []
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:09:06.341590+02:00",
+            "folder_size": {
+                "size": 0,
+                "unit": "MB",
+                "folder": "C:\\projects\\salsheli\\scripts\\dumps\\SuperSapir",
+                "folder_content": []
+            },
+            "completed_successfully": true
+        }
+    ],
+    "20260324192140": [
+        {
+            "status": "started",
+            "when": "2026-03-24 19:21:40.905810+02:00",
+            "limit": 1,
+            "files_requested": [
+                "PRICE_FULL_FILE"
+            ],
+            "store_id": null,
+            "files_names_to_scrape": null,
+            "when_date": null,
+            "filter_nul": false,
+            "filter_zero": false,
+            "suppress_exception": false
+        },
+        {
+            "status": "collected",
+            "when": "2026-03-24 19:21:41.838277+02:00",
+            "file_name_collected_from_site": [
+                "PriceFull7290058156016-264-202603241042"
+            ],
+            "links_collected_from_site": [
+                "http://supersapir.binaprojects.com//Download.aspx?FileNm=PriceFull7290058156016-264-202603241042.gz"
+            ]
+        },
+        {
+            "status": "estimated_size",
+            "when": "2026-03-24 19:21:42.641381+02:00",
+            "folder_size": {
+                "size": 3842468,
+                "unit": "MB",
+                "folder": "scripts/dumps\\SuperSapir",
+                "folder_content": [
+                    "scripts/dumps\\SuperSapir\\PriceFull7290058156016-264-202603241042.aspx.xml"
+                ]
+            },
+            "completed_successfully": true
+        }
+    ]
+}
