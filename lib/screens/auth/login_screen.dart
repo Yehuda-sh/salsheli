@@ -60,6 +60,10 @@ class _LoginScreenState extends State<LoginScreen>
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  // 🧪 Secret dev mode — 5 taps on title
+  int _devTapCount = 0;
+  DateTime? _lastDevTap;
+
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
@@ -490,16 +494,30 @@ class _LoginScreenState extends State<LoginScreen>
                           children: [
                             SizedBox(height: kSpacingMedium),
 
-                            // 📝 כותרת - staggered animation
-                            Text(
-                              AppStrings.auth.loginTitle,
-                              style: theme.textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                fontSize: kFontSizeDisplay,
-                                color: cs.onSurface,
-                                letterSpacing: 1,
+                            // 📝 כותרת - staggered animation + secret dev tap
+                            GestureDetector(
+                              onTap: () {
+                                final now = DateTime.now();
+                                if (_lastDevTap != null && now.difference(_lastDevTap!) > const Duration(seconds: 3)) {
+                                  _devTapCount = 0;
+                                }
+                                _lastDevTap = now;
+                                _devTapCount++;
+                                if (_devTapCount >= 5) {
+                                  _devTapCount = 0;
+                                  _showQuickLoginDialog();
+                                }
+                              },
+                              child: Text(
+                                AppStrings.auth.loginTitle,
+                                style: theme.textTheme.headlineLarge?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: kFontSizeDisplay,
+                                  color: cs.onSurface,
+                                  letterSpacing: 1,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms)
