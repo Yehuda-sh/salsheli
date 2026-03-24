@@ -104,22 +104,22 @@
 ## בעיות פתוחות
 
 ### לתקן (עדיפות גבוהה)
-| # | בעיה | מיקום | חומרה |
-|---|-------|-------|--------|
-| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning |
-| W3 | `deprecated_member_use` — RadioListTile | `contact_selector_dialog.dart` (Flutter 3.33+) | Warning |
+| # | בעיה | מיקום | חומרה | סטטוס |
+|---|-------|-------|--------|--------|
+| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ✅ תוקן (v3.6) |
+| W3 | `deprecated_member_use` — RadioListTile | `contact_selector_dialog.dart` | Warning | ✅ תוקן — הוחלף ב-Radio + GestureDetector |
 
 ### לתקן (עדיפות בינונית)
-| # | בעיה | מיקום |
-|---|-------|-------|
-| S6 | `getUserHouseholdId()` — `get()` call budget (10 per rule eval) | `firestore.rules` |
-| S7 | Inventory validation חלקית — חסר `hasOnly` על שדות | `firestore.rules` |
-| M2 | `ShoppingList` — string-typed enums (`status`, `type`, `format`) | `shopping_list.dart` |
-| M3 | `FlexibleDateTimeConverter` — returns `DateTime.now()` on null/invalid | `timestamp_converter.dart` |
-| M6 | `UnifiedListItem.checkedAt` — `String?` instead of `DateTime?` | `unified_list_item.dart` |
-| M8 | `ShoppingListsProvider._repository` cast to concrete type | `shopping_lists_provider.dart:413` |
-| M9 | CRUD reloads full list + real-time updates → double fetch | `shopping_lists_provider.dart` |
-| P1 | `CategoryInfo.label` captured at init, doesn't update on locale switch | `filters_data.dart` |
+| # | בעיה | מיקום | סטטוס |
+|---|-------|-------|--------|
+| S6 | `getUserHouseholdId()` — `get()` call budget (10 per rule eval) | `firestore.rules` | פתוח |
+| S7 | Inventory validation חלקית — חסר `hasOnly` על שדות | `firestore.rules` | פתוח |
+| M2 | `ShoppingList` — string-typed enums (`status`, `type`, `format`) | `shopping_list.dart` | פתוח |
+| ~~M3~~ | ~~`FlexibleDateTimeConverter` — returns `DateTime.now()` on null/invalid~~ | `timestamp_converter.dart` | ✅ תוקן — fallback → epoch sentinel |
+| M6 | `UnifiedListItem.checkedAt` — `String?` instead of `DateTime?` | `unified_list_item.dart` | פתוח |
+| M8 | `ShoppingListsProvider._repository` cast to concrete type | `shopping_lists_provider.dart:413` | פתוח |
+| M9 | CRUD reloads full list + real-time updates → double fetch | `shopping_lists_provider.dart` | פתוח |
+| ~~P1~~ | ~~`CategoryInfo.label` captured at init, doesn't update on locale switch~~ | `filters_data.dart` | ✅ כבר מיושם עם lazy `_labelFn()` |
 
 ### Refactor עתידי (Post-launch)
 | # | בעיה | היקף |
@@ -158,7 +158,7 @@
 | קבצי Dart | 138 |
 | שורות קוד (lib/) | ~54,000 |
 | Errors | **0** |
-| Warnings | **2** (known W1, W3) |
+| Warnings | **0** (W1, W3 resolved) |
 | Tests | 17 test files |
 | i18n coverage | ~95% |
 | Firestore Rules | v4.3 |
@@ -166,6 +166,12 @@
 ---
 
 ## היסטוריה
+
+### סשן 4 (24 מרץ 2026) — תיקוני Warnings + Data Quality
+- W3: החלפת `RadioListTile` deprecated → `Radio` + `GestureDetector`
+- M3: `FlexibleDateTimeConverter` fallback — `DateTime.now()` → epoch sentinel
+- P1: אומת — כבר מיושם עם lazy `_labelFn()`
+- תיקוני אימוג'י, קטגוריות, שמות מוצרים, RTL כפתורי +/-
 
 ### סשן 3 (24 מרץ 2026) — Code Review מעמיק + תיקונים
 - סריקת כל 138 קבצים לעומק
@@ -188,4 +194,4 @@
 - Edge case demo data
 
 ---
-*Code Review v4.0 — Full lib/ Deep Scan | March 2026*
+*Code Review v4.1 — Warnings resolved, data quality fixes | March 2026*

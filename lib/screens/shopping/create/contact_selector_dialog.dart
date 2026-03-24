@@ -399,39 +399,42 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Radio buttons for email/phone
-                      // ignore: deprecated_member_use — RadioGroup requires Flutter 3.33+
                       Row(
                         children: [
                           Expanded(
-                            // ignore: deprecated_member_use
-                            child: RadioListTile<_ContactInputType>(
-                              title: Text(
-                                  AppStrings.contactSelector.emailLabel),
-                              value: _ContactInputType.email,
-                              // ignore: deprecated_member_use
-                              groupValue: _inputType,
-                              // ignore: deprecated_member_use
-                              onChanged: (value) {
-                                setState(() => _inputType = value!);
-                              },
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
+                            child: GestureDetector(
+                              onTap: () => setState(() =>
+                                  _inputType = _ContactInputType.email),
+                              child: Row(
+                                children: [
+                                  Radio<_ContactInputType>(
+                                    value: _ContactInputType.email,
+                                    groupValue: _inputType,
+                                    onChanged: (value) =>
+                                        setState(() => _inputType = value!),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  Text(AppStrings.contactSelector.emailLabel),
+                                ],
+                              ),
                             ),
                           ),
                           Expanded(
-                            // ignore: deprecated_member_use
-                            child: RadioListTile<_ContactInputType>(
-                              title: Text(
-                                  AppStrings.contactSelector.phoneLabel),
-                              value: _ContactInputType.phone,
-                              // ignore: deprecated_member_use
-                              groupValue: _inputType,
-                              // ignore: deprecated_member_use
-                              onChanged: (value) {
-                                setState(() => _inputType = value!);
-                              },
-                              dense: true,
-                              contentPadding: EdgeInsets.zero,
+                            child: GestureDetector(
+                              onTap: () => setState(() =>
+                                  _inputType = _ContactInputType.phone),
+                              child: Row(
+                                children: [
+                                  Radio<_ContactInputType>(
+                                    value: _ContactInputType.phone,
+                                    groupValue: _inputType,
+                                    onChanged: (value) =>
+                                        setState(() => _inputType = value!),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  Text(AppStrings.contactSelector.phoneLabel),
+                                ],
+                              ),
                             ),
                           ),
                         ],

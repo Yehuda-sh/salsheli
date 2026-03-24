@@ -14,7 +14,7 @@
 //     - Strict (Timestamp/NullableTimestamp): זורק על טיפוס לא תקין
 //     - Lenient (Flexible...): מחזיר fallback + אזהרה בדיבאג
 //
-// Version: 1.2 - debugPrint warnings on Flexible converter fallbacks
+// Version: 1.3 - FlexibleDateTimeConverter fallback: DateTime.now() → epoch sentinel
 // Last Updated: 24/03/2026
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -64,28 +64,32 @@ class NullableTimestampConverter implements JsonConverter<DateTime?, Object?> {
 /// 🇬🇧 Flexible DateTime converter (lenient - doesn't throw!)
 ///
 /// תומך ב: Timestamp, String, int (epoch), DateTime
-/// ⚠️ אם הטיפוס לא מוכר או null → מחזיר DateTime.now()
+/// ⚠️ אם הטיפוס לא מוכר או null → מחזיר epoch (1970-01-01) כ-sentinel
 class FlexibleDateTimeConverter implements JsonConverter<DateTime, dynamic> {
   const FlexibleDateTimeConverter();
+
+  /// Sentinel value for missing/invalid dates — epoch makes bad data obvious
+  /// in UI (sorted to bottom) without crashing.
+  static final DateTime _fallback = DateTime.utc(1970);
 
   @override
   DateTime fromJson(dynamic json) {
     if (json == null) {
-      debugPrint('[FlexibleDateTimeConverter] null value → fallback to now()');
-      return DateTime.now();
+      debugPrint('[FlexibleDateTimeConverter] null value → fallback to epoch');
+      return _fallback;
     }
     if (json is Timestamp) return json.toDate();
     if (json is String) {
       final parsed = DateTime.tryParse(json);
       if (parsed != null) return parsed;
-      debugPrint('[FlexibleDateTimeConverter] unparseable string "$json" → fallback to now()');
-      return DateTime.now();
+      debugPrint('[FlexibleDateTimeConverter] unparseable string "$json" → fallback to epoch');
+      return _fallback;
     }
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
     // טיפוס לא מוכר - fallback
-    debugPrint('[FlexibleDateTimeConverter] unknown type ${json.runtimeType} → fallback to now()');
-    return DateTime.now();
+    debugPrint('[FlexibleDateTimeConverter] unknown type ${json.runtimeType} → fallback to epoch');
+    return _fallback;
   }
 
   @override
