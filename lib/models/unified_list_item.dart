@@ -330,7 +330,7 @@ class UnifiedListItem {
     String? notes,
     String? imageUrl,
     String? checkedBy,
-    String? checkedAt,
+    DateTime? checkedAt,
   }) {
     return UnifiedListItem(
       id: id ?? const Uuid().v4(),
@@ -366,7 +366,7 @@ class UnifiedListItem {
     String? notes,
     String? imageUrl,
     String? checkedBy,
-    String? checkedAt,
+    DateTime? checkedAt,
   }) {
     return UnifiedListItem(
       id: id ?? const Uuid().v4(),
