@@ -390,7 +390,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       // מוצר קיים ברשימה — סמן כנקנה
       _updateItemStatus(existingItem, ShoppingItemStatus.purchased);
       messenger.showSnackBar(SnackBar(
-        content: Text('✅ ${existingItem.name}'),
+        content: Text(existingItem.name),
         backgroundColor: kStickyGreen,
         duration: const Duration(seconds: 2),
       ));
@@ -433,7 +433,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         // סמן מיד כנקנה
         _updateItemStatus(newItem, ShoppingItemStatus.purchased);
         messenger.showSnackBar(SnackBar(
-          content: Text('✅ ${newItem.name}'),
+          content: Text(newItem.name),
           backgroundColor: kStickyGreen,
           duration: const Duration(seconds: 2),
         ));

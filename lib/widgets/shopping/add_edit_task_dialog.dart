@@ -408,15 +408,54 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                     items: [
                       DropdownMenuItem(
                         value: 'low',
-                        child: Text('🔵 ${AppStrings.listDetails.priorityLow}'),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: kIconSizeSmall,
+                              height: kIconSizeSmall,
+                              decoration: BoxDecoration(
+                                color: cs.primary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(AppStrings.listDetails.priorityLow),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'medium',
-                        child: Text('🟡 ${AppStrings.listDetails.priorityMedium}'),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: kIconSizeSmall,
+                              height: kIconSizeSmall,
+                              decoration: BoxDecoration(
+                                color: cs.tertiary,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(AppStrings.listDetails.priorityMedium),
+                          ],
+                        ),
                       ),
                       DropdownMenuItem(
                         value: 'high',
-                        child: Text('🔴 ${AppStrings.listDetails.priorityHigh}'),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: kIconSizeSmall,
+                              height: kIconSizeSmall,
+                              decoration: BoxDecoration(
+                                color: cs.error,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(AppStrings.listDetails.priorityHigh),
+                          ],
+                        ),
                       ),
                     ],
                     onChanged: (value) {

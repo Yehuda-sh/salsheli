@@ -281,8 +281,8 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                             shape: BoxShape.circle,
                             color: Theme.of(context).colorScheme.primaryContainer,
                           ),
-                          child: const Center(
-                            child: Text('📩', style: TextStyle(fontSize: kFontSizeBody)),
+                          child: Center(
+                            child: Icon(Icons.mark_email_unread_outlined, color: Theme.of(context).colorScheme.primary, size: kIconSizeMedium),
                           ),
                         ),
                         const SizedBox(width: kSpacingSmall),

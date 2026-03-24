@@ -1096,7 +1096,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('🛒', style: const TextStyle(fontSize: 64)),
+            Icon(Icons.shopping_cart_outlined, color: cs.onSurfaceVariant, size: kIconSizeXXLarge),
             const SizedBox(height: kSpacingMedium),
             Text(
               AppStrings.listDetails.emptyListTitle,

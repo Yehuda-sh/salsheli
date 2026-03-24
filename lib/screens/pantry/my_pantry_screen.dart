@@ -345,7 +345,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         return AlertDialog(
           title: Row(
             children: [
-              const Text('🔔 ', style: TextStyle(fontSize: 20)),
+              Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
+              const SizedBox(width: kSpacingXTiny),
               Expanded(
                 child: Text(
                   AppStrings.pantry.similarProductFound,
@@ -371,7 +372,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Text('📦 ', style: TextStyle(fontSize: 16)),
+                    Icon(Icons.inventory_2_outlined, color: cs.onSurfaceVariant, size: kIconSizeMedium),
+                    const SizedBox(width: kSpacingXTiny),
                     Expanded(
                       child: Text(
                         '${existing.productName} (${existing.quantity} ${existing.unit})',
@@ -395,7 +397,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Text('📷 ', style: TextStyle(fontSize: 16)),
+                    Icon(Icons.photo_camera_outlined, color: cs.onSurfaceVariant, size: kIconSizeMedium),
+                    const SizedBox(width: kSpacingXTiny),
                     Expanded(
                       child: Text(
                         scannedName,
@@ -733,8 +736,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   shape: BoxShape.circle,
                   color: scheme.primaryContainer,
                 ),
-                child: const Center(
-                  child: Text('📦', style: TextStyle(fontSize: kFontSizeTitle)),
+                child: Center(
+                  child: Icon(Icons.inventory_2_outlined, color: scheme.primary, size: kIconSizeMedium),
                 ),
               ),
               const SizedBox(width: kSpacingSmall),
@@ -1373,9 +1376,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               Row(
                                 children: [
                                   if (item.isRecurring)
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 4),
-                                      child: Text('⭐', style: TextStyle(fontSize: kFontSizeSmall)),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 4),
+                                      child: Icon(Icons.star_rounded, color: theme.colorScheme.tertiary, size: kIconSizeSmall),
                                     ),
                                   Flexible(
                                     child: Text(

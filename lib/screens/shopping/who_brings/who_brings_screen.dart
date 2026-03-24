@@ -278,8 +278,8 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
                         ),
-                        child: const Center(
-                          child: Text('🤝', style: TextStyle(fontSize: kFontSizeBody)),
+                        child: Center(
+                          child: Icon(Icons.handshake_outlined, color: cs.primary, size: kIconSizeMedium),
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),

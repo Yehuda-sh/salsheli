@@ -65,7 +65,7 @@ class PantryEmptyState extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('💡', style: TextStyle(fontSize: kFontSizeLarge)),
+              Icon(Icons.lightbulb_outline, color: cs.primary, size: kIconSizeMedium),
               const Gap(kSpacingSmall),
               Text(
                 strings.howToStartTitle,
@@ -78,9 +78,9 @@ class PantryEmptyState extends StatelessWidget {
             ],
           ),
           const Gap(kSpacingSmall),
-          _buildTip('1️⃣', strings.howToStartStep1, cs.onSurfaceVariant),
-          _buildTip('2️⃣', strings.howToStartStep2, cs.onSurfaceVariant),
-          _buildTip('3️⃣', strings.howToStartStep3, cs.onSurfaceVariant),
+          _buildTip(1, strings.howToStartStep1, cs),
+          _buildTip(2, strings.howToStartStep2, cs),
+          _buildTip(3, strings.howToStartStep3, cs),
           const Gap(kSpacingSmall),
           const Divider(),
           const Gap(kSpacingSmall),
@@ -105,7 +105,7 @@ class PantryEmptyState extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text('🎁', style: TextStyle(fontSize: kFontSizeLarge)),
+                    Icon(Icons.inventory_2_outlined, color: cs.primary, size: kIconSizeMedium),
                     const Gap(kSpacingSmall),
                     Expanded(
                       child: Text(
@@ -294,18 +294,34 @@ class PantryEmptyState extends StatelessWidget {
     );
   }
 
-  Widget _buildTip(String number, String text, Color textColor) {
+  Widget _buildTip(int number, String text, ColorScheme cs) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(number, style: const TextStyle(fontSize: kFontSizeSmall)),
+          Container(
+            width: kIconSizeSmallPlus,
+            height: kIconSizeSmallPlus,
+            decoration: BoxDecoration(
+              color: cs.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '$number',
+              style: TextStyle(
+                fontSize: kFontSizeTiny,
+                fontWeight: FontWeight.bold,
+                color: cs.primary,
+              ),
+            ),
+          ),
           const Gap(kSpacingSmall),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: kFontSizeSmall, color: textColor),
+              style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
             ),
           ),
         ],

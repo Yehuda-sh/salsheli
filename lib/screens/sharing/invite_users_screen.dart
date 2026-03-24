@@ -402,8 +402,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 shape: BoxShape.circle,
                                 color: cs.primaryContainer,
                               ),
-                              child: const Center(
-                                child: Text('✉️', style: TextStyle(fontSize: kFontSizeBody)),
+                              child: Center(
+                                child: Icon(Icons.mail_outline, color: cs.primary, size: kIconSizeMedium),
                               ),
                             ),
                             const SizedBox(width: kSpacingSmall),
@@ -443,7 +443,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    const Text('📇', style: TextStyle(fontSize: kFontSizeLarge)),
+                                    Icon(Icons.contacts_outlined, color: cs.onSurface, size: kIconSizeMedium),
                                     const SizedBox(width: 8),
                                     Text(
                                       AppStrings.sharing.savedContactsTitle,

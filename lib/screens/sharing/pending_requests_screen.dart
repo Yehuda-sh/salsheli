@@ -289,8 +289,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
                         ),
-                        child: const Center(
-                          child: Text('📋', style: TextStyle(fontSize: kFontSizeBody)),
+                        child: Center(
+                          child: Icon(Icons.assignment_outlined, color: cs.primary, size: kIconSizeMedium),
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
