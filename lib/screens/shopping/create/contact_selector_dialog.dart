@@ -402,7 +402,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                       RadioGroup<_ContactInputType>(
                         groupValue: _inputType,
                         onChanged: (value) {
-                          setState(() => _inputType = value);
+                          if (value != null) setState(() => _inputType = value);
                         },
                         child: Row(
                           children: [
