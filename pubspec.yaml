@@ -20,9 +20,7 @@ dependencies:
   flutter_animate: ^4.5.0
   shimmer: ^3.0.0
   dynamic_color: ^1.7.0
-  skeletonizer: ^1.3.0  # Premium skeleton loading effects
   gap: ^3.0.1  # Clean spacing management
-  badges: ^3.1.2  # Notification bubbles for BottomNav & AppBar
 
   # State & Storage
   provider: ^6.1.2
@@ -31,36 +29,17 @@ dependencies:
   hive_flutter: ^1.1.0
 
   # Network
-  http: ^1.2.2
-  cached_network_image: ^3.4.1
   connectivity_plus: ^6.0.3
 
   # Utils
   intl: ^0.20.2
   json_annotation: ^4.9.0
   timeago: ^3.7.0
-  xml: ^6.6.1
-  archive: ^4.0.7
   uuid: ^4.5.0
   rxdart: ^0.28.0  # Stream utilities for Collaborative Sync
 
   # Media
-  camera: ^0.11.0+2
-  image_picker: ^1.1.2
   mobile_scanner: ^7.2.0
-
-  # Contacts
-  flutter_contacts: ^1.1.9+2
-
-  # Files
-  path_provider: ^2.1.4
-  path: ^1.9.0
-
-  # Charts
-  fl_chart: ^1.1.0
-
-  # Tutorial / Onboarding
-  tutorial_coach_mark: ^1.2.11
 
   # Firebase
   firebase_core: ^4.2.0
@@ -69,7 +48,6 @@ dependencies:
   firebase_storage: ^13.0.3
   firebase_analytics: ^12.1.0
   firebase_crashlytics: ^5.0.6
-  firebase_messaging: ^16.1.0  # Real-time Push Notifications
 
   # Social Login
   google_sign_in: ^6.2.1
