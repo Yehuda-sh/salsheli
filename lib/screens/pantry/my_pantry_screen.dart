@@ -860,7 +860,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         elevation: 0.5,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: kSpacingSmall, horizontal: kSpacingSmall),
+          padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny, horizontal: kSpacingSmall),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(kBorderRadius),
             gradient: LinearGradient(
@@ -875,8 +875,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
-              const SizedBox(height: 2),
+              Text(emoji, style: const TextStyle(fontSize: kFontSizeBody)),
+              const SizedBox(height: 1),
               Text(
                 value,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -1347,15 +1347,15 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingMedium,
-                      vertical: 12,
+                      horizontal: kSpacingSmall,
+                      vertical: kSpacingSmall,
                     ),
                     child: Row(
                       children: [
                         // 🏷️ אמוג'י בעיגול
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 36,
+                          height: 36,
                           decoration: BoxDecoration(
                             color: statusColor.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
@@ -1365,7 +1365,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                           ),
                         ),
 
-                        const SizedBox(width: kSpacingSmall),
+                        const SizedBox(width: kSpacingTiny),
 
                         // 📝 שם + קטגוריה + recurring
                         Expanded(
@@ -1386,7 +1386,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                       style: theme.textTheme.titleSmall?.copyWith(
                                         fontWeight: FontWeight.bold,
                                       ),
-                                      maxLines: 1,
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -1396,7 +1396,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    item.category,
+                                    FiltersConfig.getCategoryInfo(
+                                      FiltersConfig.resolveCategory(item.category),
+                                    ).label,
                                     style: theme.textTheme.bodySmall?.copyWith(
                                       color: cs.onSurfaceVariant,
                                       fontSize: kFontSizeTiny,
@@ -1431,8 +1433,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                             GestureDetector(
                               onTap: () => _showQuickQuantityDialog(item),
                               child: Container(
-                                constraints: const BoxConstraints(minWidth: 48),
-                                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
+                                constraints: const BoxConstraints(minWidth: 40),
+                                padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: kSpacingTiny),
                                 decoration: BoxDecoration(
                                   color: isWarning || isCritical
                                       ? statusColor.withValues(alpha: 0.12)
