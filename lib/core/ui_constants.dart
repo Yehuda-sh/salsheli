@@ -252,7 +252,9 @@ const double kFontSizeDisplay = 34.0; // Display / hero text
 // Use kIconSize for semantic default, kIconSizeMedium for explicit sizing
 
 const double kIconSizeSmall = 16.0;    // Small icons
+const double kIconSizeSmallPlus = 20.0; // Small-plus icons (badges, inline)
 const double kIconSizeMedium = 24.0;   // Medium icons (Material default)
+const double kIconSizeMediumPlus = 28.0; // Medium-plus icons (status indicators)
 const double kIconSize = kIconSizeMedium; // Alias: default icon size
 const double kIconSizeLarge = 36.0;    // Large icons
 const double kIconSizeXLarge = 48.0;   // Extra large icons

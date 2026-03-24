@@ -262,7 +262,7 @@ class PantryEmptyState extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.home_outlined, color: badgeColor, size: kIconSizeSmall),
+            Icon(Icons.home_outlined, color: badgeColor, size: kIconSizeSmallPlus),
             const Gap(kSpacingSmall),
             Text(
               strings.pantryBadgeGroup(groupName!),
@@ -283,7 +283,7 @@ class PantryEmptyState extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.kitchen_outlined, color: cs.primary, size: kIconSizeSmall),
+          Icon(Icons.kitchen_outlined, color: cs.primary, size: kIconSizeSmallPlus),
           const Gap(kSpacingSmall),
           Text(
             strings.pantryBadgePersonal,

@@ -129,7 +129,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                           _statusIcon,
                           key: ValueKey(status),
                           color: _statusColor(cs),
-                          size: kIconSizeMedium,
+                          size: kIconSizeMediumPlus,
                         ),
                       ),
                     ),

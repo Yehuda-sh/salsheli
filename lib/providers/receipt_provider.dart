@@ -125,6 +125,7 @@ class ReceiptProvider with ChangeNotifier {
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
       _receipts = [];
+      _isLoading = false;
       _notifySafe();
       return;
     }
