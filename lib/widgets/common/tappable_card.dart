@@ -24,17 +24,16 @@ import 'animated_button.dart' show ButtonHaptic;
 // Re-export ButtonHaptic for callers that import tappable_card.dart
 export 'animated_button.dart' show ButtonHaptic;
 
-/// 🎴 TappableCard - Interactive Card with Scale & Elevation Animation
+/// 🎴 TappableCard - Interactive Card with Scale & Optional Elevation Animation
 ///
 /// Wraps a Card or any widget to add:
 /// - Scale animation (0.98) on tap - "pressed inward" feel
-/// - Elevation animation (2 → 0) on tap - consistent with scale
+/// - Optional elevation animation (off by default, enable with animateElevation + initialElevation)
 /// - InkWell for ripple effect and accessibility
 /// - Haptic feedback (configurable via ButtonHaptic)
 /// - Mouse cursor for desktop
 /// - Smooth 150ms animation
 /// - RepaintBoundary for isolated repaints
-/// - Perfect for dashboard cards
 ///
 /// Usage:
 /// ```dart
