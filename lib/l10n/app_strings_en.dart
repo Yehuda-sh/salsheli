@@ -337,6 +337,7 @@ class CommonStringsEn extends CommonStrings {
   @override String unknownError(String error) => 'Error: $error';
   @override String get unknownErrorGeneric => 'Unknown error';
   @override String get connected => 'Connected';
+  @override String get optional => '(Optional)';
 }
 
 // ========================================
@@ -709,6 +710,11 @@ class AuthStringsEn extends AuthStrings {
   String get phoneFieldSemanticLabel => 'Israeli mobile phone field, required';
   String get loginLinkSemanticLabel => 'Have an account? Tap to go to login screen';
   String socialRegisterSemanticLabel(String provider) => 'Sign up or log in with $provider';
+
+  // Loading overlay messages
+  @override String get loadingCheckingDetails => 'Checking details...';
+  @override String get loadingConnecting => 'Connecting to server...';
+  @override String get loadingAlmostThere => 'Almost there...';
 }
 
 // ========================================
@@ -897,6 +903,23 @@ class HouseholdStringsEn extends HouseholdStrings {
   @override String get makeMember => 'Make Member';
   @override String get removeFromHousehold => 'Remove from Household';
   @override String roleChangeError(String error) => 'Error changing role: $error';
+  @override String get ownerCannotLeave => 'Owner cannot leave the household. You can delete or transfer ownership';
+  @override String get householdNotFound => 'Household not found';
+  @override String get loadMembersError => 'Error loading household members';
+  @override String get leaveHouseholdConfirm => 'Are you sure you want to leave? You\'ll be moved to a new personal home.';
+  @override String memberRemoved(String name) => '$name was removed from the household';
+  @override String memberRoleChanged(String name, String role) => '$name is now $role';
+  @override String get membersCount => 'members';
+  @override String get roleOwner => 'Owner';
+  @override String get roleAdmin => 'Admin';
+  @override String get roleMember => 'Member';
+  @override String get myHome => 'My Home';
+  @override String get leaveHouseholdTooltip => 'Leave household';
+  @override String get userFallback => 'User';
+  @override String get meLabel => 'Me';
+  @override String get roleOwnerLabel => '👑 Owner';
+  @override String get roleAdminLabel => '🛡️ Admin';
+  @override String get roleMemberLabel => '👤 Member';
 }
 
 // ========================================
@@ -1635,6 +1658,21 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   String get yesterday => 'Yesterday';
   String daysAgo(int days) => '$days days ago';
   String dateFormat(int day, int month, int year) => '$month/$day/$year';
+
+  // Activity feed
+  @override String get activityFeedTitle => 'What\'s new at home';
+  @override String get youLabel => 'You';
+  @override String get householdMember => 'Household member';
+  @override String completedShoppingAt(String store) => '✅ Completed shopping at $store';
+  @override String plusItems(int count) => '+$count items';
+  @override String minutesAgo(int minutes) => '$minutes min ago';
+  @override String hoursAgo(int hours) => '$hours hr ago';
+
+  // Active lists subtitle
+  @override String activeListsSubtitle(int count) => '$count active lists';
+
+  // User info fallback
+  @override String get userFallback => 'User';
 }
 
 // ========================================

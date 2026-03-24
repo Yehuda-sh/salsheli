@@ -194,7 +194,7 @@ class _TutorialDialogState extends State<_TutorialDialog> {
                   ),
                   child: Icon(
                     step.icon,
-                    size: 40,
+                    size: kIconSizeLarge,
                     color: cs.primary,
                   ),
                 ),

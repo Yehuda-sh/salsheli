@@ -159,6 +159,9 @@ class ShoppingListsProvider with ChangeNotifier {
   /// מעדכן את ה-UserContext ומאזין לשינויים
   /// נקרא אוטומטית מ-ProxyProvider
   void updateUserContext(UserContext newContext) {
+    // v4.3: מניעת update כפול של אותו context
+    if (_userContext == newContext) return;
+
     if (_listening && _userContext != null) {
       _userContext!.removeListener(_onUserChanged);
       _listening = false;

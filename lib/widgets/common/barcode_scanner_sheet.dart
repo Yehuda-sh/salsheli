@@ -89,7 +89,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.no_photography_outlined, size: 48, color: cs.onErrorContainer),
+                        Icon(Icons.no_photography_outlined, size: kIconSizeXLarge, color: cs.onErrorContainer),
                         const SizedBox(height: kSpacingSmall),
                         Text(
                           AppStrings.shopping.cameraError,

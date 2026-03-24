@@ -87,6 +87,9 @@ class AppBrand extends ThemeExtension<AppBrand> {
   /// פתק סגול
   final Color stickyPurple;
 
+  /// פתק כתום
+  final Color stickyOrange;
+
   /// קווי מחברת כחולים
   final Color notebookBlue;
 
@@ -110,6 +113,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
     required this.stickyGreen,
     required this.stickyCyan,
     required this.stickyPurple,
+    required this.stickyOrange,
     required this.notebookBlue,
     required this.notebookRed,
   });
@@ -132,6 +136,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
     Color? stickyGreen,
     Color? stickyCyan,
     Color? stickyPurple,
+    Color? stickyOrange,
     Color? notebookBlue,
     Color? notebookRed,
   }) {
@@ -152,6 +157,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
       stickyGreen: stickyGreen ?? this.stickyGreen,
       stickyCyan: stickyCyan ?? this.stickyCyan,
       stickyPurple: stickyPurple ?? this.stickyPurple,
+      stickyOrange: stickyOrange ?? this.stickyOrange,
       notebookBlue: notebookBlue ?? this.notebookBlue,
       notebookRed: notebookRed ?? this.notebookRed,
     );
@@ -177,6 +183,7 @@ class AppBrand extends ThemeExtension<AppBrand> {
       stickyGreen: Color.lerp(stickyGreen, other.stickyGreen, t)!,
       stickyCyan: Color.lerp(stickyCyan, other.stickyCyan, t)!,
       stickyPurple: Color.lerp(stickyPurple, other.stickyPurple, t)!,
+      stickyOrange: Color.lerp(stickyOrange, other.stickyOrange, t)!,
       notebookBlue: Color.lerp(notebookBlue, other.notebookBlue, t)!,
       notebookRed: Color.lerp(notebookRed, other.notebookRed, t)!,
     );
@@ -260,6 +267,7 @@ class AppTheme {
       stickyGreen: dark ? kStickyGreenDark : kStickyGreen,
       stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
       stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
+      stickyOrange: dark ? kStickyOrangeDark : kStickyOrange,
       notebookBlue: kNotebookBlue,
       notebookRed: kNotebookRed,
     );
@@ -340,6 +348,7 @@ class AppTheme {
           stickyGreen: dark ? kStickyGreenDark : kStickyGreen,
           stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
           stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
+          stickyOrange: dark ? kStickyOrangeDark : kStickyOrange,
           notebookBlue: kNotebookBlue,
           notebookRed: kNotebookRed,
         );

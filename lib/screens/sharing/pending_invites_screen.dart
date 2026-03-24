@@ -118,6 +118,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final userContext = context.read<UserContext>();
     final userId = userContext.userId;
     final userName = userContext.user?.name;
+    final userEmail = userContext.userEmail;
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
     final successBg = StatusColors.getContainer(StatusType.success, context);
@@ -133,6 +134,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
         inviteId: invite.id,
         acceptingUserId: userId,
         acceptingUserName: userName,
+        acceptingUserEmail: userEmail,
       );
 
       if (mounted) {

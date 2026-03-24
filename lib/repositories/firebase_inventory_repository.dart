@@ -537,13 +537,22 @@ class FirebaseInventoryRepository implements InventoryRepository {
     try {
 
       final snapshot = await _userInventoryCollection(userId).get();
-      final batch = _firestore.batch();
 
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
+      // ✅ Split into batches of 500 (Firestore maximum)
+      final docs = snapshot.docs;
+      const maxBatchSize = 500;
+      for (int i = 0; i < docs.length; i += maxBatchSize) {
+        final batch = _firestore.batch();
+        final end = (i + maxBatchSize < docs.length)
+            ? i + maxBatchSize
+            : docs.length;
+
+        for (int j = i; j < end; j++) {
+          batch.delete(docs[j].reference);
+        }
+
+        await batch.commit();
       }
-
-      await batch.commit();
 
       return snapshot.docs.length;
     } catch (e, stackTrace) {
@@ -579,6 +588,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
       try {
         return InventoryItem.fromJson(doc.toDartMap()!);
       } catch (e) {
+        debugPrint('⚠️ Failed to parse document ${doc.id}: $e');
         return null;
       }
     }).whereType<InventoryItem>().toList();

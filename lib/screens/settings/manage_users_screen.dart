@@ -331,50 +331,55 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       return Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          body: SafeArea(
-            child: Column(
-              children: [
-                // 🏷️ כותרת inline
-                Padding(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  child: Row(
-                    children: [
-                      Icon(Icons.group, size: 24, color: cs.primary),
-                      SizedBox(width: kSpacingSmall),
-                      Expanded(
-                        child: Text(
-                          strings.title,
-                          style: TextStyle(
-                            fontSize: kFontSizeLarge,
-                            fontWeight: FontWeight.bold,
-                            color: cs.onSurface,
+          body: Stack(
+            children: [
+              const NotebookBackground(),
+              SafeArea(
+                child: Column(
+                  children: [
+                    // 🏷️ כותרת inline
+                    Padding(
+                      padding: const EdgeInsets.all(kSpacingMedium),
+                      child: Row(
+                        children: [
+                          Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
+                          const SizedBox(width: kSpacingSmall),
+                          Expanded(
+                            child: Text(
+                              strings.title,
+                              style: TextStyle(
+                                fontSize: kFontSizeLarge,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              size: kIconSizeXXLarge,
+                              color: cs.error.withValues(alpha: 0.7),
+                            ),
+                            const SizedBox(height: kSpacingMedium),
+                            Text(
+                              strings.errorUserNotLoggedIn,
+                              style: const TextStyle(fontSize: kFontSizeTitle),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: cs.error.withValues(alpha: 0.7),
-                        ),
-                        const SizedBox(height: kSpacingMedium),
-                        Text(
-                          strings.errorUserNotLoggedIn,
-                          style: const TextStyle(fontSize: kFontSizeTitle),
-                        ),
-                      ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -472,8 +477,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
           children: [
             Icon(
               Icons.people_outline,
-              size: 64,
-              color: cs.outline.withOpacity(0.5),
+              size: kIconSizeXXLarge,
+              color: cs.outline.withValues(alpha: 0.5),
             ),
             SizedBox(height: kSpacingMedium),
             Text(

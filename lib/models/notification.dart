@@ -94,6 +94,8 @@ enum NotificationPriority {
 @immutable
 @JsonSerializable(explicitToJson: true)
 class AppNotification {
+  static const _sentinel = Object();
+
   @JsonKey(defaultValue: '')
   final String id;
   
@@ -206,9 +208,9 @@ class AppNotification {
     Map<String, dynamic>? actionData,
     bool? isRead,
     DateTime? createdAt,
-    DateTime? readAt,
-    String? senderId,
-    String? senderName,
+    Object? readAt = _sentinel,
+    Object? senderId = _sentinel,
+    Object? senderName = _sentinel,
   }) {
     return AppNotification(
       id: id ?? this.id,
@@ -220,9 +222,9 @@ class AppNotification {
       actionData: actionData ?? this.actionData,
       isRead: isRead ?? this.isRead,
       createdAt: createdAt ?? this.createdAt,
-      readAt: readAt ?? this.readAt,
-      senderId: senderId ?? this.senderId,
-      senderName: senderName ?? this.senderName,
+      readAt: readAt == _sentinel ? this.readAt : readAt as DateTime?,
+      senderId: senderId == _sentinel ? this.senderId : senderId as String?,
+      senderName: senderName == _sentinel ? this.senderName : senderName as String?,
     );
   }
 

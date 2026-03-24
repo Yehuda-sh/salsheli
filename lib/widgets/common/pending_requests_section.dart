@@ -57,7 +57,7 @@ class PendingRequestsSection extends StatelessWidget {
           // כותרת
           Row(
             children: [
-              Icon(Icons.pending_actions, size: 18, color: cs.onSurface),
+              Icon(Icons.pending_actions, size: kIconSizeSmall, color: cs.onSurface),
               const SizedBox(width: kSpacingSmall),
               Text(
                 AppStrings.pendingInvitesScreen.pendingRequestsLabel(pendingRequests.length),
@@ -151,7 +151,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       child: Row(
         children: [
           // אייקון סוג
-          Text(_getIcon(request.type), style: const TextStyle(fontSize: 14)),
+          Text(_getIcon(request.type), style: const TextStyle(fontSize: kFontSizeMedium)),
           const SizedBox(width: kSpacingSmall),
 
           // תוכן
@@ -180,7 +180,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
               height: 44,
               child: IconButton(
                 onPressed: _approve,
-                icon: Icon(Icons.check_circle, size: 24, color: successColor),
+                icon: Icon(Icons.check_circle, size: kIconSizeMedium, color: successColor),
                 padding: EdgeInsets.zero,
                 tooltip: AppStrings.pendingInvitesScreen.approveRequest,
               ),
@@ -191,7 +191,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
               height: 44,
               child: IconButton(
                 onPressed: _confirmAndReject,
-                icon: Icon(Icons.cancel, size: 24, color: cs.error.withValues(alpha: 0.7)),
+                icon: Icon(Icons.cancel, size: kIconSizeMedium, color: cs.error.withValues(alpha: 0.7)),
                 padding: EdgeInsets.zero,
                 tooltip: AppStrings.pendingInvitesScreen.rejectRequest,
               ),

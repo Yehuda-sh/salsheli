@@ -556,6 +556,7 @@ class PendingInvitesService {
     required String acceptingUserId,
     String? acceptingUserName,
     String? acceptingUserAvatar,
+    String? acceptingUserEmail,
   }) async {
 
     try {
@@ -572,8 +573,12 @@ class PendingInvitesService {
         return InviteResult.inviteAlreadyProcessed();
       }
 
+      // ✅ Auth check: invited_user_id may be UID or email (for email-based invites)
       final invitedUserId = invite.requestData['invited_user_id'] as String;
-      if (invitedUserId != acceptingUserId) {
+      final isAuthorized = invitedUserId == acceptingUserId ||
+          (acceptingUserEmail != null &&
+              invitedUserId.toLowerCase() == acceptingUserEmail.toLowerCase());
+      if (!isAuthorized) {
         return InviteResult.notAuthorized();
       }
 
@@ -942,12 +947,14 @@ class PendingInvitesService {
     required String acceptingUserId,
     String? acceptingUserName,
     String? acceptingUserAvatar,
+    String? acceptingUserEmail,
   }) async {
     final result = await acceptInviteResult(
       inviteId: inviteId,
       acceptingUserId: acceptingUserId,
       acceptingUserName: acceptingUserName,
       acceptingUserAvatar: acceptingUserAvatar,
+      acceptingUserEmail: acceptingUserEmail,
     );
     if (!result.isSuccess) {
       throw Exception(result.type.name);

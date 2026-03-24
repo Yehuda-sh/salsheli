@@ -184,8 +184,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 },
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(Icons.remove_circle_outline, color: cs.primary, size: 24),
+            padding: const EdgeInsets.all(kSpacingXTiny),
+            child: Icon(Icons.remove_circle_outline, color: cs.primary, size: kIconSizeMedium),
           ),
         ),
         // ערך
@@ -203,7 +203,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             decoration: InputDecoration(
               labelText: label,
               labelStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
-              contentPadding: const EdgeInsets.symmetric(vertical: 4),
+              contentPadding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
               isDense: true,
               border: InputBorder.none,
             ),
@@ -223,8 +223,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 },
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
-            padding: const EdgeInsets.all(4),
-            child: Icon(Icons.add_circle_outline, color: cs.primary, size: 24),
+            padding: const EdgeInsets.all(kSpacingXTiny),
+            child: Icon(Icons.add_circle_outline, color: cs.primary, size: kIconSizeMedium),
           ),
         ),
       ],
@@ -290,8 +290,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           // כותרת קטנה
           Row(
             children: [
-              Icon(Icons.bar_chart, size: 14, color: mutedColor),
-              const SizedBox(width: 4),
+              Icon(Icons.bar_chart, size: kFontSizeMedium, color: mutedColor),
+              const SizedBox(width: kSpacingXTiny),
               Text(
                 AppStrings.inventory.statisticsLabel,
                 style: TextStyle(
@@ -302,17 +302,17 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: kSpacingTiny),
           // שורת נתונים אופקית
           Wrap(
-            spacing: 12,
-            runSpacing: 4,
+            spacing: kSpacingSmallPlus,
+            runSpacing: kSpacingXTiny,
             children: [
               // כמה פעמים נקנה
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 12, color: mutedColor),
+                  Icon(Icons.shopping_cart_outlined, size: kFontSizeSmall, color: mutedColor),
                   const SizedBox(width: 3),
                   Text(
                     '${item.purchaseCount}×',
@@ -325,7 +325,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.history, size: 12, color: mutedColor),
+                    Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
                     const SizedBox(width: 3),
                     Text(
                       dateFormat.format(item.lastPurchased!),
@@ -338,7 +338,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up, size: 12, color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7)),
+                    Icon(Icons.trending_up, size: kFontSizeSmall, color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7)),
                     const SizedBox(width: 3),
                     Text(
                       AppStrings.inventory.popularLabel,
@@ -553,7 +553,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: kSpacingXTiny),
                       _buildQuantityField(
                         controller: _quantityController,
                         label: '',
@@ -574,7 +574,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.notifications_outlined, size: 14, color: cs.onSurfaceVariant),
+                          Icon(Icons.notifications_outlined, size: kFontSizeMedium, color: cs.onSurfaceVariant),
                           const SizedBox(width: 2),
                           Text(
                             AppStrings.inventory.minimumLabel,
@@ -586,7 +586,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: kSpacingXTiny),
                       _buildQuantityField(
                         controller: _minQuantityController,
                         label: '',
@@ -681,7 +681,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   childrenPadding: const EdgeInsets.only(top: kSpacingSmall),
                   leading: Icon(
                     Icons.tune,
-                    size: 20,
+                    size: kIconSizeSmall,
                     color: cs.onSurfaceVariant,
                   ),
                   title: Text(
@@ -762,7 +762,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           prefixIcon: Icon(Icons.event_outlined, color: cs.primary),
                           suffixIcon: _expiryDate != null
                               ? IconButton(
-                                  icon: const Icon(Icons.clear, size: 18),
+                                  icon: const Icon(Icons.clear, size: kIconSizeSmall),
                                   onPressed: _isLoading
                                       ? null
                                       : () => setState(() {
@@ -771,7 +771,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                                           }),
                                   tooltip: AppStrings.inventory.clearDateTooltip,
                                 )
-                              : const Icon(Icons.calendar_today, size: 18),
+                              : const Icon(Icons.calendar_today, size: kIconSizeSmall),
                         ),
                         child: Text(
                           _expiryDate != null

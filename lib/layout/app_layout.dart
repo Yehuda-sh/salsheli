@@ -71,7 +71,7 @@ class _AppLayoutState extends State<AppLayout> {
     showModalBottomSheet(
       context: context,
       backgroundColor: cs.surface.withValues(alpha: 0.9),
-      barrierColor: Colors.black.withValues(alpha: 0.3),
+      barrierColor: cs.scrim.withValues(alpha: 0.3),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       ),
@@ -200,7 +200,7 @@ class _AppLayoutState extends State<AppLayout> {
             AppStrings.layout.appTitle,
             style: TextStyle(
               fontFamily: 'Caveat',
-              fontSize: 28,
+              fontSize: kFontSizeXLarge,
               fontWeight: FontWeight.w700,
               color: cs.primary,
               letterSpacing: 0.5,
@@ -236,7 +236,7 @@ class _AppLayoutState extends State<AppLayout> {
     return RepaintBoundary(
       child: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
           child: Semantics(
             label: AppStrings.layout.navSemanticLabel(currentTabLabel),
             hint: AppStrings.layout.navSemanticHint,
