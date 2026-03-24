@@ -33,11 +33,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memozap/config/app_config.dart';
-import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/firebase_options.dart';
-// Models
+import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/models/shopping_list.dart';
-// Providers
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/locations_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
@@ -45,7 +43,6 @@ import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
-// Repositories
 import 'package:memozap/repositories/firebase_inventory_repository.dart';
 import 'package:memozap/repositories/firebase_locations_repository.dart';
 import 'package:memozap/repositories/firebase_receipt_repository.dart';
@@ -53,24 +50,20 @@ import 'package:memozap/repositories/firebase_shopping_lists_repository.dart';
 import 'package:memozap/repositories/firebase_user_repository.dart';
 import 'package:memozap/repositories/local_products_repository.dart';
 import 'package:memozap/repositories/user_repository.dart';
-// Screens
 import 'package:memozap/screens/auth/login_screen.dart' as auth_login;
 import 'package:memozap/screens/auth/register_screen.dart' as auth_register;
+import 'package:memozap/screens/history/shopping_history_screen.dart';
 import 'package:memozap/screens/index_screen.dart';
-import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
+import 'package:memozap/screens/notifications/notifications_center_screen.dart';
+import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
-import 'package:memozap/screens/history/shopping_history_screen.dart';
-import 'package:memozap/screens/sharing/pending_invites_screen.dart';
-// Services
 import 'package:memozap/services/auth_service.dart';
 import 'package:memozap/services/notifications_service.dart';
-// Theme
 import 'package:memozap/theme/app_theme.dart';
-// Widgets
 import 'package:memozap/widgets/dev_banner.dart';
 import 'package:provider/provider.dart';
 
@@ -159,7 +152,7 @@ void main() async {
           update: (context, userContext, previous) {
             final provider = previous ?? ProductsProvider(repository: productsRepo, skipInitialLoad: true);
             if (userContext.isLoggedIn && !provider.hasInitialized) {
-              Future.microtask(() => provider.initializeAndLoad());
+              Future.microtask(provider.initializeAndLoad);
             }
             return provider;
           },
