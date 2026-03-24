@@ -78,7 +78,7 @@ Object? _readLastInvitedAt(Map<dynamic, dynamic> json, String key) =>
 @immutable
 @JsonSerializable()
 class SavedContact {
-  static final _sentinel = Object();
+  static const _sentinel = Object();
 
   /// מזהה ייחודי של איש הקשר (userId של המשתמש המוזמן)
   /// 🔄 readValue: תמיכה ב-user_id וגם userId (תאימות לאחור)

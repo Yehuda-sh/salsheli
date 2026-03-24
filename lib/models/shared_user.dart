@@ -87,7 +87,7 @@ Object? _readCanStartShopping(Map<dynamic, dynamic> json, String key) =>
 @immutable
 @JsonSerializable()
 class SharedUser {
-  static final _sentinel = Object();
+  static const _sentinel = Object();
 
   /// מזהה המשתמש (המפתח במפה - לא נשמר ב-JSON של הערך)
   @JsonKey(includeFromJson: false, includeToJson: false)

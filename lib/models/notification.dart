@@ -94,7 +94,7 @@ enum NotificationPriority {
 @immutable
 @JsonSerializable(explicitToJson: true)
 class AppNotification {
-  static final _sentinel = Object();
+  static const _sentinel = Object();
 
   @JsonKey(defaultValue: '')
   final String id;

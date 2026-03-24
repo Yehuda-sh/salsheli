@@ -35,7 +35,7 @@ part 'smart_suggestion.g.dart';
 @immutable
 @JsonSerializable(explicitToJson: true)
 class SmartSuggestion {
-  static final _sentinel = Object();
+  static const _sentinel = Object();
 
   /// 🇮🇱 מזהה ייחודי להמלצה
   /// 🇬🇧 Unique suggestion identifier
