@@ -40,7 +40,8 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
   final controller = TextEditingController();
   String selectedEmoji = kLocationEmojis.first;
 
-  final result = await AppDialog.show<String>(
+  try {
+    final result = await AppDialog.show<String>(
     context: context,
     child: StatefulBuilder(
           builder: (ctx, setDialogState) {
@@ -83,7 +84,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                               ),
                             ),
                             child: Text(emoji,
-                                style: const TextStyle(fontSize: kIconSize)),
+                                style: const TextStyle(fontSize: kFontSizeTitle)),
                           ),
                         );
                       }).toList(),
@@ -95,7 +96,6 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.locationNameLabel,
                         hintText: AppStrings.inventory.locationNameHint,
-                        border: const OutlineInputBorder(),
                       ),
                       autofocus: true,
                       textDirection: TextDirection.rtl,
@@ -148,4 +148,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
   );
 
   return result;
+  } finally {
+    controller.dispose();
+  }
 }
