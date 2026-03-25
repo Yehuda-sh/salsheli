@@ -263,7 +263,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
       // יצירת הזמנה ממתינה - המוזמן יצטרך לאשר
       // 🔧 אם אין UID, משתמשים באימייל כמזהה (המשתמש עדיין לא רשום)
-      await _pendingInvitesService.createInvite(
+      final inviteResult = await _pendingInvitesService.createInviteResult(
         listId: widget.list.id,
         listName: widget.list.name,
         inviterId: currentUserId,
@@ -275,6 +275,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         householdId: householdId,
         householdName: userContext.householdName,
       );
+
+      if (!inviteResult.isSuccess) {
+        throw Exception(inviteResult.errorMessage ?? inviteResult.type.name);
+      }
 
       // שליחת התראה למוזמן - רק אם המשתמש רשום
       if (userExists && invitedUserId != null) {

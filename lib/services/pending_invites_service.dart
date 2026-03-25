@@ -96,7 +96,6 @@ class InviteResult {
   final PendingRequest? invite;
   final SharedUser? sharedUser;
   final List<PendingRequest>? invites;
-  final int? count;
   final String? errorMessage;
 
   const InviteResult._({
@@ -104,7 +103,6 @@ class InviteResult {
     this.invite,
     this.sharedUser,
     this.invites,
-    this.count,
     this.errorMessage,
   });
 
@@ -129,14 +127,6 @@ class InviteResult {
     return InviteResult._(
       type: InviteResultType.success,
       invites: invites,
-    );
-  }
-
-  /// הצלחה עם ספירה
-  factory InviteResult.successWithCount(int count) {
-    return InviteResult._(
-      type: InviteResultType.success,
-      count: count,
     );
   }
 
@@ -207,17 +197,8 @@ class InviteResult {
   /// האם הצליח
   bool get isSuccess => type == InviteResultType.success;
 
-  /// האם יש הזמנה
-  bool get hasInvite => invite != null;
-
-  /// האם יש משתמש
+  /// האם יש משתמש (לאחר אישור הזמנה)
   bool get hasUser => sharedUser != null;
-
-  /// האם יש רשימת הזמנות
-  bool get hasInvites => invites != null;
-
-  /// האם יש שגיאה
-  bool get isError => type != InviteResultType.success;
 }
 
 // ========================================
@@ -777,92 +758,4 @@ class PendingInvitesService {
     }
   }
 
-  /// @deprecated השתמש ב-createInviteResult() במקום
-  @Deprecated('Use createInviteResult() instead')
-  Future<PendingRequest> createInvite({
-    required String listId,
-    required String listName,
-    required String inviterId,
-    required String inviterName,
-    required String invitedUserId,
-    required String invitedUserEmail,
-    String? invitedUserName,
-    required UserRole role,
-    required String householdId,
-    String? householdName,
-  }) async {
-    final result = await createInviteResult(
-      listId: listId,
-      listName: listName,
-      inviterId: inviterId,
-      inviterName: inviterName,
-      invitedUserId: invitedUserId,
-      invitedUserEmail: invitedUserEmail,
-      invitedUserName: invitedUserName,
-      role: role,
-      householdId: householdId,
-      householdName: householdName,
-    );
-    if (!result.isSuccess) {
-      throw Exception(result.type.name);
-    }
-    return result.invite!;
-  }
-
-  /// @deprecated השתמש ב-getPendingInvitesForUserResult() במקום
-  @Deprecated('Use getPendingInvitesForUserResult() instead')
-  Future<List<PendingRequest>> getPendingInvitesForUser(
-    String userId, {
-    String? userEmail,
-  }) async {
-    final result = await getPendingInvitesForUserResult(userId, userEmail: userEmail);
-    return result.invites ?? [];
-  }
-
-  // ✅ REMOVED: getPendingInvitesCount() — use getPendingInvitesCountResult()
-
-  /// @deprecated השתמש ב-acceptInviteResult() במקום
-  @Deprecated('Use acceptInviteResult() instead')
-  Future<SharedUser> acceptInvite({
-    required String inviteId,
-    required String acceptingUserId,
-    String? acceptingUserName,
-    String? acceptingUserAvatar,
-    String? acceptingUserEmail,
-  }) async {
-    final result = await acceptInviteResult(
-      inviteId: inviteId,
-      acceptingUserId: acceptingUserId,
-      acceptingUserName: acceptingUserName,
-      acceptingUserAvatar: acceptingUserAvatar,
-      acceptingUserEmail: acceptingUserEmail,
-    );
-    if (!result.isSuccess) {
-      throw Exception(result.type.name);
-    }
-    return result.sharedUser!;
-  }
-
-  /// @deprecated השתמש ב-declineInviteResult() במקום
-  @Deprecated('Use declineInviteResult() instead')
-  Future<void> declineInvite({
-    required String inviteId,
-    required String decliningUserId,
-    String? decliningUserName,
-    String? reason,
-  }) async {
-    final result = await declineInviteResult(
-      inviteId: inviteId,
-      decliningUserId: decliningUserId,
-      decliningUserName: decliningUserName,
-      reason: reason,
-    );
-    if (!result.isSuccess) {
-      throw Exception(result.type.name);
-    }
-  }
-
-  // ✅ REMOVED: cancelInvite() — use cancelInviteResult()
-
-  // ✅ REMOVED: cleanupOldInvites() — use cleanupOldInvitesResult()
 }

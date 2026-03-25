@@ -89,26 +89,23 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       return;
     }
 
-    try {
-      // 🔍 חיפוש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה)
-      final invites = await _invitesService.getPendingInvitesForUser(
-        userId,
-        userEmail: userEmail,
-      );
-      if (mounted) {
-        setState(() {
-          _pendingInvites = invites;
-          _isInitialLoading = false;
-          _error = null;
-        });
-      }
-    } catch (e) {
-      if (mounted && !silent) {
-        setState(() {
-          _isInitialLoading = false;
-          _error = AppStrings.pendingInvitesScreen.loadError;
-        });
-      }
+    final result = await _invitesService.getPendingInvitesForUserResult(
+      userId,
+      userEmail: userEmail,
+    );
+    if (!mounted) return;
+
+    if (result.isSuccess) {
+      setState(() {
+        _pendingInvites = result.invites ?? [];
+        _isInitialLoading = false;
+        _error = null;
+      });
+    } else if (!silent) {
+      setState(() {
+        _isInitialLoading = false;
+        _error = AppStrings.pendingInvitesScreen.loadError;
+      });
     }
   }
 
@@ -129,44 +126,37 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     setState(() => _processingInviteId = invite.id);
 
-    try {
-      await _invitesService.acceptInvite(
-        inviteId: invite.id,
-        acceptingUserId: userId,
-        acceptingUserName: userName,
-        acceptingUserEmail: userEmail,
-      );
+    final result = await _invitesService.acceptInviteResult(
+      inviteId: invite.id,
+      acceptingUserId: userId,
+      acceptingUserName: userName,
+      acceptingUserEmail: userEmail,
+    );
 
-      if (mounted) {
-        final isHousehold = invite.type == RequestType.inviteToHousehold;
-        final successMsg = isHousehold
-            ? AppStrings.settings.householdJoinedSuccess
-            : strings.acceptSuccess(
-                _safeString(invite.requestData['list_name']) ??
-                    strings.listFallback);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(successMsg),
-            backgroundColor: successBg,
-          ),
-        );
-        // אם הצטרף לבית חדש — עדכן userContext
-        if (isHousehold) {
-          unawaited(userContext.refreshUser());
-        }
-        setState(() => _processingInviteId = null);
-        unawaited(_loadInvites()); // Refresh list
+    if (!mounted) return;
+    setState(() => _processingInviteId = null);
+
+    if (result.isSuccess) {
+      final isHousehold = invite.type == RequestType.inviteToHousehold;
+      final successMsg = isHousehold
+          ? AppStrings.settings.householdJoinedSuccess
+          : strings.acceptSuccess(
+              _safeString(invite.requestData['list_name']) ??
+                  strings.listFallback);
+      messenger.showSnackBar(
+        SnackBar(content: Text(successMsg), backgroundColor: successBg),
+      );
+      if (isHousehold) {
+        unawaited(userContext.refreshUser());
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _processingInviteId = null);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(strings.acceptError(e.toString())),
-            backgroundColor: errorBg,
-          ),
-        );
-      }
+      unawaited(_loadInvites());
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(strings.acceptError(result.errorMessage ?? '')),
+          backgroundColor: errorBg,
+        ),
+      );
     }
   }
 
@@ -212,33 +202,27 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     setState(() => _processingInviteId = invite.id);
 
-    try {
-      await _invitesService.declineInvite(
-        inviteId: invite.id,
-        decliningUserId: userId,
-        decliningUserName: userName,
-      );
+    final result = await _invitesService.declineInviteResult(
+      inviteId: invite.id,
+      decliningUserId: userId,
+      decliningUserName: userName,
+    );
 
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(strings.declineSuccess),
-            backgroundColor: warningBg,
-          ),
-        );
-        setState(() => _processingInviteId = null);
-        unawaited(_loadInvites()); // Refresh list
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _processingInviteId = null);
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(strings.declineError(e.toString())),
-            backgroundColor: errorBg,
-          ),
-        );
-      }
+    if (!mounted) return;
+    setState(() => _processingInviteId = null);
+
+    if (result.isSuccess) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(strings.declineSuccess), backgroundColor: warningBg),
+      );
+      unawaited(_loadInvites());
+    } else {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(strings.declineError(result.errorMessage ?? '')),
+          backgroundColor: errorBg,
+        ),
+      );
     }
   }
 
