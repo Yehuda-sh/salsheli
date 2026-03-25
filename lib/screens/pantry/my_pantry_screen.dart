@@ -644,6 +644,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   : allItems.isEmpty
                       ? SafeArea(
                           child: PantryEmptyState(
+                            isGroupMode: context.read<UserContext>().householdId != null,
+                            groupName: context.read<UserContext>().householdName,
                             onAddItem: _addItemDialog,
                             onAddStarterItems: _addStarterItems,
                           ),

@@ -13,7 +13,7 @@
 // 🔗 Related: MyPantryScreen, InventoryProvider
 
 import 'package:flutter/material.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import '../../l10n/app_strings.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 
