@@ -271,6 +271,14 @@ class ReceiptProvider with ChangeNotifier {
     }
 
     try {
+      // בדיקת כפילות לפי URL
+      if (originalUrl != null && originalUrl.isNotEmpty) {
+        final isDuplicate = await checkDuplicateByUrl(originalUrl);
+        if (isDuplicate) {
+          throw Exception('קבלה זו כבר קיימת במערכת');
+        }
+      }
+
       final totalAmount = items.fold(0.0, (sum, it) => sum + it.totalPrice);
 
       final newReceipt = Receipt.newReceipt(
