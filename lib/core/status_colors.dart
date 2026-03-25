@@ -23,63 +23,6 @@ enum StatusType {
   info,
 }
 
-// ========================================
-// Status Color Set (single Theme lookup)
-// ========================================
-
-/// סט צבעים מלא לסטטוס — נוצר מ-Theme lookup יחיד
-///
-/// ```dart
-/// final colors = StatusColorSet.of(StatusType.success, context);
-/// Container(color: colors.container, child: Text('OK', style: TextStyle(color: colors.onContainer)));
-/// ```
-class StatusColorSet {
-  const StatusColorSet({
-    required this.color,
-    required this.container,
-    required this.onContainer,
-  });
-
-  final Color color;
-  final Color container;
-  final Color onContainer;
-
-  /// יוצר סט צבעים מלא ב-Theme lookup יחיד
-  factory StatusColorSet.of(StatusType type, BuildContext context) {
-    final theme = Theme.of(context);
-    final brand = theme.extension<AppBrand>();
-    final cs = theme.colorScheme;
-
-    return switch (type) {
-      StatusType.success => StatusColorSet(
-          color: brand?.success ?? StatusColors._successFallback,
-          container: brand?.successContainer ?? StatusColors._successContainerFallback,
-          onContainer: brand?.onSuccessContainer ?? StatusColors._onSuccessContainerFallback,
-        ),
-      StatusType.error => StatusColorSet(
-          color: cs.error,
-          container: cs.errorContainer,
-          onContainer: cs.onErrorContainer,
-        ),
-      StatusType.warning => StatusColorSet(
-          color: brand?.warning ?? StatusColors._warningFallback,
-          container: brand?.warningContainer ?? StatusColors._warningContainerFallback,
-          onContainer: brand?.onWarningContainer ?? StatusColors._onWarningContainerFallback,
-        ),
-      StatusType.pending => StatusColorSet(
-          color: cs.outline,
-          container: cs.surfaceContainerHighest,
-          onContainer: cs.onSurfaceVariant,
-        ),
-      StatusType.info => StatusColorSet(
-          color: cs.secondary,
-          container: cs.secondaryContainer,
-          onContainer: cs.onSecondaryContainer,
-        ),
-    };
-  }
-}
-
 /// צבעי סטטוס סמנטיים - Theme-Aware
 ///
 /// ✅ משתמש ב-Theme כמקור אמת יחיד!
