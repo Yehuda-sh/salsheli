@@ -235,7 +235,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       context,
       item: item,
       onSave: (updatedItem) {
-        final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+        final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+        if (currentList == null) return;
         final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
@@ -250,7 +251,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       context,
       item: item,
       onSave: (updatedItem) {
-        final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id);
+        final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+        if (currentList == null) return;
         final originalIndex = currentList.items.indexWhere((i) => i.id == item.id);
         if (originalIndex != -1) {
           provider.updateItemAt(widget.list.id, originalIndex, (_) => updatedItem);
