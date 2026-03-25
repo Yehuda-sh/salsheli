@@ -458,7 +458,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ),
                     ),
                     const SizedBox(width: kSpacingXTiny),
-                    Icon(Icons.chevron_left, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                    Icon(
+                      Directionality.of(context) == TextDirection.rtl
+                          ? Icons.chevron_left
+                          : Icons.chevron_right,
+                      size: kIconSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ],
                 ),
               ),
