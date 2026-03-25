@@ -87,7 +87,8 @@ class StickyNote extends StatelessWidget {
     this.elevation = 1.0,
     this.onTap,
     this.semanticLabel,
-  });
+  }) : assert(elevation >= 0.0 && elevation <= 1.0,
+            'elevation must be between 0.0 and 1.0');
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +97,7 @@ class StickyNote extends StatelessWidget {
     final shadowColor = theme.shadowColor;
 
     // 🎨 RepaintBoundary isolates shadow calculations from parent repaints
-    Widget noteWidget = RepaintBoundary(
-      child: Transform.rotate(
-        angle: rotation,
-        child: Container(
+    Widget noteContent = Container(
           width: double.infinity,
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
@@ -137,8 +135,13 @@ class StickyNote extends StatelessWidget {
                 : null,
           ),
           child: child,
-        ),
-      ),
+    );
+
+    // ✅ דלג על Transform.rotate כש-rotation == 0 (ביצועים)
+    Widget noteWidget = RepaintBoundary(
+      child: rotation != 0.0
+          ? Transform.rotate(angle: rotation, child: noteContent)
+          : noteContent,
     );
 
     // ✅ הוסף אנימציה רק אם animate == true
@@ -149,15 +152,19 @@ class StickyNote extends StatelessWidget {
           .slideY(begin: 0.1, curve: Curves.easeOut);
     }
 
-    // ✅ הוסף onTap אם הוגדר
+    // ✅ InkWell במקום GestureDetector — נותן ripple feedback ויזואלי
     if (onTap != null) {
-      noteWidget = GestureDetector(
-        onTap: () {
-          // ✨ selectionClick - "תקתוק" עדין שמתאים לפתקיות
-          unawaited(HapticFeedback.selectionClick());
-          onTap!();
-        },
-        child: noteWidget,
+      noteWidget = Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            // ✨ selectionClick - "תקתוק" עדין שמתאים לפתקיות
+            unawaited(HapticFeedback.selectionClick());
+            onTap!();
+          },
+          borderRadius: BorderRadius.circular(kStickyNoteRadius),
+          child: noteWidget,
+        ),
       );
     }
 
