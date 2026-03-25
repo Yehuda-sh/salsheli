@@ -107,10 +107,6 @@ class TemplateService {
         }
       }
 
-      if (kDebugMode) {
-        // final total = _productsCache!.values.fold(0, (sum, list) => sum + list.length);
-      }
-
       _loadingCompleter!.complete();
     } catch (e) {
       // שגיאה - נאפס את ה-completer כדי לאפשר ניסיון חוזר
@@ -147,7 +143,7 @@ class TemplateService {
   /// מחפש מוצר לפי טקסט חיפוש
   ///
   /// החיפוש: case-insensitive, מחפש אם `searchTerm` מופיע בשם המוצר
-  static Map<String, dynamic>? findProduct(String source, String searchTerm) {
+  static Map<String, dynamic>? _findProduct(String source, String searchTerm) {
     final products = _productsCache?[source] ?? [];
 
     if (products.isEmpty) {
@@ -213,7 +209,7 @@ class TemplateService {
       if (kDebugMode) debugPrint('   🔍 מחפש: "$searchTerm" ב-$source');
 
       // 4. חפש את המוצר האמיתי
-      final product = findProduct(source, searchTerm);
+      final product = _findProduct(source, searchTerm);
 
       // 5. צור UnifiedListItem
       if (product != null) {
@@ -358,8 +354,6 @@ class TemplateService {
     return isPrivate ? 'tasks' : 'who_brings';
   }
 
-  // NOTE: _getIconForSource removed — dead code (0 usages).
-
   /// 🏺 טוען פריטי starter למזווה (Onboarding)
   ///
   /// מחזיר רשימת InventoryItem מוכנה להוספה למזווה
@@ -401,7 +395,7 @@ class TemplateService {
       if (source == null || searchTerm == null) continue;
 
       // 4. חפש את המוצר האמיתי
-      final product = findProduct(source, searchTerm);
+      final product = _findProduct(source, searchTerm);
 
       // 5. צור InventoryItem
       final productName = product != null
