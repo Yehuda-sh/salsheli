@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 
 import '../../../l10n/app_strings.dart';
 import '../../../services/template_service.dart';
-import 'package:memozap/core/ui_constants.dart';
+import '../../../core/ui_constants.dart';
 
 /// דיאלוג לבחירת תבנית רשימה מוכנה
 class TemplatePickerDialog extends StatelessWidget {

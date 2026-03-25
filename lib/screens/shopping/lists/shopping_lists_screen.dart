@@ -290,10 +290,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   }
 
   /// 🔍 Bottom Sheet לחיפוש
-  void _showSearchSheet() {
+  void _showSearchSheet() async {
     final controller = TextEditingController(text: _searchQuery);
-
-    showModalBottomSheet(
+    try {
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -388,6 +388,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ),
       ),
     );
+    } finally {
+      controller.dispose();
+    }
   }
 
   /// 🏷️ Bottom Sheet לסינון לפי סוג

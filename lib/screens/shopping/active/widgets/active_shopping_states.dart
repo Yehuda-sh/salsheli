@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/widgets/common/skeleton_loader.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import '../../../../widgets/common/sticky_button.dart';
+import '../../../../core/ui_constants.dart';
+import '../../../../widgets/common/skeleton_loader.dart';
+import '../../../../l10n/app_strings.dart';
 
 class ActiveShoppingLoadingSkeleton extends StatelessWidget {
   final Color accentColor;

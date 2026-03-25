@@ -8,10 +8,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
-import 'package:memozap/models/enums/shopping_item_status.dart';
-import 'package:memozap/models/unified_list_item.dart';
+import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
+import '../../../../models/enums/shopping_item_status.dart';
+import '../../../../models/unified_list_item.dart';
 
 class ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;

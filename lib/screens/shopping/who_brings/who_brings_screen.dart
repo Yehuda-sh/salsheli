@@ -17,7 +17,7 @@
 // Version 2.1 - Emoji icons → Material Icons + design tokens
 // Last Updated: 24/03/2026
 
-import 'package:memozap/l10n/app_strings.dart';
+import '../../../l10n/app_strings.dart';
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';

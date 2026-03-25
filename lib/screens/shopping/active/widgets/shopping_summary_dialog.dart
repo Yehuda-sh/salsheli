@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:memozap/widgets/common/sticky_button.dart';
+import '../../../../widgets/common/sticky_button.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import '../../../../core/ui_constants.dart';
+import '../../../../l10n/app_strings.dart';
 
 enum ShoppingSummaryResult {
   cancel, // חזור לרשימה
