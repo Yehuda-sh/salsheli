@@ -147,13 +147,18 @@ class SuggestionsProvider with ChangeNotifier {
 
   // ========== Initialization ==========
 
-  void _init() async {
-    // טעינת מוצרים מוחרגים מ-Hive
-    await _loadExcludedProducts();
-    
+  Future<void> _init() async {
+    try {
+      // טעינת מוצרים מוחרגים מ-Hive
+      await _loadExcludedProducts();
+    } catch (e) {
+      // Hive failure is non-fatal — continue without excluded products
+      debugPrint('⚠️ SuggestionsProvider._init: $e');
+    }
+
     // האזנה לשינויים במלאי
     _inventoryProvider.addListener(_onInventoryChanged);
-    
+
     // 🔄 קריאה ידנית לטעינה ראשונית (listener לא מופעל אוטומטית בפעם הראשונה)
     _onInventoryChanged();
   }

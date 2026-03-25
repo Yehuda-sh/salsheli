@@ -188,7 +188,7 @@ class InventoryProvider with ChangeNotifier {
     }
 
     // מזווה אישי/משפחתי (לפי householdId)
-    if (_currentMode != InventoryMode.personal || _items.isEmpty && !_isLoading) {
+    if (_currentMode != InventoryMode.personal || (_items.isEmpty && !_isLoading)) {
       _currentMode = InventoryMode.personal;
       _loadItems();
     }
