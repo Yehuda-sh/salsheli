@@ -958,6 +958,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     );
   }
 
+  /// ✅ RTL-aware forward chevron
+  Icon _forwardChevron({Color? color}) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    return Icon(isRtl ? Icons.chevron_left : Icons.chevron_right, color: color);
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -1245,7 +1251,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           leading: Icon(Icons.people_outline),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
-                          trailing: Icon(Icons.chevron_left),
+                          trailing: _forwardChevron(),
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1259,7 +1265,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           leading: Icon(Icons.person_add_outlined),
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
-                          trailing: Icon(Icons.chevron_left),
+                          trailing: _forwardChevron(),
                           onTap: () => _showInviteToHouseholdDialog(userContext),
                         ),
                         ListTile(
@@ -1310,7 +1316,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         leading: Icon(Icons.mail_outline, color: cs.primary),
                         title: Text(AppStrings.settings.pendingInvitesTitle),
                         subtitle: Text(AppStrings.settings.pendingInvitesSubtitle),
-                        trailing: Icon(Icons.chevron_left),
+                        trailing: _forwardChevron(),
                         onTap: () {
                           Navigator.pushNamed(context, '/pending-invites');
                         },
@@ -1320,7 +1326,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         leading: Icon(Icons.school_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.showOnboardingAgain),
                         subtitle: Text(AppStrings.settings.showOnboardingSubtitle),
-                        trailing: Icon(Icons.chevron_left),
+                        trailing: _forwardChevron(),
                         onTap: () async {
                           final ctx = context;
                           await TutorialService.resetTutorial(ctx);
@@ -1360,7 +1366,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         leading: Icon(Icons.info_outline, color: cs.primary),
                         title: Text(AppStrings.settings.about),
                         subtitle: Text(AppStrings.settings.versionLabel(_appVersion)),
-                        trailing: const Icon(Icons.chevron_left),
+                        trailing: _forwardChevron(),
                         onTap: () {
                           showAboutDialog(
                             context: context,
@@ -1385,14 +1391,14 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ListTile(
                         leading: Icon(Icons.description_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.termsOfService),
-                        trailing: Icon(Icons.chevron_left),
+                        trailing: _forwardChevron(),
                         onTap: () => showTermsOfServiceDialog(context),
                       ),
                       const Divider(height: 1),
                       ListTile(
                         leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
                         title: Text(AppStrings.settings.privacyPolicy),
-                        trailing: const Icon(Icons.chevron_left),
+                        trailing: _forwardChevron(),
                         onTap: () => showPrivacyPolicyDialog(context),
                       ),
                     ],
@@ -1414,7 +1420,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     leading: Icon(Icons.logout, color: cs.error),
                     title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
-                    trailing: Icon(Icons.chevron_left, color: cs.error),
+                    trailing: _forwardChevron(color: cs.error),
                     onTap: _logout,
                   ),
                 )),
@@ -1452,7 +1458,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       AppStrings.settings.deleteAccountSubtitle,
                       style: TextStyle(color: cs.error.withValues(alpha: 0.6)),
                     ),
-                    trailing: Icon(Icons.chevron_left, color: cs.error),
+                    trailing: _forwardChevron(color: cs.error),
                     onTap: _showDeleteAccountDialog,
                   ),
                 ),
