@@ -198,8 +198,8 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
             ),
           ] else if (_isProcessing)
             const SizedBox(
-              width: 24,
-              height: 24,
+              width: kIconSizeMedium,
+              height: kIconSizeMedium,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
         ],
