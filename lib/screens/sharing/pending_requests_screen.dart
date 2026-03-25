@@ -106,7 +106,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
     try {
       final userContext = Provider.of<UserContext>(context, listen: false);
-      final notificationsService = NotificationsService(FirebaseFirestore.instance);
+      final notificationsService = context.read<NotificationsService>();
       final approverName = userContext.displayName ?? strings.roleAdmin;
 
       await _service.approveRequest(

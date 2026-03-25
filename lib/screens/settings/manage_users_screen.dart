@@ -19,7 +19,6 @@
 // Version 2.2 - Design tokens + withValues + NotebookBackground logged-out
 // Last Updated: 24/03/2026
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +61,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   void initState() {
     super.initState();
 
-    _notificationsService = NotificationsService(FirebaseFirestore.instance);
+    _notificationsService = context.read<NotificationsService>();
     _currentList = widget.list; // 🔧 אתחול הרשימה הנוכחית
 
     // 🔒 Note: גם משתמשים ללא הרשאת ניהול יכולים לראות (read-only mode)

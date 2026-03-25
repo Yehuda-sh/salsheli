@@ -979,8 +979,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       key: Key(item.id),
       direction: canManage ? DismissDirection.endToStart : DismissDirection.none,
       background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: kSpacingLarge),
+        alignment: AlignmentDirectional.centerEnd,
+        padding: const EdgeInsetsDirectional.only(end: kSpacingLarge),
         color: cs.error.withValues(alpha: 0.7),
         child: Row(children: [
           Icon(Icons.delete_outline, color: cs.onPrimary),

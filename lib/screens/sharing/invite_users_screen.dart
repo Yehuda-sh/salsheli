@@ -13,7 +13,6 @@
 // Version 2.1 - Emoji icons → Material Icons
 // Last Updated: 24/03/2026
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +65,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     super.initState();
 
     final userContext = context.read<UserContext>();
-    _notificationsService = NotificationsService(FirebaseFirestore.instance);
+    _notificationsService = context.read<NotificationsService>();
     _savedContactsService = SavedContactsService();
     _pendingInvitesService = PendingInvitesService();
 

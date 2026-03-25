@@ -20,7 +20,6 @@
 import '../../../l10n/app_strings.dart';
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -182,7 +181,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
       if (householdId == null) return;
 
-      final notificationsService = NotificationsService(FirebaseFirestore.instance);
+      final notificationsService = context.read<NotificationsService>();
 
       // שלח התראה לבעל הרשימה (אם זה לא המשתמש הנוכחי)
       final creatorId = _list.createdBy;
