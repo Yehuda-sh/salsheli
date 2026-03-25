@@ -614,7 +614,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               backgroundColor: Colors.transparent,
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
               floatingActionButton: Padding(
-                padding: const EdgeInsets.only(left: 16.0, bottom: 16.0),
+                padding: const EdgeInsetsDirectional.only(start: kSpacingMedium, bottom: kSpacingMedium),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

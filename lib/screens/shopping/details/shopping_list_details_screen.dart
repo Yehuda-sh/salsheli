@@ -1087,7 +1087,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   ),
                   // עריכה
                   if (canEdit)
-                    Icon(Icons.chevron_left, color: cs.onSurfaceVariant.withValues(alpha: 0.4), size: kIconSizeMedium),
+                    Icon(
+                      Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                      size: kIconSizeMedium,
+                    ),
                 ],
               ),
             ),
