@@ -28,8 +28,10 @@ import '../../l10n/app_strings.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/pending_request.dart';
+import '../../providers/inventory_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/pending_invites_service.dart';
+import '../../widgets/dialogs/pantry_merge_dialog.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -148,6 +150,21 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       );
       if (isHousehold) {
         unawaited(userContext.refreshUser());
+        // בדיקה אם יש מזווה אישי למיזוג
+        if (mounted) {
+          final inventoryProvider = context.read<InventoryProvider>();
+          final hasPersonal = await inventoryProvider.hasPersonalInventory();
+          if (hasPersonal && mounted) {
+            final count = await inventoryProvider.getPersonalInventoryCount();
+            if (count > 0 && mounted) {
+              await showPantryMergeDialog(
+                context: context,
+                personalItemCount: count,
+              );
+              // TODO: implement actual merge logic when user confirms
+            }
+          }
+        }
       }
       unawaited(_loadInvites());
     } else {
