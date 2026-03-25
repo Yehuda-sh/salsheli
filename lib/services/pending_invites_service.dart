@@ -479,61 +479,6 @@ class PendingInvitesService {
             .toList());
   }
 
-  /// מספר הזמנות ממתינות (לbadge)
-  ///
-  /// ✅ מחזיר [InviteResult] עם סוג תוצאה ברור
-  ///
-  /// מחפש לפי UID ואימייל (למקרה שהוזמן לפני הרשמה).
-  Future<InviteResult> getPendingInvitesCountResult(String userId, {String? userEmail}) async {
-
-    try {
-      final uidSnapshot = await _invitesRef
-          .where('request_data.invited_user_id', isEqualTo: userId)
-          .where('status', isEqualTo: RequestStatus.pending.name)
-          .get();
-
-      int count = uidSnapshot.docs.length;
-
-      // חיפוש גם לפי אימייל
-      if (userEmail != null && userEmail.isNotEmpty) {
-        final emailSnapshot = await _invitesRef
-            .where('request_data.invited_user_id', isEqualTo: userEmail.toLowerCase())
-            .where('status', isEqualTo: RequestStatus.pending.name)
-            .get();
-
-        // ספירת הזמנות ייחודיות (לא כפולות)
-        final uidIds = uidSnapshot.docs.map((d) => d.id).toSet();
-        for (final doc in emailSnapshot.docs) {
-          if (!uidIds.contains(doc.id)) {
-            count++;
-          }
-        }
-      }
-
-
-      return InviteResult.successWithCount(count);
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
-      return InviteResult.firestoreError(e.toString());
-    }
-  }
-
-  /// Stream של מספר הזמנות ממתינות (real-time badge)
-  ///
-  /// 💡 הערה: Stream לא תומך בחיפוש לפי אימייל בנפרד.
-  /// למימוש מלא עם אימייל, השתמש ב-getPendingInvitesCountResult עם Timer.
-  ///
-  /// Note: Streams לא מחזירים typed result - שגיאות מועברות דרך onError
-  Stream<int> watchPendingInvitesCount(String userId) {
-    return _invitesRef
-        .where('request_data.invited_user_id', isEqualTo: userId)
-        .where('status', isEqualTo: RequestStatus.pending.name)
-        .snapshots()
-        .map((snapshot) => snapshot.docs.length);
-  }
-
   // ============================================================
   // ACCEPT / DECLINE
   // ============================================================
@@ -674,39 +619,6 @@ class PendingInvitesService {
         'reviewed_at': FieldValue.serverTimestamp(),
         if (reason != null) 'rejection_reason': reason,
       });
-
-
-      return InviteResult.success();
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
-      return InviteResult.firestoreError(e.toString());
-    }
-  }
-
-  /// ביטול הזמנה (על ידי המזמין)
-  ///
-  /// ✅ מחזיר [InviteResult] עם סוג תוצאה ברור
-  Future<InviteResult> cancelInviteResult({
-    required String inviteId,
-    required String cancellingUserId,
-  }) async {
-
-    try {
-      final inviteDoc = await _invitesRef.doc(inviteId).get();
-      if (!inviteDoc.exists) {
-        return InviteResult.inviteNotFound();
-      }
-
-      final invite = PendingRequest.fromJson(inviteDoc.data()!);
-
-      // רק המזמין יכול לבטל
-      if (invite.requesterId != cancellingUserId) {
-        return InviteResult.notAuthorized();
-      }
-
-      await _invitesRef.doc(inviteId).delete();
 
 
       return InviteResult.success();
@@ -864,39 +776,6 @@ class PendingInvitesService {
       return InviteResult.firestoreError(e.toString());
     }
   }
-
-  /// ניקוי הזמנות ישנות (מעל 30 יום)
-  ///
-  /// ✅ מחזיר [InviteResult] עם סוג תוצאה ברור
-  Future<InviteResult> cleanupOldInvitesResult({int daysOld = 30}) async {
-
-    try {
-      final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
-
-      final snapshot = await _invitesRef
-          .where('created_at', isLessThan: Timestamp.fromDate(cutoffDate))
-          .get();
-
-      final batch = _firestore.batch();
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
-      }
-
-      await batch.commit();
-
-
-      return InviteResult.successWithCount(snapshot.docs.length);
-    } catch (e, stackTrace) {
-      if (kDebugMode) {
-        debugPrintStack(stackTrace: stackTrace);
-      }
-      return InviteResult.firestoreError(e.toString());
-    }
-  }
-
-  // ============================================================
-  // 🔙 Legacy API (Deprecated)
-  // ============================================================
 
   /// @deprecated השתמש ב-createInviteResult() במקום
   @Deprecated('Use createInviteResult() instead')
