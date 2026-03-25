@@ -10,13 +10,11 @@
 //
 // 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
 
-import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -132,16 +130,9 @@ enum AuthErrorCode {
 // 🆕 Timeout & Retry Constants
 // ========================================
 
-/// Timeout לפעולות אימות (30 שניות)
-// ⚠️ 120s to allow Firebase Auth SDK to exhaust reCAPTCHA Enterprise retries
-// and fall back to plain auth (needed for Android emulators)
+/// Timeout לפעולות אימות
+/// 120s to allow Firebase Auth SDK to exhaust reCAPTCHA Enterprise retries
 const Duration kAuthTimeout = Duration(seconds: 120);
-
-/// מספר ניסיונות חוזרים
-const int kAuthMaxRetries = 1;
-
-/// זמן המתנה בסיסי בין ניסיונות (1 שנייה)
-const Duration kAuthRetryBaseDelay = Duration(seconds: 1);
 
 /// שגיאת אימות מותאמת - Type-Safe!
 ///
@@ -228,110 +219,19 @@ class AuthException implements Exception {
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // ========================================
-  // 🆕 Timeout & Retry Helper
-  // ========================================
-
-  /// מבצע פעולה עם timeout ו-retry
-  ///
-  /// מנסה עד [maxRetries] פעמים עם exponential backoff.
-  /// זורק [AuthException] עם קוד timeout אם כל הניסיונות נכשלו.
-  ///
-  /// [operation] - הפעולה לביצוע
-  /// [operationName] - שם הפעולה לצורך logging
-  /// [timeout] - timeout לכל ניסיון (ברירת מחדל: 30 שניות)
-  /// [maxRetries] - מספר ניסיונות מקסימלי (ברירת מחדל: 3)
-  ///
-  /// Example:
-  /// ```dart
-  /// final result = await _withTimeoutAndRetry(
-  ///   operation: () => _auth.signInWithEmailAndPassword(...),
-  ///   operationName: 'signIn',
-  /// );
-  /// ```
-  Future<T> _withTimeoutAndRetry<T>({
+  /// מבצע פעולה עם timeout
+  Future<T> _withTimeout<T>({
     required Future<T> Function() operation,
-    required String operationName,
     Duration timeout = kAuthTimeout,
-    int maxRetries = kAuthMaxRetries,
-  }) async {
-    int attempt = 0;
-    Object? lastError;
-
-    while (attempt < maxRetries) {
-      attempt++;
-
-      try {
-        if (kDebugMode && attempt > 1) {
-        }
-
-        // הרצת הפעולה עם timeout
-        return await operation().timeout(
-          timeout,
-          onTimeout: () {
-            throw AuthException(
-              code: AuthErrorCode.timeout,
-              message: AppStrings.auth.errorTimeout,
-            );
-          },
+  }) {
+    return operation().timeout(
+      timeout,
+      onTimeout: () {
+        throw AuthException(
+          code: AuthErrorCode.timeout,
+          message: AppStrings.auth.errorTimeout,
         );
-      } on AuthException catch (e) {
-        // אם זה timeout או network error - ננסה שוב
-        if (e.code == AuthErrorCode.timeout || e.code == AuthErrorCode.networkError) {
-          lastError = e;
-
-          if (attempt < maxRetries) {
-            // Exponential backoff: 1s, 2s, 4s...
-            final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-            await Future.delayed(delay);
-            continue;
-          }
-        }
-        // שגיאות אחרות - לא מנסים שוב
-        rethrow;
-      } on FirebaseAuthException catch (e) {
-        // שגיאת רשת - ננסה שוב
-        if (e.code == 'network-request-failed') {
-          lastError = e;
-
-          if (attempt < maxRetries) {
-            final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-            await Future.delayed(delay);
-            continue;
-          }
-        }
-        // שגיאות Firebase אחרות - לא מנסים שוב
-        rethrow;
-      } catch (e) {
-        lastError = e;
-
-        // בדיקה אם זו שגיאת רשת
-        final errorString = e.toString().toLowerCase();
-        final isNetworkError = errorString.contains('network') ||
-            errorString.contains('connection') ||
-            errorString.contains('socket') ||
-            errorString.contains('timeout');
-
-        if (isNetworkError && attempt < maxRetries) {
-          final delay = kAuthRetryBaseDelay * (1 << (attempt - 1));
-          await Future.delayed(delay);
-          continue;
-        }
-
-        rethrow;
-      }
-    }
-
-    // הגענו לכאן רק אם כל הניסיונות נכשלו
-
-    if (lastError is AuthException) {
-      throw lastError;
-    }
-
-    throw AuthException(
-      code: AuthErrorCode.timeout,
-      message: AppStrings.auth.errorTimeout,
-      originalError: lastError,
+      },
     );
   }
 
@@ -403,8 +303,7 @@ class AuthService {
 
     try {
       // ✅ יצירת משתמש עם timeout ו-retry
-      final credential = await _withTimeoutAndRetry(
-        operationName: 'signUp',
+      final credential = await _withTimeout(
         operation: () => _auth.createUserWithEmailAndPassword(
           email: email,
           password: password,
@@ -462,8 +361,7 @@ class AuthService {
 
     try {
       // ✅ עם timeout ו-retry
-      final credential = await _withTimeoutAndRetry(
-        operationName: 'signIn',
+      final credential = await _withTimeout(
         operation: () => _auth.signInWithEmailAndPassword(
           email: email,
           password: password,
