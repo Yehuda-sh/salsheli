@@ -16,8 +16,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:memozap/config/app_config.dart';
-import 'package:memozap/core/ui_constants.dart';
+import '../../config/app_config.dart';
+import '../../core/ui_constants.dart';
 
 /// 🏷️ באנר DEV - Glassmorphic ribbon בפינה ימנית עליונה
 ///
