@@ -372,7 +372,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: kPaperBackground,
+        backgroundColor: Theme.of(context).extension<AppBrand>()?.paperBackground ?? kPaperBackground,
         body: Stack(
           children: [
             const NotebookBackground(),

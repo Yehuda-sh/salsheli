@@ -63,7 +63,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
     final strings = AppStrings.shoppingSummary;
 
     return Scaffold(
-      backgroundColor: kPaperBackground,
+      backgroundColor: theme.extension<AppBrand>()?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
           const NotebookBackground(),
