@@ -37,9 +37,19 @@ from pathlib import Path
 # ════════════════════════════════════════════
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-EXISTING_CATALOG = PROJECT_ROOT / 'assets' / 'data' / 'list_types' / 'supermarket.json'
-OUTPUT_FILE = PROJECT_ROOT / 'assets' / 'data' / 'list_types' / 'new_products.json'
+LIST_TYPES_DIR = PROJECT_ROOT / 'assets' / 'data' / 'list_types'
+OUTPUT_FILE = LIST_TYPES_DIR / 'new_products.json'
 DUMPS_FOLDER = PROJECT_ROOT / 'scripts' / 'dumps'
+
+# All catalog files to check against
+CATALOG_FILES = [
+    'supermarket.json',
+    'market.json',
+    'pharmacy.json',
+    'butcher.json',
+    'greengrocer.json',
+    'bakery.json',
+]
 
 # Chains to scrape — None = ALL chains, or specify list
 # Available (run `python -c "from il_supermarket_scarper import ScraperFactory; print(ScraperFactory.all_scrapers_name())"`)
@@ -51,22 +61,35 @@ ENABLED_SCRAPERS = None  # None = all chains (maximum product coverage)
 # ════════════════════════════════════════════
 
 def load_existing_barcodes():
-    """Load all barcodes from the existing catalog."""
-    if not EXISTING_CATALOG.exists():
-        print(f'❌ Catalog not found: {EXISTING_CATALOG}')
-        sys.exit(1)
-
-    with open(EXISTING_CATALOG, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
+    """Load all barcodes from all catalog files."""
     barcodes = set()
-    for item in data:
-        bc = item.get('barcode')
-        if bc:
-            barcodes.add(str(bc).strip())
+    names = set()
+    total_products = 0
 
-    print(f'📦 Existing catalog: {len(data)} products, {len(barcodes)} unique barcodes')
-    return barcodes
+    for fname in CATALOG_FILES:
+        fpath = LIST_TYPES_DIR / fname
+        if not fpath.exists():
+            print(f'  ⚠️ Not found: {fname}')
+            continue
+
+        with open(fpath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        count = 0
+        for item in data:
+            bc = item.get('barcode')
+            if bc:
+                barcodes.add(str(bc).strip())
+                count += 1
+            name = item.get('name', '').strip().lower()
+            if name:
+                names.add(name)
+
+        total_products += len(data)
+        print(f'  📄 {fname}: {len(data)} products, {count} barcodes')
+
+    print(f'📦 Total across all catalogs: {total_products} products, {len(barcodes)} unique barcodes, {len(names)} unique names')
+    return barcodes, names
 
 
 # ════════════════════════════════════════════
@@ -270,12 +293,17 @@ def parse_kaggle_csv(csv_folder):
 # STEP 5: Compare and save new products
 # ════════════════════════════════════════════
 
-def find_new_products(all_products, existing_barcodes):
-    """Filter out products that already exist in the catalog."""
+def find_new_products(all_products, existing_barcodes, existing_names=None):
+    """Filter out products that already exist in any catalog file."""
+    existing_names = existing_names or set()
     new_products = []
     for barcode, product in all_products.items():
-        if barcode not in existing_barcodes:
-            new_products.append(product)
+        if barcode in existing_barcodes:
+            continue
+        name = product.get('name', '').strip().lower()
+        if name and name in existing_names:
+            continue
+        new_products.append(product)
 
     # Sort by name
     new_products.sort(key=lambda p: p.get('name', ''))
@@ -323,8 +351,8 @@ def main():
             print('❌ Install first: pip install il-supermarket-scraper')
         sys.exit(0)
 
-    # Load existing barcodes
-    existing_barcodes = load_existing_barcodes()
+    # Load existing barcodes and names from all catalog files
+    existing_barcodes, existing_names = load_existing_barcodes()
 
     # Try to download and parse
     all_products = {}
@@ -360,8 +388,8 @@ def main():
         print(f'     {DUMPS_FOLDER}/')
         sys.exit(1)
 
-    # Find new products
-    new_products = find_new_products(all_products, existing_barcodes)
+    # Find new products (check against all catalog files)
+    new_products = find_new_products(all_products, existing_barcodes, existing_names)
 
     print(f'\n📊 Results:')
     print(f'   API products:      {len(all_products)}')
