@@ -39,6 +39,8 @@ class _OfflineBannerState extends State<OfflineBanner> {
         setState(() => _isOffline =
             results.every((r) => r == ConnectivityResult.none));
       }
+    }).catchError((_) {
+      // Silent: connectivity check is best-effort
     });
   }
 
