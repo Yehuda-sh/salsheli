@@ -483,6 +483,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       ),
     );
 
+    confirmController.dispose(); // ✅ dispose controller after dialog closes
+
     if (confirmed == true && mounted) {
       // ✅ GDPR: ניקוי נתונים מקומיים (SharedPreferences + state)
       try {
@@ -569,6 +571,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         },
       ),
     );
+    controller.dispose(); // ✅ dispose controller after dialog closes
   }
 
   /// 🏠 דיאלוג הזמנה לבית
@@ -713,6 +716,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         },
       ),
     );
+    emailController.dispose(); // ✅ dispose controller after dialog closes
   }
 
   /// Bottom Sheet לעריכת פרופיל
