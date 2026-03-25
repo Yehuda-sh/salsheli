@@ -75,16 +75,6 @@ class NotificationQueryResult {
     );
   }
 
-  /// הצלחה עם ספירה בלבד
-  factory NotificationQueryResult.count(int count) {
-    return NotificationQueryResult._(
-      type: count == 0
-          ? NotificationQueryResultType.empty
-          : NotificationQueryResultType.success,
-      count: count,
-    );
-  }
-
   /// שגיאה
   factory NotificationQueryResult.error(String message) {
     return NotificationQueryResult._(
@@ -434,25 +424,6 @@ class NotificationsService {
     }
   }
 
-  /// 🔢 Get unread count (for badge)
-  ///
-  /// ✅ מחזיר [NotificationQueryResult] עם סוג תוצאה ברור
-  Future<NotificationQueryResult> getUnreadCountResult({required String userId}) async {
-    try {
-      final snapshot = await _notificationsCollection(userId)
-          .where('is_read', isEqualTo: false)
-          .get();
-
-      final count = snapshot.docs.length;
-
-
-      return NotificationQueryResult.count(count);
-    } catch (e, stackTrace) {
-      _logError('getUnreadCountResult', e, stackTrace);
-      return NotificationQueryResult.error(e.toString());
-    }
-  }
-
   /// 📊 Stream unread count (real-time badge)
   ///
   /// Note: Streams לא מחזירים typed result - שגיאות מועברות דרך onError
@@ -525,27 +496,4 @@ class NotificationsService {
       return -1;
     }
   }
-
-  // ============================================================
-  // DELETE NOTIFICATIONS
-  // ============================================================
-
-  /// 🗑️ Delete notification
-  ///
-  /// 🆕 נדרש userId כדי לגשת ל-subcollection הנכון
-  /// ✅ מחזיר `true` אם המחיקה הצליחה
-  Future<bool> deleteNotification({
-    required String notificationId,
-    required String userId,
-  }) async {
-    try {
-      await _notificationsCollection(userId).doc(notificationId).delete();
-
-      return true;
-    } catch (e, stackTrace) {
-      _logError('deleteNotification', e, stackTrace);
-      return false;
-    }
-  }
-
 }
