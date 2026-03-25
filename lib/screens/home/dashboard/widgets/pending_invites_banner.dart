@@ -66,7 +66,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
 
     // טיפול חכם בשם חסר (Empty State Fallbacks)
     final groupName =
-        firstInvite.requestData['list_name'] as String? ?? firstInvite.requestData['group_name'] as String? ?? AppStrings.sharing.listFallback;
+        firstInvite.requestData['list_name'] as String? ?? firstInvite.requestData['group_name'] as String? ?? AppStrings.pendingInvitesScreen.listFallback;
 
     return Container(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
