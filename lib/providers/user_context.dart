@@ -179,6 +179,9 @@ class UserContext with ChangeNotifier {
   /// אימייל המשתמש
   String? get userEmail => _user?.email ?? _authService.currentUserEmail;
 
+  /// האם האימייל מאומת
+  bool get isEmailVerified => _authService.isEmailVerified;
+
   /// מזהה משק הבית של המשתמש
   String? get householdId => _user?.householdId;
 

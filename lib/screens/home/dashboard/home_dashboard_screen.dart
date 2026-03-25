@@ -34,6 +34,7 @@ import '../../../providers/user_context.dart';
 // notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
@@ -226,7 +227,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!, cs),
                         const ActiveShopperBanner(),
-                        // PendingInvitesBanner removed — invites accessible via AppBar bell
+                        const EmailVerificationBanner(),
                       ],
                     ),
                     sectionIndex++,
