@@ -324,6 +324,13 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                 return true;
               },
               onDismissed: (_) {
+                final userId = context.read<UserContext>().userId;
+                if (userId != null) {
+                  unawaited(context.read<NotificationsService>().deleteNotification(
+                    notificationId: notification.id,
+                    userId: userId,
+                  ));
+                }
                 setState(() => _notifications.removeAt(index));
               },
               child: _NotificationTile(

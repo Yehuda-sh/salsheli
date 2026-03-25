@@ -127,6 +127,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
         setState(() => _unreadCount = count);
       }
     });
+
+    // ניקוי התראות ישנות (30+ יום) — פעם אחת
+    unawaited(service.cleanupOldNotifications(userId: userId));
   }
 
   /// 🎬 v4.0: Trigger fade-in animation (instant reset → smooth fade)

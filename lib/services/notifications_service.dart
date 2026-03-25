@@ -496,4 +496,52 @@ class NotificationsService {
       return -1;
     }
   }
+
+  // ============================================================
+  // DELETE NOTIFICATIONS
+  // ============================================================
+
+  /// מחיקת התראה בודדת
+  Future<bool> deleteNotification({
+    required String notificationId,
+    required String userId,
+  }) async {
+    try {
+      await _notificationsCollection(userId).doc(notificationId).delete();
+      return true;
+    } catch (e, stackTrace) {
+      _logError('deleteNotification', e, stackTrace);
+      return false;
+    }
+  }
+
+  /// ניקוי התראות ישנות שנקראו (30+ יום)
+  ///
+  /// קורא לזה פעם אחת ב-app startup אחרי login.
+  Future<int> cleanupOldNotifications({
+    required String userId,
+    int daysOld = 30,
+  }) async {
+    try {
+      final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
+
+      final snapshot = await _notificationsCollection(userId)
+          .where('is_read', isEqualTo: true)
+          .where('read_at', isLessThan: Timestamp.fromDate(cutoffDate))
+          .get();
+
+      if (snapshot.docs.isEmpty) return 0;
+
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+
+      return snapshot.docs.length;
+    } catch (e, stackTrace) {
+      _logError('cleanupOldNotifications', e, stackTrace);
+      return -1;
+    }
+  }
 }
