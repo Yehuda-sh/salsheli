@@ -7,9 +7,9 @@
  * Deploy: firebase deploy --only functions
  */
 
-const { onDocumentDeleted } = require("firebase-functions/v2/firestore");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onDocumentDeleted, onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getMessaging } = require("firebase-admin/messaging");
 const { initializeApp } = require("firebase-admin/app");
 
 initializeApp();
@@ -141,3 +141,76 @@ async function deleteSubcollection(path) {
 
   return deleted;
 }
+
+// ============================================================
+// Push Notifications: Send FCM on new in-app notification
+// ============================================================
+
+/**
+ * When a new notification document is created in
+ * /users/{userId}/notifications/{notificationId},
+ * send a push notification via FCM to the user's device.
+ */
+exports.onNotificationCreated = onDocumentCreated(
+  "users/{userId}/notifications/{notificationId}",
+  async (event) => {
+    const userId = event.params.userId;
+    const notification = event.data?.data();
+
+    if (!notification) return;
+
+    try {
+      // Get the user's FCM token
+      const userDoc = await db.collection("users").doc(userId).get();
+      const fcmToken = userDoc.data()?.fcm_token;
+
+      if (!fcmToken) {
+        console.log(`No FCM token for user ${userId}, skipping push`);
+        return;
+      }
+
+      // Send push notification
+      await getMessaging().send({
+        token: fcmToken,
+        notification: {
+          title: notification.title || "MemoZap",
+          body: notification.message || "",
+        },
+        data: {
+          type: notification.type || "general",
+          notificationId: event.params.notificationId,
+        },
+        android: {
+          priority: "high",
+          notification: {
+            channelId: "memozap_default",
+            sound: "default",
+          },
+        },
+        apns: {
+          payload: {
+            aps: {
+              sound: "default",
+              badge: 1,
+            },
+          },
+        },
+      });
+
+      console.log(`📱 Push sent to ${userId}: ${notification.title}`);
+    } catch (error) {
+      // Token may be invalid/expired — clean it up
+      if (
+        error.code === "messaging/invalid-registration-token" ||
+        error.code === "messaging/registration-token-not-registered"
+      ) {
+        console.log(`🧹 Cleaning stale FCM token for ${userId}`);
+        await db.collection("users").doc(userId).update({
+          fcm_token: FieldValue.delete(),
+        });
+      } else {
+        console.error(`❌ Push error for ${userId}:`, error);
+      }
+    }
+  }
+);

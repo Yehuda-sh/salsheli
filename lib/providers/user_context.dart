@@ -8,6 +8,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/push_notification_service.dart';
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/repositories/user_repository.dart';
 import 'package:memozap/services/auth_service.dart';
@@ -338,6 +340,11 @@ class UserContext with ChangeNotifier {
 
       _errorMessage = null;
       _hasAuthButNoProfile = false;
+
+      // אתחול Push Notifications (FCM token)
+      if (_user != null) {
+        unawaited(PushNotificationService.instance.initialize(_user!.id));
+      }
     } catch (e, stackTrace) {
       _errorMessage = 'שגיאה בטעינת פרטי משתמש';
       debugPrint('🔴 _loadUserFromFirestore ERROR: $e');
@@ -476,6 +483,8 @@ class UserContext with ChangeNotifier {
       setLoading: false,
       errorMessagePrefix: 'שגיאה בהתנתקות',
       action: () async {
+        // ניקוי FCM token לפני התנתקות
+        await PushNotificationService.instance.clearToken();
 
         // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
         await _authService.signOut();
