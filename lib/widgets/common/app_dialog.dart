@@ -71,36 +71,4 @@ class AppDialog {
           : null,
     );
   }
-
-  /// Premium box decoration for dialog containers
-  ///
-  /// שימוש: כשרוצים לעטוף dialog content ב-Container עם shadow
-  /// ```dart
-  /// Container(
-  ///   decoration: AppDialog.premiumDecoration(context),
-  ///   child: ...,
-  /// )
-  /// ```
-  static BoxDecoration premiumDecoration(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return BoxDecoration(
-      color: cs.surfaceContainerHighest.withValues(alpha: 0.95),
-      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-      border: Border.all(
-        color: cs.outlineVariant.withValues(alpha: 0.15),
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: cs.shadow.withValues(alpha: kDialogShadowOpacity),
-          blurRadius: kDialogShadowBlur,
-          offset: const Offset(0, kDialogShadowOffset),
-        ),
-        BoxShadow(
-          color: cs.shadow.withValues(alpha: kDialogShadowOpacity * 0.5),
-          blurRadius: kDialogShadowBlur * 2,
-          offset: const Offset(0, kDialogShadowOffset * 2),
-        ),
-      ],
-    );
-  }
 }
