@@ -1,5 +1,10 @@
+// 📄 lib/widgets/common/section_header.dart
+//
+// כותרת מדור אחידה — סגנון notebook highlighter.
+
 import 'package:flutter/material.dart';
-import 'package:memozap/core/ui_constants.dart';
+
+import '../../core/ui_constants.dart';
 
 /// 📑 כותרת מדור אחידה — סגנון notebook highlighter
 ///
@@ -34,9 +39,10 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final t = Theme.of(context).textTheme;
-    final bgColor = highlightColor ?? cs.primaryContainer.withValues(alpha: 0.3);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final t = theme.textTheme;
+    final bgColor = highlightColor ?? cs.primaryContainer.withValues(alpha: kOpacityLight);
 
     return Container(
       padding: padding,
