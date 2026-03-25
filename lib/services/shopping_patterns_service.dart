@@ -36,6 +36,8 @@
 // );
 // ```
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
@@ -102,6 +104,8 @@ class ShoppingPatternsService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
+      // ניקוי דפוסים ישנים (90+ יום) — best effort
+      unawaited(cleanupOldPatterns());
     } catch (e) {
       if (kDebugMode) debugPrint('⚠️ ShoppingPatterns.save: $e');
     }
@@ -230,13 +234,10 @@ class ShoppingPatternsService {
   /// מוחק דפוסים ישנים (מעל 90 ימים)
   Future<void> cleanupOldPatterns() async {
     try {
-
       final userId = _userContext.userId;
       final householdId = _userContext.householdId;
 
-      if (userId == null || householdId == null) {
-        return;
-      }
+      if (userId == null || householdId == null) return;
 
       final cutoffDate = DateTime.now().subtract(const Duration(days: 90));
       final snapshot = await _firestore
@@ -246,10 +247,13 @@ class ShoppingPatternsService {
           .where('createdAt', isLessThan: Timestamp.fromDate(cutoffDate))
           .get();
 
-      for (final doc in snapshot.docs) {
-        await doc.reference.delete();
-      }
+      if (snapshot.docs.isEmpty) return;
 
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
     } catch (_) {
       // Silent: cleanup is best-effort
     }
