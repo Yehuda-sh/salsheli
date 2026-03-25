@@ -217,7 +217,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final controller = TextEditingController();
     final strings = AppStrings.sharing;
 
-    return showDialog<String>(
+    try {
+    return await showDialog<String>(
       context: context,
       builder: (context) => Directionality(
         textDirection: TextDirection.rtl,
@@ -247,6 +248,9 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         ),
       ),
     );
+    } finally {
+      controller.dispose();
+    }
   }
 
   @override

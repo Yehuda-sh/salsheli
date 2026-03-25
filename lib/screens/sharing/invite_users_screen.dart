@@ -159,7 +159,8 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
   Future<String?> _showHouseholdNameDialog() async {
     final controller = TextEditingController();
-    return showDialog<String>(
+    try {
+    return await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(AppStrings.sharing.householdNameDialogTitle),
@@ -184,6 +185,9 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         ],
       ),
     );
+    } finally {
+      controller.dispose();
+    }
   }
 
   // ============================================================
