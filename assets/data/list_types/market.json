@@ -6502,18 +6502,6 @@
     "defaultQty": 1
   },
   {
-    "name": "ג'ט לניקוי כללי ורצפות+ אבקת סודה בניחוח כותנה",
-    "category": "משקאות",
-    "price": 8.9,
-    "barcode": "7290108351149",
-    "brand": null,
-    "unit": "ליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גבינה עם זיתים במרקם שמנת טרה 5% 200 גרם",
     "category": "שימורים וכבושים",
     "price": 13.9,
@@ -7990,18 +7978,6 @@
     "defaultQty": 1
   },
   {
-    "name": "מארז סבון מוצק פלמוליב נטורלס זיתים ואלוורה- 4 יח",
-    "category": "שימורים וכבושים",
-    "price": 18.1,
-    "barcode": "8850006491591",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מארז עגבניות מרוסקותחתוכות דק - שדות",
     "category": "שימורים וכבושים",
     "price": 11.0,
@@ -9370,18 +9346,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סנו ג'ט בתוספת אבקת סודה לניקוי כללי בניחוח כותנה",
-    "category": "משקאות",
-    "price": 20.1,
-    "barcode": "7290108354751",
-    "brand": null,
-    "unit": "מיליליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ספגטי עדשים אדומות אורגני 250 גרם ללא גלוטן",
     "category": "דגנים וקטניות",
     "price": 14.5,
@@ -9814,18 +9778,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פנסי פיסט נתחי עוף שימורי מזון מלא לחתולים",
-    "category": "שימורים וכבושים",
-    "price": 7.0,
-    "barcode": "50000426942",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "פסטPRO סלנטאני פתיתים אורגניים, ללא גלוטן",
     "category": "דגנים וקטניות",
     "price": 18.1,
@@ -9914,42 +9866,6 @@
     "category": "שימורים וכבושים",
     "price": 6.9,
     "barcode": "7290019857112",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרמיו שימורי מזון משלים לכלב בוגר עם בקר במרקם פטה",
-    "category": "שימורים וכבושים",
-    "price": 6.9,
-    "barcode": "7290019857235",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרמיו שימורי מזון משלים לכלב בוגר עם כבש במרקם פטה",
-    "category": "שימורים וכבושים",
-    "price": 6.9,
-    "barcode": "7290019857242",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרמיו שימורי מזון משלים לכלב בוגר עם עוף במרקם פטה",
-    "category": "שימורים וכבושים",
-    "price": 6.9,
-    "barcode": "7290019857211",
     "brand": null,
     "unit": "גרם",
     "size": null,
@@ -11230,42 +11146,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שימורי מזון מלא לחתולים עם בשר אייל",
-    "category": "שימורים וכבושים",
-    "price": 6.0,
-    "barcode": "7290018380321",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שימורי מזון מלא לחתולים עם דגים",
-    "category": "שימורים וכבושים",
-    "price": 6.0,
-    "barcode": "7290018380314",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שימורי מזון מלא לכלבים בוגרים עם עוף",
-    "category": "שימורים וכבושים",
-    "price": 6.0,
-    "barcode": "7290018380253",
-    "brand": null,
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שימורי מחית עגבניות",
     "category": "שימורים וכבושים",
     "price": 9.9,
@@ -11320,18 +11200,6 @@
     "barcode": "7290118521525",
     "brand": null,
     "unit": "גרמים",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שימורים מזון מלא לכלבים בוגרים עם בשר אייל",
-    "category": "שימורים וכבושים",
-    "price": 6.0,
-    "barcode": "7290018380277",
-    "brand": null,
-    "unit": "גרם",
     "size": null,
     "isWeighted": false,
     "defaultUnit": "יח'",
@@ -11662,18 +11530,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שמפו בתוספת שמן זית",
-    "category": "רטבים ותבלינים",
-    "price": 14.9,
-    "barcode": "7290116530284",
-    "brand": null,
-    "unit": "מיליליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שעועית אדומה",
     "category": "שימורים וכבושים",
     "price": 8.9,
@@ -11895,18 +11751,6 @@
     "price": 23.9,
     "barcode": "7290018563311",
     "brand": "פרי קטיף",
-    "unit": "ליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "תרסיס לניקוי כללי בתוספת אבקת סודה",
-    "category": "משקאות",
-    "price": 13.9,
-    "barcode": "7290010613939",
-    "brand": null,
     "unit": "ליטר",
     "size": null,
     "isWeighted": false,
