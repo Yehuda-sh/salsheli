@@ -2,7 +2,6 @@
 //
 // פתק צבעוני בסגנון Post-it עם צללים וסיבוב.
 // - StickyNote - פתק כללי עם child
-// - StickyNoteLogo - פתק מרובע עם אייקון (ללוגו)
 //
 // Features:
 //   - עומק פיזי באמצעות גרדיאנט נייר (Paper Gradient)
