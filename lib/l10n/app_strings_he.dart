@@ -1246,6 +1246,12 @@ class InventoryStrings {
   String get notesHint => 'הערות נוספות (אופציונלי)';
   String get permanentProduct => 'מוצר קבוע';
   String addCustomProduct(String query) => 'הוסף "$query"';
+
+  // Pantry merge dialog
+  String get pantryMergeTitle => 'יש לך מזווה אישי!';
+  String pantryMergeContent(int count) =>
+      'יש לך $count מוצרים במזווה האישי.\n\nתרצה להעביר אותם למזווה של הבית החדש?';
+  String get pantryMergeButton => 'העבר למזווה הבית';
 }
 
 // ========================================

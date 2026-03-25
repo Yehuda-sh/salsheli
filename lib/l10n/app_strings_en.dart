@@ -1211,6 +1211,12 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get notesHint => 'Additional notes (optional)';
   @override String get permanentProduct => 'Permanent product';
   @override String addCustomProduct(String query) => 'Add "$query"';
+
+  // Pantry merge dialog
+  @override String get pantryMergeTitle => 'You have a personal pantry!';
+  @override String pantryMergeContent(int count) =>
+      'You have $count items in your personal pantry.\n\nWould you like to transfer them to your new household pantry?';
+  @override String get pantryMergeButton => 'Transfer to household pantry';
 }
 
 // ========================================

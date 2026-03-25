@@ -20,10 +20,9 @@ Future<bool> showPantryMergeDialog({
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
       icon: const Text('📦', style: TextStyle(fontSize: kFontSizeDisplay)),
-      title: const Text('יש לך מזווה אישי!'),
+      title: Text(AppStrings.inventory.pantryMergeTitle),
       content: Text(
-        'יש לך $personalItemCount מוצרים במזווה האישי.\n\n'
-        'תרצה להעביר אותם למזווה של הבית החדש?',
+        AppStrings.inventory.pantryMergeContent(personalItemCount),
         textAlign: TextAlign.center,
       ),
       actionsAlignment: MainAxisAlignment.center,
@@ -35,7 +34,7 @@ Future<bool> showPantryMergeDialog({
         FilledButton.icon(
           onPressed: () => Navigator.pop(ctx, true),
           icon: const Icon(Icons.merge_type),
-          label: const Text('העבר למזווה הבית'),
+          label: Text(AppStrings.inventory.pantryMergeButton),
           style: FilledButton.styleFrom(
             backgroundColor: cs.primary,
           ),
