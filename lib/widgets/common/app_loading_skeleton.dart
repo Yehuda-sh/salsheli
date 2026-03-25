@@ -19,7 +19,7 @@ class AppLoadingSkeleton extends StatelessWidget {
   const AppLoadingSkeleton({
     super.key,
     this.sectionCount = 4,
-    this.showHero = true,
+    this.showHero = false,
   });
 
   @override
