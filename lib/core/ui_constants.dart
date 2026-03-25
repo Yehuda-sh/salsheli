@@ -135,6 +135,7 @@ const Color kDarkPaperBackground = Color(0xFF1E1E1E);  // Dark mode paper
 
 const double kButtonHeight = 48.0;       // Standard button height
 const double kButtonHeightSmall = 36.0;  // Compact button height
+const double kAppBarIconSize = 32.0;     // AppBar logo & action icon size
 
 // ═══════════════════════════════════════════════════════════════════════════
 // BUTTON PADDING
@@ -208,9 +209,11 @@ const double kCardElevation = 2.0;       // Card elevation (default)
 // ═══════════════════════════════════════════════════════════════════════════
 // שימוש: color.withValues(alpha: kOpacityMedium)
 
-const double kOpacityLow = 0.2;      // Low opacity
+const double kOpacitySubtle = 0.12;  // Subtle opacity (indicators, tints)
+const double kOpacityLow = 0.2;     // Low opacity
 const double kOpacityLight = 0.3;   // Light opacity
 const double kOpacityMedium = 0.5;  // Medium opacity
+const double kOpacityHigh = 0.85;   // High opacity (glass surfaces)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROGRESS INDICATOR

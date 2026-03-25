@@ -51,11 +51,6 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   /// 🎯 Total badge count (computed on build - Map is small, no cache needed)
   int get totalBadgeCount {
     if (widget.badges == null) return 0;
@@ -190,8 +185,8 @@ class _AppLayoutState extends State<AppLayout> {
           // 📓 App logo
           Image.asset(
             'assets/images/logo.png',
-            width: 32,
-            height: 32,
+            width: kAppBarIconSize,
+            height: kAppBarIconSize,
             fit: BoxFit.contain,
           ),
           const SizedBox(width: kSpacingSmall),
@@ -217,7 +212,7 @@ class _AppLayoutState extends State<AppLayout> {
           icon: Badge.count(
             count: widget.badges?[0] ?? 0,
             isLabelVisible: (widget.badges?[0] ?? 0) > 0,
-            child: Image.asset('assets/images/icon_bell.webp', width: 32, height: 32),
+            child: Image.asset('assets/images/icon_bell.webp', width: kAppBarIconSize, height: kAppBarIconSize),
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),
@@ -246,8 +241,8 @@ class _AppLayoutState extends State<AppLayout> {
                 unawaited(HapticFeedback.selectionClick());
                 widget.onTabSelected(index);
               },
-              backgroundColor: cs.surfaceContainer.withValues(alpha: 0.85),
-              indicatorColor: cs.primary.withValues(alpha: 0.12),
+              backgroundColor: cs.surfaceContainer.withValues(alpha: kOpacityHigh),
+              indicatorColor: cs.primary.withValues(alpha: kOpacitySubtle),
               destinations: _navItems.asMap().entries.map((entry) {
                 final index = entry.key;
                 final item = entry.value;
@@ -317,10 +312,8 @@ class _AnimatedBadgeCountState extends State<_AnimatedBadgeCount> {
   @override
   void didUpdateWidget(_AnimatedBadgeCount oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // ✅ שומר את הערך הקודם לאנימציה (רק אחרי build ראשון)
     if (oldWidget.count != widget.count) {
       _previousCount = oldWidget.count;
-      _isFirstBuild = false;
     }
   }
 
