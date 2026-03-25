@@ -501,6 +501,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 try {
                   await inventoryProvider.updateItem(item);
                 } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(AppStrings.inventory.updateError)),
+                    );
+                  }
                 }
               },
             ),
@@ -1286,8 +1291,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       key: Key(item.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.only(left: kSpacingLarge),
+        alignment: AlignmentDirectional.centerEnd,
+        padding: const EdgeInsetsDirectional.only(end: kSpacingLarge),
         decoration: BoxDecoration(
           color: cs.errorContainer,
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -1540,27 +1545,37 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
-  /// 🎨 צבע לפי קטגוריה — נותן צבעוניות ייחודית לכל סוג מוצר
+  /// 🎨 צבע לפי קטגוריה — Dark Mode aware via Theme colorScheme
   Color _getCategoryColor(String category) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final key = FiltersConfig.hebrewCategoryToEnglish(category);
-    return switch (key) {
-      'dairy' => const Color(0xFF42A5F5),        // כחול — חלב
-      'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,  // ירוק — ירקות/פירות
-      'meat' || 'poultry' || 'deli' => const Color(0xFFEF5350),   // אדום — בשר
-      'fish' || 'seafood' => const Color(0xFF26C6DA),              // תכלת — דגים
-      'bakery' || 'bread' => const Color(0xFFFFB74D),              // כתום — מאפים
-      'frozen' => const Color(0xFF78909C),                          // אפור-כחול — קפואים
-      'drinks' || 'alcohol' || 'wine' => kStickyPurple,            // סגול — משקאות
-      'snacks' || 'sweets' || 'chocolate' => const Color(0xFFFF7043), // כתום-אדום — חטיפים
-      'cleaning' || 'laundry' => const Color(0xFF66BB6A),          // ירוק בהיר — ניקיון
-      'hygiene' || 'beauty' => kStickyPink,                        // ורוד — טיפוח
-      'spices' || 'condiments' => const Color(0xFFFFA726),         // כתום — תבלינים
-      'grains' || 'pasta' || 'rice' => const Color(0xFFD4A373),    // חום — דגנים
-      'canned' || 'preserved' => const Color(0xFF8D6E63),          // חום כהה — שימורים
-      'baby' => const Color(0xFFF8BBD0),                           // ורוד בהיר — תינוקות
-      'oils' => const Color(0xFFCDDC39),                           // ליים — שמנים
-      _ => kStickyCyan,                                            // ברירת מחדל — תכלת
+
+    // Light mode: vibrant colors. Dark mode: desaturated via Color.lerp
+    Color base = switch (key) {
+      'dairy' => const Color(0xFF42A5F5),
+      'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,
+      'meat' || 'poultry' || 'deli' || 'meat_fish' || 'beef' || 'chicken' || 'turkey' || 'lamb' => const Color(0xFFEF5350),
+      'fish' => const Color(0xFF26C6DA),
+      'bakery' || 'bread' || 'bread_bakery' => const Color(0xFFFFB74D),
+      'frozen' => const Color(0xFF78909C),
+      'drinks' || 'alcohol' || 'wine' || 'beverages' || 'coffee_tea' => kStickyPurple,
+      'snacks' || 'sweets' || 'chocolate' || 'sweets_snacks' || 'cookies_sweets' => const Color(0xFFFF7043),
+      'cleaning' || 'laundry' => const Color(0xFF66BB6A),
+      'hygiene' || 'beauty' || 'cosmetics' => kStickyPink,
+      'spices' || 'condiments' => const Color(0xFFFFA726),
+      'grains' || 'pasta' || 'rice' || 'rice_pasta' || 'legumes_grains' || 'cereals' => const Color(0xFFD4A373),
+      'canned' || 'preserved' => const Color(0xFF8D6E63),
+      'baby' || 'baby_products' => const Color(0xFFF8BBD0),
+      'oils' || 'oils_sauces' => const Color(0xFFCDDC39),
+      _ => kStickyCyan,
     };
+
+    // ✅ Dark Mode: desaturate by blending with surface color
+    if (isDark) {
+      base = Color.lerp(base, cs.surface, 0.3)!;
+    }
+    return base;
   }
 
   /// 🏷️ אמוג'י קטגוריה עם Pulse לפריטים קריטיים
