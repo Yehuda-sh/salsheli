@@ -34,6 +34,7 @@ import '../../../providers/user_context.dart';
 // notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
+import '../../settings/household_members_screen.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
@@ -436,15 +437,30 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ],
               ),
               const SizedBox(height: 2),
-              Text(
-                activeListsCount > 0
-                    ? AppStrings.homeDashboard.activeListsSubtitle(activeListsCount)
-                    : familyName ?? '',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        activeListsCount > 0
+                            ? AppStrings.homeDashboard.activeListsSubtitle(activeListsCount)
+                            : familyName ?? '',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: cs.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingXTiny),
+                    Icon(Icons.chevron_left, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                  ],
+                ),
               ),
             ],
           ),
