@@ -14,7 +14,6 @@
 // Version: 1.1 - Emoji icons → Material Icons
 // Last Updated: 24/03/2026
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -159,7 +158,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     final strings = AppStrings.sharing;
     final userContext = Provider.of<UserContext>(context, listen: false);
-    final notificationsService = NotificationsService(FirebaseFirestore.instance);
+    final notificationsService = context.read<NotificationsService>();
     final rejecterName = userContext.displayName ?? strings.roleAdmin;
 
     // Show rejection reason dialog
