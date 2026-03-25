@@ -39,6 +39,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/constants.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
 import '../providers/user_context.dart';
@@ -211,7 +212,7 @@ class ShoppingPatternsService {
           .where('householdId', isEqualTo: householdId) // ✅ CRITICAL!
           .where('storeType', isEqualTo: storeType)
           .orderBy('createdAt', descending: true)
-          .limit(10) // 10 דפוסים אחרונים
+          .limit(kMaxRecentPatterns)
           .get();
 
       final patterns = snapshot.docs.map((doc) => doc.data()).toList();

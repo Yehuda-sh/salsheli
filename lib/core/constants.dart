@@ -1,7 +1,8 @@
 // 📄 lib/core/constants.dart
 //
 // קבועים לוגיים של האפליקציה (לא UI).
-// - Schema version, Data limits עם severity levels
+// - Data limits עם severity levels
+// - Query limits
 //
 // 📋 Features:
 // - ניהול מגבלות סמנטי (Soft vs Hard Limits)
@@ -9,15 +10,8 @@
 //
 // 🔗 Related: ui_constants.dart (UI), repository_constants.dart (Firestore)
 //
-// 📝 Version: 4.0
-// 📅 Updated: 22/02/2026
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SCHEMA VERSION
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// Current schema version for data migrations
-const int kCurrentSchemaVersion = 1;
+// 📝 Version: 4.1
+// 📅 Updated: 25/03/2026
 
 // ═══════════════════════════════════════════════════════════════════════════
 // DATA LIMITS
@@ -30,13 +24,26 @@ const int kMaxItemsPerList = 200;
 const int kMaxItemsPerPantry = 500;
 
 /// מקסימום רשימות פעילות למשתמש
-const int kMaxActiveListsPerUser = 100;
+const int kMaxActiveListsPerUser = 30;
 
 /// מקסימום משתמשים משותפים לרשימה (מניעת עומס על Sync)
 const int kMaxSharedUsersPerList = 20;
 
 /// מקסימום מיקומי אחסון במזווה למשק בית
 const int kMaxLocationsPerHousehold = 30;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// QUERY LIMITS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// מקסימום משתמשים לטעינה בשאילתת משק בית
+const int kQueryLimitHousehold = 50;
+
+/// מקסימום משתמשים לטעינה בשאילתה כללית
+const int kQueryLimitAllUsers = 100;
+
+/// מקסימום דפוסי קניות אחרונים לטעינה
+const int kMaxRecentPatterns = 10;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LIMIT STATUS (Severity Levels)
@@ -60,9 +67,6 @@ enum LimitStatus {
 // ═══════════════════════════════════════════════════════════════════════════
 // WARNING THRESHOLDS
 // ═══════════════════════════════════════════════════════════════════════════
-
-/// סף מצב תקין (עד 50%)
-const double kLimitSafeThreshold = 0.5;
 
 /// סף אזהרה עדינה (80%) — נועד לשימוש ב-UI
 const double kLimitWarningThreshold = 0.8;

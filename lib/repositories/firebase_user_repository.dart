@@ -25,6 +25,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/constants.dart';
 import '../models/user_entity.dart';
 import 'constants/repository_constants.dart';
 import 'user_repository.dart';
@@ -132,7 +133,7 @@ class FirebaseUserRepository implements UserRepository {
       }
       
       final snapshot = await query
-          .limit(householdId != null ? 50 : 100) // More restrictive for all-users query
+          .limit(householdId != null ? kQueryLimitHousehold : kQueryLimitAllUsers)
           .get();
 
       final users = snapshot.docs.map((doc) {
@@ -284,7 +285,7 @@ class FirebaseUserRepository implements UserRepository {
       if (householdId != null) {
         query = query.where(FirestoreFields.householdId, isEqualTo: householdId);
       } else {
-        query = query.limit(100); // Safety limit for all-users delete
+        query = query.limit(kQueryLimitAllUsers);
       }
       
       final snapshot = await query.get();
