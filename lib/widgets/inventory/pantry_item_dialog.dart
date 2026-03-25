@@ -339,20 +339,23 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 ),
               // פופולרי
               if (item.isPopular)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.trending_up, size: kFontSizeSmall, color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7)),
-                    const SizedBox(width: 3),
-                    Text(
-                      AppStrings.inventory.popularLabel,
-                      style: TextStyle(
-                        fontSize: smallFont,
-                        color: StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7),
+                Builder(builder: (_) {
+                  final successColor = StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7);
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.trending_up, size: kFontSizeSmall, color: successColor),
+                      const SizedBox(width: 3),
+                      Text(
+                        AppStrings.inventory.popularLabel,
+                        style: TextStyle(
+                          fontSize: smallFont,
+                          color: successColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  );
+                }),
             ],
           ),
         ],
@@ -873,9 +876,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               ),
               onPressed: _isLoading ? null : _saveItem,
               child: _isLoading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
+                  ? const SizedBox(
+                      width: kIconSizeSmall,
+                      height: kIconSizeSmall,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
