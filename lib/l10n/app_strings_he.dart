@@ -1247,6 +1247,15 @@ class InventoryStrings {
   String get permanentProduct => 'מוצר קבוע';
   String addCustomProduct(String query) => 'הוסף "$query"';
 
+  // Product selection sheet
+  String get inPantryBadge => 'במזווה';
+  String get customProductNotFound => 'לא מצאת? הוסף מוצר חדש';
+  String get allCategoriesFilter => 'הכל';
+  String get tapToAddToPantry => 'לחץ להוספה למזווה';
+  String get productFallbackName => 'מוצר';
+  String get categoryFallbackName => 'אחר';
+  String loadProductsError(String error) => 'שגיאה בטעינת מוצרים: $error';
+
   // Pantry merge dialog
   String get pantryMergeTitle => 'יש לך מזווה אישי!';
   String pantryMergeContent(int count) =>

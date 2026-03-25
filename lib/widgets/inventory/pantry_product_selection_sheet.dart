@@ -196,7 +196,7 @@ class _PantryProductSelectionSheetState
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'שגיאה בטעינת מוצרים: $e';
+        _errorMessage = AppStrings.inventory.loadProductsError(e.toString());
         _isLoading = false;
       });
     }
@@ -434,7 +434,7 @@ class _PantryProductSelectionSheetState
                         // כפתור הוספת מיקום חדש
                         IconButton(
                           icon: Icon(Icons.add_location_alt, color: cs.primary),
-                          tooltip: 'הוסף מיקום חדש',
+                          tooltip: AppStrings.inventory.addLocationTitle,
                           onPressed: () async {
                             final newLocation = await showAddLocationDialog(this.context);
                             if (newLocation != null) {
@@ -529,11 +529,11 @@ class _PantryProductSelectionSheetState
                     ),
                   ),
                   Semantics(
-                    label: 'סגור',
+                    label: AppStrings.common.close,
                     button: true,
                     child: IconButton(
                       icon: const Icon(Icons.close),
-                      tooltip: 'סגור',
+                      tooltip: AppStrings.common.close,
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
@@ -588,7 +588,7 @@ class _PantryProductSelectionSheetState
                   Padding(
                     padding: const EdgeInsets.only(left: kSpacingSmall),
                     child: FilterChip(
-                      label: const Text('הכל'),
+                      label: Text(AppStrings.inventory.allCategoriesFilter),
                       selected: _selectedCategory == null,
                       onSelected: (_) {
                         unawaited(HapticFeedback.selectionClick());
@@ -708,7 +708,7 @@ class _PantryProductSelectionSheetState
             if (_searchQuery.isNotEmpty) ...[
               const SizedBox(height: kSpacingSmall),
               Text(
-                'לא מצאת? הוסף מוצר חדש',
+                AppStrings.inventory.customProductNotFound,
                 style: TextStyle(
                   fontSize: kFontSizeSmall,
                   color: cs.onSurfaceVariant,
@@ -718,7 +718,7 @@ class _PantryProductSelectionSheetState
               FilledButton.tonalIcon(
                 onPressed: () => _addCustomProduct(_searchQuery),
                 icon: const Icon(Icons.add_circle_outline),
-                label: Text('הוסף "$_searchQuery"'),
+                label: Text(AppStrings.inventory.addCustomProduct(_searchQuery)),
               ),
             ],
           ],
@@ -755,8 +755,11 @@ class _PantryProductSelectionSheetState
     // צבע לפי מקור
     final sourceColor = _getSourceColor(source, cs);
 
+    // ✅ Cache success color — used multiple times in this card
+    final successColor = StatusColors.getColor(StatusType.success, context);
+
     return Semantics(
-      label: '$name, $category. לחץ להוספה למזווה',
+      label: '$name, $category. ${AppStrings.inventory.tapToAddToPantry}',
       button: true,
       enabled: !isAdding,
       child: AnimatedContainer(
@@ -768,8 +771,7 @@ class _PantryProductSelectionSheetState
           boxShadow: justAdded
               ? [
                   BoxShadow(
-                    color: StatusColors.getColor(StatusType.success, context)
-                        .withValues(alpha: 0.4),
+                    color: successColor.withValues(alpha: 0.4),
                     blurRadius: 8,
                     spreadRadius: 2,
                   ),
@@ -779,8 +781,7 @@ class _PantryProductSelectionSheetState
         child: Card(
           margin: EdgeInsets.zero,
           color: justAdded
-              ? StatusColors.getColor(StatusType.success, context)
-                  .withValues(alpha: 0.1)
+              ? successColor.withValues(alpha: 0.1)
               : null,
           child: InkWell(
             onTap: isAdding ? null : () => _addProductToPantry(product),
@@ -830,7 +831,7 @@ class _PantryProductSelectionSheetState
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: StatusColors.getColor(StatusType.success, context),
+                                  color: successColor,
                                   borderRadius:
                                       BorderRadius.circular(kBorderRadiusSmall),
                                 ),
@@ -844,7 +845,7 @@ class _PantryProductSelectionSheetState
                                     ),
                                     const SizedBox(width: 2),
                                     Text(
-                                      'במזווה',
+                                      AppStrings.inventory.inPantryBadge,
                                       style: TextStyle(
                                         fontSize: kFontSizeTiny,
                                         color: cs.onPrimary,
@@ -911,8 +912,7 @@ class _PantryProductSelectionSheetState
                     height: 48,
                     decoration: BoxDecoration(
                       color: isInPantry
-                          ? StatusColors.getColor(StatusType.success, context)
-                              .withValues(alpha: 0.1)
+                          ? successColor.withValues(alpha: 0.1)
                           : cs.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
@@ -929,7 +929,7 @@ class _PantryProductSelectionSheetState
                                 ? Icons.add_circle_outline
                                 : Icons.add_circle,
                             color: isInPantry
-                                ? StatusColors.getColor(StatusType.success, context)
+                                ? successColor
                                 : cs.primary,
                             size: 32,
                           ),

@@ -1212,6 +1212,15 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get permanentProduct => 'Permanent product';
   @override String addCustomProduct(String query) => 'Add "$query"';
 
+  // Product selection sheet
+  @override String get inPantryBadge => 'In pantry';
+  @override String get customProductNotFound => 'Not found? Add a custom product';
+  @override String get allCategoriesFilter => 'All';
+  @override String get tapToAddToPantry => 'Tap to add to pantry';
+  @override String get productFallbackName => 'Product';
+  @override String get categoryFallbackName => 'Other';
+  @override String loadProductsError(String error) => 'Error loading products: $error';
+
   // Pantry merge dialog
   @override String get pantryMergeTitle => 'You have a personal pantry!';
   @override String pantryMergeContent(int count) =>
