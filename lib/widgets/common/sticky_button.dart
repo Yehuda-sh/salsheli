@@ -138,8 +138,8 @@ class StickyButton extends StatelessWidget {
     final effectiveColor = isDisabled ? buttonColor.withValues(alpha: 0.5) : buttonColor;
     final gradientBottom = Color.lerp(effectiveColor, shadowColor, 0.05)!;
 
-    final Widget buttonWidget = RepaintBoundary(
-      child: Semantics(
+    // AnimatedButton already wraps in RepaintBoundary — no need to double-wrap
+    final Widget buttonWidget = Semantics(
         button: true,
         label: label,
         enabled: isEnabled,
@@ -213,7 +213,6 @@ class StickyButton extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
 
     // ✅ הוסף Tooltip לנגישות
