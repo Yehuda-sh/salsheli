@@ -23,12 +23,10 @@
 //     - Sync with Firebase
 //     - Support 4 permission levels (Owner, Admin, Editor, Viewer)
 
-import 'package:flutter/foundation.dart';
-
-import 'package:memozap/models/enums/user_role.dart';
-import 'package:memozap/models/shared_user.dart';
-import 'package:memozap/models/shopping_list.dart';
-import 'package:memozap/services/notifications_service.dart';
+import '../models/enums/user_role.dart';
+import '../models/shared_user.dart';
+import '../models/shopping_list.dart';
+import '../services/notifications_service.dart';
 
 /// 🇮🇱 שירות שיתוף רשימות
 /// 🇬🇧 Share list service
@@ -352,47 +350,4 @@ class ShareListService {
     return role == UserRole.editor;
   }
 
-  // ---- Statistics & Analysis ----
-
-  /// 🇮🇱 קבלת סטטיסטיקה על משתמשים
-  /// 🇬🇧 Get users statistics
-  static Map<String, int> getUsersStats(ShoppingList list) {
-    final users = getUsersForList(list);
-
-    final stats = <String, int>{
-      'total': users.length,
-      'owner': 0,
-      'admin': 0,
-      'editor': 0,
-      'viewer': 0,
-    };
-
-    for (final user in users) {
-      final roleKey = user.role.name;
-      stats[roleKey] = (stats[roleKey] ?? 0) + 1;
-    }
-
-    if (kDebugMode) {
-      stats.forEach((key, value) {
-        if (value > 0) {
-        }
-      });
-    }
-
-    return stats;
-  }
-
-  /// 🇮🇱 בדיקה אם הרשימה משותפת באמת
-  /// 🇬🇧 Check if list is actually shared
-  /// 
-  /// רשימה נחשבת משותפת אם יש לה לפחות משתמש אחד מלבד ה-Owner
-  static bool isListShared(ShoppingList list) {
-    return list.sharedUsers.isNotEmpty;
-  }
-
-  /// 🇮🇱 קבלת כמות משתמשים פעילים
-  /// 🇬🇧 Get count of active users
-  static int getActiveUsersCount(ShoppingList list) {
-    return getUsersForList(list).length;
-  }
 }
