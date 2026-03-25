@@ -261,14 +261,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                   duration: 2000.ms,
                   curve: Curves.easeInOut,
                 ),
-            SizedBox(height: 16),
+            const SizedBox(height: kSpacingMedium),
             Text(
               strings.emptyTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: cs.onSurfaceVariant,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: kSpacingSmall),
             Text(
               strings.emptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -461,7 +461,7 @@ class _NotificationTile extends StatelessWidget {
               color: cs.onSurfaceVariant,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: kSpacingXTiny),
           Text(
             timeAgo,
             style: theme.textTheme.bodySmall?.copyWith(
