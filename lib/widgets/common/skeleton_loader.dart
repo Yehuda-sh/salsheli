@@ -265,13 +265,6 @@ class SkeletonListView extends StatelessWidget {
     this.animate = true,
   });
 
-  /// Constructor עם שם - לתאימות לאחור
-  const SkeletonListView.listCards({
-    super.key,
-    this.itemCount = 5,
-    this.animate = true,
-  });
-
   @override
   Widget build(BuildContext context) {
     // ✅ ExcludeSemantics — הסתר את כל הרשימה מקוראי מסך

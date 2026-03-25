@@ -651,7 +651,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// 💀 Loading State - עם Skeleton Screens
   Widget _buildLoadingState() {
-    return const SkeletonListView.listCards();
+    return const SkeletonListView();
   }
 
   /// 📌 בונה את גוף המסך לפי מצב הטעינה / שגיאה / נתונים
