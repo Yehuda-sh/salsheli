@@ -288,16 +288,6 @@ const double kStickyShadowSecondaryOffsetY = 8.0;  // Secondary shadow Y offset
 // ═══════════════════════════════════════════════════════════════════════════
 
 const double kStickyNoteRadius = 2.0;     // Border radius for sticky notes
-const double kStickyLogoSize = 80.0;      // Size of sticky note logo (width & height)
-const double kStickyLogoIconSize = 40.0;  // Icon size in sticky logo
-
-// Logo Shadow Styles
-const double kStickyLogoShadowPrimaryOpacity = 0.4;   // Logo primary shadow opacity
-const double kStickyLogoShadowPrimaryBlur = 8.0;      // Logo primary shadow blur
-const double kStickyLogoShadowPrimaryOffsetY = 4.0;   // Logo primary shadow Y offset
-const double kStickyLogoShadowSecondaryOpacity = 0.2; // Logo secondary shadow opacity
-const double kStickyLogoShadowSecondaryBlur = 12.0;   // Logo secondary shadow blur
-const double kStickyLogoShadowSecondaryOffsetY = 8.0; // Logo secondary shadow Y offset
 
 // Logo Glow Effect
 const double kShimmerAngle = 0.0;      // Shimmer effect angle (radians)
