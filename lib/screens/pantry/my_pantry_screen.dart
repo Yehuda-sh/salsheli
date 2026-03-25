@@ -674,7 +674,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         quantity: qty.toInt(),
                                         unit: unit,
                                         category: category,
-                                        location: 'general',
+                                        location: StorageLocationsConfig.mainPantry,
                                       );
                                     },
                                   ),
