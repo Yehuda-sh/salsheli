@@ -361,13 +361,13 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get activeTotal => 'Total';
   String get activeSavingData => 'Saving data...';
   String get loadingDataError => 'Error loading data';
-  String get shoppingCompletedSuccess => 'Shopping completed successfully! 🎉';
+  String get shoppingCompletedSuccess => 'All done — great shopping! 🎉';
   String get viewerCannotShop => 'Viewers cannot participate in shopping';
   String pantryUpdated(int count) => '📦 $count products updated in pantry';
   String itemsMovedToNext(int count) => '🔄 $count items moved to next list';
   String get saveError => 'Save error';
   String get saveErrorMessage => 'We couldn\'t save the data.\nTry again?';
-  String get oopsError => 'Oops! Something went wrong';
+  String get oopsError => 'Something went wrong — let\'s try again';
   String get listEmpty => 'List is empty';
   String get noItemsToBuy => 'No items to buy';
   String get sharedLabel => 'Shared';
@@ -408,7 +408,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get editListButton => 'Edit List';
   String get deleteListButton => 'Delete';
   String get summaryTitle => 'Shopping Summary';
-  @override String get summarySuccess => 'Shopping done! ⚡';
+  @override String get summarySuccess => 'Nailed it! ⚡';
   @override String get storeQuestion => 'Where did you shop?';
   @override String get whoBringsWhat => 'Who brings what';
   @override String get whoBringsTitle => 'Who brings?';
@@ -478,12 +478,12 @@ class ShoppingStringsEn extends ShoppingStrings {
   String get historyListsNote => '(by last update)';
   String get noListsFoundTitle => 'No lists found';
   String get noListsFoundSubtitle => 'Try changing the search or filter';
-  String get noListsTitle => 'No shopping lists';
-  String get noListsSubtitle => 'Tap the button below to create\nyour first list!';
+  String get noListsTitle => 'Ready to shop smarter?';
+  String get noListsSubtitle => 'Create your first list and\nnever forget an item again!';
   String get createNewListButton => 'Create New List';
   String get orScanReceiptHint => 'Or scan a receipt in the receipts screen';
   String get loadingListsError => 'Error loading lists';
-  String get somethingWentWrong => 'Something went wrong...';
+  String get somethingWentWrong => 'Hmm, that didn\'t work';
   String get tryAgainButton => 'Try Again';
   String loadMoreLists(int remaining) => 'Load more lists ($remaining remaining)';
   String get moreOptionsTooltip => 'More options';
@@ -542,9 +542,9 @@ class IndexStringsEn extends IndexStrings {
   String get logoLabel => '${AppStringsEn.appName} app logo';
   String get loadingLabel => 'Loading the app';
   String get loading => 'Loading...';
-  List<String> get loadingMessages => const ['Checking status...', 'Connecting...', 'Almost ready...'];
-  String get errorTitle => 'Oops! Something went wrong';
-  String get errorMessage => 'We couldn\'t load the app';
+  List<String> get loadingMessages => const ['Getting things ready...', 'Syncing your data...', 'Almost there...'];
+  String get errorTitle => 'Something\'s not right';
+  String get errorMessage => 'We hit a bump — let\'s try again';
   String get retryButton => 'Try Again';
 }
 
@@ -556,23 +556,23 @@ class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
   String get title => AppStringsEn.appName;
-  String get subtitle => 'Your household groceries — all in one place';
+  String get subtitle => 'Smart grocery management for the whole family';
   String get group1Emoji => '🛒';
-  String get group1Title => 'Plan together';
-  String get group1Question => 'A shopping list everyone can edit in real time';
-  String get group1Feature1 => 'Items ✅';
-  String get group1Feature2 => 'Quantities 🔢';
+  String get group1Title => 'Shop together';
+  String get group1Question => 'One list, everyone edits in real time';
+  String get group1Feature1 => 'Smart items ✅';
+  String get group1Feature2 => 'Auto quantities 🔢';
   String get group2Emoji => '📦';
-  String get group2Title => 'Always know what you have';
-  String get group2Question => 'A digital pantry that alerts when something runs low';
-  String get group2Feature1 => 'Stock 📊';
-  String get group2Feature2 => 'Reminders ⏰';
+  String get group2Title => 'Never run out';
+  String get group2Question => 'Your digital pantry — alerts you before you run low';
+  String get group2Feature1 => 'Live stock 📊';
+  String get group2Feature2 => 'Smart alerts ⏰';
   String get group3Emoji => '👨‍👩‍👧‍👦';
-  String get group3Title => 'Shop without forgetting';
-  String get group3Question => 'Share lists with family — everyone stays in sync';
-  String get group3Feature1 => 'Real-time 🔄';
-  String get group3Feature2 => 'Sync ☁️';
-  String get moreGroupsHint => 'Simple and easy - no complications';
+  String get group3Title => 'Family in sync';
+  String get group3Question => 'Everyone sees, everyone updates — no more duplicate buys';
+  String get group3Feature1 => 'Live updates 🔄';
+  String get group3Feature2 => 'Cloud sync ☁️';
+  String get moreGroupsHint => 'Beautifully simple — zero learning curve';
   String get demoItem1 => 'Milk';
   String get demoItem2 => 'Bread';
   String get demoItem3 => 'Eggs';
@@ -586,16 +586,16 @@ class WelcomeStringsEn extends WelcomeStrings {
   String get demoUser3 => 'Danny';
   String get statusOnline => 'Online';
   String get statusOffline => 'Offline';
-  String get benefit1Title => 'Real-time sharing';
-  String get benefit1Subtitle => 'Everyone sees, everyone updates';
-  String get benefit2Title => 'Groceries + tasks together';
-  String get benefit2Subtitle => 'One list for everything you need';
+  String get benefit1Title => 'Live collaboration';
+  String get benefit1Subtitle => 'Changes appear instantly for everyone';
+  String get benefit2Title => 'Lists + tasks in one place';
+  String get benefit2Subtitle => 'Groceries, errands, events — all organized';
   String get benefit3Title => 'Smart pantry';
-  String get benefit3Subtitle => 'Knows what\'s missing, alerts on time';
+  String get benefit3Subtitle => 'Knows what you need before you do';
   String get startButton => 'Sign Up';
   String get loginButton => 'Log In';
   String get loginLink => 'Already have an account — Log In';
-  String get authExplanation => 'To use the app you need to log in or sign up';
+  String get authExplanation => 'Sign in to sync your lists across all devices';
   String get registerButton => 'Sign Up';
   String get termsOfService => 'Terms of Service';
   String get privacyPolicy => 'Privacy Policy';
@@ -610,10 +610,10 @@ class AuthStringsEn extends AuthStrings {
   const AuthStringsEn();
 
   String get loginTitle => 'Log In';
-  String get loginSubtitle => 'Nice to see you again 👋';
+  String get loginSubtitle => 'Welcome back 👋';
   String get loginButton => 'Log In';
   String get registerTitle => 'Sign Up';
-  String get registerSubtitle => 'Create a new account to share and manage lists together ✨';
+  String get registerSubtitle => 'Join the smarter way to shop ✨';
   String get registerButton => 'Sign Up';
   String get forgotPassword => 'Forgot password?';
   String get sendResetEmailButton => 'Send Link';
@@ -739,7 +739,7 @@ class HomeStringsEn extends HomeStrings {
 
   String get sortLabel => 'Sort:';
   String get sortByDate => 'Date updated';
-  String get noActiveLists => 'No active lists right now';
+  String get noActiveLists => 'Nothing on the list — enjoy the break!';
   String get otherActiveLists => 'Other active lists';
   String get noOtherActiveLists => 'No other lists right now';
   String get allLists => 'All lists';
@@ -872,7 +872,7 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get languageHebrew => 'עברית';
   @override String get showOnboardingSubtitle => 'View the app tutorial again';
   @override String get about => 'About';
-  @override String get aboutDescription => 'Smart app for managing shopping and home pantry';
+  @override String get aboutDescription => 'Smart grocery & pantry management for families';
   @override String versionLabel(String version) => 'Version $version';
   @override String get quickLinksTitle => 'Quick Links';
   @override String get infoTitle => 'Info';
@@ -941,11 +941,11 @@ class TemplatesStringsEn extends TemplatesStrings {
   const TemplatesStringsEn();
 
   String get title => 'List Templates';
-  String get subtitle => 'Create ready-made templates for reuse';
+  String get subtitle => 'Save time with ready-made lists';
   String get filterAll => 'All';
   String get filterShared => 'Shared';
-  String get emptyMyTemplatesTitle => 'No personal templates';
-  String get emptyMyTemplatesMessage => 'Create a template to save time when creating recurring lists';
+  String get emptyMyTemplatesTitle => 'No templates yet';
+  String get emptyMyTemplatesMessage => 'Create one and skip the setup next time';
   String get emptySharedTemplatesTitle => 'No shared templates';
   String get emptySharedTemplatesMessage => 'Group members can create shared templates';
   String itemsCount(int count) => '$count items';
@@ -1098,7 +1098,7 @@ class InventoryStringsEn extends InventoryStrings {
   String get locationNameLabel => 'Location Name';
   String get locationNameHint => 'e.g., "Small Fridge"';
   String get selectEmojiLabel => 'Choose an emoji:';
-  String get locationAdded => 'New location added successfully! 📍';
+  String get locationAdded => 'Location added! 📍';
   String get locationExists => 'This location already exists';
   String get locationNameRequired => 'Please enter a location name';
   String get filterLabel => 'Filter Pantry';
@@ -1196,10 +1196,10 @@ class InventoryStringsEn extends InventoryStrings {
   String get locationUnknownDesc => 'Unknown location';
   String maxItemsReached(int max) => 'You\'ve reached the maximum of $max pantry items';
   String pantryHealthStatus(double healthPercent) {
-    if (healthPercent >= 80) return 'Your pantry looks great! 💚';
-    if (healthPercent >= 50) return 'Pantry is decent, might want to restock a few things';
-    if (healthPercent >= 25) return 'Time to visit the store soon 🛒';
-    return 'Pantry is almost empty — time to shop! 🚨';
+    if (healthPercent >= 80) return 'Pantry is fully stocked! 💚';
+    if (healthPercent >= 50) return 'Looking good — a few things to restock 🛒';
+    if (healthPercent >= 25) return 'Running low — time for a shopping trip 🛒';
+    return 'Almost empty — your pantry needs attention! 🚨';
   }
 
   String get pantryHealthLabel => 'Pantry Health';
@@ -1305,8 +1305,8 @@ class SelectListStringsEn extends SelectListStrings {
 class RecurringStringsEn extends RecurringStrings {
   const RecurringStringsEn();
 
-  String get title => 'Popular Product!';
-  String get subtitle => 'Looks like you buy this often';
+  String get title => 'You buy this a lot!';
+  String get subtitle => 'Want us to add it automatically next time?';
   String get statPurchases => 'Purchases';
   String get statLastPurchase => 'Last purchase';
   String formatLastPurchase(DateTime date) {
@@ -1318,10 +1318,10 @@ class RecurringStringsEn extends RecurringStrings {
     return '${(diff / 30).floor()} months ago';
   }
 
-  String get explanation => 'A recurring product will be automatically added to new shopping lists';
-  String get confirmButton => 'Make Recurring';
-  String get dismissButton => 'No, thanks';
-  String get askLaterButton => 'Ask me later';
+  String get explanation => 'Recurring products are automatically added to every new list — one less thing to remember';
+  String get confirmButton => 'Yes, auto-add it!';
+  String get dismissButton => 'No thanks';
+  String get askLaterButton => 'Remind me later';
   String get closeTooltip => 'Close';
   String get confirmTooltip => 'Make this a recurring product';
   String get dismissTooltip => 'Don\'t suggest this product as recurring';
@@ -1363,8 +1363,8 @@ class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
   String itemsCount(int count) => '$count items';
   String get virtualTag => 'Virtual';
   String get noResults => 'No shopping in this period';
-  String get emptyTitle => "You haven't finished shopping yet";
-  String get emptySubtitle => 'Completed lists will appear here so you can\ntrack your shopping! 🛒';
+  String get emptyTitle => 'No shopping history yet';
+  String get emptySubtitle => 'Finish your first shopping and it\'ll\nshow up right here 🛒';
   String get defaultError => 'Error loading';
   String get retryButton => 'Try Again';
 }
@@ -1402,7 +1402,7 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
 class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   const SuggestionsTodayCardStringsEn();
 
-  String get title => 'Pantry Suggestions';
+  String get title => 'Smart suggestions';
   String get loading => 'Loading suggestions...';
   String itemCount(int count) => '$count items';
   String get urgencyCritical => 'Out of stock!';
@@ -1426,7 +1426,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
 class LastChanceBannerStringsEn extends LastChanceBannerStrings {
   const LastChanceBannerStringsEn();
 
-  String get title => 'Wait, here\'s something you usually need...';
+  String get title => 'Don\'t forget — you usually grab this too';
   String semanticsLabel(String productName, int stock) =>
       'Smart suggestion: $productName is running low in your pantry. $stock units remaining. Double tap to add to list.';
   String stockText(int stock) => 'Only $stock left in pantry';
@@ -1453,8 +1453,8 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   String get loading => 'Loading invitations...';
   String get loadError => 'Error loading invitations';
   String get retryButton => 'Try Again';
-  String get emptyTitle => 'No pending invitations';
-  String get emptySubtitle => 'When someone invites you to a list,\nthe invitation will appear here';
+  String get emptyTitle => 'All clear!';
+  String get emptySubtitle => 'When someone invites you to a list,\nit\'ll show up right here';
   String get pullToRefresh => '↓ Pull to refresh';
   String get listFallback => 'List';
   String get userFallback => 'User';
@@ -1690,8 +1690,8 @@ class NotificationsCenterStringsEn extends NotificationsCenterStrings {
   String get userNotLoggedIn => 'User not logged in';
   String get loadingError => 'Error loading notifications';
   String get retryButton => 'Try Again';
-  String get emptyTitle => 'No notifications';
-  String get emptySubtitle => 'When you receive new notifications, they\'ll appear here';
+  String get emptyTitle => 'You\'re all caught up!';
+  String get emptySubtitle => 'New updates and activity will show up here';
   String get allMarkedAsRead => 'All notifications marked as read';
 }
 
@@ -1717,7 +1717,7 @@ class PantryStringsEn extends PantryStrings {
   String get noStarterItemsFound => 'No starter items found';
   String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   String get starterItemsError => 'Error adding starter items';
-  String get suggestionsTitle => 'Good to have at home';
+  String get suggestionsTitle => 'Essentials for your pantry';
   String get hideSuggestions => 'Hide';
   String itemDeleted(String name) => '$name deleted';
   String get deleteItemError => 'Error deleting item';
