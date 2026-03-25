@@ -34,6 +34,8 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -61,6 +63,8 @@ import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
+import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -549,9 +553,23 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
   }
 
-  /// שולח התראה על מלאי נמוך (placeholder - לשימוש עתידי עם household)
+  /// שולח התראה על מלאי נמוך לחברי הבית
   Future<void> _sendLowStockNotification(InventoryItem item) async {
-    // TODO: Implement household-based low stock notifications
+    final userContext = context.read<UserContext>();
+    final householdId = userContext.householdId;
+    final currentUserId = userContext.userId;
+    if (householdId == null || currentUserId == null) return;
+
+    final service = context.read<NotificationsService>();
+    // שלח התראה לכל חברי הבית (חוץ מהמשתמש הנוכחי)
+    // כרגע שולח רק למשתמש הנוכחי — כשיהיה FCM, זה ירחיב לכולם
+    unawaited(service.createLowStockNotification(
+      userId: currentUserId,
+      householdId: householdId,
+      productName: item.name,
+      currentStock: item.quantity,
+      minStock: item.minQuantity,
+    ));
   }
 
   @override

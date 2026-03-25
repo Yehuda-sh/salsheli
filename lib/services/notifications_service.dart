@@ -394,6 +394,72 @@ class NotificationsService {
     }
   }
 
+  /// 🙋 Create "who brings" volunteer notification
+  Future<bool> createWhoBringsVolunteerNotification({
+    required String userId,
+    required String householdId,
+    required String listId,
+    required String listName,
+    required String itemName,
+    required String volunteerName,
+  }) async {
+    try {
+      final notification = AppNotification(
+        id: _uuid.v4(),
+        userId: userId,
+        householdId: householdId,
+        type: NotificationType.whoBringsVolunteer,
+        title: 'התנדבות חדשה 🙋',
+        message: '$volunteerName התנדב להביא "$itemName" לרשימה "$listName"',
+        actionData: {
+          'listId': listId,
+          'listName': listName,
+          'itemName': itemName,
+          'volunteerName': volunteerName,
+        },
+        createdAt: DateTime.now(),
+      );
+
+      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      return true;
+    } catch (e, stackTrace) {
+      _logError('createWhoBringsVolunteerNotification', e, stackTrace);
+      return false;
+    }
+  }
+
+  /// 📦 Create low stock notification
+  Future<bool> createLowStockNotification({
+    required String userId,
+    required String householdId,
+    required String productName,
+    required int currentStock,
+    required int minStock,
+  }) async {
+    try {
+      final notification = AppNotification(
+        id: _uuid.v4(),
+        userId: userId,
+        householdId: householdId,
+        type: NotificationType.lowStock,
+        title: 'מלאי נמוך 📦',
+        message: '$productName — נשארו $currentStock יחידות (מינימום: $minStock)',
+        actionData: {
+          'productName': productName,
+          'currentStock': currentStock,
+          'minStock': minStock,
+        },
+        createdAt: DateTime.now(),
+      );
+
+      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      return true;
+    } catch (e, stackTrace) {
+      _logError('createLowStockNotification', e, stackTrace);
+      return false;
+    }
+  }
+
   // ============================================================
   // QUERY NOTIFICATIONS
   // ============================================================
