@@ -113,6 +113,7 @@ class _LegalContentDialog extends StatelessWidget {
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.of(context).pop(),
                       color: scheme.onPrimaryContainer,
+                      tooltip: AppStrings.common.close,
                     ),
                   ],
                 ),
