@@ -43,12 +43,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
   /// צבע accent לטקסט - כהה יותר לנגישות (WCAG AA)
   final Color accentText;
 
-  /// רקע surface לברירת־מחדל במסכים (נגזר מ-ColorScheme)
-  final Color surfaceSlate;
-
-  /// רקע מסך Welcome (נגזר מ-ColorScheme.surface)
-  final Color welcomeBackground;
-
   /// צבע הצלחה (Success) - ירוק
   final Color success;
 
@@ -99,8 +93,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
   const AppBrand({
     required this.accent,
     required this.accentText,
-    required this.surfaceSlate,
-    required this.welcomeBackground,
     required this.success,
     required this.successContainer,
     required this.onSuccessContainer,
@@ -122,8 +114,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
   AppBrand copyWith({
     Color? accent,
     Color? accentText,
-    Color? surfaceSlate,
-    Color? welcomeBackground,
     Color? success,
     Color? successContainer,
     Color? onSuccessContainer,
@@ -143,8 +133,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
     return AppBrand(
       accent: accent ?? this.accent,
       accentText: accentText ?? this.accentText,
-      surfaceSlate: surfaceSlate ?? this.surfaceSlate,
-      welcomeBackground: welcomeBackground ?? this.welcomeBackground,
       success: success ?? this.success,
       successContainer: successContainer ?? this.successContainer,
       onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
@@ -169,8 +157,6 @@ class AppBrand extends ThemeExtension<AppBrand> {
     return AppBrand(
       accent: Color.lerp(accent, other.accent, t)!,
       accentText: Color.lerp(accentText, other.accentText, t)!,
-      surfaceSlate: Color.lerp(surfaceSlate, other.surfaceSlate, t)!,
-      welcomeBackground: Color.lerp(welcomeBackground, other.welcomeBackground, t)!,
       success: Color.lerp(success, other.success, t)!,
       successContainer: Color.lerp(successContainer, other.successContainer, t)!,
       onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t)!,
@@ -253,8 +239,6 @@ class AppTheme {
     final brand = AppBrand(
       accent: harmonizedAccent,
       accentText: harmonizedAccentText,
-      surfaceSlate: dynamicScheme.surface,
-      welcomeBackground: dynamicScheme.surface,
       success: harmonizedSuccess,
       successContainer: successContainer,
       onSuccessContainer: dark ? const Color(0xFFC8E6C9) : const Color(0xFF1B5E20),
@@ -331,8 +315,6 @@ class AppTheme {
         AppBrand(
           accent: _Brand.amber,
           accentText: _Brand.amberText,
-          surfaceSlate: scheme.surface,
-          welcomeBackground: scheme.surface,
           // Success colors
           success: const Color(0xFF388E3C), // Green 700
           successContainer: dark ? const Color(0xFF1B5E20) : const Color(0xFFC8E6C9),
@@ -438,12 +420,12 @@ class AppTheme {
       // כרטיסים - Cards (שקופים חלקית — רקע מחברת נראה מאחורה)
       cardTheme: CardThemeData(
         elevation: 0,
-        color: scheme.surface.withValues(alpha: 0.85),
+        color: scheme.surface.withValues(alpha: kOpacityHigh),
         margin: const EdgeInsets.symmetric(vertical: kCardMarginVertical),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.2)),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: kOpacityLow)),
         ),
       ),
 
@@ -523,7 +505,7 @@ class AppTheme {
       // מחווני התקדמות - Progress Indicators
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: brand.accent,
-        linearTrackColor: scheme.outlineVariant.withValues(alpha: 0.3),
+        linearTrackColor: scheme.outlineVariant.withValues(alpha: kOpacityLight),
         linearMinHeight: kProgressIndicatorHeight,
       ),
 
