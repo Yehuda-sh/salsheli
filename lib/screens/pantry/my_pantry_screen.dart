@@ -34,8 +34,6 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -63,7 +61,6 @@ import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
-import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 
 class MyPantryScreen extends StatefulWidget {
@@ -566,7 +563,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     unawaited(service.createLowStockNotification(
       userId: currentUserId,
       householdId: householdId,
-      productName: item.name,
+      productName: item.productName,
       currentStock: item.quantity,
       minStock: item.minQuantity,
     ));
