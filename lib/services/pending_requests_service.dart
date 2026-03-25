@@ -142,6 +142,40 @@ class PendingRequestsService {
     );
   }
 
+  /// יצירת בקשה לעריכת מוצר (Editor)
+  Future<void> createEditItemRequest({
+    required ShoppingList list,
+    required UnifiedListItem item,
+  }) async {
+    await createRequest(
+      list: list,
+      type: RequestType.editItem,
+      requestData: {
+        'name': item.name,
+        'quantity': item.quantity ?? 1,
+        'unitPrice': item.unitPrice ?? 0.0,
+        'barcode': item.barcode,
+        'unit': item.unit,
+        'category': item.category,
+        'notes': item.notes,
+      },
+    );
+  }
+
+  /// יצירת בקשה למחיקת מוצר (Editor)
+  Future<void> createDeleteItemRequest({
+    required ShoppingList list,
+    required String itemName,
+  }) async {
+    await createRequest(
+      list: list,
+      type: RequestType.deleteItem,
+      requestData: {
+        'name': itemName,
+      },
+    );
+  }
+
   // ════════════════════════════════════════════
   // Approve Request
   // ════════════════════════════════════════════
@@ -207,13 +241,22 @@ class PendingRequestsService {
         break;
 
       case RequestType.editItem:
-        // עריכת מוצר קיים (not implemented yet)
-        log('⚠️ RequestType.editItem not implemented yet');
+        // עריכת מוצר קיים
+        final itemName = request.requestData['name'] as String?;
+        if (itemName != null) {
+          final index = updatedItems.indexWhere((i) => i.name == itemName);
+          if (index != -1) {
+            updatedItems[index] = UnifiedListItem.fromRequestData(request.requestData);
+          }
+        }
         break;
 
       case RequestType.deleteItem:
-        // מחיקת מוצר (not implemented yet)
-        log('⚠️ RequestType.deleteItem not implemented yet');
+        // מחיקת מוצר
+        final itemName = request.requestData['name'] as String?;
+        if (itemName != null) {
+          updatedItems.removeWhere((i) => i.name == itemName);
+        }
         break;
 
       case RequestType.inviteToList:
