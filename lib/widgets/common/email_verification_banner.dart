@@ -6,7 +6,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
@@ -15,14 +15,43 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 
 /// באנר אימות אימייל — מוצג בראש דף הבית אם האימייל לא אומת
-class EmailVerificationBanner extends StatelessWidget {
+class EmailVerificationBanner extends StatefulWidget {
   const EmailVerificationBanner({super.key});
+
+  @override
+  State<EmailVerificationBanner> createState() => _EmailVerificationBannerState();
+}
+
+class _EmailVerificationBannerState extends State<EmailVerificationBanner> {
+  bool _isSending = false;
+
+  Future<void> _sendVerification() async {
+    if (_isSending) return;
+    setState(() => _isSending = true);
+
+    unawaited(HapticFeedback.lightImpact());
+    try {
+      await context.read<AuthService>().sendEmailVerification();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.auth.verificationEmailSent)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppStrings.auth.verificationEmailError(e.toString()))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final userContext = context.watch<UserContext>();
 
-    // לא מציג אם: לא מחובר, או אימייל מאומת, או Social Login (אין צורך)
     if (!userContext.isLoggedIn || userContext.isEmailVerified) {
       return const SizedBox.shrink();
     }
@@ -54,25 +83,17 @@ class EmailVerificationBanner extends StatelessWidget {
           ),
           const SizedBox(width: kSpacingSmall),
           TextButton(
-            onPressed: () async {
-              unawaited(HapticFeedback.lightImpact());
-              try {
-                final authService = context.read<AuthService>();
-                await authService.sendEmailVerification();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(AppStrings.auth.verificationEmailSent)),
-                  );
-                }
-              } catch (_) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(AppStrings.auth.verificationEmailError(null))),
-                  );
-                }
-              }
-            },
-            child: Text(AppStrings.auth.sendVerificationEmailButton),
+            onPressed: _isSending ? null : _sendVerification,
+            child: _isSending
+                ? SizedBox(
+                    width: kIconSizeSmall,
+                    height: kIconSizeSmall,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: cs.onTertiaryContainer,
+                    ),
+                  )
+                : Text(AppStrings.auth.sendVerificationEmailButton),
           ),
         ],
       ),
