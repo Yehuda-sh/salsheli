@@ -2,7 +2,7 @@
   "name": "memozap-functions",
   "description": "Firebase Cloud Functions for MemoZap",
   "engines": {
-    "node": "18"
+    "node": "20"
   },
   "main": "index.js",
   "dependencies": {
