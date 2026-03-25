@@ -53,9 +53,12 @@ class PushNotificationService {
 
     // האזנה לרענוני token (Google עשוי לרענן token)
     _tokenSub?.cancel();
-    _tokenSub = _messaging.onTokenRefresh.listen((newToken) {
-      unawaited(_saveToken(userId, newToken));
-    });
+    _tokenSub = _messaging.onTokenRefresh.listen(
+      (newToken) => unawaited(_saveToken(userId, newToken)),
+      onError: (e) {
+        if (kDebugMode) debugPrint('⚠️ FCM token refresh error: $e');
+      },
+    );
 
     if (kDebugMode) debugPrint('🔔 Push notifications initialized for $userId');
   }
