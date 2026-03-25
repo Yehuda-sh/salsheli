@@ -320,10 +320,10 @@ class _AnimatedCard extends StatelessWidget {
 
       // ✅ Use TweenAnimationBuilder for smooth elevation animation
       // No BoxShadow - Card handles its own shadow via elevation
+      final targetElevation = isPressed ? pressedElevation : initialElevation;
       return TweenAnimationBuilder<double>(
         tween: Tween<double>(
-          begin: initialElevation,
-          end: isPressed ? pressedElevation : initialElevation,
+          end: targetElevation,
         ),
         duration: duration,
         curve: curve,
