@@ -51,22 +51,14 @@ class AppLayout extends StatefulWidget {
 }
 
 class _AppLayoutState extends State<AppLayout> {
-  /// 🎯 Total badge count (computed on build - Map is small, no cache needed)
-  int get totalBadgeCount {
-    if (widget.badges == null) return 0;
-    return widget.badges!.values
-        .whereType<int>()
-        .fold(0, (sum, count) => sum + count);
-  }
-
   /// 🔔 הצגת תפריט בחירת סוג הזמנות
   void _showNotificationsMenu(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: cs.surface.withValues(alpha: 0.9),
-      barrierColor: cs.scrim.withValues(alpha: 0.3),
+      backgroundColor: cs.surface.withValues(alpha: kOpacityHigh),
+      barrierColor: cs.scrim.withValues(alpha: kOpacityLight),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
       ),
