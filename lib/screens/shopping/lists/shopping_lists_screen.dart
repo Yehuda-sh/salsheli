@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../config/list_types_config.dart';
 import '../../../core/ui_constants.dart';
+import '../../../theme/app_theme.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../providers/shopping_lists_provider.dart';
@@ -78,6 +79,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
@@ -114,7 +116,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           unawaited(HapticFeedback.mediumImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        backgroundColor: kStickyYellow,
+        backgroundColor: brand?.stickyYellow ?? kStickyYellow,
         tooltip: AppStrings.shopping.newListTooltip,
         child: Icon(Icons.add, color: cs.onSurface),
       ),

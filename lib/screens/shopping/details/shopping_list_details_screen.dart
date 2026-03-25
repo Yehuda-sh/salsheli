@@ -402,6 +402,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     final currentList = provider.lists.firstWhere((l) => l.id == widget.list.id, orElse: () => widget.list);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final canEdit = currentList.canCurrentUserEdit;
 
     return Directionality(
@@ -605,7 +606,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           ),
                           child: FloatingActionButton.small(
                             heroTag: 'add_task_btn',
-                            backgroundColor: kStickyCyan,
+                            backgroundColor: brand?.stickyCyan ?? kStickyCyan,
                             elevation: 0,
                             tooltip: AppStrings.listDetails.addTaskButton,
                             onPressed: () {
@@ -624,7 +625,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: kStickyYellow.withValues(alpha: 0.4),
+                                color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.4),
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),
@@ -632,7 +633,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           ),
                           child: FloatingActionButton(
                             heroTag: 'add_product_btn',
-                            backgroundColor: kStickyYellow,
+                            backgroundColor: brand?.stickyYellow ?? kStickyYellow,
                             elevation: 0,
                             tooltip: AppStrings.listDetails.addProductButton,
                             onPressed: () {
