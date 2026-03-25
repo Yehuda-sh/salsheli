@@ -18,8 +18,8 @@ import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:memozap/models/notification.dart';
-import 'package:memozap/repositories/constants/repository_constants.dart';
+import '../models/notification.dart';
+import '../repositories/constants/repository_constants.dart';
 import 'package:uuid/uuid.dart';
 
 // ========================================
@@ -369,14 +369,7 @@ class NotificationsService {
     }
   }
 
-  // ============================================================
-  // STAGE 6: NEW NOTIFICATION TYPES
-  // ============================================================
-
   /// 🙋 Create "who brings" volunteer notification
-  /// Someone volunteered to bring an item
-  ///
-  /// ✅ מחזיר `true` אם ההתראה נוצרה בהצלחה
   Future<bool> createWhoBringsVolunteerNotification({
     required String userId,
     required String householdId,
@@ -411,125 +404,6 @@ class NotificationsService {
     }
   }
 
-  /// 🗳️ Create new vote notification
-  /// Someone voted on an item
-  ///
-  /// ✅ מחזיר `true` אם ההתראה נוצרה בהצלחה
-  Future<bool> createNewVoteNotification({
-    required String userId,
-    required String householdId,
-    required String listId,
-    required String listName,
-    required String itemName,
-    required String voterName,
-    required String voteType, // 'for', 'against', 'abstain'
-  }) async {
-    try {
-      final voteEmoji = voteType == 'for' ? '👍' : (voteType == 'against' ? '👎' : '🤷');
-      final voteHebrew = voteType == 'for' ? 'בעד' : (voteType == 'against' ? 'נגד' : 'נמנע');
-
-      final notification = AppNotification(
-        id: _uuid.v4(),
-        userId: userId,
-        householdId: householdId,
-        type: NotificationType.newVote,
-        title: 'הצבעה חדשה $voteEmoji',
-        message: '$voterName הצביע $voteHebrew ב"$itemName" ברשימה "$listName"',
-        actionData: {
-          'listId': listId,
-          'listName': listName,
-          'itemName': itemName,
-          'voterName': voterName,
-          'voteType': voteType,
-        },
-        createdAt: DateTime.now(),
-      );
-
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
-
-      return true;
-    } catch (e, stackTrace) {
-      _logError('createNewVoteNotification', e, stackTrace);
-      return false;
-    }
-  }
-
-  /// ⚖️ Create vote tie notification (for owners)
-  /// Voting ended in a tie
-  ///
-  /// ✅ מחזיר `true` אם ההתראה נוצרה בהצלחה
-  Future<bool> createVoteTieNotification({
-    required String userId,
-    required String householdId,
-    required String listId,
-    required String listName,
-    required String itemName,
-    required int votesFor,
-    required int votesAgainst,
-  }) async {
-    try {
-      final notification = AppNotification(
-        id: _uuid.v4(),
-        userId: userId,
-        householdId: householdId,
-        type: NotificationType.voteTie,
-        title: 'תיקו בהצבעה ⚖️',
-        message: 'ההצבעה על "$itemName" ברשימה "$listName" הסתיימה בתיקו ($votesFor-$votesAgainst). נדרשת החלטת בעלים.',
-        actionData: {
-          'listId': listId,
-          'listName': listName,
-          'itemName': itemName,
-          'votesFor': votesFor,
-          'votesAgainst': votesAgainst,
-        },
-        createdAt: DateTime.now(),
-      );
-
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
-
-      return true;
-    } catch (e, stackTrace) {
-      _logError('createVoteTieNotification', e, stackTrace);
-      return false;
-    }
-  }
-
-  /// 📦 Create low stock notification (for household)
-  /// An item is running low
-  ///
-  /// ✅ מחזיר `true` אם ההתראה נוצרה בהצלחה
-  Future<bool> createLowStockNotification({
-    required String userId,
-    required String householdId,
-    required String productName,
-    required int currentStock,
-    required int minStock,
-  }) async {
-    try {
-      final notification = AppNotification(
-        id: _uuid.v4(),
-        userId: userId,
-        householdId: householdId,
-        type: NotificationType.lowStock,
-        title: 'מלאי נמוך 📦',
-        message: 'המלאי של "$productName" נמוך ($currentStock יחידות). מומלץ להוסיף לרשימת קניות.',
-        actionData: {
-          'productName': productName,
-          'currentStock': currentStock,
-          'minStock': minStock,
-        },
-        createdAt: DateTime.now(),
-      );
-
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
-
-      return true;
-    } catch (e, stackTrace) {
-      _logError('createLowStockNotification', e, stackTrace);
-      return false;
-    }
-  }
-
   // ============================================================
   // QUERY NOTIFICATIONS
   // ============================================================
@@ -560,35 +434,6 @@ class NotificationsService {
     }
   }
 
-  // ✅ REMOVED: getUserNotifications() — use getUserNotificationsResult() instead
-
-  /// 📬 Get unread notifications
-  ///
-  /// ✅ מחזיר [NotificationQueryResult] עם סוג תוצאה ברור
-  Future<NotificationQueryResult> getUnreadNotificationsResult({
-    required String userId,
-  }) async {
-    try {
-
-      final snapshot = await _notificationsCollection(userId)
-          .where('is_read', isEqualTo: false)
-          .orderBy(FirestoreFields.createdAt, descending: true)
-          .get();
-
-      final notifications = snapshot.docs
-          .map((doc) => AppNotification.fromJson(doc.data()))
-          .toList();
-
-
-      return NotificationQueryResult.success(notifications);
-    } catch (e, stackTrace) {
-      _logError('getUnreadNotificationsResult', e, stackTrace);
-      return NotificationQueryResult.error(e.toString());
-    }
-  }
-
-  // ✅ REMOVED: getUnreadNotifications() — use getUnreadNotificationsResult() instead
-
   /// 🔢 Get unread count (for badge)
   ///
   /// ✅ מחזיר [NotificationQueryResult] עם סוג תוצאה ברור
@@ -607,8 +452,6 @@ class NotificationsService {
       return NotificationQueryResult.error(e.toString());
     }
   }
-
-  // ✅ REMOVED: getUnreadCount() — use getUnreadCountResult() instead
 
   /// 📊 Stream unread count (real-time badge)
   ///
@@ -705,66 +548,4 @@ class NotificationsService {
     }
   }
 
-  /// 🧹 Cleanup old read notifications (30 days)
-  /// Call this periodically or on app startup
-  ///
-  /// ✅ מחזיר מספר ההתראות שנמחקו, או -1 בשגיאה
-  Future<int> cleanupOldNotifications({
-    required String userId,
-    int daysOld = 30,
-  }) async {
-    try {
-      final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
-
-
-      // 🆕 שימוש ב-subcollection - לא צריך where על user_id
-      final snapshot = await _notificationsCollection(userId)
-          .where('is_read', isEqualTo: true)
-          .where('read_at', isLessThan: Timestamp.fromDate(cutoffDate))
-          .get();
-
-      final batch = _firestore.batch();
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
-      }
-
-      await batch.commit();
-
-      return snapshot.docs.length;
-    } catch (e, stackTrace) {
-      _logError('cleanupOldNotifications', e, stackTrace);
-      return -1;
-    }
-  }
-
-  // ============================================================
-  // STATISTICS
-  // ============================================================
-
-  /// 📊 Get notification stats
-  ///
-  /// ✅ מחזיר מפה עם סטטיסטיקות, או מפה ריקה בשגיאה
-  Future<Map<String, int>> getNotificationStats({required String userId}) async {
-    try {
-
-      // 🆕 שימוש ב-subcollection - לא צריך where על user_id
-      final allSnapshot = await _notificationsCollection(userId).get();
-
-      final unreadSnapshot = await _notificationsCollection(userId)
-          .where('is_read', isEqualTo: false)
-          .get();
-
-      final stats = {
-        'total': allSnapshot.docs.length,
-        'unread': unreadSnapshot.docs.length,
-        'read': allSnapshot.docs.length - unreadSnapshot.docs.length,
-      };
-
-
-      return stats;
-    } catch (e, stackTrace) {
-      _logError('getNotificationStats', e, stackTrace);
-      return {'total': 0, 'unread': 0, 'read': 0};
-    }
-  }
 }
