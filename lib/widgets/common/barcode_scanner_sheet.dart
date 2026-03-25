@@ -1,3 +1,7 @@
+// 📄 lib/widgets/common/barcode_scanner_sheet.dart
+//
+// Bottom sheet עם סורק ברקוד — MobileScanner + torch toggle.
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -58,7 +62,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: cs.outline.withValues(alpha: 0.3),
+              color: cs.outline.withValues(alpha: kOpacityLight),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
           ),
@@ -83,7 +87,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet> {
               child: MobileScanner(
                 controller: _controller,
                 onDetect: _onDetect,
-                errorBuilder: (context, error) => Container(
+                errorBuilder: (context, _) => Container(
                   color: cs.errorContainer,
                   child: Center(
                     child: Column(
