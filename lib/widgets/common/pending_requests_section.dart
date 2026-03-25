@@ -123,9 +123,11 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
         final qty = (data['quantity'] as num?) ?? 1;
         return qty > 1 ? '$name ×$qty' : '$name';
       case RequestType.editItem:
-        return data['changes']?.toString() ?? strings.editItemFallback;
+        final name = data['name'] ?? strings.editItemFallback;
+        final qty = (data['quantity'] as num?) ?? 1;
+        return qty > 1 ? '$name ×$qty' : '$name';
       case RequestType.deleteItem:
-        return '${strings.deleteItemFallback} ${data['itemName'] ?? ''}';
+        return '${strings.deleteItemFallback} ${data['name'] ?? ''}';
       default:
         return data['list_name']?.toString() ?? '?';
     }
