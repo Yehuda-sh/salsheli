@@ -500,7 +500,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         ),
       );
       // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome (חשבון נמחק = משתמש חדש)
-      // TODO(gdpr): להוסיף Cloud Function שמוחקת נתוני Firestore (users/{uid}, household membership, etc.)
+      // ✅ GDPR: Cloud Function (onUserDeleted) מטפלת במחיקת נתונים מ-Firestore
       unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
     }
   }
