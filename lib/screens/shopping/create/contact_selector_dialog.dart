@@ -542,14 +542,34 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                         (c) => c.email == contact.userEmail)
                                     : null;
 
-                                return _ContactTile(
-                                  contact: contact,
-                                  isSelected: isSelected,
-                                  selectedRole: selectedContact?.role,
-                                  onToggle: (role) =>
-                                      _toggleContact(contact, role),
-                                  onRoleChanged: (role) =>
-                                      _updateRole(contact.userEmail, role),
+                                return Dismissible(
+                                  key: ValueKey(contact.userId),
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    padding: const EdgeInsetsDirectional.only(end: 20),
+                                    color: Theme.of(context).colorScheme.error.withValues(alpha: kOpacityLow),
+                                    child: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                                  ),
+                                  onDismissed: (_) {
+                                    final userId = context.read<UserContext>().user?.id;
+                                    if (userId != null) {
+                                      _savedContactsService.deleteContact(
+                                        currentUserId: userId,
+                                        contactUserId: contact.userId,
+                                      );
+                                    }
+                                    setState(() => _savedContacts.remove(contact));
+                                  },
+                                  child: _ContactTile(
+                                    contact: contact,
+                                    isSelected: isSelected,
+                                    selectedRole: selectedContact?.role,
+                                    onToggle: (role) =>
+                                        _toggleContact(contact, role),
+                                    onRoleChanged: (role) =>
+                                        _updateRole(contact.userEmail, role),
+                                  ),
                                 );
                               },
                             ),
