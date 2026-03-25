@@ -562,14 +562,15 @@ class _BottomSection extends StatelessWidget {
                 ],
               ),
 
-              // === Build date ===
-              Text(
-                'Build: ${_kBuildTimestamp}',
-                style: TextStyle(
-                  fontSize: kFontSizeTiny,
-                  color: cs.onSurface.withValues(alpha: 0.2),
+              // === Build date (debug only) ===
+              if (const bool.fromEnvironment('dart.vm.product') == false)
+                Text(
+                  'Build: $_kBuildTimestamp',
+                  style: TextStyle(
+                    fontSize: kFontSizeTiny,
+                    color: cs.onSurface.withValues(alpha: 0.2),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
