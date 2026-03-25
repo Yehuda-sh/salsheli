@@ -7,8 +7,8 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 
 class LoadingOverlay extends StatefulWidget {
   final Color color;

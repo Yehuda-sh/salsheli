@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:memozap/core/ui_constants.dart';
-import 'package:memozap/l10n/app_strings.dart';
+import '../../../core/ui_constants.dart';
+import '../../../l10n/app_strings.dart';
 
 class SocialLoginButton extends StatefulWidget {
   final IconData icon;

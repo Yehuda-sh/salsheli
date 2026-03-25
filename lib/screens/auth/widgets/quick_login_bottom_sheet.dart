@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:memozap/core/ui_constants.dart';
+import '../../../core/ui_constants.dart';
 
 class QuickLoginBottomSheet extends StatelessWidget {
   final List<Map<String, String>> users;
