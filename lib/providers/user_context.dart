@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/push_notification_service.dart';
-import 'package:memozap/models/user_entity.dart';
-import 'package:memozap/repositories/user_repository.dart';
-import 'package:memozap/services/auth_service.dart';
+import '../models/user_entity.dart';
+import '../repositories/user_repository.dart';
+import '../services/auth_service.dart';
 
 /// Provider המנהל את הקשר המשתמש באפליקציה
 ///
