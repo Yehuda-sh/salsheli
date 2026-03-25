@@ -277,10 +277,6 @@ class InventoryItem {
   /// - `'light'` → lightImpact (תקין)
   /// - `'selection'` → selectionClick (ברירת מחדל)
   ///
-  /// ```dart
-  /// // ב-UI layer:
-  /// StatusColors.triggerHaptic(item.statusType);
-  /// ```
   String get recommendedHaptic {
     if (isExpired || status == LimitStatus.critical) return 'heavy';
     if (isLowStock || isExpiringSoon) return 'medium';
