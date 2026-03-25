@@ -32,6 +32,7 @@ dependencies:
   connectivity_plus: ^6.0.3
 
   # Utils
+  package_info_plus: ^8.3.0
   intl: ^0.20.2
   json_annotation: ^4.9.0
   timeago: ^3.7.0

@@ -39,6 +39,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:memozap/core/ui_constants.dart';
 import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/l10n/locale_manager.dart';
@@ -82,6 +83,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   bool _notifyGroup = true;
   bool _notifyReminders = true;
   bool _notifyListUpdates = false; // כבוי כברירת מחדל — יכול להציף
+
+  // גרסת האפליקציה
+  String _appVersion = '';
 
   // הרשאות משפחה (owner = בעלים, admin = מנהל)
   bool _isHouseholdAdmin = false;
@@ -152,6 +156,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         }
       }
 
+      // גרסת אפליקציה
+      final packageInfo = await PackageInfo.fromPlatform();
+
       if (!mounted) return;
       setState(() {
         _notifyShopping = prefs.getBool(_kNotifyShopping) ?? true;
@@ -160,6 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
         _isHouseholdAdmin = isAdmin;
         _isHouseholdOwner = isOwner;
+        _appVersion = packageInfo.version;
         _loading = false;
         _errorMessage = null;
       });
@@ -1347,13 +1355,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ListTile(
                         leading: Icon(Icons.info_outline, color: cs.primary),
                         title: Text(AppStrings.settings.about),
-                        subtitle: Text(AppStrings.settings.versionLabel('1.0.0')), // TODO: package_info_plus
+                        subtitle: Text(AppStrings.settings.versionLabel(_appVersion)),
                         trailing: const Icon(Icons.chevron_left),
                         onTap: () {
                           showAboutDialog(
                             context: context,
                             applicationName: 'MemoZap',
-                            applicationVersion: '1.0.0',
+                            applicationVersion: _appVersion,
                             applicationIcon: ClipRRect(
                               borderRadius: BorderRadius.circular(kBorderRadius),
                               child: Image.asset(
