@@ -9334,30 +9334,6 @@
     "defaultQty": 1
   },
   {
-    "name": "גבינת קממברט בקר בייבי",
-    "category": "מוצרי תינוקות",
-    "price": 129.0,
-    "barcode": "1258989",
-    "brand": null,
-    "unit": "קילוגרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "גבינת קממברט בקר בייבי משק יעקבס - 125 גרם",
-    "category": "מוצרי תינוקות",
-    "price": 18.9,
-    "barcode": "7290014890237",
-    "brand": "משק יעקבס",
-    "unit": "גרם",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "ג׳ל כביסה בייבי טאצ׳ - 3 ליטר",
     "category": "מוצרי תינוקות",
     "price": 24.9,
