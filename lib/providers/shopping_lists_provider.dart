@@ -90,6 +90,7 @@ class ShoppingListsProvider with ChangeNotifier {
   String? _watchedUserId; // מניעת restart מיותר של ה-Stream
   bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
   bool _isDisposed = false;
+  bool _didCleanupSessions = false;
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
@@ -295,6 +296,12 @@ class ShoppingListsProvider with ChangeNotifier {
       // 🔑 חישוב currentUserRole לכל רשימה
       _lists = _enrichListsWithUserRole(fetchedLists);
       _lastUpdated = DateTime.now();
+
+      // ניקוי sessions נטושים (6+ שעות) — פעם אחת אחרי טעינה ראשונה
+      if (!_didCleanupSessions) {
+        _didCleanupSessions = true;
+        unawaited(cleanupAbandonedSessions());
+      }
     } catch (e) {
       _errorMessage = e.toString();
       _notifySafe(); // ← עדכון UI מיידי על שגיאה
