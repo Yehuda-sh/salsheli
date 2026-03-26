@@ -98,12 +98,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       TweenSequenceItem(tween: Tween(begin: -4, end: 0), weight: 1),
     ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
 
-    // 🎯 Auto-focus על שדה שם בכניסה למסך
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _nameFocusNode.requestFocus();
-      }
-    });
+    // ✅ No auto-focus — let user see the full screen first (Social Login visible)
   }
 
   void _togglePasswordVisibility() {
@@ -484,6 +479,53 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingLarge),
 
+                            // 🔵 כפתורי Social Login — ראשונים!
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SocialLoginButton(
+                                    icon: FontAwesomeIcons.google,
+                                    label: 'Google',
+                                    color: kGoogleRed,
+                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                  ),
+                                ),
+                                const SizedBox(width: kSpacingSmall),
+                                Expanded(
+                                  child: SocialLoginButton(
+                                    icon: FontAwesomeIcons.apple,
+                                    label: 'Apple',
+                                    color: cs.onSurface,
+                                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                                  ),
+                                ),
+                              ],
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 100.ms)
+                                .slideY(begin: 0.15, curve: Curves.easeOutCubic),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // ➖ Divider "או עם אימייל"
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                              child: Row(
+                                children: [
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                                    child: Text(
+                                      AppStrings.auth.orWithEmail,
+                                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
+                                    ),
+                                  ),
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                ],
+                              ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 150.ms),
+
                             // 👤 שדה שם
                             _buildFormField(
                               controller: _nameController,
@@ -684,53 +726,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 ),
                             SizedBox(height: kSpacingLarge),
 
-                            // ➖ Divider עם "או הירשם במהירות עם"
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                              child: Row(
-                                children: [
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                                    child: Text(
-                                      AppStrings.auth.orContinueWith,
-                                      style: TextStyle(color: cs.onSurfaceVariant, fontSize: kFontSizeSmall),
-                                    ),
-                                  ),
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
-                                ],
-                              ),
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: 400.ms),
-
-                            // 🔵 כפתורי Social Login
-                            Row(
-                              children: [
-                                // Google
-                                Expanded(
-                                  child: SocialLoginButton(
-                                    icon: FontAwesomeIcons.google,
-                                    label: 'Google',
-                                    color: kGoogleRed,
-                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                                  ),
-                                ),
-                                SizedBox(width: kSpacingSmall),
-                                // Apple
-                                Expanded(
-                                  child: SocialLoginButton(
-                                    icon: FontAwesomeIcons.apple,
-                                    label: 'Apple',
-                                    color: cs.onSurface, // שחור/לבן לפי Theme
-                                    onPressed: _isLoading ? null : _handleAppleSignIn,
-                                  ),
-                                ),
-                              ],
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: 450.ms)
-                                .slideY(begin: 0.15, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingMedium),
 
                             // 🔗 קישור להתחברות - Hybrid Premium style
@@ -751,11 +746,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     child: Text(
                                       AppStrings.auth.loginButton,
                                       style: TextStyle(
-                                        color: accent.withValues(alpha: 0.75),
+                                        color: cs.primary,
                                         fontWeight: FontWeight.w600,
                                         fontSize: kFontSizeBody,
                                         decoration: TextDecoration.underline,
-                                        decorationColor: accent.withValues(alpha: 0.45),
+                                        decorationColor: cs.primary.withValues(alpha: 0.6),
                                         decorationThickness: 1.2,
                                       ),
                                     ),

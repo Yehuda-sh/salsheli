@@ -691,6 +691,7 @@ class AuthStringsEn extends AuthStrings {
   String get registerSuccess => 'Registered successfully!';
   String get loginSuccessRedirect => 'Logged in successfully! Redirecting...';
   String get orLoginWith => 'Or log in with';
+  @override String get orWithEmail => 'or with email';
   String get showPassword => 'Show password';
   String get hidePassword => 'Hide password';
   String get enterEmailFirst => 'Please enter your email address in the field above';

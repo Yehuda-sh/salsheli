@@ -536,6 +536,58 @@ class _LoginScreenState extends State<LoginScreen>
                                 .slideX(begin: -0.1, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingLarge),
 
+                            // 🔵 כפתורי Social Login — ראשונים! (conversion optimization)
+                            Row(
+                              children: [
+                                // Google
+                                Expanded(
+                                  child: SocialLoginButton(
+                                    icon: FontAwesomeIcons.google,
+                                    label: 'Google',
+                                    color: kGoogleRed,
+                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
+                                  ),
+                                ),
+                                const SizedBox(width: kSpacingSmall),
+                                // Apple
+                                Expanded(
+                                  child: SocialLoginButton(
+                                    icon: FontAwesomeIcons.apple,
+                                    label: 'Apple',
+                                    color: cs.onSurface,
+                                    onPressed: _isLoading ? null : _handleAppleSignIn,
+                                  ),
+                                ),
+                              ],
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 100.ms)
+                                .slideY(begin: 0.15, curve: Curves.easeOutCubic),
+                            const SizedBox(height: kSpacingMedium),
+
+                            // ➖ Divider עם "או עם אימייל"
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                              child: Row(
+                                children: [
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                                    child: Text(
+                                      AppStrings.auth.orWithEmail,
+                                      style: TextStyle(
+                                        color: cs.onSurfaceVariant,
+                                        fontSize: kFontSizeSmall,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(child: Divider(color: cs.outlineVariant)),
+                                ],
+                              ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, delay: 150.ms),
+
                             // 📧 שדה אימייל - paper fillColor
                             TextFormField(
                               controller: _emailController,
@@ -650,7 +702,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   child: Text(
                                     AppStrings.auth.forgotPassword,
                                     style: TextStyle(
-                                      color: accent,
+                                      color: cs.primary,
                                       fontSize: kFontSizeSmall,
                                       fontWeight: FontWeight.w600,
                                       decoration: TextDecoration.underline,
@@ -711,58 +763,6 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                             const SizedBox(height: kSpacingLarge),
 
-                            // ➖ Divider עם "או התחבר עם"
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                              child: Row(
-                                children: [
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                                    child: Text(
-                                      AppStrings.auth.orLoginWith,
-                                      style: TextStyle(
-                                        color: cs.onSurfaceVariant,
-                                        fontSize: kFontSizeSmall,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(child: Divider(color: cs.outlineVariant)),
-                                ],
-                              ),
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: 300.ms),
-
-                            // 🔵 כפתורי Social Login
-                            Row(
-                              children: [
-                                // Google
-                                Expanded(
-                                  child: SocialLoginButton(
-                                    icon: FontAwesomeIcons.google,
-                                    label: 'Google',
-                                    color: kGoogleRed,
-                                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                                  ),
-                                ),
-                                const SizedBox(width: kSpacingSmall),
-                                // Apple
-                                Expanded(
-                                  child: SocialLoginButton(
-                                    icon: FontAwesomeIcons.apple,
-                                    label: 'Apple',
-                                    color: cs.onSurface,
-                                    onPressed: _isLoading ? null : _handleAppleSignIn,
-                                  ),
-                                ),
-                              ],
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, delay: 350.ms)
-                                .slideY(begin: 0.15, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
-
                             // 🔗 קישור להרשמה
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -781,11 +781,11 @@ class _LoginScreenState extends State<LoginScreen>
                                   child: Text(
                                     AppStrings.auth.registerNow,
                                     style: TextStyle(
-                                      color: accent,
+                                      color: cs.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: kFontSizeBody,
                                       decoration: TextDecoration.underline,
-                                      decorationColor: accent,
+                                      decorationColor: cs.primary,
                                       decorationThickness: 2,
                                     ),
                                   ),

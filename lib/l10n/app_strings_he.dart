@@ -711,6 +711,7 @@ class AuthStrings {
   String get registerSuccess => 'נרשמת בהצלחה!';
   String get loginSuccessRedirect => 'התחברת בהצלחה! מעביר לדף הבית...';
   String get orLoginWith => 'או התחבר עם';
+  String get orWithEmail => 'או עם אימייל';
   String get showPassword => 'הצג סיסמה';
   String get hidePassword => 'הסתר סיסמה';
   String get enterEmailFirst => 'אנא הזן את כתובת האימייל שלך בשדה למעלה';
