@@ -61,6 +61,10 @@ Claude operates in **two different environments**. Identify which one at session
 
 **How to detect**: Run `which flutter`. If "NOT FOUND" → Cloud session.
 
+**At session start, always write one of these:**
+- "🖥️ Cowork — full Flutter SDK available"
+- "☁️ Cloud session — no SDK, code and git only"
+
 ---
 
 ## 4. Current State
@@ -190,3 +194,16 @@ The following must NOT be changed without **explicit user confirmation**:
 | Auth screen design | Per CLAUDE.md: clean, not Sticky Notes style |
 | `AnimatedButton` behavior | Per CLAUDE.md: effect only, action in parent, scale 0.97-0.98 |
 | IDs/Keys resolve() pattern | Per CLAUDE.md: "other" for user fallback, "unknown" for debug |
+
+---
+
+## 8. How to Update This File
+
+At the end of every **Cowork session**:
+
+1. **Update "Current State"** (section 4) with what was done
+2. **Move completed items** out of "Next Priorities"
+3. **Add new Known Issues** (section 5) if found
+4. **Commit** with message: `"עדכון AGENTS.md — סיום סשן [date]"`
+
+This file must always reflect the **current** state of the project — not historical.
