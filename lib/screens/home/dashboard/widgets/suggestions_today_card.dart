@@ -720,7 +720,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     messenger.showSnackBar(SnackBar(
       content: Row(
         children: [
-          const Icon(Icons.check_circle, color: Colors.white, size: 18),
+          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall),
           const SizedBox(width: kSpacingSmall),
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],

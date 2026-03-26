@@ -33,6 +33,9 @@ class HouseholdActivityFeed extends StatefulWidget {
 }
 
 class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
+  /// Cached service instance — avoid creating new one per build
+  final _householdService = HouseholdService();
+
   /// מפת userId → name מחברי הבית
   Map<String, String> _memberNames = {};
   bool _membersLoaded = false;
@@ -51,7 +54,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
     if (householdId == null || householdId.isEmpty) return;
 
     try {
-      final names = await HouseholdService().getMemberNames(householdId);
+      final names = await _householdService.getMemberNames(householdId);
       if (!mounted) return;
       setState(() => _memberNames = names);
     } catch (_) {
@@ -362,7 +365,8 @@ class _ActivityTile extends StatelessWidget {
     final strings = AppStrings.homeDashboard;
     if (diff.inMinutes < 60) return strings.minutesAgo(diff.inMinutes);
     if (diff.inHours < 24) return strings.hoursAgo(diff.inHours);
-    if (diff.inDays == 0) return strings.today;
+    // Note: if diff.inHours >= 24, diff.inDays >= 1, so "today" is already
+    // covered by the inHours < 24 branch above.
     if (diff.inDays == 1) return strings.yesterday;
     if (diff.inDays < 7) return strings.daysAgo(diff.inDays);
     return '${date.day}/${date.month}';

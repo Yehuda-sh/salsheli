@@ -23,6 +23,9 @@ import '../../../../services/pending_invites_service.dart';
 class PendingInvitesBanner extends StatelessWidget {
   const PendingInvitesBanner({super.key});
 
+  /// Cached service — avoid creating new instance per build
+  static final _service = PendingInvitesService();
+
   @override
   Widget build(BuildContext context) {
     final userContext = context.watch<UserContext>();
@@ -30,10 +33,8 @@ class PendingInvitesBanner extends StatelessWidget {
 
     if (userId == null) return const SizedBox.shrink();
 
-    final service = PendingInvitesService();
-
     return StreamBuilder<List<PendingRequest>>(
-      stream: service.watchPendingInvitesForUser(userId),
+      stream: _service.watchPendingInvitesForUser(userId),
       initialData: const [],
       builder: (context, snapshot) {
         final invites = snapshot.data ?? [];

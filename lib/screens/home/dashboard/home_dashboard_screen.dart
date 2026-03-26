@@ -39,7 +39,6 @@ import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
-// pending_invites_banner removed — invites via AppBar bell
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -66,11 +65,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         setState(() => _hasAnimated = true);
       }
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Future<void> _refresh(BuildContext context) async {
@@ -184,8 +178,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         .toList()
       ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
-    // ignore: unused_local_variable — used by sub-widgets via Provider
-    // שם משפחה להצגה
+    // שם משפחה להצגה — used in header subtitle
     final familyName = _getFamilyDisplayName(userContext);
 
     var sectionIndex = 0;
@@ -202,14 +195,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         label: Text(AppStrings.homeDashboard.newListButton),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
-            end: Offset(1.0, 1.0),
+            end: const Offset(1.0, 1.0),
             duration: 500.ms,
             delay: 300.ms,
             curve: Curves.elasticOut,
           ),
       body: Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           SafeArea(
             child: RefreshIndicator(
               color: brand?.accent ?? cs.primary,
@@ -226,7 +219,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     Column(
                       children: [
                         if (listsProvider.hasError)
-                          _buildErrorBanner(context, listsProvider.errorMessage!, cs),
+                          _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
                         const EmailVerificationBanner(),
                       ],
@@ -260,7 +253,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // === 5. רשימות פעילות ===
                   _staggered(
                     RepaintBoundary(
-                      child: _buildActiveListsSection(context, activeLists, cs),
+                      child: _buildActiveListsSection(context, activeLists),
                     ),
                     sectionIndex++,
                   ),
@@ -293,7 +286,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   // ============================================
   // 0. ERROR BANNER - באנר שגיאה
   // ============================================
-  Widget _buildErrorBanner(BuildContext context, String errorMessage, ColorScheme _) {
+  Widget _buildErrorBanner(BuildContext context, String errorMessage) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
@@ -311,9 +304,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           Icon(
             Icons.error_outline,
             color: cs.onErrorContainer,
-            size: 24,
+            size: kIconSizeMedium,
           ),
-          SizedBox(width: kSpacingSmall),
+          const SizedBox(width: kSpacingSmall),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,7 +318,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
                   errorMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -339,7 +332,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
           TextButton.icon(
             onPressed: () => _refresh(context),
-            icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: 18),
+            icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: kIconSizeSmall),
             label: Text(
               strings.retryButton,
               style: TextStyle(
@@ -538,8 +531,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_outlined, size: 16, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 4),
+                  Icon(Icons.home_outlined, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                  const SizedBox(width: kSpacingXTiny),
                   Text(familyName, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
@@ -575,7 +568,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildActiveListsSection(
     BuildContext context,
     List<ShoppingList> activeLists,
-    ColorScheme _,
   ) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
@@ -604,7 +596,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ],
         ),
-        SizedBox(height: kSpacingSmall),
+        const SizedBox(height: kSpacingSmall),
 
         // רשימה או הודעה
         if (activeLists.isEmpty)
@@ -670,12 +662,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           )
         else
-          ...activeLists.map((list) => _buildListCard(context, list, cs)),
+          ...activeLists.map((list) => _buildListCard(context, list)),
       ],
     );
   }
 
-  Widget _buildListCard(BuildContext context, ShoppingList list, ColorScheme _) {
+  Widget _buildListCard(BuildContext context, ShoppingList list) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
@@ -771,7 +763,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 6),
+                            const SizedBox(height: 6),
                             if (totalCount == 0)
                               Text(
                                 strings.emptyList,
@@ -805,7 +797,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                         ? successColor
                                         : cs.onSurfaceVariant,
                                   ),
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
                                     isDone
                                         ? strings.completed
@@ -821,7 +813,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                           : FontWeight.normal,
                                     ),
                                   ),
-                                  Spacer(),
+                                  const Spacer(),
                                   // ספירה קומפקטית
                                   Text(
                                     '$checkedCount/$totalCount',
@@ -836,12 +828,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(width: kSpacingSmall),
+                      const SizedBox(width: kSpacingSmall),
                       // חץ - RTL aware
                       Icon(
                         isRtl ? Icons.chevron_left : Icons.chevron_right,
                         color: cs.onSurfaceVariant.withValues(alpha: 0.5),
-                        size: 20,
+                        size: kIconSizeSmallPlus,
                       ),
                     ],
                   ),
