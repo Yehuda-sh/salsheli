@@ -56,6 +56,10 @@ const USERS = [
   { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://lh3.googleusercontent.com/a/default-user' },
   // Apple Sign-In user (no phone, no display name initially)
   { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple' },
+  // English-speaking user (English name, English locale preference)
+  { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
+  // Special characters in name (Hebrew with geresh/gershayim)
+  { key: 'george', name: "ג'ורג' חביב", email: 'george.haviv@demo.com', phone: '0521234567', household: 'george', role: 'admin', isAdmin: true },
 ];
 
 const HOUSEHOLDS = {
@@ -68,6 +72,8 @@ const HOUSEHOLDS = {
   yael:        { name: 'הבית של יעל',    members: ['yael'] },
   google_user: { name: 'הבית של גיל',    members: ['google_user'] },
   apple_user:  { name: 'הבית שלי',       members: ['apple_user'] },
+  mike:        { name: "Mike's Home",    members: ['mike'] },
+  george:      { name: "הבית של ג'ורג'", members: ['george'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -348,6 +354,7 @@ async function main() {
       seen_tutorial: u.key !== 'yael',
       ...(u.profileImageUrl ? { profile_image_url: u.profileImageUrl } : {}),
       ...(u.provider ? { auth_provider: u.provider } : { auth_provider: 'email' }),
+      ...(u.locale ? { app_locale: u.locale } : {}),
     });
     console.log(`   📝 ${u.name}`);
   }
@@ -988,6 +995,58 @@ async function main() {
   // Apple user — empty (just registered, tests empty states)
   console.log('   🍎 Apple user: 0 lists (empty states test)');
 
+  // ── MIKE: English-speaking user — English list names + items ──
+  const mikeProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 6);
+  await db.collection('users').doc(uids.mike).collection('private_lists').doc('list_mike_weekly').set({
+    id: 'list_mike_weekly', name: 'Weekly Groceries 🛒', status: 'active', type: 'supermarket',
+    budget: 500, is_shared: false, is_private: true, created_by: uids.mike,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    target_date: daysFromNow(2).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [
+      ...mikeProducts.map((p, i) => makeProductItem(p, i, { id: `item_mike_${i}`, isChecked: i < 2 })),
+      // English-named custom items (user typed in English)
+      makeProductItem({ name: 'Organic Milk 1L', category: 'מוצרי חלב', price: 12.9, defaultUnit: 'ליטר' }, 10, { id: 'item_mike_custom1' }),
+      makeProductItem({ name: 'Peanut Butter (crunchy)', category: 'ממתקים וחטיפים', price: 24.9 }, 11, { id: 'item_mike_custom2' }),
+      makeTaskItem('item_mike_task1', 'Pick up dry cleaning', { priority: 'high' }),
+    ],
+  });
+  console.log('   🌍 Mike: Weekly Groceries (English name, mixed Hebrew/English items)');
+
+  // Mike's English pharmacy list
+  await db.collection('users').doc(uids.mike).collection('private_lists').doc('list_mike_pharm').set({
+    id: 'list_mike_pharm', name: 'Pharmacy & Personal Care', status: 'active', type: 'pharmacy',
+    budget: null, is_shared: false, is_private: true, created_by: uids.mike,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(3).toISOString(), updated_date: daysAgo(1).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [
+      makeProductItem({ name: 'Sunscreen SPF 50', category: 'היגיינה ויופי', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
+      makeProductItem({ name: 'Vitamin D3 1000IU', category: 'היגיינה ויופי', price: 35 }, 1, { id: 'item_mike_ph2' }),
+      makeTaskItem('item_mike_ph3', 'Ask about allergy medicine', { priority: 'medium' }),
+    ],
+  });
+  console.log('   🌍 Mike: Pharmacy (English, 3 items)');
+
+  // ── GEORGE: Special characters in names (geresh/gershayim) ──
+  const georgeProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 4);
+  await db.collection('users').doc(uids.george).collection('private_lists').doc('list_george_1').set({
+    id: 'list_george_1', name: "קניות של ג'ורג'", status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.george,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(4).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [
+      ...georgeProducts.map((p, i) => makeProductItem(p, i, { id: `item_geo_${i}` })),
+      // Item with very long name (overflow test)
+      makeProductItem({ name: 'שמנת מתוקה תנובה 38% שומן למטבח - מארז חיסכון משפחתי 3 יחידות במחיר מיוחד', category: 'מוצרי חלב', price: 15.9 }, 10, { id: 'item_geo_long' }),
+      // Item with price 0 (free/unknown price)
+      makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'היגיינה ויופי', price: 0 }, 11, { id: 'item_geo_free' }),
+    ],
+  });
+  console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SUMMARY
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1013,6 +1072,8 @@ async function main() {
   console.log('   shiran.gal@demo.com — Pantry only (no lists)');
   console.log('   gil.google@demo.com — Google Sign-In (no phone, has profile image)');
   console.log('   apple_user@icloud.com — Apple Sign-In (email as name, no phone)');
+  console.log('   mike.johnson@demo.com — English speaker (EN locale, English list names)');
+  console.log("   george.haviv@demo.com — Special chars (ג'ורג', long item names, free items)");
 }
 
 main().then(() => process.exit(0)).catch(e => { console.error('❌', e); process.exit(1); });
