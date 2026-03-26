@@ -447,16 +447,16 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmall),
 
-                            // 📝 כותרת - staggered animation
+                            // 📝 כותרת
                             Text(
                               AppStrings.auth.registerTitle,
                               style: theme.textTheme.headlineLarge?.copyWith(
                                 fontWeight: FontWeight.w800,
-                                fontSize: kFontSizeDisplay,
+                                fontSize: kFontSizeXLarge,
                                 color: cs.onSurface.withValues(alpha: 0.87),
-                                letterSpacing: 0.8,
+                                letterSpacing: 0.5,
                               ),
                               textAlign: TextAlign.center,
                             )
@@ -470,14 +470,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: cs.onSurface.withValues(alpha: 0.70),
                                 fontWeight: FontWeight.w600,
-                                fontSize: kFontSizeBody,
+                                fontSize: kFontSizeMedium,
                               ),
                               textAlign: TextAlign.center,
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 50.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingSmall),
 
                             // 🔵 כפתורי Social Login — ראשונים!
                             Row(
@@ -508,7 +508,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
                             // ➖ Divider "או עם אימייל"
                             Padding(
-                              padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                              padding: const EdgeInsets.only(bottom: kSpacingSmall),
                               child: Row(
                                 children: [
                                   Expanded(child: Divider(color: cs.outlineVariant)),
@@ -548,7 +548,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 100.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmallPlus),
 
                             // 📧 שדה אימייל
                             _buildFormField(
@@ -574,7 +574,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 150.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmallPlus),
 
                             // 📱 שדה טלפון (לפני סיסמה - שדות זיהוי קודם)
                             _buildFormField(
@@ -601,7 +601,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 200.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmallPlus),
 
                             // 🔒 שדה סיסמה
                             _buildFormField(
@@ -633,7 +633,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 250.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            const SizedBox(height: kSpacingMedium),
+                            const SizedBox(height: kSpacingSmallPlus),
 
                             // 🔒 שדה אימות סיסמה
                             _buildFormField(
