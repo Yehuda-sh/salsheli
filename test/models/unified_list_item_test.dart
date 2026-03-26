@@ -156,16 +156,16 @@ void main() {
 
   group('UnifiedListItem - Round-trip (toJson → fromJson)', () {
     test('product round-trip preserves all fields', () {
-      const original = UnifiedListItem(
+      final original = UnifiedListItem(
         id: 'rt-1',
         name: 'שוקולד 🍫',
         type: ItemType.product,
         isChecked: true,
         category: 'ממתקים',
         notes: 'של Elite',
-        productData: {'quantity': 5, 'unit_price': 8.9, 'unit': "יח'"},
+        productData: const {'quantity': 5, 'unit_price': 8.9, 'unit': "יח'"},
         checkedBy: 'user-123',
-        checkedAt: '2026-03-15T10:00:00Z',
+        checkedAt: DateTime.utc(2026, 3, 15, 10, 0, 0),
       );
 
       final json = original.toJson();

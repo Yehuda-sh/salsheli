@@ -95,9 +95,7 @@ class _MockUserRepository implements UserRepository {
   @override
   Future<UserEntity> createUser({
     required String userId, required String email, required String name,
-    String? phone, List<String>? preferredStores, int? familySize,
-    int? shoppingFrequency, List<int>? shoppingDays, bool? hasChildren,
-    bool? shareLists, String? reminderTime, bool? seenOnboarding, String? householdId,
+    String? phone, String? householdId, bool? seenOnboarding, String? profileImageUrl,
   }) async => throw UnimplementedError();
   @override
   Future<UserEntity> saveUser(UserEntity user) async => user;

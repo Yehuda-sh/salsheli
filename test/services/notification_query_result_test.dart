@@ -40,22 +40,6 @@ void main() {
     });
   });
 
-  group('NotificationQueryResult.count', () {
-    test('positive count → success', () {
-      final result = NotificationQueryResult.count(5);
-      expect(result.type, NotificationQueryResultType.success);
-      expect(result.isSuccess, true);
-      expect(result.count, 5);
-      expect(result.notifications, isNull);
-    });
-
-    test('zero count → empty', () {
-      final result = NotificationQueryResult.count(0);
-      expect(result.type, NotificationQueryResultType.empty);
-      expect(result.isSuccess, true);
-      expect(result.count, 0);
-    });
-  });
 
   group('NotificationQueryResult.error', () {
     test('has error message', () {

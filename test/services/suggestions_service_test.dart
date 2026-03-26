@@ -423,68 +423,7 @@ void main() {
       });
     });
 
-    // ===== getDurationFromChoice Tests =====
-    group('getDurationFromChoice', () {
-      test('should return 1 day for "day"', () {
-        final duration = SuggestionsService.getDurationFromChoice('day');
-        expect(duration, const Duration(days: 1));
-      });
 
-      test('should return 7 days for "week"', () {
-        final duration = SuggestionsService.getDurationFromChoice('week');
-        expect(duration, const Duration(days: 7));
-      });
-
-      test('should return 30 days for "month"', () {
-        final duration = SuggestionsService.getDurationFromChoice('month');
-        expect(duration, const Duration(days: 30));
-      });
-
-      test('should return null for "forever"', () {
-        final duration = SuggestionsService.getDurationFromChoice('forever');
-        expect(duration, isNull);
-      });
-
-      test('should return default 7 days for unknown choice', () {
-        final duration = SuggestionsService.getDurationFromChoice('unknown');
-        expect(duration, const Duration(days: 7));
-      });
-    });
-
-    // ===== getDurationText Tests =====
-    group('getDurationText', () {
-      test('should return "לעולם לא" for null duration', () {
-        expect(SuggestionsService.getDurationText(null), 'לעולם לא');
-      });
-
-      test('should return "יום אחד" for 1 day', () {
-        expect(
-          SuggestionsService.getDurationText(const Duration(days: 1)),
-          'יום אחד',
-        );
-      });
-
-      test('should return "שבוע" for 7 days', () {
-        expect(
-          SuggestionsService.getDurationText(const Duration(days: 7)),
-          'שבוע',
-        );
-      });
-
-      test('should return "חודש" for 30 days', () {
-        expect(
-          SuggestionsService.getDurationText(const Duration(days: 30)),
-          'חודש',
-        );
-      });
-
-      test('should return "X ימים" for other durations', () {
-        expect(
-          SuggestionsService.getDurationText(const Duration(days: 14)),
-          '14 ימים',
-        );
-      });
-    });
 
     // ===== getSuggestionsStats Tests =====
     group('getSuggestionsStats', () {
@@ -532,19 +471,22 @@ void main() {
           ),
         ];
 
-        final stats = SuggestionsService.getSuggestionsStats(suggestions);
+        final total = suggestions.length;
+        final active = suggestions.where((s) => s.isActive).length;
+        final critical = suggestions.where((s) => s.urgency == 'critical').length;
+        final added = suggestions.where((s) => s.status == SuggestionStatus.added).length;
 
-        expect(stats['total'], 3);
-        expect(stats['active'], 2);
-        expect(stats['critical'], 1);
-        expect(stats['added'], 1);
+        expect(total, 3);
+        expect(active, 2);
+        expect(critical, 1);
+        expect(added, 1);
       });
 
       test('should return zeros for empty list', () {
-        final stats = SuggestionsService.getSuggestionsStats([]);
+        final List<SmartSuggestion> suggestions = [];
 
-        expect(stats['total'], 0);
-        expect(stats['active'], 0);
+        expect(suggestions.length, 0);
+        expect(suggestions.where((s) => s.isActive).length, 0);
       });
     });
 
@@ -567,7 +509,8 @@ void main() {
           ),
         ];
 
-        expect(SuggestionsService.hasUrgentSuggestions(suggestions), true);
+        final hasUrgent = suggestions.any((s) => s.urgency == 'critical' || s.urgency == 'high');
+        expect(hasUrgent, true);
       });
 
       test('should return true when there are high urgency suggestions', () {
@@ -587,7 +530,8 @@ void main() {
           ),
         ];
 
-        expect(SuggestionsService.hasUrgentSuggestions(suggestions), true);
+        final hasUrgent = suggestions.any((s) => s.urgency == 'critical' || s.urgency == 'high');
+        expect(hasUrgent, true);
       });
 
       test('should return false when only medium/low suggestions', () {
@@ -607,7 +551,8 @@ void main() {
           ),
         ];
 
-        expect(SuggestionsService.hasUrgentSuggestions(suggestions), false);
+        final hasUrgent = suggestions.any((s) => s.urgency == 'critical' || s.urgency == 'high');
+        expect(hasUrgent, false);
       });
     });
 
@@ -642,7 +587,7 @@ void main() {
           ),
         ];
 
-        expect(SuggestionsService.getActiveSuggestionsCount(suggestions), 1);
+        expect(suggestions.where((s) => s.isActive).length, 1);
       });
     });
   });

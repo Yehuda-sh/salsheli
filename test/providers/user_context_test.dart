@@ -49,15 +49,9 @@ class MockUserRepository implements UserRepository {
     required String email,
     required String name,
     String? phone,
-    List<String>? preferredStores,
-    int? familySize,
-    int? shoppingFrequency,
-    List<int>? shoppingDays,
-    bool? hasChildren,
-    bool? shareLists,
-    String? reminderTime,
-    bool? seenOnboarding,
     String? householdId,
+    bool? seenOnboarding,
+    String? profileImageUrl,
   }) async {
     createCallCount++;
     if (shouldThrowOnCreate) {

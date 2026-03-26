@@ -211,8 +211,8 @@ void main() {
 
         expect(item.id, 'minimal-json-id');
         expect(item.productName, ''); // default is empty string
-        expect(item.category, 'כללי'); // default
-        expect(item.location, 'כללי'); // default
+        expect(item.category, 'other'); // default
+        expect(item.location, 'other'); // default
         expect(item.quantity, 0); // default
         expect(item.unit, 'יח\''); // default
         expect(item.minQuantity, 2); // default

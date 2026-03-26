@@ -184,10 +184,11 @@ void main() {
           unit: 'יח\'',
         );
 
-        expect(suggestion.stockDescription, 'נגמר! צריך לקנות');
+        expect(suggestion.isOutOfStock, true);
+        expect(suggestion.urgency, 'critical');
       });
 
-      test('should return singular form when stock is 1', () {
+      test('should detect low stock when stock is 1', () {
         final suggestion = SmartSuggestion.fromInventory(
           id: 'test-id',
           productId: 'product-1',
@@ -198,10 +199,14 @@ void main() {
           unit: 'יח\'',
         );
 
-        expect(suggestion.stockDescription, 'נשאר 1 יח\' בלבד');
+        // 1 < 5*0.2(=1.0) is false, so not critically low
+        // 1 < 5*0.5(=2.5) is true, so isLow
+        expect(suggestion.isCriticallyLow, false);
+        expect(suggestion.isLow, true);
+        expect(suggestion.urgency, 'medium');
       });
 
-      test('should return plural form when stock > 1', () {
+      test('should detect medium urgency when stock > 1 but low', () {
         final suggestion = SmartSuggestion.fromInventory(
           id: 'test-id',
           productId: 'product-1',
@@ -212,7 +217,8 @@ void main() {
           unit: 'יח\'',
         );
 
-        expect(suggestion.stockDescription, 'נשארו רק 3 יח\'');
+        expect(suggestion.isLow, false);
+        expect(suggestion.urgency, 'low');
       });
     });
 
