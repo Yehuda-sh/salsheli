@@ -188,6 +188,9 @@ class UserContext with ChangeNotifier {
   /// שם הקבוצה/משפחה (null אם לא הוגדר)
   String? get householdName => _user?.householdName;
 
+  /// URL תמונת פרופיל (מ-Google Sign-In או שהועלתה ידנית)
+  String? get profileImageUrl => _user?.profileImageUrl;
+
   /// 🔒 האם ה-Provider כבר disposed (לטסטים)
   @visibleForTesting
   bool get isDisposed => _isDisposed;

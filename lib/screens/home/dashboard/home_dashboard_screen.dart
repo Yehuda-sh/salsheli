@@ -403,12 +403,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 shape: BoxShape.circle,
               ),
               clipBehavior: Clip.antiAlias,
-              child: Image.asset(
-                'assets/images/default_avatar.webp',
-                width: 43,
-                height: 43,
-                fit: BoxFit.cover,
-              ),
+              child: userContext.profileImageUrl != null
+                  ? Image.network(
+                      userContext.profileImageUrl!,
+                      width: 43,
+                      height: 43,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Image.asset(
+                        'assets/images/default_avatar.webp',
+                        width: 43,
+                        height: 43,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Image.asset(
+                      'assets/images/default_avatar.webp',
+                      width: 43,
+                      height: 43,
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
         ),
@@ -493,17 +506,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Avatar גדול
+            // Avatar גדול — תמונת פרופיל מ-Google או initials
             CircleAvatar(
               radius: 36,
               backgroundColor: cs.primaryContainer,
-              child: Text(
-                (userName ?? '?').split(' ').where((p) => p.isNotEmpty).map((p) => p[0]).take(2).join(),
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: cs.primary,
-                ),
-              ),
+              backgroundImage: userContext.profileImageUrl != null
+                  ? NetworkImage(userContext.profileImageUrl!)
+                  : null,
+              onBackgroundImageError: userContext.profileImageUrl != null
+                  ? (_, _) {} // fallback to child
+                  : null,
+              child: userContext.profileImageUrl == null
+                  ? Text(
+                      (userName ?? '?').split(' ').where((p) => p.isNotEmpty).map((p) => p[0]).take(2).join(),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    )
+                  : null,
             ),
             const SizedBox(height: kSpacingMedium),
             // שם
