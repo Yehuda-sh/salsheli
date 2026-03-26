@@ -458,13 +458,13 @@ class _BottomSection extends StatelessWidget {
                 text: AppStrings.welcome.benefit1Title,
                 color: cs.primary,
               ),
-              const SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.listCheck,
                 text: AppStrings.welcome.benefit2Title,
                 color: cs.primary,
               ),
-              const SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.jar,
                 text: AppStrings.welcome.benefit3Title,
@@ -602,13 +602,13 @@ class _BenefitChip extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: kIconSizeSmall, color: color.withValues(alpha: 0.6)),
-        const SizedBox(width: kSpacingTiny),
+        Icon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: 0.7)),
+        const SizedBox(width: kSpacingSmall),
         Text(
           text,
           style: TextStyle(
-            fontSize: kFontSizeSmall,
-            color: cs.onSurface.withValues(alpha: 0.55),
+            fontSize: kFontSizeMedium,
+            color: cs.onSurface.withValues(alpha: 0.6),
             fontWeight: FontWeight.w500,
           ),
         ),

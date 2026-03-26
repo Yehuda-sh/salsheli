@@ -133,12 +133,17 @@ class _LegalContentDialog extends StatelessWidget {
               ),
 
               // === כפתור סגירה ===
+              const Divider(height: 1),
               Padding(
                 padding: const EdgeInsets.all(kSpacingMedium),
                 child: SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
+                  child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: scheme.primary,
+                      foregroundColor: scheme.onPrimary,
+                    ),
                     child: Text(AppStrings.common.understood),
                   ),
                 ),
