@@ -542,7 +542,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 onPressed: () => Navigator.pop(dialogContext),
                 child: Text(AppStrings.common.cancel),
               ),
-              TextButton(
+              FilledButton(
                 onPressed: isSaving
                     ? null
                     : () async {
@@ -558,11 +558,15 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           });
                         }
                       },
+                style: FilledButton.styleFrom(
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
+                ),
                 child: isSaving
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: kIconSizeSmall,
                         height: kIconSizeSmall,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
                       )
                     : Text(AppStrings.settings.editHouseholdNameSave),
               ),
@@ -628,7 +632,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 onPressed: () => Navigator.pop(dialogContext),
                 child: Text(AppStrings.common.cancel),
               ),
-              ElevatedButton.icon(
+              FilledButton.icon(
                 icon: isSending
                     ? const SizedBox(
                         width: kIconSizeSmall,
@@ -637,6 +641,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       )
                     : const Icon(Icons.send, size: kIconSizeSmall),
                 label: Text(AppStrings.settings.inviteToHouseholdButton),
+                style: FilledButton.styleFrom(
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
+                ),
                 onPressed: isSending
                     ? null
                     : () async {
