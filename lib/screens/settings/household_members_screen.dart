@@ -30,7 +30,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   bool _isLoading = true;
   String? _error;
   bool _isOwner = false;
-  String? _householdCreatedBy;
   String? _currentUserId;
   String? _householdId;
 
@@ -144,6 +143,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         currentRole: member.role,
       );
 
+      final newRole = member.role == 'admin' ? 'member' : 'admin';
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -195,9 +195,9 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
       ),
     );
 
-    if (confirm != true ||
-        _householdId == null ||
-        _currentUserId == null) return;
+    if (confirm != true || _householdId == null || _currentUserId == null) {
+      return;
+    }
 
     try {
       final memberName = _members
@@ -271,7 +271,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text('🏠',
                               style: TextStyle(fontSize: kFontSizeBody)),
                         ),
@@ -313,7 +313,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                 // Content
                 Expanded(
                   child: _isLoading
-                      ? const AppLoadingSkeleton(sectionCount: 3, showHero: false)
+                      ? const AppLoadingSkeleton()
                       : _error != null
                           ? Center(
                               child: Text(_error!,
