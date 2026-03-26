@@ -4,17 +4,17 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
-import '../../widgets/common/notebook_background.dart';
+import '../../services/household_service.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
-import '../../core/error_utils.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class HouseholdMembersScreen extends StatefulWidget {
   const HouseholdMembersScreen({super.key});
@@ -25,6 +25,7 @@ class HouseholdMembersScreen extends StatefulWidget {
 }
 
 class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
+  final _householdService = HouseholdService();
   List<_MemberData> _members = [];
   bool _isLoading = true;
   String? _error;
@@ -53,53 +54,27 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     }
 
     try {
-      // קרא את מסמך הבית כדי לזהות מי הבעלים
-      final householdDoc = await FirebaseFirestore.instance
-          .collection('households')
-          .doc(_householdId)
-          .get();
-      _householdCreatedBy = householdDoc.data()?['created_by'] as String?;
+      final members = await _householdService.getMembers(_householdId!);
 
-      final snap = await FirebaseFirestore.instance
-          .collection('households')
-          .doc(_householdId)
-          .collection('members')
-          .get();
+      final mapped = members.map((m) => _MemberData(
+        userId: m.userId,
+        name: m.name,
+        role: m.role,
+        joinedAt: m.joinedAt,
+        email: m.email,
+      )).toList();
 
-      final members = snap.docs.map((doc) {
-        final data = doc.data();
-        final memberId = doc.id;
-        // הבעלים = מי שיצר את הבית (owner > admin > member)
-        final isCreator = memberId == _householdCreatedBy;
-        final rawRole = data['role'] as String? ?? 'member';
-        final effectiveRole = isCreator ? 'owner' : rawRole;
-
-        return _MemberData(
-          userId: memberId,
-          name: data['name'] as String? ?? AppStrings.household.userFallback,
-          role: effectiveRole,
-          joinedAt: (data['joined_at'] as Timestamp?)?.toDate(),
-          email: data['email'] as String?,
-        );
-      }).toList();
-
-      // מיון: owner ראשון, אח"כ admin, אח"כ member
-      members.sort((a, b) {
-        const order = {'owner': 0, 'admin': 1, 'member': 2};
-        final cmp = (order[a.role] ?? 3).compareTo(order[b.role] ?? 3);
-        if (cmp != 0) return cmp;
-        return a.name.compareTo(b.name);
-      });
-
-      final currentMember = members.where((m) => m.userId == _currentUserId);
+      final currentMember = mapped.where((m) => m.userId == _currentUserId);
       final currentRole = currentMember.isNotEmpty ? currentMember.first.role : 'member';
       _isOwner = currentRole == 'owner';
 
+      if (!mounted) return;
       setState(() {
-        _members = members;
+        _members = mapped;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
         _error = AppStrings.household.loadMembersError;
@@ -137,43 +112,11 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     if (confirm != true || _householdId == null) return;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('households')
-          .doc(_householdId)
-          .collection('members')
-          .doc(member.userId)
-          .delete();
-
-      final personalHouseholdId = 'house_${member.userId}';
-      final batch = FirebaseFirestore.instance.batch();
-      batch.set(
-        FirebaseFirestore.instance
-            .collection('households')
-            .doc(personalHouseholdId),
-        {
-          'name': AppStrings.household.myHome,
-          'created_at': FieldValue.serverTimestamp(),
-          'created_by': member.userId,
-        },
+      await _householdService.removeMember(
+        householdId: _householdId!,
+        memberId: member.userId,
+        memberName: member.name,
       );
-      batch.set(
-        FirebaseFirestore.instance
-            .collection('households')
-            .doc(personalHouseholdId)
-            .collection('members')
-            .doc(member.userId),
-        {
-          'user_id': member.userId,
-          'name': member.name,
-          'role': 'admin',
-          'joined_at': FieldValue.serverTimestamp(),
-        },
-      );
-      batch.update(
-        FirebaseFirestore.instance.collection('users').doc(member.userId),
-        {'household_id': personalHouseholdId},
-      );
-      await batch.commit();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,18 +135,14 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
   Future<void> _toggleRole(_MemberData member) async {
     if (_householdId == null) return;
-    // רק בעלים יכול לשנות תפקידים
     if (!_isOwner) return;
-    // לא ניתן לשנות תפקיד של בעלים
     if (member.role == 'owner') return;
-    final newRole = member.role == 'admin' ? 'member' : 'admin';
     try {
-      await FirebaseFirestore.instance
-          .collection('households')
-          .doc(_householdId)
-          .collection('members')
-          .doc(member.userId)
-          .update({'role': newRole});
+      await _householdService.toggleRole(
+        householdId: _householdId!,
+        memberId: member.userId,
+        currentRole: member.role,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -261,43 +200,15 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         _currentUserId == null) return;
 
     try {
-      await FirebaseFirestore.instance
-          .collection('households')
-          .doc(_householdId)
-          .collection('members')
-          .doc(_currentUserId)
-          .delete();
+      final memberName = _members
+          .where((m) => m.userId == _currentUserId)
+          .firstOrNull?.name ?? AppStrings.household.userFallback;
 
-      final personalId = 'house_$_currentUserId';
-      final batch = FirebaseFirestore.instance.batch();
-      batch.set(
-        FirebaseFirestore.instance.collection('households').doc(personalId),
-        {
-          'name': AppStrings.household.myHome,
-          'created_at': FieldValue.serverTimestamp(),
-          'created_by': _currentUserId,
-        },
+      await _householdService.leaveHousehold(
+        householdId: _householdId!,
+        userId: _currentUserId!,
+        userName: memberName,
       );
-      batch.set(
-        FirebaseFirestore.instance
-            .collection('households')
-            .doc(personalId)
-            .collection('members')
-            .doc(_currentUserId!),
-        {
-          'user_id': _currentUserId,
-          'name': _members.firstWhere((m) => m.userId == _currentUserId, orElse: () => _MemberData(userId: '', name: AppStrings.household.userFallback, role: '')).name,
-          'role': 'admin',
-          'joined_at': FieldValue.serverTimestamp(),
-        },
-      );
-      batch.update(
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(_currentUserId!),
-        {'household_id': personalId},
-      );
-      await batch.commit();
 
       if (mounted) {
         await context.read<UserContext>().refreshUser();

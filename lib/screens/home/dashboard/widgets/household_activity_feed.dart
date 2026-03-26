@@ -7,13 +7,13 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
+import '../../../../services/household_service.dart';
 import '../../../../models/receipt.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../providers/receipt_provider.dart';
@@ -51,18 +51,11 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
     if (householdId == null || householdId.isEmpty) return;
 
     try {
-      final snap = await FirebaseFirestore.instance
-          .collection('households')
-          .doc(householdId)
-          .collection('members')
-          .get();
-
+      final names = await HouseholdService().getMemberNames(householdId);
       if (!mounted) return;
-      setState(() {
-        _memberNames = {for (final doc in snap.docs) doc.id: (doc.data()['name'] as String?) ?? ''};
-      });
+      setState(() => _memberNames = names);
     } catch (_) {
-      // Silent fail — fallback to 'חבר/ת בית'
+      // Silent fail — fallback to member ID
     }
   }
 
