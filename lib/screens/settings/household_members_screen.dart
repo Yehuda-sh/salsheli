@@ -167,8 +167,23 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     // בעלים לא יכול לעזוב — חייב למחוק את הבית או להעביר בעלות
     if (_isOwner) {
       if (mounted) {
+        final cs = Theme.of(context).colorScheme;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.household.ownerCannotLeave)),
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.info_outline, color: cs.onTertiaryContainer, size: kIconSizeMedium),
+                const SizedBox(width: kSpacingSmall),
+                Expanded(child: Text(
+                  AppStrings.household.ownerCannotLeave,
+                  style: TextStyle(color: cs.onTertiaryContainer),
+                )),
+              ],
+            ),
+            backgroundColor: cs.tertiaryContainer,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 4),
+          ),
         );
       }
       return;
