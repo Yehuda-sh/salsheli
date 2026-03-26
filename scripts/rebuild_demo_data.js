@@ -847,6 +847,93 @@ async function main() {
   console.log('   ✉️ ליאור → תומר: הזמנה ישנה (rejected)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 9. SAVED CONTACTS — users/{uid}/saved_contacts
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('\n👤 Creating saved contacts...');
+
+  // Ronit saved her family
+  for (const [i, contact] of [
+    { userId: uids.yuval, name: 'יובל כהן', email: 'yuval.cohen@demo.com', phone: '0503456789' },
+    { userId: uids.noa, name: 'נועה כהן', email: 'noa.cohen@demo.com', phone: '0504567890' },
+    { userId: uids.ori, name: 'אורי שלום', email: 'ori.shalom@demo.com', phone: '0509012345' },
+  ].entries()) {
+    await db.collection('users').doc(uids.ronit).collection('saved_contacts').doc(`contact_ronit_${i}`).set({
+      id: `contact_ronit_${i}`,
+      user_id: contact.userId,
+      user_name: contact.name,
+      user_email: contact.email,
+      user_phone: contact.phone,
+      user_avatar: null,
+      last_invited_at: daysAgo(30).toISOString(),
+      created_at: daysAgo(180).toISOString(),
+    });
+  }
+  console.log('   👤 רונית: 3 saved contacts');
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 10. CUSTOM LOCATIONS — custom_locations collection
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('\n📍 Creating custom locations...');
+
+  await db.collection('custom_locations').doc('loc_cohen_wine').set({
+    id: 'loc_cohen_wine',
+    key: 'wine_fridge',
+    name: 'מקרר יין',
+    emoji: '🍷',
+    household_id: hIds.cohen,
+    created_by: uids.avi,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  await db.collection('custom_locations').doc('loc_cohen_garage').set({
+    id: 'loc_cohen_garage',
+    key: 'garage_storage',
+    name: 'מחסן בגראז\'',
+    emoji: '🚗',
+    household_id: hIds.cohen,
+    created_by: uids.ronit,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  console.log('   📍 כהן: 2 custom locations (מקרר יין, מחסן בגראז\')');
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 11. LISTS WITH TARGET DATE — urgency testing
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('\n⏰ Adding target dates to lists...');
+
+  // Update existing lists with target_date for urgency tags
+  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_weekly').update({
+    target_date: daysFromNow(1).toISOString(), // מחר — urgency "מחר"
+  });
+  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_butcher').update({
+    target_date: daysFromNow(0).toISOString(), // היום — urgency "היום!"
+  });
+  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_market').update({
+    target_date: daysFromNow(5).toISOString(), // 5 ימים — urgency "עוד 5 ימים"
+  });
+  console.log('   ⏰ Cohen weekly: target=tomorrow, butcher: target=today, Levi market: target=5 days');
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 12. GOOGLE/APPLE USER DATA — basic list + pantry
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('\n🔵 Creating Google/Apple user data...');
+
+  // Google user — one basic list
+  const googleProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 5);
+  await db.collection('users').doc(uids.google_user).collection('private_lists').doc('list_google_basic').set({
+    id: 'list_google_basic', name: 'רשימה ראשונה', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.google_user,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: googleProducts.map((p, i) => makeProductItem(p, i, { id: `item_gu_${i}` })),
+  });
+  console.log('   🔵 Google user: 1 basic list (5 items)');
+
+  // Apple user — empty (just registered, tests empty states)
+  console.log('   🍎 Apple user: 0 lists (empty states test)');
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SUMMARY
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n' + '═'.repeat(55));
@@ -869,6 +956,8 @@ async function main() {
   console.log('   lior.dahan@demo.com — Inactive (45+ days)');
   console.log('   naama.rozen@demo.com — Power user (50-item list, 35 pantry, 25 receipts)');
   console.log('   shiran.gal@demo.com — Pantry only (no lists)');
+  console.log('   gil.google@demo.com — Google Sign-In (no phone, has profile image)');
+  console.log('   apple_user@icloud.com — Apple Sign-In (email as name, no phone)');
 }
 
 main().then(() => process.exit(0)).catch(e => { console.error('❌', e); process.exit(1); });
