@@ -253,6 +253,18 @@ async function main() {
   const products = loadProducts();
   console.log(`📦 Loaded ${products.length} products from catalog\n`);
 
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 0. CLEANUP — delete pending_invites and custom_locations (top-level)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('🧹 Cleaning up old top-level data...');
+  const pendingSnap = await db.collection('pending_invites').get();
+  const customLocSnap = await db.collection('custom_locations').get();
+  const batch0 = db.batch();
+  for (const doc of pendingSnap.docs) batch0.delete(doc.ref);
+  for (const doc of customLocSnap.docs) batch0.delete(doc.ref);
+  await batch0.commit();
+  console.log(`   🧹 Deleted ${pendingSnap.size} pending_invites + ${customLocSnap.size} custom_locations`);
+
   const uids = {}; // key → firebase UID
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -261,13 +273,23 @@ async function main() {
   console.log('👥 Creating Auth users...');
   for (const u of USERS) {
     try {
-      const record = await auth.createUser({ email: u.email, password: DEMO_PASSWORD, displayName: u.name });
+      const createParams = {
+        email: u.email,
+        password: DEMO_PASSWORD,
+        displayName: u.name,
+        ...(u.profileImageUrl ? { photoURL: u.profileImageUrl } : {}),
+      };
+      const record = await auth.createUser(createParams);
       uids[u.key] = record.uid;
-      console.log(`   ✅ ${u.name} (${record.uid})`);
+      console.log(`   ✅ ${u.name} (${record.uid})${u.provider ? ` [${u.provider}]` : ''}`);
     } catch (e) {
       if (e.code === 'auth/email-already-exists') {
         const existing = await auth.getUserByEmail(u.email);
         uids[u.key] = existing.uid;
+        // Update photoURL if it exists (in case user was created before)
+        if (u.profileImageUrl) {
+          await auth.updateUser(existing.uid, { photoURL: u.profileImageUrl, displayName: u.name });
+        }
         console.log(`   ♻️ ${u.name} (exists: ${existing.uid})`);
       } else throw e;
     }
@@ -590,6 +612,17 @@ async function main() {
   });
   console.log('   📋 תומר: דברים לקנות (OTHER type, 3 tasks)');
 
+  // ── SHIRAN: Empty list (0 items — tests empty state) ──
+  await db.collection('users').doc(uids.shiran).collection('private_lists').doc('list_shiran_empty').set({
+    id: 'list_shiran_empty', name: 'רשימה חדשה', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.shiran,
+    format: 'personal', created_from_template: false,
+    created_date: hoursAgo(1).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [],
+  });
+  console.log('   📋 שירן: רשימה חדשה (EMPTY — 0 items, tests empty state)');
+
   // ── NAAMA: Large supermarket list (performance test) ──
   const naamaProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), 50);
   await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_big').set({
@@ -646,7 +679,11 @@ async function main() {
         quantity: qty,
         unit: normalizeUnit(p.unit),
         min_quantity: minQty,
-        expiry_date: p.category === 'מוצרי חלב' ? daysFromNow(i < 2 ? 2 : 14).toISOString() : null,
+        expiry_date: p.category === 'מוצרי חלב'
+          ? (i === 0 ? daysAgo(2).toISOString()     // expired 2 days ago!
+            : i === 1 ? daysFromNow(1).toISOString() // expires tomorrow
+            : daysFromNow(14).toISOString())          // expires in 2 weeks
+          : null,
         notes: null,
         is_recurring: Math.random() > 0.3,
         emoji: p.icon || null,
@@ -756,8 +793,12 @@ async function main() {
     makeNotification('notif_avi_8', uids.avi, hIds.cohen, 'role_changed', 'שינוי תפקיד', 'אורי שלום קיבל תפקיד צפייה ברשימת "קניות שבועיות"', { createdAt: daysAgo(60), isRead: true, readAt: daysAgo(60), actionData: { listId: 'list_cohen_weekly', newRole: 'viewer' } }),
     makeNotification('notif_avi_9', uids.avi, hIds.cohen, 'member_left', 'חבר עזב', 'ליאור דהן עזב את הבית', { createdAt: daysAgo(45), isRead: true, readAt: daysAgo(44), actionData: {} }),
     makeNotification('notif_avi_10', uids.avi, hIds.cohen, 'invite', 'הזמנה לבית', 'נעמה רוזן הזמינה אותך להצטרף לבית שלה', { createdAt: hoursAgo(3), senderId: uids.naama, senderName: 'נעמה רוזן', actionData: { householdId: hIds.naama } }),
+    // Edge case: user_removed notification
+    makeNotification('notif_avi_11', uids.avi, hIds.cohen, 'user_removed', 'הוסרת מרשימה', 'הוסרת מרשימת "קניות ישנה"', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), actionData: { listId: 'old_list_123' } }),
+    // Edge case: unknown notification type — app should not crash
+    makeNotification('notif_avi_12', uids.avi, hIds.cohen, 'future_feature_xyz', 'עדכון מערכת', 'סוג התראה ממאפיין עתידי שטרם קיים באפליקציה', { createdAt: hoursAgo(1), actionData: {} }),
   ]);
-  console.log('   🔔 אבי: 10 notifications (4 unread)');
+  console.log('   🔔 אבי: 12 notifications (6 unread, includes unknown type edge case)');
 
   // Ronit notifications (5)
   await createNotifications(uids.ronit, [
