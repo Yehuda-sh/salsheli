@@ -52,6 +52,10 @@ const USERS = [
   { key: 'lior',   name: 'ליאור דהן',    email: 'lior.dahan@demo.com',   phone: '0512345678', household: 'lior',   role: 'admin',  isAdmin: true },
   // Fresh user
   { key: 'yael',   name: 'יעל חדשה',     email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
+  // Google Sign-In user (no phone, has profile image)
+  { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://lh3.googleusercontent.com/a/default-user' },
+  // Apple Sign-In user (no phone, no display name initially)
+  { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple' },
 ];
 
 const HOUSEHOLDS = {
@@ -61,7 +65,9 @@ const HOUSEHOLDS = {
   shiran: { name: 'הבית של שירן',   members: ['shiran'] },
   naama:  { name: 'הבית של נעמה',   members: ['naama'] },
   lior:   { name: 'הבית של ליאור',  members: ['lior'] },
-  yael:   { name: 'הבית של יעל',    members: ['yael'] },
+  yael:        { name: 'הבית של יעל',    members: ['yael'] },
+  google_user: { name: 'הבית של גיל',    members: ['google_user'] },
+  apple_user:  { name: 'הבית שלי',       members: ['apple_user'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -303,17 +309,20 @@ async function main() {
     const hId = hIds[u.household];
     const isInactive = u.key === 'lior';
     const isFresh = u.key === 'yael';
+    const isSocial = u.provider === 'google' || u.provider === 'apple';
     await db.collection('users').doc(uid).set({
-      id: uid, name: u.name, email: u.email, phone: u.phone,
+      id: uid, name: u.name, email: u.email, phone: u.phone || '',
       household_id: hId,
       household_name: HOUSEHOLDS[u.household].name,
-      joined_at: isFresh ? hoursAgo(0.5).toISOString() : daysAgo(180).toISOString(),
+      joined_at: isFresh ? hoursAgo(0.5).toISOString() : isSocial ? daysAgo(7).toISOString() : daysAgo(180).toISOString(),
       last_login_at: isInactive ? daysAgo(45).toISOString() : isFresh ? hoursAgo(0.5).toISOString() : hoursAgo(randomInt(1, 12)).toISOString(),
       favorite_products: [],
-      weekly_budget: u.key === 'naama' ? 3000 : u.key === 'tomer' ? 600 : u.isAdmin ? 2000 : 0,
+      weekly_budget: u.key === 'naama' ? 3000 : u.key === 'tomer' ? 600 : isSocial ? 0 : u.isAdmin ? 2000 : 0,
       is_admin: u.isAdmin,
       seen_onboarding: true,
-      seen_tutorial: u.key !== 'yael', // יעל = לא ראתה tutorial
+      seen_tutorial: u.key !== 'yael',
+      ...(u.profileImageUrl ? { profile_image_url: u.profileImageUrl } : {}),
+      ...(u.provider ? { auth_provider: u.provider } : { auth_provider: 'email' }),
     });
     console.log(`   📝 ${u.name}`);
   }

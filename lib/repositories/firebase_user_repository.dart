@@ -330,6 +330,7 @@ class FirebaseUserRepository implements UserRepository {
     String? phone,
     String? householdId,
     bool? seenOnboarding,
+    String? profileImageUrl,
   }) async {
     try {
 
@@ -346,6 +347,7 @@ class FirebaseUserRepository implements UserRepository {
         phone: phone,
         householdId: householdId,
         seenOnboarding: seenOnboarding,
+        profileImageUrl: profileImageUrl,
       );
 
       // שמירה ב-Firestore

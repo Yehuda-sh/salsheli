@@ -475,7 +475,8 @@ class UserContext with ChangeNotifier {
       name: name,
       email: result.email ?? '',
       phone: result.phoneNumber ?? '',
-      seenOnboarding: true, // ✅ FIX: סימון seenOnboarding גם ב-Social Login (לפי Guardrails)
+      seenOnboarding: true,
+      profileImageUrl: result.photoUrl, // ✅ שמירת תמונת פרופיל מ-Google/Apple
     );
   }
 

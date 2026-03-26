@@ -108,6 +108,7 @@ abstract class UserRepository {
     String? phone,
     String? householdId,
     bool? seenOnboarding,
+    String? profileImageUrl,
   });
 
   /// שומר או מעדכן משתמש (**עדכון מלא**)

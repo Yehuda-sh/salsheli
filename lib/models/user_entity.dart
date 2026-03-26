@@ -230,6 +230,7 @@ class UserEntity {
     bool? seenOnboarding,
     bool? seenTutorial,
     String? householdName,
+    String? profileImageUrl,
   }) {
     return UserEntity(
       id: id,
@@ -239,10 +240,11 @@ class UserEntity {
       householdId: householdId ?? 'house_$id',
       joinedAt: DateTime.now(),
       lastLoginAt: DateTime.now(),
-      isAdmin: true, // משתמש חדש הוא admin של משק הבית שלו
+      isAdmin: true,
       seenOnboarding: seenOnboarding ?? false,
       seenTutorial: seenTutorial ?? false,
       householdName: householdName,
+      profileImageUrl: profileImageUrl,
     );
   }
 

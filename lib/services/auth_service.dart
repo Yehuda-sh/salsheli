@@ -61,6 +61,7 @@ class SocialLoginResult {
   final String? email;
   final String? displayName;
   final String? phoneNumber;
+  final String? photoUrl;
   final bool isNewUser;
 
   const SocialLoginResult({
@@ -68,6 +69,7 @@ class SocialLoginResult {
     this.email,
     this.displayName,
     this.phoneNumber,
+    this.photoUrl,
     required this.isNewUser,
   });
 
@@ -79,6 +81,7 @@ class SocialLoginResult {
       email: user.email,
       displayName: user.displayName,
       phoneNumber: user.phoneNumber,
+      photoUrl: user.photoURL,
       isNewUser: credential.additionalUserInfo?.isNewUser ?? false,
     );
   }
