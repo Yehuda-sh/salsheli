@@ -632,7 +632,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
                             // 🔘 כפתור הרשמה — loading indicator פנימי + colored shadow
                             Builder(builder: (context) {
-                              final ctaBg = brand?.success ?? cs.primary;
+                              final ctaBg = cs.primary;
                               final ctaFg = ThemeData.estimateBrightnessForColor(ctaBg) == Brightness.light
                                   ? cs.onSurface
                                   : cs.onPrimary;
