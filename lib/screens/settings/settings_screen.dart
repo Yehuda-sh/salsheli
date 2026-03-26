@@ -40,24 +40,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../l10n/locale_manager.dart';
 import '../../providers/user_context.dart';
-import '../../widgets/common/skeleton_loader.dart';
-import '../../widgets/common/app_error_state.dart';
-import '../../widgets/common/app_loading_skeleton.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../screens/settings/household_members_screen.dart';
 import '../../services/auth_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
-import '../../widgets/dialogs/legal_content_dialog.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
-import '../../core/error_utils.dart';
+import '../../widgets/dialogs/legal_content_dialog.dart';
+import 'household_members_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -90,7 +88,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
   // הרשאות משפחה (owner = בעלים, admin = מנהל)
   bool _isHouseholdAdmin = false;
-  bool _isHouseholdOwner = false;
 
   bool _loading = true;
   String? _errorMessage;
@@ -167,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
         _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
         _isHouseholdAdmin = isAdmin;
-        _isHouseholdOwner = isOwner;
+        // _isHouseholdOwner removed — unused
         _appVersion = packageInfo.version;
         _loading = false;
         _errorMessage = null;
@@ -272,7 +269,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(AppStrings.settings.debugDeleteTitle),
-            SizedBox(height: kSpacingMedium),
+            const SizedBox(height: kSpacingMedium),
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
@@ -283,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               child: Row(
                 children: [
                   Icon(Icons.bug_report, color: cs.error, size: kIconSizeMedium),
-                  SizedBox(width: kSpacingSmall),
+                  const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
                       AppStrings.settings.debugOnlyLabel,
@@ -379,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             title: Row(
               children: [
                 Icon(Icons.warning_amber_rounded, color: cs.error, size: kIconSizeMedium),
-                SizedBox(width: kSpacingSmall),
+                const SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.settings.deleteAccountTitle,
                   style: TextStyle(color: cs.error),
@@ -766,7 +763,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                     ),
                   ),
-                  SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingMedium),
 
                   // כותרת
                   Text(
@@ -778,7 +775,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: kSpacingLarge),
+                  const SizedBox(height: kSpacingLarge),
 
                   // בחירת אווטאר
                   Text(
@@ -823,7 +820,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       );
                     }).toList(),
                   ),
-                  SizedBox(height: kSpacingLarge),
+                  const SizedBox(height: kSpacingLarge),
 
                   // שדה שם
                   Text(
@@ -1018,7 +1015,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   child: Row(
                     children: [
                       Icon(Icons.settings_outlined, size: kIconSizeMedium, color: cs.primary),
-                      SizedBox(width: kSpacingSmall),
+                      const SizedBox(width: kSpacingSmall),
                       Text(
                         AppStrings.settings.title,
                         style: TextStyle(
@@ -1291,7 +1288,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 )),
 
-                SizedBox(height: kSpacingMedium),
+                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 קישורים מהירים
                 _animatedSection(4, Card(
@@ -1329,11 +1326,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         subtitle: Text(AppStrings.settings.showOnboardingSubtitle),
                         trailing: _forwardChevron(),
                         onTap: () async {
-                          final ctx = context;
-                          await TutorialService.resetTutorial(ctx);
+                          await TutorialService.resetTutorial(context);
                           if (!mounted) return;
-                          // הצג את ההדרכה מיידית
-                          await TutorialService.showHomeTutorialIfNeeded(ctx);
+                          await TutorialService.showHomeTutorialIfNeeded(context);
                         },
                       ),
                     ],
@@ -1341,7 +1336,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 )),
 
-                SizedBox(height: kSpacingMedium),
+                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 מידע
                 _animatedSection(5, Card(
@@ -1379,7 +1374,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                 'assets/images/app_icon.png',
                                 width: kIconSizeXLarge,
                                 height: kIconSizeXLarge,
-                                errorBuilder: (_, __, ___) => Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
+                                errorBuilder: (_, _, _) => Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
                               ),
                             ),
                             children: [
@@ -1407,7 +1402,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 )),
 
-                SizedBox(height: kSpacingMedium),
+                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 התנתקות
                 _animatedSection(6, Card(
@@ -1428,7 +1423,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 // 🔧 DEBUG ONLY: מחיקת כל הנתונים
                 if (kDebugMode) ...[
-                  SizedBox(height: kSpacingSmall),
+                  const SizedBox(height: kSpacingSmall),
                   Card(
                     elevation: 0,
                     color: cs.tertiaryContainer.withValues(alpha: 0.85),
@@ -1442,7 +1437,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 ],
 
-                SizedBox(height: kSpacingMedium),
+                const SizedBox(height: kSpacingMedium),
 
                 // 🔹 מחיקת חשבון (GDPR)
                 Card(
@@ -1505,7 +1500,7 @@ class _NotificationToggle extends StatelessWidget {
       ),
       value: value,
       onChanged: onChanged,
-      activeColor: cs.primary,
+      activeThumbColor: cs.primary,
       activeTrackColor: cs.primary.withValues(alpha: 0.3),
       dense: true,
       contentPadding: EdgeInsets.zero,

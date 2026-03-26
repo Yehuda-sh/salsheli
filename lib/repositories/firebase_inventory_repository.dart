@@ -255,6 +255,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   ///   },
   /// )
   /// ```
+  @override
   Stream<List<InventoryItem>> watchInventory(String householdId) {
     return _inventoryCollection(householdId)
         .orderBy(FirestoreFields.productName)

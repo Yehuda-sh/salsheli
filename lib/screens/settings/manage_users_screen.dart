@@ -32,10 +32,10 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/share_list_service.dart';
-import '../sharing/invite_users_screen.dart';
-import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/app_loading_skeleton.dart';
 import '../../core/error_utils.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/notebook_background.dart';
+import '../sharing/invite_users_screen.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -440,7 +440,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     final strings = AppStrings.manageUsers;
 
     if (_isLoading) {
-      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+      return const AppLoadingSkeleton();
     }
 
     if (_errorMessage != null) {
@@ -480,12 +480,12 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               size: kIconSizeXXLarge,
               color: cs.outline.withValues(alpha: 0.5),
             ),
-            SizedBox(height: kSpacingMedium),
+            const SizedBox(height: kSpacingMedium),
             Text(
               strings.noSharedUsers,
               style: TextStyle(fontSize: kFontSizeTitle),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
             Text(
               isOwner ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,

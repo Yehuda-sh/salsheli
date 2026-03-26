@@ -28,8 +28,8 @@ import '../../providers/user_context.dart';
 import '../../screens/shopping/details/shopping_list_details_screen.dart';
 import '../../services/notifications_service.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/notebook_background.dart';
 
 class NotificationsCenterScreen extends StatefulWidget {
   const NotificationsCenterScreen({super.key});
@@ -122,6 +122,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         }
       });
     } catch (e) {
+      // Silent — non-critical operation
     }
   }
 
@@ -157,6 +158,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         ),
       );
     } catch (e) {
+      // Silent — non-critical operation
     }
   }
 
@@ -171,7 +173,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     // ✅ FIX: NotebookBackground + transparent Scaffold
     return Stack(
       children: [
-        NotebookBackground(),
+        const NotebookBackground(),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -209,7 +211,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     final brand = theme.extension<AppBrand>();
 
     if (_isLoading) {
-      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+      return const AppLoadingSkeleton();
     }
 
     if (_error != null) {
@@ -291,7 +293,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         itemCount: _notifications.length,
         // ✅ FIX: Always scrollable for pull-to-refresh with few items
         physics: const AlwaysScrollableScrollPhysics(),
-        separatorBuilder: (_, __) => const SizedBox(height: kSpacingSmall),
+        separatorBuilder: (_, _) => const SizedBox(height: kSpacingSmall),
         itemBuilder: (context, index) {
           final notification = _notifications[index];
           return RepaintBoundary(
@@ -418,7 +420,7 @@ class _NotificationTile extends StatelessWidget {
       elevation: isUnread ? 2 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: 0.3), width: 1) : BorderSide.none,
+        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: 0.3)) : BorderSide.none,
       ),
       child: Container(
       decoration: BoxDecoration(
