@@ -195,7 +195,7 @@ class _LogoSection extends StatelessWidget {
       header: true,
       label: AppStrings.welcome.logoLabel,
       child: Padding(
-        padding: const EdgeInsets.only(top: kSpacingLarge, bottom: kSpacingSmall),
+        padding: const EdgeInsets.only(top: kSpacingXLarge, bottom: kSpacingSmall),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

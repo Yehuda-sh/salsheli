@@ -119,14 +119,29 @@ class _LegalContentDialog extends StatelessWidget {
                 ),
               ),
 
-              // === תוכן ===
+              // === תוכן עם fade hint בתחתית ===
               Flexible(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  child: Text(
-                    _content,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.6,
+                child: ShaderMask(
+                  shaderCallback: (bounds) => LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      scheme.surface,
+                      scheme.surface,
+                      scheme.surface.withValues(alpha: 0.0),
+                    ],
+                    stops: const [0.0, 0.85, 1.0],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      kSpacingMedium, kSpacingMedium, kSpacingMedium, kSpacingLarge,
+                    ),
+                    child: Text(
+                      _content,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        height: 1.7,
+                      ),
                     ),
                   ),
                 ),
