@@ -338,6 +338,7 @@ class CommonStringsEn extends CommonStrings {
   @override String get unknownErrorGeneric => 'Something went wrong. Please try again';
   @override String get permissionError => 'You don\'t have permission for this action';
   @override String get notFoundError => 'Item not found';
+  @override String get networkError => 'Connection issue. Please try again';
   @override String get connected => 'Connected';
   @override String get optional => '(Optional)';
 }

@@ -351,6 +351,7 @@ class CommonStrings {
   String get unknownErrorGeneric => 'אירעה שגיאה, נסו שוב';
   String get permissionError => 'אין הרשאה לבצע פעולה זו';
   String get notFoundError => 'הפריט לא נמצא';
+  String get networkError => 'בעיית חיבור לאינטרנט. נסו שוב';
   String get connected => 'מחובר';
   String get optional => '(אופציונלי)';
 }
