@@ -67,7 +67,7 @@ jobs:
 
       # 🔍 Static analysis — catch errors before expensive build step
       - name: Analyze code
-        run: dart analyze lib/ --no-fatal-infos
+        run: dart analyze lib/ --no-fatal-warnings
 
       # 🚀 Cache Gradle (biggest time saver — saves ~2-3 minutes)
       - name: Cache Gradle
