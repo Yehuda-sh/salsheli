@@ -1094,6 +1094,90 @@ async function main() {
   console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // 14. EDGE CASE PATCHES — fix missing scenarios found in audit
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  console.log('\n🔬 Applying edge case patches...');
+
+  // PATCH 1: Add overdue target_date to an existing list (urgency "עבר!")
+  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_weekly').update({
+    target_date: daysAgo(2).toISOString(), // 2 days overdue!
+  });
+  console.log('   ⏰ Levi weekly: target_date set to 2 days AGO (tests urgency "עבר!")');
+
+  // PATCH 2: Who Brings item that is FULL (neededCount == volunteers)
+  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat').update({
+    'items.3': makeWhoBringsItem('wb_4', 'לחם', 2, [
+      { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: hoursAgo(4).toISOString() },
+      { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: hoursAgo(3).toISOString() },
+    ]),
+  });
+  console.log('   ✅ Shabbat wb_4 "לחם": now FULL (2/2 volunteers)');
+
+  // PATCH 3: Inventory items with notes
+  await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_household_cohen_0').update({
+    notes: 'לקנות רק תנובה, לא של שטראוס',
+  });
+  await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_household_cohen_1').update({
+    notes: 'לבדוק תאריך תפוגה לפני שקונים',
+  });
+  console.log('   📝 Cohen inventory: 2 items now have notes');
+
+  // PATCH 4: Shiran gets a list with ALL items checked (100% active)
+  const allCheckedProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 5);
+  await db.collection('users').doc(uids.shiran).collection('private_lists').doc('list_shiran_done').set({
+    id: 'list_shiran_done', name: 'הכל נקנה! ✅', status: 'active', type: 'supermarket',
+    budget: 200, is_shared: false, is_private: true, created_by: uids.shiran,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(0.5).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: allCheckedProducts.map((p, i) => makeProductItem(p, i, {
+      id: `item_sh_done_${i}`, isChecked: true,
+      checked_by: uids.shiran, checked_at: hoursAgo(1).toISOString(),
+    })),
+  });
+  console.log('   ✅ Shiran: "הכל נקנה!" (active, 100% checked — tests green progress bar)');
+
+  // PATCH 5: Product with very large quantity
+  await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget').update({
+    'items.0': makeProductItem(
+      { name: 'מים מינרליים 1.5 ליטר', category: 'משקאות', price: 3.5, defaultUnit: 'ליטר' },
+      0, { id: 'item_bgt_0', quantity: 24, isChecked: false }
+    ),
+  });
+  console.log('   🔢 Naama budget list: item 0 quantity = 24 (large quantity display test)');
+
+  // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
+  await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_chores').set({
+    id: 'list_tomer_chores', name: 'משימות לסוף שבוע', status: 'active', type: 'event',
+    budget: 0, is_shared: false, is_private: true, created_by: uids.tomer,
+    format: 'personal', created_from_template: false, event_mode: 'tasks',
+    event_date: daysFromNow(2).toISOString(),
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [
+      makeTaskItem('item_chore_0', 'לנקות את הדירה 🧹', { priority: 'high' }),
+      makeTaskItem('item_chore_1', 'כביסה + גיהוץ', { isChecked: true, priority: 'medium' }),
+      makeTaskItem('item_chore_2', 'לארגן את הארון', { priority: 'low', notes: 'לתרום בגדים ישנים' }),
+      makeTaskItem('item_chore_3', 'לתקן את הברז במטבח 🔧', { priority: 'high' }),
+      // Item with emoji in name
+      makeProductItem({ name: '🧴 סבון כלים אקולוגי', category: 'מוצרי ניקיון', price: 18.9 }, 4, { id: 'item_chore_4' }),
+    ],
+  });
+  console.log('   ✅ Tomer: Active checklist (event/tasks, budget: 0, emoji in item name)');
+
+  // PATCH 7: Template-based list — Dan created from template
+  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_template').set({
+    id: 'list_levi_template', name: 'קניות שבועיות (תבנית)', status: 'active', type: 'supermarket',
+    budget: null, is_shared: true, is_private: false, created_by: uids.dan,
+    format: 'shared', created_from_template: true, template_id: 'tmpl_shopping_weekly',
+    created_date: hoursAgo(6).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8)
+      .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3 })),
+  });
+  console.log('   📋 Levi: Template-based list (created_from_template: true)');
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SUMMARY
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n' + '═'.repeat(55));
