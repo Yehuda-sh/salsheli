@@ -51,8 +51,10 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
@@ -613,7 +615,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   const SizedBox(height: kSpacingSmall),
                   Text(
                     successText!,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: kStickyGreen,
                       fontSize: kFontSizeSmall,
                     ),
