@@ -738,6 +738,35 @@ async function main() {
   // Yael: 0 items (fresh user — empty state)
   console.log('   📦 יעל: 0 items (fresh user — tests empty state)');
 
+  // Mike: 8 items (English product names test in pantry)
+  const mikePantry = pickRandom(byCategory(products, 'מוצרי חלב', 'אורז ופסטה', 'משקאות'), 5);
+  await createInventory(hIds.mike, mikePantry, uids.mike);
+  // Add English-named items manually to inventory
+  for (const [i, item] of [
+    { name: 'Organic Almond Milk', category: 'מוצרי חלב', unit: 'ליטר' },
+    { name: 'Quinoa (Red)', category: 'אורז ופסטה', unit: "יח'" },
+    { name: 'Extra Virgin Olive Oil 750ml', category: 'שמנים ורטבים', unit: "יח'" },
+  ].entries()) {
+    await db.collection('households').doc(hIds.mike).collection('inventory').doc(`inv_mike_en_${i}`).set({
+      id: `inv_mike_en_${i}`,
+      product_name: item.name,
+      category: item.category,
+      location: locationForCategory(item.category),
+      quantity: randomInt(1, 4),
+      unit: item.unit,
+      min_quantity: 2,
+      expiry_date: null,
+      notes: null,
+      is_recurring: false,
+      emoji: null,
+      last_updated_by: uids.mike,
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      last_purchased: daysAgo(randomInt(1, 7)).toISOString(),
+      purchase_count: randomInt(1, 10),
+    });
+  }
+  console.log('   📦 Mike: 8 items (5 Hebrew catalog + 3 English custom)');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 6. RECEIPTS — under households/{hId}/receipts
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -779,6 +808,9 @@ async function main() {
 
   await createReceipts(hIds.naama, [uids.naama], 25, storeNames);
   console.log('   🧾 נעמה: 25 receipts');
+
+  await createReceipts(hIds.mike, [uids.mike], 5, ['Rami Levy Shoresh', 'Shufersal Deal']);
+  console.log('   🧾 Mike: 5 receipts (English store names)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 7. NOTIFICATIONS — under users/{uid}/notifications
@@ -838,6 +870,20 @@ async function main() {
     makeNotification('notif_lior_1', uids.lior, hIds.lior, 'low_stock', 'מלאי נמוך', 'נשאר מעט "שימורי טונה"', { createdAt: daysAgo(45), actionData: { productName: 'שימורי טונה' } }),
   ]);
   console.log('   🔔 ליאור: 1 notification (45 days old, unread)');
+
+  // Yuval notifications (editor — sees his request outcomes)
+  await createNotifications(uids.yuval, [
+    makeNotification('notif_yuval_1', uids.yuval, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "קולה זירו" אושרה ע"י רונית', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
+    makeNotification('notif_yuval_2', uids.yuval, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'נועה כהן התנדבה להביא "קינוח"', { createdAt: hoursAgo(3), senderId: uids.noa, senderName: 'נועה כהן', actionData: { listId: 'list_cohen_shabbat' } }),
+  ]);
+  console.log('   🔔 יובל: 2 notifications (1 unread)');
+
+  // Noa notifications (editor — sees rejection)
+  await createNotifications(uids.noa, [
+    makeNotification('notif_noa_1', uids.noa, hIds.cohen, 'request_rejected', 'בקשה נדחתה', 'הבקשה שלך להוסיף "שוקולד פרה" נדחתה ע"י אבי', { createdAt: daysAgo(2), senderId: uids.avi, senderName: 'אבי כהן', actionData: { listId: 'list_cohen_weekly' } }),
+    makeNotification('notif_noa_2', uids.noa, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "נייר טואלט" אושרה', { createdAt: hoursAgo(1), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
+  ]);
+  console.log('   🔔 נועה: 2 notifications (1 unread)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 8. PENDING INVITES — top-level pending_invites collection (PendingRequest schema)
