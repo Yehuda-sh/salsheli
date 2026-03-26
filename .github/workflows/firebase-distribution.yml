@@ -2,12 +2,13 @@ name: Firebase App Distribution
 on:
   push:
     branches:
-      - '**'
+      - main
+      - claude/dev
 
-# רק build אחד בו-זמנית לכל branch — ממתין לסיום הקודם (לא מבטל)
+# רק build אחרון רלוונטי — מבטל builds קודמים של אותו branch
 concurrency:
   group: build-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -64,6 +65,10 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
           echo "✅ Code generation complete"
 
+      # 🔍 Static analysis — catch errors before expensive build step
+      - name: Analyze code
+        run: dart analyze lib/ --no-fatal-infos
+
       # 🚀 Cache Gradle (biggest time saver — saves ~2-3 minutes)
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -78,10 +83,14 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
 
+      # 📦 Upload to Firebase App Distribution
+      # Note: uses serviceCredentialsFileContent (token is deprecated)
+      # Setup: Firebase Console → Project Settings → Service Accounts → Generate new private key
+      # Then add the JSON content as GitHub Secret: FIREBASE_SERVICE_CREDENTIALS
       - name: Upload to Firebase App Distribution
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
-          token: ${{ secrets.FIREBASE_TOKEN }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}
           groups: testers
           file: build/app/outputs/flutter-apk/app-release.apk
