@@ -80,6 +80,10 @@ jobs:
           key: gradle-${{ hashFiles('android/build.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
           restore-keys: gradle-
 
+      - name: Install NDK
+        run: |
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.0.12077973"
+
       - name: Build APK
         run: flutter build apk --release
 
