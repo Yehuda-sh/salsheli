@@ -51,11 +51,11 @@ const USERS = [
   // Inactive user
   { key: 'lior',   name: 'ליאור דהן',    email: 'lior.dahan@demo.com',   phone: '0512345678', household: 'lior',   role: 'admin',  isAdmin: true },
   // Fresh user
-  { key: 'yael',   name: 'יעל חדשה',     email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
+  { key: 'yael',   name: 'יעל מזרחי',    email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
   // Google Sign-In user (no phone, has profile image)
   { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://lh3.googleusercontent.com/a/default-user' },
-  // Apple Sign-In user (no phone, no display name initially)
-  { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple' },
+  // Apple Sign-In user (Apple hides real name — display name is email until user updates profile)
+  { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple', applePrivateRelay: true },
   // English-speaking user (English name, English locale preference)
   { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
   // Special characters in name (Hebrew with geresh/gershayim)
@@ -833,7 +833,7 @@ async function main() {
     makeNotification('notif_avi_6', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
     makeNotification('notif_avi_7', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'נשארה יחידה אחרונה של "ביצים L', { createdAt: hoursAgo(6), actionData: { productName: 'ביצים L' } }),
     makeNotification('notif_avi_8', uids.avi, hIds.cohen, 'role_changed', 'שינוי תפקיד', 'אורי שלום קיבל תפקיד צפייה ברשימת "קניות שבועיות"', { createdAt: daysAgo(60), isRead: true, readAt: daysAgo(60), actionData: { listId: 'list_cohen_weekly', newRole: 'viewer' } }),
-    makeNotification('notif_avi_9', uids.avi, hIds.cohen, 'member_left', 'חבר עזב', 'ליאור דהן עזב את הבית', { createdAt: daysAgo(45), isRead: true, readAt: daysAgo(44), actionData: {} }),
+    makeNotification('notif_avi_9', uids.avi, hIds.cohen, 'member_left', 'חבר עזב', 'אורי שלום עזב את הבית (וחזר מאוחר יותר כצופה)', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), senderId: uids.ori, senderName: 'אורי שלום', actionData: {} }),
     makeNotification('notif_avi_10', uids.avi, hIds.cohen, 'invite', 'הזמנה לבית', 'נעמה רוזן הזמינה אותך להצטרף לבית שלה', { createdAt: hoursAgo(3), senderId: uids.naama, senderName: 'נעמה רוזן', actionData: { householdId: hIds.naama } }),
     // Edge case: user_removed notification
     makeNotification('notif_avi_11', uids.avi, hIds.cohen, 'user_removed', 'הוסרת מרשימה', 'הוסרת מרשימת "קניות ישנה"', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), actionData: { listId: 'old_list_123' } }),
