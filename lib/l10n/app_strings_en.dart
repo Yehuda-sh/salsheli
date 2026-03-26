@@ -556,14 +556,14 @@ class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
   String get title => AppStringsEn.appName;
-  String get subtitle => 'Smart grocery management for the whole family';
+  String get subtitle => 'Smart shopping for the whole family';
   String get group1Emoji => '🛒';
   String get group1Title => 'Shop together';
   String get group1Question => 'One list, everyone edits in real time';
   String get group1Feature1 => 'Smart items ✅';
   String get group1Feature2 => 'Auto quantities 🔢';
   String get group2Emoji => '📦';
-  String get group2Title => 'Never run out';
+  String get group2Title => 'A pantry that never runs out';
   String get group2Question => 'Your digital pantry — alerts you before you run low';
   String get group2Feature1 => 'Live stock 📊';
   String get group2Feature2 => 'Smart alerts ⏰';
@@ -586,7 +586,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   String get demoUser3 => 'Danny';
   String get statusOnline => 'Online';
   String get statusOffline => 'Offline';
-  String get benefit1Title => 'Live collaboration';
+  String get benefit1Title => 'Real-time sharing';
   String get benefit1Subtitle => 'Changes appear instantly for everyone';
   String get benefit2Title => 'Lists + tasks in one place';
   String get benefit2Subtitle => 'Groceries, errands, events — all organized';

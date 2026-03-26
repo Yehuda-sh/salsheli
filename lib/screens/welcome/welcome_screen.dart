@@ -206,11 +206,14 @@ class _LogoSection extends StatelessWidget {
             ),
             const SizedBox(height: kSpacingXTiny),
             Text(
-              'MemoZap',
-              style: theme.textTheme.headlineSmall?.copyWith(
+              AppStrings.appName,
+              style: TextStyle(
+                fontFamily: 'Caveat',
+                fontSize: kFontSizeDisplay,
+                fontWeight: FontWeight.w700,
                 color: cs.primary,
-                fontWeight: FontWeight.w800,
                 letterSpacing: 0.5,
+                height: 1.0,
               ),
             ),
             const SizedBox(height: kSpacingXTiny),

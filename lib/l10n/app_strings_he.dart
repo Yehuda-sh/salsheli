@@ -574,14 +574,14 @@ class WelcomeStrings {
   const WelcomeStrings();
 
   String get title => AppStringsHe.appName;
-  String get subtitle => 'ניהול קניות חכם לכל המשפחה';
+  String get subtitle => 'קניות חכמות לכל המשפחה';
   String get group1Emoji => '🛒';
   String get group1Title => 'קנו ביחד';
   String get group1Question => 'רשימה אחת, כולם עורכים בזמן אמת';
   String get group1Feature1 => 'פריטים חכמים ✅';
   String get group1Feature2 => 'כמויות אוטומטיות 🔢';
   String get group2Emoji => '📦';
-  String get group2Title => 'אף פעם לא ייגמר';
+  String get group2Title => 'מזווה שלא נגמר';
   String get group2Question => 'המזווה הדיגיטלי שלך — מתריע לפני שנגמר';
   String get group2Feature1 => 'מלאי חי 📊';
   String get group2Feature2 => 'התראות חכמות ⏰';
@@ -604,7 +604,7 @@ class WelcomeStrings {
   String get demoUser3 => 'דני';
   String get statusOnline => 'מחובר';
   String get statusOffline => 'לא מחובר';
-  String get benefit1Title => 'שיתוף פעולה חי';
+  String get benefit1Title => 'שיתוף בזמן אמת';
   String get benefit1Subtitle => 'שינויים מופיעים מיד אצל כולם';
   String get benefit2Title => 'רשימות + מטלות במקום אחד';
   String get benefit2Subtitle => 'קניות, סידורים, אירועים — הכל מסודר';
@@ -1932,7 +1932,7 @@ class LegalStrings {
 
 תאריך עדכון אחרון: מרץ 2026
 
-ברוכים הבאים ל-MemoZap! השימוש באפליקציה מותנה בהסכמתך לתנאים המפורטים להלן. אנא קרא/י אותם בעיון.
+ברוכים הבאים ל-MemoZap! השימוש באפליקציה מותנה בהסכמה לתנאים המפורטים להלן. אנא קראו אותם בעיון.
 
 1. הגדרות
 "האפליקציה" — אפליקציית MemoZap לניהול רשימות קניות ומזווה ביתי.
