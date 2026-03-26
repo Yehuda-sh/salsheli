@@ -924,7 +924,7 @@ class HouseholdStringsEn extends HouseholdStrings {
   @override String get userFallback => 'User';
   @override String get meLabel => 'Me';
   @override String get roleOwnerLabel => '👑 Owner';
-  @override String get roleAdminLabel => '🛡️ Admin';
+  @override String get roleAdminLabel => '⭐ Admin';
   @override String get roleMemberLabel => '👤 Member';
 }
 

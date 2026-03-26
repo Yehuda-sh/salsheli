@@ -949,7 +949,7 @@ class HouseholdStrings {
   String get userFallback => 'משתמש';
   String get meLabel => 'אני';
   String get roleOwnerLabel => '👑 בעלים';
-  String get roleAdminLabel => '🛡️ מנהל';
+  String get roleAdminLabel => '⭐ מנהל';
   String get roleMemberLabel => '👤 חבר';
 }
 
