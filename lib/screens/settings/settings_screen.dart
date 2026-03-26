@@ -54,8 +54,8 @@ import '../../services/tutorial_service.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/common/section_header.dart';
+import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
 
@@ -516,6 +516,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
   /// דיאלוג לעריכת שם קבוצה
   Future<void> _showEditHouseholdNameDialog(UserContext userContext) async {
+    final cs = Theme.of(context).colorScheme;
     final controller =
         TextEditingController(text: userContext.householdName ?? '');
     bool isSaving = false;
@@ -580,6 +581,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
   /// 🏠 דיאלוג הזמנה לבית
   Future<void> _showInviteToHouseholdDialog(UserContext userContext) async {
+    final cs = Theme.of(context).colorScheme;
     final emailController = TextEditingController();
     bool isSending = false;
     String? errorText;
