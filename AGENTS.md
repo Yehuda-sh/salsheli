@@ -207,3 +207,14 @@ At the end of every **Cowork session**:
 4. **Commit** with message: `"עדכון AGENTS.md — סיום סשן [date]"`
 
 This file must always reflect the **current** state of the project — not historical.
+
+### Save Command
+
+When the user types **"SAVE"**, it means the session is ending.
+Claude must immediately:
+
+1. Update section 4 (Current State) with everything done this session
+2. Add any new Known Issues to section 5
+3. Run `dart analyze lib/` (Cowork only)
+4. Commit and push AGENTS.md with message: `"עדכון AGENTS.md — סיום סשן [date]"`
+5. Reply with a short summary of what was saved
