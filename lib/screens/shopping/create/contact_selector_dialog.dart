@@ -30,6 +30,7 @@ import '../../../providers/user_context.dart';
 import '../../../repositories/firebase_user_repository.dart';
 import '../../../services/saved_contacts_service.dart';
 import '../../../widgets/common/app_loading_skeleton.dart';
+import '../../../core/error_utils.dart';
 
 /// סוג קלט לאיש קשר חדש
 enum _ContactInputType { email, phone }
@@ -224,7 +225,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
       if (mounted) {
         setState(() => _isCheckingContact = false);
         messenger.showSnackBar(
-          SnackBar(content: Text(AppStrings.contactSelector.genericError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'contactSelector'))),
         );
       }
     }
@@ -286,7 +287,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
       if (mounted) {
         setState(() => _isCheckingContact = false);
         messenger.showSnackBar(
-          SnackBar(content: Text(AppStrings.contactSelector.genericError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'contactSelector'))),
         );
       }
     }

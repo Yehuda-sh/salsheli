@@ -35,6 +35,7 @@ import '../../services/share_list_service.dart';
 import '../sharing/invite_users_screen.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../core/error_utils.dart';
 
 /// 🇮🇱 מסך ניהול משתמשים משותפים
 /// 🇬🇧 Manage shared users screen
@@ -184,7 +185,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showError(strings.errorRemovingUser(e.toString()));
+        _showError(userFriendlyError(e, context: 'removeUser'));
       }
     } finally {
       if (mounted) {
@@ -276,7 +277,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showError(strings.errorUpdatingRole(e.toString()));
+        _showError(userFriendlyError(e, context: 'updateRole'));
       }
     } finally {
       if (mounted) {

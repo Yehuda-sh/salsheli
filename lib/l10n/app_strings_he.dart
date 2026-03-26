@@ -348,7 +348,9 @@ class CommonStrings {
   String get backToHome => 'חזרה לדף הבית';
   String get close => 'סגור';
   String unknownError(String error) => 'שגיאה: $error';
-  String get unknownErrorGeneric => 'שגיאה לא ידועה';
+  String get unknownErrorGeneric => 'אירעה שגיאה, נסו שוב';
+  String get permissionError => 'אין הרשאה לבצע פעולה זו';
+  String get notFoundError => 'הפריט לא נמצא';
   String get connected => 'מחובר';
   String get optional => '(אופציונלי)';
 }

@@ -31,6 +31,7 @@ import '../../services/saved_contacts_service.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
+import '../../core/error_utils.dart';
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;
@@ -332,7 +333,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppStrings.sharing.inviteError(e.toString())),
+          content: Text(userFriendlyError(e, context: 'invite')),
           backgroundColor: kStickyPink,
         ),
       );

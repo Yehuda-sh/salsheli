@@ -22,6 +22,7 @@ import '../../../../models/shopping_list.dart';
 import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
+import '../../../../core/error_utils.dart';
 
 /// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
@@ -351,7 +352,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(AppStrings.suggestionsToday.suggestionError(e.toString())),
+          content: Text(userFriendlyError(e, context: 'suggestion')),
           backgroundColor: kStickyPink,
         ),
       );
@@ -388,7 +389,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text(AppStrings.suggestionsToday.suggestionError(e.toString())),
+          content: Text(userFriendlyError(e, context: 'suggestion')),
           backgroundColor: kStickyPink,
         ),
       );

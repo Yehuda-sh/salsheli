@@ -39,6 +39,7 @@ import '../../sharing/pending_requests_screen.dart';
 import '../active/active_shopping_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../who_brings/who_brings_screen.dart';
+import '../../../core/error_utils.dart';
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;
@@ -184,7 +185,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.shopping.addProductError(e.toString())),
+        content: Text(userFriendlyError(e, context: 'addProduct')),
         backgroundColor: cs.error,
       ));
     }
@@ -299,7 +300,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           } catch (e) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(AppStrings.common.unknownError(e.toString())), backgroundColor: cs.error),
+                SnackBar(content: Text(userFriendlyError(e, context: 'requestApproval')), backgroundColor: cs.error),
               );
             }
           }

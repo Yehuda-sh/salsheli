@@ -335,7 +335,9 @@ class CommonStringsEn extends CommonStrings {
   @override String get backToHome => 'Back to Home';
   @override String get close => 'Close';
   @override String unknownError(String error) => 'Error: $error';
-  @override String get unknownErrorGeneric => 'Unknown error';
+  @override String get unknownErrorGeneric => 'Something went wrong. Please try again';
+  @override String get permissionError => 'You don\'t have permission for this action';
+  @override String get notFoundError => 'Item not found';
   @override String get connected => 'Connected';
   @override String get optional => '(Optional)';
 }

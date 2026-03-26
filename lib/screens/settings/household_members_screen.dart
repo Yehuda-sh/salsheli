@@ -14,6 +14,7 @@ import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../core/error_utils.dart';
 
 class HouseholdMembersScreen extends StatefulWidget {
   const HouseholdMembersScreen({super.key});
@@ -183,7 +184,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.household.removeMemberError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'removeMember'))),
         );
       }
     }
@@ -217,7 +218,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.household.genericError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'household'))),
         );
       }
     }
@@ -310,7 +311,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.household.genericError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'household'))),
         );
       }
     }

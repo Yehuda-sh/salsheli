@@ -57,6 +57,7 @@ import '../../services/tutorial_service.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
+import '../../core/error_utils.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -175,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = AppStrings.settings.loadError(e.toString());
+        _errorMessage = userFriendlyError(e, context: 'loadSettings');
         _loading = false;
       });
     }
@@ -251,7 +252,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.settings.logoutError(e.toString())), backgroundColor: cs.error, duration: kSnackBarDurationLong),
+          SnackBar(content: Text(userFriendlyError(e, context: 'logout')), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     } else {
@@ -342,7 +343,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         if (!mounted) return;
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.settings.deleteDataError(e.toString())), backgroundColor: cs.error, duration: kSnackBarDurationLong),
+          SnackBar(content: Text(userFriendlyError(e, context: 'deleteData')), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
     }
@@ -462,7 +463,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           setDialogState(() => isDeleting = false);
                           scaffoldMessenger.showSnackBar(
                             SnackBar(
-                              content: Text(AppStrings.settings.deleteAccountError(e.toString())),
+                              content: Text(userFriendlyError(e, context: 'deleteAccount')),
                               backgroundColor: cs.error,
                             ),
                           );
@@ -554,7 +555,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         } catch (e) {
                           setDialogState(() {
                             isSaving = false;
-                            errorText = e.toString();
+                            errorText = userFriendlyError(e, context: 'householdName');
                           });
                         }
                       },
@@ -895,7 +896,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               if (mounted) {
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
-                                    content: Text(AppStrings.settings.profileUpdateError(e.toString())),
+                                    content: Text(userFriendlyError(e, context: 'profileUpdate')),
                                     backgroundColor: cs.error,
                                   ),
                                 );
