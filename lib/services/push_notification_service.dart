@@ -52,7 +52,7 @@ class PushNotificationService {
     }
 
     // האזנה לרענוני token (Google עשוי לרענן token)
-    _tokenSub?.cancel();
+    unawaited(_tokenSub?.cancel());
     _tokenSub = _messaging.onTokenRefresh.listen(
       (newToken) => unawaited(_saveToken(userId, newToken)),
       onError: (e) {
@@ -84,7 +84,7 @@ class PushNotificationService {
         });
       } catch (_) {}
     }
-    _tokenSub?.cancel();
+    unawaited(_tokenSub?.cancel());
     _tokenSub = null;
     _currentUserId = null;
   }

@@ -402,7 +402,7 @@ class _PulsingIcon extends StatelessWidget {
   /// ✅ FIX: Theme-aware color parameter
   final Color backgroundColor;
 
-  const _PulsingIcon({super.key, required this.backgroundColor});
+  const _PulsingIcon({required this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {

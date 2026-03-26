@@ -397,8 +397,6 @@ class _LoginScreenState extends State<LoginScreen>
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final accent = brand?.accent ?? cs.primary;
-
     // 💡 שמור messenger לפני PopScope
     final messenger = ScaffoldMessenger.of(context);
 

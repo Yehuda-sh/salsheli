@@ -63,7 +63,6 @@ import '../models/receipt.dart';
 import '../models/selected_contact.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
-import '../repositories/firebase_shopping_lists_repository.dart';
 import '../repositories/receipt_repository.dart';
 import '../repositories/shopping_lists_repository.dart';
 import 'user_context.dart';

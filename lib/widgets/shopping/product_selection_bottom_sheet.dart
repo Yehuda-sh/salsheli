@@ -23,7 +23,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../models/receipt.dart';
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
 import '../../providers/products_provider.dart';

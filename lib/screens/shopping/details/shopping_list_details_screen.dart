@@ -347,7 +347,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       screen = ActiveShoppingScreen(list: sortedList);
     }
     if (!mounted) return;
-    Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+    unawaited(Navigator.push(context, MaterialPageRoute(builder: (_) => screen)));
   }
 
   /// 🔔 בדיקת בקשות Editor שאושרו/נדחו
@@ -1056,7 +1056,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                     ),
                                     child: Text(
-                                      '${item.quantity ?? 1} ${item.unit ?? "יח\'"}',
+                                      '${item.quantity ?? 1} ${item.unit}',
                                       style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold, color: cs.onPrimaryContainer),
                                     ),
                                   ),
