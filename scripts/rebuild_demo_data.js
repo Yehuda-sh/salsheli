@@ -315,7 +315,10 @@ async function main() {
     for (const memberKey of hData.members) {
       const memberUser = USERS.find(u => u.key === memberKey);
       await db.collection('households').doc(hId).collection('members').doc(uids[memberKey]).set({
-        name: memberUser.name, role: memberUser.role,
+        user_id: uids[memberKey],
+        name: memberUser.name,
+        email: memberUser.email,
+        role: memberUser.role,
         joined_at: admin.firestore.FieldValue.serverTimestamp(),
       });
     }
