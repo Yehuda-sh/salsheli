@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/saved_contact.dart';
 import '../../models/shopping_list.dart';
@@ -174,7 +175,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(dialogContext, null),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(AppStrings.sharing.householdNameDialogSkip),
           ),
           TextButton(
@@ -461,7 +462,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   AppStrings.sharing.savedContactsSubtitle,
                                   style: TextStyle(
@@ -490,7 +491,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Center(
                           child: Text(
                             AppStrings.sharing.orEnterNewEmail,
@@ -526,7 +527,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
@@ -641,7 +642,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 size: 16,
                                 color: kStickyGreen.withValues(alpha: 0.8),
                               ),
-                              SizedBox(width: kSpacingSmall),
+                              const SizedBox(width: kSpacingSmall),
                               Expanded(
                                 child: Text(
                                   _getConfirmationText(),
@@ -743,7 +744,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ? cs.outline
                         : cs.onSurface.withValues(alpha: 0.6),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: kSpacingSmallPlus),
               // Avatar
               CircleAvatar(
                 radius: 18,
