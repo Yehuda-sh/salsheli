@@ -935,7 +935,7 @@ class AuthService {
       case 'network-request-failed':
         return AppStrings.auth.errorNetworkRequestFailed;
       default:
-        return AppStrings.auth.signUpError(code);
+        return AppStrings.common.unknownErrorGeneric;
     }
   }
 
@@ -957,7 +957,7 @@ class AuthService {
       case 'network-request-failed':
         return AppStrings.auth.errorNetworkRequestFailed;
       default:
-        return AppStrings.auth.signInError(code);
+        return AppStrings.common.unknownErrorGeneric;
     }
   }
 
