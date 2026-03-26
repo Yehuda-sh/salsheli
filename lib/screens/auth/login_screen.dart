@@ -469,13 +469,12 @@ class _LoginScreenState extends State<LoginScreen>
 
               // תוכן המסך
               SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
+                child: SingleChildScrollView(
                     // ✅ ריווח דינמי - נותן מקום למקלדת
                     padding: EdgeInsets.only(
                       left: kSpacingMedium,
                       right: kSpacingMedium,
-                      top: kSpacingSmall,
+                      top: kSpacingXLarge,
                       bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingMedium,
                     ),
                     child: AnimatedBuilder(
@@ -800,7 +799,6 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                ),
               ),
 
               // 🌫️ Loading overlay עם Glassmorphism + טקסט משתנה
