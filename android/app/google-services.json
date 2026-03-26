@@ -12,7 +12,20 @@
           "package_name": "com.memozap.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "804283551011-r8ddse7uefqk8p8f67ibrbi0nk3fnjv5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.memozap.app",
+            "certificate_hash": "7f4345a074c82b00fb59f4b04257bbcfa5c938aa"
+          }
+        },
+        {
+          "client_id": "804283551011-9crdb1a778h09eim0igpj2s6dcveh0lp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB52eBlYLTiOQdZFl0U1B4F4g75xo31oN8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "804283551011-9crdb1a778h09eim0igpj2s6dcveh0lp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
