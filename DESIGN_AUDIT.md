@@ -1,6 +1,6 @@
 # 📐 DESIGN_AUDIT.md — UI/UX Standards Audit
 
-> עודכן: 16 מרץ 2026
+> עודכן: 26 מרץ 2026
 
 ---
 
@@ -31,7 +31,7 @@
 ## ✅ Reusable Components
 
 - `AppErrorState` — אייקון + הודעה + retry (בשימוש ב-5 מסכים)
-- `AppLoadingSkeleton` — Skeleton shimmer loading
+- `AppLoadingSkeleton` — Skeleton shimmer loading (בשימוש ב-11 מסכים)
 
 ## 🟡 שיפורים אפשריים (Post-launch)
 
@@ -42,4 +42,4 @@
 | 3 | Pull-to-refresh in pantry screen | 🟢 |
 
 ---
-*Updated: 2026-03-16*
+*Updated: 2026-03-26*

@@ -34,7 +34,7 @@
 | Icons | `kIconSizeSmall(16)`, `Medium(24)`, `Large(36)`, `XLarge(48)`, `XXLarge(64)` |
 | Colors | **Theme only** — `Theme.of(context).colorScheme` |
 | Background | `NotebookBackground()` on all 21 screens |
-| Imports | `package:memozap/` — NOT `package:salsheli/` |
+| Imports | **Relative** in lib/ (`../../core/...`) — `package:memozap/` only in `main.dart` |
 
 **Rules:**
 - ❌ No `Colors.xxx` (except `Colors.transparent`)
@@ -107,7 +107,7 @@ flutter run          # הרצה
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
 | **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner |
 | **Strings** | `lib/l10n/app_strings.dart` |
-| **Security** | `firestore.rules` (v4.1), `firestore.indexes.json` |
+| **Security** | `firestore.rules` (v4.4), `firestore.indexes.json` |
 
 ---
 
@@ -128,7 +128,7 @@ flutter run          # הרצה
 - **B3:** SavedContactsService בולע שגיאות
 - **W1:** `use_build_context_synchronously` (2) ב-settings_screen (deferred)
 - **W2:** `directives_ordering` infos בכמה קבצים (pre-existing, cosmetic)
-- **W3:** `deprecated_member_use` — `RadioListTile.groupValue/onChanged` ב-contact_selector_dialog (Flutter 3.33+)
+- ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
@@ -136,7 +136,7 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (12/3/2026)
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 26/3/2026)
 - [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות
 - [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים

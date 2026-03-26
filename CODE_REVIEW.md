@@ -1,5 +1,5 @@
 # דוח Code Review — MemoZap
-**תאריך:** 12 מרץ 2026 | עודכן: 24 מרץ 2026
+**תאריך:** 12 מרץ 2026 | עודכן: 26 מרץ 2026
 **סוקר:** ראפטור
 **גרסה:** 4.0
 
@@ -106,7 +106,7 @@
 ### לתקן (עדיפות גבוהה)
 | # | בעיה | מיקום | חומרה | סטטוס |
 |---|-------|-------|--------|--------|
-| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ✅ תוקן (v3.6) |
+| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ⏳ deferred — פתוח |
 | W3 | `deprecated_member_use` — RadioListTile | `contact_selector_dialog.dart` | Warning | ✅ תוקן — הוחלף ב-Radio + GestureDetector |
 
 ### לתקן (עדיפות בינונית)
@@ -155,11 +155,11 @@
 
 | מדד | ערך |
 |-----|-----|
-| קבצי Dart | 138 |
+| קבצי Dart | 155 |
 | שורות קוד (lib/) | ~54,000 |
 | Errors | **0** |
-| Warnings | **0** (W1, W3 resolved) |
-| Tests | 17 test files |
+| Warnings | **2** (W1 — deferred, W3 resolved) |
+| Tests | 15 test files, 323 passing |
 | i18n coverage | ~95% |
 | Firestore Rules | v4.4 |
 
@@ -199,4 +199,4 @@
 - Edge case demo data
 
 ---
-*Code Review v4.2 — All medium-priority issues resolved | March 2026*
+*Code Review v4.3 — Updated stats + W1 status corrected | 26 March 2026*

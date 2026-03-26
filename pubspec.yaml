@@ -68,10 +68,6 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   json_serializable: ^6.8.0
-  hive_generator: ^2.0.1  # Adapter generation for Pantry models
-  mockito: ^5.4.4
-  
-  fake_cloud_firestore: ^4.0.0
 
 flutter:
   uses-material-design: true
@@ -81,7 +77,6 @@ flutter:
     - assets/templates/
     - assets/images/
     - assets/icons/
-    - shorebird.yaml
 
   fonts:
     - family: Assistant

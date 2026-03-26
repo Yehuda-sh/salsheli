@@ -2,6 +2,7 @@
 # General junk
 # ----------------------------
 *.class
+*.log
 *.pyc
 *.swp
 *.orig
@@ -98,7 +99,6 @@ web/.dart_tool/
 # ----------------------------
 # Logs & crash reports
 # ----------------------------
-*.log
 app.*.symbols
 app.*.map.json
 **/mapping.txt
@@ -155,5 +155,4 @@ docs/MEMORY.md
 israeli-supermarkets-2024.zip
 scripts/dumps/
 scripts/kaggle_data/
-scripts/dumps/
 .claude/
