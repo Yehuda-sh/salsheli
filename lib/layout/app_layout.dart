@@ -93,22 +93,11 @@ class _AppLayoutState extends State<AppLayout> {
                 ),
               ),
               const SizedBox(height: kSpacingSmall),
-              // הזמנות לקבוצות
+              // הזמנות ממתינות (קבוצות + רשימות באותו מסך)
               ListTile(
-                leading: Icon(Icons.family_restroom, color: cs.primary),
-                title: Text(AppStrings.layout.groupInvites),
+                leading: Icon(Icons.mail_outlined, color: cs.primary),
+                title: Text(AppStrings.layout.pendingInvitesTitle),
                 subtitle: Text(AppStrings.layout.groupInvitesSubtitle),
-                trailing: Icon(forwardChevron),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).pushNamed('/pending-invites');
-                },
-              ),
-              // הזמנות לרשימות
-              ListTile(
-                leading: Icon(Icons.list_alt, color: cs.secondary),
-                title: Text(AppStrings.layout.listInvites),
-                subtitle: Text(AppStrings.layout.listInvitesSubtitle),
                 trailing: Icon(forwardChevron),
                 onTap: () {
                   Navigator.pop(context);
