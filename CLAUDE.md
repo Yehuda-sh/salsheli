@@ -17,7 +17,7 @@
 
 ## Tech Stack
 
-- **Framework:** Flutter 3.8+ / Dart 3.8.1+
+- **Framework:** Flutter 3.38+ / Dart 3.8.1+
 - **Backend:** Firebase (Auth, Firestore, Storage, Analytics, Crashlytics, Messaging)
 - **State:** Provider + ChangeNotifier
 - **UI:** Hebrew RTL first, Material 3, Dark Mode
@@ -31,7 +31,7 @@
 | Spacing | `kSpacing*` via `ui_constants.dart` (XTiny=4, Tiny=6, Small=8, SmallPlus=12, Medium=16, Large=24, XLarge=32) |
 | Border Radius | `kBorderRadiusSmall(8)`, `Default(12)`, `Large(16)`, `XLarge(24)` |
 | Typography | `kFontSizeTiny(10)` → `kFontSizeDisplay(34)` — 8 sizes |
-| Icons | `kIconSizeSmall(16)`, `Medium(24)`, `Large(36)`, `XLarge(48)`, `XXLarge(64)` |
+| Icons | `kIconSizeSmall(16)`, `SmallPlus(20)`, `Medium(24)`, `MediumPlus(28)`, `Large(36)`, `XLarge(48)`, `XXLarge(64)` |
 | Colors | **Theme only** — `Theme.of(context).colorScheme` |
 | Background | `NotebookBackground()` on all 21 screens |
 | Imports | **Relative** in lib/ (`../../core/...`) — `package:memozap/` only in `main.dart` |
@@ -75,7 +75,7 @@
 - כל ID/key חייב **resolve()** עם fallback:
   - **"other"** — למשתמש (UI-safe)
   - **"unknown"** — לדיבאג בלבד
-- **ensureSanity()** בקונפיגים
+- **ensureValid()** בקונפיגים (via `ConfigValidation` mixin)
 - **Backward compatible** — aliases לערכים ישנים
 
 ### AnimatedButton
@@ -105,7 +105,7 @@ flutter run          # הרצה
 | **Config** | `lib/config/list_types_config.dart`, `filters_config.dart`, `storage_locations_config.dart` |
 | **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
-| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner |
+| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner, SectionHeader, AppDialog, SkeletonLoader, BarcodeScannerSheet |
 | **Strings** | `lib/l10n/app_strings.dart` |
 | **Security** | `firestore.rules` (v4.4), `firestore.indexes.json` |
 
