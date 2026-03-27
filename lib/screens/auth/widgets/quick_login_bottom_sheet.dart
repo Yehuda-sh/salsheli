@@ -1,3 +1,7 @@
+// 📄 Quick Login Bottom Sheet — DEV ONLY
+// 🔧 Debug tool for fast demo user login. Guarded by kDebugMode at call site.
+// Hebrew strings intentionally not in AppStrings (dev-only, not user-facing).
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../../core/ui_constants.dart';
@@ -19,7 +23,7 @@ class QuickLoginBottomSheet extends StatelessWidget {
 
     final groupedUsers = <String, List<Map<String, String>>>{};
     for (final user in users) {
-      final group = user['group'] ?? 'אחר';
+      final group = user['group'] ?? 'Other';
       groupedUsers.putIfAbsent(group, () => []).add(user);
     }
 
@@ -36,39 +40,39 @@ class QuickLoginBottomSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
+                margin: const EdgeInsets.only(top: kSpacingSmallPlus),
+                width: kSpacingXLarge + kSpacingSmall,
+                height: kSpacingXTiny,
                 decoration: BoxDecoration(
                   color: cs.outlineVariant,
                   borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(kSpacingMedium),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(kSpacingSmall),
                       decoration: BoxDecoration(
                         color: cs.tertiaryContainer,
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
-                      child: Icon(Icons.bug_report, color: cs.tertiary, size: 20),
+                      child: Icon(Icons.bug_report, color: cs.tertiary, size: kIconSizeSmallPlus),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: kSpacingSmallPlus),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'התחברות מהירה - DEV',
+                            'Quick Login — DEV',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'בחר משתמש דמו להתחברות',
+                            'Select demo user',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onSurfaceVariant,
                             ),
@@ -87,7 +91,7 @@ class QuickLoginBottomSheet extends StatelessWidget {
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: kSpacingLarge),
                   itemCount: groupedUsers.length,
                   itemBuilder: (context, index) {
                     final group = groupedUsers.keys.elementAt(index);
@@ -96,7 +100,9 @@ class QuickLoginBottomSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                          padding: const EdgeInsets.fromLTRB(
+                            kSpacingMedium, kSpacingMedium, kSpacingMedium, kSpacingSmall,
+                          ),
                           child: Text(
                             group,
                             style: theme.textTheme.labelLarge?.copyWith(
@@ -149,7 +155,7 @@ class QuickLoginBottomSheet extends StatelessWidget {
         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
       ),
       trailing: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
         decoration: BoxDecoration(
           color: roleColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(kBorderRadius),

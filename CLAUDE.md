@@ -66,6 +66,7 @@
 
 ### Auth Screens
 - **נקיים, לא Sticky Notes** — עיצוב מינימליסטי
+- `NotebookBackground.subtle()` **מותר** (רקע עדין בלבד, לא full notebook)
 
 ### Pending Invites
 - בדיקה אחרי register/login (כולל Google/Apple)

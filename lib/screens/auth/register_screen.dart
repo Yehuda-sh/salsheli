@@ -155,7 +155,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: StatusColors.getOnContainer(type, context), size: 24),
+            Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
             const SizedBox(width: kSpacingSmall),
             Expanded(
               child: Text(

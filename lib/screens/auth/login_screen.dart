@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen>
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: StatusColors.getOnContainer(type, context), size: 24),
+            Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
             const SizedBox(width: kSpacingSmall),
             Expanded(
               child: Text(
@@ -446,8 +446,8 @@ class _LoginScreenState extends State<LoginScreen>
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.bug_report, size: 16, color: cs.tertiary),
-                                SizedBox(width: 4),
+                                Icon(Icons.bug_report, size: kIconSizeSmall, color: cs.tertiary),
+                                const SizedBox(width: kSpacingXTiny),
                                 Text(
                                   'DEV',
                                   style: TextStyle(
