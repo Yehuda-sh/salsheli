@@ -112,12 +112,14 @@ Same structure as `shared_lists` below, but stored under user.
 | `read_at` | timestamp? | When read | null |
 
 **Notification Types:**
-- `invite` - List invitation
+- `invite` - List/household invitation
 - `request_approved` - Editor request approved
 - `request_rejected` - Editor request rejected
 - `role_changed` - Role updated
 - `user_removed` - Removed from list
 - `low_stock` - Low inventory alert
+- `member_left` - Member left the household
+- `who_brings_volunteer` - Someone volunteered to bring an item
 
 ---
 

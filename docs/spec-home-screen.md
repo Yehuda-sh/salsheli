@@ -5,9 +5,9 @@
 מסך הבית הוא הדף הראשון שהמשתמש רואה אחרי התחברות. הוא מציג תמונת מצב של הקניות, המזווה וההוצאות — הכל בעמוד אחד.
 
 **קבצים:**
-- `lib/screens/home/dashboard/home_dashboard_screen.dart` (1,239 שורות)
-- 4 widgets משניים ב-`widgets/` (1,817 שורות)
-- **סה"כ: ~3,056 שורות**
+- `lib/screens/home/dashboard/home_dashboard_screen.dart` (849 שורות)
+- 5 widgets משניים ב-`widgets/` (1,984 שורות)
+- **סה"כ: ~2,833 שורות**
 
 ---
 

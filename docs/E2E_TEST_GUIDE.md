@@ -11,17 +11,20 @@
 |---|-----|--------|--------|-----|---------|
 | 1 | אבי כהן | avi.cohen@demo.com | Admin | הבית של כהן | ניהול מלא, קניות, מזווה |
 | 2 | רונית כהן | ronit.cohen@demo.com | Admin | הבית של כהן | שיתוף, התראות, ניהול משותף |
-| 3 | יובל כהן | yuval.cohen@demo.com | Editor | הבית של כהן | הרשאות מוגבלות |
-| 4 | נועה כהן | noa.cohen@demo.com | Editor | הבית של כהן | כמו יובל |
-| 5 | דן לוי | dan.levi@demo.com | Admin | זוג צעיר | בית קטן (2 אנשים) |
-| 6 | מאיה לוי | maya.levi@demo.com | Admin | זוג צעיר | קניות משותפות |
-| 7 | תומר בר | tomer.bar@demo.com | Admin | גר לבד | שימוש יחידני |
-| 8 | שירן גל | shiran.gal@demo.com | Admin | משתמש חדש | Onboarding, מסכים ריקים |
-| 9 | אורי שלום | ori.shalom@demo.com | Viewer | צופה בכהן | הרשאות צפייה בלבד |
-| 10 | ליאור דהן | lior.dahan@demo.com | Admin | לא פעיל | משתמש ישן/רדום |
-| 11 | נעמה רוזן | naama.rozen@demo.com | Admin | Power User | 35 מזווה, 30 קבלות, budget list |
-| 12 | יעל חדשה | yael.fresh@demo.com | Admin | הבית של יעל | **0 הכל — empty states** |
-| 11 | נעמה רוזן | naama.rozen@demo.com | Admin | Power User | כל הפיצ'רים |
+| 3 | יובל כהן | yuval.cohen@demo.com | Member | הבית של כהן | הרשאות מוגבלות |
+| 4 | נועה כהן | noa.cohen@demo.com | Member | הבית של כהן | כמו יובל |
+| 5 | אורי שלום | ori.shalom@demo.com | Member (Viewer) | הבית של כהן | הרשאות צפייה בלבד |
+| 6 | דן לוי | dan.levi@demo.com | Admin | זוג צעיר | בית קטן (2 אנשים) |
+| 7 | מאיה לוי | maya.levi@demo.com | Admin | זוג צעיר | קניות משותפות |
+| 8 | תומר בר | tomer.bar@demo.com | Admin | גר לבד | שימוש יחידני |
+| 9 | שירן גל | shiran.gal@demo.com | Admin | משתמש חדש | Onboarding, מסכים ריקים |
+| 10 | נעמה רוזן | naama.rozen@demo.com | Admin | Power User | 35 מזווה, 30 קבלות, budget list |
+| 11 | ליאור דהן | lior.dahan@demo.com | Admin | לא פעיל | משתמש ישן/רדום |
+| 12 | יעל מזרחי | yael.fresh@demo.com | Admin | הבית של יעל | **0 הכל — empty states** |
+| 13 | גיל גוגל | gil.google@demo.com | Admin | Google Sign-In | התחברות Google, בלי טלפון |
+| 14 | apple_user@icloud.com | apple_user@icloud.com | Admin | Apple Sign-In | Apple Privacy Relay, בלי שם |
+| 15 | Mike Johnson | mike.johnson@demo.com | Admin | English user | UI באנגלית, LTR |
+| 16 | ג'ורג' חביב | george.haviv@demo.com | Admin | Special chars | גרש/גרשיים בשם |
 
 ---
 
@@ -309,5 +312,5 @@
 
 ---
 
-*עודכן: 15/03/2026*
-*גרסה: 1.0*
+*עודכן: 27/03/2026*
+*גרסה: 1.1*
