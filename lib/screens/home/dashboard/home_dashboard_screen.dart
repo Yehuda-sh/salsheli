@@ -191,7 +191,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        icon: Image.asset('assets/images/icon_new_list.webp', width: 32, height: 32),
+        icon: Image.asset('assets/images/icon_new_list.webp', width: kSpacingXLarge, height: kSpacingXLarge),
         label: Text(AppStrings.homeDashboard.newListButton),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
@@ -428,7 +428,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               Row(
                 children: [
-                  Image.asset(greetingAsset, width: 36, height: 36),
+                  Image.asset(greetingAsset, width: kIconSizeLarge, height: kIconSizeLarge),
                   const SizedBox(width: kSpacingSmall),
                   Flexible(
                     child: Text(
@@ -546,7 +546,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   width: 8, height: 8,
                   decoration: BoxDecoration(shape: BoxShape.circle, color: cs.primary),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: kSpacingTiny),
                 Text(AppStrings.common.connected, style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
               ],
             ),
@@ -579,15 +579,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/icon_active_lists.webp', width: 36, height: 36),
-            const SizedBox(width: 8),
+            Image.asset('assets/images/icon_active_lists.webp', width: kIconSizeLarge, height: kIconSizeLarge),
+            const SizedBox(width: kSpacingSmall),
             Text(
               strings.activeListsTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: kSpacingSmall),
             Text(
               '${activeLists.length}',
               style: theme.textTheme.bodySmall?.copyWith(
@@ -763,7 +763,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: kSpacingTiny),
                             if (totalCount == 0)
                               Text(
                                 strings.emptyList,
@@ -784,7 +784,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   minHeight: kProgressIndicatorHeight,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: kSpacingXTiny),
                               // סטטוס טקסט
                               Row(
                                 children: [
@@ -797,7 +797,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                         ? successColor
                                         : cs.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: kSpacingXTiny),
                                   Text(
                                     isDone
                                         ? strings.completed
