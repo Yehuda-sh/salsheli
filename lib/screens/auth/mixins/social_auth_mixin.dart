@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/error_utils.dart';
 import '../../../providers/user_context.dart';
 import '../../../services/auth_service.dart';
 
@@ -63,7 +64,7 @@ mixin SocialAuthMixin<T extends StatefulWidget> on State<T> {
         onSocialAuthLoadingChanged(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
-          onSocialAuthError(e.toString().replaceAll('Exception: ', ''));
+          onSocialAuthError(userFriendlyError(e, context: 'social_auth'));
         }
       }
     }
@@ -93,7 +94,7 @@ mixin SocialAuthMixin<T extends StatefulWidget> on State<T> {
         onSocialAuthLoadingChanged(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
-          onSocialAuthError(e.toString().replaceAll('Exception: ', ''));
+          onSocialAuthError(userFriendlyError(e, context: 'social_auth'));
         }
       }
     }

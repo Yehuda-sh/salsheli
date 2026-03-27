@@ -57,8 +57,8 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
                   : [
                       BoxShadow(
                         color: shadowColor,
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+                        blurRadius: kSpacingTiny,
+                        offset: const Offset(0, kSpacingXTiny - 1),
                       ),
                     ],
             ),

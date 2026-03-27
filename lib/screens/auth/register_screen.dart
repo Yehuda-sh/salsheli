@@ -37,6 +37,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/status_colors.dart' show StatusColors, StatusType;
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -235,7 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleRegister() | Registration failed: $e');
 
-      final errorMessage = e.toString().replaceAll('Exception: ', '');
+      final errorMsg = userFriendlyError(e, context: 'register');
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -243,7 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
 
         // 🎨 הודעת שגיאה משופרת
-        _showStatus(errorMessage, type: StatusType.error);
+        _showStatus(errorMsg, type: StatusType.error);
       }
     }
 
@@ -292,7 +293,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
+          _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
         }
       }
     }
@@ -328,7 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(e.toString().replaceAll('Exception: ', ''), type: StatusType.error);
+          _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
         }
       }
     }
@@ -463,7 +464,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            SizedBox(height: 4),
+                            const SizedBox(height: kSpacingXTiny),
 
                             Text(
                               AppStrings.auth.registerSubtitle,
@@ -670,7 +671,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 300.ms)
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
-                            SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingLarge),
 
                             // 🔘 כפתור הרשמה — loading indicator פנימי + colored shadow
                             Builder(builder: (context) {
@@ -693,8 +694,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   onPressed: _isLoading ? null : _onRegisterPressed,
                                   icon: _isLoading
                                       ? SizedBox(
-                                          width: 20,
-                                          height: 20,
+                                          width: kIconSizeSmallPlus,
+                                          height: kIconSizeSmallPlus,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2.5,
                                             color: ctaFg,
@@ -724,7 +725,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   angle: kShimmerAngle,
                                   delay: 1200.ms,
                                 ),
-                            SizedBox(height: kSpacingLarge),
+                            const SizedBox(height: kSpacingLarge),
 
                             const SizedBox(height: kSpacingMedium),
 
