@@ -147,7 +147,7 @@ class SharedUser {
 
   /// יצירה מ-Map entry (userId הוא המפתח)
   ///
-  /// 🔧 ממיר בבטחה מ-Map<dynamic, dynamic> ל-Map<String, dynamic>
+  /// 🔧 ממיר בבטחה מ-`Map<dynamic, dynamic>` ל-`Map<String, dynamic>`
   /// כדי לתמוך בנתונים מ-Firestore שיכולים להגיע עם טיפוסים שונים.
   ///
   /// Example:

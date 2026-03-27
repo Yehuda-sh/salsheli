@@ -40,7 +40,7 @@ part 'pending_request.g.dart';
 
 /// 🔧 ממיר ל-requestData עם:
 /// - null → {} ריק
-/// - המרת keys ל-String (Firestore לפעמים מחזיר Map<dynamic, dynamic>)
+/// - המרת keys ל-String (Firestore לפעמים מחזיר `Map<dynamic, dynamic>`)
 /// - עטיפה ב-Map.unmodifiable
 class _RequestDataConverter
     implements JsonConverter<Map<String, dynamic>, Object?> {
@@ -102,7 +102,7 @@ class PendingRequest {
   /// - deleteItem: { itemId }
   ///
   /// 🔒 Unmodifiable via _RequestDataConverter
-  /// 🔧 Handles: null → {}, Map<dynamic,dynamic> → Map<String,dynamic>
+  /// 🔧 Handles: null → {}, `Map<dynamic,dynamic>` → `Map<String,dynamic>`
   @JsonKey(name: 'request_data')
   @_RequestDataConverter()
   final Map<String, dynamic> requestData;

@@ -103,7 +103,6 @@ class ActiveShopper {
       userId: userId,
       joinedAt: now ?? DateTime.now(),
       isStarter: true,
-      isActive: true,
     );
   }
 
@@ -117,7 +116,6 @@ class ActiveShopper {
       userId: userId,
       joinedAt: now ?? DateTime.now(),
       isStarter: false,
-      isActive: true,
     );
   }
 
