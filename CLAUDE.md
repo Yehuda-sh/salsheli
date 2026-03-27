@@ -102,7 +102,7 @@ flutter run          # הרצה
 |------|-------|
 | **Theme** | `lib/theme/app_theme.dart` (AppBrand extension, light/dark, dynamic colors) |
 | **Constants** | `lib/core/ui_constants.dart`, `status_colors.dart` |
-| **Config** | `lib/config/list_types_config.dart`, `stores_config.dart`, `filters_config.dart` |
+| **Config** | `lib/config/list_types_config.dart`, `filters_config.dart`, `storage_locations_config.dart` |
 | **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
 | **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner |
