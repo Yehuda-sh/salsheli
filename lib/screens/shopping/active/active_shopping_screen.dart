@@ -765,6 +765,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -796,6 +808,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -827,6 +851,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -910,6 +946,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            // 🧊 Glass blur effect
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: kGlassBlurSigma,
+                  sigmaY: kGlassBlurSigma,
+                ),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

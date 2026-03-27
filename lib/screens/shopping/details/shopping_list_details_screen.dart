@@ -454,6 +454,18 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               centerTitle: false,
               title: Row(
                 mainAxisSize: MainAxisSize.min,

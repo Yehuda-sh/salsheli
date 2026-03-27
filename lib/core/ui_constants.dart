@@ -67,6 +67,11 @@ const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
 const Color kNotebookBlueSoft = Color(0xFF9CA8B8); // Soft grayish-blue lines (Hybrid Premium)
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 
+// Dark mode variants — muted for dark paper
+const Color kNotebookBlueDark = Color(0xFF5A7FB5);     // Muted blue for dark paper
+const Color kNotebookBlueSoftDark = Color(0xFF5A6A80); // Soft blue for dark mode subtle lines
+const Color kNotebookRedDark = Color(0xFFB35B58);      // Muted red for dark paper
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Notebook Background Properties
 // ═══════════════════════════════════════════════════════════════════════════

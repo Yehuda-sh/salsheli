@@ -15,6 +15,7 @@
 // Last Updated: 27/01/2026
 
 import 'dart:async' show unawaited;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -327,6 +328,18 @@ class _CreateListScreenState extends State<CreateListScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            // 🧊 Glass blur effect
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: kGlassBlurSigma,
+                  sigmaY: kGlassBlurSigma,
+                ),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             leading: IconButton(
               icon: Icon(Icons.close, color: cs.onSurface),
               tooltip: strings.cancelTooltip,
