@@ -74,14 +74,14 @@ class _LoadingState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 18,
-              height: 18,
+              width: kIconSizeSmallPlus,
+              height: kIconSizeSmallPlus,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: cs.primary,
               ),
             ),
-            SizedBox(width: kSpacingSmall),
+            const SizedBox(width: kSpacingSmall),
             Text(
               AppStrings.suggestionsToday.loading,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -131,7 +131,7 @@ class _SuggestionsCarousel extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
             decoration: BoxDecoration(
               color: kStickyOrange.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -145,14 +145,14 @@ class _SuggestionsCarousel extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(kSpacingTiny),
                   decoration: BoxDecoration(
                     color: kStickyOrange.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
                   child: const Icon(
                     Icons.inventory_2_outlined,
-                    size: 18,
+                    size: kIconSizeSmallPlus,
                     color: kStickyOrangeDark,
                   ),
                 ),
@@ -169,7 +169,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                 const SizedBox(width: kSpacingSmall),
                 // Badge עם shimmer
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: kSpacingXTiny),
                   decoration: BoxDecoration(
                     color: kStickyOrange.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(kBorderRadius),
@@ -336,8 +336,8 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
+              const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
               ),
@@ -475,7 +475,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
             // תוכן הכרטיס
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
+              padding: const EdgeInsets.fromLTRB(kSpacingSmallPlus, 20, kSpacingSmallPlus, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -487,7 +487,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         size: 14,
                         color: cs.onSurface.withValues(alpha: 0.6),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: kSpacingXTiny),
                       Text(
                         _getUrgencyText(suggestion.urgency),
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -498,7 +498,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: kSpacingSmall),
 
                   // שם המוצר — מנקה ומקצר
                   Expanded(
@@ -519,8 +519,8 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   // כמות במלאי
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: kSpacingSmall,
+                      vertical: kSpacingXTiny,
                     ),
                     decoration: BoxDecoration(
                       color: cs.scrim.withValues(alpha: 0.08),
@@ -534,12 +534,12 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 3),
                       decoration: BoxDecoration(
                         color: cs.tertiary.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -547,7 +547,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       child: Row(
                         children: [
                           Icon(Icons.warning_amber, size: 10, color: cs.onSurface.withValues(alpha: 0.6)),
-                          SizedBox(width: 3),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,
@@ -560,15 +560,15 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: kSpacingTiny),
                   ],
 
                   // כפתורי פעולה
                   if (_isProcessing)
                     Center(
                       child: SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: kIconSizeSmallPlus,
+                        height: kIconSizeSmallPlus,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: cs.onSurface.withValues(alpha: 0.6),
@@ -588,17 +588,17 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
+                                  vertical: kSpacingSmall,
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
                                       Icons.add,
-                                      size: 16,
+                                      size: kIconSizeSmall,
                                       color: cs.onSurface,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: kSpacingXTiny),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
                                       style: theme.textTheme.labelMedium?.copyWith(
@@ -612,7 +612,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: kSpacingTiny),
                         // כפתור X - disabled for unknown
                         Material(
                           color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
@@ -621,10 +621,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             onTap: _isUnknownStatus ? null : () => _onDismiss(context),
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             child: Padding(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(kSpacingSmall),
                               child: Icon(
                                 Icons.close,
-                                size: 16,
+                                size: kIconSizeSmall,
                                 color: _isUnknownStatus ? cs.onSurface.withValues(alpha: 0.26) : cs.onSurface.withValues(alpha: 0.45),
                               ),
                             ),
@@ -740,7 +740,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
                 width: 14, height: 14,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Icon(Icons.playlist_add, size: 16),
+            : const Icon(Icons.playlist_add, size: kIconSizeSmall),
         label: Text(
           AppStrings.suggestionsToday.addAll,
           style: const TextStyle(fontSize: kFontSizeTiny),

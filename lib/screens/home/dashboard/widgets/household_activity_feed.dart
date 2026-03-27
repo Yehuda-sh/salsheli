@@ -279,14 +279,14 @@ class _ActivityTile extends StatelessWidget {
                         activity.isMe ? AppStrings.homeDashboard.youLabel : activity.personName,
                         style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: kSpacingTiny),
                       Text(
                         '• ${_formatRelativeDate(activity.date)}',
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: kSpacingXTiny),
 
                   // שורה 2: פעולה
                   Text(
@@ -295,14 +295,14 @@ class _ActivityTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: kSpacingXTiny),
 
                   // שורה 3: אימוגי מוצרים
                   Row(
                     children: [
                       Text(activity.itemEmojis.join(''), style: const TextStyle(fontSize: kFontSizeBody)),
                       if (activity.itemCount > activity.itemEmojis.length) ...[
-                        const SizedBox(width: 4),
+                        const SizedBox(width: kSpacingXTiny),
                         Text(
                           AppStrings.homeDashboard.plusItems(activity.itemCount - activity.itemEmojis.length),
                           style: theme.textTheme.labelSmall?.copyWith(

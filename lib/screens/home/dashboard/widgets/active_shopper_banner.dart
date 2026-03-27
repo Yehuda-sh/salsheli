@@ -189,13 +189,13 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                 // כפתור המשך
                 ElevatedButton.icon(
                   onPressed: () => _onContinue(context),
-                  icon: const Icon(Icons.play_arrow, size: 18),
+                  icon: const Icon(Icons.play_arrow, size: kIconSizeSmallPlus),
                   label: Text(strings.continueButton),
                   style: ElevatedButton.styleFrom(
                     // ✅ FIX: Theme-aware colors
                     backgroundColor: cs.onPrimary,
                     foregroundColor: accentColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                     textStyle: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -313,7 +313,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                       backgroundColor: cs.onPrimary,
                       foregroundColor: successColor,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: kSpacingSmall),
                     // כפתור צפה
                     IconButton(
                       onPressed: () => _onViewList(context),
@@ -383,13 +383,13 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 16),
+      icon: Icon(icon, size: kIconSizeSmall),
       label: Text(label),
       style: ElevatedButton.styleFrom(
         // ✅ FIX: Theme-aware colors
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
         minimumSize: Size.zero,
         textStyle: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
       ),
@@ -418,7 +418,7 @@ class _PulsingIcon extends StatelessWidget {
             Icons.shopping_cart,
             // ✅ FIX: Theme-aware color
             color: backgroundColor,
-            size: 24,
+            size: kIconSizeMedium,
           ),
         )
         .animate(onPlay: (c) => c.repeat(reverse: true))
