@@ -461,8 +461,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   Hero(
                     tag: 'list_hero_${currentList.id}',
                     child: Container(
-                      width: 36,
-                      height: 36,
+                      width: kIconSizeLarge,
+                      height: kIconSizeLarge,
                       decoration: BoxDecoration(
                         color: currentList.stickyColor.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -511,12 +511,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                         },
                       ),
                       Positioned(
-                        right: 8,
-                        top: 8,
+                        right: kSpacingSmall,
+                        top: kSpacingSmall,
                         child: Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(kSpacingXTiny),
                           decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          constraints: const BoxConstraints(minWidth: kIconSizeSmall, minHeight: kIconSizeSmall),
                           child: Text(
                             '${currentList.pendingRequestsForReview.length}',
                             style: TextStyle(color: cs.onPrimary, fontSize: kFontSizeTiny, fontWeight: FontWeight.bold),
@@ -590,7 +590,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: canEdit
                 ? Padding(
-                    padding: EdgeInsets.only(bottom: currentList.status == ShoppingList.statusActive && currentList.items.isNotEmpty ? 60 : 0),
+                    padding: EdgeInsets.only(bottom: currentList.status == ShoppingList.statusActive && currentList.items.isNotEmpty ? 60 : 0), // ignore: design-system — FAB clearance
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -622,8 +622,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                         const SizedBox(height: kSpacingSmall),
                         // מוצר — FAB ראשי עם glow
                         Container(
-                          width: 60,
-                          height: 60,
+                          width: 60, // ignore: design-system — FAB wrapper
+                          height: 60, // ignore: design-system — FAB wrapper
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             boxShadow: [
@@ -690,7 +690,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                             onPressed: () => _addFreeTextProduct(_searchController.text, currentList),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.clear, size: kIconSizeSmall + 2),
+                            icon: const Icon(Icons.clear, size: kIconSizeSmallPlus),
                             onPressed: () {
                               _searchController.clear();
                               _onSearchChanged('');
@@ -717,11 +717,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         if (_isSearching)
           const Padding(
             padding: EdgeInsets.all(kSpacingSmall),
-            child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+            child: SizedBox(width: kIconSizeSmallPlus, height: kIconSizeSmallPlus, child: CircularProgressIndicator(strokeWidth: 2)),
           )
         else if (_searchResults.isNotEmpty)
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(maxHeight: 200), // ignore: design-system — layout-specific
             child: ListView.builder(
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
@@ -854,7 +854,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         top: kSpacingSmall,
         left: kNotebookRedLineOffset + kSpacingSmall,
         right: kSpacingMedium,
-        bottom: 100,
+        bottom: 100, // ignore: design-system — FAB clearance
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -886,7 +886,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     ];
 
     return ListView.builder(
-      padding: const EdgeInsets.only(top: kSpacingSmall, bottom: 100),
+      padding: const EdgeInsets.only(top: kSpacingSmall, bottom: 100), // ignore: design-system — FAB clearance
       itemCount: categories.length,
       itemBuilder: (context, catIndex) {
         final category = categories[catIndex];
@@ -904,11 +904,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             // כותרת קטגוריה — מרקר
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(right: kSpacingMedium, top: 4, bottom: 4),
+              padding: const EdgeInsets.only(right: kSpacingMedium, top: kSpacingXTiny, bottom: kSpacingXTiny),
               margin: const EdgeInsets.only(top: kSpacingMedium),
               decoration: BoxDecoration(
                 color: allChecked ? kStickyGreen.withValues(alpha: 0.1) : highlightColor,
-                border: BorderDirectional(start: BorderSide(color: highlightColors[catIndex % highlightColors.length], width: 4)),
+                border: BorderDirectional(start: BorderSide(color: highlightColors[catIndex % highlightColors.length], width: kSpacingXTiny)),
               ),
               child: Row(
                 children: [

@@ -914,8 +914,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           },
                           child: isSaving
                               ? SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: kIconSizeSmallPlus,
+                                  height: kIconSizeSmallPlus,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: cs.onPrimary,
@@ -1258,7 +1258,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         const SizedBox(height: kSpacingSmall),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.people_outline),
+                          leading: const Icon(Icons.people_outline),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: _forwardChevron(),
@@ -1272,7 +1272,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.person_add_outlined),
+                          leading: const Icon(Icons.person_add_outlined),
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
                           trailing: _forwardChevron(),

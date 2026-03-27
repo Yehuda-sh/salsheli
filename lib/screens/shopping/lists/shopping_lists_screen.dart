@@ -186,7 +186,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 children: [
                   Icon(
                     Icons.tune,
-                    size: kIconSizeSmall + 2,
+                    size: kIconSizeSmallPlus,
                     color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: kSpacingTiny),
@@ -265,7 +265,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
           ),
           if (isActive)
-            Icon(Icons.check_circle, size: kIconSizeSmall + 2, color: cs.primary),
+            Icon(Icons.check_circle, size: kIconSizeSmallPlus, color: cs.primary),
         ],
       ),
     );
@@ -589,7 +589,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
           // כפתור ניקוי
           IconButton(
-            icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+            icon: const Icon(Icons.close, size: kIconSizeSmallPlus),
             onPressed: _clearAllFilters,
             tooltip: AppStrings.shopping.clearFilterLabel,
             visualDensity: VisualDensity.compact,

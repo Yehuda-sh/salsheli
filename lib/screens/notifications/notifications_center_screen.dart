@@ -226,7 +226,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.notifications_off_outlined, size: 64, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  Icon(Icons.notifications_off_outlined, size: kIconSizeXXLarge, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
                   const SizedBox(height: kSpacingMedium),
                   Text(_error!, style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
                   const SizedBox(height: kSpacingMedium),
@@ -302,14 +302,14 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               // סווייפ ימינה (RTL) → סמן כנקרא
               background: Container(
                 alignment: AlignmentDirectional.centerStart,
-                padding: const EdgeInsetsDirectional.only(start: 20),
+                padding: const EdgeInsetsDirectional.only(start: kIconSizeSmallPlus),
                 color: (brand?.success ?? kStickyGreen).withValues(alpha: 0.2),
                 child: Icon(Icons.check, color: brand?.success ?? kStickyGreen),
               ),
               // סווייפ שמאלה → מחיקה
               secondaryBackground: Container(
                 alignment: AlignmentDirectional.centerEnd,
-                padding: const EdgeInsetsDirectional.only(end: 20),
+                padding: const EdgeInsetsDirectional.only(end: kIconSizeSmallPlus),
                 color: cs.error.withValues(alpha: 0.2),
                 child: Icon(Icons.delete_outline, color: cs.error),
               ),

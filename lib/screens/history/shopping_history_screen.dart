@@ -388,7 +388,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
   Widget _buildStatDivider(ColorScheme cs) {
     return Container(
       width: 1,
-      height: 32,
+      height: kSpacingXLarge,
       color: cs.onPrimaryContainer.withValues(alpha: 0.15),
     );
   }

@@ -347,7 +347,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
+                Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
                 const SizedBox(width: kSpacingSmall),
                 Text(AppStrings.shopping.syncSuccess),
               ],
@@ -759,7 +759,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_isLoading) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -790,7 +790,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_errorMessage != null) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -821,7 +821,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (widget.list.items.isEmpty) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
@@ -949,7 +949,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         }),
                         if (widget.list.currentShoppers.length > 4)
                           Padding(
-                            padding: const EdgeInsets.only(right: 4),
+                            padding: const EdgeInsets.only(right: kSpacingXTiny),
                             child: Text(
                               '+${widget.list.currentShoppers.length - 4}',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -990,7 +990,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               // 🏁 כפתור סיום קנייה — מושבת עד אינטראקציה ראשונה
               if (!_isSaving)
                 Padding(
-                  padding: const EdgeInsets.only(left: 4),
+                  padding: const EdgeInsets.only(left: kSpacingXTiny),
                   child: TextButton.icon(
                     onPressed: _hasUserInteracted ? _finishShopping : null,
                     style: TextButton.styleFrom(
@@ -1002,7 +1002,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                     ),
-                    icon: const Icon(Icons.check, size: kIconSizeSmall + 2),
+                    icon: const Icon(Icons.check, size: kIconSizeSmallPlus),
                     label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                 )
@@ -1133,7 +1133,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)),
                                   style: TextStyle(fontSize: kFontSizeLarge),
                                 ),
-                                SizedBox(width: kSpacingSmall),
+                                const SizedBox(width: kSpacingSmall),
                                 Expanded(
                                   child: Text(
                                     category,
@@ -1163,7 +1163,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: kSpacingXTiny),
+                                const SizedBox(width: kSpacingXTiny),
                                 // ▼/▲ חץ קיפול
                                 AnimatedRotation(
                                   turns: _collapsedCategories.contains(category) ? 0.5 : 0.0,

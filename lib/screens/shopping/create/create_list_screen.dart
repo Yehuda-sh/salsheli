@@ -436,7 +436,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
-                    vertical: kSpacingSmall + 4,
+                    vertical: kSpacingSmallPlus,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -886,7 +886,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                           size: kIconSizeSmall, color: cs.onSecondaryContainer)
                       : CircleAvatar(
                           backgroundColor: cs.primaryContainer,
-                          radius: 12,
+                          radius: kSpacingSmallPlus,
                           child: Text(
                             contact.initials,
                             style: const TextStyle(fontSize: kFontSizeTiny),

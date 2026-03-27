@@ -318,7 +318,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     boxShadow: [
                       BoxShadow(
                         color: cs.scrim.withValues(alpha: 0.1),
-                        blurRadius: 4,
+                        blurRadius: kSpacingXTiny,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -361,7 +361,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: kIconSizeSmall + 2, color: cs.primary),
+                        Icon(Icons.info_outline, size: kIconSizeSmallPlus, color: cs.primary),
                         const SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Text(
@@ -555,7 +555,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור ביטול
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onCancelVolunteer,
-                  icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+                  icon: const Icon(Icons.close, size: kIconSizeSmallPlus),
                   label: Text(AppStrings.shopping.cancelVolunteerButton),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
@@ -567,7 +567,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור התנדבות
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : onVolunteer,
-                  icon: const Icon(Icons.volunteer_activism, size: kIconSizeSmall + 2),
+                  icon: const Icon(Icons.volunteer_activism, size: kIconSizeSmallPlus),
                   label: Text(AppStrings.shopping.iBringButton),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,
