@@ -16,6 +16,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/suggestion_status.dart';
 import '../../../../models/shopping_list.dart';
@@ -62,11 +63,12 @@ class _LoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: kStickyYellow.withValues(alpha: 0.3),
+        color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Center(
@@ -123,6 +125,7 @@ class _SuggestionsCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,11 +136,11 @@ class _SuggestionsCarousel extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
             decoration: BoxDecoration(
-              color: kStickyOrange.withValues(alpha: 0.15),
+              color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              border: const BorderDirectional(
+              border: BorderDirectional(
                 start: BorderSide(
-                  color: kStickyOrangeDark,
+                  color: brand?.stickyOrange ?? kStickyOrange,
                   width: 4,
                 ),
               ),
@@ -147,13 +150,13 @@ class _SuggestionsCarousel extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(kSpacingTiny),
                   decoration: BoxDecoration(
-                    color: kStickyOrange.withValues(alpha: 0.25),
+                    color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.inventory_2_outlined,
                     size: kIconSizeSmallPlus,
-                    color: kStickyOrangeDark,
+                    color: brand?.stickyOrange ?? kStickyOrange,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -171,16 +174,16 @@ class _SuggestionsCarousel extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: kSpacingXTiny),
                   decoration: BoxDecoration(
-                    color: kStickyOrange.withValues(alpha: 0.2),
+                    color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                     border: Border.all(
-                      color: kStickyOrange.withValues(alpha: 0.4),
+                      color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.4),
                     ),
                   ),
                   child: Text(
                     AppStrings.suggestionsToday.itemCount(suggestions.length),
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: kStickyOrangeDark,
+                      color: brand?.stickyOrange ?? kStickyOrange,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -189,7 +192,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                     .shimmer(
                       delay: 3000.ms,
                       duration: 1000.ms,
-                      color: kStickyOrange.withValues(alpha: 0.3),
+                      color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.3),
                     ),
               ],
             ),
@@ -252,19 +255,19 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool get _isUnknownStatus =>
       widget.suggestion.status == SuggestionStatus.unknown;
 
-  Color _getCardColor(String urgency) {
+  Color _getCardColor(String urgency, AppBrand? brand) {
     // ⚠️ Grey for unknown status
     if (_isUnknownStatus) return Theme.of(context).colorScheme.outline;
 
     switch (urgency) {
       case 'critical':
-        return kStickyPink;
+        return brand?.stickyPink ?? kStickyPink;
       case 'high':
-        return kStickyOrange;
+        return brand?.stickyOrange ?? kStickyOrange;
       case 'medium':
-        return kStickyYellow;
+        return brand?.stickyYellow ?? kStickyYellow;
       default:
-        return kStickyGreen;
+        return brand?.stickyGreen ?? kStickyGreen;
     }
   }
 
@@ -297,6 +300,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   Future<void> _onAdd(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -314,7 +318,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.suggestionsToday.noActiveLists),
-            backgroundColor: kStickyOrange,
+            backgroundColor: brand?.stickyOrange ?? kStickyOrange,
           ),
         );
         return;
@@ -343,7 +347,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               ),
             ],
           ),
-          backgroundColor: kStickyGreen,
+          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -353,7 +357,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -364,6 +368,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   Future<void> _onDismiss(BuildContext context) async {
+    final brand = Theme.of(context).extension<AppBrand>();
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -380,7 +385,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
-          backgroundColor: kStickyCyan,
+          backgroundColor: brand?.stickyCyan ?? kStickyCyan,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -390,7 +395,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -404,8 +409,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
     final suggestion = widget.suggestion;
-    final cardColor = _getCardColor(suggestion.urgency);
+    final cardColor = _getCardColor(suggestion.urgency, brand);
     final shadowColor = theme.shadowColor;
 
     final result = GestureDetector(
@@ -689,6 +695,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     final listsProvider = context.read<ShoppingListsProvider>();
     final suggestionsProvider = context.read<SuggestionsProvider>();
     final messenger = ScaffoldMessenger.of(context);
+    final brand = Theme.of(context).extension<AppBrand>();
 
     final activeLists = listsProvider.lists.where((l) => l.status == 'active').toList();
     if (activeLists.isEmpty) {
@@ -725,12 +732,14 @@ class _AddAllButtonState extends State<_AddAllButton> {
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],
       ),
-      backgroundColor: kStickyGreen,
+      backgroundColor: brand?.stickyGreen ?? kStickyGreen,
     ));
   }
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<AppBrand>();
+
     return SizedBox(
       height: 28,
       child: TextButton.icon(
@@ -747,7 +756,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
         ),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-          foregroundColor: kStickyOrangeDark,
+          foregroundColor: brand?.stickyOrange ?? kStickyOrange,
         ),
       ),
     );

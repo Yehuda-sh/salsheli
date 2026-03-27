@@ -322,6 +322,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
   Future<void> _retrySyncAll() async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
@@ -352,7 +353,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Text(AppStrings.shopping.syncSuccess),
               ],
             ),
-            backgroundColor: kStickyGreen,
+            backgroundColor: brand?.stickyGreen ?? kStickyGreen,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -362,6 +363,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// 📷 סריקת ברקוד — חיפוש מוצר ב-DB והוספה/סימון
   Future<void> _scanBarcode() async {
+    final brand = Theme.of(context).extension<AppBrand>();
     final result = await showModalBottomSheet<BarcodeScanResult>(
       context: context,
       isScrollControlled: true,
@@ -391,7 +393,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       _updateItemStatus(existingItem, ShoppingItemStatus.purchased);
       messenger.showSnackBar(SnackBar(
         content: Text(existingItem.name),
-        backgroundColor: kStickyGreen,
+        backgroundColor: brand?.stickyGreen ?? kStickyGreen,
         duration: const Duration(seconds: 2),
       ));
       return;
@@ -434,7 +436,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _updateItemStatus(newItem, ShoppingItemStatus.purchased);
         messenger.showSnackBar(SnackBar(
           content: Text(newItem.name),
-          backgroundColor: kStickyGreen,
+          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
           duration: const Duration(seconds: 2),
         ));
       }
@@ -520,6 +522,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     String? storeName,
   }) async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     // ✅ תפוס context לפני await
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -688,7 +691,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Expanded(child: Text(message)),
               ],
             ),
-            backgroundColor: kStickyGreen,
+            backgroundColor: brand?.stickyGreen ?? kStickyGreen,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -1042,8 +1045,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   child: TextButton.icon(
                     onPressed: _hasUserInteracted ? _finishShopping : null,
                     style: TextButton.styleFrom(
-                      backgroundColor: kStickyGreen.withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
-                      foregroundColor: _hasUserInteracted ? kStickyGreen : kStickyGreen.withValues(alpha: 0.4),
+                      backgroundColor: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
+                      foregroundColor: _hasUserInteracted ? (brand?.stickyGreen ?? kStickyGreen) : (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.4),
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
@@ -1085,7 +1088,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               if (purchased > 0)
                                 Expanded(
                                   flex: purchased,
-                                  child: Container(color: kStickyGreen),
+                                  child: Container(color: brand?.stickyGreen ?? kStickyGreen),
                                 ),
                               if (outOfStock > 0)
                                 Expanded(
@@ -1111,7 +1114,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle, color: kStickyGreen, size: kFontSizeMedium),
+                          Icon(Icons.check_circle, color: brand?.stickyGreen ?? kStickyGreen, size: kFontSizeMedium),
                           const SizedBox(width: 2),
                           Text('$purchased/$total', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
@@ -1172,7 +1175,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               vertical: kSpacingXTiny,
                             ),
                             decoration: BoxDecoration(
-                              color: kStickyCyan.withValues(alpha: kHighlightOpacity),
+                              color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kHighlightOpacity),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Row(

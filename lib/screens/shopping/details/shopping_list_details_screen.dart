@@ -160,7 +160,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             const SizedBox(width: kSpacingSmall),
             Expanded(child: Text(AppStrings.sharing.requestCreated)),
           ]),
-          backgroundColor: kStickyOrange,
+          backgroundColor: Theme.of(context).extension<AppBrand>()?.stickyOrange ?? kStickyOrange,
         ));
       } else {
         // ✅ Owner/Admin — הוסף ישירות
@@ -293,7 +293,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     const SizedBox(width: kSpacingSmall),
                     Expanded(child: Text(AppStrings.sharing.requestCreated)),
                   ]),
-                  backgroundColor: kStickyOrange,
+                  backgroundColor: Theme.of(context).extension<AppBrand>()?.stickyOrange ?? kStickyOrange,
                 ),
               );
             }
@@ -527,7 +527,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                         top: kSpacingSmall,
                         child: Container(
                           padding: const EdgeInsets.all(kSpacingXTiny),
-                          decoration: const BoxDecoration(color: kStickyPink, shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: brand?.stickyPink ?? kStickyPink, shape: BoxShape.circle),
                           constraints: const BoxConstraints(minWidth: kIconSizeSmall, minHeight: kIconSizeSmall),
                           child: Text(
                             '${currentList.pendingRequestsForReview.length}',
@@ -613,7 +613,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: kStickyCyan.withValues(alpha: 0.3),
+                                color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 3),
                               ),
@@ -878,6 +878,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
   Widget _buildGroupedItems(List<UnifiedListItem> items, ShoppingList currentList, ThemeData theme) {
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final canManage = currentList.canCurrentUserManage;
     final canEdit = currentList.canCurrentUserEdit;
 
@@ -919,7 +920,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               padding: const EdgeInsets.only(right: kSpacingMedium, top: kSpacingXTiny, bottom: kSpacingXTiny),
               margin: const EdgeInsets.only(top: kSpacingMedium),
               decoration: BoxDecoration(
-                color: allChecked ? kStickyGreen.withValues(alpha: 0.1) : highlightColor,
+                color: allChecked ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.1) : highlightColor,
                 border: BorderDirectional(start: BorderSide(color: highlightColors[catIndex % highlightColors.length], width: kSpacingXTiny)),
               ),
               child: Row(
@@ -936,7 +937,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   const SizedBox(width: kSpacingSmall),
                   // ✅ badge או count
                   if (allChecked)
-                    Icon(Icons.check_circle, size: kIconSizeSmall, color: kStickyGreen)
+                    Icon(Icons.check_circle, size: kIconSizeSmall, color: brand?.stickyGreen ?? kStickyGreen)
                   else
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),

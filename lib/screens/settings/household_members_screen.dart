@@ -13,6 +13,7 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../services/household_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 
@@ -364,6 +365,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
 
   Widget _buildMemberCard(
       _MemberData member, ColorScheme cs, ThemeData theme) {
+    final brand = theme.extension<AppBrand>();
     final isCurrentUser = member.userId == _currentUserId;
     final isMemberOwner = member.role == 'owner';
     final isMemberAdmin = member.role == 'admin' || isMemberOwner;
@@ -458,7 +460,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                       color: isMemberOwner
                           ? cs.primary.withValues(alpha: 0.15)
                           : isMemberAdmin
-                              ? kStickyGreen.withValues(alpha: 0.15)
+                              ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15)
                               : cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),

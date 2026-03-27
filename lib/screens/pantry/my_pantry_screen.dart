@@ -1549,27 +1549,28 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// 🎨 צבע לפי קטגוריה — Dark Mode aware via Theme colorScheme
   Color _getCategoryColor(String category) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final key = FiltersConfig.hebrewCategoryToEnglish(category);
 
     // Light mode: vibrant colors. Dark mode: desaturated via Color.lerp
     Color base = switch (key) {
       'dairy' => const Color(0xFF42A5F5),
-      'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,
+      'vegetables' || 'fruits' || 'fresh_herbs' => brand?.stickyGreen ?? kStickyGreen,
       'meat' || 'poultry' || 'deli' || 'meat_fish' || 'beef' || 'chicken' || 'turkey' || 'lamb' => const Color(0xFFEF5350),
       'fish' => const Color(0xFF26C6DA),
       'bakery' || 'bread' || 'bread_bakery' => const Color(0xFFFFB74D),
       'frozen' => const Color(0xFF78909C),
-      'drinks' || 'alcohol' || 'wine' || 'beverages' || 'coffee_tea' => kStickyPurple,
+      'drinks' || 'alcohol' || 'wine' || 'beverages' || 'coffee_tea' => brand?.stickyPurple ?? kStickyPurple,
       'snacks' || 'sweets' || 'chocolate' || 'sweets_snacks' || 'cookies_sweets' => const Color(0xFFFF7043),
       'cleaning' || 'laundry' => const Color(0xFF66BB6A),
-      'hygiene' || 'beauty' || 'cosmetics' => kStickyPink,
+      'hygiene' || 'beauty' || 'cosmetics' => brand?.stickyPink ?? kStickyPink,
       'spices' || 'condiments' => const Color(0xFFFFA726),
       'grains' || 'pasta' || 'rice' || 'rice_pasta' || 'legumes_grains' || 'cereals' => const Color(0xFFD4A373),
       'canned' || 'preserved' => const Color(0xFF8D6E63),
       'baby' || 'baby_products' => const Color(0xFFF8BBD0),
       'oils' || 'oils_sauces' => const Color(0xFFCDDC39),
-      _ => kStickyCyan,
+      _ => brand?.stickyCyan ?? kStickyCyan,
     };
 
     // ✅ Dark Mode: desaturate by blending with surface color

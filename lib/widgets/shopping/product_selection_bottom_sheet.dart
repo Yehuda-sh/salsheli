@@ -22,6 +22,7 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
@@ -248,6 +249,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final appBrand = theme.extension<AppBrand>();
     final productsProvider = context.watch<ProductsProvider>();
     final products = productsProvider.products;
 
@@ -343,7 +345,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   bottom: kSpacingMedium,
                   child: FloatingActionButton(
                     heroTag: 'add_custom_product',
-                    backgroundColor: kStickyYellow,
+                    backgroundColor: appBrand?.stickyYellow ?? kStickyYellow,
                     tooltip: AppStrings.shopping.addNewProductTooltip,
                     onPressed: _handleAddCustomProduct,
                     child: Icon(Icons.edit_note, color: cs.onSurface, size: kIconSizeLarge),
@@ -506,6 +508,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     required VoidCallback onTap,
   }) {
     final cs = Theme.of(context).colorScheme;
+    final appBrand = Theme.of(context).extension<AppBrand>();
 
     return AnimatedScale(
       scale: isSelected ? 1.05 : 1.0,
@@ -525,7 +528,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         selected: isSelected,
         onSelected: (_) => onTap(),
         backgroundColor: cs.surface.withValues(alpha: 0.8),
-        selectedColor: kStickyCyan,
+        selectedColor: appBrand?.stickyCyan ?? kStickyCyan,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge + kSpacingXTiny),
           side: BorderSide(
@@ -638,6 +641,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
     final size = product['size'] as String?;
     final brand = product['brand'] as String?;
+    final appBrand = Theme.of(context).extension<AppBrand>();
 
     final provider = context.read<ShoppingListsProvider>();
     final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
@@ -659,8 +663,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       color: Colors.transparent,
       child: InkWell(
         onTap: isInList ? null : () => _addProduct(product),
-        splashColor: kStickyGreen.withValues(alpha: 0.1),
-        highlightColor: kStickyGreen.withValues(alpha: 0.05),
+        splashColor: (appBrand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.1),
+        highlightColor: (appBrand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.05),
         child: SizedBox(
           height: kNotebookLineSpacing,
           child: Row(
@@ -755,12 +759,14 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
   /// ➕ כפתור הוספה עדין — אייקון ירוק עם pulse בזמן loading
   Widget _buildAddButton(bool isAdding) {
+    final appBrand = Theme.of(context).extension<AppBrand>();
+    final stickyGreen = appBrand?.stickyGreen ?? kStickyGreen;
     return AnimatedScale(
       scale: isAdding ? 1.2 : 1.0,
       duration: const Duration(milliseconds: 200),
       child: Icon(
         Icons.add_circle_outline,
-        color: isAdding ? kStickyGreen : kStickyGreen.withValues(alpha: 0.6),
+        color: isAdding ? stickyGreen : stickyGreen.withValues(alpha: 0.6),
         size: kIconSizeMedium,
       ),
     );
@@ -768,13 +774,14 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
   /// 🔢 בקרי כמות — AnimatedButton עם selection haptic + AnimatedSwitcher pulse
   Widget _buildQuantityControls(Map<String, dynamic> product, int currentQuantity) {
+    final appBrand = Theme.of(context).extension<AppBrand>();
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         // ➕ כפתור הגדלת כמות
         _buildQuantityButton(
           icon: Icons.add,
-          color: kStickyGreen,
+          color: appBrand?.stickyGreen ?? kStickyGreen,
           tooltip: AppStrings.shopping.increaseQuantityTooltip,
           onTap: () => _updateProductQuantity(product, currentQuantity + 1),
         ),
@@ -784,7 +791,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           margin: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
           padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
           decoration: BoxDecoration(
-            color: kStickyCyan,
+            color: appBrand?.stickyCyan ?? kStickyCyan,
             borderRadius: BorderRadius.circular(kBorderRadiusSmall + 2),
           ),
           child: AnimatedSwitcher(
@@ -808,7 +815,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         // ➖ כפתור הקטנת כמות
         _buildQuantityButton(
           icon: Icons.remove,
-          color: kStickyPink,
+          color: appBrand?.stickyPink ?? kStickyPink,
           tooltip: AppStrings.shopping.decreaseQuantityTooltip,
           onTap: () => _updateProductQuantity(product, currentQuantity - 1),
         ),
@@ -862,7 +869,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         child: Container(
           padding: const EdgeInsets.all(kSpacingMedium),
           decoration: BoxDecoration(
-            color: kStickyGreen.withValues(alpha: 0.85),
+            color: (Theme.of(context).extension<AppBrand>()?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(kBorderRadius),
             border: Border.all(color: cs.onPrimary.withValues(alpha: 0.3)),
             boxShadow: [

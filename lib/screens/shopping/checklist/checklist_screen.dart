@@ -32,6 +32,7 @@ import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
+import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 
 class ChecklistScreen extends StatefulWidget {
@@ -139,10 +140,11 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   /// הצגת Snackbar עם שגיאת סנכרון
   void _showSyncErrorSnackbar() {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.common.syncError),
-        backgroundColor: kStickyOrange,
+        backgroundColor: brand?.stickyOrange ?? kStickyOrange,
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
           label: AppStrings.checklist.gotItButton,
@@ -211,6 +213,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     // חשב סטטיסטיקות
     final totalItems = _list.items.length;
@@ -273,7 +276,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                       // ⚠️ אינדיקציית שגיאת סנכרון - לחיץ להצגת הודעה
                       if (_hasSyncError)
                         IconButton(
-                          icon: Icon(Icons.cloud_off, color: kStickyOrange, size: kIconSizeMedium),
+                          icon: Icon(Icons.cloud_off, color: brand?.stickyOrange ?? kStickyOrange, size: kIconSizeMedium),
                           tooltip: AppStrings.common.syncError,
                           onPressed: _showSyncErrorSnackbar,
                         ),
@@ -286,7 +289,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             value: true,
                             child: Row(
                               children: [
-                                Icon(Icons.check_box, color: kStickyGreen),
+                                Icon(Icons.check_box, color: brand?.stickyGreen ?? kStickyGreen),
                                 const SizedBox(width: kSpacingSmall),
                                 Text(AppStrings.checklist.checkAll),
                               ],
@@ -337,7 +340,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     style: TextStyle(
                                       fontSize: kFontSizeDisplay,
                                       fontWeight: FontWeight.bold,
-                                      color: allChecked ? kStickyGreen : cs.primary,
+                                      color: allChecked ? (brand?.stickyGreen ?? kStickyGreen) : cs.primary,
                                     ),
                                   ),
                                   Text(
@@ -374,7 +377,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                       value: value,
                                       backgroundColor: cs.outline.withValues(alpha: 0.15),
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        allChecked ? kStickyGreen : cs.primary,
+                                        allChecked ? (brand?.stickyGreen ?? kStickyGreen) : cs.primary,
                                       ),
                                       minHeight: kSpacingSmall,
                                     ),
@@ -457,6 +460,7 @@ class _ChecklistItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final isChecked = item.isChecked;
 
     return AnimatedOpacity(
@@ -474,12 +478,12 @@ class _ChecklistItemTile extends StatelessWidget {
               padding: const EdgeInsets.all(kSpacingMedium),
               decoration: BoxDecoration(
                 color: isChecked
-                    ? kStickyGreen.withValues(alpha: 0.1)
+                    ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.1)
                     : cs.surface.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(kBorderRadius),
                 border: Border.all(
                   color: isChecked
-                      ? kStickyGreen.withValues(alpha: 0.3)
+                      ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.3)
                       : cs.outline.withValues(alpha: 0.15),
                 ),
               ),
@@ -491,10 +495,10 @@ class _ChecklistItemTile extends StatelessWidget {
                   width: kIconSizeLarge - kSpacingSmall,
                   height: kIconSizeLarge - kSpacingSmall,
                   decoration: BoxDecoration(
-                    color: isChecked ? kStickyGreen : Colors.transparent,
+                    color: isChecked ? (brand?.stickyGreen ?? kStickyGreen) : Colors.transparent,
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     border: Border.all(
-                      color: isChecked ? kStickyGreen : cs.outline,
+                      color: isChecked ? (brand?.stickyGreen ?? kStickyGreen) : cs.outline,
                       width: 2,
                     ),
                   ),

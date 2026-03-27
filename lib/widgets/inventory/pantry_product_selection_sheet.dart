@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/custom_location.dart';
 import '../../providers/inventory_provider.dart';
@@ -479,6 +480,7 @@ class _PantryProductSelectionSheetState
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final appBrand = Theme.of(context).extension<AppBrand>();
     final mediaQuery = MediaQuery.of(context);
 
     return Container(
@@ -650,7 +652,7 @@ class _PantryProductSelectionSheetState
 
                 // רשימת מוצרים
                 Expanded(
-                  child: _buildProductsList(cs),
+                  child: _buildProductsList(cs, appBrand),
                 ),
               ],
             ),
@@ -660,7 +662,7 @@ class _PantryProductSelectionSheetState
     );
   }
 
-  Widget _buildProductsList(ColorScheme cs) {
+  Widget _buildProductsList(ColorScheme cs, AppBrand? appBrand) {
     if (_isLoading) {
       return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
@@ -731,12 +733,12 @@ class _PantryProductSelectionSheetState
       itemCount: _filteredProducts.length,
       itemBuilder: (context, index) {
         final product = _filteredProducts[index];
-        return _buildProductCard(product, cs);
+        return _buildProductCard(product, cs, appBrand);
       },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, ColorScheme cs) {
+  Widget _buildProductCard(Map<String, dynamic> product, ColorScheme cs, AppBrand? appBrand) {
     final name = product['name'] as String? ?? 'מוצר';
     final category = product['category'] as String? ?? 'אחר';
     final brand = product['brand'] as String?;
@@ -753,7 +755,7 @@ class _PantryProductSelectionSheetState
     final justAdded = _justAddedProductId == productId;
 
     // צבע לפי מקור
-    final sourceColor = _getSourceColor(source, cs);
+    final sourceColor = _getSourceColor(source, cs, appBrand);
 
     // ✅ Cache success color — used multiple times in this card
     final successColor = StatusColors.getColor(StatusType.success, context);
@@ -944,18 +946,18 @@ class _PantryProductSelectionSheetState
   }
 
   /// צבע לפי מקור - משתמש בצבעי sticky notes מהtheme
-  Color _getSourceColor(String source, ColorScheme cs) {
+  Color _getSourceColor(String source, ColorScheme cs, AppBrand? appBrand) {
     switch (source) {
       case 'pharmacy':
-        return kStickyPink;
+        return appBrand?.stickyPink ?? kStickyPink;
       case 'greengrocer':
-        return kStickyGreen;
+        return appBrand?.stickyGreen ?? kStickyGreen;
       case 'butcher':
-        return kStickyYellow;
+        return appBrand?.stickyYellow ?? kStickyYellow;
       case 'bakery':
-        return kStickyYellow;
+        return appBrand?.stickyYellow ?? kStickyYellow;
       case 'market':
-        return kStickyCyan;
+        return appBrand?.stickyCyan ?? kStickyCyan;
       case 'supermarket':
       default:
         return cs.primary;

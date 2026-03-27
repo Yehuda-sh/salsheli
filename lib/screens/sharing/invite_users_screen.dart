@@ -80,19 +80,20 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);
           final navigator = Navigator.of(context);
+          final brand = Theme.of(context).extension<AppBrand>();
 
           messenger.showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.block, color: kStickyPink),
+                  Icon(Icons.block, color: brand?.stickyPink ?? kStickyPink),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(AppStrings.sharing.noPermissionInvite),
                   ),
                 ],
               ),
-              backgroundColor: kStickyPink,
+              backgroundColor: brand?.stickyPink ?? kStickyPink,
             ),
           );
 
@@ -321,10 +322,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           ? AppStrings.sharing.inviteSentPending(displayName)
           : AppStrings.sharing.inviteSentUnregistered(displayName);
 
+      final brand = Theme.of(context).extension<AppBrand>();
       messenger.showSnackBar(
         SnackBar(
           content: Text(successMessage),
-          backgroundColor: userExists ? kStickyGreen : kStickyOrange,
+          backgroundColor: userExists ? (brand?.stickyGreen ?? kStickyGreen) : (brand?.stickyOrange ?? kStickyOrange),
         ),
       );
 
@@ -332,10 +334,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      final brand = Theme.of(context).extension<AppBrand>();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'invite')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -370,6 +373,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -444,7 +448,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       // 📇 Saved Contacts Section
                       if (_savedContacts.isNotEmpty) ...[
                         StickyNote(
-                          color: kStickyCyan,
+                          color: brand?.stickyCyan ?? kStickyCyan,
                           rotation: 0.01,
                           child: Padding(
                             padding: const EdgeInsets.all(kSpacingMedium),
@@ -515,7 +519,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       // Email Field (StickyNote Yellow)
                       StickyNote(
-                        color: kStickyYellow,
+                        color: brand?.stickyYellow ?? kStickyYellow,
                         rotation: 0.01,
                         child: Padding(
                           padding: const EdgeInsets.all(kSpacingMedium),
@@ -574,7 +578,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       // Role Selector (StickyNote Cyan)
                       StickyNote(
-                        color: kStickyCyan,
+                        color: brand?.stickyCyan ?? kStickyCyan,
                         rotation: -0.01,
                         child: Padding(
                           padding: const EdgeInsets.all(kSpacingMedium),
@@ -631,10 +635,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           padding: const EdgeInsets.all(kSpacingSmall),
                           margin: const EdgeInsets.only(bottom: kSpacingMedium),
                           decoration: BoxDecoration(
-                            color: kStickyGreen.withValues(alpha: 0.15),
+                            color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             border: Border.all(
-                              color: kStickyGreen.withValues(alpha: 0.3),
+                              color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
@@ -642,7 +646,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               Icon(
                                 Icons.info_outline,
                                 size: kIconSizeSmall,
-                                color: kStickyGreen.withValues(alpha: 0.8),
+                                color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.8),
                               ),
                               const SizedBox(width: kSpacingSmall),
                               Expanded(
@@ -681,7 +685,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               label: _isLoading
                                   ? AppStrings.sharing.inviting
                                   : AppStrings.sharing.inviteButton,
-                              color: kStickyGreen,
+                              color: brand?.stickyGreen ?? kStickyGreen,
                               onPressed: _isLoading ? null : _inviteUser,
                             ),
                           ),
@@ -704,6 +708,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
   Widget _buildSavedContactOption(SavedContact contact) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final isSelected = _selectedSavedContact?.userId == contact.userId;
     final isAlreadyShared = widget.list.sharedUsers.values.any((u) => u.userId == contact.userId);
     final isOwner = widget.list.createdBy == contact.userId;
@@ -799,12 +804,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
                             decoration: BoxDecoration(
-                              color: kStickyPurple.withValues(alpha: 0.3),
+                              color: (brand?.stickyPurple ?? kStickyPurple).withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.roleOwner,
-                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyPurple.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: (brand?.stickyPurple ?? kStickyPurple).withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
@@ -813,12 +818,12 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
                             decoration: BoxDecoration(
-                              color: kStickyOrange.withValues(alpha: 0.3),
+                              color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.alreadySharedBadge,
-                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyOrange.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.8)),
                             ),
                           ),
                         ],

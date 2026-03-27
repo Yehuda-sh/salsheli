@@ -25,6 +25,7 @@ import 'package:gap/gap.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import 'sticky_note.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -169,12 +170,14 @@ class SkeletonListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final brand = Theme.of(context).extension<AppBrand>();
 
-    // 🎨 צבעים לפתקים - תמיכה ב-Dark Mode
-    final stickyColors = isDark
-        ? [kStickyYellowDark, kStickyPinkDark, kStickyGreenDark]
-        : [kStickyYellow, kStickyPink, kStickyGreen];
+    // 🎨 צבעים לפתקים - AppBrand resolves dark variants internally
+    final stickyColors = [
+      brand?.stickyYellow ?? kStickyYellow,
+      brand?.stickyPink ?? kStickyPink,
+      brand?.stickyGreen ?? kStickyGreen,
+    ];
 
     final colorIndex = index % 3;
 

@@ -56,6 +56,7 @@ import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/common/skeleton_loader.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
 
@@ -621,8 +622,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   const SizedBox(height: kSpacingSmall),
                   Text(
                     successText!,
-                    style: const TextStyle(
-                      color: kStickyGreen,
+                    style: TextStyle(
+                      color: Theme.of(ctx).extension<AppBrand>()?.stickyGreen ?? kStickyGreen,
                       fontSize: kFontSizeSmall,
                     ),
                   ),
