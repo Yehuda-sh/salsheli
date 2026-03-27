@@ -110,15 +110,6 @@ const double kHighlightOpacity = 0.3;
 /// טשטוש רקע מאחורי דיאלוגים — ייצור תחושת עומק premium
 const double kDialogBlurSigma = 8.0;
 
-/// רוחב צל רך על דיאלוגים — blur radius גבוה = צל מפוזר ועדין
-const double kDialogShadowBlur = 24.0;
-
-/// שקיפות צל דיאלוג — עדין ולא כבד
-const double kDialogShadowOpacity = 0.15;
-
-/// היסט צל דיאלוג — יוצר תחושת ריחוף
-const double kDialogShadowOffset = 8.0;
-
 /// שקיפות barrier אחידה לכל דיאלוגים (scrim alpha)
 const double kDialogBarrierAlpha = 0.35;
 
