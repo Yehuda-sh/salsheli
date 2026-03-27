@@ -24,14 +24,12 @@ import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../core/constants.dart' show kDefaultProductUnit;
 import 'enums/item_type.dart';
 import 'timestamp_converter.dart' show NullableFlexibleDateTimeConverter;
 
 part 'unified_list_item.g.dart';
-
-/// Default unit for products — used as fallback when unit is missing from data.
-/// Matches AppStrings.inventory.defaultUnit ('יח\'' in HE, 'pcs' in EN).
-const String kDefaultProductUnit = 'יח\'';
 
 // ════════════════════════════════════════════
 // JSON Read Helpers (backward compat + safe casting)
