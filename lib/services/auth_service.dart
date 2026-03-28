@@ -18,6 +18,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
 
 // ========================================
@@ -328,7 +329,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.signUpError(e.toString()),
+        message: AppStrings.auth.signUpError(userFriendlyError(e, context: 'signUp')),
         originalError: e,
       );
     }
@@ -382,7 +383,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.signInError(e.toString()),
+        message: AppStrings.auth.signInError(userFriendlyError(e, context: 'signIn')),
         originalError: e,
       );
     }
@@ -578,7 +579,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.resetEmailError(e.toString()),
+        message: AppStrings.auth.resetEmailError(userFriendlyError(e, context: 'sendPasswordResetEmail')),
         originalError: e,
       );
     }
@@ -615,7 +616,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.verificationEmailError(e.toString()),
+        message: AppStrings.auth.verificationEmailError(userFriendlyError(e, context: 'sendEmailVerification')),
         originalError: e,
       );
     }
@@ -653,7 +654,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.updateDisplayNameError(e.toString()),
+        message: AppStrings.auth.updateDisplayNameError(userFriendlyError(e, context: 'updateDisplayName')),
         originalError: e,
       );
     }
@@ -709,7 +710,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.updateEmailError(e.toString()),
+        message: AppStrings.auth.updateEmailError(userFriendlyError(e, context: 'updateEmail')),
         originalError: e,
       );
     }
@@ -762,7 +763,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.updatePasswordError(e.toString()),
+        message: AppStrings.auth.updatePasswordError(userFriendlyError(e, context: 'updatePassword')),
         originalError: e,
       );
     }
@@ -820,7 +821,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.signInError(e.toString()),
+        message: AppStrings.auth.signInError(userFriendlyError(e, context: 'reauthenticate')),
         originalError: e,
       );
     }
@@ -874,7 +875,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.deleteAccountError(e.toString()),
+        message: AppStrings.auth.deleteAccountError(userFriendlyError(e, context: 'deleteAccount')),
         originalError: e,
       );
     }
@@ -914,7 +915,7 @@ class AuthService {
     } catch (e) {
       throw AuthException(
         code: AuthErrorCode.unknown,
-        message: AppStrings.auth.reloadUserError(e.toString()),
+        message: AppStrings.auth.reloadUserError(userFriendlyError(e, context: 'reloadUser')),
         originalError: e,
       );
     }

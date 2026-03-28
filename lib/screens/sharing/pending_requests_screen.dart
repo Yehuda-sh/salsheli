@@ -19,6 +19,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../theme/app_theme.dart';
@@ -142,7 +143,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             children: [
               Icon(Icons.error, color: brand?.stickyPink ?? kStickyPink),
               const SizedBox(width: kSpacingSmall),
-              Expanded(child: Text('${strings.requestApprovedError}: $e')),
+              Expanded(child: Text('${strings.requestApprovedError}: ${userFriendlyError(e, context: 'approveRequest')}')),
             ],
           ),
         ),
@@ -204,7 +205,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             children: [
               Icon(Icons.error, color: brand?.stickyPink ?? kStickyPink),
               const SizedBox(width: kSpacingSmall),
-              Expanded(child: Text('${strings.requestRejectedError}: $e')),
+              Expanded(child: Text('${strings.requestRejectedError}: ${userFriendlyError(e, context: 'rejectRequest')}')),
             ],
           ),
         ),

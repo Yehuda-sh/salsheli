@@ -21,6 +21,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
@@ -176,7 +177,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text(AppStrings.shopping.updateProductError(e.toString())),
+          content: Text(AppStrings.shopping.updateProductError(userFriendlyError(e, context: 'updateProductQuantity'))),
           backgroundColor: theme.colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
@@ -233,7 +234,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       messenger.showSnackBar(
         SnackBar(
-          content: Text(AppStrings.shopping.addProductError(e.toString())),
+          content: Text(AppStrings.shopping.addProductError(userFriendlyError(e, context: 'addProduct'))),
           backgroundColor: theme.colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
