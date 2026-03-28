@@ -17,6 +17,7 @@ import '../models/enums/item_type.dart';
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
 import '../repositories/inventory_repository.dart';
+import '../services/home_widget_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/notifications_service.dart';
 import 'user_context.dart';
@@ -57,6 +58,8 @@ class InventoryProvider with ChangeNotifier {
   void _notifySafe() {
     if (!_isDisposed) {
       notifyListeners();
+      // עדכון Home Screen Widget עם הנתונים החדשים
+      unawaited(HomeWidgetService.instance.updateWidgetData(allItems: _items));
     }
   }
 
