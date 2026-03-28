@@ -283,6 +283,71 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     ));
   }
 
+  /// 📷⬇️ סריקה מהירה להורדת מלאי — זרק אריזה? סרוק והמלאי יתעדכן
+  Future<void> _quickScanToDecrement() async {
+    final productsProvider = context.read<ProductsProvider>();
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    final name = product['name'] as String? ?? '';
+    final inventoryProvider = context.read<InventoryProvider>();
+    final strings = AppStrings.inventory;
+
+    // חפש במזווה
+    final existingItem = inventoryProvider.items.where(
+      (i) => i.productName.trim().toLowerCase() == name.trim().toLowerCase(),
+    ).firstOrNull;
+
+    // גם חיפוש fuzzy אם לא נמצא exact
+    final matchedItem = existingItem ?? _findSimilarItem(name, inventoryProvider.items);
+
+    if (matchedItem == null) {
+      if (mounted) {
+        unawaited(HapticFeedback.heavyImpact());
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(strings.quickScanNotInPantry),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
+      }
+      return;
+    }
+
+    // הורד 1 מהמלאי
+    final updated = await inventoryProvider.removeStock(matchedItem.productName);
+    if (!mounted || updated == null) return;
+
+    unawaited(HapticFeedback.mediumImpact());
+
+    if (updated.quantity == 0) {
+      // 🔴 נגמר לגמרי
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(strings.quickScanOutOfStock(matchedItem.productName)),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: strings.quickScanUndo,
+          onPressed: () {
+            inventoryProvider.addStock(matchedItem.productName, 1);
+          },
+        ),
+      ));
+    } else {
+      // ✅ הורד בהצלחה
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(strings.quickScanDecremented(
+          matchedItem.productName,
+          updated.quantity,
+        )),
+        duration: kSnackBarDuration,
+        action: SnackBarAction(
+          label: strings.quickScanUndo,
+          onPressed: () {
+            inventoryProvider.addStock(matchedItem.productName, 1);
+          },
+        ),
+      ));
+    }
+  }
+
   /// 🔍 מחפש מוצר דומה במזווה לפי מילות מפתח
   InventoryItem? _findSimilarItem(String scannedName, List<InventoryItem> items) {
     if (items.isEmpty) return null;
@@ -618,13 +683,22 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // סריקת ברקוד
+                    // 📷⬇️ סריקה מהירה להורדת מלאי
+                    FloatingActionButton.small(
+                      heroTag: 'pantry_quick_scan_btn',
+                      onPressed: _quickScanToDecrement,
+                      backgroundColor: scheme.errorContainer,
+                      tooltip: AppStrings.inventory.quickScanTooltip,
+                      child: Icon(Icons.remove_shopping_cart, color: scheme.onErrorContainer, size: kIconSizeSmallPlus),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    // 📷⬆️ סריקת ברקוד להוספה
                     FloatingActionButton.small(
                       heroTag: 'pantry_scan_btn',
                       onPressed: _scanBarcodeAndAddToPantry,
                       backgroundColor: scheme.secondaryContainer,
                       tooltip: AppStrings.shopping.scanBarcode,
-                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer),
+                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer, size: kIconSizeSmallPlus),
                     ),
                     const SizedBox(height: kSpacingSmall),
                     // הוספה ידנית
@@ -752,8 +826,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             children: [
               // 📦 Emoji in colored circle (like Dashboard)
               Container(
-                width: 44,
-                height: 44,
+                width: kSpacingXLarge + kSpacingSmallPlus,
+                height: kSpacingXLarge + kSpacingSmallPlus,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.primaryContainer,
@@ -791,8 +865,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 Tooltip(
                   message: displayName,
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: kIconSizeLarge,
+                    height: kIconSizeLarge,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -899,7 +973,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(emoji, style: const TextStyle(fontSize: kFontSizeBody)),
-              const SizedBox(height: 1),
+              const SizedBox(height: 1), // intentional 1px separator
               Text(
                 value,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -949,7 +1023,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             child: BackdropFilter(
               filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
               child: Container(
-                height: 48,
+                height: kButtonHeight,
                 decoration: BoxDecoration(
                   color: glassBgColor,
                   borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
@@ -992,7 +1066,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         // 2. רשימת מיקומים נגללת אופקית
         if (availableLocations.isNotEmpty)
           SizedBox(
-            height: 40,
+            height: kButtonHeightSmall + kSpacingXTiny,
             child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               scrollDirection: Axis.horizontal,
@@ -1205,7 +1279,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   decoration: BoxDecoration(
                     color: highlightColor,
                     border: Border(
-                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: 4),
+                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: kSpacingXTiny),
                     ),
                   ),
                   child: Row(
@@ -1377,8 +1451,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       children: [
                         // 🏷️ אמוג'י בעיגול
                         Container(
-                          width: 36,
-                          height: 36,
+                          width: kIconSizeLarge,
+                          height: kIconSizeLarge,
                           decoration: BoxDecoration(
                             color: statusColor.withValues(alpha: 0.1),
                             shape: BoxShape.circle,

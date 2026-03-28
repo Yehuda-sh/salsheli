@@ -317,7 +317,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.shopping_cart_outlined, size: kFontSizeSmall, color: mutedColor),
-                  const SizedBox(width: 3),
+                  const SizedBox(width: kSpacingXTiny),
                   Text(
                     '${item.purchaseCount}×',
                     style: TextStyle(fontSize: smallFont, color: mutedColor),
@@ -330,7 +330,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
-                    const SizedBox(width: 3),
+                    const SizedBox(width: kSpacingXTiny),
                     Text(
                       dateFormat.format(item.lastPurchased!),
                       style: TextStyle(fontSize: smallFont, color: mutedColor),
@@ -345,7 +345,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.trending_up, size: kFontSizeSmall, color: successColor),
-                      const SizedBox(width: 3),
+                      const SizedBox(width: kSpacingXTiny),
                       Text(
                         AppStrings.inventory.popularLabel,
                         style: TextStyle(
@@ -571,7 +571,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   ),
                   // קו מפריד
                   Container(
-                    height: 50,
+                    height: kIconSizeXLarge,
                     width: 1,
                     color: cs.outlineVariant,
                   ),

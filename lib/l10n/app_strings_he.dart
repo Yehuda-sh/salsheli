@@ -1265,6 +1265,17 @@ class InventoryStrings {
   String pantryMergeContent(int count) =>
       'יש לך $count מוצרים במזווה האישי.\n\nתרצה להעביר אותם למזווה של הבית החדש?';
   String get pantryMergeButton => 'העבר למזווה הבית';
+
+  // Quick Scan to decrement stock
+  String get quickScanTooltip => 'סרוק להורדת מלאי';
+  String get quickScanTitle => 'סריקה מהירה';
+  String quickScanDecremented(String name, int remaining) =>
+      '$name — נשארו $remaining';
+  String quickScanOutOfStock(String name) =>
+      '$name נגמר! רוצה להוסיף לרשימת קניות?';
+  String get quickScanNotInPantry => 'המוצר לא נמצא במזווה';
+  String get quickScanAddToList => 'הוסף לרשימה';
+  String get quickScanUndo => 'בטל';
 }
 
 // ========================================

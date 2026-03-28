@@ -1230,6 +1230,17 @@ class InventoryStringsEn extends InventoryStrings {
   @override String pantryMergeContent(int count) =>
       'You have $count items in your personal pantry.\n\nWould you like to transfer them to your new household pantry?';
   @override String get pantryMergeButton => 'Transfer to household pantry';
+
+  // Quick Scan to decrement stock
+  @override String get quickScanTooltip => 'Scan to use item';
+  @override String get quickScanTitle => 'Quick Scan';
+  @override String quickScanDecremented(String name, int remaining) =>
+      '$name — $remaining left';
+  @override String quickScanOutOfStock(String name) =>
+      '$name is out! Add to shopping list?';
+  @override String get quickScanNotInPantry => 'Product not found in pantry';
+  @override String get quickScanAddToList => 'Add to list';
+  @override String get quickScanUndo => 'Undo';
 }
 
 // ========================================

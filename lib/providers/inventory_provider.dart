@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/constants.dart';
+import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
 import '../models/enums/item_type.dart';
 import '../models/inventory_item.dart';
@@ -90,8 +91,8 @@ class InventoryProvider with ChangeNotifier {
       return result;
     } catch (e) {
       _errorMessage = errorMessagePrefix != null
-          ? '$errorMessagePrefix: ${e.toString()}'
-          : e.toString();
+          ? '$errorMessagePrefix: ${userFriendlyError(e, context: operation)}'
+          : userFriendlyError(e, context: operation);
       if (rethrowError) rethrow;
       return null;
     } finally {
@@ -272,7 +273,7 @@ class InventoryProvider with ChangeNotifier {
       _items = loadedItems;
     } catch (e, st) {
       if (_loadGeneration != generation) return;
-      _errorMessage = 'שגיאה בטעינת מלאי: $e';
+      _errorMessage = userFriendlyError(e, context: 'loadInventory');
       if (kDebugMode) {
         debugPrintStack(label: 'InventoryProvider._doLoad', stackTrace: st);
       }
@@ -302,7 +303,7 @@ class InventoryProvider with ChangeNotifier {
       },
       onError: (e) {
         if (_isDisposed) return;
-        _errorMessage = 'שגיאה בטעינת מזווה משותף: $e';
+        _errorMessage = userFriendlyError(e, context: 'loadSharedPantry');
         _isLoading = false;
         _notifySafe();
       },
@@ -345,7 +346,7 @@ class InventoryProvider with ChangeNotifier {
     required String category,
     required String location,
     int quantity = 1,
-    String unit = "יח'",
+    String? unit,
     int minQuantity = 2,
     DateTime? expiryDate,
     String? notes,
@@ -354,7 +355,7 @@ class InventoryProvider with ChangeNotifier {
   }) async {
     final userId = _userContext?.userId;
     if (userId == null) {
-      throw Exception('❌ משתמש לא מחובר');
+      throw Exception('User not authenticated');
     }
 
     // ולידציה
@@ -376,7 +377,7 @@ class InventoryProvider with ChangeNotifier {
       category: category,
       location: location,
       quantity: quantity,
-      unit: unit,
+      unit: unit ?? AppStrings.inventory.defaultUnit,
       minQuantity: minQuantity,
       expiryDate: expiryDate,
       notes: notes,
@@ -627,12 +628,74 @@ class InventoryProvider with ChangeNotifier {
     );
   }
 
+  /// מוריד מלאי למוצר קיים (חיסור!)
+  ///
+  /// מחזיר את הפריט המעודכן, או null אם לא נמצא.
+  /// אם הכמות מגיעה ל-0, הפריט נשאר ברשימה כ"נגמר".
+  ///
+  /// Example:
+  /// ```dart
+  /// final updated = await provider.removeStock('חלב', 1); // -1 יחידה
+  /// if (updated != null && updated.quantity == 0) { /* נגמר */ }
+  /// ```
+  Future<InventoryItem?> removeStock(String productName, [int quantity = 1]) async {
+    final userId = _userContext?.userId;
+    if (userId == null) return null;
+
+    if (!_isValidProductName(productName)) return null;
+    if (quantity <= 0) return null;
+
+    // מצא פריט לפי שם
+    final existingItem = _items.where(
+      (i) => i.productName.trim().toLowerCase() == productName.trim().toLowerCase(),
+    ).firstOrNull;
+    if (existingItem == null) return null;
+
+    final newQuantity = (existingItem.quantity - quantity).clamp(0, existingItem.quantity);
+    final updatedItem = existingItem.copyWith(
+      quantity: newQuantity,
+      lastUpdatedBy: userId,
+    );
+    final previousItems = List<InventoryItem>.from(_items);
+
+    await _runAsync(
+      operation: 'removeStock',
+      setLoading: false,
+      errorMessagePrefix: 'שגיאה בהורדת מלאי',
+      action: () async {
+        // 🚀 Optimistic: עדכון כמות מיידי ב-UI
+        _errorMessage = null;
+        final index = _items.indexWhere((i) => i.id == existingItem.id);
+        if (index != -1) {
+          _items = List.from(_items)..[index] = updatedItem;
+          _notifySafe();
+        }
+
+        try {
+          if (_currentMode == InventoryMode.household &&
+              _subscribedHouseholdId != null) {
+            await _repository.saveItem(updatedItem, _subscribedHouseholdId!);
+          } else {
+            await _repository.saveItem(updatedItem, userId);
+          }
+        } catch (e) {
+          // 🔄 Rollback
+          _items = previousItems;
+          _notifySafe();
+          rethrow;
+        }
+      },
+    );
+
+    return updatedItem;
+  }
+
   /// עדכון מלאי אוטומטי אחרי קנייה
-  /// 
+  ///
   /// עובד ב-batch mode - ממשיך גם אם חלק נכשל
-  /// 
+  ///
   /// Returns: מספר פריטים שעודכנו בהצלחה
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final successCount = await provider.updateStockAfterPurchase(checkedItems);
@@ -716,7 +779,7 @@ class InventoryProvider with ChangeNotifier {
   Future<int> addStarterItems(List<InventoryItem> items) async {
     final userId = _userContext?.userId;
     if (userId == null) {
-      throw Exception('משתמש לא מחובר');
+      throw Exception('User not authenticated');
     }
 
     if (items.isEmpty) return 0;
@@ -753,7 +816,7 @@ class InventoryProvider with ChangeNotifier {
   Future<int> deletePersonalInventory() async {
     final userId = _userContext?.userId;
     if (userId == null) {
-      throw Exception('❌ משתמש לא מחובר');
+      throw Exception('User not authenticated');
     }
 
     try {

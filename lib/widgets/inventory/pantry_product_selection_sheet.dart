@@ -23,6 +23,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/storage_locations_config.dart';
+import '../../core/error_utils.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
@@ -197,7 +198,9 @@ class _PantryProductSelectionSheetState
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = AppStrings.inventory.loadProductsError(e.toString());
+        _errorMessage = AppStrings.inventory.loadProductsError(
+          userFriendlyError(e, context: 'loadProducts'),
+        );
         _isLoading = false;
       });
     }
@@ -509,11 +512,11 @@ class _PantryProductSelectionSheetState
                 // Handle
                 Container(
                   margin: const EdgeInsets.only(top: kSpacingSmall),
-                  width: 40,
-                  height: 4,
+                  width: kButtonHeightSmall + kSpacingXTiny,
+                  height: kSpacingXTiny,
                   decoration: BoxDecoration(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(kStickyNoteRadius),
                   ),
             ),
 
@@ -672,7 +675,7 @@ class _PantryProductSelectionSheetState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error),
+            Icon(Icons.error_outline, size: kIconSizeXXLarge, color: cs.error),
             const SizedBox(height: kSpacingMedium),
             Text(_errorMessage!, style: TextStyle(color: cs.error)),
             const SizedBox(height: kSpacingMedium),
@@ -693,7 +696,7 @@ class _PantryProductSelectionSheetState
           children: [
             Icon(
               Icons.search_off,
-              size: 64,
+              size: kIconSizeXXLarge,
               color: cs.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: kSpacingMedium),
@@ -794,14 +797,14 @@ class _PantryProductSelectionSheetState
                 children: [
                   // אייקון
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: kIconSizeXLarge,
+                    height: kIconSizeXLarge,
                     decoration: BoxDecoration(
                       color: sourceColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(kBorderRadius),
                     ),
                     child: Center(
-                      child: Text(icon, style: const TextStyle(fontSize: 24)),
+                      child: Text(icon, style: const TextStyle(fontSize: kFontSizeTitle)),
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
@@ -842,7 +845,7 @@ class _PantryProductSelectionSheetState
                                   children: [
                                     Icon(
                                       Icons.check,
-                                      size: 12,
+                                      size: kFontSizeSmall,
                                       color: cs.onPrimary,
                                     ),
                                     const SizedBox(width: 2),
@@ -910,8 +913,8 @@ class _PantryProductSelectionSheetState
 
                   // כפתור הוספה - גדול יותר עם אזור לחיצה נוח
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: kIconSizeXLarge,
+                    height: kIconSizeXLarge,
                     decoration: BoxDecoration(
                       color: isInPantry
                           ? successColor.withValues(alpha: 0.1)
@@ -921,8 +924,8 @@ class _PantryProductSelectionSheetState
                     child: isAdding
                         ? const Center(
                             child: SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: kIconSizeMedium,
+                              height: kIconSizeMedium,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
@@ -933,7 +936,7 @@ class _PantryProductSelectionSheetState
                             color: isInPantry
                                 ? successColor
                                 : cs.primary,
-                            size: 32,
+                            size: kSpacingXLarge,
                           ),
                   ),
                 ],
