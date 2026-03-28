@@ -140,8 +140,8 @@ void main() {
       }
     });
 
-    test('enum has 11 values', () {
-      expect(NotificationType.values.length, 11);
+    test('enum has 13 values', () {
+      expect(NotificationType.values.length, 13);
     });
   });
 

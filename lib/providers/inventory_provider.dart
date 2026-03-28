@@ -17,6 +17,8 @@ import '../models/enums/item_type.dart';
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
 import '../repositories/inventory_repository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/notifications_service.dart';
 import 'user_context.dart';
 
 /// מיקום המזווה הנוכחי
@@ -830,6 +832,49 @@ class InventoryProvider with ChangeNotifier {
       _notifySafe();
       rethrow;
     }
+  }
+
+  // === Expiry Notifications ===
+
+  /// 📅 בודק פריטים עם תאריך תפוגה ושולח התראות
+  ///
+  /// נקרא פעם ביום (מ-main_navigation_screen או startup).
+  /// שולח התראה רק על פריטים שהמשתמש הזין להם תאריך תפוגה.
+  /// מחזיר מספר התראות שנשלחו.
+  Future<int> checkExpiryAndNotify({
+    int daysBeforeExpiry = 3,
+  }) async {
+    final userId = _userContext?.userId;
+    final householdId = _userContext?.user?.householdId;
+    if (userId == null) return 0;
+
+    final now = DateTime.now();
+    final threshold = now.add(Duration(days: daysBeforeExpiry));
+    int notificationsSent = 0;
+
+    // סנן רק פריטים שהמשתמש הזין תאריך תפוגה
+    final itemsWithExpiry = _items.where((item) => item.hasExpiryDate);
+
+    for (final item in itemsWithExpiry) {
+      final expiry = item.expiryDate!;
+      final isExpired = expiry.isBefore(now);
+      final isExpiringSoon = !isExpired && expiry.isBefore(threshold);
+
+      if (isExpired || isExpiringSoon) {
+        final success = await NotificationsService(
+          FirebaseFirestore.instance,
+        ).createExpiryNotification(
+          userId: userId,
+          householdId: householdId ?? userId,
+          productName: item.productName,
+          expiryDate: expiry,
+          isExpired: isExpired,
+        );
+        if (success) notificationsSent++;
+      }
+    }
+
+    return notificationsSent;
   }
 
   // === Cleanup ===

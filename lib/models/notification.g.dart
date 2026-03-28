@@ -51,5 +51,7 @@ const _$NotificationTypeEnumMap = {
   NotificationType.voteTie: 'vote_tie',
   NotificationType.memberLeft: 'member_left',
   NotificationType.lowStock: 'low_stock',
+  NotificationType.expiryExpired: 'expiry_expired',
+  NotificationType.expirySoon: 'expiry_soon',
   NotificationType.unknown: 'unknown',
 };
