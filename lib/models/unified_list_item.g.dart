@@ -36,8 +36,8 @@ Map<String, dynamic> _$UnifiedListItemToJson(UnifiedListItem instance) =>
       'productData': instance.productData,
       'taskData': instance.taskData,
       'checked_by': instance.checkedBy,
-      'checked_at': const NullableFlexibleDateTimeConverter()
-          .toJson(instance.checkedAt),
+      'checked_at':
+          const NullableFlexibleDateTimeConverter().toJson(instance.checkedAt),
     };
 
 const _$ItemTypeEnumMap = {
