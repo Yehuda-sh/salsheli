@@ -60,6 +60,14 @@ const USERS = [
   { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
   // Special characters in name (Hebrew with geresh/gershayim)
   { key: 'george', name: "ג'ורג' חביב", email: 'george.haviv@demo.com', phone: '0521234567', household: 'george', role: 'admin', isAdmin: true },
+  // ── Roommates (3 girls sharing apartment — not family) ──
+  { key: 'keren', name: 'קרן אביב',  email: 'keren.aviv@demo.com',  phone: '0531234567', household: 'roommates', role: 'admin',  isAdmin: true },
+  { key: 'hila',  name: 'הילה מורג',  email: 'hila.morag@demo.com',  phone: '0532345678', household: 'roommates', role: 'admin',  isAdmin: true },
+  { key: 'sapir', name: 'ספיר דוד',   email: 'sapir.david@demo.com', phone: '0533456789', household: 'roommates', role: 'member', isAdmin: false },
+  // Elderly user — minimal data, simple usage
+  { key: 'shlomo', name: 'שלמה ברקוביץ', email: 'shlomo.berk@demo.com', phone: '0541234567', household: 'shlomo', role: 'admin', isAdmin: true },
+  // Removed user — was in Cohen household, got removed, now has personal household
+  { key: 'removed_user', name: 'אילן פרץ', email: 'ilan.peretz@demo.com', phone: '0551234567', household: 'removed_user', role: 'admin', isAdmin: true },
 ];
 
 const HOUSEHOLDS = {
@@ -74,6 +82,9 @@ const HOUSEHOLDS = {
   apple_user:  { name: 'הבית שלי',       members: ['apple_user'] },
   mike:        { name: "Mike's Home",    members: ['mike'] },
   george:      { name: "הבית של ג'ורג'", members: ['george'] },
+  roommates:   { name: 'הדירה ברוטשילד',  members: ['keren', 'hila', 'sapir'] },
+  shlomo:      { name: 'הבית של שלמה',    members: ['shlomo'] },
+  removed_user: { name: 'הבית של אילן',   members: ['removed_user'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -1093,6 +1104,121 @@ async function main() {
   });
   console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
 
+  // ── ROOMMATES: 3 girls sharing apartment — different last names, shared household ──
+  const roommatesClean = pickRandom(byCategory(products, 'מוצרי ניקיון', 'מוצרי בית').filter(p => p.sourceFile === 'supermarket'), 8);
+  await db.collection('households').doc(hIds.roommates).collection('shared_lists').doc('list_room_clean').set({
+    id: 'list_room_clean', name: 'ניקיון שבועי לדירה 🧹', status: 'active', type: 'household',
+    budget: 200, is_shared: true, is_private: false, created_by: uids.keren,
+    format: 'shared', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    shared_with: [uids.hila, uids.sapir],
+    shared_users: {
+      [uids.hila]:  { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'הילה מורג', user_email: 'hila.morag@demo.com', can_start_shopping: true },
+      [uids.sapir]: { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'ספיר דוד', user_email: 'sapir.david@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: [
+      ...roommatesClean.map((p, i) => makeProductItem(p, i, { id: `item_rc_${i}`, isChecked: i < 3 })),
+      makeTaskItem('item_rc_t0', 'לנקות מקלחת (תור של ספיר)', { priority: 'high' }),
+      makeTaskItem('item_rc_t1', 'לקנות נורה למסדרון', { priority: 'medium' }),
+    ],
+  });
+  console.log('   🏠 Roommates: ניקיון שבועי (household, 8 products + 2 tasks, 3 members)');
+
+  const roommatesGrocery = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים', 'פירות וירקות', 'משקאות').filter(p => p.sourceFile === 'supermarket'), 12);
+  await db.collection('households').doc(hIds.roommates).collection('shared_lists').doc('list_room_grocery').set({
+    id: 'list_room_grocery', name: 'סופר לשבוע 🛒', status: 'active', type: 'supermarket',
+    budget: 400, is_shared: true, is_private: false, created_by: uids.hila,
+    format: 'shared', created_from_template: false,
+    created_date: hoursAgo(6).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    shared_with: [uids.keren, uids.sapir],
+    shared_users: {
+      [uids.keren]: { role: 'admin', shared_at: daysAgo(30).toISOString(), user_name: 'קרן אביב', user_email: 'keren.aviv@demo.com', can_start_shopping: true },
+      [uids.sapir]: { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'ספיר דוד', user_email: 'sapir.david@demo.com', can_start_shopping: false },
+    },
+    pending_requests: [
+      { id: 'req_sapir_1', list_id: 'list_room_grocery', requester_id: uids.sapir, type: 'addItem', status: 'pending',
+        created_at: hoursAgo(1).toISOString(),
+        request_data: { name: 'חומוס אבו גוש 400 גרם', quantity: 2, unit: "יח'", category: 'שימורים', type: 'product' },
+        reviewer_id: null, reviewed_at: null, requester_name: 'ספיר דוד', reviewer_name: null },
+    ],
+    active_shoppers: [], items: roommatesGrocery.map((p, i) => makeProductItem(p, i, { id: `item_rg_${i}`, isChecked: i < 4 })),
+  });
+  console.log('   🛒 Roommates: סופר לשבוע (supermarket, 12 items, 1 pending request from sapir)');
+
+  // Roommates inventory (shared pantry)
+  const roommatesPantry = pickRandom(byCategory(products, 'מוצרי ניקיון', 'משקאות', 'מוצרי חלב', 'אורז ופסטה'), 10);
+  await createInventory(hIds.roommates, roommatesPantry, uids.keren, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 4) });
+  console.log('   📦 Roommates: 10 pantry items (2 out-of-stock)');
+
+  // Roommates receipts
+  await createReceipts(hIds.roommates, [uids.keren, uids.hila, uids.sapir], 6, ['שופרסל דיזנגוף', 'AM:PM רוטשילד']);
+  console.log('   🧾 Roommates: 6 receipts');
+
+  // Roommates notifications
+  await createNotifications(uids.keren, [
+    makeNotification('notif_keren_1', uids.keren, hIds.roommates, 'low_stock', 'מלאי נמוך', 'נגמר נייר טואלט בדירה', { createdAt: hoursAgo(5), actionData: { productName: 'נייר טואלט' } }),
+    makeNotification('notif_keren_2', uids.keren, hIds.roommates, 'invite', 'בקשה חדשה', 'ספיר ביקשה להוסיף "חומוס" לרשימת הסופר', { createdAt: hoursAgo(1), senderId: uids.sapir, senderName: 'ספיר דוד', actionData: { listId: 'list_room_grocery', requestId: 'req_sapir_1' } }),
+  ]);
+  console.log('   🔔 קרן: 2 notifications');
+
+  // ── SHLOMO: Elderly user — simple, minimal data ──
+  const shlomoProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים', 'פירות וירקות').filter(p => p.sourceFile === 'supermarket'), 5);
+  await db.collection('users').doc(uids.shlomo).collection('private_lists').doc('list_shlomo_1').set({
+    id: 'list_shlomo_1', name: 'קניות', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.shlomo,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: shlomoProducts.map((p, i) => makeProductItem(p, i, { id: `item_shl_${i}` })),
+  });
+  console.log('   👴 שלמה: רשימה אחת פשוטה (5 items, no sharing, no budget)');
+
+  // Shlomo pantry — just basics
+  const shlomoPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים'), 4);
+  await createInventory(hIds.shlomo, shlomoPantry, uids.shlomo);
+  console.log('   📦 שלמה: 4 pantry items');
+
+  // ── REMOVED USER: Was in Cohen, got removed, now has personal household ──
+  // Private list from before removal (still works in personal household)
+  await db.collection('users').doc(uids.removed_user).collection('private_lists').doc('list_ilan_1').set({
+    id: 'list_ilan_1', name: 'הרשימה שלי', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.removed_user,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(20).toISOString(), updated_date: daysAgo(3).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 4)
+      .map((p, i) => makeProductItem(p, i, { id: `item_ilan_${i}` })),
+  });
+  console.log('   🚪 אילן (removed): רשימה אישית אחרי הסרה מכהן (4 items)');
+
+  // Ilan notification about being removed
+  await createNotifications(uids.removed_user, [
+    makeNotification('notif_ilan_1', uids.removed_user, hIds.removed_user, 'user_removed', 'הוסרת מהבית', 'הוסרת ממשפחת כהן ע"י אבי כהן', { createdAt: daysAgo(10), isRead: true, readAt: daysAgo(10), senderId: uids.avi, senderName: 'אבי כהן', actionData: { householdId: hIds.cohen } }),
+  ]);
+  console.log('   🔔 אילן: 1 notification (user_removed)');
+
+  // ── PRE-SIGNUP INVITE: Invite to email that has no account yet ──
+  await db.collection('pending_invites').doc('invite_ronit_friend').set({
+    id: 'invite_ronit_friend',
+    list_id: hIds.cohen,
+    requester_id: uids.ronit,
+    type: 'inviteToHousehold',
+    status: 'pending',
+    created_at: daysAgo(2).toISOString(),
+    requester_name: 'רונית כהן',
+    reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
+    request_data: {
+      invited_user_id: null, // no account yet!
+      invited_user_email: 'michal.new@gmail.com',
+      invited_user_name: null,
+      household_id: hIds.cohen,
+      household_name: 'משפחת כהן',
+      role: 'editor',
+    },
+  });
+  console.log('   ✉️ רונית → michal.new@gmail.com: הזמנה למשתמשת שטרם נרשמה (pre-signup)');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 14. EDGE CASE PATCHES — fix missing scenarios found in audit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1185,11 +1311,11 @@ async function main() {
   console.log('═'.repeat(55));
   console.log(`\n👥 ${USERS.length} users`);
   console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households`);
-  console.log(`📋 ~27 shopping lists (all 9 types + active/completed/archived)`);
-  console.log(`📦 ~92 inventory items`);
-  console.log(`🧾 65 receipts`);
-  console.log(`🔔 ~24 notifications`);
-  console.log(`✉️ 3 pending invites (2 pending + 1 rejected)`);
+  console.log(`📋 ~32 shopping lists (all 9 types + active/completed/archived)`);
+  console.log(`📦 ~110 inventory items`);
+  console.log(`🧾 ~76 receipts`);
+  console.log(`🔔 ~30 notifications`);
+  console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');
   for (const u of USERS) {
@@ -1204,6 +1330,10 @@ async function main() {
   console.log('   apple_user@icloud.com — Apple Sign-In (email as name, no phone)');
   console.log('   mike.johnson@demo.com — English speaker (EN locale, English list names)');
   console.log("   george.haviv@demo.com — Special chars (ג'ורג', long item names, free items)");
+  console.log('   keren.aviv@demo.com — Roommates (3 girls, shared apartment, not family)');
+  console.log('   shlomo.berk@demo.com — Elderly user (minimal, simple usage)');
+  console.log('   ilan.peretz@demo.com — Removed user (was in Cohen, now personal household)');
+  console.log('   michal.new@gmail.com — Pre-signup invite (no account yet)');
 }
 
 main().then(() => process.exit(0)).catch(e => { console.error('❌', e); process.exit(1); });
