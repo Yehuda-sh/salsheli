@@ -25,6 +25,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/error_utils.dart';
 import '../models/enums/request_status.dart';
 import '../models/enums/request_type.dart';
 import '../models/enums/user_role.dart';
@@ -308,7 +309,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'createInvite'));
     }
   }
 
@@ -385,7 +386,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'createHouseholdInvite'));
     }
   }
 
@@ -439,7 +440,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'getPendingInvites'));
     }
   }
 
@@ -559,7 +560,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'acceptInvite'));
     }
   }
 
@@ -607,7 +608,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'declineInvite'));
     }
   }
 
@@ -705,7 +706,7 @@ class PendingInvitesService {
       if (kDebugMode) {
         debugPrintStack(stackTrace: stackTrace);
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'approveRequest'));
     }
   }
 
@@ -754,7 +755,7 @@ class PendingInvitesService {
       if (e.toString().contains('user_already_shared')) {
         return InviteResult.userAlreadyShared();
       }
-      return InviteResult.firestoreError(e.toString());
+      return InviteResult.firestoreError(userFriendlyError(e, context: 'addUserToList'));
     }
   }
 

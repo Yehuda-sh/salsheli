@@ -47,6 +47,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../core/error_utils.dart';
 import '../models/smart_suggestion.dart';
 import '../services/suggestions_service.dart';
 import 'inventory_provider.dart';
@@ -215,7 +216,7 @@ class SuggestionsProvider with ChangeNotifier {
       // טעינת המלצה נוכחית (static method)
       _currentSuggestion = SuggestionsService.getNextSuggestion(_suggestions);
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'refreshSuggestions');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה ברענון: $e');
     } finally {
       _isLoading = false;
@@ -247,7 +248,7 @@ class SuggestionsProvider with ChangeNotifier {
 
       _notifySafe();
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'addSuggestion');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה: $e');
       _notifySafe();
     }
@@ -276,7 +277,7 @@ class SuggestionsProvider with ChangeNotifier {
 
       _notifySafe();
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'dismissSuggestion');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה: $e');
       _notifySafe();
     }
@@ -312,7 +313,7 @@ class SuggestionsProvider with ChangeNotifier {
 
       _notifySafe();
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'deleteSuggestion');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה במחיקת המלצה: $e');
       _notifySafe();
     }
@@ -440,7 +441,7 @@ class SuggestionsProvider with ChangeNotifier {
 
       _notifySafe();
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'addSuggestionById');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בהוספת המלצה לפי ID: $e');
       _notifySafe();
     }
@@ -469,7 +470,7 @@ class SuggestionsProvider with ChangeNotifier {
 
       _notifySafe();
     } catch (e) {
-      _error = e.toString();
+      _error = userFriendlyError(e, context: 'dismissSuggestionById');
       if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה לפי ID: $e');
       _notifySafe();
     }

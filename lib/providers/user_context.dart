@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/error_utils.dart';
 import '../services/push_notification_service.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
@@ -136,8 +137,8 @@ class UserContext with ChangeNotifier {
       return result;
     } catch (e) {
       _errorMessage = errorMessagePrefix != null
-          ? '$errorMessagePrefix: ${e.toString()}'
-          : e.toString();
+          ? '$errorMessagePrefix: ${userFriendlyError(e, context: 'loadUser')}'
+          : userFriendlyError(e, context: 'loadUser');
       if (rethrowError) rethrow;
       return null;
     } finally {

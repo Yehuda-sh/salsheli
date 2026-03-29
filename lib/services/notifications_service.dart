@@ -18,9 +18,10 @@ import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
+import '../core/error_utils.dart';
 import '../models/notification.dart';
 import '../repositories/constants/repository_constants.dart';
-import 'package:uuid/uuid.dart';
 
 // ========================================
 // 🆕 Typed Result for Notification Queries
@@ -491,7 +492,7 @@ class NotificationsService {
       return NotificationQueryResult.success(notifications);
     } catch (e, stackTrace) {
       _logError('getUserNotificationsResult', e, stackTrace);
-      return NotificationQueryResult.error(e.toString());
+      return NotificationQueryResult.error(userFriendlyError(e, context: 'getUserNotifications'));
     }
   }
 

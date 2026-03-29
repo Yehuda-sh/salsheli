@@ -381,13 +381,13 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
               ),
               child: Icon(Icons.inbox_outlined, size: kIconSizeXXLarge, color: cs.primary),
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             Text(
               strings.noPendingRequests,
               style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               strings.noPendingRequestsSubtitle,
               style: TextStyle(color: cs.onSurfaceVariant),
@@ -483,7 +483,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 ],
               ],
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
 
             // Requester info
             Row(
@@ -500,7 +500,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
             // 🆕 אזהרה עבור unknown
             if (isUnknownType) ...[
-              SizedBox(height: kSpacingSmall),
+              const SizedBox(height: kSpacingSmall),
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(

@@ -381,7 +381,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       ),
                       child: Icon(Icons.mail_outline, size: kIconSizeXXLarge, color: cs.primary),
                     ),
-                    SizedBox(height: kSpacingLarge),
+                    const SizedBox(height: kSpacingLarge),
                     Text(
                       AppStrings.pendingInvitesScreen.emptyTitle,
                       style: TextStyle(
@@ -390,13 +390,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         color: cs.onSurface,
                       ),
                     ),
-                    SizedBox(height: kSpacingSmall),
+                    const SizedBox(height: kSpacingSmall),
                     Text(
                       AppStrings.pendingInvitesScreen.emptySubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
-                    SizedBox(height: kSpacingLarge),
+                    const SizedBox(height: kSpacingLarge),
                     Text(
                       AppStrings.pendingInvitesScreen.pullToRefresh,
                       style: TextStyle(fontSize: kFontSizeTiny, color: cs.outline),
@@ -481,7 +481,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 style: const TextStyle(fontSize: kFontSizeSmall),
               ),
 
-              SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingTiny),
 
               // תפקיד
               Row(
@@ -515,7 +515,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 ],
               ),
 
-              SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingTiny),
 
               // זמן
               Text(
