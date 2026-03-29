@@ -379,7 +379,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         color: cs.primaryContainer.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.mail_outline, size: 64, color: cs.primary),
+                      child: Icon(Icons.mail_outline, size: kIconSizeXXLarge, color: cs.primary),
                     ),
                     SizedBox(height: kSpacingLarge),
                     Text(
@@ -549,7 +549,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: OutlinedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _declineInvite(invite),
-                        icon: Icon(Icons.close, size: 18),
+                        icon: const Icon(Icons.close, size: kFontSizeLarge),
                         label: Text(strings.declineButton),
                         style: OutlinedButton.styleFrom(
                           // ✅ Theme-aware: צבע שגיאה
@@ -567,7 +567,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: ElevatedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _acceptInvite(invite),
-                        icon: Icon(Icons.check, size: 18),
+                        icon: const Icon(Icons.check, size: kFontSizeLarge),
                         label: Text(strings.acceptButton),
                         style: ElevatedButton.styleFrom(
                           // ✅ Theme-aware: צבע הצלחה מ-AppBrand

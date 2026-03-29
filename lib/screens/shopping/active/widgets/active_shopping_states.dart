@@ -98,12 +98,12 @@ class ActiveShoppingErrorState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error_outline, size: kIconSizeXLarge * 2, color: cs.error),
-            SizedBox(height: kSpacingMedium),
+            const SizedBox(height: kSpacingMedium),
             Text(
               AppStrings.shopping.oopsError,
               style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               errorMessage,
               style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
@@ -140,12 +140,12 @@ class ActiveShoppingEmptyState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.shopping_cart_outlined, size: kIconSizeXLarge * 2, color: cs.onSurfaceVariant),
-          SizedBox(height: kSpacingMedium),
+          const SizedBox(height: kSpacingMedium),
           Text(
             AppStrings.shopping.listEmpty,
             style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface),
           ),
-          SizedBox(height: kSpacingSmall),
+          const SizedBox(height: kSpacingSmall),
           Text(
             AppStrings.shopping.noItemsToBuy,
             style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
@@ -181,7 +181,7 @@ class CompactStat extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: color, size: 22),
-        const SizedBox(width: 4),
+        const SizedBox(width: kSpacingXTiny),
         Text(
           total != null ? '$value/$total' : '$value',
           style: TextStyle(

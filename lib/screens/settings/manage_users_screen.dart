@@ -582,8 +582,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     value: 'edit',
                     child: Row(
                       children: [
-                        Icon(Icons.edit, size: kIconSizeSmallPlus),
-                        SizedBox(width: kSpacingSmall),
+                        const Icon(Icons.edit, size: kIconSizeSmallPlus),
+                        const SizedBox(width: kSpacingSmall),
                         Text(strings.editRole),
                       ],
                     ),
@@ -593,7 +593,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.delete, size: kIconSizeSmallPlus, color: cs.error),
-                        SizedBox(width: kSpacingSmall),
+                        const SizedBox(width: kSpacingSmall),
                         Text(strings.removeUser, style: TextStyle(color: cs.error)),
                       ],
                     ),

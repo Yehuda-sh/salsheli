@@ -379,7 +379,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 color: cs.primaryContainer.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.inbox_outlined, size: 64, color: cs.primary),
+              child: Icon(Icons.inbox_outlined, size: kIconSizeXXLarge, color: cs.primary),
             ),
             SizedBox(height: kSpacingLarge),
             Text(
@@ -449,8 +449,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 14, color: isUnknownType ? cs.tertiary : null),
-                      SizedBox(width: 4),
+                      Icon(icon, size: kFontSizeMedium, color: isUnknownType ? cs.tertiary : null),
+                      const SizedBox(width: kSpacingXTiny),
                       Text(typeLabel, style: TextStyle(
                         fontSize: kFontSizeSmall,
                         fontWeight: FontWeight.w600,
@@ -488,12 +488,12 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             // Requester info
             Row(
               children: [
-                Icon(Icons.person, size: 16, color: cs.outline),
-                SizedBox(width: 4),
+                Icon(Icons.person, size: kIconSizeSmall, color: cs.outline),
+                const SizedBox(width: kSpacingXTiny),
                 Text(requesterName, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
-                SizedBox(width: kSpacingSmall),
-                Icon(Icons.access_time, size: 16, color: cs.outline),
-                SizedBox(width: 4),
+                const SizedBox(width: kSpacingSmall),
+                Icon(Icons.access_time, size: kIconSizeSmall, color: cs.outline),
+                const SizedBox(width: kSpacingXTiny),
                 Text(timeAgo, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
               ],
             ),
@@ -510,8 +510,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, size: 16, color: cs.tertiary),
-                    SizedBox(width: kSpacingSmall),
+                    Icon(Icons.warning_amber, size: kIconSizeSmall, color: cs.tertiary),
+                    const SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         AppStrings.sharing.unknownRequestWarning,
@@ -561,7 +561,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             // Processing indicator
             if (_processingRequestId == request.id) ...[
               const SizedBox(height: kSpacingSmall),
-              const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+              const Center(child: SizedBox(width: kIconSizeSmallPlus, height: kIconSizeSmallPlus, child: CircularProgressIndicator(strokeWidth: 2))),
             ],
           ],
         ),
