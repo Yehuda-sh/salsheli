@@ -35,19 +35,19 @@ function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)
 // ═══════════════════════════════════════════════════════════════
 const USERS = [
   // Cohen Family (4 + 1 viewer)
-  { key: 'avi',    name: 'אבי כהן',     email: 'avi.cohen@demo.com',    phone: '0501234567', household: 'cohen',  role: 'admin',  isAdmin: true },
+  { key: 'avi',    name: 'אבי כהן',     email: 'avi.cohen@demo.com',    phone: '0501234567', household: 'cohen',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' },
   { key: 'ronit',  name: 'רונית כהן',    email: 'ronit.cohen@demo.com',  phone: '0502345678', household: 'cohen',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face' },
-  { key: 'yuval',  name: 'יובל כהן',     email: 'yuval.cohen@demo.com',  phone: '0503456789', household: 'cohen',  role: 'member', isAdmin: false },
-  { key: 'noa',    name: 'נועה כהן',     email: 'noa.cohen@demo.com',    phone: '0504567890', household: 'cohen',  role: 'member', isAdmin: false },
+  { key: 'yuval',  name: 'יובל כהן',     email: 'yuval.cohen@demo.com',  phone: '0503456789', household: 'cohen',  role: 'member', isAdmin: false, profileImageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop&crop=face' },
+  { key: 'noa',    name: 'נועה כהן',     email: 'noa.cohen@demo.com',    phone: '0504567890', household: 'cohen',  role: 'member', isAdmin: false, profileImageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face' },
   { key: 'ori',    name: 'אורי שלום',    email: 'ori.shalom@demo.com',   phone: '0509012345', household: 'cohen',  role: 'member', isAdmin: false },
   // Levi Couple
-  { key: 'dan',    name: 'דן לוי',       email: 'dan.levi@demo.com',     phone: '0505678901', household: 'levi',   role: 'admin',  isAdmin: true },
-  { key: 'maya',   name: 'מאיה לוי',     email: 'maya.levi@demo.com',    phone: '0506789012', household: 'levi',   role: 'admin',  isAdmin: true },
+  { key: 'dan',    name: 'דן לוי',       email: 'dan.levi@demo.com',     phone: '0505678901', household: 'levi',   role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face' },
+  { key: 'maya',   name: 'מאיה לוי',     email: 'maya.levi@demo.com',    phone: '0506789012', household: 'levi',   role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face' },
   // Singles
-  { key: 'tomer',  name: 'תומר בר',      email: 'tomer.bar@demo.com',    phone: '0507890123', household: 'tomer',  role: 'admin',  isAdmin: true },
+  { key: 'tomer',  name: 'תומר בר',      email: 'tomer.bar@demo.com',    phone: '0507890123', household: 'tomer',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face' },
   { key: 'shiran', name: 'שירן גל',      email: 'shiran.gal@demo.com',   phone: '0508901234', household: 'shiran', role: 'admin',  isAdmin: true },
   // Power user
-  { key: 'naama',  name: 'נעמה רוזן',    email: 'naama.rozen@demo.com',  phone: '0511234567', household: 'naama',  role: 'admin',  isAdmin: true },
+  { key: 'naama',  name: 'נעמה רוזן',    email: 'naama.rozen@demo.com',  phone: '0511234567', household: 'naama',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face' },
   // Inactive user
   { key: 'lior',   name: 'ליאור דהן',    email: 'lior.dahan@demo.com',   phone: '0512345678', household: 'lior',   role: 'admin',  isAdmin: true },
   // Fresh user
@@ -57,12 +57,12 @@ const USERS = [
   // Apple Sign-In user (Apple hides real name AND photo — no profileImage, email as display name)
   { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple', applePrivateRelay: true },
   // English-speaking user (English name, English locale preference)
-  { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
+  { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en', profileImageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face' },
   // Special characters in name (Hebrew with geresh/gershayim)
   { key: 'george', name: "ג'ורג' חביב", email: 'george.haviv@demo.com', phone: '0521234567', household: 'george', role: 'admin', isAdmin: true },
   // ── Roommates (3 girls sharing apartment — not family) ──
   { key: 'keren', name: 'קרן אביב',  email: 'keren.aviv@demo.com',  phone: '0531234567', household: 'roommates', role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' },
-  { key: 'hila',  name: 'הילה מורג',  email: 'hila.morag@demo.com',  phone: '0532345678', household: 'roommates', role: 'admin',  isAdmin: true },
+  { key: 'hila',  name: 'הילה מורג',  email: 'hila.morag@demo.com',  phone: '0532345678', household: 'roommates', role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face' },
   { key: 'sapir', name: 'ספיר דוד',   email: 'sapir.david@demo.com', phone: '0533456789', household: 'roommates', role: 'member', isAdmin: false },
   // Elderly user — minimal data, simple usage
   { key: 'shlomo', name: 'שלמה ברקוביץ', email: 'shlomo.berk@demo.com', phone: '0541234567', household: 'shlomo', role: 'admin', isAdmin: true },
