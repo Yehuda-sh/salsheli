@@ -36,7 +36,7 @@ function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)
 const USERS = [
   // Cohen Family (4 + 1 viewer)
   { key: 'avi',    name: 'אבי כהן',     email: 'avi.cohen@demo.com',    phone: '0501234567', household: 'cohen',  role: 'admin',  isAdmin: true },
-  { key: 'ronit',  name: 'רונית כהן',    email: 'ronit.cohen@demo.com',  phone: '0502345678', household: 'cohen',  role: 'admin',  isAdmin: true },
+  { key: 'ronit',  name: 'רונית כהן',    email: 'ronit.cohen@demo.com',  phone: '0502345678', household: 'cohen',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face' },
   { key: 'yuval',  name: 'יובל כהן',     email: 'yuval.cohen@demo.com',  phone: '0503456789', household: 'cohen',  role: 'member', isAdmin: false },
   { key: 'noa',    name: 'נועה כהן',     email: 'noa.cohen@demo.com',    phone: '0504567890', household: 'cohen',  role: 'member', isAdmin: false },
   { key: 'ori',    name: 'אורי שלום',    email: 'ori.shalom@demo.com',   phone: '0509012345', household: 'cohen',  role: 'member', isAdmin: false },
@@ -52,16 +52,16 @@ const USERS = [
   { key: 'lior',   name: 'ליאור דהן',    email: 'lior.dahan@demo.com',   phone: '0512345678', household: 'lior',   role: 'admin',  isAdmin: true },
   // Fresh user
   { key: 'yael',   name: 'יעל מזרחי',    email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
-  // Google Sign-In user (no phone, has profile image)
-  { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://lh3.googleusercontent.com/a/default-user' },
-  // Apple Sign-In user (Apple hides real name — display name is email until user updates profile)
+  // Google Sign-In user (has profile image from Google account, like real Google login)
+  { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' },
+  // Apple Sign-In user (Apple hides real name AND photo — no profileImage, email as display name)
   { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple', applePrivateRelay: true },
   // English-speaking user (English name, English locale preference)
   { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
   // Special characters in name (Hebrew with geresh/gershayim)
   { key: 'george', name: "ג'ורג' חביב", email: 'george.haviv@demo.com', phone: '0521234567', household: 'george', role: 'admin', isAdmin: true },
   // ── Roommates (3 girls sharing apartment — not family) ──
-  { key: 'keren', name: 'קרן אביב',  email: 'keren.aviv@demo.com',  phone: '0531234567', household: 'roommates', role: 'admin',  isAdmin: true },
+  { key: 'keren', name: 'קרן אביב',  email: 'keren.aviv@demo.com',  phone: '0531234567', household: 'roommates', role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' },
   { key: 'hila',  name: 'הילה מורג',  email: 'hila.morag@demo.com',  phone: '0532345678', household: 'roommates', role: 'admin',  isAdmin: true },
   { key: 'sapir', name: 'ספיר דוד',   email: 'sapir.david@demo.com', phone: '0533456789', household: 'roommates', role: 'member', isAdmin: false },
   // Elderly user — minimal data, simple usage
