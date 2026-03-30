@@ -648,19 +648,22 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
                   child: Row(
                     children: [
-                      // אימוג'י בעיגול צבעוני — Hero animation to details
+                      // Material Icon בעיגול צבעוני — Hero animation to details
                       Hero(
                         tag: 'list_hero_${list.id}',
                         child: Container(
-                          width: 50,
-                          height: 50,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.12),
+                            color: accentColor.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: Text(list.typeEmoji,
-                                style: const TextStyle(fontSize: kFontSizeTitle)),
+                            child: Icon(
+                              ListTypes.getByKeySafe(list.type).icon,
+                              color: accentColor,
+                              size: kIconSizeMedium,
+                            ),
                           ),
                         ),
                       ),
