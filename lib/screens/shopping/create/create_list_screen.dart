@@ -610,23 +610,47 @@ class _CreateListScreenState extends State<CreateListScreen> {
               width: isSelected ? 2 : 1,
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
-              const SizedBox(height: kSpacingXTiny),
-              Text(
-                typeInfo.shortName,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
-                  letterSpacing: 0.3,
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
+                    const SizedBox(height: kSpacingXTiny),
+                    Text(
+                      typeInfo.shortName,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
+                        letterSpacing: 0.3,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
+              if (isSelected)
+                Positioned(
+                  top: kSpacingXTiny,
+                  left: kSpacingXTiny,
+                  child: Container(
+                    width: kIconSizeSmall,
+                    height: kIconSizeSmall,
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check,
+                      size: kFontSizeTiny,
+                      color: cs.onPrimary,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

@@ -9,6 +9,11 @@
       "id": "event",
       "name": "אירועים",
       "templateFile": null
+    },
+    {
+      "id": "shabbat",
+      "name": "שבת",
+      "templateFile": "event_shabbat.json"
     }
   ],
   "subTemplates": [
@@ -29,6 +34,11 @@
           "id": "birthday",
           "name": "מסיבת יום הולדת",
           "templateFile": "event_birthday.json"
+        },
+        {
+          "id": "picnic",
+          "name": "פיקניק",
+          "templateFile": "event_picnic.json"
         }
       ]
     }
