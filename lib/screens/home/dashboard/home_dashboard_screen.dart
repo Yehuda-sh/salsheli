@@ -39,6 +39,7 @@ import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/action_center_card.dart';
+import 'widgets/onboarding_tips_card.dart';
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -246,6 +247,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
 
                   const SizedBox(height: kSpacingSmall),
+
+                  // === 5.5. טיפים למשתמש חדש (נעלם אוטומטית) ===
+                  OnboardingTipsCard(
+                    onNavigateToPantry: widget.onTabSelected != null
+                        ? () => widget.onTabSelected!(1)
+                        : null,
+                    onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
+                    onNavigateToInvite: () => Navigator.pushNamed(context, '/invite-users'),
+                  ),
 
                   // === 6. Action Center — דורש טיפול ===
                   _staggered(

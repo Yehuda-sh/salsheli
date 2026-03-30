@@ -186,6 +186,7 @@ class AppStringsHe {
   static const tutorial = TutorialStrings();
   static const legal = LegalStrings();
   static const actionCenter = ActionCenterStrings();
+  static const onboardingTips = OnboardingTipsStrings();
 }
 
 // ========================================
@@ -2062,6 +2063,26 @@ MemoZap מאפשרת ניהול רשימות קניות משותפות, מעקב
 // ========================================
 // Action Center Strings
 // ========================================
+
+// ========================================
+// Onboarding Tips Strings
+// ========================================
+
+class OnboardingTipsStrings {
+  const OnboardingTipsStrings();
+
+  String get fillPantryTitle => 'מלא את המזווה שלך';
+  String get fillPantrySubtitle => 'ספר לנו מה יש לך בבית — נתריע כשמשהו נגמר';
+  String get fillPantryAction => 'התחל';
+
+  String get inviteFamilyTitle => 'הזמן את המשפחה';
+  String get inviteFamilySubtitle => 'שתף רשימות קניות — תקנו יחד בזמן אמת';
+  String get inviteFamilyAction => 'הזמן';
+
+  String get createListsTitle => 'צור עוד רשימות';
+  String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
+  String get createListsAction => 'צור';
+}
 
 class ActionCenterStrings {
   const ActionCenterStrings();
