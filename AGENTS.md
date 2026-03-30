@@ -197,7 +197,40 @@ The following must NOT be changed without **explicit user confirmation**:
 
 ---
 
-## 8. How to Update This File
+## 8. Common Bug Patterns (Check When Scanning Code)
+
+When reading or reviewing any file, check for these recurring patterns found in previous sessions:
+
+### Error Handling
+- **`e.toString()` exposed to user** — Must use `userFriendlyError(e, context: '...')` from `core/error_utils.dart`
+- **Hardcoded Hebrew in error messages** — Provider `_errorMessage` must use AppStrings, not inline Hebrew
+- **Missing `mounted` check after await** — Every `setState` or `context` use after async must be guarded
+
+### Design System
+- **`kSticky*` colors used directly** — Must go through `brand?.stickyX ?? kStickyX` for Dark Mode support
+- **Hardcoded `size:`, `fontSize:`, `width:`, `height:`** — Must use `kIconSize*`, `kFontSize*`, `kSpacing*`, `kBorderRadius*`
+- **Missing `const`** on `SizedBox`, `EdgeInsets`, `Icon`, `Duration`, `Spacer`
+- **`Colors.xxx`** — Only `Colors.transparent` allowed. Everything else from `Theme.of(context).colorScheme`
+
+### Architecture
+- **Services created with `new`** — Must use `context.read<Service>()` via Provider (e.g., `HouseholdService()` → `context.read<HouseholdService>()`)
+- **`NotebookBackground()` without `const`** — Always `const NotebookBackground()`
+- **AppBar without glass blur** — All push-screens with AppBar must have `flexibleSpace: ClipRect(child: BackdropFilter(...))`
+
+### Data
+- **Product `unit` vs `defaultUnit`** — Catalog `unit` is Shufersal's measurement (מיליליטר). For user display/inventory, use `defaultUnit` (יח')
+- **Product names with English suffix** — Clean with `_cleanProductName()` before display
+- **Firestore notification types** — Must be in `isValidNotificationType()` enum in `firestore.rules`
+
+### UI/UX
+- **Bottom sheet height** — With many items, add `maxHeight` constraint (85% screen height)
+- **RTL** — Use `EdgeInsetsDirectional`, `AlignmentDirectional`, check chevron direction
+- **Tap targets** — Minimum 44x44dp for interactive elements
+- **`HapticFeedback.*()` must be wrapped in `unawaited()`**
+
+---
+
+## 9. How to Update This File
 
 At the end of every **Cowork session**:
 
