@@ -31,6 +31,7 @@ import 'package:provider/provider.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/inventory_provider.dart';
+import '../providers/user_context.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -186,6 +187,35 @@ class _AppLayoutState extends State<AppLayout> {
         ],
       ),
       centerTitle: true,
+      // 👤 Avatar בצד ימין (leading ב-RTL)
+      leading: Padding(
+        padding: const EdgeInsetsDirectional.only(start: kSpacingSmall),
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).pushNamed('/settings'),
+          child: Center(
+            child: Container(
+              width: kIconSizeLarge,
+              height: kIconSizeLarge,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 1.5),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Builder(
+                builder: (ctx) {
+                  final userCtx = ctx.watch<UserContext>();
+                  final url = userCtx.profileImageUrl;
+                  if (url != null) {
+                    return Image.network(url, fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover));
+                  }
+                  return Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
       actions: [
         // 🔔 Notifications — only notification count (not low stock)
         IconButton(
@@ -197,7 +227,6 @@ class _AppLayoutState extends State<AppLayout> {
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),
-        // 🚪 Logout — settings icon (logout moved to settings)
       ],
     );
   }

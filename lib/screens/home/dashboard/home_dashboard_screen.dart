@@ -178,9 +178,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         .toList()
       ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
-    // שם משפחה להצגה — used in header subtitle
-    final familyName = _getFamilyDisplayName(userContext);
-
     var sectionIndex = 0;
 
     return Scaffold(
@@ -226,21 +223,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  // === 2. Header עם ברכה דינמית ===
+                  // === 2. ברכה קומפקטית + אימות אימייל ===
                   _staggered(
-                    _buildHeader(
-                      context,
-                      userName: userContext.displayName,
-                      familyName: familyName,
-                      activeListsCount: activeLists.length,
-                    ),
+                    _buildCompactGreeting(context, userContext, activeLists.length),
                     sectionIndex++,
                   ),
-
-                  // === 2.5. אימות אימייל (אחרי ברכה, לפני תוכן) ===
                   const EmailVerificationBanner(),
 
-                  const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingSmall),
 
                   // === 4. הצעות להיום ===
                   _staggered(
@@ -352,20 +342,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
-  // 1. HEADER - Glassmorphic + ברכה דינמית לפי שעה
+  // 2. COMPACT GREETING — שורת ברכה קומפקטית (avatar עבר ל-AppBar)
   // ============================================
-  Widget _buildHeader(
-    BuildContext context, {
-    required String? userName,
-    required String? familyName,
-    required int activeListsCount,
-  }) {
+  Widget _buildCompactGreeting(BuildContext context, UserContext userContext, int activeListsCount) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.homeDashboard;
-    final userContext = context.read<UserContext>();
+    final userName = userContext.displayName;
 
-    // ברכה קצרה לפי שעה
     final hour = DateTime.now().hour;
     final greetingAsset = hour < 12
         ? 'assets/images/greeting_morning.webp'
@@ -375,114 +359,49 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ? 'assets/images/greeting_evening.webp'
                 : 'assets/images/greeting_night.webp';
 
-    // ✅ REMOVED: unused initials variable
-
     return Row(
       children: [
-        // User avatar — gradient ring + לחיצה פותחת bottom sheet
-        GestureDetector(
-          onTap: () => _showUserInfoSheet(context, userName, familyName),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [cs.primary, cs.tertiary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+        Image.asset(greetingAsset, width: kIconSizeMedium, height: kIconSizeMedium),
+        const SizedBox(width: kSpacingSmall),
+        Flexible(
+          child: Text(
+            strings.timeBasedGreeting(userName, hour),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: cs.onSurface,
             ),
-            child: Container(
-              margin: const EdgeInsets.all(2.5),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: userContext.profileImageUrl != null
-                  ? Image.network(
-                      userContext.profileImageUrl!,
-                      width: 43,
-                      height: 43,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Image.asset(
-                        'assets/images/default_avatar.webp',
-                        width: 43,
-                        height: 43,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/default_avatar.webp',
-                      width: 43,
-                      height: 43,
-                      fit: BoxFit.cover,
-                    ),
-            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: kSpacingSmall),
-
-        // ברכה + subtitle
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Image.asset(greetingAsset, width: kIconSizeLarge, height: kIconSizeLarge),
-                  const SizedBox(width: kSpacingSmall),
-                  Flexible(
-                    child: Text(
-                      strings.timeBasedGreeting(userName, hour),
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+        if (activeListsCount > 0)
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  strings.activeListsSubtitle(activeListsCount),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
                   ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        activeListsCount > 0
-                            ? AppStrings.homeDashboard.activeListsSubtitle(activeListsCount)
-                            : familyName ?? '',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingXTiny),
-                    Icon(
-                      Directionality.of(context) == TextDirection.rtl
-                          ? Icons.chevron_left
-                          : Icons.chevron_right,
-                      size: kIconSizeSmall,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ],
+                Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left
+                      : Icons.chevron_right,
+                  size: kIconSizeSmall,
+                  color: cs.onSurfaceVariant,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-
-            ],
-          );
+      ],
+    );
   }
 
   /// Bottom sheet עם פרטי המשתמש
