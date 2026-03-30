@@ -224,13 +224,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
 
                   // === 2. ברכה קומפקטית + אימות אימייל ===
-                  _staggered(
-                    _buildCompactGreeting(context, userContext, activeLists.length),
-                    sectionIndex++,
-                  ),
+                  // === 2. אימות אימייל (אם צריך) ===
                   const EmailVerificationBanner(),
-
-                  const SizedBox(height: kSpacingSmall),
 
                   // === 4. הצעות להיום ===
                   _staggered(
