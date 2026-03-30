@@ -92,31 +92,20 @@ class OnboardingTipsCard extends StatelessWidget {
 
     if (tips.isEmpty) return const SizedBox.shrink();
 
-    // קרוסלה אופקית של Sticky Notes — כמו הצעות המזווה
+    // Sticky Notes אנכיים — כל כרטיס שורה מלאה
     return Column(
-      children: [
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            physics: const BouncingScrollPhysics(),
-            itemCount: tips.length,
-            itemBuilder: (context, index) {
-              final rotation = (index.isEven ? 1 : -1) * 0.015;
-              return Padding(
-                padding: EdgeInsets.only(
-                  left: index == 0 ? 0 : kSpacingSmall,
-                ),
-                child: _StickyNoteTip(tip: tips[index], rotation: rotation)
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: (100 * index).ms)
-                    .slideY(begin: 0.15, end: 0, duration: 400.ms, delay: (100 * index).ms),
-              );
-            },
-          ),
-        ),
-      ],
+      children: tips.asMap().entries.map((entry) {
+        final index = entry.key;
+        final tip = entry.value;
+        final rotation = (index.isEven ? 1 : -1) * 0.01;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: kSpacingSmall),
+          child: _StickyNoteTip(tip: tip, rotation: rotation)
+              .animate()
+              .fadeIn(duration: 400.ms, delay: (100 * index).ms)
+              .slideX(begin: 0.1, end: 0, duration: 400.ms, delay: (100 * index).ms),
+        );
+      }).toList(),
     );
   }
 }
@@ -156,8 +145,7 @@ class _StickyNoteTip extends StatelessWidget {
       child: GestureDetector(
         onTap: tip.onAction,
         child: Container(
-          width: 160,
-          padding: const EdgeInsets.all(kSpacingSmallPlus),
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -170,16 +158,15 @@ class _StickyNoteTip extends StatelessWidget {
             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             boxShadow: [
               BoxShadow(
-                color: shadowColor.withValues(alpha: 0.15),
-                blurRadius: 6,
-                offset: const Offset(2, 3),
+                color: shadowColor.withValues(alpha: 0.12),
+                blurRadius: 4,
+                offset: const Offset(1, 2),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Row(
             children: [
-              // אייקון
+              // אייקון בעיגול
               Container(
                 width: kIconSizeLarge,
                 height: kIconSizeLarge,
@@ -189,34 +176,36 @@ class _StickyNoteTip extends StatelessWidget {
                 ),
                 child: Icon(tip.icon, size: kIconSizeSmallPlus, color: cs.onSurface.withValues(alpha: 0.7)),
               ),
-              const SizedBox(height: kSpacingSmall),
+              const SizedBox(width: kSpacingSmallPlus),
 
-              // כותרת
-              Text(
-                tip.title,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: kSpacingXTiny),
-
-              // תיאור
+              // טקסט
               Expanded(
-                child: Text(
-                  tip.subtitle,
-                  style: TextStyle(
-                    fontSize: kFontSizeTiny,
-                    color: cs.onSurface.withValues(alpha: 0.6),
-                    height: 1.3,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      tip.title,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      tip.subtitle,
+                      style: TextStyle(
+                        fontSize: kFontSizeTiny,
+                        color: cs.onSurface.withValues(alpha: 0.6),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(width: kSpacingSmall),
 
               // כפתור
               Container(
@@ -225,20 +214,13 @@ class _StickyNoteTip extends StatelessWidget {
                   color: cs.scrim.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.arrow_forward, size: kFontSizeSmall, color: cs.onSurface),
-                    const SizedBox(width: kSpacingXTiny),
-                    Text(
-                      tip.actionLabel,
-                      style: TextStyle(
-                        fontSize: kFontSizeTiny,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  tip.actionLabel,
+                  style: TextStyle(
+                    fontSize: kFontSizeTiny,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface,
+                  ),
                 ),
               ),
             ],
