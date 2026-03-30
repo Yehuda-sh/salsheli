@@ -106,15 +106,17 @@ String _cleanProductName(String name) {
   // הסר רווחים מיותרים
   var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
 
-  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל")
-  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח)\s*$'), '');
+  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל", "750 מל")
+  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח|מיליליטר)\s*$'), '');
 
-  // קצר אם עדיין ארוך
-  if (clean.length > 25) {
-    clean = '${clean.substring(0, 22)}...';
-  }
+  // הסר מילים אנגליות (כמו "selected", "classic") — לא רלוונטי למשתמש
+  clean = clean.replaceAll(RegExp(r'\s+[a-zA-Z]+\s*$'), '');
 
-  return clean;
+  // הסר סוגריים עם תוכן אנגלי בסוף
+  clean = clean.replaceAll(RegExp(r'\s*\([a-zA-Z\s]+\)\s*$'), '');
+
+  // לא מקצרים ידנית — נותנים ל-Text widget עם maxLines+ellipsis לטפל
+  return clean.trim();
 }
 
 class _SuggestionsCarousel extends StatelessWidget {

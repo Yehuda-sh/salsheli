@@ -108,10 +108,20 @@ function byCategory(products, ...cats) {
 
 function normalizeUnit(u) {
   if (!u) return "יח'";
-  if (u === 'ק"ג' || u === 'קג') return 'ק"ג';
-  if (u === 'ליטר' || u === 'ל') return 'ליטר';
-  if (u === 'גרם' || u === 'גר') return 'גרם';
+  if (u === 'ק"ג' || u === 'קג' || u === 'קילוגרמים' || u === 'קילוגרם') return 'ק"ג';
+  if (u === 'ליטר' || u === 'ל' || u === 'ליטרים') return 'ליטר';
+  if (u === 'גרם' || u === 'גר' || u === 'גרמים') return 'גרם';
+  if (u === 'מ"ל' || u === 'מיליליטר' || u === 'מיליליטרים' || u === '100 מ"ל' || u === 'ל 100 מ"ל' || u === 'ל100 מ"ל') return "יח'";
+  if (u === '100 גרם' || u === 'ל 100 גרם' || u === 'לק"ג') return "יח'";
+  if (u === 'יחידה' || u === 'יחידות' || u === 'יח' || u === 'י"ח' || u === 'יחידו') return "יח'";
+  if (u === 'מטר' || u === 'מטרים' || u === '100 מטר') return "יח'";
+  if (u === 'אין' || u === 'אלף' || u === 'ארגז') return "יח'";
   return u;
+}
+
+/// For inventory: prefer defaultUnit (what user would use) over unit (Shufersal's measurement)
+function inventoryUnit(product) {
+  return normalizeUnit(product.defaultUnit || product.unit);
 }
 
 // מיקומי אחסון — חייבים להתאים ל-StorageLocations IDs באפליקציה
@@ -698,7 +708,7 @@ async function main() {
         category: p.category || 'כללי',
         location: locationForCategory(p.category),
         quantity: qty,
-        unit: normalizeUnit(p.unit),
+        unit: inventoryUnit(p),
         min_quantity: minQty,
         expiry_date: p.category === 'מוצרי חלב'
           ? (i === 0 ? daysAgo(2).toISOString()     // expired 2 days ago!
