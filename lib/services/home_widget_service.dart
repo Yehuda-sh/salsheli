@@ -16,7 +16,7 @@ import '../models/inventory_item.dart';
 const String _kAppGroupId = 'group.com.memozap.app';
 
 /// Android widget class name
-const String _kAndroidWidgetProvider = 'com.memozap.app.PantryWidgetProvider';
+const String _kAndroidWidgetProvider = 'PantryWidgetProvider';
 
 /// Keys for widget data
 class _WidgetKeys {

@@ -1277,12 +1277,19 @@ async function main() {
   console.log('   ⏰ Levi weekly: target_date set to 2 days AGO (tests urgency "עבר!")');
 
   // PATCH 2: Who Brings item that is FULL (neededCount == volunteers)
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat').update({
-    'items.3': makeWhoBringsItem('wb_4', 'לחם', 2, [
-      { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: hoursAgo(4).toISOString() },
-      { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: hoursAgo(3).toISOString() },
-    ]),
-  });
+  // ⚠️ Can't use 'items.3' — Firestore converts array to map. Read-modify-write instead.
+  const shabbatRef = db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat');
+  const shabbatDoc = await shabbatRef.get();
+  if (shabbatDoc.exists) {
+    const items = shabbatDoc.data().items || [];
+    if (items.length > 3) {
+      items[3] = makeWhoBringsItem('wb_4', 'לחם', 2, [
+        { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: hoursAgo(4).toISOString() },
+        { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: hoursAgo(3).toISOString() },
+      ]);
+      await shabbatRef.update({ items });
+    }
+  }
   console.log('   ✅ Shabbat wb_4 "לחם": now FULL (2/2 volunteers)');
 
   // PATCH 3: Inventory items with notes
@@ -1310,12 +1317,18 @@ async function main() {
   console.log('   ✅ Shiran: "הכל נקנה!" (active, 100% checked — tests green progress bar)');
 
   // PATCH 5: Product with very large quantity
-  await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget').update({
-    'items.0': makeProductItem(
-      { name: 'מים מינרליים 1.5 ליטר', category: 'משקאות', price: 3.5, defaultUnit: 'ליטר' },
-      0, { id: 'item_bgt_0', quantity: 24, isChecked: false }
-    ),
-  });
+  const budgetRef = db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget');
+  const budgetDoc = await budgetRef.get();
+  if (budgetDoc.exists) {
+    const budgetItems = budgetDoc.data().items || [];
+    if (budgetItems.length > 0) {
+      budgetItems[0] = makeProductItem(
+        { name: 'מים מינרליים 1.5 ליטר', category: 'משקאות', price: 3.5, defaultUnit: 'ליטר' },
+        0, { id: 'item_bgt_0', quantity: 24, isChecked: false }
+      );
+      await budgetRef.update({ items: budgetItems });
+    }
+  }
   console.log('   🔢 Naama budget list: item 0 quantity = 24 (large quantity display test)');
 
   // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
