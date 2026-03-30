@@ -42,18 +42,33 @@ class PantryProductSelectionSheet extends StatefulWidget {
   /// סינון ראשוני — אם מועבר, הקטלוג נפתח עם חיפוש/סינון מוגדר מראש
   final String? initialSearchQuery;
 
-  const PantryProductSelectionSheet({super.key, this.initialSearchQuery});
+  /// קטגוריות לסינון מראש (לדוגמה: מוצרי יסוד)
+  final Set<String>? initialCategories;
+
+  const PantryProductSelectionSheet({super.key, this.initialSearchQuery, this.initialCategories});
 
   /// מציג את ה-bottom sheet לבחירת מוצרים
-  static Future<void> show(BuildContext context, {String? initialSearchQuery}) {
+  static Future<void> show(BuildContext context, {String? initialSearchQuery, Set<String>? initialCategories}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PantryProductSelectionSheet(initialSearchQuery: initialSearchQuery),
+      builder: (_) => PantryProductSelectionSheet(initialSearchQuery: initialSearchQuery, initialCategories: initialCategories),
     );
   }
+
+  /// קטגוריות מוצרי יסוד — מהקטלוג האמיתי
+  static const Set<String> basicCategories = {
+    'מוצרי חלב',
+    'לחם ומאפים',
+    'אורז ופסטה',
+    'שמנים ורטבים',
+    'תבלינים ואפייה',
+    'ביצים',
+    'שימורים',
+    'משקאות',
+  };
 
   @override
   State<PantryProductSelectionSheet> createState() =>
@@ -96,6 +111,17 @@ class _PantryProductSelectionSheetState
       _searchController.text = widget.initialSearchQuery!;
     }
     _loadProducts();
+  }
+
+  /// סינון לפי קטגוריות מראש (אחרי טעינה)
+  void _applyInitialCategoryFilter() {
+    if (widget.initialCategories == null || widget.initialCategories!.isEmpty) return;
+    // סנן רק מוצרים מהקטגוריות שהוגדרו
+    _filteredProducts = _allProducts
+        .where((p) => widget.initialCategories!.contains(p['category'] as String? ?? ''))
+        .toList();
+    // עדכן קטגוריות שמוצגות
+    _categories = widget.initialCategories!;
   }
 
   @override
@@ -202,6 +228,9 @@ class _PantryProductSelectionSheetState
         _categories = categories;
         _existingProductNames = existingNames;
         _isLoading = false;
+
+        // אם יש סינון קטגוריות מראש — החל אותו
+        _applyInitialCategoryFilter();
       });
     } catch (e) {
       if (!mounted) return;

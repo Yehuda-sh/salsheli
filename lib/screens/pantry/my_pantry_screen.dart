@@ -504,9 +504,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   Future<void> _addStarterItems() async {
-    // פתיחת קטלוג מוצרים עם סינון "מוצרי יסוד" — מוצרים אמיתיים מהקטלוג
+    // פתיחת קטלוג מוצרים מסונן לקטגוריות מוצרי יסוד — מוצרים אמיתיים מהקטלוג
     if (!mounted) return;
-    PantryProductSelectionSheet.show(context, initialSearchQuery: AppStrings.pantry.starterSearchQuery);
+    PantryProductSelectionSheet.show(
+      context,
+      initialCategories: PantryProductSelectionSheet.basicCategories,
+    );
   }
 
   // ✅ Legacy method kept for reference — was auto-adding from template
