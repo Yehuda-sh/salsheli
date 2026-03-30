@@ -1,11 +1,10 @@
 // 📄 lib/screens/home/dashboard/widgets/onboarding_tips_card.dart
 //
-// 🎯 כרטיסי הדרכה למשתמשים חדשים — מופיעים כשהמסך ריק.
-// כל כרטיס נעלם אוטומטית כשהמשתמש ביצע את הפעולה.
-//
-// 🔗 Related: HomeDashboardScreen, InventoryProvider, UserContext
+// 🎯 כרטיסי הדרכה למשתמשים חדשים — Sticky Notes צבעוניים.
+// נעלמים אוטומטית כשהמשתמש מתקדם.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,7 +18,6 @@ import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/user_context.dart';
 import '../../../../theme/app_theme.dart';
 
-/// כרטיסי הדרכה — "התחל כאן" למשתמש חדש
 class OnboardingTipsCard extends StatelessWidget {
   final VoidCallback? onNavigateToPantry;
   final VoidCallback? onNavigateToCreateList;
@@ -44,12 +42,10 @@ class OnboardingTipsCard extends StatelessWidget {
     final listCount = listsProvider.lists.length;
     final pantryCount = inventoryProvider.items.length;
     final householdName = userContext.user?.householdName;
-    // בדיקה בסיסית אם יש חברי בית (אם שם הבית מכיל "של" — סביר שזה solo)
     final isSoloHousehold = householdName == null ||
         householdName.contains('של') ||
         householdName.contains('Home');
 
-    // בנה רשימת טיפים שעדיין רלוונטיים
     final tips = <_TipData>[];
 
     if (pantryCount < 3) {
@@ -94,19 +90,32 @@ class OnboardingTipsCard extends StatelessWidget {
       ));
     }
 
-    // אם אין טיפים — לא מציגים
     if (tips.isEmpty) return const SizedBox.shrink();
 
+    // קרוסלה אופקית של Sticky Notes — כמו הצעות המזווה
     return Column(
       children: [
-        ...tips.asMap().entries.map((entry) {
-          final index = entry.key;
-          final tip = entry.value;
-          return _TipTile(tip: tip)
-              .animate()
-              .fadeIn(duration: 400.ms, delay: (100 * index).ms)
-              .slideY(begin: 0.1, end: 0, duration: 400.ms, delay: (100 * index).ms);
-        }),
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            physics: const BouncingScrollPhysics(),
+            itemCount: tips.length,
+            itemBuilder: (context, index) {
+              final rotation = (index.isEven ? 1 : -1) * 0.015;
+              return Padding(
+                padding: EdgeInsets.only(
+                  left: index == 0 ? 0 : kSpacingSmall,
+                ),
+                child: _StickyNoteTip(tip: tips[index], rotation: rotation)
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: (100 * index).ms)
+                    .slideY(begin: 0.15, end: 0, duration: 400.ms, delay: (100 * index).ms),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -130,83 +139,106 @@ class _TipData {
   });
 }
 
-class _TipTile extends StatelessWidget {
+/// Sticky Note tip — עיצוב פתקית צבעונית עם צל וסיבוב
+class _StickyNoteTip extends StatelessWidget {
   final _TipData tip;
-  const _TipTile({required this.tip});
+  final double rotation;
+
+  const _StickyNoteTip({required this.tip, required this.rotation});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final shadowColor = Theme.of(context).shadowColor;
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      color: tip.color.withValues(alpha: 0.08),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        side: BorderSide(color: tip.color.withValues(alpha: 0.2)),
-      ),
-      child: InkWell(
+    return Transform.rotate(
+      angle: rotation,
+      child: GestureDetector(
         onTap: tip.onAction,
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: Padding(
+        child: Container(
+          width: 160,
           padding: const EdgeInsets.all(kSpacingSmallPlus),
-          child: Row(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                tip.color,
+                Color.lerp(tip.color, shadowColor, 0.04)!,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            boxShadow: [
+              BoxShadow(
+                color: shadowColor.withValues(alpha: 0.15),
+                blurRadius: 6,
+                offset: const Offset(2, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // אייקון בעיגול צבעוני
+              // אייקון
               Container(
-                width: 40,
-                height: 40,
+                width: kIconSizeLarge,
+                height: kIconSizeLarge,
                 decoration: BoxDecoration(
-                  color: tip.color.withValues(alpha: 0.15),
+                  color: cs.scrim.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(tip.icon, color: tip.color, size: kIconSizeSmallPlus),
+                child: Icon(tip.icon, size: kIconSizeSmallPlus, color: cs.onSurface.withValues(alpha: 0.7)),
               ),
-              const SizedBox(width: kSpacingSmallPlus),
+              const SizedBox(height: kSpacingSmall),
 
-              // טקסט
+              // כותרת
+              Text(
+                tip.title,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: kSpacingXTiny),
+
+              // תיאור
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Text(
+                  tip.subtitle,
+                  style: TextStyle(
+                    fontSize: kFontSizeTiny,
+                    color: cs.onSurface.withValues(alpha: 0.6),
+                    height: 1.3,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+
+              // כפתור
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+                decoration: BoxDecoration(
+                  color: cs.scrim.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    Icon(Icons.arrow_forward, size: kFontSizeSmall, color: cs.onSurface),
+                    const SizedBox(width: kSpacingXTiny),
                     Text(
-                      tip.title,
+                      tip.actionLabel,
                       style: TextStyle(
-                        fontSize: kFontSizeSmall,
+                        fontSize: kFontSizeTiny,
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      tip.subtitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeTiny,
-                        color: cs.onSurfaceVariant,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                   ],
-                ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-
-              // כפתור פעולה
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingTiny),
-                decoration: BoxDecoration(
-                  color: tip.color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                ),
-                child: Text(
-                  tip.actionLabel,
-                  style: TextStyle(
-                    fontSize: kFontSizeTiny,
-                    fontWeight: FontWeight.bold,
-                    color: tip.color,
-                  ),
                 ),
               ),
             ],
