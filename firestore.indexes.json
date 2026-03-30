@@ -66,6 +66,14 @@
         { "fieldPath": "created_at", "order": "DESCENDING" }
       ]
     },
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_read", "order": "ASCENDING" },
+        { "fieldPath": "read_at", "order": "ASCENDING" }
+      ]
+    },
 
     {
       "collectionGroup": "inventory",
