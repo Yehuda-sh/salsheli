@@ -10,19 +10,47 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/error_utils.dart';
+import '../l10n/app_strings.dart';
 
 /// שירות העלאת תמונות פרופיל ל-Firebase Storage
+///
+/// כולל rate limiting — ניתן להחליף תמונה אחת ל-24 שעות.
 class ImageUploadService {
   final FirebaseStorage _storage;
   final ImagePicker _picker;
+
+  /// מפתח ב-SharedPreferences לשמירת זמן העלאה אחרון
+  static const _kLastUploadKey = 'profile_image_last_upload';
+
+  /// cooldown בין העלאות (24 שעות)
+  static const _uploadCooldown = Duration(hours: 24);
 
   ImageUploadService({
     FirebaseStorage? storage,
     ImagePicker? picker,
   })  : _storage = storage ?? FirebaseStorage.instance,
         _picker = picker ?? ImagePicker();
+
+  /// בדיקה אם ניתן להעלות תמונה (cooldown 24 שעות)
+  ///
+  /// מחזיר null אם מותר, או Duration שנותר לחכות.
+  Future<Duration?> getCooldownRemaining() async {
+    final prefs = await SharedPreferences.getInstance();
+    final lastUpload = prefs.getInt(_kLastUploadKey) ?? 0;
+    final elapsed = DateTime.now().millisecondsSinceEpoch - lastUpload;
+    final remaining = _uploadCooldown.inMilliseconds - elapsed;
+    if (remaining <= 0) return null; // מותר להעלות
+    return Duration(milliseconds: remaining);
+  }
+
+  /// שמירת זמן העלאה אחרון
+  Future<void> _recordUploadTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_kLastUploadKey, DateTime.now().millisecondsSinceEpoch);
+  }
 
   /// בחירת תמונה מהגלריה או מהמצלמה
   ///
@@ -52,6 +80,15 @@ class ImageUploadService {
   /// await userContext.updateUserProfile(profileImageUrl: url);
   /// ```
   Future<String> uploadProfileImage(String userId, File imageFile) async {
+    // 🛡️ Rate limiting — בדיקת cooldown
+    final cooldown = await getCooldownRemaining();
+    if (cooldown != null) {
+      final hours = cooldown.inHours;
+      final minutes = cooldown.inMinutes % 60;
+      final timeStr = hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
+      throw Exception(AppStrings.settings.imageUploadCooldown(timeStr));
+    }
+
     try {
       final ref = _storage.ref('users/$userId/profile/avatar.jpg');
 
@@ -64,10 +101,14 @@ class ImageUploadService {
       await ref.putFile(imageFile, metadata);
 
       final downloadUrl = await ref.getDownloadURL();
-      if (kDebugMode) debugPrint('✅ Profile image uploaded: $downloadUrl');
 
+      // שמירת זמן העלאה — cooldown מתחיל
+      await _recordUploadTime();
+
+      if (kDebugMode) debugPrint('✅ Profile image uploaded: $downloadUrl');
       return downloadUrl;
     } catch (e) {
+      if (e.toString().contains(AppStrings.settings.imageUploadCooldown(''))) rethrow;
       throw Exception(userFriendlyError(e, context: 'uploadProfileImage'));
     }
   }

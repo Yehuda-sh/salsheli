@@ -856,6 +856,7 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get enterNameError => 'Please enter a name';
   @override String get profileUpdated => 'Profile updated successfully';
   @override String profileUpdateError(String error) => 'Error updating: $error';
+  @override String imageUploadCooldown(String timeRemaining) => 'You can change your photo again in $timeRemaining';
 
   @override String get loggingOut => 'Logging out...';
   @override String logoutError(String error) => 'Logout error: $error';

@@ -795,11 +795,24 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                   const SizedBox(height: kSpacingLarge),
 
-                  // תמונת פרופיל — upload או emoji
+                  // תמונת פרופיל — upload או emoji (cooldown 24 שעות)
                   Center(
                     child: GestureDetector(
                       onTap: isUploading ? null : () async {
                         final imageService = ImageUploadService();
+
+                        // בדיקת cooldown לפני פתיחת gallery
+                        final cooldown = await imageService.getCooldownRemaining();
+                        if (cooldown != null) {
+                          final hours = cooldown.inHours;
+                          final minutes = cooldown.inMinutes % 60;
+                          final timeStr = hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text(AppStrings.settings.imageUploadCooldown(timeStr))),
+                          );
+                          return;
+                        }
+
                         final picked = await imageService.pickImage();
                         if (picked == null) return;
 

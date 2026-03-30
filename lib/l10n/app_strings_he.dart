@@ -877,6 +877,7 @@ class SettingsStrings {
   String get enterNameError => 'נא להזין שם';
   String get profileUpdated => 'הפרופיל עודכן בהצלחה';
   String profileUpdateError(String error) => 'שגיאה בעדכון: $error';
+  String imageUploadCooldown(String timeRemaining) => 'ניתן להחליף תמונה שוב עוד $timeRemaining';
 
   // Debug/Misc
   String get loggingOut => 'מתנתק...';
