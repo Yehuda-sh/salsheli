@@ -185,14 +185,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         heroTag: 'home_fab',
         onPressed: () {
           unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        icon: Image.asset('assets/images/icon_new_list.webp', width: kSpacingXLarge, height: kSpacingXLarge),
-        label: Text(AppStrings.homeDashboard.newListButton),
+        tooltip: AppStrings.homeDashboard.newListButton,
+        child: Image.asset('assets/images/icon_new_list.webp', width: kSpacingLarge, height: kSpacingLarge),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
             end: const Offset(1.0, 1.0),

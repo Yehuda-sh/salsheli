@@ -106,27 +106,38 @@ String _cleanProductName(String name) {
   // הסר רווחים מיותרים
   var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
 
-  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל", "750 מל")
+  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל", "750 מל", "1000 גרם")
   clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח|מיליליטר)\s*$'), '');
 
-  // הסר מילים אנגליות (כמו "selected", "classic") — לא רלוונטי למשתמש
-  clean = clean.replaceAll(RegExp(r'\s+[a-zA-Z]+\s*$'), '');
+  // הסר מילים אנגליות בודדות בסוף (כמו "selected", "classic", "X")
+  clean = clean.replaceAll(RegExp(r'\s+[a-zA-Z]{1,15}\s*$'), '');
 
-  // הסר סוגריים עם תוכן אנגלי בסוף
+  // הסר סוגריים עם תוכן אנגלי
   clean = clean.replaceAll(RegExp(r'\s*\([a-zA-Z\s]+\)\s*$'), '');
 
-  // לא מקצרים ידנית — נותנים ל-Text widget עם maxLines+ellipsis לטפל
+  // הסר מספרים בודדים שנשארו בסוף (כמו "1", "500")
+  clean = clean.replaceAll(RegExp(r'\s+\d+\.?\d*\s*$'), '');
+
+  // לא מקצרים ידנית — maxLines+ellipsis ב-Text widget מטפל
   return clean.trim();
 }
 
-class _SuggestionsCarousel extends StatelessWidget {
+class _SuggestionsCarousel extends StatefulWidget {
   final List<SmartSuggestion> suggestions;
 
   const _SuggestionsCarousel({required this.suggestions});
 
   @override
+  State<_SuggestionsCarousel> createState() => _SuggestionsCarouselState();
+}
+
+class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
+  int _currentPage = 0;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
     return Column(
@@ -170,7 +181,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                 ),
                 const Spacer(),
                 // "הוסף הכל" button
-                _AddAllButton(suggestions: suggestions),
+                _AddAllButton(suggestions: widget.suggestions),
                 const SizedBox(width: kSpacingSmall),
                 // Badge עם shimmer
                 Container(
@@ -183,7 +194,7 @@ class _SuggestionsCarousel extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    AppStrings.suggestionsToday.itemCount(suggestions.length),
+                    AppStrings.suggestionsToday.itemCount(widget.suggestions.length),
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: brand?.stickyOrange ?? kStickyOrange,
                       fontWeight: FontWeight.w600,
@@ -204,30 +215,65 @@ class _SuggestionsCarousel extends StatelessWidget {
         // קרוסלה אופקית
         SizedBox(
           height: 165,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            physics: const BouncingScrollPhysics(),
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) {
-              // סיבוב אקראי קטן לכל כרטיס
-              final rotation = (index.isEven ? 1 : -1) * 0.02;
-              return RepaintBoundary(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: index == 0 ? 0 : kSpacingSmall,
-                    right: index == suggestions.length - 1 ? 0 : 0,
-                  ),
-                  child: _StickyNoteCard(
-                    suggestion: suggestions[index],
-                    rotation: rotation,
-                    index: index,
-                  ),
-                ),
-              );
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollUpdateNotification) {
+                final page = (notification.metrics.pixels / 180).round();
+                if (page != _currentPage && page >= 0 && page < widget.suggestions.length) {
+                  setState(() => _currentPage = page);
+                }
+              }
+              return false;
             },
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.suggestions.length,
+              itemBuilder: (context, index) {
+                // סיבוב אקראי קטן לכל כרטיס
+                final rotation = (index.isEven ? 1 : -1) * 0.02;
+                return RepaintBoundary(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: index == 0 ? 0 : kSpacingSmall,
+                      right: index == widget.suggestions.length - 1 ? 0 : 0,
+                    ),
+                    child: _StickyNoteCard(
+                      suggestion: widget.suggestions[index],
+                      rotation: rotation,
+                      index: index,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
+
+        // Dot indicator (רק אם יש יותר מ-2 כרטיסים)
+        if (widget.suggestions.length > 2)
+          Padding(
+            padding: const EdgeInsets.only(top: kSpacingSmall),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.suggestions.length, (i) {
+                final isActive = i == _currentPage;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: isActive ? 16 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? cs.primary.withValues(alpha: 0.7)
+                        : cs.outline.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                );
+              }),
+            ),
+          ),
       ],
     );
   }
@@ -508,17 +554,17 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   ),
                   const SizedBox(height: kSpacingSmall),
 
-                  // שם המוצר — מנקה ומקצר
+                  // שם המוצר — מנקה, פונט קטן יותר, 3 שורות
                   Expanded(
                     child: Text(
                       _cleanProductName(suggestion.productName),
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
-                        height: 1.3,
-                        fontSize: kFontSizeBody,
+                        height: 1.25,
+                        fontSize: kFontSizeSmall,
                       ),
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
