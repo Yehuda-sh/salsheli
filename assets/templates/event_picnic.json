@@ -1,63 +1,19 @@
 {
-  "templateName": "פיקניק",
-  "description": "רשימה לטיול או פיקניק בטבע",
+  "templateName": "פיקניק / טיול",
+  "description": "כל מה שצריך לפיקניק או טיול בטבע",
   "icon": "🧺",
   "items": [
-    {
-      "source": "supermarket",
-      "searchTerm": "מים מינרליים",
-      "quantity": 6,
-      "unit": "יח'",
-      "fallbackName": "מים"
-    },
-    {
-      "source": "bakery",
-      "searchTerm": "סנדוויצ'ים",
-      "quantity": 4,
-      "unit": "יח'",
-      "fallbackName": "סנדוויצ'ים"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "פירות",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "פירות"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חטיפים",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "חטיפים"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "מפיות",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "מפיות"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "קרם הגנה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "קרם הגנה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "שקיות אשפה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "שקיות אשפה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "כובע",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "כובע"
-    }
+    {"source": "supermarket", "searchTerm": "מים מינרליים", "quantity": 6, "unit": "יח'", "fallbackName": "מים"},
+    {"source": "bakery", "searchTerm": "לחם", "quantity": 1, "unit": "יח'", "fallbackName": "לחם לסנדוויצ'ים"},
+    {"source": "supermarket", "searchTerm": "חביתון", "quantity": 1, "unit": "יח'", "fallbackName": "ממרח לסנדוויצ'"},
+    {"source": "greengrocer", "searchTerm": "פירות", "quantity": 1, "unit": "ק\"ג", "fallbackName": "פירות עונתיים"},
+    {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 2, "unit": "יח'", "fallbackName": "חטיפים"},
+    {"source": "supermarket", "searchTerm": "במבה", "quantity": 2, "unit": "יח'", "fallbackName": "במבה"},
+    {"source": "supermarket", "searchTerm": "מיץ", "quantity": 3, "unit": "יח'", "fallbackName": "מיצים קטנים"},
+    {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"},
+    {"source": "supermarket", "searchTerm": "צלחות חד", "quantity": 1, "unit": "יח'", "fallbackName": "צלחות חד פעמיות"},
+    {"source": "supermarket", "searchTerm": "שקיות אשפה", "quantity": 1, "unit": "יח'", "fallbackName": "שקיות אשפה"},
+    {"source": "pharmacy", "searchTerm": "קרם הגנה", "quantity": 1, "unit": "יח'", "fallbackName": "קרם הגנה"},
+    {"source": "pharmacy", "searchTerm": "דוחה יתושים", "quantity": 1, "unit": "יח'", "fallbackName": "דוחה יתושים"}
   ]
 }
