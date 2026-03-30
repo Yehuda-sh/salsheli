@@ -143,72 +143,44 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת Highlighter style (v4.0)
+        // כותרת קומפקטית — אייקון + טקסט + badge + הוסף הכל
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
-            decoration: BoxDecoration(
-              color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              border: BorderDirectional(
-                start: BorderSide(
-                  color: brand?.stickyOrange ?? kStickyOrange,
-                  width: 4,
+          child: Row(
+            children: [
+              Icon(
+                Icons.inventory_2_outlined,
+                size: kIconSizeSmallPlus,
+                color: brand?.stickyOrange ?? kStickyOrange,
+              ),
+              const SizedBox(width: kSpacingSmall),
+              Text(
+                AppStrings.suggestionsToday.title,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(kSpacingTiny),
-                  decoration: BoxDecoration(
-                    color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: Icon(
-                    Icons.inventory_2_outlined,
-                    size: kIconSizeSmallPlus,
+              const SizedBox(width: kSpacingSmall),
+              // Badge כמות
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                decoration: BoxDecoration(
+                  color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                ),
+                child: Text(
+                  AppStrings.suggestionsToday.itemCount(widget.suggestions.length),
+                  style: theme.textTheme.labelSmall?.copyWith(
                     color: brand?.stickyOrange ?? kStickyOrange,
+                    fontWeight: FontWeight.w600,
+                    fontSize: kFontSizeTiny,
                   ),
                 ),
-                const SizedBox(width: 10),
-                Text(
-                  AppStrings.suggestionsToday.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                // "הוסף הכל" button
-                _AddAllButton(suggestions: widget.suggestions),
-                const SizedBox(width: kSpacingSmall),
-                // Badge עם shimmer
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: kSpacingXTiny),
-                  decoration: BoxDecoration(
-                    color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    border: Border.all(
-                      color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: Text(
-                    AppStrings.suggestionsToday.itemCount(widget.suggestions.length),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: brand?.stickyOrange ?? kStickyOrange,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .shimmer(
-                      delay: 3000.ms,
-                      duration: 1000.ms,
-                      color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.3),
-                    ),
-              ],
-            ),
+              ),
+              const Spacer(),
+              // "הוסף הכל" button
+              _AddAllButton(suggestions: widget.suggestions),
+            ],
           ),
         ),
 
@@ -617,7 +589,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     const SizedBox(height: kSpacingTiny),
                   ],
 
-                  // כפתורי פעולה
+                  // כפתורי פעולה — שורה מסודרת: X | + הוסף
                   if (_isProcessing)
                     Center(
                       child: SizedBox(
@@ -632,26 +604,39 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   else
                     Row(
                       children: [
-                        // כפתור הוסף (always enabled - safe operation)
+                        // כפתור X (dismiss) — עיגול קטן בצד
+                        if (!_isUnknownStatus)
+                          GestureDetector(
+                            onTap: () => _onDismiss(context),
+                            child: Container(
+                              width: kIconSizeLarge,
+                              height: kIconSizeLarge,
+                              decoration: BoxDecoration(
+                                color: cs.scrim.withValues(alpha: 0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                size: kFontSizeMedium,
+                                color: cs.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(width: kSpacingSmall),
+                        // כפתור הוסף — ממלא את השאר
                         Expanded(
                           child: Material(
-                            color: cs.scrim.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                            color: cs.scrim.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                             child: InkWell(
                               onTap: () => _onAdd(context),
-                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: kSpacingSmall,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.add,
-                                      size: kIconSizeSmall,
-                                      color: cs.onSurface,
-                                    ),
+                                    Icon(Icons.add, size: kFontSizeMedium, color: cs.onSurface),
                                     const SizedBox(width: kSpacingXTiny),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
@@ -662,24 +647,6 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: kSpacingTiny),
-                        // כפתור X - disabled for unknown
-                        Material(
-                          color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          child: InkWell(
-                            onTap: _isUnknownStatus ? null : () => _onDismiss(context),
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                            child: Padding(
-                              padding: const EdgeInsets.all(kSpacingSmall),
-                              child: Icon(
-                                Icons.close,
-                                size: kIconSizeSmall,
-                                color: _isUnknownStatus ? cs.onSurface.withValues(alpha: 0.26) : cs.onSurface.withValues(alpha: 0.45),
                               ),
                             ),
                           ),
