@@ -185,6 +185,7 @@ class AppStringsEn {
   static const tutorial = TutorialStrings();
   // Legal — uses Hebrew base (legal content stays in Hebrew for now)
   static const legal = LegalStrings();
+  static const actionCenter = ActionCenterStringsEn();
 }
 
 // ========================================
@@ -1842,4 +1843,16 @@ class ShoppingSummaryStringsEn extends ShoppingSummaryStrings {
   @override String get loadError => 'Error loading summary';
   @override String get notFound => 'List not found';
   @override String get notFoundSubtitle => 'The list may have been deleted';
+}
+
+class ActionCenterStringsEn extends ActionCenterStrings {
+  const ActionCenterStringsEn();
+
+  @override String get title => 'Needs Attention';
+  @override String pendingRequests(int count) => '$count pending requests';
+  @override String get review => 'View';
+  @override String get overdueList => 'Overdue list!';
+  @override String get startShopping => 'Start';
+  @override String criticalStock(int count) => '$count items out of stock';
+  @override String get goToPantry => 'Pantry';
 }

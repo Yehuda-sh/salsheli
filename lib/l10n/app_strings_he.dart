@@ -185,6 +185,7 @@ class AppStringsHe {
   // ========================================
   static const tutorial = TutorialStrings();
   static const legal = LegalStrings();
+  static const actionCenter = ActionCenterStrings();
 }
 
 // ========================================
@@ -2056,4 +2057,20 @@ MemoZap מאפשרת ניהול רשימות קניות משותפות, מעקב
 
 9. יצירת קשר
 לשאלות בנושא פרטיות: memozap.app@gmail.com''';
+}
+
+// ========================================
+// Action Center Strings
+// ========================================
+
+class ActionCenterStrings {
+  const ActionCenterStrings();
+
+  String get title => 'דורש טיפול';
+  String pendingRequests(int count) => '$count בקשות ממתינות';
+  String get review => 'צפה';
+  String get overdueList => 'רשימה באיחור!';
+  String get startShopping => 'התחל';
+  String criticalStock(int count) => '$count מוצרים נגמרו';
+  String get goToPantry => 'מזווה';
 }

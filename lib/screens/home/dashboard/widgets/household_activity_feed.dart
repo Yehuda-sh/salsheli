@@ -26,7 +26,10 @@ class HouseholdActivityFeed extends StatefulWidget {
   /// Callback למעבר לטאב היסטוריה (במקום push חדש)
   final VoidCallback? onSeeAllHistory;
 
-  const HouseholdActivityFeed({super.key, this.onSeeAllHistory});
+  /// האם להציג כפתור "ראה הכל" — false כשמוצג בתוך מסך היסטוריה
+  final bool showSeeAll;
+
+  const HouseholdActivityFeed({super.key, this.onSeeAllHistory, this.showSeeAll = true});
 
   @override
   State<HouseholdActivityFeed> createState() => _HouseholdActivityFeedState();
@@ -85,7 +88,7 @@ class _HouseholdActivityFeedState extends State<HouseholdActivityFeed> {
             const SizedBox(width: kSpacingSmall),
             Text(AppStrings.homeDashboard.activityFeedTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const Spacer(),
-            TextButton(
+            if (widget.showSeeAll) TextButton(
               onPressed: () {
                 unawaited(HapticFeedback.lightImpact());
                 if (widget.onSeeAllHistory != null) {

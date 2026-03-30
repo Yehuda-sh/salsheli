@@ -38,7 +38,7 @@ import '../../settings/household_members_screen.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
-import 'widgets/household_activity_feed.dart';
+import 'widgets/action_center_card.dart';
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -245,14 +245,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingSmall),
 
-                  // === 6. פיד פעילות הבית ===
+                  // === 6. Action Center — דורש טיפול ===
                   _staggered(
                     RepaintBoundary(
-                      child: HouseholdActivityFeed(
-                        onSeeAllHistory: widget.onTabSelected != null
-                            ? () => widget.onTabSelected!(2)
+                      child: ActionCenterCard(
+                        onNavigateToList: (list) {
+                          Navigator.pushNamed(context, '/list-details', arguments: list);
+                        },
+                        onNavigateToPantry: widget.onTabSelected != null
+                            ? () => widget.onTabSelected!(1)
                             : null,
                       ),
                     ),
