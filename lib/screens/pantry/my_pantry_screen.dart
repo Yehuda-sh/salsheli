@@ -504,40 +504,27 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   Future<void> _addStarterItems() async {
+    // פתיחת קטלוג מוצרים עם סינון "מוצרי יסוד" — מוצרים אמיתיים מהקטלוג
+    if (!mounted) return;
+    PantryProductSelectionSheet.show(context, initialSearchQuery: AppStrings.pantry.starterSearchQuery);
+  }
 
-    // ✅ Cache values before async gap
+  // ✅ Legacy method kept for reference — was auto-adding from template
+  Future<void> _addStarterItemsLegacy() async {
     final strings = AppStrings.pantry;
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<InventoryProvider>();
 
     try {
-
-      // טוען את הפריטים מהתבנית
       final items = await TemplateService.loadPantryStarterItems();
-
       if (items.isEmpty) {
-        if (mounted) {
-          messenger.showSnackBar(
-            SnackBar(content: Text(strings.noStarterItemsFound)),
-          );
-        }
+        if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.noStarterItemsFound)));
         return;
       }
-
-      // מוסיף למזווה
       final count = await provider.addStarterItems(items);
-
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.starterItemsAdded(count))),
-        );
-      }
+      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsAdded(count))));
     } catch (e) {
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.starterItemsError)),
-        );
-      }
+      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsError)));
     }
   }
 

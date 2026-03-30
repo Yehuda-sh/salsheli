@@ -1788,6 +1788,7 @@ class PantryStrings {
   String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';
+  String get starterSearchQuery => 'חלב ביצים לחם שמן סוכר קמח אורז';
   String get suggestionsTitle => 'כדאי שיהיה בבית';
   String get hideSuggestions => 'הסתר';
   String itemDeleted(String name) => '$name נמחק';

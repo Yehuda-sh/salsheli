@@ -39,16 +39,19 @@ import '../../config/filters_config.dart';
 import '../common/app_loading_skeleton.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
-  const PantryProductSelectionSheet({super.key});
+  /// סינון ראשוני — אם מועבר, הקטלוג נפתח עם חיפוש/סינון מוגדר מראש
+  final String? initialSearchQuery;
+
+  const PantryProductSelectionSheet({super.key, this.initialSearchQuery});
 
   /// מציג את ה-bottom sheet לבחירת מוצרים
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {String? initialSearchQuery}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const PantryProductSelectionSheet(),
+      builder: (_) => PantryProductSelectionSheet(initialSearchQuery: initialSearchQuery),
     );
   }
 
@@ -87,6 +90,11 @@ class _PantryProductSelectionSheetState
   @override
   void initState() {
     super.initState();
+    // אם יש סינון ראשוני — הפעל אותו
+    if (widget.initialSearchQuery != null) {
+      _searchQuery = widget.initialSearchQuery!;
+      _searchController.text = widget.initialSearchQuery!;
+    }
     _loadProducts();
   }
 
