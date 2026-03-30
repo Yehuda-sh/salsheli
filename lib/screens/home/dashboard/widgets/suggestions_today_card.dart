@@ -145,33 +145,32 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת ממורכזת — אייקון + טקסט + badge | הוסף הכל בצד
+        // כותרת: ממורכזת עם הוסף הכל בשורה מתחת
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Column(
             children: [
-              _AddAllButton(suggestions: widget.suggestions),
-              const Spacer(),
-              Text(
-                AppStrings.suggestionsToday.title,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: kSpacingXTiny),
-              Text(
-                '${widget.suggestions.length}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.outline,
-                ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Icon(
-                Icons.inventory_2_outlined,
-                size: kIconSizeSmallPlus,
-                color: cs.onSurfaceVariant,
+              // שורה ראשית — ממורכזת
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                  const SizedBox(width: kSpacingSmall),
+                  Text(
+                    AppStrings.suggestionsToday.title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingXTiny),
+                  Text(
+                    '${widget.suggestions.length}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+                  ),
+                  const SizedBox(width: kSpacingSmallPlus),
+                  _AddAllButton(suggestions: widget.suggestions),
+                ],
               ),
             ],
           ),
@@ -348,6 +347,8 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
           ),
+          isScrollControlled: true,
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
           builder: (ctx) => SafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -359,12 +360,17 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
-                ...activeLists.map((l) => ListTile(
-                  leading: Icon(ListTypes.getByKeySafe(l.type).icon, color: ListTypes.getColor(l.type, cs, brand)),
-                  title: Text(l.name),
-                  subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
-                  onTap: () => Navigator.pop(ctx, l),
-                )),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: activeLists.map((l) => ListTile(
+                      leading: Icon(ListTypes.getByKeySafe(l.type).icon, color: ListTypes.getColor(l.type, cs, brand)),
+                      title: Text(l.name),
+                      subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
+                      onTap: () => Navigator.pop(ctx, l),
+                    )).toList(),
+                  ),
+                ),
                 const SizedBox(height: kSpacingSmall),
               ],
             ),

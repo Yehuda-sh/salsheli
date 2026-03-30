@@ -491,11 +491,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת, עדינה
+        // כותרת — ממורכזת, אותו סגנון כמו "הצעות מהמזווה"
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/icon_active_lists.webp', width: kIconSizeMedium, height: kIconSizeMedium),
+            Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
             const SizedBox(width: kSpacingSmall),
             Text(
               strings.activeListsTitle,
