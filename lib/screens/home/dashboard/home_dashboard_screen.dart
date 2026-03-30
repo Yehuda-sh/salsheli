@@ -491,23 +491,24 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת
+        // כותרת — ממורכזת, עדינה
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/icon_active_lists.webp', width: kIconSizeLarge, height: kIconSizeLarge),
+            Image.asset('assets/images/icon_active_lists.webp', width: kIconSizeMedium, height: kIconSizeMedium),
             const SizedBox(width: kSpacingSmall),
             Text(
               strings.activeListsTitle,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
               ),
             ),
-            const SizedBox(width: kSpacingSmall),
+            const SizedBox(width: kSpacingXTiny),
             Text(
               '${activeLists.length}',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.onSurfaceVariant,
+                color: cs.outline,
               ),
             ),
           ],

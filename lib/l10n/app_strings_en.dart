@@ -1444,6 +1444,8 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   String get addButton => 'Add';
   String get noActiveLists => 'No active lists - create a new list';
   @override
+  String get chooseListTitle => 'Add to which list?';
+  @override
   String get addedToList => 'Added to list';
   String addedToListName(String productName) => 'Added "$productName" to list';
   String dismissedForWeek(String productName) => 'Dismissed "$productName" for a week';

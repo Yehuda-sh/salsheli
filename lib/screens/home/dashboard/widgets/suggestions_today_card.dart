@@ -13,6 +13,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../../../config/list_types_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
@@ -143,43 +145,34 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת קומפקטית — אייקון + טקסט + badge + הוסף הכל
+        // כותרת ממורכזת — אייקון + טקסט + badge | הוסף הכל בצד
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              _AddAllButton(suggestions: widget.suggestions),
+              const Spacer(),
+              Text(
+                AppStrings.suggestionsToday.title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                '${widget.suggestions.length}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.outline,
+                ),
+              ),
+              const SizedBox(width: kSpacingSmall),
               Icon(
                 Icons.inventory_2_outlined,
                 size: kIconSizeSmallPlus,
-                color: brand?.stickyOrange ?? kStickyOrange,
+                color: cs.onSurfaceVariant,
               ),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                AppStrings.suggestionsToday.title,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-              // Badge כמות
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-                decoration: BoxDecoration(
-                  color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                ),
-                child: Text(
-                  AppStrings.suggestionsToday.itemCount(widget.suggestions.length),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: brand?.stickyOrange ?? kStickyOrange,
-                    fontWeight: FontWeight.w600,
-                    fontSize: kFontSizeTiny,
-                  ),
-                ),
-              ),
-              const Spacer(),
-              // "הוסף הכל" button
-              _AddAllButton(suggestions: widget.suggestions),
             ],
           ),
         ),
@@ -344,7 +337,42 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         return;
       }
 
-      final targetList = activeLists.first;
+      // אם יש יותר מרשימה אחת — dialog בחירה
+      ShoppingList targetList;
+      if (activeLists.length == 1) {
+        targetList = activeLists.first;
+      } else {
+        final chosen = await showModalBottomSheet<ShoppingList>(
+          context: context,
+          backgroundColor: cs.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+          ),
+          builder: (ctx) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Text(
+                    AppStrings.suggestionsToday.chooseListTitle,
+                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                ...activeLists.map((l) => ListTile(
+                  leading: Icon(ListTypes.getByKeySafe(l.type).icon, color: ListTypes.getColor(l.type, cs, brand)),
+                  title: Text(l.name),
+                  subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
+                  onTap: () => Navigator.pop(ctx, l),
+                )),
+                const SizedBox(height: kSpacingSmall),
+              ],
+            ),
+          ),
+        );
+        if (chosen == null || !mounted) return;
+        targetList = chosen;
+      }
       final item = widget.suggestion.toUnifiedListItem();
 
       await listsProvider.addUnifiedItem(targetList.id, item);
