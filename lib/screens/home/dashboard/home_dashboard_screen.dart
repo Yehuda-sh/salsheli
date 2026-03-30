@@ -214,14 +214,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
+                  // === 1. באנרים (Error / Active Shopper) ===
                   _staggered(
                     Column(
                       children: [
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
-                        const EmailVerificationBanner(),
                       ],
                     ),
                     sectionIndex++,
@@ -237,6 +236,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
+
+                  // === 2.5. אימות אימייל (אחרי ברכה, לפני תוכן) ===
+                  const EmailVerificationBanner(),
 
                   const SizedBox(height: kSpacingMedium),
 
