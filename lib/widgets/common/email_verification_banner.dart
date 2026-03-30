@@ -24,7 +24,8 @@ class EmailVerificationBanner extends StatefulWidget {
   State<EmailVerificationBanner> createState() => _EmailVerificationBannerState();
 }
 
-class _EmailVerificationBannerState extends State<EmailVerificationBanner> {
+class _EmailVerificationBannerState extends State<EmailVerificationBanner>
+    with WidgetsBindingObserver {
   bool _isSending = false;
   bool _isDismissed = false;
 
@@ -33,7 +34,29 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkDismissed();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// כשהאפליקציה חוזרת מ-background — reload user לבדוק אם אימת
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && !_isDismissed) {
+      _checkIfVerified();
+    }
+  }
+
+  Future<void> _checkIfVerified() async {
+    try {
+      await context.read<AuthService>().reloadUser();
+      if (mounted) setState(() {}); // rebuild — isEmailVerified may have changed
+    } catch (_) {}
   }
 
   Future<void> _checkDismissed() async {
