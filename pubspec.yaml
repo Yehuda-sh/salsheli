@@ -77,7 +77,6 @@ flutter:
     - assets/data/list_types/
     - assets/templates/
     - assets/images/
-    - assets/icons/
 
   fonts:
     - family: Assistant
