@@ -35,6 +35,7 @@
 // Last Updated: 24/03/2026
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -49,6 +50,7 @@ import '../../l10n/app_strings.dart';
 import '../../l10n/locale_manager.dart';
 import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
+import '../../services/image_upload_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/common/app_error_state.dart';
@@ -735,9 +737,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     final userContext = context.read<UserContext>();
     final currentName = userContext.user?.name ?? '';
     final currentAvatar = userContext.user?.profileImageUrl ?? '👤';
+    final hasRealImage = currentAvatar.startsWith('http');
 
     final nameController = TextEditingController(text: currentName);
     String selectedAvatar = _avatarOptions.contains(currentAvatar) ? currentAvatar : '👤';
+    String? pendingImageUrl; // URL חדש מ-upload
+    bool isUploading = false;
     bool isSaving = false;
 
     // שומרים הפניות לפני פתיחת ה-bottom sheet (נמנע מבעיות async context)
@@ -790,13 +795,77 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                   const SizedBox(height: kSpacingLarge),
 
-                  // בחירת אווטאר
+                  // תמונת פרופיל — upload או emoji
+                  Center(
+                    child: GestureDetector(
+                      onTap: isUploading ? null : () async {
+                        final imageService = ImageUploadService();
+                        final picked = await imageService.pickImage();
+                        if (picked == null) return;
+
+                        setBottomSheetState(() => isUploading = true);
+                        try {
+                          final userId = userContext.user?.id;
+                          if (userId == null) return;
+                          final url = await imageService.uploadProfileImage(userId, File(picked.path));
+                          setBottomSheetState(() {
+                            pendingImageUrl = url;
+                            isUploading = false;
+                          });
+                        } catch (e) {
+                          setBottomSheetState(() => isUploading = false);
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text(userFriendlyError(e, context: 'uploadImage'))),
+                          );
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          // Avatar circle
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: cs.surfaceContainerHighest,
+                              border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 2),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: isUploading
+                                ? Center(child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary))
+                                : pendingImageUrl != null
+                                    ? Image.network(pendingImageUrl!, fit: BoxFit.cover, width: 80, height: 80)
+                                    : hasRealImage
+                                        ? Image.network(currentAvatar, fit: BoxFit.cover, width: 80, height: 80,
+                                            errorBuilder: (_, _, _) => Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))))
+                                        : Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))),
+                          ),
+                          // Camera badge
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(kSpacingXTiny),
+                              decoration: BoxDecoration(
+                                color: cs.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.camera_alt, size: kIconSizeSmall, color: cs.onPrimary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmallPlus),
+
+                  // בחירת אימוג'י (fallback)
                   Text(
                     AppStrings.settings.chooseAvatar,
                     style: TextStyle(
-                      fontSize: kFontSizeBody,
+                      fontSize: kFontSizeSmall,
                       fontWeight: FontWeight.w600,
-                      color: cs.onSurface,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
@@ -890,6 +959,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               await userContext.updateUserProfile(
                                 name: newName,
                                 avatar: selectedAvatar,
+                                profileImageUrl: pendingImageUrl,
                               );
 
                               if (mounted) {
