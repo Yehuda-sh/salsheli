@@ -145,7 +145,7 @@ class _StickyNoteTip extends StatelessWidget {
       child: GestureDetector(
         onTap: tip.onAction,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
@@ -168,15 +168,15 @@ class _StickyNoteTip extends StatelessWidget {
             children: [
               // אייקון בעיגול
               Container(
-                width: kIconSizeLarge,
-                height: kIconSizeLarge,
+                width: kIconSizeXLarge,
+                height: kIconSizeXLarge,
                 decoration: BoxDecoration(
                   color: cs.scrim.withValues(alpha: 0.08),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(tip.icon, size: kIconSizeSmallPlus, color: cs.onSurface.withValues(alpha: 0.7)),
+                child: Icon(tip.icon, size: kIconSizeMedium, color: cs.onSurface.withValues(alpha: 0.7)),
               ),
-              const SizedBox(width: kSpacingSmallPlus),
+              const SizedBox(width: kSpacingMedium),
 
               // טקסט
               Expanded(
@@ -187,19 +187,19 @@ class _StickyNoteTip extends StatelessWidget {
                     Text(
                       tip.title,
                       style: TextStyle(
-                        fontSize: kFontSizeSmall,
+                        fontSize: kFontSizeBody,
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: kSpacingXTiny),
                     Text(
                       tip.subtitle,
                       style: TextStyle(
-                        fontSize: kFontSizeTiny,
+                        fontSize: kFontSizeSmall,
                         color: cs.onSurface.withValues(alpha: 0.6),
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
@@ -209,7 +209,7 @@ class _StickyNoteTip extends StatelessWidget {
 
               // כפתור
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                 decoration: BoxDecoration(
                   color: cs.scrim.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
@@ -217,7 +217,7 @@ class _StickyNoteTip extends StatelessWidget {
                 child: Text(
                   tip.actionLabel,
                   style: TextStyle(
-                    fontSize: kFontSizeTiny,
+                    fontSize: kFontSizeSmall,
                     fontWeight: FontWeight.bold,
                     color: cs.onSurface,
                   ),
