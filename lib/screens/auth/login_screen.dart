@@ -359,6 +359,21 @@ class _LoginScreenState extends State<LoginScreen>
     {'name': 'אורי שלום', 'email': 'ori.shalom@demo.com', 'role': 'Member', 'group': '🧓 סבא, צופה בכהן'},
     {'name': 'ליאור דהן', 'email': 'lior.dahan@demo.com', 'role': 'Admin', 'group': '😴 לא פעיל'},
     {'name': 'נעמה רוזן', 'email': 'naama.rozen@demo.com', 'role': 'Admin', 'group': '🎉 Power User'},
+    // 🆕 משתמש חדש לגמרי
+    {'name': 'יעל מזרחי', 'email': 'yael.fresh@demo.com', 'role': 'Admin', 'group': '🆕 Empty States'},
+    // 🔵 Social login users
+    {'name': 'גיל גוגל', 'email': 'gil.google@demo.com', 'role': 'Admin', 'group': '🔵 Google Sign-In'},
+    {'name': 'apple_user@icloud.com', 'email': 'apple_user@icloud.com', 'role': 'Admin', 'group': '🍎 Apple Sign-In'},
+    // 🌍 International
+    {'name': 'Mike Johnson', 'email': 'mike.johnson@demo.com', 'role': 'Admin', 'group': '🌍 English Speaker'},
+    {"name": "ג'ורג' חביב", 'email': 'george.haviv@demo.com', 'role': 'Admin', 'group': '🔤 Special Chars'},
+    // 🏠 שותפות דירה
+    {'name': 'קרן אביב', 'email': 'keren.aviv@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},
+    {'name': 'הילה מורג', 'email': 'hila.morag@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},
+    {'name': 'ספיר דוד', 'email': 'sapir.david@demo.com', 'role': 'Editor', 'group': '🏠 שותפות דירה'},
+    // 👴 מבוגר + 🚪 הוסר
+    {'name': 'שלמה ברקוביץ', 'email': 'shlomo.berk@demo.com', 'role': 'Admin', 'group': '👴 Elderly'},
+    {'name': 'אילן פרץ', 'email': 'ilan.peretz@demo.com', 'role': 'Admin', 'group': '🚪 Removed User'},
   ];
 
   /// סיסמה לכל משתמשי הדמו
