@@ -110,6 +110,59 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     });
   }
 
+  /// 🗑️ מחיקת רשימה עם dialog אישור + undo
+  void _showDeleteListDialog(ShoppingList list) {
+    unawaited(HapticFeedback.heavyImpact());
+    final messenger = ScaffoldMessenger.of(context);
+    final cs = Theme.of(context).colorScheme;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(AppStrings.shopping.deleteListTitle),
+        content: Text(AppStrings.shopping.deleteListMessage(list.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(AppStrings.common.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              try {
+                final provider = context.read<ShoppingListsProvider>();
+                await provider.deleteList(list.id);
+                if (mounted) {
+                  Navigator.of(context).pop(); // חזרה מפרטי הרשימה
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(AppStrings.shopping.listDeleted(list.name)),
+                      action: SnackBarAction(
+                        label: AppStrings.shopping.undoButton,
+                        onPressed: () async {
+                          await provider.restoreList(list);
+                        },
+                      ),
+                    ),
+                  );
+                }
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(userFriendlyError(e, context: 'deleteList')),
+                    backgroundColor: cs.error,
+                  ),
+                );
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: cs.error),
+            child: Text(AppStrings.shopping.deleteListButton),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// 📷 סריקת ברקוד והוספה לרשימה
   Future<void> _scanBarcodeAndAdd(ShoppingList currentList) async {
     final productsProvider = context.read<ProductsProvider>();
@@ -567,6 +620,27 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       unawaited(HapticFeedback.lightImpact());
                       _navigateToPopulateScreen(currentList);
                     },
+                  ),
+                // ⋮ תפריט נוסף (מחיקה)
+                if (currentList.isCurrentUserOwner)
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert),
+                    tooltip: AppStrings.common.moreOptions,
+                    onSelected: (value) {
+                      if (value == 'delete') _showDeleteListDialog(currentList);
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline, color: cs.error, size: kIconSizeMedium),
+                            const SizedBox(width: kSpacingSmall),
+                            Text(AppStrings.shopping.deleteListButton, style: TextStyle(color: cs.error)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),

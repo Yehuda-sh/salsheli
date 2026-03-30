@@ -295,6 +295,7 @@ class CommonStringsEn extends CommonStrings {
 
   String get logout => 'Log Out';
   String get cancel => 'Cancel';
+  @override String get moreOptions => 'More options';
   String get save => 'Save';
   String get delete => 'Delete';
   String get edit => 'Edit';

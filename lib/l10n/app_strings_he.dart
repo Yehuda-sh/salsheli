@@ -295,6 +295,7 @@ class CommonStrings {
 
   String get logout => 'התנתק';
   String get cancel => 'ביטול';
+  String get moreOptions => 'אפשרויות נוספות';
   String get save => 'שמור';
   String get delete => 'מחק';
   String get edit => 'ערוך';
