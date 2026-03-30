@@ -107,25 +107,34 @@ class ActionCenterCard extends StatelessWidget {
 
     return Column(
       children: [
-        // כותרת — אותו סגנון כמו שאר הסקשנים
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.notifications_active_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-            const SizedBox(width: kSpacingSmall),
-            Text(
-              AppStrings.actionCenter.title,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: cs.onSurfaceVariant,
-              ),
+        // כותרת — עם רקע paper לקריאות על קווי מחברת
+        Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+            decoration: BoxDecoration(
+              color: brand?.paperBackground?.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
-            const SizedBox(width: kSpacingXTiny),
-            Text(
-              '${actionItems.length}',
-              style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.notifications_active_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.actionCenter.title,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: kSpacingXTiny),
+                Text(
+                  '${actionItems.length}',
+                  style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
         const SizedBox(height: kSpacingSmall),
 

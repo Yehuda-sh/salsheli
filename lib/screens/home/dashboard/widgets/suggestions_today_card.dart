@@ -150,27 +150,34 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
           child: Column(
             children: [
-              // שורה ראשית — ממורכזת
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-                  const SizedBox(width: kSpacingSmall),
-                  Text(
-                    AppStrings.suggestionsToday.title,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurfaceVariant,
+              // שורה ראשית — ממורכזת, עם רקע paper לקריאות על קווי מחברת
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+                decoration: BoxDecoration(
+                  color: brand?.paperBackground?.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(
+                      AppStrings.suggestionsToday.title,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: kSpacingXTiny),
-                  Text(
-                    '${widget.suggestions.length}',
-                    style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
-                  ),
-                  const SizedBox(width: kSpacingSmallPlus),
-                  _AddAllButton(suggestions: widget.suggestions),
-                ],
+                    const SizedBox(width: kSpacingXTiny),
+                    Text(
+                      '${widget.suggestions.length}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+                    ),
+                    const SizedBox(width: kSpacingSmallPlus),
+                    _AddAllButton(suggestions: widget.suggestions),
+                  ],
+                ),
               ),
             ],
           ),

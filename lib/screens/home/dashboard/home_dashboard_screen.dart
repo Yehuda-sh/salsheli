@@ -504,27 +504,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת, אותו סגנון כמו "הצעות מהמזווה"
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-            const SizedBox(width: kSpacingSmall),
-            Text(
-              strings.activeListsTitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: cs.onSurfaceVariant,
+        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+          decoration: BoxDecoration(
+            color: theme.extension<AppBrand>()?.paperBackground?.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+              const SizedBox(width: kSpacingSmall),
+              Text(
+                strings.activeListsTitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(width: kSpacingXTiny),
-            Text(
-              '${activeLists.length}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.outline,
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                '${activeLists.length}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.outline,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: kSpacingSmall),
 
