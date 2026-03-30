@@ -366,11 +366,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
               key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: ListView(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   left: kSpacingMedium,
                   right: kSpacingMedium,
                   top: kSpacingSmall,
-                  bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
+                  bottom: kSpacingXLarge * 2, // מרווח קבוע — Scaffold מטפל ב-keyboard
                 ),
                 children: [
                     // 📋 כפתור בחירת תבנית
