@@ -1150,15 +1150,25 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           child: CircleAvatar(
                             radius: 40,
                             backgroundColor: cs.surface,
-                            child: _avatarOptions.contains(userContext.user?.profileImageUrl)
-                                ? Text(
-                                    userContext.user!.profileImageUrl!,
-                                    style: const TextStyle(fontSize: kFontSizeDisplay),
-                                  )
-                                : Text(
-                                    userName.isNotEmpty ? userName[0] : '?',
-                                    style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
-                                  ),
+                            backgroundImage: userContext.profileImageUrl != null &&
+                                    userContext.profileImageUrl!.startsWith('http')
+                                ? NetworkImage(userContext.profileImageUrl!)
+                                : null,
+                            onBackgroundImageError: userContext.profileImageUrl != null
+                                ? (_, _) {} // silent fallback
+                                : null,
+                            child: userContext.profileImageUrl != null &&
+                                    userContext.profileImageUrl!.startsWith('http')
+                                ? null // image handles display
+                                : _avatarOptions.contains(userContext.user?.profileImageUrl)
+                                    ? Text(
+                                        userContext.user!.profileImageUrl!,
+                                        style: const TextStyle(fontSize: kFontSizeDisplay),
+                                      )
+                                    : Text(
+                                        userName.isNotEmpty ? userName[0] : '?',
+                                        style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
+                                      ),
                           ),
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
