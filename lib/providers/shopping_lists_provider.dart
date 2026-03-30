@@ -429,6 +429,7 @@ class ShoppingListsProvider with ChangeNotifier {
               role: contact.role.name,
               userName: contact.name,
               userEmail: contact.email,
+              userAvatar: contact.avatar,
             );
           }
         }

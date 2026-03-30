@@ -199,8 +199,9 @@ abstract class ShoppingListsRepository {
     String userId,
     String role,
     String? userName,
-    String? userEmail,
-  );
+    String? userEmail, {
+    String? userAvatar,
+  });
 
   /// הוספת משתמש משותף לרשימה פרטית (לא household)
   ///
@@ -212,6 +213,7 @@ abstract class ShoppingListsRepository {
     required String role,
     String? userName,
     String? userEmail,
+    String? userAvatar,
   });
 
   /// מסיר משתמש משותף מהרשימה

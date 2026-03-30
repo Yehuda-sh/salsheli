@@ -251,8 +251,9 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     String userId,
     String role,
     String? userName,
-    String? userEmail,
-  ) async {
+    String? userEmail, {
+    String? userAvatar,
+  }) async {
     try {
 
       final docRef = _sharedListsCollection(householdId).doc(listId);
@@ -262,6 +263,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         'shared_at': FieldValue.serverTimestamp(),
         if (userName != null) FirestoreFields.userName: userName,
         if (userEmail != null) FirestoreFields.email: userEmail,
+        if (userAvatar != null) 'user_avatar': userAvatar,
       };
 
       await docRef.update({
@@ -289,6 +291,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
     required String role,
     String? userName,
     String? userEmail,
+    String? userAvatar,
   }) async {
     try {
 
@@ -299,6 +302,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
         'shared_at': FieldValue.serverTimestamp(),
         if (userName != null) FirestoreFields.userName: userName,
         if (userEmail != null) FirestoreFields.email: userEmail,
+        if (userAvatar != null) 'user_avatar': userAvatar,
       };
 
       await docRef.update({
