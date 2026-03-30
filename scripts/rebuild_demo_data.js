@@ -281,16 +281,52 @@ async function main() {
   console.log(`📦 Loaded ${products.length} products from catalog\n`);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 0. CLEANUP — delete pending_invites and custom_locations (top-level)
+  // 0. CLEANUP — delete ALL old data from previous runs
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  console.log('🧹 Cleaning up old top-level data...');
-  const pendingSnap = await db.collection('pending_invites').get();
-  const customLocSnap = await db.collection('custom_locations').get();
-  const batch0 = db.batch();
-  for (const doc of pendingSnap.docs) batch0.delete(doc.ref);
-  for (const doc of customLocSnap.docs) batch0.delete(doc.ref);
-  await batch0.commit();
-  console.log(`   🧹 Deleted ${pendingSnap.size} pending_invites + ${customLocSnap.size} custom_locations`);
+  console.log('🧹 Cleaning up ALL old data...');
+
+  // Helper: delete all docs in a collection (batched)
+  async function deleteCollection(collectionRef) {
+    const snap = await collectionRef.get();
+    if (snap.empty) return 0;
+    const batches = [];
+    let batch = db.batch();
+    let count = 0;
+    for (const doc of snap.docs) {
+      batch.delete(doc.ref);
+      count++;
+      if (count % 400 === 0) { batches.push(batch.commit()); batch = db.batch(); }
+    }
+    batches.push(batch.commit());
+    await Promise.all(batches);
+    return snap.size;
+  }
+
+  // Top-level collections
+  let cleaned = 0;
+  cleaned += await deleteCollection(db.collection('pending_invites'));
+  cleaned += await deleteCollection(db.collection('custom_locations'));
+  console.log(`   🧹 Top-level: ${cleaned} docs deleted`);
+
+  // User subcollections
+  const allUsers = await db.collection('users').get();
+  for (const userDoc of allUsers.docs) {
+    const uid = userDoc.id;
+    for (const sub of ['private_lists', 'notifications', 'pending_invites', 'saved_contacts', 'inventory']) {
+      await deleteCollection(db.collection('users').doc(uid).collection(sub));
+    }
+  }
+  console.log(`   🧹 User subcollections cleaned (${allUsers.size} users)`);
+
+  // Household subcollections
+  const allHouseholds = await db.collection('households').get();
+  for (const hDoc of allHouseholds.docs) {
+    const hId = hDoc.id;
+    for (const sub of ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests']) {
+      await deleteCollection(db.collection('households').doc(hId).collection(sub));
+    }
+  }
+  console.log(`   🧹 Household subcollections cleaned (${allHouseholds.size} households)`);
 
   const uids = {}; // key → firebase UID
 
