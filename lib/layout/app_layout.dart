@@ -187,11 +187,11 @@ class _AppLayoutState extends State<AppLayout> {
         ],
       ),
       centerTitle: true,
-      // 👤 Avatar בצד ימין (leading ב-RTL)
+      // 👤 Avatar בצד ימין (leading ב-RTL) — לחיצה עוברת לטאב הגדרות
       leading: Padding(
         padding: const EdgeInsetsDirectional.only(start: kSpacingSmall),
         child: GestureDetector(
-          onTap: () => Navigator.of(context).pushNamed('/settings'),
+          onTap: () => widget.onTabSelected(3), // index 3 = Settings tab
           child: Center(
             child: Container(
               width: kIconSizeLarge,
