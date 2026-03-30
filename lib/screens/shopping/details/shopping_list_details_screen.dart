@@ -500,6 +500,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       ),
                       child: Text(
                         currentList.name,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                       ),
@@ -826,6 +827,14 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   painter: PerforationPainter(color: cs.outline.withValues(alpha: 0.3)),
                 ),
                 const SizedBox(width: kSpacingSmall),
+                Text(
+                  AppStrings.listDetails.totalLabel,
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: kSpacingXTiny),
                 Text(
                   '₪${_totalEstimatedPrice(currentList).toStringAsFixed(0)}',
                   style: TextStyle(
