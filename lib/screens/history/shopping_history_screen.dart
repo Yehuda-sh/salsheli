@@ -603,17 +603,19 @@ class _ReceiptTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: kSpacingSmall),
-          // שם פריט
+          // שם פריט — פונט קטן יותר + 2 שורות
           Expanded(
             child: Text(
               item.name ?? '?',
               style: TextStyle(
+                fontSize: kFontSizeSmall,
                 decoration:
                     item.isChecked ? TextDecoration.lineThrough : null,
                 color: item.isChecked
                     ? cs.onSurface.withValues(alpha: 0.5)
                     : cs.onSurface,
               ),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),
