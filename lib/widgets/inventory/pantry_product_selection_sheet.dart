@@ -65,10 +65,39 @@ class PantryProductSelectionSheet extends StatefulWidget {
     'אורז ופסטה',
     'שמנים ורטבים',
     'תבלינים ואפייה',
-    'ביצים',
     'שימורים',
     'משקאות',
+    'מוצרי ניקיון',
+    'מוצרי בית',
+    'קפה ותה',
   };
+
+  /// מילות מפתח למוצרי יסוד — מסנן מוצרים ספציפיים בתוך הקטגוריות
+  static const List<String> _basicKeywords = [
+    // חלב וביצים
+    'חלב', 'ביצים', 'חמאה', 'גבינה צהובה', 'גבינה לבנה', 'שמנת', 'יוגורט', 'קוטג',
+    // לחם
+    'לחם', 'פיתה', 'חלה',
+    // מזווה
+    'אורז', 'פסטה', 'ספגטי', 'קמח', 'סוכר', 'מלח',
+    'שמן זית', 'שמן קנולה',
+    // שימורים
+    'טונה', 'רסק עגבניות', 'חומוס', 'טחינה', 'תירס',
+    // תבלינים
+    'פפריקה', 'כורכום', 'פלפל שחור',
+    // משקאות
+    'מים מינרליים', 'קפה', 'תה',
+    // ניקיון
+    'נייר טואלט', 'סבון כלים', 'סבון ידיים', 'אקונומיקה',
+  ];
+
+  /// בודק אם מוצר הוא מוצר יסוד
+  static bool isBasicProduct(Map<String, dynamic> product) {
+    final category = product['category'] as String? ?? '';
+    if (!basicCategories.contains(category)) return false;
+    final name = (product['name'] as String? ?? '').toLowerCase();
+    return _basicKeywords.any((kw) => name.contains(kw.toLowerCase()));
+  }
 
   @override
   State<PantryProductSelectionSheet> createState() =>
@@ -239,9 +268,9 @@ class _PantryProductSelectionSheetState
       _filteredProducts = _allProducts.where((product) {
         final category = product['category'] as String? ?? '';
 
-        // סינון "מוצרי יסוד" — רק קטגוריות בסיסיות
+        // סינון "מוצרי יסוד" — קטגוריה + מילות מפתח ספציפיות
         if (_showBasicsOnly) {
-          if (!PantryProductSelectionSheet.basicCategories.contains(category)) {
+          if (!PantryProductSelectionSheet.isBasicProduct(product)) {
             return false;
           }
         }
