@@ -1224,6 +1224,7 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get inPantryBadge => 'In pantry';
   @override String get customProductNotFound => 'Not found? Add a custom product';
   @override String get allCategoriesFilter => 'All';
+  @override String get basicsCategoryFilter => 'Basics';
   @override String get tapToAddToPantry => 'Tap to add to pantry';
   @override String get productFallbackName => 'Product';
   @override String get categoryFallbackName => 'Other';

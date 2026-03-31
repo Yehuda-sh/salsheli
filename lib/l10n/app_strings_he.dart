@@ -1259,6 +1259,7 @@ class InventoryStrings {
   String get inPantryBadge => 'במזווה';
   String get customProductNotFound => 'לא מצאת? הוסף מוצר חדש';
   String get allCategoriesFilter => 'הכל';
+  String get basicsCategoryFilter => 'מוצרי יסוד';
   String get tapToAddToPantry => 'לחץ להוספה למזווה';
   String get productFallbackName => 'מוצר';
   String get categoryFallbackName => 'אחר';

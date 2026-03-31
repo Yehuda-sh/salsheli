@@ -85,6 +85,7 @@ class _PantryProductSelectionSheetState
   Set<String> _categories = {};
   String? _selectedCategory;
   String _searchQuery = '';
+  bool _showBasicsOnly = false;
 
   /// 🆕 שמות מוצרים שכבר קיימים במזווה (לתצוגת "במזווה")
   Set<String> _existingProductNames = {};
@@ -110,19 +111,13 @@ class _PantryProductSelectionSheetState
       _searchQuery = widget.initialSearchQuery!;
       _searchController.text = widget.initialSearchQuery!;
     }
+    if (widget.initialCategories != null) {
+      _showBasicsOnly = true;
+    }
     _loadProducts();
   }
 
-  /// סינון לפי קטגוריות מראש (אחרי טעינה)
-  void _applyInitialCategoryFilter() {
-    if (widget.initialCategories == null || widget.initialCategories!.isEmpty) return;
-    // סנן רק מוצרים מהקטגוריות שהוגדרו
-    _filteredProducts = _allProducts
-        .where((p) => widget.initialCategories!.contains(p['category'] as String? ?? ''))
-        .toList();
-    // עדכן קטגוריות שמוצגות
-    _categories = widget.initialCategories!;
-  }
+  // _applyInitialCategoryFilter removed — replaced by _showBasicsOnly flag + _filterProducts()
 
   @override
   void dispose() {
@@ -222,16 +217,12 @@ class _PantryProductSelectionSheetState
 
       if (!mounted) return;
 
-      setState(() {
-        _allProducts = products;
-        _filteredProducts = products;
-        _categories = categories;
-        _existingProductNames = existingNames;
-        _isLoading = false;
-
-        // אם יש סינון קטגוריות מראש — החל אותו
-        _applyInitialCategoryFilter();
-      });
+      _allProducts = products;
+      _categories = categories;
+      _existingProductNames = existingNames;
+      _isLoading = false;
+      // סנן לפי מצב ראשוני (basics / search)
+      _filterProducts();
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -246,9 +237,18 @@ class _PantryProductSelectionSheetState
   void _filterProducts() {
     setState(() {
       _filteredProducts = _allProducts.where((product) {
-        // סינון לפי קטגוריה
+        final category = product['category'] as String? ?? '';
+
+        // סינון "מוצרי יסוד" — רק קטגוריות בסיסיות
+        if (_showBasicsOnly) {
+          if (!PantryProductSelectionSheet.basicCategories.contains(category)) {
+            return false;
+          }
+        }
+
+        // סינון לפי קטגוריה ספציפית
         if (_selectedCategory != null) {
-          if (product['category'] != _selectedCategory) {
+          if (category != _selectedCategory) {
             return false;
           }
         }
@@ -626,16 +626,34 @@ class _PantryProductSelectionSheetState
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 children: [
+                  // מוצרי יסוד — chip מיוחד
+                  Padding(
+                    padding: const EdgeInsets.only(left: kSpacingSmall),
+                    child: FilterChip(
+                      label: Text(AppStrings.inventory.basicsCategoryFilter),
+                      selected: _showBasicsOnly,
+                      avatar: _showBasicsOnly ? const Icon(Icons.check, size: kFontSizeSmall) : null,
+                      onSelected: (_) {
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() {
+                          _showBasicsOnly = !_showBasicsOnly;
+                          _selectedCategory = null;
+                        });
+                        _filterProducts();
+                      },
+                    ),
+                  ),
                   // כל הקטגוריות
                   Padding(
                     padding: const EdgeInsets.only(left: kSpacingSmall),
                     child: FilterChip(
                       label: Text(AppStrings.inventory.allCategoriesFilter),
-                      selected: _selectedCategory == null,
+                      selected: _selectedCategory == null && !_showBasicsOnly,
                       onSelected: (_) {
                         unawaited(HapticFeedback.selectionClick());
                         setState(() {
                           _selectedCategory = null;
+                          _showBasicsOnly = false;
                         });
                         _filterProducts();
                       },
