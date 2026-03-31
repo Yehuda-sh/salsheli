@@ -72,31 +72,45 @@ class PantryProductSelectionSheet extends StatefulWidget {
     'קפה ותה',
   };
 
-  /// מילות מפתח למוצרי יסוד — מסנן מוצרים ספציפיים בתוך הקטגוריות
-  static const List<String> _basicKeywords = [
+  /// מוצרי יסוד — שמות ספציפיים (לא מילות מפתח רחבות)
+  /// כל ערך הוא תחילת שם מוצר — match מדויק יותר
+  static const List<String> _basicProductStarts = [
     // חלב וביצים
-    'חלב', 'ביצים', 'חמאה', 'גבינה צהובה', 'גבינה לבנה', 'שמנת', 'יוגורט', 'קוטג',
+    'חלב תנובה', 'חלב 3%', 'חלב 1%',
+    'ביצים', '12 ביצים',
+    'חמאה', 'מרגרינה',
+    'גבינה צהובה', 'גבינה לבנה',
+    'שמנת מתוקה', 'שמנת חמוצה',
+    'יוגורט טבעי', 'יוגורט לבן', 'יוגורט ביו',
+    'קוטג',
     // לחם
-    'לחם', 'פיתה', 'חלה',
+    'לחם אחיד', 'לחם לבן', 'לחם מלא', 'לחם פרוס',
+    'פיתה',
     // מזווה
-    'אורז', 'פסטה', 'ספגטי', 'קמח', 'סוכר', 'מלח',
-    'שמן זית', 'שמן קנולה',
+    'אורז בסמטי', 'אורז לבן', 'אורז 1',
+    'פסטה מסולסל', 'פסטה ספגטי', 'ספגטי',
+    'קמח לבן', 'קמח רגיל', 'קמח 1',
+    'סוכר לבן', 'סוכר 1',
+    'מלח שולחן', 'מלח רגיל',
+    'שמן זית', 'שמן קנולה', 'שמן חמניות',
     // שימורים
-    'טונה', 'רסק עגבניות', 'חומוס', 'טחינה', 'תירס',
+    'טונה', 'רסק עגבניות',
+    'גרגירי חומוס', 'חומוס מוכן',
+    'טחינה גולמית', 'טחינה יום',
+    'תירס מתוק',
     // תבלינים
-    'פפריקה', 'כורכום', 'פלפל שחור',
+    'פפריקה מתוקה', 'כורכום טחון', 'פלפל שחור',
     // משקאות
-    'מים מינרליים', 'קפה', 'תה',
+    'מים מינרליים',
+    'קפה טורקי', 'קפה נמס',
     // ניקיון
-    'נייר טואלט', 'סבון כלים', 'סבון ידיים', 'אקונומיקה',
+    'נייר טואלט', 'סבון כלים', 'אקונומיקה',
   ];
 
-  /// בודק אם מוצר הוא מוצר יסוד
+  /// בודק אם מוצר הוא מוצר יסוד — match מדויק לפי תחילת שם בלבד
   static bool isBasicProduct(Map<String, dynamic> product) {
-    final category = product['category'] as String? ?? '';
-    if (!basicCategories.contains(category)) return false;
     final name = (product['name'] as String? ?? '').toLowerCase();
-    return _basicKeywords.any((kw) => name.contains(kw.toLowerCase()));
+    return _basicProductStarts.any((start) => name.startsWith(start.toLowerCase()));
   }
 
   @override
@@ -268,11 +282,9 @@ class _PantryProductSelectionSheetState
       _filteredProducts = _allProducts.where((product) {
         final category = product['category'] as String? ?? '';
 
-        // סינון "מוצרי יסוד" — קטגוריה + מילות מפתח ספציפיות
-        if (_showBasicsOnly) {
-          if (!PantryProductSelectionSheet.isBasicProduct(product)) {
-            return false;
-          }
+        // סינון "מוצרי יסוד" — שמות מוצרים ספציפיים
+        if (_showBasicsOnly && !PantryProductSelectionSheet.isBasicProduct(product)) {
+          return false;
         }
 
         // סינון לפי קטגוריה ספציפית
