@@ -1382,6 +1382,7 @@ class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
   String itemsCount(int count) => '$count items';
   String get virtualTag => 'Virtual';
   String get noResults => 'No shopping in this period';
+  String get noResultsSubtitle => 'Try filtering by a different period';
   String get emptyTitle => 'No shopping history yet';
   String get emptySubtitle => 'Finish your first shopping and it\'ll\nshow up right here 🛒';
   String get defaultError => 'Error loading';

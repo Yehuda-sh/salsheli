@@ -57,8 +57,8 @@ class ReceiptProvider with ChangeNotifier {
   bool _hasInitialized = false; // מניעת אתחול כפול
   bool _isDisposed = false; // v4.3: מניעת notifyListeners אחרי dispose
 
-  /// מדיניות שמירה: קבלות ישנות מ-365 ימים נמחקות בטעינה
-  static const _retentionDays = 365;
+  /// מדיניות שמירה: קבלות ישנות מ-18 חודשים (548 ימים) נמחקות בטעינה
+  static const _retentionDays = 548;
 
   bool _isLoading = false;
   String? _errorMessage;
@@ -144,7 +144,7 @@ class ReceiptProvider with ChangeNotifier {
 
       if (old.isNotEmpty) {
         _receipts = allReceipts.where((r) => !r.date.isBefore(cutoff)).toList();
-        if (kDebugMode) debugPrint('🗑️ ReceiptProvider: מוחק ${old.length} קבלות ישנות (מעל שנה)');
+        if (kDebugMode) debugPrint('🗑️ ReceiptProvider: מוחק ${old.length} קבלות ישנות (מעל 18 חודשים)');
         // מחיקה מ-Firebase ברקע — לא חוסם את ה-UI
         for (final r in old) {
           unawaited(
@@ -160,7 +160,7 @@ class ReceiptProvider with ChangeNotifier {
       if (kDebugMode) debugPrint('📥 ReceiptProvider: ${_receipts.length} קבלות (${old.length} ישנות נמחקו)');
 
     } catch (e, st) {
-      _errorMessage = "שגיאה בטעינת קבלות: $e";
+      _errorMessage = 'load_receipts_failed';
       _isLoading = false;
       if (kDebugMode) {
         debugPrintStack(label: 'ReceiptProvider._loadReceipts', stackTrace: st);
@@ -301,7 +301,7 @@ class ReceiptProvider with ChangeNotifier {
       return saved;
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.createReceipt: $e');
-      _errorMessage = 'שגיאה ביצירת קבלה';
+      _errorMessage = 'create_receipt_failed';
       _notifySafe();
       rethrow;
     }
@@ -331,7 +331,7 @@ class ReceiptProvider with ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.updateReceipt: $e');
-      _errorMessage = 'שגיאה בעדכון קבלה';
+      _errorMessage = 'update_receipt_failed';
       _notifySafe();
       rethrow;
     }
@@ -355,7 +355,7 @@ class ReceiptProvider with ChangeNotifier {
       _notifySafe();
     } catch (e) {
       if (kDebugMode) debugPrint('❌ ReceiptProvider.deleteReceipt: $e');
-      _errorMessage = 'שגיאה במחיקת קבלה';
+      _errorMessage = 'delete_receipt_failed';
       _notifySafe();
       rethrow;
     }

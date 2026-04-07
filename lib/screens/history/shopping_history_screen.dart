@@ -323,11 +323,32 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                   Expanded(
                     child: receipts.isEmpty
                         ? Center(
-                            child: Text(
-                              strings.noResults,
-                              style: TextStyle(
-                                color: cs.onSurfaceVariant,
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.search_off,
+                                  size: kIconSizeXLarge,
+                                  color: cs.onSurfaceVariant,
+                                ),
+                                const SizedBox(height: kSpacingSmall),
+                                Text(
+                                  strings.noResults,
+                                  style: TextStyle(
+                                    fontSize: kFontSizeBody,
+                                    fontWeight: FontWeight.w600,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                                const SizedBox(height: kSpacingXTiny),
+                                Text(
+                                  strings.noResultsSubtitle,
+                                  style: TextStyle(
+                                    fontSize: kFontSizeSmall,
+                                    color: cs.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         : _staggered(
@@ -388,7 +409,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
   Widget _buildStatDivider(ColorScheme cs) {
     return Container(
       width: 1,
-      height: 32,
+      height: kSpacingXLarge,
       color: cs.onPrimaryContainer.withValues(alpha: 0.15),
     );
   }

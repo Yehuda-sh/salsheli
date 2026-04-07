@@ -1537,6 +1537,7 @@ class ShoppingHistoryStrings {
   String itemsCount(int count) => '$count פריטים';
   String get virtualTag => 'וירטואלי';
   String get noResults => 'אין קניות בתקופה זו';
+  String get noResultsSubtitle => 'נסה לסנן לפי תקופה אחרת';
   String get emptyTitle => 'עוד לא סיימת קניות';
   String get emptySubtitle => 'רשימות שתסיים יופיעו כאן כדי שתוכל\nלעקוב אחרי הקניות שלך! 🛒';
   String get defaultError => 'שגיאה בטעינה';

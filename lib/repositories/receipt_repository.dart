@@ -4,7 +4,6 @@
 //
 // 📋 Features:
 //     - תמיכה ב-Real-time Updates (watchReceipts)
-//     - חיפושים מתקדמים (חנות, טווח תאריכים)
 //     - תיעוד מלא ל-Intellisense
 //     - CRUD operations מלאות
 //
@@ -78,46 +77,6 @@ abstract class ReceiptRepository {
   /// if (receipt != null) print('נמצאה: ${receipt.storeName}');
   /// ```
   Future<Receipt?> getReceiptById(String receiptId, String householdId);
-
-  /// מחזיר קבלות לפי שם חנות
-  ///
-  /// Path: `/households/{householdId}/receipts` (filtered by store_name)
-  ///
-  /// Parameters:
-  ///   - [storeName]: שם החנות (למשל: 'שופרסל')
-  ///   - [householdId]: מזהה משק הבית
-  ///
-  /// Returns: רשימת קבלות מהחנות, ממוינת לפי תאריך (חדש → ישן)
-  ///
-  /// Example:
-  /// ```dart
-  /// final receipts = await repository.getReceiptsByStore('שופרסל', 'house_demo');
-  /// print('${receipts.length} קבלות משופרסל');
-  /// ```
-  Future<List<Receipt>> getReceiptsByStore(String storeName, String householdId);
-
-  /// מחזיר קבלות בטווח תאריכים
-  ///
-  /// Parameters:
-  ///   - [startDate]: תחילת הטווח (כולל)
-  ///   - [endDate]: סוף הטווח (כולל, עד 23:59:59)
-  ///   - [householdId]: מזהה משק הבית
-  ///
-  /// Returns: רשימת קבלות בטווח, ממוינת לפי תאריך (חדש → ישן)
-  ///
-  /// Example:
-  /// ```dart
-  /// final receipts = await repository.getReceiptsByDateRange(
-  ///   startDate: DateTime(2026, 1, 1),
-  ///   endDate: DateTime(2026, 1, 31),
-  ///   householdId: 'house_demo',
-  /// );
-  /// ```
-  Future<List<Receipt>> getReceiptsByDateRange({
-    required DateTime startDate,
-    required DateTime endDate,
-    required String householdId,
-  });
 
   // ========================================
   // Real-time - האזנה לשינויים

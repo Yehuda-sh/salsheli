@@ -5,7 +5,6 @@
 // 📋 Features:
 //     - CRUD operations לקבלות (שמירה, טעינה, עדכון, מחיקה)
 //     - Real-time updates (watchReceipts)
-//     - Queries מתקדמים (לפי חנות, טווח תאריכים)
 //     - שימוש ב-FirestoreUtils להמרה בטוחה ורקורסיבית
 //     - ריכוז לוגיקת מיפוי (DRY) ב-_mapSnapshotToReceipts
 //
@@ -166,69 +165,6 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     } catch (e, stackTrace) {
       debugPrintStack(stackTrace: stackTrace);
       throw ReceiptRepositoryException('Failed to get receipt by id', e);
-    }
-  }
-
-  /// מחזיר קבלות לפי חנות
-  ///
-  /// Example:
-  /// ```dart
-  /// final receipts = await repository.getReceiptsByStore('שופרסל', 'house_demo');
-  /// ```
-  @override
-  Future<List<Receipt>> getReceiptsByStore(String storeName, String householdId) async {
-    try {
-
-      // 🆕 שימוש ב-subcollection - לא צריך where על household_id
-      final snapshot = await _receiptsCollection(householdId)
-          .where(FirestoreFields.storeName, isEqualTo: storeName)
-          .orderBy(FirestoreFields.date, descending: true)
-          .get();
-
-      final receipts = _mapSnapshotToReceipts(snapshot);
-
-      return receipts;
-    } catch (e, stackTrace) {
-      debugPrintStack(stackTrace: stackTrace);
-      throw ReceiptRepositoryException('Failed to get receipts by store', e);
-    }
-  }
-
-  /// מחזיר קבלות בטווח תאריכים
-  ///
-  /// Example:
-  /// ```dart
-  /// final receipts = await repository.getReceiptsByDateRange(
-  ///   startDate: DateTime(2025, 1, 1),
-  ///   endDate: DateTime(2025, 1, 31),
-  ///   householdId: 'house_demo',
-  /// );
-  /// ```
-  @override
-  Future<List<Receipt>> getReceiptsByDateRange({
-    required DateTime startDate,
-    required DateTime endDate,
-    required String householdId,
-  }) async {
-    try {
-
-      // 🔧 מתחיל מתחילת startDate ומסיים בסוף endDate
-      final normalizedStart = DateTime(startDate.year, startDate.month, startDate.day);
-      final normalizedEnd = DateTime(endDate.year, endDate.month, endDate.day, 23, 59, 59, 999);
-
-      // 🆕 שימוש ב-subcollection - לא צריך where על household_id
-      final snapshot = await _receiptsCollection(householdId)
-          .where(FirestoreFields.date, isGreaterThanOrEqualTo: Timestamp.fromDate(normalizedStart))
-          .where(FirestoreFields.date, isLessThanOrEqualTo: Timestamp.fromDate(normalizedEnd))
-          .orderBy(FirestoreFields.date, descending: true)
-          .get();
-
-      final receipts = _mapSnapshotToReceipts(snapshot);
-
-      return receipts;
-    } catch (e, stackTrace) {
-      debugPrintStack(stackTrace: stackTrace);
-      throw ReceiptRepositoryException('Failed to get receipts by date range', e);
     }
   }
 
