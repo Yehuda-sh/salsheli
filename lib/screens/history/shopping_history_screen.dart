@@ -27,7 +27,9 @@ import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../models/activity_event.dart';
 import '../../models/receipt.dart';
+import '../../providers/activity_log_provider.dart';
 import '../../providers/receipt_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/household_service.dart';
@@ -47,12 +49,15 @@ class ShoppingHistoryScreen extends StatefulWidget {
 }
 
 class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String _filterPeriod = 'month'; // month, 3months, all
 
   /// שמות חברי הבית — לתצוגת "מי קנה"
   Map<String, String> _memberNames = {};
   bool _membersLoaded = false;
+
+  /// Tab controller — קבלות | יומן פעילות
+  late final TabController _tabController;
 
   /// אנימציות מדורגות — רצות רק בפעם הראשונה (כמו בהגדרות)
   late final AnimationController _animController;
@@ -66,6 +71,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
   @override
   void initState() {
     super.initState();
+
+    _tabController = TabController(length: 2, vsync: this);
 
     // אם פתחו עם קבלה ספציפית - הצג הכל כדי שהיא תהיה גלויה
     if (widget.initialReceiptId != null) {
@@ -123,6 +130,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
 
   @override
   void dispose() {
+    _tabController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -154,6 +162,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     final cs = theme.colorScheme;
     final strings = AppStrings.shoppingHistory;
 
+    final activityStrings = AppStrings.activityLog;
+
     return Stack(
       children: [
         const NotebookBackground(),
@@ -176,8 +186,106 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             ),
             title: Text(strings.title),
             centerTitle: true,
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(text: activityStrings.receiptsTab),
+                Tab(text: activityStrings.tabTitle),
+              ],
+              indicatorColor: cs.primary,
+              labelColor: cs.primary,
+              unselectedLabelColor: cs.onSurfaceVariant,
+            ),
           ),
-          body: Consumer<ReceiptProvider>(
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              // === Tab 1: Receipts ===
+              _buildReceiptsTab(cs, strings),
+              // === Tab 2: Activity Log ===
+              _buildActivityTab(cs, activityStrings),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActivityTab(ColorScheme cs, ActivityLogStrings strings) {
+    return Consumer<ActivityLogProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const AppLoadingSkeleton(
+            sectionCount: 4,
+            showHero: false,
+          );
+        }
+
+        if (provider.hasError) {
+          return AppErrorState(
+            message: strings.defaultError,
+            onAction: () => provider.retry(),
+            actionLabel: strings.retryButton,
+          );
+        }
+
+        if (provider.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(kSpacingXLarge),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.history,
+                    size: kIconSizeXLarge,
+                    color: cs.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: kSpacingMedium),
+                  Text(
+                    strings.emptyTitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeLarge,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmall),
+                  Text(
+                    strings.emptySubtitle,
+                    style: TextStyle(
+                      fontSize: kFontSizeBody,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          onRefresh: () async {
+            unawaited(HapticFeedback.mediumImpact());
+            await provider.loadEvents();
+          },
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(kSpacingMedium),
+            itemCount: provider.events.length,
+            itemBuilder: (context, index) {
+              final event = provider.events[index];
+              return _ActivityEventTile(event: event);
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReceiptsTab(ColorScheme cs, ShoppingHistoryStrings strings) {
+    return Consumer<ReceiptProvider>(
             builder: (context, provider, _) {
               if (provider.isLoading) {
                 return const AppLoadingSkeleton(
@@ -430,8 +538,6 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
               );
             },
           ),
-        ),
-      ],
     );
   }
 
@@ -838,6 +944,118 @@ class _StatItemState extends State<_StatItem>
             style: TextStyle(
               fontSize: kFontSizeSmall,
               color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ========================================
+// Widget: Activity Event Tile
+// ========================================
+
+class _ActivityEventTile extends StatelessWidget {
+  final ActivityEvent event;
+
+  const _ActivityEventTile({required this.event});
+
+  IconData _iconForType(ActivityType type) {
+    switch (type) {
+      case ActivityType.shoppingCompleted:
+        return Icons.check_circle;
+      case ActivityType.shoppingStarted:
+        return Icons.shopping_cart;
+      case ActivityType.shoppingJoined:
+        return Icons.group_add;
+      case ActivityType.listCreated:
+        return Icons.playlist_add;
+      case ActivityType.itemAdded:
+        return Icons.add_circle_outline;
+      case ActivityType.stockUpdated:
+        return Icons.inventory_2;
+      case ActivityType.memberLeft:
+        return Icons.person_remove;
+      case ActivityType.roleChanged:
+        return Icons.admin_panel_settings;
+      case ActivityType.unknown:
+        return Icons.info_outline;
+    }
+  }
+
+  String _descriptionForEvent(ActivityLogStrings strings) {
+    final actor = event.actorName.isNotEmpty ? event.actorName : '?';
+    switch (event.type) {
+      case ActivityType.shoppingCompleted:
+        return strings.shoppingCompleted(actor, event.listName ?? '');
+      case ActivityType.shoppingStarted:
+        return strings.shoppingStarted(actor, event.listName ?? '');
+      case ActivityType.shoppingJoined:
+        return strings.shoppingJoined(actor, event.listName ?? '');
+      case ActivityType.listCreated:
+        return strings.listCreated(actor, event.listName ?? '');
+      case ActivityType.itemAdded:
+        return strings.itemAdded(actor, event.itemName ?? '', event.listName ?? '');
+      case ActivityType.stockUpdated:
+        return strings.stockUpdated(actor, event.productName ?? '');
+      case ActivityType.memberLeft:
+        return strings.memberLeft(actor);
+      case ActivityType.roleChanged:
+        return strings.roleChanged(actor, event.targetName ?? '', event.newRole ?? '');
+      case ActivityType.unknown:
+        return strings.unknownActivity(actor);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.activityLog;
+    final locale = Localizations.localeOf(context).languageCode;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingSmall),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Avatar circle with icon
+          Container(
+            width: kIconSizeLarge,
+            height: kIconSizeLarge,
+            decoration: BoxDecoration(
+              color: cs.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              _iconForType(event.type),
+              size: kIconSizeSmallPlus,
+              color: cs.onPrimaryContainer,
+            ),
+          ),
+          const SizedBox(width: kSpacingSmallPlus),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _descriptionForEvent(strings),
+                  style: TextStyle(
+                    fontSize: kFontSizeBody,
+                    color: cs.onSurface,
+                  ),
+                ),
+                const SizedBox(height: kSpacingXTiny),
+                Text(
+                  DateFormat('dd/MM  HH:mm', locale).format(event.createdAt),
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
