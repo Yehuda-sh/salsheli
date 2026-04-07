@@ -36,6 +36,7 @@ import 'package:memozap/config/app_config.dart';
 import 'package:memozap/firebase_options.dart';
 import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/models/shopping_list.dart';
+import 'package:memozap/providers/activity_log_provider.dart';
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/providers/locations_provider.dart';
 import 'package:memozap/providers/products_provider.dart';
@@ -43,6 +44,7 @@ import 'package:memozap/providers/receipt_provider.dart';
 import 'package:memozap/providers/shopping_lists_provider.dart';
 import 'package:memozap/providers/suggestions_provider.dart';
 import 'package:memozap/providers/user_context.dart';
+import 'package:memozap/repositories/activity_log_repository.dart';
 import 'package:memozap/repositories/firebase_inventory_repository.dart';
 import 'package:memozap/repositories/firebase_locations_repository.dart';
 import 'package:memozap/repositories/firebase_receipt_repository.dart';
@@ -133,6 +135,7 @@ void main() async {
   final shoppingListsRepo = FirebaseShoppingListsRepository();
   final receiptRepo = FirebaseReceiptRepository();
   final inventoryRepo = FirebaseInventoryRepository();
+  final activityLogRepo = ActivityLogRepository();
 
   runApp(
     MultiProvider(
@@ -180,6 +183,12 @@ void main() async {
           create: (context) => ReceiptProvider(userContext: context.read<UserContext>(), repository: receiptRepo),
           update: (context, userContext, previous) =>
               (previous ?? ReceiptProvider(userContext: userContext, repository: receiptRepo))
+                ..updateUserContext(userContext),
+        ),
+        ChangeNotifierProxyProvider<UserContext, ActivityLogProvider>(
+          create: (context) => ActivityLogProvider(userContext: context.read<UserContext>(), repository: activityLogRepo),
+          update: (context, userContext, previous) =>
+              (previous ?? ActivityLogProvider(userContext: userContext, repository: activityLogRepo))
                 ..updateUserContext(userContext),
         ),
         ChangeNotifierProxyProvider<UserContext, InventoryProvider>(

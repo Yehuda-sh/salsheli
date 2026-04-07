@@ -132,6 +132,11 @@ class AppStringsEn {
   static const shoppingHistory = ShoppingHistoryStringsEn();
 
   // ========================================
+  // Activity Log
+  // ========================================
+  static const activityLog = ActivityLogStringsEn();
+
+  // ========================================
   // Active Shopper Banner
   // ========================================
   static const activeShopperBanner = ActiveShopperBannerStringsEn();
@@ -1368,10 +1373,6 @@ class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
   const ShoppingHistoryStringsEn();
 
   String get title => 'Shopping History';
-  String get sortTooltip => 'Sort';
-  String get sortByDate => 'By date';
-  String get sortByList => 'By list type';
-  String get sortByAmount => 'By amount';
   String get filterThisMonth => 'This Month';
   String get filterThreeMonths => '3 Months';
   String get filterAll => 'All';
@@ -1380,13 +1381,61 @@ class ShoppingHistoryStringsEn extends ShoppingHistoryStrings {
   String get averageLabel => 'Average';
   String get totalItemsLabel => 'Items';
   String itemsCount(int count) => '$count items';
-  String get virtualTag => 'Virtual';
   String get noResults => 'No shopping in this period';
   String get noResultsSubtitle => 'Try filtering by a different period';
   String get emptyTitle => 'No shopping history yet';
   String get emptySubtitle => 'Finish your first shopping and it\'ll\nshow up right here 🛒';
   String get defaultError => 'Error loading';
   String get retryButton => 'Try Again';
+}
+
+// ========================================
+// Activity Log
+// ========================================
+
+class ActivityLogStringsEn extends ActivityLogStrings {
+  const ActivityLogStringsEn();
+
+  @override
+  String get tabTitle => 'Activity Log';
+  @override
+  String get receiptsTab => 'Receipts';
+  @override
+  String get emptyTitle => 'No activity yet';
+  @override
+  String get emptySubtitle => 'Household activity will appear here';
+  @override
+  String get defaultError => 'Error loading activity';
+  @override
+  String get retryButton => 'Try Again';
+
+  @override
+  String shoppingCompleted(String actor, String listName) =>
+      '$actor completed shopping from "$listName"';
+  @override
+  String shoppingStarted(String actor, String listName) =>
+      '$actor started shopping from "$listName"';
+  @override
+  String shoppingJoined(String actor, String listName) =>
+      '$actor joined shopping from "$listName"';
+  @override
+  String listCreated(String actor, String listName) =>
+      '$actor created list "$listName"';
+  @override
+  String itemAdded(String actor, String itemName, String listName) =>
+      '$actor added "$itemName" to "$listName"';
+  @override
+  String stockUpdated(String actor, String productName) =>
+      '$actor updated stock for "$productName"';
+  @override
+  String memberLeft(String actor) =>
+      '$actor left the household';
+  @override
+  String roleChanged(String actor, String targetName, String newRole) =>
+      '$actor changed $targetName\'s role to $newRole';
+  @override
+  String unknownActivity(String actor) =>
+      '$actor performed an action';
 }
 
 // ========================================

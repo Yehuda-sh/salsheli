@@ -32,6 +32,7 @@ rules_version = '2';
 //    ├── members/{memberId}
 //    ├── inventory/{itemId}          ← מלאי משותף
 //    ├── receipts/{receiptId}        ← קבלות
+//    ├── activity_log/{eventId}      ← יומן פעילות
 //    ├── shared_lists/{listId}       ← רשימות משותפות
 //    ├── invites/{inviteId}
 //    └── join_requests/{requestId}
@@ -331,6 +332,22 @@ service cloud.firestore {
         // 🗑️ מחיקה: רק היוצר של הקבלה
         allow delete: if isHouseholdMember(householdId) &&
                       resource.data.created_by == request.auth.uid;
+      }
+
+      // === Activity Log (Subcollection) ===
+      // Path: /households/{householdId}/activity_log/{eventId}
+      match /activity_log/{eventId} {
+        allow read: if isHouseholdMember(householdId);
+
+        // ➕ יצירה: חבר משק הבית + actor_id = המשתמש הנוכחי
+        allow create: if isHouseholdMember(householdId) &&
+                      request.resource.data.actor_id == request.auth.uid;
+
+        // 🗑️ מחיקה: חבר משק הבית (ניקוי אירועים ישנים)
+        allow delete: if isHouseholdMember(householdId);
+
+        // ❌ עדכון: אירועי יומן לא ניתנים לעריכה
+        allow update: if false;
       }
 
       // === Members (Subcollection) ===

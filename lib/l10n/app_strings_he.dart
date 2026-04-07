@@ -130,6 +130,11 @@ class AppStringsHe {
   static const shoppingHistory = ShoppingHistoryStrings();
 
   // ========================================
+  // Activity Log
+  // ========================================
+  static const activityLog = ActivityLogStrings();
+
+  // ========================================
   // Active Shopper Banner
   // ========================================
   static const activeShopperBanner = ActiveShopperBannerStrings();
@@ -1523,10 +1528,6 @@ class ShoppingHistoryStrings {
   const ShoppingHistoryStrings();
 
   String get title => 'היסטוריית קניות';
-  String get sortTooltip => 'מיון';
-  String get sortByDate => 'לפי תאריך';
-  String get sortByList => 'לפי סוג רשימה';
-  String get sortByAmount => 'לפי סכום';
   String get filterThisMonth => 'החודש';
   String get filterThreeMonths => '3 חודשים';
   String get filterAll => 'הכל';
@@ -1535,13 +1536,47 @@ class ShoppingHistoryStrings {
   String get averageLabel => 'ממוצע';
   String get totalItemsLabel => 'פריטים';
   String itemsCount(int count) => '$count פריטים';
-  String get virtualTag => 'וירטואלי';
   String get noResults => 'אין קניות בתקופה זו';
   String get noResultsSubtitle => 'נסה לסנן לפי תקופה אחרת';
   String get emptyTitle => 'עוד לא סיימת קניות';
   String get emptySubtitle => 'רשימות שתסיים יופיעו כאן כדי שתוכל\nלעקוב אחרי הקניות שלך! 🛒';
   String get defaultError => 'שגיאה בטעינה';
   String get retryButton => 'נסה שוב';
+}
+
+// ========================================
+// Activity Log
+// ========================================
+
+class ActivityLogStrings {
+  const ActivityLogStrings();
+
+  String get tabTitle => 'יומן פעילות';
+  String get receiptsTab => 'קבלות';
+  String get emptyTitle => 'אין פעילות עדיין';
+  String get emptySubtitle => 'פעולות של חברי הבית יופיעו כאן';
+  String get defaultError => 'שגיאה בטעינת יומן';
+  String get retryButton => 'נסה שוב';
+
+  // Activity type descriptions
+  String shoppingCompleted(String actor, String listName) =>
+      '$actor סיים/ה קנייה מ"$listName"';
+  String shoppingStarted(String actor, String listName) =>
+      '$actor התחיל/ה קנייה מ"$listName"';
+  String shoppingJoined(String actor, String listName) =>
+      '$actor הצטרף/ה לקנייה מ"$listName"';
+  String listCreated(String actor, String listName) =>
+      '$actor יצר/ה רשימה "$listName"';
+  String itemAdded(String actor, String itemName, String listName) =>
+      '$actor הוסיף/ה "$itemName" ל"$listName"';
+  String stockUpdated(String actor, String productName) =>
+      '$actor עדכן/ה מלאי "$productName"';
+  String memberLeft(String actor) =>
+      '$actor עזב/ה את הבית';
+  String roleChanged(String actor, String targetName, String newRole) =>
+      '$actor שינה/תה תפקיד של $targetName ל$newRole';
+  String unknownActivity(String actor) =>
+      '$actor ביצע/ה פעולה';
 }
 
 // ========================================

@@ -47,6 +47,7 @@ class AppStrings {
   static SharingStrings get sharing => _isEnglish ? AppStringsEn.sharing : AppStringsHe.sharing;
   static ReceiptDetailsStrings get receiptDetails => _isEnglish ? AppStringsEn.receiptDetails : AppStringsHe.receiptDetails;
   static ShoppingHistoryStrings get shoppingHistory => _isEnglish ? AppStringsEn.shoppingHistory : AppStringsHe.shoppingHistory;
+  static ActivityLogStrings get activityLog => _isEnglish ? AppStringsEn.activityLog : AppStringsHe.activityLog;
   static ActiveShopperBannerStrings get activeShopperBanner => _isEnglish ? AppStringsEn.activeShopperBanner : AppStringsHe.activeShopperBanner;
   static SuggestionsTodayCardStrings get suggestionsToday => _isEnglish ? AppStringsEn.suggestionsToday : AppStringsHe.suggestionsToday;
   static LastChanceBannerStrings get lastChanceBanner => _isEnglish ? AppStringsEn.lastChanceBanner : AppStringsHe.lastChanceBanner;
