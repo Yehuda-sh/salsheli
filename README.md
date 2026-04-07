@@ -125,7 +125,7 @@ firebase emulators:start
 | רונית כהן | ronit.cohen@demo.com | Admin (Cohen) | Demo123! |
 | יובל כהן | yuval.cohen@demo.com | Editor (Cohen) | Demo123! |
 | נועה כהן | noa.cohen@demo.com | Editor (Cohen) | Demo123! |
-| דן לוי | dan.levi@demo.com | Owner (Levi) | Demo123! |
+| דן לוי | dan.levi@demo.com | Admin (Levi) | Demo123! |
 | מאיה לוי | maya.levi@demo.com | Admin (Levi) | Demo123! |
 | תומר בר | tomer.bar@demo.com | Single user | Demo123! |
 | שירן גל | shiran.gal@demo.com | New user | Demo123! |

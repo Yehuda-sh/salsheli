@@ -885,6 +885,25 @@ async function main() {
   ]);
   console.log('   🔔 נועה: 2 notifications (1 unread)');
 
+  // Dan notifications (5) — admin of Levi household
+  await createNotifications(uids.dan, [
+    makeNotification('notif_dan_1', uids.dan, hIds.levi, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב טרי 3%" נגמר', { createdAt: hoursAgo(6), actionData: { productName: 'חלב טרי 3%' } }),
+    makeNotification('notif_dan_2', uids.dan, hIds.levi, 'low_stock', 'מלאי נמוך', 'נשאר מעט "מיץ תפוזים"', { createdAt: hoursAgo(4), actionData: { productName: 'מיץ תפוזים' } }),
+    makeNotification('notif_dan_3', uids.dan, hIds.levi, 'invite', 'הזמנה לרשימה', 'מאיה הוסיפה אותך לרשימת "רשימה לסופר"', { createdAt: daysAgo(1), isRead: true, readAt: daysAgo(1), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_weekly' } }),
+    makeNotification('notif_dan_4', uids.dan, hIds.levi, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להזמין את נעמה רוזן למשפחת לוי נשלחה', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), actionData: { householdId: hIds.levi } }),
+    makeNotification('notif_dan_5', uids.dan, hIds.levi, 'who_brings_volunteer', 'מתנדב חדש', 'מאיה לוי התנדבה להביא מהשוק', { createdAt: hoursAgo(2), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_market', volunteerName: 'מאיה לוי' } }),
+  ]);
+  console.log('   🔔 דן: 5 notifications (3 unread)');
+
+  // Maya notifications (4) — admin of Levi household
+  await createNotifications(uids.maya, [
+    makeNotification('notif_maya_1', uids.maya, hIds.levi, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב טרי 3%" נגמר', { createdAt: hoursAgo(6), actionData: { productName: 'חלב טרי 3%' } }),
+    makeNotification('notif_maya_2', uids.maya, hIds.levi, 'low_stock', 'מלאי נמוך', 'נשאר מעט "מיץ תפוזים"', { createdAt: hoursAgo(4), actionData: { productName: 'מיץ תפוזים' } }),
+    makeNotification('notif_maya_3', uids.maya, hIds.levi, 'invite', 'הזמנה לרשימה', 'דן יצר רשימה חדשה "שוק מחנה יהודה 🏪"', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.dan, senderName: 'דן לוי', actionData: { listId: 'list_levi_market' } }),
+    makeNotification('notif_maya_4', uids.maya, hIds.levi, 'invite', 'הזמנה לרשימה', 'דן יצר רשימה מתבנית "קניות שבועיות (תבנית)"', { createdAt: hoursAgo(6), senderId: uids.dan, senderName: 'דן לוי', actionData: { listId: 'list_levi_template' } }),
+  ]);
+  console.log('   🔔 מאיה: 4 notifications (3 unread)');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 8. PENDING INVITES — top-level pending_invites collection (PendingRequest schema)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1185,11 +1204,11 @@ async function main() {
   console.log('═'.repeat(55));
   console.log(`\n👥 ${USERS.length} users`);
   console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households`);
-  console.log(`📋 ~27 shopping lists (all 9 types + active/completed/archived)`);
-  console.log(`📦 ~92 inventory items`);
-  console.log(`🧾 65 receipts`);
-  console.log(`🔔 ~24 notifications`);
-  console.log(`✉️ 3 pending invites (2 pending + 1 rejected)`);
+  console.log(`📋 ~32 shopping lists (all 9 types + active/completed/archived)`);
+  console.log(`📦 ~110 inventory items`);
+  console.log(`🧾 ~76 receipts`);
+  console.log(`🔔 ~39 notifications`);
+  console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');
   for (const u of USERS) {
