@@ -29,6 +29,8 @@ import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/receipt.dart';
 import '../../providers/receipt_provider.dart';
+import '../../providers/user_context.dart';
+import '../../services/household_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/notebook_background.dart';
@@ -47,6 +49,10 @@ class ShoppingHistoryScreen extends StatefulWidget {
 class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     with SingleTickerProviderStateMixin {
   String _filterPeriod = 'month'; // month, 3months, all
+
+  /// שמות חברי הבית — לתצוגת "מי קנה"
+  Map<String, String> _memberNames = {};
+  bool _membersLoaded = false;
 
   /// אנימציות מדורגות — רצות רק בפעם הראשונה (כמו בהגדרות)
   late final AnimationController _animController;
@@ -91,6 +97,28 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
         ),
       );
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_membersLoaded) {
+      _membersLoaded = true;
+      _loadMemberNames();
+    }
+  }
+
+  Future<void> _loadMemberNames() async {
+    final householdId = context.read<UserContext>().user?.householdId;
+    if (householdId == null || householdId.isEmpty) return;
+
+    try {
+      final names = await HouseholdService().getMemberNames(householdId);
+      if (!mounted) return;
+      setState(() => _memberNames = names);
+    } catch (_) {
+      // Silent fail — שמות לא קריטיים
+    }
   }
 
   @override
@@ -376,6 +404,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                                       receipt: receipt,
                                       initiallyExpanded: receipt.id ==
                                           widget.initialReceiptId,
+                                      memberNames: _memberNames,
+                                      currentUserId: context.read<UserContext>().user?.id,
                                     )
                                         .animate()
                                         .fadeIn(
@@ -449,8 +479,60 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
 class _ReceiptTile extends StatelessWidget {
   final Receipt receipt;
   final bool initiallyExpanded;
+  final Map<String, String> memberNames;
+  final String? currentUserId;
 
-  const _ReceiptTile({required this.receipt, this.initiallyExpanded = false});
+  const _ReceiptTile({
+    required this.receipt,
+    this.initiallyExpanded = false,
+    this.memberNames = const {},
+    this.currentUserId,
+  });
+
+  /// אוסף שמות קונים ייחודיים (createdBy + כל checkedBy)
+  List<String> get _shopperNames {
+    if (memberNames.isEmpty) return [];
+
+    final uids = <String>{};
+    if (receipt.createdBy != null) uids.add(receipt.createdBy!);
+    for (final item in receipt.items) {
+      if (item.checkedBy != null) uids.add(item.checkedBy!);
+    }
+
+    // סנן רק מי שיש לו שם ידוע
+    return uids
+        .where((uid) => memberNames.containsKey(uid))
+        .map((uid) => memberNames[uid]!)
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
+  /// בונה אווטארים קטנים (עיגולי אותיות ראשונות) של הקונים
+  List<Widget> _buildShopperAvatars(ColorScheme cs) {
+    final names = _shopperNames;
+    return names.take(3).map((name) {
+      return Padding(
+        padding: const EdgeInsetsDirectional.only(end: kSpacingXTiny),
+        child: Container(
+          width: kIconSizeSmallPlus,
+          height: kIconSizeSmallPlus,
+          decoration: BoxDecoration(
+            color: cs.secondaryContainer,
+            shape: BoxShape.circle,
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            name[0],
+            style: TextStyle(
+              fontSize: kFontSizeTiny,
+              fontWeight: FontWeight.bold,
+              color: cs.onSecondaryContainer,
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
 
   /// Format quantity to avoid "1.0" display
   String _formatQuantity(num quantity) {
@@ -523,14 +605,22 @@ class _ReceiptTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: kSpacingXTiny),
-              // תאריך
-              Text(
-                DateFormat('dd/MM/yyyy  HH:mm', locale)
-                    .format(receipt.date),
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: cs.onSurfaceVariant,
-                ),
+              // תאריך + מי קנה
+              Row(
+                children: [
+                  Text(
+                    DateFormat('dd/MM/yyyy  HH:mm', locale)
+                        .format(receipt.date),
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  if (_shopperNames.isNotEmpty) ...[
+                    const SizedBox(width: kSpacingSmall),
+                    ..._buildShopperAvatars(cs),
+                  ],
+                ],
               ),
               const SizedBox(height: kSpacingXTiny),
               // 💰 סכום הקנייה — שורה נפרדת ובולטת
