@@ -8,10 +8,14 @@
 //
 // 🔗 Related: household_members_screen.dart, household_activity_feed.dart
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../l10n/app_strings.dart';
+import '../models/activity_event.dart';
 import '../repositories/constants/repository_constants.dart';
+import 'activity_log_service.dart';
 
 /// מידע על חבר בית
 class HouseholdMember {
@@ -147,6 +151,9 @@ class HouseholdService {
     required String householdId,
     required String memberId,
     required String currentRole,
+    String actorId = '',
+    String actorName = '',
+    String targetName = '',
   }) async {
     final newRole = currentRole == 'admin' ? 'member' : 'admin';
     await _firestore
@@ -155,6 +162,20 @@ class HouseholdService {
         .collection(FirestoreCollections.members)
         .doc(memberId)
         .update({FirestoreFields.role: newRole});
+
+    // 📝 Activity log
+    if (actorId.isNotEmpty) {
+      unawaited(ActivityLogService().log(
+        householdId: householdId,
+        type: ActivityType.roleChanged,
+        actorId: actorId,
+        actorName: actorName,
+        data: {
+          'target_name': targetName,
+          'new_role': newRole,
+        },
+      ));
+    }
   }
 
   /// עזיבת בית — עובר לבית אישי
@@ -168,5 +189,13 @@ class HouseholdService {
       memberId: userId,
       memberName: userName,
     );
+
+    // 📝 Activity log
+    unawaited(ActivityLogService().log(
+      householdId: householdId,
+      type: ActivityType.memberLeft,
+      actorId: userId,
+      actorName: userName,
+    ));
   }
 }

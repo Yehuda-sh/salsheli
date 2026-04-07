@@ -23,9 +23,13 @@
 //     - Sync with Firebase
 //     - Support 4 permission levels (Owner, Admin, Editor, Viewer)
 
+import 'dart:async';
+
+import '../models/activity_event.dart';
 import '../models/enums/user_role.dart';
 import '../models/shared_user.dart';
 import '../models/shopping_list.dart';
+import '../services/activity_log_service.dart';
 import '../services/notifications_service.dart';
 
 /// 🇮🇱 שירות שיתוף רשימות
@@ -259,6 +263,20 @@ class ShareListService {
       } catch (e) {
       }
     }
+
+    // 📝 Activity log
+    unawaited(ActivityLogService().log(
+      householdId: householdId,
+      type: ActivityType.roleChanged,
+      actorId: currentUserId,
+      actorName: changerName,
+      data: {
+        'target_name': targetUser.userName ?? '',
+        'new_role': newRole.name,
+        'list_id': list.id,
+        'list_name': list.name,
+      },
+    ));
 
     return list.copyWith(
       sharedUsers: updatedSharedUsers,

@@ -57,6 +57,8 @@ import '../../../providers/products_provider.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/user_context.dart';
+import '../../../models/activity_event.dart';
+import '../../../services/activity_log_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
@@ -656,6 +658,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             date: DateTime.now(),
             items: receiptItems,
           );
+
+          // 📝 Activity log: shopping completed
+          final householdId = _userContext.householdId;
+          if (householdId != null && userId != null) {
+            unawaited(ActivityLogService().log(
+              householdId: householdId,
+              type: ActivityType.shoppingCompleted,
+              actorId: userId,
+              actorName: _userContext.displayName ?? '',
+              data: {
+                'list_id': widget.list.id,
+                'list_name': listName,
+                'item_count': purchasedItems.length,
+                'store_name': storeName ?? '',
+              },
+            ));
+          }
         } catch (e) {
           debugPrint('❌ Failed to create receipt: $e');
         }

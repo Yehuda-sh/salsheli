@@ -15,7 +15,9 @@ import '../l10n/app_strings.dart';
 import '../models/enums/item_type.dart';
 import '../models/inventory_item.dart';
 import '../models/unified_list_item.dart';
+import '../models/activity_event.dart';
 import '../repositories/inventory_repository.dart';
+import '../services/activity_log_service.dart';
 import 'user_context.dart';
 
 /// מיקום המזווה הנוכחי
@@ -28,6 +30,7 @@ enum InventoryMode {
 
 class InventoryProvider with ChangeNotifier {
   final InventoryRepository _repository;
+  final _activityLog = ActivityLogService();
   UserContext? _userContext;
   bool _listeningToUser = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
@@ -617,6 +620,18 @@ class InventoryProvider with ChangeNotifier {
             await _repository.saveItem(updatedItem, _subscribedHouseholdId!);
           } else {
             await _repository.saveUserItem(updatedItem, userId);
+          }
+
+          // 📝 Activity log
+          final householdId = _userContext?.householdId;
+          if (householdId != null) {
+            unawaited(_activityLog.log(
+              householdId: householdId,
+              type: ActivityType.stockUpdated,
+              actorId: userId,
+              actorName: _userContext?.displayName ?? '',
+              data: {'product_name': productName, 'quantity': quantity},
+            ));
           }
         } catch (e) {
           // 🔄 Rollback: שחזור המצב הקודם

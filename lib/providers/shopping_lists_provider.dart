@@ -55,6 +55,8 @@ import 'package:uuid/uuid.dart';
 import '../core/constants.dart';
 import '../l10n/app_strings.dart';
 import '../services/analytics_service.dart';
+import '../services/activity_log_service.dart';
+import '../models/activity_event.dart';
 import '../models/active_shopper.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/shopping_item_status.dart';
@@ -71,6 +73,7 @@ class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;
   final ReceiptRepository _receiptRepository;
   final _uuid = const Uuid();
+  final _activityLog = ActivityLogService();
 
   // State
   List<ShoppingList> _lists = [];
@@ -441,6 +444,15 @@ class ShoppingListsProvider with ChangeNotifier {
         isShared: isShared || !isPrivate,
       ));
 
+      // 📝 Activity log
+      unawaited(_activityLog.log(
+        householdId: householdId,
+        type: ActivityType.listCreated,
+        actorId: userId,
+        actorName: _userContext?.displayName ?? '',
+        data: {'list_id': newList.id, 'list_name': name, 'list_type': type},
+      ));
+
       return newList;
     } catch (e) {
       _errorMessage = 'שגיאה ביצירת רשימה "$name": ${e.toString()}';
@@ -586,6 +598,19 @@ class ShoppingListsProvider with ChangeNotifier {
       category: category ?? 'unknown',
       isFromCatalog: false, // addItemToList is manual entry
     ));
+
+    // 📝 Activity log
+    final householdId = _userContext?.householdId;
+    final userId = _userContext?.userId;
+    if (householdId != null && userId != null) {
+      unawaited(_activityLog.log(
+        householdId: householdId,
+        type: ActivityType.itemAdded,
+        actorId: userId,
+        actorName: _userContext?.displayName ?? '',
+        data: {'list_id': listId, 'list_name': list.name, 'item_name': name},
+      ));
+    }
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===
@@ -889,6 +914,18 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
+
+      // 📝 Activity log
+      final householdId = _userContext?.householdId;
+      if (householdId != null) {
+        unawaited(_activityLog.log(
+          householdId: householdId,
+          type: ActivityType.shoppingStarted,
+          actorId: userId,
+          actorName: _userContext?.displayName ?? '',
+          data: {'list_id': listId, 'list_name': list.name},
+        ));
+      }
     } catch (e) {
       _errorMessage = 'שגיאה בהתחלת קנייה: ${e.toString()}';
       _notifySafe();
@@ -931,6 +968,18 @@ class ShoppingListsProvider with ChangeNotifier {
       );
 
       await updateList(updatedList);
+
+      // 📝 Activity log
+      final householdId = _userContext?.householdId;
+      if (householdId != null) {
+        unawaited(_activityLog.log(
+          householdId: householdId,
+          type: ActivityType.shoppingJoined,
+          actorId: userId,
+          actorName: _userContext?.displayName ?? '',
+          data: {'list_id': listId, 'list_name': list.name},
+        ));
+      }
     } catch (e) {
       _errorMessage = 'שגיאה בהצטרפות לקנייה: ${e.toString()}';
       _notifySafe();

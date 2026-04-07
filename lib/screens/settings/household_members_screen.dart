@@ -137,10 +137,14 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     if (!_isOwner) return;
     if (member.role == 'owner') return;
     try {
+      final userContext = context.read<UserContext>();
       await _householdService.toggleRole(
         householdId: _householdId!,
         memberId: member.userId,
         currentRole: member.role,
+        actorId: _currentUserId ?? '',
+        actorName: userContext.displayName ?? '',
+        targetName: member.name,
       );
 
       final newRole = member.role == 'admin' ? 'member' : 'admin';
