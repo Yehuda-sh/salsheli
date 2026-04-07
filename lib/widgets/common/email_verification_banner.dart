@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
@@ -40,7 +41,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.auth.verificationEmailError(e.toString()))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'sendEmailVerification'))),
         );
       }
     } finally {

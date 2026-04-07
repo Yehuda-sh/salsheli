@@ -81,7 +81,7 @@ class _LoadingState extends StatelessWidget {
                 color: cs.primary,
               ),
             ),
-            SizedBox(width: kSpacingSmall),
+            const SizedBox(width: kSpacingSmall),
             Text(
               AppStrings.suggestionsToday.loading,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -487,7 +487,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         size: 14,
                         color: cs.onSurface.withValues(alpha: 0.6),
                       ),
-                      SizedBox(width: 4),
+                      const SizedBox(width: kSpacingXTiny),
                       Text(
                         _getUrgencyText(suggestion.urgency),
                         style: theme.textTheme.labelSmall?.copyWith(
@@ -498,7 +498,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: kSpacingSmall),
 
                   // שם המוצר — מנקה ומקצר
                   Expanded(
@@ -534,7 +534,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: kSpacingSmall + 2),
 
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
@@ -547,7 +547,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       child: Row(
                         children: [
                           Icon(Icons.warning_amber, size: 10, color: cs.onSurface.withValues(alpha: 0.6)),
-                          SizedBox(width: 3),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,
@@ -598,7 +598,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                                       size: 16,
                                       color: cs.onSurface,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: kSpacingXTiny),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
                                       style: theme.textTheme.labelMedium?.copyWith(
@@ -612,7 +612,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             ),
                           ),
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: kSpacingTiny),
                         // כפתור X - disabled for unknown
                         Material(
                           color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
@@ -690,7 +690,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     final suggestionsProvider = context.read<SuggestionsProvider>();
     final messenger = ScaffoldMessenger.of(context);
 
-    final activeLists = listsProvider.lists.where((l) => l.status == 'active').toList();
+    final activeLists = listsProvider.lists.where((l) => l.status == ShoppingList.statusActive).toList();
     if (activeLists.isEmpty) {
       messenger.showSnackBar(SnackBar(
         content: Text(AppStrings.suggestionsToday.noActiveLists),
@@ -720,7 +720,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     messenger.showSnackBar(SnackBar(
       content: Row(
         children: [
-          const Icon(Icons.check_circle, color: Colors.white, size: 18),
+          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall + 2),
           const SizedBox(width: kSpacingSmall),
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],

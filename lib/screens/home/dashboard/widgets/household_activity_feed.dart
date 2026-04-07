@@ -362,7 +362,10 @@ class _ActivityTile extends StatelessWidget {
     final strings = AppStrings.homeDashboard;
     if (diff.inMinutes < 60) return strings.minutesAgo(diff.inMinutes);
     if (diff.inHours < 24) return strings.hoursAgo(diff.inHours);
-    if (diff.inDays == 0) return strings.today;
+    // Calendar-day check: same day but ≥24h ago (e.g. 00:01→23:59)
+    if (now.year == date.year && now.month == date.month && now.day == date.day) {
+      return strings.today;
+    }
     if (diff.inDays == 1) return strings.yesterday;
     if (diff.inDays < 7) return strings.daysAgo(diff.inDays);
     return '${date.day}/${date.month}';
