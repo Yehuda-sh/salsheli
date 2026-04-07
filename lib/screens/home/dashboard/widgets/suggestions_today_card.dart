@@ -601,7 +601,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: kSpacingSmall + 2),
 
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
@@ -753,7 +753,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     final messenger = ScaffoldMessenger.of(context);
     final brand = Theme.of(context).extension<AppBrand>();
 
-    final activeLists = listsProvider.lists.where((l) => l.status == 'active').toList();
+    final activeLists = listsProvider.lists.where((l) => l.status == ShoppingList.statusActive).toList();
     if (activeLists.isEmpty) {
       messenger.showSnackBar(SnackBar(
         content: Text(AppStrings.suggestionsToday.noActiveLists),
@@ -783,7 +783,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     messenger.showSnackBar(SnackBar(
       content: Row(
         children: [
-          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall),
+          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall + 2),
           const SizedBox(width: kSpacingSmall),
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],

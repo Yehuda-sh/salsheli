@@ -91,7 +91,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'email_verification'))),
+          SnackBar(content: Text(userFriendlyError(e, context: 'sendEmailVerification'))),
         );
       }
     } finally {

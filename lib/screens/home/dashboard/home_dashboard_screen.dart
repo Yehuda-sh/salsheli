@@ -179,6 +179,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         .toList()
       ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
 
+    // שם משפחה להצגה
+    final familyName = _getFamilyDisplayName(userContext);
+
     var sectionIndex = 0;
 
     return Scaffold(
@@ -666,7 +669,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
-                    vertical: 14,
+                    vertical: kSpacingSmallPlus + 2,
                   ),
                   child: Row(
                     children: [
