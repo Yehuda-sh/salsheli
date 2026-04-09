@@ -546,7 +546,6 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                 ],
               );
             },
-          ),
     );
   }
 

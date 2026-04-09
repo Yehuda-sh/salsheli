@@ -692,7 +692,6 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             ),
                           ),
                         ),
-<<<<<<< HEAD
                         const SizedBox(width: kSpacingTiny),
                         // כפתור X - disabled for unknown
                       ],
