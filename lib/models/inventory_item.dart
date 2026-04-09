@@ -204,8 +204,25 @@ class InventoryItem {
   /// האם יש תאריך תפוגה
   bool get hasExpiryDate => expiryDate != null;
 
-  /// האם פג תוקף
-  bool get isExpired => expiryDate != null && expiryDate!.isBefore(DateTime.now());
+  /// תאריך היום בלבד (ללא שעה) — להשוואות תאריך תפוגה
+  static DateTime _todayDateOnly() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  /// תאריך תפוגה בלבד (ללא שעה, בשעון מקומי)
+  DateTime? get _expiryDateOnly {
+    if (expiryDate == null) return null;
+    final local = expiryDate!.toLocal();
+    return DateTime(local.year, local.month, local.day);
+  }
+
+  /// האם פג תוקף (תאריך היום > תאריך התפוגה)
+  bool get isExpired {
+    final expiry = _expiryDateOnly;
+    if (expiry == null) return false;
+    return _todayDateOnly().isAfter(expiry);
+  }
 
   /// האם תפוגה קרובה (תוך 7 ימים)
   bool get isExpiringSoon => expiresWithinDays(7);
@@ -217,15 +234,17 @@ class InventoryItem {
   /// item.expiresWithinDays(14)  // תוך שבועיים
   /// ```
   bool expiresWithinDays(int daysThreshold) {
-    if (expiryDate == null) return false;
-    final days = expiryDate!.difference(DateTime.now()).inDays;
+    final expiry = _expiryDateOnly;
+    if (expiry == null) return false;
+    final days = expiry.difference(_todayDateOnly()).inDays;
     return days >= 0 && days <= daysThreshold;
   }
 
   /// ימים עד תפוגה (או מאז תפוגה אם שלילי)
   int? get daysUntilExpiry {
-    if (expiryDate == null) return null;
-    return expiryDate!.difference(DateTime.now()).inDays;
+    final expiry = _expiryDateOnly;
+    if (expiry == null) return null;
+    return expiry.difference(_todayDateOnly()).inDays;
   }
 
   /// האם נקנה לאחרונה (תוך 30 יום)
