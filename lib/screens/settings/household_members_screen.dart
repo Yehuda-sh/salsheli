@@ -277,7 +277,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                             color: cs.surface.withValues(alpha: 0.7),
                             borderRadius: BorderRadius.circular(kBorderRadius),
                           ),
-                          child: Icon(Icons.arrow_forward_ios,
+                          child: Icon(Icons.arrow_back_ios_new,
                               size: kIconSizeSmall, color: cs.onSurface),
                         ),
                       ),

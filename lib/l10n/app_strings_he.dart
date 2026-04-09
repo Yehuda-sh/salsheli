@@ -903,6 +903,7 @@ class SettingsStrings {
   String get pendingInvitesSubtitle => 'הזמנות שקיבלת לרשימות';
   String get showOnboardingAgain => 'הצג הדרכה מחדש';
   String get languageHebrew => 'עברית';
+  String get languageEnglish => 'English';
   String get showOnboardingSubtitle => 'צפה שוב בהדרכת האפליקציה';
   String get about => 'אודות';
   String get aboutDescription => 'אפליקציה חכמה לניהול קניות ומזווה ביתי';

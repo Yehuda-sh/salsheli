@@ -879,6 +879,7 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get pendingInvitesSubtitle => 'Invitations you received for lists';
   @override String get showOnboardingAgain => 'Show Tutorial Again';
   @override String get languageHebrew => 'עברית';
+  @override String get languageEnglish => 'English';
   @override String get showOnboardingSubtitle => 'View the app tutorial again';
   @override String get about => 'About';
   @override String get aboutDescription => 'Smart grocery & pantry management for families';

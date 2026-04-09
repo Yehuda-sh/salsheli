@@ -265,7 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('🔧 DEBUG: מחיקת כל הנתונים'),
+        title: Text('🔧 DEBUG: ${AppStrings.settings.debugDeleteAll}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -914,8 +914,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           },
                           child: isSaving
                               ? SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: kIconSizeSmallPlus,
+                                  height: kIconSizeSmallPlus,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     color: cs.onPrimary,
@@ -1224,7 +1224,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               const SizedBox(width: kSpacingSmall),
                               _ThemeCard(
                                 icon: '🇺🇸',
-                                label: 'English',
+                                label: AppStrings.settings.languageEnglish,
                                 isSelected: LocaleManager.instance.isEnglish,
                                 onTap: () => LocaleManager.instance.setLocale(AppLocale.en),
                               ),
@@ -1442,7 +1442,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
                     child: ListTile(
                       leading: Icon(Icons.bug_report, color: cs.tertiary),
-                      title: Text('🔧 DEBUG: מחק הכל', style: TextStyle(color: cs.tertiary)),
+                      title: Text('🔧 DEBUG: ${AppStrings.settings.debugDeleteAll}', style: TextStyle(color: cs.tertiary)),
                       subtitle: Text(AppStrings.settings.debugResetOnboarding),
                       onTap: _debugClearAllData,
                     ),
