@@ -450,7 +450,7 @@ class _PantryProductSelectionSheetState
                         ),
                         IconButton(
                           icon: Icon(Icons.add_circle, color: cs.primary),
-                          onPressed: quantity < 99
+                          onPressed: quantity < kMaxPantryQuantity
                               ? () {
                                   unawaited(HapticFeedback.selectionClick());
                                   setDialogState(() => quantity++);

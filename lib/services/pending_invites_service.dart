@@ -666,13 +666,19 @@ class PendingInvitesService {
           await _firestore.collection('users').doc(userId).get();
       final oldHouseholdId = userDoc.data()?['household_id'] as String?;
 
-      // 3. עדכון household_id של המשתמש
+      // 3. עדכון household_id + is_solo של המשתמש
       batch.update(
         _firestore.collection('users').doc(userId),
-        {'household_id': householdId},
+        {'household_id': householdId, 'is_solo': false},
       );
 
-      // 4. הסרה מהבית הישן (אם שונה)
+      // 4. עדכון is_solo של הבית (כבר לא סולו)
+      batch.update(
+        _firestore.collection('households').doc(householdId),
+        {'is_solo': false},
+      );
+
+      // 5. הסרה מהבית הישן (אם שונה)
       if (oldHouseholdId != null && oldHouseholdId != householdId) {
         batch.delete(
           _firestore
@@ -685,7 +691,7 @@ class PendingInvitesService {
 
       await batch.commit();
 
-      // 5. בדיקה אם הבית הישן ריק → מחיקה
+      // 6. בדיקה אם הבית הישן ריק → מחיקה
       if (oldHouseholdId != null && oldHouseholdId != householdId) {
         final oldMembers = await _firestore
             .collection('households')

@@ -40,12 +40,12 @@ class HouseholdActivityFeed extends StatelessWidget {
     // מציג עד 5 אירועים אחרונים
     final events = activityProvider.events.take(5).toList();
 
+    // Always watch ReceiptProvider (unconditional — required by Provider rules)
+    final allReceipts = context.watch<ReceiptProvider>().receipts;
+
     // Fallback: אם אין אירועי activity_log, הצג קבלות אחרונות
-    final receipts = events.isEmpty
-        ? context.watch<ReceiptProvider>().receipts
-        : const <Receipt>[];
-    final fallbackReceipts = receipts.isNotEmpty
-        ? (List<Receipt>.from(receipts)..sort((a, b) => b.date.compareTo(a.date))).take(3).toList()
+    final fallbackReceipts = events.isEmpty && allReceipts.isNotEmpty
+        ? (List<Receipt>.from(allReceipts)..sort((a, b) => b.date.compareTo(a.date))).take(3).toList()
         : <Receipt>[];
 
     if (events.isEmpty && fallbackReceipts.isEmpty) return const SizedBox.shrink();

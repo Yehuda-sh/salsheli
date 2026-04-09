@@ -32,9 +32,10 @@ class ShoppingListUrgency {
     if (list.targetDate == null) return null;
 
     // נרמול לתאריכים בלבד (ללא שעות) למניעת באגים
+    // ⚠️ target מגיע כ-UTC מ-Firestore — חובה להמיר ל-local לפני חילוץ תאריך
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final target = list.targetDate!;
+    final target = list.targetDate!.toLocal();
     final targetDay = DateTime(target.year, target.month, target.day);
 
     // אם התאריך עבר (לפני היום)

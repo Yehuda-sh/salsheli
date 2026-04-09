@@ -66,11 +66,16 @@ class ActionCenterCard extends StatelessWidget {
     }
 
     // 2. רשימות באיחור (overdue target_date)
+    // ⚠️ target מגיע כ-UTC מ-Firestore — נרמול ל-local date-only
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     for (final list in listsProvider.lists) {
       if (list.status != ShoppingList.statusActive) continue;
       final target = list.targetDate;
       if (target == null) continue;
-      if (target.isAfter(DateTime.now())) continue;
+      final targetLocal = target.toLocal();
+      final targetDay = DateTime(targetLocal.year, targetLocal.month, targetLocal.day);
+      if (!today.isAfter(targetDay)) continue;
       actionItems.add(_ActionItem(
         icon: Icons.schedule,
         color: cs.error,

@@ -773,8 +773,8 @@ class _AddAllButtonState extends State<_AddAllButton> {
         await listsProvider.addUnifiedItem(targetList.id, item);
         await suggestionsProvider.addSuggestionById(suggestion.id, targetList.id);
         added++;
-      } catch (_) {
-        // Skip failed items
+      } catch (e) {
+        if (kDebugMode) debugPrint('⚠️ AddAll: failed to add ${suggestion.productName}: $e');
       }
     }
 

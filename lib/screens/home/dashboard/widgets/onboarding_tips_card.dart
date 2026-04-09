@@ -42,9 +42,11 @@ class OnboardingTipsCard extends StatelessWidget {
     final listCount = listsProvider.lists.length;
     final pantryCount = inventoryProvider.items.length;
     final householdName = userContext.user?.householdName;
-    final isSoloHousehold = householdName == null ||
-        householdName.contains('של') ||
-        householdName.contains('Home');
+    // isSolo field — fallback to heuristic for existing users without the field
+    final isSoloHousehold = userContext.user?.isSolo ??
+        (householdName == null ||
+         householdName.contains('של') ||
+         householdName.contains('Home'));
 
     final tips = <_TipData>[];
 

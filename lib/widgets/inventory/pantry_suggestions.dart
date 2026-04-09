@@ -103,7 +103,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     _dismissed = dismissedJson.toSet();
 
     if (_hidden) {
-      setState(() => _loaded = true);
+      if (mounted) setState(() => _loaded = true);
       return;
     }
 
@@ -143,13 +143,15 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
         ));
       }
 
-      setState(() {
-        _suggestions = suggestions;
-        _loaded = true;
-      });
+      if (mounted) {
+        setState(() {
+          _suggestions = suggestions;
+          _loaded = true;
+        });
+      }
     } catch (e) {
       debugPrint('PantrySuggestions: failed to load — $e');
-      setState(() => _loaded = true);
+      if (mounted) setState(() => _loaded = true);
     }
   }
 
@@ -172,14 +174,14 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     final prefs = await SharedPreferences.getInstance();
     _dismissed.add(suggestion.displayName.toLowerCase());
     await prefs.setStringList(_kDismissedKey, _dismissed.toList());
-    setState(() => _suggestions.remove(suggestion));
+    if (mounted) setState(() => _suggestions.remove(suggestion));
   }
 
   Future<void> _hideAll() async {
     final prefs = await SharedPreferences.getInstance();
     final hideUntil = DateTime.now().add(const Duration(hours: 24));
     await prefs.setInt(_kHiddenUntilKey, hideUntil.millisecondsSinceEpoch);
-    setState(() => _hidden = true);
+    if (mounted) setState(() => _hidden = true);
   }
 
   @override

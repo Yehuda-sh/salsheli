@@ -78,7 +78,20 @@ class ActivityLogProvider with ChangeNotifier {
     }
   }
 
+  Future<void>? _loadingFuture;
+
   Future<void> _loadEvents() async {
+    // Deduplication — מונע קריאות מקבילות ל-Firestore
+    if (_loadingFuture != null) return _loadingFuture!;
+    _loadingFuture = _loadEventsInternal();
+    try {
+      await _loadingFuture;
+    } finally {
+      _loadingFuture = null;
+    }
+  }
+
+  Future<void> _loadEventsInternal() async {
     final householdId = _userContext?.user?.householdId;
     if (_userContext?.isLoggedIn != true || householdId == null) {
       _events = [];

@@ -49,7 +49,6 @@ import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../providers/user_context.dart';
-import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
@@ -512,25 +511,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
-  // ✅ Legacy method kept for reference — was auto-adding from template
-  Future<void> _addStarterItemsLegacy() async {
-    final strings = AppStrings.pantry;
-    final messenger = ScaffoldMessenger.of(context);
-    final provider = context.read<InventoryProvider>();
-
-    try {
-      final items = await TemplateService.loadPantryStarterItems();
-      if (items.isEmpty) {
-        if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.noStarterItemsFound)));
-        return;
-      }
-      final count = await provider.addStarterItems(items);
-      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsAdded(count))));
-    } catch (e) {
-      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsError)));
-    }
-  }
-
   /// מציג דיאלוג לעריכת פרטי פריט קיים
   void _editItemDialog(InventoryItem item) {
     PantryItemDialog.showEditDialog(context, item);
@@ -598,7 +578,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final updatedItem = item.copyWith(quantity: newQuantity);
       await inventoryProvider.updateItem(updatedItem);
 
-      if (wasAboveMin && willBeLow) {
+      if (wasAboveMin && willBeLow && mounted) {
         await _sendLowStockNotification(updatedItem);
       }
     } catch (e) {
@@ -1493,7 +1473,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   ),
                                   if (item.expiryDate != null) ...[
                                     const SizedBox(width: kSpacingSmall),
-                                    _buildExpiryBadge(item, cs),
+                                    _buildExpiryBadge(item),
                                   ],
                                 ],
                               ),
@@ -1563,7 +1543,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               _buildQuantityButton(
                                 icon: Icons.add,
                                 color: cs.primary,
-                                onTap: item.quantity < 99
+                                onTap: item.quantity < kMaxPantryQuantity
                                     ? () => _updateQuantity(item, item.quantity + 1)
                                     : null,
                               ),
@@ -1666,7 +1646,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🔢 Badge כמות עם חיווי סטטוס
   /// 📅 Badge תאריך תפוגה
-  Widget _buildExpiryBadge(InventoryItem item, ColorScheme _) {
+  Widget _buildExpiryBadge(InventoryItem item) {
     final cs = Theme.of(context).colorScheme;
     final isExpired = item.isExpired;
     final isExpiringSoon = item.isExpiringSoon;
@@ -1763,7 +1743,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     ),
                     IconButton.filled(
                       icon: const Icon(Icons.add),
-                      onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
+                      onPressed: quantity < kMaxPantryQuantity ? () => setDialogState(() => quantity++) : null,
                     ),
                   ],
                 ),

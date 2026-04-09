@@ -166,7 +166,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     required String label,
     required ColorScheme cs,
     int minValue = 0,
-    int maxValue = 999,
+    int maxValue = kMaxPantryQuantity,
   }) {
     // Force LTR so +/- buttons stay in consistent visual order (- left, + right)
     return Directionality(
@@ -366,10 +366,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   /// בחירת תאריך תפוגה
   Future<void> _selectExpiryDate() async {
     final now = DateTime.now();
+    // אם יש תאריך תפוגה שכבר עבר — מרשים לראות אותו בבוחר
+    final earliest = _expiryDate != null && _expiryDate!.isBefore(now)
+        ? _expiryDate!
+        : now;
     final picked = await showDatePicker(
       context: context,
       initialDate: _expiryDate ?? now.add(const Duration(days: 30)),
-      firstDate: now,
+      firstDate: earliest,
       lastDate: now.add(const Duration(days: 365 * 5)),
       locale: const Locale('he', 'IL'),
       helpText: AppStrings.inventory.selectExpiryDate,
@@ -404,9 +408,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       return;
     }
 
-    // Validation - כמות
+    // Validation - כמות (בהוספה חובה >= 1, בעריכה מותר 0 = "נגמר")
     final quantity = int.tryParse(_quantityController.text) ?? 0;
-    if (quantity <= 0) {
+    if (widget.mode == PantryItemDialogMode.add && quantity <= 0) {
       unawaited(HapticFeedback.heavyImpact());
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -565,7 +569,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         controller: _quantityController,
                         label: '',
                         cs: cs,
-                        minValue: 1,
+                        minValue: widget.mode == PantryItemDialogMode.add ? 1 : 0,
                       ),
                     ],
                   ),
@@ -619,7 +623,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   }
 
                   return DropdownButtonFormField<String>(
-                    initialValue: _selectedLocation,
+                    value: _selectedLocation,
                     dropdownColor: cs.surface,
                     style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
@@ -705,7 +709,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   children: [
                     // קטגוריה
                     DropdownButtonFormField<String>(
-                      initialValue: _selectedCategory,
+                      value: _selectedCategory,
                       dropdownColor: cs.surface,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(

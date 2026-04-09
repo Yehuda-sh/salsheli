@@ -166,6 +166,12 @@ class UserEntity {
   @JsonKey(name: 'seen_tutorial', defaultValue: false)
   final bool seenTutorial;
 
+  /// 🇮🇱 האם משק בית אישי (לא משותף)
+  /// 🇬🇧 Whether this is a solo (non-shared) household
+  /// null = ישנים שלא עודכנו עדיין (fallback to heuristic)
+  @JsonKey(name: 'is_solo')
+  final bool? isSolo;
+
   const UserEntity({
     required this.id,
     required this.name,
@@ -181,6 +187,7 @@ class UserEntity {
     this.seenOnboarding = false,
     this.seenTutorial = false,
     this.householdName,
+    this.isSolo,
   });
 
   /// 🇮🇱 משתמש ריק (ברירת מחדל)
@@ -199,7 +206,8 @@ class UserEntity {
         weeklyBudget = 0.0,
         isAdmin = false,
         seenOnboarding = false,
-        seenTutorial = false;
+        seenTutorial = false,
+        isSolo = null;
 
   /// 🇮🇱 משתמש דמה לבדיקות
   /// 🇬🇧 Demo user for testing
@@ -231,6 +239,7 @@ class UserEntity {
     bool? seenTutorial,
     String? householdName,
     String? profileImageUrl,
+    bool? isSolo,
   }) {
     return UserEntity(
       id: id,
@@ -245,6 +254,7 @@ class UserEntity {
       seenTutorial: seenTutorial ?? false,
       householdName: householdName,
       profileImageUrl: profileImageUrl,
+      isSolo: isSolo ?? true,
     );
   }
 
@@ -298,6 +308,7 @@ class UserEntity {
     bool? seenTutorial,
     String? householdName,
     bool clearHouseholdName = false,
+    bool? isSolo,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -314,6 +325,7 @@ class UserEntity {
       isAdmin: isAdmin ?? this.isAdmin,
       seenOnboarding: seenOnboarding ?? this.seenOnboarding,
       seenTutorial: seenTutorial ?? this.seenTutorial,
+      isSolo: isSolo ?? this.isSolo,
     );
   }
 

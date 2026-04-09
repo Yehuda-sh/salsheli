@@ -133,6 +133,8 @@ const double kButtonHeight = 48.0;       // Standard button height
 const double kButtonHeightSmall = 36.0;  // Compact button height
 const double kAppBarIconSize = 32.0;     // AppBar logo & action icon size
 
+const int kMaxPantryQuantity = 99;       // Max quantity for pantry items
+
 // ═══════════════════════════════════════════════════════════════════════════
 // BUTTON PADDING
 // ═══════════════════════════════════════════════════════════════════════════

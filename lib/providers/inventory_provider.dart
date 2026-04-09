@@ -696,7 +696,7 @@ class InventoryProvider with ChangeNotifier {
               _subscribedHouseholdId != null) {
             await _repository.saveItem(updatedItem, _subscribedHouseholdId!);
           } else {
-            await _repository.saveItem(updatedItem, userId);
+            await _repository.saveUserItem(updatedItem, userId);
           }
         } catch (e) {
           // 🔄 Rollback
@@ -808,8 +808,13 @@ class InventoryProvider with ChangeNotifier {
 
     try {
       for (final item in items) {
-        // שמירה למזווה אישי
-        await _repository.saveUserItem(item, userId);
+        // שמירה לפי mode — household או אישי
+        if (_currentMode == InventoryMode.household &&
+            _subscribedHouseholdId != null) {
+          await _repository.saveItem(item, _subscribedHouseholdId!);
+        } else {
+          await _repository.saveUserItem(item, userId);
+        }
         successCount++;
       }
 
