@@ -888,7 +888,7 @@ async function main() {
       actor_id: actorId,
       actor_name: actorName,
       data: data || {},
-      created_at: (createdAt || new Date()).toISOString(),
+      created_at: admin.firestore.Timestamp.fromDate(createdAt || new Date()),
     };
   }
 
@@ -904,13 +904,14 @@ async function main() {
     makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'cleaning' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
+    makeActivityEvent('act_cohen_11', hIds.cohen, 'member_left', uids.noa, 'נועה כהן', {}, hoursAgo(3)),
   ]);
-  console.log('   📝 כהן: 10 activity events');
+  console.log('   📝 כהן: 11 activity events');
 
   // Levi household — 5 events
   await createActivityEvents(hIds.levi, [
     makeActivityEvent('act_levi_1', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', list_type: 'super' }, daysAgo(5)),
-    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת' }, daysAgo(2)),
+    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_shabbat' }, daysAgo(2)),
     makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
     makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'cleaning' }, daysAgo(1)),
@@ -920,11 +921,11 @@ async function main() {
   // Naama household — 8 events (power user)
   await createActivityEvents(hIds.naama, [
     makeActivityEvent('act_naama_1', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_type: 'super' }, daysAgo(10)),
-    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי' }, daysAgo(7)),
+    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_weekly' }, daysAgo(7)),
     makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל' }, daysAgo(7)),
     makeActivityEvent('act_naama_4', hIds.naama, 'stock_updated', uids.naama, 'נעמה רוזן', { product_name: 'גבינה צהובה', quantity: 1 }, daysAgo(5)),
     makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
-    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם' }, daysAgo(3)),
+    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_id: 'list_naama_pharm' }, daysAgo(3)),
     makeActivityEvent('act_naama_7', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'פארם', item_count: 5, store_name: 'סופר פארם' }, daysAgo(3)),
     makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'super' }, hoursAgo(2)),
   ]);
