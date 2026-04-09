@@ -224,7 +224,7 @@ class TemplateService {
           // ✅ FIX #5: שימוש ב-_parsePrice לתמיכה ב-String/num/null
           unitPrice: _parsePrice(product['price']),
           barcode: product['barcode'] as String?,
-          unit: (product['unit'] as String?) ?? unit,
+          unit: (product['defaultUnit'] as String?) ?? unit,
           // ✅ FIX #6: null במקום '' כשאין קטגוריה
           category: (product['category'] as String?)?.isNotEmpty == true
               ? product['category'] as String
@@ -420,7 +420,7 @@ class TemplateService {
         category: category,
         location: defaultLocation,
         quantity: quantity,
-        unit: (product?['unit'] as String?) ?? unit,
+        unit: (product?['defaultUnit'] as String?) ?? unit,
         minQuantity: 1,
       ));
     }
