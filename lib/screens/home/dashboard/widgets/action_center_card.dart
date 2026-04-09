@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../config/list_types_config.dart';
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/shopping_list.dart';
@@ -42,14 +41,12 @@ class ActionCenterCard extends StatelessWidget {
 
     if (!userContext.isLoggedIn) return const SizedBox.shrink();
 
-    final userId = userContext.userId;
     final actionItems = <_ActionItem>[];
 
     // 1. בקשות ממתינות (pending requests) — רק ל-owner/admin
     for (final list in listsProvider.lists) {
       if (list.status != ShoppingList.statusActive) continue;
-      final role = list.currentUserRole;
-      if (role != 'owner' && role != 'admin') continue;
+      if (!list.canCurrentUserApprove) continue;
       final pending = list.pendingRequests.where((r) => r.status.isPending).toList();
       if (pending.isEmpty) continue;
       actionItems.add(_ActionItem(
@@ -117,7 +114,7 @@ class ActionCenterCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
             decoration: BoxDecoration(
-              color: brand?.paperBackground?.withValues(alpha: 0.85),
+              color: brand?.paperBackground.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Row(
