@@ -27,7 +27,7 @@ jobs:
         working-directory: scripts
 
       - name: Write service account file
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > scripts/firebase-service-account.json
+        run: echo '${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}' > scripts/firebase-service-account.json
 
       - name: Run rebuild_demo_data.js
         run: node scripts/rebuild_demo_data.js
