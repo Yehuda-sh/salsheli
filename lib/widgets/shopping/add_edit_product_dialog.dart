@@ -28,6 +28,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../core/constants.dart' show kDefaultProductUnit;
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
@@ -261,13 +262,22 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     // 📳 Haptic: mediumImpact לשמירה מוצלחת
     unawaited(HapticFeedback.mediumImpact());
 
+    final existing = widget.item;
     final newItem = UnifiedListItem.product(
-      id: widget.item?.id ?? const Uuid().v4(),
+      id: existing?.id ?? const Uuid().v4(),
       name: name,
       quantity: qty,
       unitPrice: unitPrice,
       brand: brand.isEmpty ? null : brand,
       category: _selectedCategory,
+      // ✅ Preserve fields not editable in this dialog
+      notes: existing?.notes,
+      unit: existing?.unit ?? kDefaultProductUnit,
+      barcode: existing?.barcode,
+      imageUrl: existing?.imageUrl,
+      isChecked: existing?.isChecked ?? false,
+      checkedBy: existing?.checkedBy,
+      checkedAt: existing?.checkedAt,
     );
 
     try {

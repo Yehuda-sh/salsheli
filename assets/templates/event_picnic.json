@@ -5,7 +5,7 @@
   "items": [
     {"source": "supermarket", "searchTerm": "מים מינרליים", "quantity": 6, "unit": "יח'", "fallbackName": "מים"},
     {"source": "bakery", "searchTerm": "לחם", "quantity": 1, "unit": "יח'", "fallbackName": "לחם לסנדוויצ'ים"},
-    {"source": "supermarket", "searchTerm": "חביתון", "quantity": 1, "unit": "יח'", "fallbackName": "ממרח לסנדוויצ'"},
+    {"source": "supermarket", "searchTerm": "ממרח השחר", "quantity": 1, "unit": "יח'", "fallbackName": "ממרח לסנדוויצ'"},
     {"source": "greengrocer", "searchTerm": "פירות", "quantity": 1, "unit": "ק\"ג", "fallbackName": "פירות עונתיים"},
     {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 2, "unit": "יח'", "fallbackName": "חטיפים"},
     {"source": "supermarket", "searchTerm": "במבה", "quantity": 2, "unit": "יח'", "fallbackName": "במבה"},
