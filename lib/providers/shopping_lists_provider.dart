@@ -598,19 +598,6 @@ class ShoppingListsProvider with ChangeNotifier {
       category: category ?? 'unknown',
       isFromCatalog: false, // addItemToList is manual entry
     ));
-
-    // 📝 Activity log
-    final householdId = _userContext?.householdId;
-    final userId = _userContext?.userId;
-    if (householdId != null && userId != null) {
-      unawaited(_activityLog.log(
-        householdId: householdId,
-        type: ActivityType.itemAdded,
-        actorId: userId,
-        actorName: _userContext?.displayName ?? '',
-        data: {'list_id': listId, 'list_name': list.name, 'item_name': name},
-      ));
-    }
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===

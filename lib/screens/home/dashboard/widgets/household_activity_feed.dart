@@ -1,9 +1,9 @@
 // 📄 lib/screens/home/dashboard/widgets/household_activity_feed.dart
 //
 // פיד פעילות הבית — מציג פעולות אחרונות של חברי הבית
-// מבוסס על ActivityLogProvider (יומן פעילות מלא).
+// מבוסס על ActivityLogProvider. אם אין אירועים — fallback לקבלות.
 //
-// Version: 2.0 (07/04/2026) — ActivityLogProvider במקום receipts בלבד
+// Version: 2.1 (09/04/2026) — fallback לקבלות כשאין אירועי activity_log
 
 import 'dart:async';
 
@@ -14,7 +14,9 @@ import 'package:provider/provider.dart';
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/activity_event.dart';
+import '../../../../models/receipt.dart';
 import '../../../../providers/activity_log_provider.dart';
+import '../../../../providers/receipt_provider.dart';
 import '../../../../providers/user_context.dart';
 import '../../../history/shopping_history_screen.dart';
 
@@ -27,15 +29,23 @@ class HouseholdActivityFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ActivityLogProvider>();
+    final activityProvider = context.watch<ActivityLogProvider>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     // מציג עד 5 אירועים אחרונים
-    final events = provider.events.take(5).toList();
+    final events = activityProvider.events.take(5).toList();
 
-    if (events.isEmpty) return const SizedBox.shrink();
+    // Fallback: אם אין אירועי activity_log, הצג קבלות אחרונות
+    final receipts = events.isEmpty
+        ? context.watch<ReceiptProvider>().receipts
+        : const <Receipt>[];
+    final fallbackReceipts = receipts.isNotEmpty
+        ? (List<Receipt>.from(receipts)..sort((a, b) => b.date.compareTo(a.date))).take(3).toList()
+        : <Receipt>[];
+
+    if (events.isEmpty && fallbackReceipts.isEmpty) return const SizedBox.shrink();
 
     return Column(
       children: [
@@ -84,14 +94,23 @@ class HouseholdActivityFeed extends StatelessWidget {
             borderRadius: BorderRadius.circular(kBorderRadius),
             side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.3)),
           ),
-          child: Column(
-            children: [
-              for (var i = 0; i < events.length; i++) ...[
-                _ActivityEventTile(event: events[i]),
-                if (i < events.length - 1) const Divider(height: 1, indent: 64, endIndent: kSpacingMedium),
-              ],
-            ],
-          ),
+          child: events.isNotEmpty
+              ? Column(
+                  children: [
+                    for (var i = 0; i < events.length; i++) ...[
+                      _ActivityEventTile(event: events[i]),
+                      if (i < events.length - 1) const Divider(height: 1, indent: 64, endIndent: kSpacingMedium),
+                    ],
+                  ],
+                )
+              : Column(
+                  children: [
+                    for (var i = 0; i < fallbackReceipts.length; i++) ...[
+                      _ReceiptFallbackTile(receipt: fallbackReceipts[i]),
+                      if (i < fallbackReceipts.length - 1) const Divider(height: 1, indent: 64, endIndent: kSpacingMedium),
+                    ],
+                  ],
+                ),
         ),
       ],
     );
@@ -161,7 +180,6 @@ class _ActivityEventTile extends StatelessWidget {
     final currentUserId = context.read<UserContext>().userId;
     final isMe = event.actorId == currentUserId;
     final strings = AppStrings.activityLog;
-    final locale = Localizations.localeOf(context).languageCode;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
@@ -226,7 +244,7 @@ class _ActivityEventTile extends StatelessWidget {
     );
   }
 
-  String _formatRelativeDate(DateTime date) {
+  static String _formatRelativeDate(DateTime date) {
     final now = DateTime.now();
     final diff = now.difference(date);
 
@@ -239,5 +257,96 @@ class _ActivityEventTile extends StatelessWidget {
     if (diff.inDays == 1) return strings.yesterday;
     if (diff.inDays < 7) return strings.daysAgo(diff.inDays);
     return '${date.day}/${date.month}';
+  }
+}
+
+// ============================================
+// Fallback: Receipt Tile (כשאין אירועי activity_log)
+// ============================================
+
+class _ReceiptFallbackTile extends StatelessWidget {
+  final Receipt receipt;
+
+  const _ReceiptFallbackTile({required this.receipt});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return InkWell(
+      onTap: () {
+        unawaited(HapticFeedback.lightImpact());
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => ShoppingHistoryScreen(initialReceiptId: receipt.id)),
+        );
+      },
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // אייקון קנייה
+            Container(
+              width: kButtonHeightSmall,
+              height: kButtonHeightSmall,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: Icon(Icons.shopping_cart, size: kIconSizeSmallPlus, color: cs.onPrimaryContainer),
+              ),
+            ),
+            const SizedBox(width: kSpacingMedium),
+
+            // תוכן
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          receipt.storeName,
+                          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: cs.onSurface),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        '• ${_ActivityEventTile._formatRelativeDate(receipt.date)}',
+                        style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppStrings.homeDashboard.completedShoppingAt(receipt.storeName),
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.9)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+
+            // חץ
+            Padding(
+              padding: const EdgeInsets.only(top: kSpacingSmall),
+              child: Icon(
+                Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
+                size: kIconSizeSmallPlus,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

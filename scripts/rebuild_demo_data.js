@@ -838,15 +838,15 @@ async function main() {
   // Cohen household — 10 events (mixed types)
   await createActivityEvents(hIds.cohen, [
     makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'super' }, daysAgo(7)),
-    makeActivityEvent('act_cohen_2', hIds.cohen, 'item_added', uids.yuval, 'יובל כהן', { list_name: 'קניות שבועיות', item_name: 'חלב תנובה 3%' }, daysAgo(6)),
-    makeActivityEvent('act_cohen_3', hIds.cohen, 'item_added', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', item_name: 'ביצים L' }, daysAgo(6)),
+    makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
+    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_fruits' }, daysAgo(6)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_5', hIds.cohen, 'shopping_joined', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_6', hIds.cohen, 'shopping_completed', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', item_count: 12, store_name: 'רמי לוי' }, daysAgo(3)),
     makeActivityEvent('act_cohen_7', hIds.cohen, 'stock_updated', uids.avi, 'אבי כהן', { product_name: 'חלב תנובה 3%', quantity: 2 }, daysAgo(3)),
     makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'cleaning' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
-    makeActivityEvent('act_cohen_10', hIds.cohen, 'item_added', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_name: 'אקונומיקה' }, hoursAgo(5)),
+    makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
   ]);
   console.log('   📝 כהן: 10 activity events');
 
@@ -856,7 +856,7 @@ async function main() {
     makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת' }, daysAgo(2)),
     makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
-    makeActivityEvent('act_levi_5', hIds.levi, 'item_added', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', item_name: 'במבה' }, daysAgo(1)),
+    makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'cleaning' }, daysAgo(1)),
   ]);
   console.log('   📝 לוי: 5 activity events');
 
@@ -869,7 +869,7 @@ async function main() {
     makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
     makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם' }, daysAgo(3)),
     makeActivityEvent('act_naama_7', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'פארם', item_count: 5, store_name: 'סופר פארם' }, daysAgo(3)),
-    makeActivityEvent('act_naama_8', hIds.naama, 'item_added', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_name: 'מים מינרליים' }, hoursAgo(2)),
+    makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'super' }, hoursAgo(2)),
   ]);
   console.log('   📝 נעמה: 8 activity events');
 
