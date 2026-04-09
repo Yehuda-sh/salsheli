@@ -1,7 +1,7 @@
 # דוח Code Review — MemoZap
-**תאריך:** 12 מרץ 2026 | עודכן: 26 מרץ 2026
+**תאריך:** 12 מרץ 2026 | עודכן: 9 אפריל 2026
 **סוקר:** ראפטור
-**גרסה:** 4.0
+**גרסה:** 5.0
 
 ---
 
@@ -155,13 +155,13 @@
 
 | מדד | ערך |
 |-----|-----|
-| קבצי Dart | 155 |
-| שורות קוד (lib/) | ~54,000 |
+| קבצי Dart | ~164 |
+| שורות קוד (lib/) | ~57,000 |
 | Errors | **0** |
-| Warnings | **2** (W1 — deferred, W3 resolved) |
-| Tests | 15 test files, 323 passing |
+| Warnings | **1** (W1 — has `mounted` guards, pending verify) |
+| Tests | 15 test files, 396 passing |
 | i18n coverage | ~95% |
-| Firestore Rules | v4.4 |
+| Firestore Rules | v4.4 (כולל activity_log subcollection) |
 
 ---
 
@@ -199,4 +199,36 @@
 - Edge case demo data
 
 ---
-*Code Review v4.3 — Updated stats + W1 status corrected | 26 March 2026*
+---
+
+## מה בוצע (9 אפריל 2026 — סשן 5: Activity Log + CI Fixes + Deep Scan)
+
+### Activity Log Feature (Complete)
+- **Model**: `ActivityEvent` — 9 types (8 active + `unknown`), JsonSerializable
+- **Service**: `ActivityLogService` — fire-and-forget writes to Firestore
+- **Repository**: `ActivityLogRepository` — reads + cleanup (orderBy + deleteOldEvents)
+- **Provider**: `ActivityLogProvider` — state management, registered in main.dart
+- **8 injection points**: shopping_completed, shopping_started, shopping_joined, list_created, stock_updated, member_left, role_changed (×2 paths)
+- **Dashboard**: `household_activity_feed.dart` — shows 5 latest events, fallback to receipts
+- **History**: `shopping_history_screen.dart` — TabBar with Receipts + Activity Log tabs
+- **Firestore rules**: `activity_log/{eventId}` subcollection under households
+- **AppStrings**: 9 event descriptions + UI strings in Hebrew + English
+
+### CI/Build Fixes
+- Fixed merge conflict marker in `suggestions_today_card.dart:695`
+- Fixed bracket mismatch in `shopping_history_screen.dart:549`
+- Build #346 passed on `claude/dev`
+
+### Demo Data Fixes
+- `created_at`: changed from `.toISOString()` to `admin.firestore.Timestamp.fromDate()`
+- Added missing `list_id` to 3 `shopping_started` events
+- Added `member_left` event — all 9 types covered (27 events total)
+- Added GitHub Action (`rebuild-demo-data.yml`) for running script from browser
+
+### Deep Scan — Issues Resolved
+- ~~B3~~ SavedContactsService — all 3 methods now rethrow properly ✅
+- ~~kSticky colors~~ — all 40+ SnackBars use `brand?.sticky* ?? kSticky*` ✅
+
+---
+
+*Code Review v5.0 — Activity Log feature + deep scan | 9 April 2026*

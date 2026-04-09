@@ -1,7 +1,7 @@
 # 📋 תוכנית מלאה — MemoZap: מקוד לחנות
 
 > נוצר: 8 מרץ 2026
-> עודכן: 27 מרץ 2026
+> עודכן: 9 אפריל 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
 
 ---
@@ -18,7 +18,7 @@
 | 6 | Push Notifications (FCM) | ⬜ טרם התחיל |
 | 6.5 | ניהול משפחה מלא | ✅ הושלם |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
-| 8 | בדיקות | ✅ הושלם (420 tests) |
+| 8 | בדיקות | ✅ הושלם (396 tests) |
 | 9 | i18n + נגישות | 🟡 חלקי (~85% extracted) |
 | 10 | השקה | ⬜ טרם התחיל |
 
@@ -97,7 +97,7 @@
 - [x] Package name: `com.memozap.app`
 - [x] Firebase config + SHA keys
 - [x] Privacy policy + Terms (Hebrew)
-- [x] Demo data — **12 users** in production Firebase (all edge cases)
+- [x] Demo data — **16 users** in production Firebase (all edge cases)
 - [x] Store listing draft
 - [x] Firestore security rules v4.4 — security fixes deployed
 
@@ -159,6 +159,21 @@
 - [x] Permission hierarchy: Owner > Admin > Editor > Viewer
 - [x] Editor approval flow (PendingRequests)
 
+# 📍 Phase 6.6 — יומן פעילות (Activity Log) ✅
+> הושלם 9 אפריל 2026
+
+- [x] **Model**: `ActivityEvent` — 9 types (8 active + `unknown`), JsonSerializable
+- [x] **Service**: `ActivityLogService` — fire-and-forget writes to Firestore
+- [x] **Repository**: `ActivityLogRepository` — reads + cleanup
+- [x] **Provider**: `ActivityLogProvider` — state management, registered in main.dart
+- [x] **8 injection points**: shopping_completed/started/joined, list_created, stock_updated, member_left, role_changed (×2)
+- [x] **Dashboard feed**: household_activity_feed.dart — 5 latest events + receipts fallback
+- [x] **History screen**: TabBar with Receipts + Activity Log tabs
+- [x] **Firestore rules**: `activity_log/{eventId}` subcollection
+- [x] **AppStrings**: 9 event descriptions + UI strings (HE + EN)
+- [x] **Demo data**: 27 events across 4 households (all 9 types covered)
+- [x] **GitHub Action**: `rebuild-demo-data.yml` — run script from browser/phone
+
 ---
 
 # 📍 Phase 7 — מוניטיזציה ⬜
@@ -173,7 +188,7 @@
 # 📍 Phase 8 — בדיקות ✅
 > הושלם 15 מרץ 2026
 
-- [x] **420 unit tests passing** — models, services, providers, performance
+- [x] **396 unit tests passing** — models, services, providers, performance
 - [x] Hand-written mocks (no mockito)
 - [x] E2E test guide: `docs/E2E_TEST_GUIDE.md`
 - [x] **16 demo users** covering all edge cases (including Google/Apple/English/special chars)
@@ -221,9 +236,10 @@
 
 # 🐛 באגים פתוחים
 
-| ID | תיאור | חומרה |
-|----|--------|--------|
-| W1 | `use_build_context_synchronously` ×2 in settings_screen | 🟢 |
+| ID | תיאור | חומרה | סטטוס |
+|----|--------|--------|--------|
+| W1 | `use_build_context_synchronously` ×2 in settings_screen | 🟢 | יש `mounted` guards — ממתין לאימות analyzer |
+| ~~B3~~ | ~~SavedContactsService בולע שגיאות~~ | — | ✅ תוקן — rethrow בכל 3 המתודות |
 
 *כל שאר הבאגים (B1-B17) נפתרו.*
 
@@ -242,6 +258,8 @@
 - **FCM push not required for launch** — in-app notifications work
 - **16 demo users** — including Google/Apple sign-in, English user, special chars
 - **Onboarding removed** — -3,258 lines, welcome screen still works via seenOnboarding
+- **Activity Log** — full feature: model → service → repo → provider → UI (8 injection points)
+- **GitHub Action for demo data** — `rebuild-demo-data.yml` runs from browser/phone
 
 ---
 
