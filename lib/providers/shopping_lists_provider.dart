@@ -198,8 +198,8 @@ class ShoppingListsProvider with ChangeNotifier {
       _currentHouseholdId = newHouseholdId;
       _currentUserId = newUserId;
 
-      // 🛑 עצור האזנה קודמת אם משתמש השתנה
-      if (userChanged) {
+      // 🛑 עצור האזנה קודמת אם משתמש או household השתנו
+      if (userChanged || householdChanged) {
         _stopWatchingLists();
       }
 
