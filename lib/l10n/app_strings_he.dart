@@ -1865,7 +1865,9 @@ class PantryStrings {
   String get howToStartStep3 => 'הגדר כמות — וזהו! 🎯';
   String get howToStartHint => '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות';
   String get starterItemsTitle => 'רוצה להתחיל עם מוצרי יסוד?';
-  String get starterItemsSubtitle => 'קמח, סוכר, שמן, אורז ועוד - נוסיף אותם אוטומטית';
+  String get starterItemsSubtitle => 'קמח, סוכר, שמן, אורז ועוד — סמן מה שצריך';
+  String get starterPreviewTitle => 'מוצרי יסוד למזווה';
+  String get starterPreviewSubtitle => 'סמנו את המוצרים שיש לכם בבית בדרך כלל';
   String pantryBadgeGroup(String name) => 'מזווה הבית — $name';
   String get pantryBadgePersonal => 'המזווה שלך ✨';
 

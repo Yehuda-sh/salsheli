@@ -59,8 +59,10 @@ import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/inventory/pantry_starter_preview_dialog.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
 import '../../services/notifications_service.dart';
+import '../../services/template_service.dart';
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
@@ -503,12 +505,48 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   Future<void> _addStarterItems() async {
-    // פתיחת קטלוג מוצרים מסונן לקטגוריות מוצרי יסוד — מוצרים אמיתיים מהקטלוג
     if (!mounted) return;
-    PantryProductSelectionSheet.show(
-      context,
-      initialCategories: PantryProductSelectionSheet.basicCategories,
-    );
+
+    final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.pantry;
+
+    try {
+      // 1. טעינת פריטי starter מהתבנית
+      final allItems = await TemplateService.loadPantryStarterItems();
+      if (!mounted) return;
+
+      if (allItems.isEmpty) {
+        // fallback — אם אין פריטים, פתח קטלוג מסונן
+        PantryProductSelectionSheet.show(
+          context,
+          initialCategories: PantryProductSelectionSheet.basicCategories,
+        );
+        return;
+      }
+
+      // 2. הצגת preview — המשתמש בוחר מה להוסיף
+      final selectedItems = await showDialog<List<InventoryItem>>(
+        context: context,
+        builder: (context) => PantryStarterPreviewDialog(items: allItems),
+      );
+
+      if (!mounted) return;
+      if (selectedItems == null || selectedItems.isEmpty) return;
+
+      // 3. הוספה בבת אחת
+      final provider = context.read<InventoryProvider>();
+      final count = await provider.addStarterItems(selectedItems);
+
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(strings.starterItemsAdded(count))),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        SnackBar(content: Text(strings.starterItemsError)),
+      );
+    }
   }
 
   /// מציג דיאלוג לעריכת פרטי פריט קיים

@@ -1809,6 +1809,8 @@ class PantryStringsEn extends PantryStrings {
   String get noStarterItemsFound => 'No starter items found';
   String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   String get starterItemsError => 'Error adding starter items';
+  @override String get starterPreviewTitle => 'Pantry Essentials';
+  @override String get starterPreviewSubtitle => 'Check the products you usually have at home';
   @override String get starterSearchQuery => 'milk eggs bread oil sugar flour rice';
   String get suggestionsTitle => 'Essentials for your pantry';
   String get hideSuggestions => 'Hide';
