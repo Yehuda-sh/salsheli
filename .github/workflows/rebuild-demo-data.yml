@@ -1,0 +1,33 @@
+name: Rebuild Demo Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "yes" to confirm — this REPLACES all demo data'
+        required: true
+        default: ''
+
+jobs:
+  seed:
+    if: github.event.inputs.confirm == 'yes'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install firebase-admin
+        run: npm install firebase-admin
+        working-directory: scripts
+
+      - name: Write service account file
+        run: echo '${{ secrets.FIREBASE_SERVICE_CREDENTIALS }}' > scripts/firebase-service-account.json
+
+      - name: Run rebuild_demo_data.js
+        run: node scripts/rebuild_demo_data.js
