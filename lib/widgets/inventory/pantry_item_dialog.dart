@@ -366,10 +366,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   /// בחירת תאריך תפוגה
   Future<void> _selectExpiryDate() async {
     final now = DateTime.now();
+    // אם יש תאריך תפוגה שכבר עבר — מרשים לראות אותו בבוחר
+    final earliest = _expiryDate != null && _expiryDate!.isBefore(now)
+        ? _expiryDate!
+        : now;
     final picked = await showDatePicker(
       context: context,
       initialDate: _expiryDate ?? now.add(const Duration(days: 30)),
-      firstDate: now,
+      firstDate: earliest,
       lastDate: now.add(const Duration(days: 365 * 5)),
       locale: const Locale('he', 'IL'),
       helpText: AppStrings.inventory.selectExpiryDate,
