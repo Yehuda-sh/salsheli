@@ -37,6 +37,7 @@ import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/common/sticky_note.dart';
 import 'contact_selector_dialog.dart';
 import 'template_picker_dialog.dart';
+import 'template_preview_dialog.dart';
 
 /// סוג נראות הרשימה
 enum ListVisibility {
@@ -244,12 +245,24 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
       if (selected != null) {
 
-        final items = await TemplateService.loadTemplateItems(
+        final allItems = await TemplateService.loadTemplateItems(
           selected.templateFile,
         );
 
         // 🔧 FIX: בדיקת mounted אחרי await - לפני setState
         if (!mounted) return;
+
+        // 🎯 תצוגה מקדימה — המשתמש בוחר אילו פריטים להכניס
+        final selectedItems = await showDialog<List<UnifiedListItem>>(
+          context: context,
+          builder: (context) => TemplatePreviewDialog(
+            template: selected,
+            items: allItems,
+          ),
+        );
+
+        if (!mounted) return;
+        if (selectedItems == null || selectedItems.isEmpty) return;
 
         setState(() {
           _selectedTemplate = selected;
@@ -259,7 +272,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           }
           // 🎉 עדכון סוג הרשימה לפי התבנית
           _type = TemplateService.getListTypeForTemplate(selected.id);
-          _templateItems = items;
+          _templateItems = selectedItems;
           // 🎯 עדכון eventMode לתבניות אירוע
           _eventMode = TemplateService.getEventModeForTemplate(
             selected.id,
@@ -270,7 +283,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(
-              AppStrings.createListDialog.templateApplied(selected.name, items.length),
+              AppStrings.createListDialog.templateApplied(selected.name, selectedItems.length),
             ),
             backgroundColor: successBg,
           ),

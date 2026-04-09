@@ -1057,6 +1057,10 @@ class CreateListDialogStrings {
   String get createListErrorGeneric => 'אירעה שגיאה ביצירת הרשימה. נסה שוב.';
   String get networkError => 'בעיית רשת. בדוק את החיבור לאינטרנט';
   String get removeTemplateTooltip => 'הסר תבנית';
+  String get previewSelectAll => 'בחר הכל';
+  String get previewDeselectAll => 'בטל הכל';
+  String previewItemsSelected(int selected, int total) => '$selected/$total';
+  String previewConfirmButton(int count) => 'הוסף $count פריטים';
   String get visibilityLabel => 'מי יראה את הרשימה?';
   String get visibilityPrivate => '🔒 אישית';
   String get visibilityHousehold => '👨‍👩‍👧 משותף לבית';

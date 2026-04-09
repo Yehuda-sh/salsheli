@@ -1032,6 +1032,10 @@ class CreateListDialogStringsEn extends CreateListDialogStrings {
   String get createListErrorGeneric => 'An error occurred creating the list. Try again.';
   String get networkError => 'Network error. Check your internet connection';
   String get removeTemplateTooltip => 'Remove template';
+  String get previewSelectAll => 'Select all';
+  String get previewDeselectAll => 'Deselect all';
+  String previewItemsSelected(int selected, int total) => '$selected/$total';
+  String previewConfirmButton(int count) => 'Add $count items';
   String get visibilityLabel => 'Who will see the list?';
   String get visibilityPrivate => '🔒 Private';
   String get visibilityHousehold => '👨‍👩‍👧 Shared with household';
