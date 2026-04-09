@@ -121,6 +121,7 @@ class HouseholdService {
         FirestoreFields.name: AppStrings.household.myHome,
         FirestoreFields.createdAt: FieldValue.serverTimestamp(),
         FirestoreFields.createdBy: memberId,
+        'is_solo': true,
       },
     );
 
@@ -140,7 +141,7 @@ class HouseholdService {
 
     batch.update(
       _firestore.collection(FirestoreCollections.users).doc(memberId),
-      {FirestoreFields.householdId: personalId},
+      {FirestoreFields.householdId: personalId, 'is_solo': true},
     );
 
     await batch.commit();

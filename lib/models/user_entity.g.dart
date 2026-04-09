@@ -30,6 +30,7 @@ UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
       seenOnboarding: json['seen_onboarding'] as bool? ?? false,
       seenTutorial: json['seen_tutorial'] as bool? ?? false,
       householdName: _readHouseholdName(json, 'household_name') as String?,
+      isSolo: json['is_solo'] as bool?,
     );
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
@@ -50,4 +51,5 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'is_admin': instance.isAdmin,
       'seen_onboarding': instance.seenOnboarding,
       'seen_tutorial': instance.seenTutorial,
+      'is_solo': instance.isSolo,
     };

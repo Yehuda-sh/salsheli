@@ -68,6 +68,8 @@ const USERS = [
   { key: 'shlomo', name: 'שלמה ברקוביץ', email: 'shlomo.berk@demo.com', phone: '0541234567', household: 'shlomo', role: 'admin', isAdmin: true },
   // Removed user — was in Cohen household, got removed, now has personal household
   { key: 'removed_user', name: 'אילן פרץ', email: 'ilan.peretz@demo.com', phone: '0551234567', household: 'removed_user', role: 'admin', isAdmin: true },
+  // Edge case: very long name (overflow test for bottom sheet, activity feed, list sharing)
+  { key: 'longname', name: "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", email: 'alex.longname@demo.com', phone: '0561234567', household: 'longname', role: 'admin', isAdmin: true },
 ];
 
 const HOUSEHOLDS = {
@@ -85,6 +87,7 @@ const HOUSEHOLDS = {
   roommates:   { name: 'הדירה ברוטשילד',  members: ['keren', 'hila', 'sapir'] },
   shlomo:      { name: 'הבית של שלמה',    members: ['shlomo'] },
   removed_user: { name: 'הבית של אילן',   members: ['removed_user'] },
+  longname:     { name: "הבית של אלכסנדר קונסטנטינוביץ'", members: ['longname'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -373,6 +376,7 @@ async function main() {
       created_by: creatorUid,
       created_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      is_solo: hData.members.length === 1,
     });
 
     for (const memberKey of hData.members) {
@@ -409,6 +413,7 @@ async function main() {
       is_admin: u.isAdmin,
       seen_onboarding: true,
       seen_tutorial: u.key !== 'yael',
+      is_solo: HOUSEHOLDS[u.household].members.length === 1,
       ...(u.profileImageUrl ? { profile_image_url: u.profileImageUrl } : {}),
       ...(u.provider ? { auth_provider: u.provider } : { auth_provider: 'email' }),
       ...(u.locale ? { app_locale: u.locale } : {}),
@@ -939,6 +944,74 @@ async function main() {
   ]);
   console.log('   📝 Mike: 3 activity events');
 
+  // Tomer household — 3 events (solo user with chores + pharmacy)
+  await createActivityEvents(hIds.tomer, [
+    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy' }, daysAgo(5)),
+    makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם' }, daysAgo(4)),
+    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event' }, daysAgo(1)),
+  ]);
+  console.log('   📝 תומר: 3 activity events');
+
+  // Shiran household — 2 events (solo, has "הכל נקנה" list)
+  await createActivityEvents(hIds.shiran, [
+    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל' }, hoursAgo(1)),
+  ]);
+  console.log('   📝 שירן: 2 activity events');
+
+  // Lior household — 1 old event (inactive user, 45+ days)
+  await createActivityEvents(hIds.lior, [
+    makeActivityEvent('act_lior_1', hIds.lior, 'list_created', uids.lior, 'ליאור דהן', { list_name: 'קניות', list_type: 'super' }, daysAgo(50)),
+  ]);
+  console.log('   📝 ליאור: 1 activity event (old, 50 days ago)');
+
+  // Google user — 2 events
+  await createActivityEvents(hIds.google_user, [
+    makeActivityEvent('act_gu_1', hIds.google_user, 'list_created', uids.google_user, 'גיל גוגל', { list_name: 'רשימה ראשונה', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_gu_2', hIds.google_user, 'item_added', uids.google_user, 'גיל גוגל', { item_name: 'חלב תנובה', list_name: 'רשימה ראשונה' }, hoursAgo(2)),
+  ]);
+  console.log('   📝 גיל (Google): 2 activity events');
+
+  // George household — 2 events (special chars in names)
+  await createActivityEvents(hIds.george, [
+    makeActivityEvent('act_george_1', hIds.george, 'list_created', uids.george, "ג'ורג' חביב", { list_name: "קניות של ג'ורג'", list_type: 'super' }, daysAgo(2)),
+    makeActivityEvent('act_george_2', hIds.george, 'shopping_started', uids.george, "ג'ורג' חביב", { list_name: "קניות של ג'ורג'", list_id: 'list_george_1' }, hoursAgo(4)),
+  ]);
+  console.log("   📝 ג'ורג': 2 activity events (special chars)");
+
+  // Roommates — 6 events (multi-member, diverse actors)
+  await createActivityEvents(hIds.roommates, [
+    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household' }, daysAgo(1)),
+    makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'super' }, hoursAgo(6)),
+    makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒' }, hoursAgo(4)),
+    makeActivityEvent('act_room_4', hIds.roommates, 'shopping_started', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(3)),
+    makeActivityEvent('act_room_5', hIds.roommates, 'stock_updated', uids.keren, 'קרן אביב', { product_name: 'נייר טואלט', quantity: 0 }, hoursAgo(5)),
+    makeActivityEvent('act_room_6', hIds.roommates, 'shopping_completed', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', item_count: 12, store_name: 'שופרסל דיזנגוף' }, hoursAgo(1)),
+  ]);
+  console.log('   📝 שותפות: 6 activity events (3 actors)');
+
+  // Shlomo household — 2 events (elderly, simple)
+  await createActivityEvents(hIds.shlomo, [
+    makeActivityEvent('act_shlomo_1', hIds.shlomo, 'list_created', uids.shlomo, 'שלמה ברקוביץ', { list_name: 'קניות', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_shlomo_2', hIds.shlomo, 'shopping_completed', uids.shlomo, 'שלמה ברקוביץ', { list_name: 'קניות', item_count: 5, store_name: 'רמי לוי' }, hoursAgo(3)),
+  ]);
+  console.log('   📝 שלמה: 2 activity events');
+
+  // Removed user household — 1 event (post-removal personal activity)
+  await createActivityEvents(hIds.removed_user, [
+    makeActivityEvent('act_ilan_1', hIds.removed_user, 'list_created', uids.removed_user, 'אילן פרץ', { list_name: 'הרשימה שלי', list_type: 'super' }, daysAgo(3)),
+  ]);
+  console.log('   📝 אילן (removed): 1 activity event');
+
+  // Long name user — 2 events (overflow test in activity feed)
+  await createActivityEvents(hIds.longname, [
+    makeActivityEvent('act_long_1', hIds.longname, 'list_created', uids.longname, "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", { list_name: 'קניות לבית', list_type: 'super' }, daysAgo(2)),
+    makeActivityEvent('act_long_2', hIds.longname, 'shopping_completed', uids.longname, "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", { list_name: 'קניות לבית', item_count: 8, store_name: 'שופרסל' }, hoursAgo(6)),
+  ]);
+  console.log('   📝 Long name: 2 activity events (overflow test)');
+
+  // Note: yael (fresh) and apple_user (empty states) intentionally have 0 activity events
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 7. NOTIFICATIONS — under users/{uid}/notifications
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1354,6 +1427,48 @@ async function main() {
   });
   console.log('   ✉️ רונית → michal.new@gmail.com: הזמנה למשתמשת שטרם נרשמה (pre-signup)');
 
+  // ── LONG NAME USER: Overflow test for activity feed, bottom sheet, sharing ──
+  const longProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8);
+  await db.collection('users').doc(uids.longname).collection('private_lists').doc('list_long_1').set({
+    id: 'list_long_1', name: 'קניות לבית', status: 'active', type: 'supermarket',
+    budget: 1500, is_shared: false, is_private: true, created_by: uids.longname,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(6).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: longProducts.map((p, i) => makeProductItem(p, i, { id: `item_long_${i}`, isChecked: i < 3 })),
+  });
+  console.log("   📏 Long name user: 1 list (8 items, tests overflow in all name displays)");
+
+  // ── NAAMA: Add 25 more lists to reach 30+ (power user performance test) ──
+  console.log('\n⚡ Creating 25 extra lists for naama (power user)...');
+  const listTypes = ['supermarket', 'bakery', 'butcher', 'greengrocer', 'pharmacy', 'market', 'household', 'event', 'other'];
+  const storeNames = ['שופרסל', 'רמי לוי', 'יינות ביתן', 'אושר עד', 'מגה', 'סופר פארם', 'השוק'];
+  for (let n = 1; n <= 25; n++) {
+    const listType = listTypes[n % listTypes.length];
+    const isCompleted = n <= 10;
+    const isArchived = n > 10 && n <= 15;
+    const status = isArchived ? 'archived' : isCompleted ? 'completed' : 'active';
+    const itemCount = randomInt(3, 15);
+    const listProducts = pickRandom(products.filter(p => p.sourceFile === (listType === 'pharmacy' ? 'pharmacy' : 'supermarket')), itemCount);
+    await db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_extra_${n}`).set({
+      id: `list_naama_extra_${n}`,
+      name: `רשימה #${n} - ${listType === 'supermarket' ? 'סופר' : listType === 'bakery' ? 'מאפייה' : listType === 'butcher' ? 'קצבייה' : listType === 'greengrocer' ? 'ירקן' : listType === 'pharmacy' ? 'פארם' : listType === 'market' ? 'שוק' : listType === 'household' ? 'בית' : listType === 'event' ? 'אירוע' : 'אחר'}`,
+      status,
+      type: listType,
+      budget: n % 3 === 0 ? randomInt(100, 500) : null,
+      is_shared: false, is_private: true, created_by: uids.naama,
+      format: 'personal', created_from_template: false,
+      created_date: daysAgo(n + 5).toISOString(),
+      updated_date: daysAgo(Math.max(0, n - 3)).toISOString(),
+      shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+      items: listProducts.map((p, i) => makeProductItem(p, i, {
+        id: `item_ne_${n}_${i}`,
+        isChecked: isCompleted || (isArchived && i < itemCount - 1),
+      })),
+    });
+  }
+  console.log('   ⚡ נעמה: +25 extra lists (total ~35 lists — performance test)');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 14. EDGE CASE PATCHES — fix missing scenarios found in audit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1458,11 +1573,11 @@ async function main() {
   console.log('✅ Demo data created successfully!');
   console.log('═'.repeat(55));
   console.log(`\n👥 ${USERS.length} users`);
-  console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households`);
-  console.log(`📋 ~32 shopping lists (all 9 types + active/completed/archived)`);
+  console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households (all with is_solo field)`);
+  console.log(`📋 ~57 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
   console.log(`📦 ~110 inventory items`);
   console.log(`🧾 ~76 receipts`);
-  console.log(`📝 ~26 activity log events`);
+  console.log(`📝 ~51 activity log events (all households except yael/apple)`);
   console.log(`🔔 ~30 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
@@ -1482,6 +1597,7 @@ async function main() {
   console.log('   keren.aviv@demo.com — Roommates (3 girls, shared apartment, not family)');
   console.log('   shlomo.berk@demo.com — Elderly user (minimal, simple usage)');
   console.log('   ilan.peretz@demo.com — Removed user (was in Cohen, now personal household)');
+  console.log("   alex.longname@demo.com — Very long name (overflow test: אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג)");
   console.log('   michal.new@gmail.com — Pre-signup invite (no account yet)');
 }
 

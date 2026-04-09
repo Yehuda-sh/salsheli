@@ -383,6 +383,7 @@ class FirebaseUserRepository implements UserRepository {
         'created_by': user.id,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
+        'is_solo': true,
       });
 
       // יצירת member document

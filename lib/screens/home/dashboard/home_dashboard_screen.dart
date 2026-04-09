@@ -457,6 +457,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             Text(
               userName ?? AppStrings.homeDashboard.userFallback,
               style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             if (familyName != null) ...[
               const SizedBox(height: kSpacingTiny),
@@ -465,7 +467,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 children: [
                   Icon(Icons.home_outlined, size: kIconSizeSmall, color: cs.onSurfaceVariant),
                   const SizedBox(width: kSpacingXTiny),
-                  Text(familyName, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
+                  Flexible(
+                    child: Text(
+                      familyName,
+                      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
             ],
