@@ -1543,7 +1543,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               _buildQuantityButton(
                                 icon: Icons.add,
                                 color: cs.primary,
-                                onTap: item.quantity < 99
+                                onTap: item.quantity < kMaxPantryQuantity
                                     ? () => _updateQuantity(item, item.quantity + 1)
                                     : null,
                               ),
@@ -1743,7 +1743,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     ),
                     IconButton.filled(
                       icon: const Icon(Icons.add),
-                      onPressed: quantity < 99 ? () => setDialogState(() => quantity++) : null,
+                      onPressed: quantity < kMaxPantryQuantity ? () => setDialogState(() => quantity++) : null,
                     ),
                   ],
                 ),
