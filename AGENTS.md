@@ -69,48 +69,46 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Last Session (April 9, 2026) — Activity Log Feature + Settings Fixes
+### Last Session (April 9, 2026) — Activity Log + CI Fixes + Demo Data + Deep Scan
 
-**New Feature: Household Activity Log**
+**Activity Log Feature (Complete):**
 - Full architecture: Model → Service → Repository → Provider → UI
-- **Model**: `ActivityEvent` with 9 types (8 active + `unknown`)
-- **Service**: `ActivityLogService` — fire-and-forget writes to Firestore
-- **Repository**: `ActivityLogRepository` — reads + cleanup
-- **Provider**: `ActivityLogProvider` — state management (registered in main.dart)
-- **8 injection points**: shopping_completed, shopping_started, shopping_joined, list_created, stock_updated, member_left, role_changed (×2 paths)
-- **item_added** kept in enum but NOT injected (flooding risk — dozens of events per session)
+- All 8 injection points wired and verified
+- Dashboard feed + History screen (2 tabs) — fully functional
+- Firestore rules, AppStrings (HE+EN), demo data — all complete
 
-**UI Changes:**
-- **Dashboard feed** (`household_activity_feed.dart`): Rewritten from StatefulWidget to StatelessWidget; shows 5 latest activity events with fallback to 3 recent receipts for users without activity data
-- **History screen** (`shopping_history_screen.dart`): Added TabBar with 2 tabs — Receipts + Activity Log
-- **Settings screen fixes**: 4 design system violations fixed (hardcoded string, icon size, Hebrew debug strings, RTL chevron)
+**CI/Build Fixes:**
+- Fixed merge conflict marker in `suggestions_today_card.dart:695`
+- Fixed bracket mismatch in `shopping_history_screen.dart:549`
+- Build #346 passed successfully on `claude/dev`
 
-**Infrastructure:**
-- `firestore.rules` — added `activity_log/{eventId}` subcollection rules under households
-- `app_strings_he.dart` / `app_strings_en.dart` — added `ActivityLogStrings` class with 9 descriptions + UI strings
-- `scripts/rebuild_demo_data.js` — added 26 activity log events across 4 households
-- Translations: added `languageEnglish`, removed 5 dead strings
+**Demo Data Script Fixes:**
+- `created_at`: changed from `.toISOString()` to `admin.firestore.Timestamp.fromDate()` — fixes orderBy/where queries
+- Added missing `list_id` to 3 `shopping_started` events (Levi + Naama)
+- Added `member_left` event — all 9 event types now covered (27 events total)
+- Added GitHub Action (`rebuild-demo-data.yml`) for running script from browser/phone
 
-**Previous Session (March 26, 2026):**
-- Full 17-category review of all 141 Dart files
-- 18 critical bugs fixed, 55+ commits
-- APK reduced from 127MB → 94.4MB
-- Auth screens redesigned (Social Login first)
-- Demo data expanded to 16 users with 30+ edge cases
+**Deep Scan Results — Issues Resolved (were listed as open):**
+- ~~B3: SavedContactsService swallows errors~~ — all 3 methods now rethrow properly
+- ~~0 tests~~ — 15 test files exist (6,627 lines)
+- ~~kSticky colors without dark mode~~ — all 40+ SnackBars use `brand?.sticky* ?? kSticky*`
+
+**Previous Sessions:**
+- March 26, 2026: Full 17-category review, 18 critical bugs fixed, 55+ commits, APK 127→94.4MB
+- April 9, 2026 (early): Activity Log feature + settings fixes
 
 ### Next Priorities
 1. **Enable Google Sign-In** in Firebase Console (user action)
 2. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes`
-3. **Deploy Cloud Functions**: `firebase deploy --only functions`
-4. **Run demo data**: `node scripts/rebuild_demo_data.js` (now includes activity_log events)
+3. **Deploy Cloud Functions**: `firebase deploy --only functions` (requires Blaze plan)
+4. **Run demo data** via GitHub Actions → "Rebuild Demo Data" → type `yes`
 5. **Manual testing** of all 16 demo users
-6. **Implement pantry merge logic** (dialog result currently ignored)
-7. **Add unit tests** for critical flows
+6. **Implement pantry merge logic** (dialog result currently ignored — `pending_invites_screen.dart:164`)
+7. **Refactor SocialAuthMixin** — login/register duplicate social auth logic inline
 
 ### Currently Blocking
 - Google/Apple Sign-In requires Firebase Console configuration (not code)
 - Cloud Functions require Blaze plan for deployment (currently Spark)
-- No Flutter SDK in Cloud environment — can't verify analyze locally
 
 ---
 
@@ -122,11 +120,11 @@ Claude operates in **two different environments**. Identify which one at session
 | 2 | **Pantry merge dialog result ignored** — user clicks "merge" but nothing happens | Feature not implemented — TODO in `pending_invites_screen.dart:164` |
 | 3 | **SocialAuthMixin is dead code** — login/register duplicate the logic inline | Refactor needed — both screens work, just not DRY |
 | 4 | **Phone validation too strict** — only accepts `05X-XXXXXXX`, rejects `+972`, international | Design decision needed from user |
-| 5 | **~25 `kSticky*` colors in SnackBars** without dark mode Theme variant | Systemic refactor across many files |
-| 6 | **Cloud Functions not deployed** — GDPR deletion + FCM push defined but not live | Requires `firebase deploy --only functions` + possibly Blaze plan |
+| 5 | ~~**~25 `kSticky*` colors in SnackBars**~~ | ✅ Fixed — all 40+ SnackBars use `brand?.sticky*` fallback |
+| 6 | **Cloud Functions not deployed** — GDPR deletion + FCM push defined but not live | Requires `firebase deploy --only functions` + Blaze plan |
 | 7 | **Onboarding images show English text** on phone mockup | Need new Hebrew images (design work) |
-| 8 | **0 tests** — no unit, widget, or integration tests exist | Major effort — not in scope of review session |
-| 9 | **`use_build_context_synchronously` warnings** in settings_screen (2 locations) | Known W1 issue — deferred per CLAUDE.md |
+| 8 | ~~**0 tests**~~ | ✅ Fixed — 15 test files, 6,627 lines |
+| 9 | **`use_build_context_synchronously` warnings** in settings_screen (2 locations) | Known W1 issue — has `mounted` guards, likely fixed but needs analyzer verify |
 | 10 | **`app_locale` stored in Firestore but read from SharedPreferences** | Firestore field is metadata only — locale switch is local |
 
 ---
@@ -149,7 +147,8 @@ Claude operates in **two different environments**. Identify which one at session
 | **Activity log service** | `lib/services/activity_log_service.dart` — fire-and-forget write to Firestore |
 | **Activity log repo** | `lib/repositories/activity_log_repository.dart` — read + cleanup |
 | **Activity log provider** | `lib/providers/activity_log_provider.dart` — state management |
-| **Demo data** | `scripts/rebuild_demo_data.js` — 16 users, all edge cases, 26 activity events |
+| **Demo data** | `scripts/rebuild_demo_data.js` — 16 users, all edge cases, 27 activity events |
+| **Demo data CI** | `.github/workflows/rebuild-demo-data.yml` — run from GitHub Actions (workflow_dispatch) |
 
 ### Provider Tree (from `main.dart`)
 
