@@ -1,30 +1,28 @@
-# MemoZap 📝
+# MemoZap
 
-> Smart family shopping list app | Built with Flutter + Firebase
+> Smart family shopping management app
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
-[![License](https://img.shields.io/badge/License-Proprietary-red)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)](https://play.google.com)
 
 ---
 
 ## About
 
-Smart family shopping list manager with a unique **Notebook + Sticky Notes** design language.
+MemoZap is a smart family shopping list manager designed for Israeli households. It features real-time collaboration, a digital pantry with low-stock alerts, and a unique **Notebook + Sticky Notes** design language.
 
-### Features
+### Key Features
 
-- 🏠 **Smart Home Dashboard** — Daily suggestions, active shopping banners
-- 👨‍👩‍👧‍👦 **Multi-user collaboration** — Share lists with household members in real-time
-- 🔐 **Groups & Roles** — Owner, Admin, Editor permissions per list
-- 📓 **Notebook Design** — Unique lined-paper background with sticky note cards
-- 🏪 **9 Smart List Types** — Supermarket, market, bakery, butcher, greengrocer, pharmacy & more
-- 🛒 **Active Shopping Mode** — Real-time progress tracking while in-store
-- 🔔 **Notifications Center** — Invites, approvals, low stock alerts
-- 🏺 **Smart Pantry** — Track inventory with auto low-stock detection
-- 🧾 **Shopping History** — Browse past purchases and summaries
-- 🇮🇱 **Hebrew RTL** — Fully localized interface with RTL support
-- 🌙 **Dark Mode** — Full theme support with Material 3
+- **Shared Shopping Lists** — Create and manage lists with your household in real-time (9 list types)
+- **Active Shopping Mode** — Real-time progress tracking while in-store with collaborative shopping
+- **Smart Pantry** — Track inventory with automatic low-stock detection and purchase suggestions
+- **Household Activity Feed** — See what's happening in your household (shopping, stock updates, new lists)
+- **Roles & Permissions** — Owner, Admin, Editor, Viewer — control who can do what
+- **Shopping History** — Browse past purchases with receipts and summaries
+- **Notifications** — Invites, approvals, low stock alerts — all in one place
+- **Hebrew RTL First** — Fully localized interface with English support
+- **Dark Mode** — Full Material 3 theme support
 
 ---
 
@@ -32,112 +30,28 @@ Smart family shopping list manager with a unique **Notebook + Sticky Notes** des
 
 | Category | Technology |
 |----------|-----------|
-| Framework | Flutter 3.8+ |
-| Language | Dart 3.8.1+ |
-| Backend | Firebase (Auth, Firestore, Storage, Crashlytics, Analytics) |
-| State Management | Provider |
-| Design System | Notebook + Sticky Notes (Material 3) |
-| Package | `com.memozap.app` |
+| Framework | Flutter 3.8+ / Dart 3.8.1+ |
+| Backend | Firebase (Auth, Firestore, Storage, Crashlytics, Analytics, Messaging) |
+| State Management | Provider + ChangeNotifier |
+| CI/CD | GitHub Actions → Firebase App Distribution |
 
 ---
 
-## Design System
+## Status
 
-| Token | Values |
-|-------|--------|
-| Spacing | 8-pt grid (4, 8, 12, 16, 24, 32) |
-| Border Radius | Small(8), Default(12), Large(16), XLarge(24) |
-| Typography | 8 sizes (Tiny→Display) via `kFontSize*` constants |
-| Colors | Theme-only — zero `Colors.xxx` in screens |
-| Background | `NotebookBackground` on all 21 screens |
-
----
-
-## Project Structure
-
-```
-lib/
-├── core/           # Constants, status colors
-├── config/         # Business logic config, filters
-├── l10n/           # Localization (AppStrings)
-├── models/         # Data models (26)
-├── providers/      # State providers (7)
-├── repositories/   # Firebase repositories (13)
-├── services/       # Business logic services (17)
-├── theme/          # Design tokens, app theme, transitions
-├── screens/        # App screens (21)
-│   ├── auth/       # Login, Register + widgets/
-│   ├── home/       # Dashboard + widgets/
-│   ├── shopping/   # Lists, Details, Active, Create + widgets/
-│   ├── pantry/     # Inventory management
-│   ├── settings/   # Settings, Manage Users
-│   ├── sharing/    # Invites, Requests
-│   └── ...
-├── widgets/        # Shared widgets
-│   └── common/     # NotebookBackground, StickyNote, AppErrorState, AppLoadingSkeleton, etc.
-└── main.dart
-```
-
----
-
-## Getting Started
-
-```bash
-# Clone
-git clone https://github.com/Yehuda-sh/salsheli.git
-cd salsheli
-
-# Install dependencies
-flutter pub get
-
-# Run
-flutter run
-```
-
-### Firebase Setup
-
-1. Create a Firebase project
-2. Add Android app with package `com.memozap.app`
-3. Add iOS app with bundle ID `com.memozap.app`
-4. Download `google-services.json` → `android/app/`
-5. Download `GoogleService-Info.plist` → `ios/Runner/`
-
----
-
-## Development
-
-```bash
-flutter test          # Run tests
-dart analyze lib/     # Analyze code
-dart format lib/ -w   # Format code
-flutter build apk --release   # Build APK
-```
-
-### Demo Users (Firebase Emulator)
-
-```bash
-firebase emulators:start
-```
-
-| User | Email | Role | Password |
-|------|-------|------|----------|
-| אבי כהן | avi.cohen@demo.com | Owner (Cohen) | Demo123! |
-| רונית כהן | ronit.cohen@demo.com | Admin (Cohen) | Demo123! |
-| יובל כהן | yuval.cohen@demo.com | Editor (Cohen) | Demo123! |
-| נועה כהן | noa.cohen@demo.com | Editor (Cohen) | Demo123! |
-| דן לוי | dan.levi@demo.com | Owner (Levi) | Demo123! |
-| מאיה לוי | maya.levi@demo.com | Admin (Levi) | Demo123! |
-| תומר בר | tomer.bar@demo.com | Single user | Demo123! |
-| שירן גל | shiran.gal@demo.com | New user | Demo123! |
+**Pre-beta** — Internal testing via Firebase App Distribution.
 
 ---
 
 ## License
 
-**© 2026 Yehuda Sharabi | All Rights Reserved**
+**Proprietary Software — All Rights Reserved**
 
-Proprietary software. Unauthorized copying, modification, or distribution is prohibited.
+**Copyright (c) 2026 Yehuda Sharabi**
+
+This software and its source code are the exclusive property of Yehuda Sharabi.
+Unauthorized copying, modification, distribution, or use is strictly prohibited.
 
 ---
 
-🇮🇱 **Made in Israel** | **Version:** 1.0.0 | **Updated:** March 2026
+**Made in Israel** | **Package:** `com.memozap.app`
