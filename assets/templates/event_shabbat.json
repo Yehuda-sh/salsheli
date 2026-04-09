@@ -4,7 +4,7 @@
   "icon": "🕯️",
   "items": [
     {"source": "bakery", "searchTerm": "חלה קלועה", "quantity": 2, "unit": "יח'", "fallbackName": "חלות"},
-    {"source": "supermarket", "searchTerm": "יין אדום", "quantity": 1, "unit": "יח'", "fallbackName": "יין לקידוש"},
+    {"source": "supermarket", "searchTerm": "יין אדום יבש", "quantity": 1, "unit": "יח'", "fallbackName": "יין לקידוש"},
     {"source": "supermarket", "searchTerm": "מיץ ענבים", "quantity": 1, "unit": "יח'", "fallbackName": "מיץ ענבים"},
     {"source": "butcher", "searchTerm": "עוף שלם", "quantity": 1, "unit": "יח'", "fallbackName": "עוף שלם"},
     {"source": "butcher", "searchTerm": "בשר צלי", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "בשר לצלי"},
