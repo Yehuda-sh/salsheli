@@ -140,6 +140,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
         isPrivate: _visibility != ListVisibility.household,
         isShared: _visibility == ListVisibility.shared,
         items: _templateItems.isNotEmpty ? _templateItems : null,
+        templateId: _selectedTemplate?.id,
         sharedContacts: _visibility == ListVisibility.shared ? _selectedContacts : null,
         eventMode: _type == ShoppingList.typeEvent ? _eventMode : null,
       );

@@ -3,6 +3,7 @@
     {
       "id": "shopping",
       "name": "קניות שוטפות",
+      "description": "מוצרי יסוד לשבוע — חלב, ירקות, פירות, מזווה",
       "templateFile": "shopping_weekly.json"
     },
     {
@@ -13,6 +14,7 @@
     {
       "id": "shabbat",
       "name": "שבת",
+      "description": "כל מה שצריך לשבת מושלמת — מקידוש ועד קינוח",
       "templateFile": "event_shabbat.json"
     }
   ],
@@ -23,21 +25,25 @@
         {
           "id": "bbq",
           "name": "על האש",
+          "description": "כל מה שצריך למנגל מושלם",
           "templateFile": "event_bbq.json"
         },
         {
           "id": "friends",
           "name": "ישיבה עם חברים",
+          "description": "חטיפים ושתייה לערב מהנה",
           "templateFile": "event_friends.json"
         },
         {
           "id": "birthday",
           "name": "מסיבת יום הולדת",
+          "description": "כל מה שצריך למסיבה מושלמת",
           "templateFile": "event_birthday.json"
         },
         {
           "id": "picnic",
           "name": "פיקניק",
+          "description": "כל מה שצריך לפיקניק או טיול בטבע",
           "templateFile": "event_picnic.json"
         }
       ]

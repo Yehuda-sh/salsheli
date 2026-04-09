@@ -18,6 +18,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' show max;
 
 import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:flutter/services.dart';
@@ -219,7 +220,7 @@ class TemplateService {
 
         items.add(UnifiedListItem.product(
           name: productName,
-          quantity: quantity.toInt(),
+          quantity: max(1, quantity.round()),
           // ✅ FIX #5: שימוש ב-_parsePrice לתמיכה ב-String/num/null
           unitPrice: _parsePrice(product['price']),
           barcode: product['barcode'] as String?,
@@ -235,7 +236,7 @@ class TemplateService {
         // לא מצאנו - צור פריט גנרי עם fallback
         items.add(UnifiedListItem.product(
           name: fallbackName,
-          quantity: quantity.toInt(),
+          quantity: max(1, quantity.round()),
           unitPrice: 0.0,
           unit: unit,
         ));
@@ -268,6 +269,7 @@ class TemplateService {
             name: category['name'] as String? ?? '',
             templateFile: category['templateFile'] as String,
             icon: _getIconForCategory(category['id'] as String? ?? ''),
+            description: category['description'] as String?,
           ));
         }
       }
@@ -287,6 +289,7 @@ class TemplateService {
               name: sub['name'] as String? ?? '',
               templateFile: sub['templateFile'] as String,
               icon: _getIconForCategory(sub['id'] as String? ?? ''),
+              description: sub['description'] as String?,
             ));
           }
         }
