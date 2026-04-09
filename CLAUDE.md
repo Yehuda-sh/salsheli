@@ -10,6 +10,7 @@
 - שיתוף רשימות עם תפקידים (Owner/Admin/Editor/Viewer)
 - קנייה משותפת עם סנכרון בזמן אמת
 - היסטוריית קניות וסיכומים
+- יומן פעילות משפחתי (Activity Log)
 
 **Package:** `com.memozap.app`
 
@@ -104,8 +105,8 @@ flutter run          # הרצה
 | **Theme** | `lib/theme/app_theme.dart` (AppBrand extension, light/dark, dynamic colors) |
 | **Constants** | `lib/core/ui_constants.dart`, `status_colors.dart` |
 | **Config** | `lib/config/list_types_config.dart`, `filters_config.dart`, `storage_locations_config.dart` |
-| **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart` |
-| **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart` |
+| **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart`, `activity_event.dart` |
+| **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart`, `activity_log_provider.dart` |
 | **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner, SectionHeader, AppDialog, SkeletonLoader, BarcodeScannerSheet |
 | **Strings** | `lib/l10n/app_strings.dart` |
 | **Security** | `firestore.rules` (v4.4), `firestore.indexes.json` |
@@ -126,8 +127,8 @@ flutter run          # הרצה
 
 ## Known Issues
 
-- **B3:** SavedContactsService בולע שגיאות
-- **W1:** `use_build_context_synchronously` (2) ב-settings_screen (deferred)
+- ~~**B3:** SavedContactsService בולע שגיאות~~ ✅ תוקן — כל 3 המתודות עושות rethrow
+- **W1:** `use_build_context_synchronously` (2) ב-settings_screen (יש `mounted` guards — ממתין לאימות analyzer)
 - **W2:** `directives_ordering` infos בכמה קבצים (pre-existing, cosmetic)
 - ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
 
@@ -137,9 +138,9 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 26/3/2026)
-- [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 9/4/2026)
+- [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
 - [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
 - [docs/store-listing.md](docs/store-listing.md) — תוכן Store listing
-- [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית
+- [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית (כולל Activity Feed)

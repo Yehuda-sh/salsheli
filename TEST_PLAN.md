@@ -1,9 +1,9 @@
 # 📋 TEST_PLAN.md — MemoZap Testing Strategy
 
-## 📊 מצב נוכחי (עדכון 26/3/2026)
+## 📊 מצב נוכחי (עדכון 9/4/2026)
 - **396 unit tests** ב-15 קבצים ✅ (כולם עוברים)
 - **16 demo users** with edge case coverage ✅
-- **E2E test guide** — `docs/E2E_TEST_GUIDE.md` ✅
+- **E2E test guide** — `docs/E2E_TEST_GUIDE.md` ✅ (11 flows, כולל Activity Log)
 - **0 widget tests** — post-launch
 - **0 integration tests** — post-launch
 
@@ -66,4 +66,4 @@
 | Analyze warnings | 2 (W1) | 0 |
 
 ---
-*Updated: 2026-03-26*
+*Updated: 2026-04-09*
