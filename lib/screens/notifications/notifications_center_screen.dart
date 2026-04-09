@@ -333,7 +333,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                     userId: userId,
                   ));
                 }
-                setState(() => _notifications.removeAt(index));
+                setState(() => _notifications.removeWhere((n) => n.id == notification.id));
               },
               child: _NotificationTile(
                 notification: notification,
