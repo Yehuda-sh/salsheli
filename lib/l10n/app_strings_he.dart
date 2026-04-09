@@ -528,6 +528,10 @@ class ShoppingStrings {
   String get increaseQuantityTooltip => 'הוסף כמות';
   String get decreaseQuantityTooltip => 'הפחת כמות';
   String get productNoNameFallback => 'מוצר ללא שם';
+  // Product selection - Grid/List toggle & sections
+  String get gridViewTooltip => 'תצוגת רשת';
+  String get listViewTooltip => 'תצוגת רשימה';
+  String get recentlyAdded => 'נוספו לאחרונה';
   String get cameraError => 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.';
   String get toggleFlash => 'הדלק/כבה פנס';
   String get barcodeFoundAdd => 'המוצר לא ברשימה. להוסיף?';

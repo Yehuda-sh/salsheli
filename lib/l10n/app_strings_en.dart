@@ -515,6 +515,10 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get increaseQuantityTooltip => 'Increase quantity';
   @override String get decreaseQuantityTooltip => 'Decrease quantity';
   @override String get productNoNameFallback => 'Unnamed product';
+  // Product selection - Grid/List toggle & sections
+  @override String get gridViewTooltip => 'Grid view';
+  @override String get listViewTooltip => 'List view';
+  @override String get recentlyAdded => 'Recently added';
   @override String get barcodeFoundAdd => 'Product not in list. Add it?';
   @override String get addToListButton => 'Add to list';
   @override String barcodeNotFound(String code) => 'Barcode $code not found';

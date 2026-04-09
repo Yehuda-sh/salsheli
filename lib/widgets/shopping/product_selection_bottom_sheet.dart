@@ -3,6 +3,11 @@
 // Bottom Sheet לבחירת מוצרים מהקטלוג - חיפוש, פילטרים והוספה לרשימה.
 //
 // Features:
+//   - Grid/List toggle with SharedPreferences persistence
+//   - Recently Added products section (last 10, SharedPreferences)
+//   - Category section headers with emoji
+//   - Product images from Open Food Facts (with emoji fallback)
+//   - Price display in both views
 //   - Frosted Search Bar: BackdropFilter sigma:10, dark-mode aware surfaceContainerHighest
 //   - Staggered Product List: flutter_animate per-row, RepaintBoundary isolation
 //   - Glassmorphic Feedback Banner: ValueNotifier (לא setState), BackdropFilter
@@ -20,7 +25,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/product_images_config.dart';
 import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../theme/app_theme.dart';
@@ -63,12 +70,25 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   Timer? _debounceTimer;
   Timer? _feedbackTimer;
 
+  // 🔀 Grid/List toggle — persisted in SharedPreferences
+  static const String _kGridViewKey = 'product_selection_grid_view';
+  static const String _kRecentProductsKey = 'recently_added_products';
+  static const int _kMaxRecentProducts = 10;
+
+  bool _isGridView = false;
+  List<String> _recentProductBarcodes = [];
+
+  // 📸 Track failed image URLs to avoid re-fetching
+  static final Set<String> _failedImageUrls = {};
+
   @override
   void initState() {
     super.initState();
 
     _userContext = context.read<UserContext>();
     _userContext.addListener(_onUserContextChanged);
+
+    _loadPreferences();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -80,6 +100,39 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         _productsProvider!.loadProducts();
       }
     });
+  }
+
+  /// Load view mode and recent products from SharedPreferences
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _isGridView = prefs.getBool(_kGridViewKey) ?? false;
+      _recentProductBarcodes = prefs.getStringList(_kRecentProductsKey) ?? [];
+    });
+  }
+
+  /// Toggle between grid and list view
+  void _toggleViewMode() {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _isGridView = !_isGridView);
+    unawaited(_saveViewMode());
+  }
+
+  Future<void> _saveViewMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kGridViewKey, _isGridView);
+  }
+
+  /// Add a product to the recently added list
+  Future<void> _addToRecent(String barcode) async {
+    _recentProductBarcodes.remove(barcode);
+    _recentProductBarcodes.insert(0, barcode);
+    if (_recentProductBarcodes.length > _kMaxRecentProducts) {
+      _recentProductBarcodes = _recentProductBarcodes.sublist(0, _kMaxRecentProducts);
+    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_kRecentProductsKey, _recentProductBarcodes);
   }
 
   void _onUserContextChanged() {
@@ -227,6 +280,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       if (!mounted) return;
       setState(() => _addingProductId = null);
       _showFeedback(AppStrings.shopping.productAddedToList(productName));
+
+      // Save to recently added
+      final barcode = product['barcode']?.toString();
+      if (barcode != null && barcode.isNotEmpty) {
+        unawaited(_addToRecent(barcode));
+      }
     } catch (e) {
       if (!mounted) return;
 
@@ -295,7 +354,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                       ),
                     ),
 
-                    // כותרת
+                    // כותרת עם Grid/List toggle
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: kSpacingMedium,
@@ -310,6 +369,17 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
+                          // 🔀 Grid/List toggle
+                          IconButton(
+                            icon: Icon(
+                              _isGridView ? Icons.view_list_rounded : Icons.grid_view_rounded,
+                              size: kIconSizeMedium,
+                            ),
+                            tooltip: _isGridView
+                                ? AppStrings.shopping.listViewTooltip
+                                : AppStrings.shopping.gridViewTooltip,
+                            onPressed: _toggleViewMode,
                           ),
                           IconButton(
                             icon: const Icon(Icons.close),
@@ -327,9 +397,9 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
                     const Gap(kSpacingSmall),
 
-                    // 📋 רשימת מוצרים עם RepaintBoundary חיצוני
+                    // 📋 רשימת/רשת מוצרים עם RepaintBoundary חיצוני
                     Expanded(
-                      child: _buildProductsList(
+                      child: _buildProductsContent(
                         productsProvider,
                         products,
                         cs,
@@ -548,7 +618,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // 📋 Products List
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildProductsList(
+  Widget _buildProductsContent(
     ProductsProvider provider,
     List<Map<String, dynamic>> products,
     ColorScheme cs,
@@ -605,44 +675,421 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       );
     }
 
-    // 🎨 Outer RepaintBoundary isolates list scroll repaints from the sheet
-    return RepaintBoundary(
-      child: ListView.builder(
-        controller: scrollController,
-        padding: const EdgeInsets.only(
-          top: kNotebookLineSpacing - kSpacingSmall,
-          left: kNotebookRedLineOffset + kSpacingSmall,
-          right: kSpacingMedium,
-          bottom: kSpacingXLarge * 3 + kSpacingXTiny,
-        ),
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          final delay = Duration(milliseconds: (index * 30).clamp(0, 300));
+    // Group products by category for section headers
+    final grouped = _groupProductsByCategory(products);
+    final showSectionHeaders = provider.selectedCategory == null && grouped.length > 1;
 
-          // 🎨 Inner RepaintBoundary per-row + flutter_animate stagger
-          return RepaintBoundary(
-            child: _buildCleanProductRow(product, cs)
-                .animate()
-                .fadeIn(duration: 300.ms, delay: delay)
-                .slideX(begin: 0.05, end: 0, duration: 300.ms, delay: delay, curve: Curves.easeOutCubic),
-          );
-        },
+    // Find recently added products
+    final recentProducts = _getRecentProducts(provider);
+
+    // 🎨 Outer RepaintBoundary isolates scroll repaints from the sheet
+    return RepaintBoundary(
+      child: CustomScrollView(
+        controller: scrollController,
+        slivers: [
+          // 📌 Recently Added Section
+          if (recentProducts.isNotEmpty && provider.searchQuery.isEmpty)
+            SliverToBoxAdapter(
+              child: _buildRecentlyAddedSection(recentProducts, cs),
+            ),
+
+          // 📂 Category-grouped products
+          for (final entry in grouped.entries) ...[
+            // Section header
+            if (showSectionHeaders)
+              SliverToBoxAdapter(
+                child: _buildSectionHeader(entry.key, cs),
+              ),
+
+            // Products (grid or list)
+            if (_isGridView)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: kSpacingMedium,
+                ),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: kSpacingSmall,
+                    crossAxisSpacing: kSpacingSmall,
+                    childAspectRatio: 0.72,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final product = entry.value[index];
+                      final delay = Duration(milliseconds: (index * 40).clamp(0, 300));
+                      return RepaintBoundary(
+                        child: _buildProductGridCard(product, cs)
+                            .animate()
+                            .fadeIn(duration: 300.ms, delay: delay)
+                            .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), duration: 300.ms, delay: delay),
+                      );
+                    },
+                    childCount: entry.value.length,
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: EdgeInsets.only(
+                  left: kNotebookRedLineOffset + kSpacingSmall,
+                  right: kSpacingMedium,
+                  top: showSectionHeaders ? 0 : kNotebookLineSpacing - kSpacingSmall,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final product = entry.value[index];
+                      final delay = Duration(milliseconds: (index * 30).clamp(0, 300));
+                      return RepaintBoundary(
+                        child: _buildCleanProductRow(product, cs)
+                            .animate()
+                            .fadeIn(duration: 300.ms, delay: delay)
+                            .slideX(begin: 0.05, end: 0, duration: 300.ms, delay: delay, curve: Curves.easeOutCubic),
+                      );
+                    },
+                    childCount: entry.value.length,
+                  ),
+                ),
+              ),
+          ],
+
+          // Bottom padding for FAB
+          const SliverPadding(
+            padding: EdgeInsets.only(bottom: kSpacingXLarge * 3 + kSpacingXTiny),
+          ),
+        ],
       ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📌 Recently Added Section
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get recent products that exist in the provider's catalog
+  List<Map<String, dynamic>> _getRecentProducts(ProductsProvider provider) {
+    if (_recentProductBarcodes.isEmpty) return [];
+    final all = provider.allProducts;
+    final result = <Map<String, dynamic>>[];
+    for (final barcode in _recentProductBarcodes) {
+      final product = all.cast<Map<String, dynamic>?>().firstWhere(
+        (p) => p?['barcode']?.toString() == barcode,
+        orElse: () => null,
+      );
+      if (product != null) result.add(product);
+    }
+    return result;
+  }
+
+  /// Horizontal scroll section showing recently added products
+  Widget _buildRecentlyAddedSection(List<Map<String, dynamic>> recentProducts, ColorScheme cs) {
+    final appBrand = Theme.of(context).extension<AppBrand>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+          child: Text(
+            AppStrings.shopping.recentlyAdded,
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: kSpacingXLarge + kSpacingLarge,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+            itemCount: recentProducts.length,
+            itemBuilder: (context, index) {
+              final product = recentProducts[index];
+              final name = product['name'] as String? ?? '';
+              final category = product['category'] as String? ?? '';
+              final emoji = FiltersConfig.getCategoryEmoji(
+                FiltersConfig.hebrewCategoryToEnglish(category),
+              );
+
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: index == 0 ? 0 : kSpacingSmall,
+                ),
+                child: ActionChip(
+                  avatar: Text(emoji, style: const TextStyle(fontSize: kFontSizeMedium)),
+                  label: Text(
+                    name,
+                    style: const TextStyle(fontSize: kFontSizeSmall),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  backgroundColor: (appBrand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.3),
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                  ),
+                  onPressed: () => _addProduct(product),
+                ),
+              );
+            },
+          ),
+        ),
+        const Gap(kSpacingSmall),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📂 Section Header
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildSectionHeader(String category, ColorScheme cs) {
+    final emoji = FiltersConfig.getCategoryEmoji(
+      FiltersConfig.hebrewCategoryToEnglish(category),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.only(
+        right: kSpacingMedium,
+        left: kSpacingMedium,
+        top: kSpacingMedium,
+        bottom: kSpacingSmall,
+      ),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: kFontSizeBody)),
+          const SizedBox(width: kSpacingSmall),
+          Text(
+            category,
+            style: TextStyle(
+              fontSize: kFontSizeMedium,
+              fontWeight: FontWeight.bold,
+              color: cs.onSurface,
+            ),
+          ),
+          const SizedBox(width: kSpacingSmall),
+          Expanded(
+            child: Divider(color: cs.outlineVariant.withValues(alpha: 0.3)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 🎴 Product Grid Card
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildProductGridCard(Map<String, dynamic> product, ColorScheme cs) {
+    final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
+    final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
+    final brand = product['brand'] as String?;
+    final price = product['price'] as num?;
+    final barcode = product['barcode'] as String?;
+    final appBrand = Theme.of(context).extension<AppBrand>();
+    final showPrices = context.read<UserContext>().showPrices;
+
+    final provider = context.read<ShoppingListsProvider>();
+    final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
+
+    final existingItem = currentList?.items.cast<UnifiedListItem?>().firstWhere(
+      (item) => item?.name.toLowerCase() == name.toLowerCase(),
+      orElse: () => null,
+    );
+    final isInList = existingItem != null;
+    final currentQuantity = existingItem?.quantity ?? 0;
+    final productId = product['id']?.toString() ?? name;
+    final isAdding = _addingProductId == productId;
+
+    return Card(
+      elevation: isInList ? 0 : kCardElevation,
+      color: isInList
+          ? cs.surfaceContainerHighest.withValues(alpha: 0.5)
+          : cs.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        side: isInList
+            ? BorderSide(color: (appBrand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.4))
+            : BorderSide.none,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: isInList ? null : () => _addProduct(product),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 📸 Image area
+            Expanded(
+              flex: 3,
+              child: Container(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+                child: _buildProductImage(barcode, category, cs),
+              ),
+            ),
+
+            // 📝 Details area
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.all(kSpacingSmall),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product name
+                    Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: FontWeight.bold,
+                        color: isInList ? cs.onSurface.withValues(alpha: 0.5) : cs.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    // Brand
+                    if (brand != null && brand.isNotEmpty)
+                      Text(
+                        brand,
+                        style: TextStyle(
+                          fontSize: kFontSizeTiny,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+
+                    const Spacer(),
+
+                    // Price + Add button row
+                    Row(
+                      children: [
+                        if (showPrices && price != null)
+                          Text(
+                            AppStrings.shopping.priceFormat(price.toDouble()),
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              fontWeight: FontWeight.w600,
+                              color: cs.primary,
+                            ),
+                          ),
+                        const Spacer(),
+                        if (isInList)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingSmall,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: appBrand?.stickyCyan ?? kStickyCyan,
+                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                            ),
+                            child: Text(
+                              '$currentQuantity',
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onPrimary,
+                              ),
+                            ),
+                          )
+                        else
+                          _buildAddButton(isAdding),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 📸 Product Image
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Product image with Open Food Facts fallback to category emoji.
+  /// Credit text only appears when the image loads successfully.
+  Widget _buildProductImage(String? barcode, String category, ColorScheme cs) {
+    final url = ProductImagesConfig.getImageUrl(barcode);
+    final emoji = FiltersConfig.getCategoryEmoji(
+      FiltersConfig.hebrewCategoryToEnglish(category),
+    );
+
+    if (url == null || _failedImageUrls.contains(url)) {
+      return _buildEmojiPlaceholder(emoji);
+    }
+
+    return Image.network(
+      url,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) {
+        _failedImageUrls.add(url);
+        return _buildEmojiPlaceholder(emoji);
+      },
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) {
+          // Image loaded — show with credit underneath
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(child: child),
+              Text(
+                ProductImagesConfig.creditSource,
+                style: TextStyle(
+                  fontSize: 8,
+                  color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                ),
+              ),
+            ],
+          );
+        }
+        return _buildEmojiPlaceholder(emoji);
+      },
+    );
+  }
+
+  /// Emoji placeholder for products without images
+  Widget _buildEmojiPlaceholder(String emoji) {
+    return Center(
+      child: Text(
+        emoji,
+        style: const TextStyle(fontSize: kFontSizeDisplay),
+      ),
+    );
+  }
+
+  /// Group products by category
+  Map<String, List<Map<String, dynamic>>> _groupProductsByCategory(
+    List<Map<String, dynamic>> products,
+  ) {
+    final grouped = <String, List<Map<String, dynamic>>>{};
+    for (final p in products) {
+      final cat = p['category'] as String? ?? AppStrings.shopping.typeOther;
+      (grouped[cat] ??= []).add(p);
+    }
+    return grouped;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🎴 Product Row
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// שורת מוצר נקייה — על קווי המחברת (RTL optimized)
+  /// שורת מוצר נקייה — על קווי המחברת (RTL optimized) + מחיר
   Widget _buildCleanProductRow(Map<String, dynamic> product, ColorScheme cs) {
     final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
     final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
     final size = product['size'] as String?;
     final brand = product['brand'] as String?;
+    final price = product['price'] as num?;
     final appBrand = Theme.of(context).extension<AppBrand>();
+    final showPrices = context.read<UserContext>().showPrices;
 
     final provider = context.read<ShoppingListsProvider>();
     final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
@@ -722,6 +1169,20 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   ),
                 ),
               ),
+
+              // 💰 מחיר
+              if (showPrices && price != null) ...[
+                Text(
+                  AppStrings.shopping.priceFormat(price.toDouble()),
+                  style: TextStyle(
+                    fontSize: kFontSizeTiny,
+                    fontWeight: FontWeight.w600,
+                    color: cs.primary.withValues(alpha: 0.7),
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(width: kSpacingSmall),
+              ],
 
               // ➕ כפתור הוספה / בקרי כמות
               isInList ? _buildQuantityControls(product, currentQuantity) : _buildAddButton(isAdding),
