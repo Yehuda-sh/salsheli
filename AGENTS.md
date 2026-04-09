@@ -69,20 +69,40 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Last Session (March 26, 2026)
+### Last Session (April 9, 2026) — Activity Log Feature + Settings Fixes
+
+**New Feature: Household Activity Log**
+- Full architecture: Model → Service → Repository → Provider → UI
+- **Model**: `ActivityEvent` with 9 types (8 active + `unknown`)
+- **Service**: `ActivityLogService` — fire-and-forget writes to Firestore
+- **Repository**: `ActivityLogRepository` — reads + cleanup
+- **Provider**: `ActivityLogProvider` — state management (registered in main.dart)
+- **8 injection points**: shopping_completed, shopping_started, shopping_joined, list_created, stock_updated, member_left, role_changed (×2 paths)
+- **item_added** kept in enum but NOT injected (flooding risk — dozens of events per session)
+
+**UI Changes:**
+- **Dashboard feed** (`household_activity_feed.dart`): Rewritten from StatefulWidget to StatelessWidget; shows 5 latest activity events with fallback to 3 recent receipts for users without activity data
+- **History screen** (`shopping_history_screen.dart`): Added TabBar with 2 tabs — Receipts + Activity Log
+- **Settings screen fixes**: 4 design system violations fixed (hardcoded string, icon size, Hebrew debug strings, RTL chevron)
+
+**Infrastructure:**
+- `firestore.rules` — added `activity_log/{eventId}` subcollection rules under households
+- `app_strings_he.dart` / `app_strings_en.dart` — added `ActivityLogStrings` class with 9 descriptions + UI strings
+- `scripts/rebuild_demo_data.js` — added 26 activity log events across 4 households
+- Translations: added `languageEnglish`, removed 5 dead strings
+
+**Previous Session (March 26, 2026):**
 - Full 17-category review of all 141 Dart files
 - 18 critical bugs fixed, 55+ commits
 - APK reduced from 127MB → 94.4MB
 - Auth screens redesigned (Social Login first)
-- CI/CD improved (analyze, NDK, service credentials)
 - Demo data expanded to 16 users with 30+ edge cases
-- `error_utils.dart` and `household_service.dart` created
 
 ### Next Priorities
 1. **Enable Google Sign-In** in Firebase Console (user action)
 2. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes`
 3. **Deploy Cloud Functions**: `firebase deploy --only functions`
-4. **Run demo data**: `node scripts/rebuild_demo_data.js`
+4. **Run demo data**: `node scripts/rebuild_demo_data.js` (now includes activity_log events)
 5. **Manual testing** of all 16 demo users
 6. **Implement pantry merge logic** (dialog result currently ignored)
 7. **Add unit tests** for critical flows
@@ -125,7 +145,11 @@ Claude operates in **two different environments**. Identify which one at session
 | **Theme** | `lib/theme/app_theme.dart` — `AppBrand` ThemeExtension with sticky note colors |
 | **Config** | `lib/config/` — `ListTypeKeys`, `ListTypes`, `FiltersConfig`, `StorageLocationsConfig` with `ConfigValidation` mixin |
 | **Repository constants** | `lib/repositories/constants/repository_constants.dart` — Firestore collection/field names |
-| **Demo data** | `scripts/rebuild_demo_data.js` — 16 users, all edge cases |
+| **Activity log model** | `lib/models/activity_event.dart` — ActivityType enum (9 types) + ActivityEvent model |
+| **Activity log service** | `lib/services/activity_log_service.dart` — fire-and-forget write to Firestore |
+| **Activity log repo** | `lib/repositories/activity_log_repository.dart` — read + cleanup |
+| **Activity log provider** | `lib/providers/activity_log_provider.dart` — state management |
+| **Demo data** | `scripts/rebuild_demo_data.js` — 16 users, all edge cases, 26 activity events |
 
 ### Provider Tree (from `main.dart`)
 
@@ -138,6 +162,7 @@ UserContext (depends on AuthService + UserRepository)
   → LocationsProvider (depends on UserContext)
   → ShoppingListsProvider (depends on UserContext)
   → ReceiptProvider (depends on UserContext)
+  → ActivityLogProvider (depends on UserContext)    ← NEW
   → InventoryProvider (depends on UserContext)
     → SuggestionsProvider (depends on InventoryProvider)
 ```
@@ -154,6 +179,7 @@ UserContext (depends on AuthService + UserRepository)
 - `AppStrings.auth` — login/register
 - `AppStrings.household` — household management
 - `AppStrings.sharing` — invite/sharing screens
+- `AppStrings.activityLog` — activity feed descriptions (9 types) + UI strings
 - Each has Hebrew base class + English `extends` override
 
 ### Firestore Structure
@@ -169,6 +195,7 @@ UserContext (depends on AuthService + UserRepository)
   ├── members/{memberId}
   ├── inventory/{itemId}
   ├── receipts/{receiptId}
+  ├── activity_log/{eventId}        ← NEW: household activity feed
   └── shared_lists/{listId}
 
 /pending_invites/{inviteId}  (top-level)
@@ -184,7 +211,7 @@ The following must NOT be changed without **explicit user confirmation**:
 
 | Item | Reason |
 |------|--------|
-| `firestore.rules` | Security rules v4.2 — affects all data access |
+| `firestore.rules` | Security rules v4.3+ (includes activity_log) — affects all data access |
 | `firebase_options.dart` | Generated by FlutterFire CLI — auto-generated |
 | `pubspec.yaml` dependency versions | May break builds — upgrade only when asked |
 | `android/app/google-services.json` | Firebase config — user manages manually |
