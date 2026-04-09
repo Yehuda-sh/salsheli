@@ -353,14 +353,14 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                       return Chip(
                         avatar: contact.isPending
                             ? Icon(Icons.hourglass_empty,
-                                size: kIconSizeSmall + 2, color: cs.onPrimaryContainer)
+                                size: kIconSizeSmallPlus, color: cs.onPrimaryContainer)
                             : CircleAvatar(
                                 backgroundColor: cs.primaryContainer,
                                 child: Text(contact.initials,
                                     style: const TextStyle(fontSize: kFontSizeTiny)),
                               ),
                         label: Text(contact.displayName),
-                        deleteIcon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+                        deleteIcon: const Icon(Icons.close, size: kIconSizeSmallPlus),
                         onDeleted: () => _removeSelected(contact.email),
                       );
                     }).toList(),

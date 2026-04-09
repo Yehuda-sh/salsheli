@@ -26,6 +26,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
+import '../../../theme/app_theme.dart';
 import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
@@ -234,6 +235,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final userContext = context.watch<UserContext>();
     final userId = userContext.userId;
 
@@ -313,12 +315,12 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                   padding: const EdgeInsets.all(kSpacingMedium),
                   decoration: BoxDecoration(
-                    color: kStickyYellow.withValues(alpha: 0.9),
+                    color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                     boxShadow: [
                       BoxShadow(
                         color: cs.scrim.withValues(alpha: 0.1),
-                        blurRadius: 4,
+                        blurRadius: kSpacingXTiny,
                         offset: const Offset(0, 2),
                       ),
                     ],
@@ -361,7 +363,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, size: kIconSizeSmall + 2, color: cs.primary),
+                        Icon(Icons.info_outline, size: kIconSizeSmallPlus, color: cs.primary),
                         const SizedBox(width: kSpacingSmall),
                         Expanded(
                           child: Text(
@@ -442,6 +444,7 @@ class _WhoBringsItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final isFull = item.isVolunteersFull;
     final volunteerCount = item.volunteerCount;
     final neededCount = item.neededCount;
@@ -449,11 +452,11 @@ class _WhoBringsItemTile extends StatelessWidget {
     // צבע הפתק לפי מצב
     Color stickyColor;
     if (isFull) {
-      stickyColor = kStickyGreen; // מלא - ירוק
+      stickyColor = brand?.stickyGreen ?? kStickyGreen; // מלא - ירוק
     } else if (volunteerCount > 0) {
-      stickyColor = kStickyYellow; // יש מתנדבים - צהוב
+      stickyColor = brand?.stickyYellow ?? kStickyYellow; // יש מתנדבים - צהוב
     } else {
-      stickyColor = kStickyPink; // אין מתנדבים - ורוד
+      stickyColor = brand?.stickyPink ?? kStickyPink; // אין מתנדבים - ורוד
     }
 
     return Padding(
@@ -555,7 +558,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור ביטול
                 OutlinedButton.icon(
                   onPressed: isLoading ? null : onCancelVolunteer,
-                  icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+                  icon: const Icon(Icons.close, size: kIconSizeSmallPlus),
                   label: Text(AppStrings.shopping.cancelVolunteerButton),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: cs.error,
@@ -567,7 +570,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 // כפתור התנדבות
                 ElevatedButton.icon(
                   onPressed: isLoading ? null : onVolunteer,
-                  icon: const Icon(Icons.volunteer_activism, size: kIconSizeSmall + 2),
+                  icon: const Icon(Icons.volunteer_activism, size: kIconSizeSmallPlus),
                   label: Text(AppStrings.shopping.iBringButton),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: cs.primary,

@@ -43,6 +43,10 @@ class NotebookBackground extends StatelessWidget {
   /// ברירת מחדל: false
   final bool fadeEdges;
 
+  /// Internal flag — true only for [NotebookBackground.subtle] constructor.
+  /// Used in [build] to pick a theme-aware soft line color.
+  final bool _isSubtle;
+
   const NotebookBackground({
     super.key,
     this.lineOpacity,
@@ -51,17 +55,20 @@ class NotebookBackground extends StatelessWidget {
     this.redLineOpacity,
     this.redLineWidth,
     this.fadeEdges = false,
-  });
+  }) : _isSubtle = false;
 
-  /// גרסה עדינה למסכי Auth — קווים חלשים, בלי קו אדום, עם fade
+  /// גרסה עדינה למסכי Auth — קווים חלשים, בלי קו אדום, עם fade.
+  /// Theme-aware: uses [kNotebookBlueSoft] in light mode and
+  /// [kNotebookBlueSoftDark] in dark mode.
   const NotebookBackground.subtle({
     super.key,
   })  : lineOpacity = 0.10,
-        lineColor = kNotebookBlueSoft,
+        lineColor = null,
         showRedLine = false,
         redLineOpacity = null,
         redLineWidth = null,
-        fadeEdges = true;
+        fadeEdges = true,
+        _isSubtle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +78,17 @@ class NotebookBackground extends StatelessWidget {
 
     final bgColor = brand?.paperBackground ??
         (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground);
-    final effectiveLineColor = lineColor ?? brand?.notebookBlue ?? kNotebookBlue;
+    final Color effectiveLineColor;
+    if (lineColor != null) {
+      effectiveLineColor = lineColor!;
+    } else if (_isSubtle) {
+      // Theme-aware soft color for subtle variant
+      effectiveLineColor = theme.brightness == Brightness.dark
+          ? kNotebookBlueSoftDark
+          : kNotebookBlueSoft;
+    } else {
+      effectiveLineColor = brand?.notebookBlue ?? kNotebookBlue;
+    }
     final effectiveLineOpacity = lineOpacity ?? kNotebookLineOpacity;
 
     // ✅ ExcludeSemantics - רקע דקורטיבי, לא רלוונטי לקוראי מסך

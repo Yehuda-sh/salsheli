@@ -283,6 +283,71 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     ));
   }
 
+  /// 📷⬇️ סריקה מהירה להורדת מלאי — זרק אריזה? סרוק והמלאי יתעדכן
+  Future<void> _quickScanToDecrement() async {
+    final productsProvider = context.read<ProductsProvider>();
+    final product = await scanAndLookupProduct(context, productsProvider);
+    if (product == null || !mounted) return;
+
+    final name = product['name'] as String? ?? '';
+    final inventoryProvider = context.read<InventoryProvider>();
+    final strings = AppStrings.inventory;
+
+    // חפש במזווה
+    final existingItem = inventoryProvider.items.where(
+      (i) => i.productName.trim().toLowerCase() == name.trim().toLowerCase(),
+    ).firstOrNull;
+
+    // גם חיפוש fuzzy אם לא נמצא exact
+    final matchedItem = existingItem ?? _findSimilarItem(name, inventoryProvider.items);
+
+    if (matchedItem == null) {
+      if (mounted) {
+        unawaited(HapticFeedback.heavyImpact());
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(strings.quickScanNotInPantry),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
+      }
+      return;
+    }
+
+    // הורד 1 מהמלאי
+    final updated = await inventoryProvider.removeStock(matchedItem.productName);
+    if (!mounted || updated == null) return;
+
+    unawaited(HapticFeedback.mediumImpact());
+
+    if (updated.quantity == 0) {
+      // 🔴 נגמר לגמרי
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(strings.quickScanOutOfStock(matchedItem.productName)),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: strings.quickScanUndo,
+          onPressed: () {
+            inventoryProvider.addStock(matchedItem.productName, 1);
+          },
+        ),
+      ));
+    } else {
+      // ✅ הורד בהצלחה
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(strings.quickScanDecremented(
+          matchedItem.productName,
+          updated.quantity,
+        )),
+        duration: kSnackBarDuration,
+        action: SnackBarAction(
+          label: strings.quickScanUndo,
+          onPressed: () {
+            inventoryProvider.addStock(matchedItem.productName, 1);
+          },
+        ),
+      ));
+    }
+  }
+
   /// 🔍 מחפש מוצר דומה במזווה לפי מילות מפתח
   InventoryItem? _findSimilarItem(String scannedName, List<InventoryItem> items) {
     if (items.isEmpty) return null;
@@ -351,7 +416,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               Expanded(
                 child: Text(
                   AppStrings.pantry.similarProductFound,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -362,14 +427,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             children: [
               Text(
                 '${AppStrings.pantry.existingInPantry}:',
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: kSpacingXTiny),
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
                   color: cs.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
                 child: Row(
                   children: [
@@ -384,17 +449,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: kSpacingSmallPlus),
               Text(
                 '${AppStrings.pantry.scannedProduct}:',
-                style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant),
+                style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: kSpacingXTiny),
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
                   color: cs.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
                 child: Row(
                   children: [
@@ -415,19 +480,19 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             // עדכן כמות
             TextButton.icon(
               onPressed: () => Navigator.pop(ctx, _DuplicateAction.updateQuantity),
-              icon: const Icon(Icons.add_circle_outline, size: 18),
+              icon: const Icon(Icons.add_circle_outline, size: kIconSizeSmallPlus),
               label: Text(AppStrings.pantry.updateQuantity),
             ),
             // החלף מוצר
             TextButton.icon(
               onPressed: () => Navigator.pop(ctx, _DuplicateAction.replaceProduct),
-              icon: const Icon(Icons.swap_horiz, size: 18),
+              icon: const Icon(Icons.swap_horiz, size: kIconSizeSmallPlus),
               label: Text(AppStrings.pantry.replaceProduct),
             ),
             // הוסף בנפרד
             TextButton.icon(
               onPressed: () => Navigator.pop(ctx, _DuplicateAction.addSeparate),
-              icon: const Icon(Icons.add, size: 18),
+              icon: const Icon(Icons.add, size: kIconSizeSmallPlus),
               label: Text(AppStrings.pantry.addSeparately),
             ),
           ],
@@ -439,40 +504,30 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🏺 מוסיף פריטי starter למזווה (Onboarding)
   Future<void> _addStarterItems() async {
+    // פתיחת קטלוג מוצרים מסונן לקטגוריות מוצרי יסוד — מוצרים אמיתיים מהקטלוג
+    if (!mounted) return;
+    PantryProductSelectionSheet.show(
+      context,
+      initialCategories: PantryProductSelectionSheet.basicCategories,
+    );
+  }
 
-    // ✅ Cache values before async gap
+  // ✅ Legacy method kept for reference — was auto-adding from template
+  Future<void> _addStarterItemsLegacy() async {
     final strings = AppStrings.pantry;
     final messenger = ScaffoldMessenger.of(context);
     final provider = context.read<InventoryProvider>();
 
     try {
-
-      // טוען את הפריטים מהתבנית
       final items = await TemplateService.loadPantryStarterItems();
-
       if (items.isEmpty) {
-        if (mounted) {
-          messenger.showSnackBar(
-            SnackBar(content: Text(strings.noStarterItemsFound)),
-          );
-        }
+        if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.noStarterItemsFound)));
         return;
       }
-
-      // מוסיף למזווה
       final count = await provider.addStarterItems(items);
-
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.starterItemsAdded(count))),
-        );
-      }
+      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsAdded(count))));
     } catch (e) {
-      if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.starterItemsError)),
-        );
-      }
+      if (mounted) messenger.showSnackBar(SnackBar(content: Text(strings.starterItemsError)));
     }
   }
 
@@ -618,13 +673,22 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // סריקת ברקוד
+                    // 📷⬇️ סריקה מהירה להורדת מלאי
+                    FloatingActionButton.small(
+                      heroTag: 'pantry_quick_scan_btn',
+                      onPressed: _quickScanToDecrement,
+                      backgroundColor: scheme.errorContainer,
+                      tooltip: AppStrings.inventory.quickScanTooltip,
+                      child: Icon(Icons.remove_shopping_cart, color: scheme.onErrorContainer, size: kIconSizeSmallPlus),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    // 📷⬆️ סריקת ברקוד להוספה
                     FloatingActionButton.small(
                       heroTag: 'pantry_scan_btn',
                       onPressed: _scanBarcodeAndAddToPantry,
                       backgroundColor: scheme.secondaryContainer,
                       tooltip: AppStrings.shopping.scanBarcode,
-                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer),
+                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer, size: kIconSizeSmallPlus),
                     ),
                     const SizedBox(height: kSpacingSmall),
                     // הוספה ידנית
@@ -752,8 +816,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             children: [
               // 📦 Emoji in colored circle (like Dashboard)
               Container(
-                width: 44,
-                height: 44,
+                width: kSpacingXLarge + kSpacingSmallPlus,
+                height: kSpacingXLarge + kSpacingSmallPlus,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.primaryContainer,
@@ -776,7 +840,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     ),
                     if (provider.items.isNotEmpty)
                       Text(
-                        '${provider.items.length} פריטים במזווה',
+                        // TODO(l10n): Extract to AppStrings.pantry.itemCountInPantry(count)
+                        '${provider.items.length} ${AppStrings.settings.statsPantryItems}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: scheme.onSurfaceVariant,
                         ),
@@ -790,8 +855,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 Tooltip(
                   message: displayName,
                   child: Container(
-                    width: 36,
-                    height: 36,
+                    width: kIconSizeLarge,
+                    height: kIconSizeLarge,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -898,7 +963,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(emoji, style: const TextStyle(fontSize: kFontSizeBody)),
-              const SizedBox(height: 1),
+              const SizedBox(height: 1), // intentional 1px separator
               Text(
                 value,
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -948,7 +1013,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             child: BackdropFilter(
               filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
               child: Container(
-                height: 48,
+                height: kButtonHeight,
                 decoration: BoxDecoration(
                   color: glassBgColor,
                   borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
@@ -966,10 +1031,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   decoration: InputDecoration(
                     hintText: AppStrings.pantry.searchHint,
                     hintStyle: const TextStyle(fontSize: kFontSizeMedium),
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    prefixIcon: const Icon(Icons.search, size: kIconSizeSmallPlus),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const Icon(Icons.clear, size: kIconSizeSmallPlus),
                             tooltip: AppStrings.pantry.clearSearchTooltip,
                             onPressed: () {
                               _searchController.clear();
@@ -978,7 +1043,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                           )
                         : null,
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                     isDense: true,
                   ),
                   onChanged: _onSearchChanged,
@@ -991,7 +1056,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         // 2. רשימת מיקומים נגללת אופקית
         if (availableLocations.isNotEmpty)
           SizedBox(
-            height: 40,
+            height: kButtonHeightSmall + kSpacingXTiny,
             child: ListView(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               scrollDirection: Axis.horizontal,
@@ -1027,7 +1092,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final name = isAll ? AppStrings.pantry.allLocations : _getLocationName(location);
 
       return Padding(
-        padding: const EdgeInsets.only(left: 8.0),
+        padding: const EdgeInsets.only(left: kSpacingSmall),
         child: AnimatedScale(
           scale: isSelected ? 1.05 : 1.0,
           duration: const Duration(milliseconds: 150),
@@ -1057,7 +1122,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 color: isSelected ? scheme.outline.withValues(alpha: 0.3) : Colors.transparent,
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
             visualDensity: VisualDensity.compact,
           ),
         ),
@@ -1067,9 +1132,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     // ➕ כפתור הוספת מיקום חדש (Shimmer כשיש מעט מיקומים)
     final showShimmer = locations.length <= 1;
     Widget addChip = Padding(
-      padding: const EdgeInsets.only(left: 8.0),
+      padding: const EdgeInsets.only(left: kSpacingSmall),
       child: ActionChip(
-        avatar: Icon(Icons.add_location_alt, size: 18, color: scheme.primary),
+        avatar: Icon(Icons.add_location_alt, size: kIconSizeSmallPlus, color: scheme.primary),
         label: Text(
           AppStrings.inventory.addLocationButton,
           style: TextStyle(fontSize: kFontSizeMedium, color: textColorMuted),
@@ -1090,7 +1155,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(color: scheme.primary, width: 1.5),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
         visualDensity: VisualDensity.compact,
       ),
     );
@@ -1119,7 +1184,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           top: kSpacingSmall,
           left: kSpacingMedium,
           right: kSpacingMedium,
-          bottom: 100,
+          bottom: 100, // FAB clearance — no exact design-token match
         ),
         itemCount: items.length,
         itemBuilder: (context, index) {
@@ -1177,7 +1242,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           top: kSpacingSmall,
           left: kSpacingMedium,
           right: kSpacingMedium,
-          bottom: 100,
+          bottom: 100, // FAB clearance — no exact design-token match
         ),
         itemCount: locations.length,
         itemBuilder: (context, locIndex) {
@@ -1193,18 +1258,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             children: [
               // === כותרת סקשן (עיצוב מרקר רחב) ===
               Padding(
-                padding: EdgeInsets.only(top: isFirstSection ? 0 : 12, bottom: 2),
+                padding: EdgeInsets.only(top: isFirstSection ? 0 : kSpacingSmallPlus, bottom: 2),
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.only(
                     right: kSpacingMedium,
-                    top: 4,
-                    bottom: 4,
+                    top: kSpacingXTiny,
+                    bottom: kSpacingXTiny,
                   ),
                   decoration: BoxDecoration(
                     color: highlightColor,
                     border: Border(
-                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: 4),
+                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: kSpacingXTiny),
                     ),
                   ),
                   child: Row(
@@ -1217,9 +1282,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               fontSize: kFontSizeBody,
                             ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: kSpacingSmall),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                         decoration: BoxDecoration(
                           color: isDark
                               ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
@@ -1300,7 +1365,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         child: Row(
           children: [
             Icon(Icons.delete_outline, color: cs.onErrorContainer),
-            const SizedBox(width: 8),
+            const SizedBox(width: kSpacingSmall),
             Text(strings.swipeDelete, style: TextStyle(color: cs.onErrorContainer, fontWeight: FontWeight.bold)),
           ],
         ),
@@ -1330,7 +1395,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       },
       onDismissed: (_) => _deleteItem(item),
       child: Card(
-        margin: const EdgeInsets.only(bottom: 6),
+        margin: const EdgeInsets.only(bottom: kSpacingTiny),
         elevation: isCritical ? 2 : 0.5,
         shadowColor: isCritical ? cs.error.withValues(alpha: 0.3) : null,
         shape: RoundedRectangleBorder(
@@ -1350,7 +1415,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               children: [
                 // 🎨 פס צד צבעוני (כמו ברשימות בדף הבית)
                 Container(
-                  width: 4,
+                  width: kSpacingXTiny,
                   decoration: BoxDecoration(
                     color: statusColor,
                     borderRadius: isRtl
@@ -1376,8 +1441,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       children: [
                         // 🏷️ אמוג'י בעיגול
                         Container(
-                          width: 36,
-                          height: 36,
+                          width: kIconSizeLarge,
+                          height: kIconSizeLarge,
                           decoration: BoxDecoration(
                             color: statusColor.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
@@ -1399,7 +1464,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                 children: [
                                   if (item.isRecurring)
                                     Padding(
-                                      padding: const EdgeInsets.only(left: 4),
+                                      padding: const EdgeInsets.only(left: kSpacingXTiny),
                                       child: Icon(Icons.star_rounded, color: theme.colorScheme.tertiary, size: kIconSizeSmall),
                                     ),
                                   Flexible(
@@ -1532,12 +1597,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 onTap();
               }
             : null,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
         child: Padding(
-          padding: const EdgeInsets.all(6),
+          padding: const EdgeInsets.all(kSpacingTiny),
           child: Icon(
             icon,
-            size: 20,
+            size: kIconSizeSmallPlus,
             color: onTap != null ? color : color.withValues(alpha: 0.3),
           ),
         ),
@@ -1548,27 +1613,28 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   /// 🎨 צבע לפי קטגוריה — Dark Mode aware via Theme colorScheme
   Color _getCategoryColor(String category) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final key = FiltersConfig.hebrewCategoryToEnglish(category);
 
     // Light mode: vibrant colors. Dark mode: desaturated via Color.lerp
     Color base = switch (key) {
       'dairy' => const Color(0xFF42A5F5),
-      'vegetables' || 'fruits' || 'fresh_herbs' => kStickyGreen,
+      'vegetables' || 'fruits' || 'fresh_herbs' => brand?.stickyGreen ?? kStickyGreen,
       'meat' || 'poultry' || 'deli' || 'meat_fish' || 'beef' || 'chicken' || 'turkey' || 'lamb' => const Color(0xFFEF5350),
       'fish' => const Color(0xFF26C6DA),
       'bakery' || 'bread' || 'bread_bakery' => const Color(0xFFFFB74D),
       'frozen' => const Color(0xFF78909C),
-      'drinks' || 'alcohol' || 'wine' || 'beverages' || 'coffee_tea' => kStickyPurple,
+      'drinks' || 'alcohol' || 'wine' || 'beverages' || 'coffee_tea' => brand?.stickyPurple ?? kStickyPurple,
       'snacks' || 'sweets' || 'chocolate' || 'sweets_snacks' || 'cookies_sweets' => const Color(0xFFFF7043),
       'cleaning' || 'laundry' => const Color(0xFF66BB6A),
-      'hygiene' || 'beauty' || 'cosmetics' => kStickyPink,
+      'hygiene' || 'beauty' || 'cosmetics' => brand?.stickyPink ?? kStickyPink,
       'spices' || 'condiments' => const Color(0xFFFFA726),
       'grains' || 'pasta' || 'rice' || 'rice_pasta' || 'legumes_grains' || 'cereals' => const Color(0xFFD4A373),
       'canned' || 'preserved' => const Color(0xFF8D6E63),
       'baby' || 'baby_products' => const Color(0xFFF8BBD0),
       'oils' || 'oils_sauces' => const Color(0xFFCDDC39),
-      _ => kStickyCyan,
+      _ => brand?.stickyCyan ?? kStickyCyan,
     };
 
     // ✅ Dark Mode: desaturate by blending with surface color
@@ -1681,7 +1747,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton.filled(
-                      icon: Icon(Icons.remove),
+                      icon: const Icon(Icons.remove),
                       onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
                     ),
                     Container(
@@ -1708,7 +1774,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
-                        SizedBox(width: kSpacingTiny),
+                        const SizedBox(width: kSpacingTiny),
                         Text(
                           strings.lowStockWarning(item.minQuantity),
                           style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),

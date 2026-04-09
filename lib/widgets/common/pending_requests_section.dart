@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../theme/app_theme.dart';
@@ -276,8 +277,8 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     } catch (e) {
       if (!mounted) return;
       final errorMsg = isApprove
-          ? AppStrings.pendingInvitesScreen.approveError(e.toString())
-          : AppStrings.pendingInvitesScreen.rejectError(e.toString());
+          ? AppStrings.pendingInvitesScreen.approveError(userFriendlyError(e, context: 'approve'))
+          : AppStrings.pendingInvitesScreen.rejectError(userFriendlyError(e, context: 'reject'));
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMsg)),
       );

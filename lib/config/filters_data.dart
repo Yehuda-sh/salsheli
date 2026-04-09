@@ -27,7 +27,7 @@ class CategoriesData {
   /// All categories data (key → info)
   static final Map<String, CategoryInfo> data = {
     'all': CategoryInfo(() => AppStrings.categories.all, '📋'),
-    'other': CategoryInfo(() => AppStrings.categories.other, '📦'),
+    'other': CategoryInfo(() => AppStrings.categories.other, '🏷️'),
     'dairy': CategoryInfo(() => AppStrings.categories.dairy, '🥛'),
     'vegetables': CategoryInfo(() => AppStrings.categories.vegetables, '🥬'),
     'fruits': CategoryInfo(() => AppStrings.categories.fruits, '🍎'),

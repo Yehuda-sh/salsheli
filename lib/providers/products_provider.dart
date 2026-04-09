@@ -49,6 +49,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import '../core/error_utils.dart';
 import '../repositories/local_products_repository.dart';
 import '../repositories/products_repository.dart';
 import 'user_context.dart';
@@ -251,7 +252,7 @@ class ProductsProvider with ChangeNotifier {
         unawaited(_loadAllInBackground());
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בטעינת מוצרים: $e';
+      _errorMessage = 'שגיאה בטעינת מוצרים: ${userFriendlyError(e, context: 'loadProducts')}';
       _notifySafe();
     } finally {
       _isLoading = false;
@@ -326,7 +327,7 @@ class ProductsProvider with ChangeNotifier {
         _hasLoadedAll = true;
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בטעינת מוצרים נוספים: $e';
+      _errorMessage = 'שגיאה בטעינת מוצרים נוספים: ${userFriendlyError(e, context: 'loadMoreProducts')}';
     } finally {
       _isLoadingMore = false;
       _notifySafe();
@@ -391,7 +392,7 @@ class ProductsProvider with ChangeNotifier {
       _lastUpdated = DateTime.now();
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'שגיאה ברענון מוצרים: $e';
+      _errorMessage = 'שגיאה ברענון מוצרים: ${userFriendlyError(e, context: 'refreshProducts')}';
       _notifySafe();
     } finally {
       _isRefreshing = false;
@@ -485,7 +486,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.getProductByBarcode(barcode);
     } catch (e) {
-      _errorMessage = 'שגיאה בחיפוש ברקוד: $e';
+      _errorMessage = 'שגיאה בחיפוש ברקוד: ${userFriendlyError(e, context: 'searchBarcode')}';
       _notifySafe();
       return null;
     }
@@ -541,7 +542,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.searchProducts(query);
     } catch (e) {
-      _errorMessage = 'שגיאה בחיפוש מוצרים: $e';
+      _errorMessage = 'שגיאה בחיפוש מוצרים: ${userFriendlyError(e, context: 'searchProducts')}';
       _notifySafe();
       return [];
     }
@@ -554,7 +555,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.getProductsByCategory(category);
     } catch (e) {
-      _errorMessage = 'שגיאה בטעינת קטגוריה: $e';
+      _errorMessage = 'שגיאה בטעינת קטגוריה: ${userFriendlyError(e, context: 'loadCategory')}';
       _notifySafe();
       return [];
     }

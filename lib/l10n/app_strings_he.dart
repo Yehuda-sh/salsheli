@@ -190,6 +190,8 @@ class AppStringsHe {
   // ========================================
   static const tutorial = TutorialStrings();
   static const legal = LegalStrings();
+  static const actionCenter = ActionCenterStrings();
+  static const onboardingTips = OnboardingTipsStrings();
 }
 
 // ========================================
@@ -298,6 +300,7 @@ class CommonStrings {
 
   String get logout => 'התנתק';
   String get cancel => 'ביטול';
+  String get moreOptions => 'אפשרויות נוספות';
   String get save => 'שמור';
   String get delete => 'מחק';
   String get edit => 'ערוך';
@@ -882,6 +885,7 @@ class SettingsStrings {
   String get enterNameError => 'נא להזין שם';
   String get profileUpdated => 'הפרופיל עודכן בהצלחה';
   String profileUpdateError(String error) => 'שגיאה בעדכון: $error';
+  String imageUploadCooldown(String timeRemaining) => 'ניתן להחליף תמונה שוב עוד $timeRemaining';
 
   // Debug/Misc
   String get loggingOut => 'מתנתק...';
@@ -1261,6 +1265,7 @@ class InventoryStrings {
   String get inPantryBadge => 'במזווה';
   String get customProductNotFound => 'לא מצאת? הוסף מוצר חדש';
   String get allCategoriesFilter => 'הכל';
+  String get basicsCategoryFilter => 'מוצרי יסוד';
   String get tapToAddToPantry => 'לחץ להוספה למזווה';
   String get productFallbackName => 'מוצר';
   String get categoryFallbackName => 'אחר';
@@ -1271,6 +1276,17 @@ class InventoryStrings {
   String pantryMergeContent(int count) =>
       'יש לך $count מוצרים במזווה האישי.\n\nתרצה להעביר אותם למזווה של הבית החדש?';
   String get pantryMergeButton => 'העבר למזווה הבית';
+
+  // Quick Scan to decrement stock
+  String get quickScanTooltip => 'סרוק להורדת מלאי';
+  String get quickScanTitle => 'סריקה מהירה';
+  String quickScanDecremented(String name, int remaining) =>
+      '$name — נשארו $remaining';
+  String quickScanOutOfStock(String name) =>
+      '$name נגמר! רוצה להוסיף לרשימת קניות?';
+  String get quickScanNotInPantry => 'המוצר לא נמצא במזווה';
+  String get quickScanAddToList => 'הוסף לרשימה';
+  String get quickScanUndo => 'בטל';
 }
 
 // ========================================
@@ -1623,6 +1639,7 @@ class SuggestionsTodayCardStrings {
   String inStock(int stock, String unit) => 'במלאי: $stock $unit';
   String get addButton => 'הוסף';
   String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
+  String get chooseListTitle => 'לאיזו רשימה להוסיף?';
   String get addedToList => 'נוסף לרשימה';
   String addedToListName(String productName) => 'נוסף "$productName" לרשימה';
   String dismissedForWeek(String productName) => 'דחיתי "$productName" לשבוע';
@@ -1809,6 +1826,7 @@ class PantryStrings {
   String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';
+  String get starterSearchQuery => 'חלב ביצים לחם שמן סוכר קמח אורז';
   String get suggestionsTitle => 'כדאי שיהיה בבית';
   String get hideSuggestions => 'הסתר';
   String itemDeleted(String name) => '$name נמחק';
@@ -2080,4 +2098,40 @@ MemoZap מאפשרת ניהול רשימות קניות משותפות, מעקב
 
 9. יצירת קשר
 לשאלות בנושא פרטיות: memozap.app@gmail.com''';
+}
+
+// ========================================
+// Action Center Strings
+// ========================================
+
+// ========================================
+// Onboarding Tips Strings
+// ========================================
+
+class OnboardingTipsStrings {
+  const OnboardingTipsStrings();
+
+  String get fillPantryTitle => 'מלא את המזווה שלך';
+  String get fillPantrySubtitle => 'ספר לנו מה יש לך בבית — נתריע כשמשהו נגמר';
+  String get fillPantryAction => 'התחל';
+
+  String get inviteFamilyTitle => 'הזמן את המשפחה';
+  String get inviteFamilySubtitle => 'שתף רשימות קניות — תקנו יחד בזמן אמת';
+  String get inviteFamilyAction => 'הזמן';
+
+  String get createListsTitle => 'צור עוד רשימות';
+  String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
+  String get createListsAction => 'צור';
+}
+
+class ActionCenterStrings {
+  const ActionCenterStrings();
+
+  String get title => 'דורש טיפול';
+  String pendingRequests(int count) => '$count בקשות ממתינות';
+  String get review => 'צפה';
+  String get overdueList => 'רשימה באיחור!';
+  String get startShopping => 'התחל';
+  String criticalStock(int count) => '$count מוצרים נגמרו';
+  String get goToPantry => 'מזווה';
 }

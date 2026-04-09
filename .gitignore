@@ -112,6 +112,7 @@ scripts/firebase-service-account.json
 serviceAccountKey.json
 firebase-service-account.json
 emulator-data/
+functions/firebase-debug.log
 
 # ----------------------------
 # Certificates / profiles

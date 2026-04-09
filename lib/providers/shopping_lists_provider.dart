@@ -53,6 +53,7 @@ import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/constants.dart';
+import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
 import '../services/analytics_service.dart';
 import '../services/activity_log_service.dart';
@@ -305,7 +306,7 @@ class ShoppingListsProvider with ChangeNotifier {
         unawaited(cleanupAbandonedSessions());
       }
     } catch (e) {
-      _errorMessage = e.toString();
+      _errorMessage = userFriendlyError(e, context: 'loadLists');
       _notifySafe(); // ← עדכון UI מיידי על שגיאה
     } finally {
       _isLoading = false;
@@ -431,6 +432,7 @@ class ShoppingListsProvider with ChangeNotifier {
               role: contact.role.name,
               userName: contact.name,
               userEmail: contact.email,
+              userAvatar: contact.avatar,
             );
           }
         }
@@ -455,7 +457,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
       return newList;
     } catch (e) {
-      _errorMessage = 'שגיאה ביצירת רשימה "$name": ${e.toString()}';
+      _errorMessage = 'שגיאה ביצירת רשימה "$name": ${userFriendlyError(e, context: 'createList')}';
       _notifySafe();
       rethrow;
     }
@@ -484,7 +486,7 @@ class ShoppingListsProvider with ChangeNotifier {
       await _repository.deleteList(id, userId, householdId, isPrivate);
       // Stream listener handles UI update
     } catch (e) {
-      _errorMessage = 'שגיאה במחיקת רשימה $id: ${e.toString()}';
+      _errorMessage = 'שגיאה במחיקת רשימה $id: ${userFriendlyError(e, context: 'deleteList')}';
       _notifySafe();
       rethrow;
     }
@@ -526,7 +528,7 @@ class ShoppingListsProvider with ChangeNotifier {
       await _repository.saveList(updated, userId, householdId);
       // Stream listener handles UI update
     } catch (e) {
-      _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${e.toString()}';
+      _errorMessage = 'שגיאה בעדכון רשימה ${updated.id}: ${userFriendlyError(e, context: 'updateList')}';
       _notifySafe();
       rethrow;
     }
@@ -557,7 +559,7 @@ class ShoppingListsProvider with ChangeNotifier {
       await _repository.shareListToHousehold(listId, userId, householdId);
       // Stream listener handles UI update
     } catch (e) {
-      _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${e.toString()}';
+      _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${userFriendlyError(e, context: 'shareList')}';
       _notifySafe();
       rethrow;
     }
@@ -861,7 +863,7 @@ class ShoppingListsProvider with ChangeNotifier {
         await updateList(updatedList);
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בהוספת פריטים לרשימה הבאה: ${e.toString()}';
+      _errorMessage = 'שגיאה בהוספת פריטים לרשימה הבאה: ${userFriendlyError(e, context: 'addItemsToNextList')}';
       _notifySafe();
       rethrow;
     }
@@ -914,7 +916,7 @@ class ShoppingListsProvider with ChangeNotifier {
         ));
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בהתחלת קנייה: ${e.toString()}';
+      _errorMessage = 'שגיאה בהתחלת קנייה: ${userFriendlyError(e, context: 'startShopping')}';
       _notifySafe();
       rethrow;
     }
@@ -968,7 +970,7 @@ class ShoppingListsProvider with ChangeNotifier {
         ));
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בהצטרפות לקנייה: ${e.toString()}';
+      _errorMessage = 'שגיאה בהצטרפות לקנייה: ${userFriendlyError(e, context: 'joinShopping')}';
       _notifySafe();
       rethrow;
     }
@@ -1004,7 +1006,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
       await updateList(updatedList);
     } catch (e) {
-      _errorMessage = 'שגיאה ביציאה מקנייה: ${e.toString()}';
+      _errorMessage = 'שגיאה ביציאה מקנייה: ${userFriendlyError(e, context: 'leaveShopping')}';
       _notifySafe();
       rethrow;
     }
@@ -1050,7 +1052,7 @@ class ShoppingListsProvider with ChangeNotifier {
         isCollaborative: isCollaborative,
       ));
     } catch (e) {
-      _errorMessage = 'שגיאה בסימון פריט: ${e.toString()}';
+      _errorMessage = 'שגיאה בסימון פריט: ${userFriendlyError(e, context: 'toggleItem')}';
       _notifySafe();
       rethrow;
     }
@@ -1113,7 +1115,7 @@ class ShoppingListsProvider with ChangeNotifier {
       });
 
     } catch (e) {
-      _errorMessage = 'שגיאה בעדכון סטטוס פריט: ${e.toString()}';
+      _errorMessage = 'שגיאה בעדכון סטטוס פריט: ${userFriendlyError(e, context: 'updateItemStatus')}';
       _notifySafe();
       rethrow;
     }
@@ -1188,7 +1190,7 @@ class ShoppingListsProvider with ChangeNotifier {
 
       await updateList(updatedList);
     } catch (e) {
-      _errorMessage = 'שגיאה בסיום קנייה: ${e.toString()}';
+      _errorMessage = 'שגיאה בסיום קנייה: ${userFriendlyError(e, context: 'finishShopping')}';
       _notifySafe();
       rethrow;
     }
@@ -1227,7 +1229,7 @@ class ShoppingListsProvider with ChangeNotifier {
       }
 
     } catch (e) {
-      _errorMessage = 'שגיאה בניקוי sessions: ${e.toString()}';
+      _errorMessage = 'שגיאה בניקוי sessions: ${userFriendlyError(e, context: 'cleanupSessions')}';
       _notifySafe();
       rethrow;
     }

@@ -1,11 +1,14 @@
 {
   // 🌍 Disable spell check for Hebrew text
-  // מכבה בדיקת איות למילים בעברית בהערות
   "cSpell.enabled": false,
 
   // 🎨 Flutter/Dart specific settings
-  "dart.lineLength": 120,
-  "editor.rulers": [120],
+  "dart.lineLength": 80,
+  "dart.closingLabels": true,
+  "dart.previewFlutterUiGuides": true,
+  "editor.rulers": [80],
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
 
   // 📝 Auto format on save
   "editor.formatOnSave": true,
@@ -34,7 +37,7 @@
   "[dart]": {
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "editor.rulers": [120],
+    "editor.rulers": [80],
     "editor.selectionHighlight": false,
     "editor.suggest.snippetsPreventQuickSuggestions": false,
     "editor.suggestSelection": "first",

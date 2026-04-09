@@ -1,7 +1,7 @@
 # 📋 תוכנית מלאה — MemoZap: מקוד לחנות
 
 > נוצר: 8 מרץ 2026
-> עודכן: 16 מרץ 2026
+> עודכן: 27 מרץ 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
 
 ---
@@ -18,7 +18,7 @@
 | 6 | Push Notifications (FCM) | ⬜ טרם התחיל |
 | 6.5 | ניהול משפחה מלא | ✅ הושלם |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
-| 8 | בדיקות | ✅ הושלם (335 tests) |
+| 8 | בדיקות | ✅ הושלם (420 tests) |
 | 9 | i18n + נגישות | 🟡 חלקי (~85% extracted) |
 | 10 | השקה | ⬜ טרם התחיל |
 
@@ -99,7 +99,7 @@
 - [x] Privacy policy + Terms (Hebrew)
 - [x] Demo data — **12 users** in production Firebase (all edge cases)
 - [x] Store listing draft
-- [x] Firestore security rules v4.2 — 4 security fixes deployed
+- [x] Firestore security rules v4.4 — security fixes deployed
 
 ### נשאר
 - [ ] 🔑 Release keystore (needs Windows — יהודה)
@@ -173,11 +173,10 @@
 # 📍 Phase 8 — בדיקות ✅
 > הושלם 15 מרץ 2026
 
-- [x] **335 unit tests passing** — models, services, providers, performance
-- [x] 3 demo personas (FamilyShopper, HeavyOrganizer, UnstableConnection)
+- [x] **420 unit tests passing** — models, services, providers, performance
 - [x] Hand-written mocks (no mockito)
 - [x] E2E test guide: `docs/E2E_TEST_GUIDE.md`
-- [x] **12 demo users** covering all edge cases
+- [x] **16 demo users** covering all edge cases (including Google/Apple/English/special chars)
 - [ ] Widget tests (0) — post-launch
 - [ ] Integration tests (0) — post-launch
 
@@ -236,12 +235,12 @@
 - **Package name:** `com.memozap.app`
 - **Proxy pattern for i18n** — 0 changes at 724+ call sites
 - **`@JsonKey(defaultValue: '')` over nullable** — non-nullable models
-- **Hand-written mocks** — no mockito dependency
+- **Hand-written mocks** — mockito removed from dev_dependencies
 - **supermarket.json cleaned** — 7,250 items, 29 categories, no duplicates
-- **Firestore rules v4.2** — 4 security fixes deployed
+- **Firestore rules v4.4** — security fixes deployed
 - **Single-class large files deferred** — post-launch
 - **FCM push not required for launch** — in-app notifications work
-- **12 demo users** — including fresh user for empty states
+- **16 demo users** — including Google/Apple sign-in, English user, special chars
 - **Onboarding removed** — -3,258 lines, welcome screen still works via seenOnboarding
 
 ---

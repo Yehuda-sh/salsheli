@@ -186,7 +186,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 children: [
                   Icon(
                     Icons.tune,
-                    size: kIconSizeSmall + 2,
+                    size: kIconSizeSmallPlus,
                     color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: kSpacingTiny),
@@ -265,7 +265,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
           ),
           if (isActive)
-            Icon(Icons.check_circle, size: kIconSizeSmall + 2, color: cs.primary),
+            Icon(Icons.check_circle, size: kIconSizeSmallPlus, color: cs.primary),
         ],
       ),
     );
@@ -464,7 +464,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         Navigator.pop(context);
       },
       backgroundColor: cs.onPrimary,
-      selectedColor: kStickyCyan,
+      selectedColor: Theme.of(context).extension<AppBrand>()?.stickyCyan ?? kStickyCyan,
     );
   }
 
@@ -589,7 +589,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
           // כפתור ניקוי
           IconButton(
-            icon: const Icon(Icons.close, size: kIconSizeSmall + 2),
+            icon: const Icon(Icons.close, size: kIconSizeSmallPlus),
             onPressed: _clearAllFilters,
             tooltip: AppStrings.shopping.clearFilterLabel,
             visualDensity: VisualDensity.compact,
@@ -787,7 +787,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             const SizedBox(height: kSpacingMedium),
             Center(
               child: StickyButtonSmall(
-                color: kStickyCyan,
+                color: Theme.of(context).extension<AppBrand>()?.stickyCyan ?? kStickyCyan,
                 label: AppStrings.shopping.loadMoreLists(completedLists.length - _currentHistoryLimit),
                 icon: Icons.expand_more,
                 onPressed: () {
@@ -811,11 +811,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 🔧 FIX: הוספת פרמטרים subtitle ו-isActive (במקום title.contains שנשבר עם AppStrings)
   Widget _buildSectionHeader(String title, int count, {String? subtitle, bool isActive = true}) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     // 🔧 FIX: צבע highlighter לפי פרמטר isActive (לא לפי תוכן הכותרת!)
     final highlightColor = isActive
-        ? kStickyCyan.withValues(alpha: kHighlightOpacity)
-        : kStickyGreen.withValues(alpha: kHighlightOpacity);
+        ? (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kHighlightOpacity)
+        : (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: kHighlightOpacity);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
@@ -913,7 +914,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(AppStrings.shopping.viewerCannotShop),
-                          backgroundColor: kStickyOrange,
+                          backgroundColor: Theme.of(context).extension<AppBrand>()?.stickyOrange ?? kStickyOrange,
                         ),
                       );
                       return;
@@ -957,6 +958,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// ⚠️ עטוף ב-SingleChildScrollView לתמיכה ב-Pull-to-Refresh
   Widget _buildErrorState(ShoppingListsProvider provider) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     return Center(
       child: SingleChildScrollView(
@@ -994,7 +996,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             const SizedBox(height: kSpacingLarge),
             StickyButton(
-              color: kStickyPink,
+              color: brand?.stickyPink ?? kStickyPink,
               label: AppStrings.shopping.tryAgainButton,
               icon: Icons.refresh,
               onPressed: () {
@@ -1015,6 +1017,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// ⚠️ עטוף ב-SingleChildScrollView לתמיכה ב-Pull-to-Refresh
   Widget _buildEmptySearchResults() {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     return Center(
       child: SingleChildScrollView(
@@ -1061,7 +1064,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             Text(AppStrings.shopping.noListsFoundSubtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(
-              color: kStickyGreen,
+              color: brand?.stickyGreen ?? kStickyGreen,
               label: AppStrings.shopping.clearFilterLabel,
               icon: Icons.clear_all,
               onPressed: _clearAllFilters,
@@ -1075,6 +1078,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 📋 מצב ריק – אין רשימות להצגה
   Widget _buildEmptyState() {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     return Center(
       child: SingleChildScrollView(
@@ -1148,7 +1152,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             const SizedBox(height: kSpacingXLarge),
             StickyButton(
-              color: kStickyYellow,
+              color: brand?.stickyYellow ?? kStickyYellow,
               label: AppStrings.shopping.createNewListButton,
               icon: Icons.add,
               onPressed: () {

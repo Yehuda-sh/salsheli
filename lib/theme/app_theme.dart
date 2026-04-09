@@ -252,8 +252,8 @@ class AppTheme {
       stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
       stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
       stickyOrange: dark ? kStickyOrangeDark : kStickyOrange,
-      notebookBlue: kNotebookBlue,
-      notebookRed: kNotebookRed,
+      notebookBlue: dark ? kNotebookBlueDark : kNotebookBlue,
+      notebookRed: dark ? kNotebookRedDark : kNotebookRed,
     );
 
     return _base(dynamicScheme, dark: dark, customBrand: brand);
@@ -331,8 +331,8 @@ class AppTheme {
           stickyCyan: dark ? kStickyCyanDark : kStickyCyan,
           stickyPurple: dark ? kStickyPurpleDark : kStickyPurple,
           stickyOrange: dark ? kStickyOrangeDark : kStickyOrange,
-          notebookBlue: kNotebookBlue,
-          notebookRed: kNotebookRed,
+          notebookBlue: dark ? kNotebookBlueDark : kNotebookBlue,
+          notebookRed: dark ? kNotebookRedDark : kNotebookRed,
         );
 
     // צבע טקסט על accent (Amber) - לפי בהירות הסכמה

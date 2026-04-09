@@ -324,6 +324,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// 🔄 ניסיון חוזר לסנכרון כל הפריטים שנכשלו
   Future<void> _retrySyncAll() async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     // ✅ Cache before async
     final messenger = ScaffoldMessenger.of(context);
@@ -349,12 +350,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
+                Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
                 const SizedBox(width: kSpacingSmall),
                 Text(AppStrings.shopping.syncSuccess),
               ],
             ),
-            backgroundColor: kStickyGreen,
+            backgroundColor: brand?.stickyGreen ?? kStickyGreen,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -364,6 +365,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// 📷 סריקת ברקוד — חיפוש מוצר ב-DB והוספה/סימון
   Future<void> _scanBarcode() async {
+    final brand = Theme.of(context).extension<AppBrand>();
     final result = await showModalBottomSheet<BarcodeScanResult>(
       context: context,
       isScrollControlled: true,
@@ -393,7 +395,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       _updateItemStatus(existingItem, ShoppingItemStatus.purchased);
       messenger.showSnackBar(SnackBar(
         content: Text(existingItem.name),
-        backgroundColor: kStickyGreen,
+        backgroundColor: brand?.stickyGreen ?? kStickyGreen,
         duration: const Duration(seconds: 2),
       ));
       return;
@@ -436,7 +438,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _updateItemStatus(newItem, ShoppingItemStatus.purchased);
         messenger.showSnackBar(SnackBar(
           content: Text(newItem.name),
-          backgroundColor: kStickyGreen,
+          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
           duration: const Duration(seconds: 2),
         ));
       }
@@ -522,6 +524,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     String? storeName,
   }) async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     // ✅ תפוס context לפני await
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
@@ -707,7 +710,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 Expanded(child: Text(message)),
               ],
             ),
-            backgroundColor: kStickyGreen,
+            backgroundColor: brand?.stickyGreen ?? kStickyGreen,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 3),
           ),
@@ -778,12 +781,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_isLoading) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -809,12 +824,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (_errorMessage != null) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -840,12 +867,24 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (widget.list.items.isEmpty) {
       return Stack(
         children: [
-          NotebookBackground(),
+          const NotebookBackground(),
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
+              // 🧊 Glass blur effect
+              flexibleSpace: ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(
+                    sigmaX: kGlassBlurSigma,
+                    sigmaY: kGlassBlurSigma,
+                  ),
+                  child: Container(
+                    color: cs.surface.withValues(alpha: 0.7),
+                  ),
+                ),
+              ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -929,6 +968,18 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            // 🧊 Glass blur effect
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: kGlassBlurSigma,
+                  sigmaY: kGlassBlurSigma,
+                ),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -968,7 +1019,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         }),
                         if (widget.list.currentShoppers.length > 4)
                           Padding(
-                            padding: const EdgeInsets.only(right: 4),
+                            padding: const EdgeInsets.only(right: kSpacingXTiny),
                             child: Text(
                               '+${widget.list.currentShoppers.length - 4}',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -1009,19 +1060,19 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               // 🏁 כפתור סיום קנייה — מושבת עד אינטראקציה ראשונה
               if (!_isSaving)
                 Padding(
-                  padding: const EdgeInsets.only(left: 4),
+                  padding: const EdgeInsets.only(left: kSpacingXTiny),
                   child: TextButton.icon(
                     onPressed: _hasUserInteracted ? _finishShopping : null,
                     style: TextButton.styleFrom(
-                      backgroundColor: kStickyGreen.withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
-                      foregroundColor: _hasUserInteracted ? kStickyGreen : kStickyGreen.withValues(alpha: 0.4),
+                      backgroundColor: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
+                      foregroundColor: _hasUserInteracted ? (brand?.stickyGreen ?? kStickyGreen) : (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.4),
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
                       minimumSize: const Size(0, 32),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                     ),
-                    icon: const Icon(Icons.check, size: kIconSizeSmall + 2),
+                    icon: const Icon(Icons.check, size: kIconSizeSmallPlus),
                     label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                 )
@@ -1056,7 +1107,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               if (purchased > 0)
                                 Expanded(
                                   flex: purchased,
-                                  child: Container(color: kStickyGreen),
+                                  child: Container(color: brand?.stickyGreen ?? kStickyGreen),
                                 ),
                               if (outOfStock > 0)
                                 Expanded(
@@ -1082,7 +1133,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.check_circle, color: kStickyGreen, size: kFontSizeMedium),
+                          Icon(Icons.check_circle, color: brand?.stickyGreen ?? kStickyGreen, size: kFontSizeMedium),
                           const SizedBox(width: 2),
                           Text('$purchased/$total', style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant, fontWeight: FontWeight.bold)),
                           if (outOfStock > 0) ...[
@@ -1143,7 +1194,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               vertical: kSpacingXTiny,
                             ),
                             decoration: BoxDecoration(
-                              color: kStickyCyan.withValues(alpha: kHighlightOpacity),
+                              color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kHighlightOpacity),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Row(
@@ -1152,7 +1203,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                   FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)),
                                   style: TextStyle(fontSize: kFontSizeLarge),
                                 ),
-                                SizedBox(width: kSpacingSmall),
+                                const SizedBox(width: kSpacingSmall),
                                 Expanded(
                                   child: Text(
                                     category,
@@ -1182,7 +1233,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: kSpacingXTiny),
+                                const SizedBox(width: kSpacingXTiny),
                                 // ▼/▲ חץ קיפול
                                 AnimatedRotation(
                                   turns: _collapsedCategories.contains(category) ? 0.5 : 0.0,

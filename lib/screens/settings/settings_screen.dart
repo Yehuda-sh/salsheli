@@ -35,6 +35,7 @@
 // Last Updated: 24/03/2026
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -49,6 +50,7 @@ import '../../l10n/app_strings.dart';
 import '../../l10n/locale_manager.dart';
 import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
+import '../../services/image_upload_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/common/app_error_state.dart';
@@ -56,6 +58,7 @@ import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/common/skeleton_loader.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
 
@@ -621,8 +624,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   const SizedBox(height: kSpacingSmall),
                   Text(
                     successText!,
-                    style: const TextStyle(
-                      color: kStickyGreen,
+                    style: TextStyle(
+                      color: Theme.of(ctx).extension<AppBrand>()?.stickyGreen ?? kStickyGreen,
                       fontSize: kFontSizeSmall,
                     ),
                   ),
@@ -734,9 +737,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     final userContext = context.read<UserContext>();
     final currentName = userContext.user?.name ?? '';
     final currentAvatar = userContext.user?.profileImageUrl ?? '👤';
+    final hasRealImage = currentAvatar.startsWith('http');
 
     final nameController = TextEditingController(text: currentName);
     String selectedAvatar = _avatarOptions.contains(currentAvatar) ? currentAvatar : '👤';
+    String? pendingImageUrl; // URL חדש מ-upload
+    bool isUploading = false;
     bool isSaving = false;
 
     // שומרים הפניות לפני פתיחת ה-bottom sheet (נמנע מבעיות async context)
@@ -789,13 +795,90 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                   const SizedBox(height: kSpacingLarge),
 
-                  // בחירת אווטאר
+                  // תמונת פרופיל — upload או emoji (cooldown 24 שעות)
+                  Center(
+                    child: GestureDetector(
+                      onTap: isUploading ? null : () async {
+                        final imageService = ImageUploadService();
+
+                        // בדיקת cooldown לפני פתיחת gallery
+                        final cooldown = await imageService.getCooldownRemaining();
+                        if (cooldown != null) {
+                          final hours = cooldown.inHours;
+                          final minutes = cooldown.inMinutes % 60;
+                          final timeStr = hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text(AppStrings.settings.imageUploadCooldown(timeStr))),
+                          );
+                          return;
+                        }
+
+                        final picked = await imageService.pickImage();
+                        if (picked == null) return;
+
+                        setBottomSheetState(() => isUploading = true);
+                        try {
+                          final userId = userContext.user?.id;
+                          if (userId == null) return;
+                          final url = await imageService.uploadProfileImage(userId, File(picked.path));
+                          setBottomSheetState(() {
+                            pendingImageUrl = url;
+                            isUploading = false;
+                          });
+                        } catch (e) {
+                          setBottomSheetState(() => isUploading = false);
+                          scaffoldMessenger.showSnackBar(
+                            SnackBar(content: Text(userFriendlyError(e, context: 'uploadImage'))),
+                          );
+                        }
+                      },
+                      child: Stack(
+                        children: [
+                          // Avatar circle
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: cs.surfaceContainerHighest,
+                              border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 2),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: isUploading
+                                ? Center(child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary))
+                                : pendingImageUrl != null
+                                    ? Image.network(pendingImageUrl!, fit: BoxFit.cover, width: 80, height: 80)
+                                    : hasRealImage
+                                        ? Image.network(currentAvatar, fit: BoxFit.cover, width: 80, height: 80,
+                                            errorBuilder: (_, _, _) => Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))))
+                                        : Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))),
+                          ),
+                          // Camera badge
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(kSpacingXTiny),
+                              decoration: BoxDecoration(
+                                color: cs.primary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.camera_alt, size: kIconSizeSmall, color: cs.onPrimary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: kSpacingSmallPlus),
+
+                  // בחירת אימוג'י (fallback)
                   Text(
                     AppStrings.settings.chooseAvatar,
                     style: TextStyle(
-                      fontSize: kFontSizeBody,
+                      fontSize: kFontSizeSmall,
                       fontWeight: FontWeight.w600,
-                      color: cs.onSurface,
+                      color: cs.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
@@ -889,6 +972,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               await userContext.updateUserProfile(
                                 name: newName,
                                 avatar: selectedAvatar,
+                                profileImageUrl: pendingImageUrl,
                               );
 
                               if (mounted) {
@@ -1066,15 +1150,25 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           child: CircleAvatar(
                             radius: 40,
                             backgroundColor: cs.surface,
-                            child: _avatarOptions.contains(userContext.user?.profileImageUrl)
-                                ? Text(
-                                    userContext.user!.profileImageUrl!,
-                                    style: const TextStyle(fontSize: kFontSizeDisplay),
-                                  )
-                                : Text(
-                                    userName.isNotEmpty ? userName[0] : '?',
-                                    style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
-                                  ),
+                            backgroundImage: userContext.profileImageUrl != null &&
+                                    userContext.profileImageUrl!.startsWith('http')
+                                ? NetworkImage(userContext.profileImageUrl!)
+                                : null,
+                            onBackgroundImageError: userContext.profileImageUrl != null
+                                ? (_, _) {} // silent fallback
+                                : null,
+                            child: userContext.profileImageUrl != null &&
+                                    userContext.profileImageUrl!.startsWith('http')
+                                ? null // image handles display
+                                : _avatarOptions.contains(userContext.user?.profileImageUrl)
+                                    ? Text(
+                                        userContext.user!.profileImageUrl!,
+                                        style: const TextStyle(fontSize: kFontSizeDisplay),
+                                      )
+                                    : Text(
+                                        userName.isNotEmpty ? userName[0] : '?',
+                                        style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
+                                      ),
                           ),
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
@@ -1258,7 +1352,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         const SizedBox(height: kSpacingSmall),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.people_outline),
+                          leading: const Icon(Icons.people_outline),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: _forwardChevron(),
@@ -1272,7 +1366,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: Icon(Icons.person_add_outlined),
+                          leading: const Icon(Icons.person_add_outlined),
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
                           trailing: _forwardChevron(),

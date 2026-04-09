@@ -19,8 +19,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../models/shopping_list.dart';
@@ -65,17 +67,18 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);
           final navigator = Navigator.of(context);
+          final brand = Theme.of(context).extension<AppBrand>();
 
           messenger.showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.block, color: kStickyPink),
+                  Icon(Icons.block, color: brand?.stickyPink ?? kStickyPink),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(child: Text(AppStrings.sharing.noPermissionViewRequests)),
                 ],
               ),
-              backgroundColor: kStickyPink,
+              backgroundColor: brand?.stickyPink ?? kStickyPink,
             ),
           );
 
@@ -100,6 +103,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     // Capture before async
     final messenger = ScaffoldMessenger.of(context);
     final strings = AppStrings.sharing;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     setState(() => _processingRequestId = request.id);
 
@@ -121,7 +125,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle, color: kStickyGreen),
+              Icon(Icons.check_circle, color: brand?.stickyGreen ?? kStickyGreen),
               const SizedBox(width: kSpacingSmall),
               Expanded(child: Text(strings.requestApprovedSuccess)),
             ],
@@ -137,9 +141,9 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error, color: kStickyPink),
+              Icon(Icons.error, color: brand?.stickyPink ?? kStickyPink),
               const SizedBox(width: kSpacingSmall),
-              Expanded(child: Text('${strings.requestApprovedError}: $e')),
+              Expanded(child: Text('${strings.requestApprovedError}: ${userFriendlyError(e, context: 'approveRequest')}')),
             ],
           ),
         ),
@@ -157,6 +161,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     // Capture before async
     final messenger = ScaffoldMessenger.of(context);
     final strings = AppStrings.sharing;
+    final brand = Theme.of(context).extension<AppBrand>();
     final userContext = Provider.of<UserContext>(context, listen: false);
     final notificationsService = context.read<NotificationsService>();
     final rejecterName = userContext.displayName ?? strings.roleAdmin;
@@ -182,7 +187,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.cancel, color: kStickyOrange),
+              Icon(Icons.cancel, color: brand?.stickyOrange ?? kStickyOrange),
               const SizedBox(width: kSpacingSmall),
               Expanded(child: Text(strings.requestRejectedSuccess)),
             ],
@@ -198,9 +203,9 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.error, color: kStickyPink),
+              Icon(Icons.error, color: brand?.stickyPink ?? kStickyPink),
               const SizedBox(width: kSpacingSmall),
-              Expanded(child: Text('${strings.requestRejectedError}: $e')),
+              Expanded(child: Text('${strings.requestRejectedError}: ${userFriendlyError(e, context: 'rejectRequest')}')),
             ],
           ),
         ),
@@ -240,7 +245,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(strings.cancelButton)),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(controller.text),
-              style: ElevatedButton.styleFrom(backgroundColor: kStickyPink),
+              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).extension<AppBrand>()?.stickyPink ?? kStickyPink),
               child: Text(strings.rejectButton),
             ),
           ],
@@ -374,15 +379,15 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 color: cs.primaryContainer.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.inbox_outlined, size: 64, color: cs.primary),
+              child: Icon(Icons.inbox_outlined, size: kIconSizeXXLarge, color: cs.primary),
             ),
-            SizedBox(height: kSpacingLarge),
+            const SizedBox(height: kSpacingLarge),
             Text(
               strings.noPendingRequests,
               style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
             Text(
               strings.noPendingRequestsSubtitle,
               style: TextStyle(color: cs.onSurfaceVariant),
@@ -390,7 +395,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             ),
             const SizedBox(height: kSpacingLarge),
             StickyButtonSmall(
-              color: kStickyGreen,
+              color: Theme.of(context).extension<AppBrand>()?.stickyGreen ?? kStickyGreen,
               label: strings.backButton,
               icon: Icons.arrow_back,
               onPressed: () => Navigator.pop(context),
@@ -403,8 +408,9 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
   Widget _buildRequestCard(PendingRequest request, int index) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     // Alternate colors for visual variety
-    final colors = [kStickyCyan, kStickyYellow, kStickyPink, kStickyGreen, kStickyPurple];
+    final colors = [brand?.stickyCyan ?? kStickyCyan, brand?.stickyYellow ?? kStickyYellow, brand?.stickyPink ?? kStickyPink, brand?.stickyGreen ?? kStickyGreen, brand?.stickyPurple ?? kStickyPurple];
     final color = colors[index % colors.length];
 
     // Alternate rotation for sticky note effect
@@ -443,8 +449,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icon, size: 14, color: isUnknownType ? cs.tertiary : null),
-                      SizedBox(width: 4),
+                      Icon(icon, size: kFontSizeMedium, color: isUnknownType ? cs.tertiary : null),
+                      const SizedBox(width: kSpacingXTiny),
                       Text(typeLabel, style: TextStyle(
                         fontSize: kFontSizeSmall,
                         fontWeight: FontWeight.w600,
@@ -477,24 +483,24 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 ],
               ],
             ),
-            SizedBox(height: kSpacingSmall),
+            const SizedBox(height: kSpacingSmall),
 
             // Requester info
             Row(
               children: [
-                Icon(Icons.person, size: 16, color: cs.outline),
-                SizedBox(width: 4),
+                Icon(Icons.person, size: kIconSizeSmall, color: cs.outline),
+                const SizedBox(width: kSpacingXTiny),
                 Text(requesterName, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
-                SizedBox(width: kSpacingSmall),
-                Icon(Icons.access_time, size: 16, color: cs.outline),
-                SizedBox(width: 4),
+                const SizedBox(width: kSpacingSmall),
+                Icon(Icons.access_time, size: kIconSizeSmall, color: cs.outline),
+                const SizedBox(width: kSpacingXTiny),
                 Text(timeAgo, style: TextStyle(fontSize: kFontSizeSmall, color: cs.outline)),
               ],
             ),
 
             // 🆕 אזהרה עבור unknown
             if (isUnknownType) ...[
-              SizedBox(height: kSpacingSmall),
+              const SizedBox(height: kSpacingSmall),
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
@@ -504,8 +510,8 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, size: 16, color: cs.tertiary),
-                    SizedBox(width: kSpacingSmall),
+                    Icon(Icons.warning_amber, size: kIconSizeSmall, color: cs.tertiary),
+                    const SizedBox(width: kSpacingSmall),
                     Expanded(
                       child: Text(
                         AppStrings.sharing.unknownRequestWarning,
@@ -527,7 +533,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Expanded(
                   child: StickyButton(
                     label: AppStrings.sharing.approveButton,
-                    color: kStickyGreen,
+                    color: brand?.stickyGreen ?? kStickyGreen,
                     // 🆕 מושבת אם processing או unknown
                     onPressed: (_processingRequestId != null || isUnknownType)
                         ? null
@@ -541,7 +547,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Expanded(
                   child: StickyButton(
                     label: AppStrings.sharing.rejectButton,
-                    color: kStickyPink,
+                    color: brand?.stickyPink ?? kStickyPink,
                     // 🆕 מושבת אם processing או unknown
                     onPressed: (_processingRequestId != null || isUnknownType)
                         ? null
@@ -555,7 +561,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             // Processing indicator
             if (_processingRequestId == request.id) ...[
               const SizedBox(height: kSpacingSmall),
-              const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))),
+              const Center(child: SizedBox(width: kIconSizeSmallPlus, height: kIconSizeSmallPlus, child: CircularProgressIndicator(strokeWidth: 2))),
             ],
           ],
         ),

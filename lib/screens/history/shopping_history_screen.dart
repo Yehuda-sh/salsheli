@@ -37,6 +37,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../home/dashboard/widgets/household_activity_feed.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית
@@ -455,6 +456,14 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
 
                   const SizedBox(height: kSpacingSmall),
 
+                  // 📰 פיד פעילות הבית
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                    child: RepaintBoundary(
+                      child: HouseholdActivityFeed(showSeeAll: false),
+                    ),
+                  ),
+
                   // 📋 רשימת קבלות
                   Expanded(
                     child: receipts.isEmpty
@@ -820,17 +829,19 @@ class _ReceiptTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: kSpacingSmall),
-          // שם פריט
+          // שם פריט — פונט קטן יותר + 2 שורות
           Expanded(
             child: Text(
               item.name ?? '?',
               style: TextStyle(
+                fontSize: kFontSizeSmall,
                 decoration:
                     item.isChecked ? TextDecoration.lineThrough : null,
                 color: item.isChecked
                     ? cs.onSurface.withValues(alpha: 0.5)
                     : cs.onSurface,
               ),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ),

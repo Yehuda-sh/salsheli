@@ -31,6 +31,7 @@ import 'package:provider/provider.dart';
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/inventory_provider.dart';
+import '../providers/user_context.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -93,22 +94,11 @@ class _AppLayoutState extends State<AppLayout> {
                 ),
               ),
               const SizedBox(height: kSpacingSmall),
-              // הזמנות לקבוצות
+              // הזמנות ממתינות (קבוצות + רשימות באותו מסך)
               ListTile(
-                leading: Icon(Icons.family_restroom, color: cs.primary),
-                title: Text(AppStrings.layout.groupInvites),
+                leading: Icon(Icons.mail_outlined, color: cs.primary),
+                title: Text(AppStrings.layout.pendingInvitesTitle),
                 subtitle: Text(AppStrings.layout.groupInvitesSubtitle),
-                trailing: Icon(forwardChevron),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).pushNamed('/pending-invites');
-                },
-              ),
-              // הזמנות לרשימות
-              ListTile(
-                leading: Icon(Icons.list_alt, color: cs.secondary),
-                title: Text(AppStrings.layout.listInvites),
-                subtitle: Text(AppStrings.layout.listInvitesSubtitle),
                 trailing: Icon(forwardChevron),
                 onTap: () {
                   Navigator.pop(context);
@@ -197,6 +187,35 @@ class _AppLayoutState extends State<AppLayout> {
         ],
       ),
       centerTitle: true,
+      // 👤 Avatar בצד ימין (leading ב-RTL) — לחיצה עוברת לטאב הגדרות
+      leading: Padding(
+        padding: const EdgeInsetsDirectional.only(start: kSpacingSmall),
+        child: GestureDetector(
+          onTap: () => widget.onTabSelected(3), // index 3 = Settings tab
+          child: Center(
+            child: Container(
+              width: kIconSizeLarge,
+              height: kIconSizeLarge,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 1.5),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Builder(
+                builder: (ctx) {
+                  final userCtx = ctx.watch<UserContext>();
+                  final url = userCtx.profileImageUrl;
+                  if (url != null) {
+                    return Image.network(url, fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover));
+                  }
+                  return Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover);
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
       actions: [
         // 🔔 Notifications — only notification count (not low stock)
         IconButton(
@@ -204,11 +223,10 @@ class _AppLayoutState extends State<AppLayout> {
           icon: Badge.count(
             count: widget.badges?[0] ?? 0,
             isLabelVisible: (widget.badges?[0] ?? 0) > 0,
-            child: Image.asset('assets/images/icon_bell.webp', width: kAppBarIconSize, height: kAppBarIconSize),
+            child: Icon(Icons.notifications_outlined, size: kIconSizeMedium),
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),
-        // 🚪 Logout — settings icon (logout moved to settings)
       ],
     );
   }

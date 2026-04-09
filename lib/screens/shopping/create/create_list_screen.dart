@@ -15,6 +15,7 @@
 // Last Updated: 27/01/2026
 
 import 'dart:async' show unawaited;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -327,6 +328,18 @@ class _CreateListScreenState extends State<CreateListScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
+            // 🧊 Glass blur effect
+            flexibleSpace: ClipRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(
+                  sigmaX: kGlassBlurSigma,
+                  sigmaY: kGlassBlurSigma,
+                ),
+                child: Container(
+                  color: cs.surface.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
             leading: IconButton(
               icon: Icon(Icons.close, color: cs.onSurface),
               tooltip: strings.cancelTooltip,
@@ -353,11 +366,11 @@ class _CreateListScreenState extends State<CreateListScreen> {
               key: _formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               child: ListView(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   left: kSpacingMedium,
                   right: kSpacingMedium,
                   top: kSpacingSmall,
-                  bottom: MediaQuery.of(context).viewInsets.bottom + kSpacingLarge,
+                  bottom: kSpacingXLarge * 2, // מרווח קבוע — Scaffold מטפל ב-keyboard
                 ),
                 children: [
                     // 📋 כפתור בחירת תבנית
@@ -436,7 +449,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
-                    vertical: kSpacingSmall + 4,
+                    vertical: kSpacingSmallPlus,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -597,23 +610,47 @@ class _CreateListScreenState extends State<CreateListScreen> {
               width: isSelected ? 2 : 1,
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
             children: [
-              Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
-              const SizedBox(height: kSpacingXTiny),
-              Text(
-                typeInfo.shortName,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
-                  letterSpacing: 0.3,
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
+                    const SizedBox(height: kSpacingXTiny),
+                    Text(
+                      typeInfo.shortName,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
+                        letterSpacing: 0.3,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
+              if (isSelected)
+                Positioned(
+                  top: kSpacingXTiny,
+                  left: kSpacingXTiny,
+                  child: Container(
+                    width: kIconSizeSmall,
+                    height: kIconSizeSmall,
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check,
+                      size: kFontSizeTiny,
+                      color: cs.onPrimary,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -886,7 +923,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                           size: kIconSizeSmall, color: cs.onSecondaryContainer)
                       : CircleAvatar(
                           backgroundColor: cs.primaryContainer,
-                          radius: 12,
+                          radius: kSpacingSmallPlus,
                           child: Text(
                             contact.initials,
                             style: const TextStyle(fontSize: kFontSizeTiny),

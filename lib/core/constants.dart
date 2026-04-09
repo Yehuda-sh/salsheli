@@ -98,3 +98,12 @@ LimitStatus getLimitStatus(int current, int max) {
   if (usage >= kLimitWarningThreshold) return LimitStatus.warning;
   return LimitStatus.safe;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEFAULT VALUES
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Default unit for products — matches AppStrings.inventory.defaultUnit
+/// ('יח\'' in HE, 'pcs' in EN).
+/// Used as fallback when unit is missing from Firestore data.
+const String kDefaultProductUnit = 'יח\'';

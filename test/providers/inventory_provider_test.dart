@@ -596,6 +596,107 @@ void main() {
     });
   });
 
+  group('InventoryProvider - removeStock', () {
+    test('decrements quantity and returns updated item', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = InventoryProvider(
+        repository: repo,
+        userContext: logged.ctx,
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      // הוסף פריט עם כמות 5
+      await provider.createItem(
+        productName: 'חלב',
+        category: 'dairy',
+        location: 'refrigerator',
+        quantity: 5,
+      );
+      expect(provider.items.first.quantity, 5);
+
+      // הורד 1
+      final updated = await provider.removeStock('חלב');
+      expect(updated, isNotNull);
+      expect(updated!.quantity, 4);
+      expect(provider.items.first.quantity, 4);
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+
+    test('decrements to 0 (out of stock) — item stays in list', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = InventoryProvider(
+        repository: repo,
+        userContext: logged.ctx,
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await provider.createItem(
+        productName: 'סוכר',
+        category: 'dry_goods',
+        location: 'pantry',
+        quantity: 1,
+      );
+
+      final updated = await provider.removeStock('סוכר');
+      expect(updated, isNotNull);
+      expect(updated!.quantity, 0);
+      // פריט נשאר ברשימה!
+      expect(provider.items.length, 1);
+      expect(provider.items.first.quantity, 0);
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+
+    test('returns null for non-existent product', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = InventoryProvider(
+        repository: repo,
+        userContext: logged.ctx,
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final result = await provider.removeStock('לא קיים');
+      expect(result, isNull);
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+
+    test('case-insensitive match', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = InventoryProvider(
+        repository: repo,
+        userContext: logged.ctx,
+      );
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await provider.createItem(
+        productName: 'חלב תנובה',
+        category: 'dairy',
+        location: 'refrigerator',
+        quantity: 3,
+      );
+
+      final updated = await provider.removeStock('חלב תנובה');
+      expect(updated, isNotNull);
+      expect(updated!.quantity, 2);
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+  });
+
   group('InventoryProvider - Filters', () {
     test('itemsByCategory filters correctly', () async {
       final logged = await createLoggedInContext();

@@ -31,7 +31,7 @@ class TimestampConverter implements JsonConverter<DateTime, Object> {
     if (json is String) return DateTime.parse(json);
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    throw ArgumentError('⛔ לא ניתן להמיר את הערך: $json ל־DateTime');
+    throw ArgumentError('Cannot convert value to DateTime: $json (${json.runtimeType})');
   }
 
   @override
@@ -49,7 +49,7 @@ class NullableTimestampConverter implements JsonConverter<DateTime?, Object?> {
     if (json is String) return DateTime.tryParse(json);
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    throw ArgumentError('⛔ לא ניתן להמיר את הערך: $json ל־DateTime?');
+    throw ArgumentError('Cannot convert value to DateTime?: $json (${json.runtimeType})');
   }
 
   @override

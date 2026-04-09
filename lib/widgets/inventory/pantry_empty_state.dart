@@ -175,27 +175,34 @@ class PantryEmptyState extends StatelessWidget {
 
                 const Gap(kSpacingLarge),
 
-                // Group 2 — כותרת + תיאור
-                Column(
-                  children: [
-                    Text(
-                      strings.emptyMainTitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeXLarge,
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
+                // Group 2 — כותרת + תיאור (רקע paper לקריאות על קווי מחברת)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+                  decoration: BoxDecoration(
+                    color: brand?.paperBackground?.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(kBorderRadius),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        strings.emptyMainTitle,
+                        style: TextStyle(
+                          fontSize: kFontSizeXLarge,
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
                       ),
-                    ),
-                    const Gap(kSpacingSmall),
-                    Text(
-                      isGroupMode ? strings.emptySubtitleGroup : strings.emptySubtitlePersonal,
-                      style: TextStyle(
-                        fontSize: kFontSizeMedium,
-                        color: cs.onSurfaceVariant,
+                      const Gap(kSpacingSmall),
+                      Text(
+                        isGroupMode ? strings.emptySubtitleGroup : strings.emptySubtitlePersonal,
+                        style: TextStyle(
+                          fontSize: kFontSizeMedium,
+                          color: cs.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                    ],
+                  ),
                 )
                     .animate()
                     .fadeIn(duration: 350.ms, delay: d1)

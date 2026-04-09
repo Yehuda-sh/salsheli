@@ -61,4 +61,6 @@ class AppStrings {
   static ShoppingSummaryStrings get shoppingSummary => _isEnglish ? AppStringsEn.shoppingSummary : AppStringsHe.shoppingSummary;
   static TutorialStrings get tutorial => _isEnglish ? AppStringsEn.tutorial : AppStringsHe.tutorial;
   static LegalStrings get legal => _isEnglish ? AppStringsEn.legal : AppStringsHe.legal;
+  static ActionCenterStrings get actionCenter => _isEnglish ? AppStringsEn.actionCenter : AppStringsHe.actionCenter;
+  static OnboardingTipsStrings get onboardingTips => _isEnglish ? AppStringsEn.onboardingTips : AppStringsHe.onboardingTips;
 }

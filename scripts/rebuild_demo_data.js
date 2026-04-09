@@ -35,31 +35,39 @@ function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)
 // ═══════════════════════════════════════════════════════════════
 const USERS = [
   // Cohen Family (4 + 1 viewer)
-  { key: 'avi',    name: 'אבי כהן',     email: 'avi.cohen@demo.com',    phone: '0501234567', household: 'cohen',  role: 'admin',  isAdmin: true },
-  { key: 'ronit',  name: 'רונית כהן',    email: 'ronit.cohen@demo.com',  phone: '0502345678', household: 'cohen',  role: 'admin',  isAdmin: true },
-  { key: 'yuval',  name: 'יובל כהן',     email: 'yuval.cohen@demo.com',  phone: '0503456789', household: 'cohen',  role: 'member', isAdmin: false },
-  { key: 'noa',    name: 'נועה כהן',     email: 'noa.cohen@demo.com',    phone: '0504567890', household: 'cohen',  role: 'member', isAdmin: false },
+  { key: 'avi',    name: 'אבי כהן',     email: 'avi.cohen@demo.com',    phone: '0501234567', household: 'cohen',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' },
+  { key: 'ronit',  name: 'רונית כהן',    email: 'ronit.cohen@demo.com',  phone: '0502345678', household: 'cohen',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face' },
+  { key: 'yuval',  name: 'יובל כהן',     email: 'yuval.cohen@demo.com',  phone: '0503456789', household: 'cohen',  role: 'member', isAdmin: false, profileImageUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&h=150&fit=crop&crop=face' },
+  { key: 'noa',    name: 'נועה כהן',     email: 'noa.cohen@demo.com',    phone: '0504567890', household: 'cohen',  role: 'member', isAdmin: false, profileImageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face' },
   { key: 'ori',    name: 'אורי שלום',    email: 'ori.shalom@demo.com',   phone: '0509012345', household: 'cohen',  role: 'member', isAdmin: false },
   // Levi Couple
-  { key: 'dan',    name: 'דן לוי',       email: 'dan.levi@demo.com',     phone: '0505678901', household: 'levi',   role: 'admin',  isAdmin: true },
-  { key: 'maya',   name: 'מאיה לוי',     email: 'maya.levi@demo.com',    phone: '0506789012', household: 'levi',   role: 'admin',  isAdmin: true },
+  { key: 'dan',    name: 'דן לוי',       email: 'dan.levi@demo.com',     phone: '0505678901', household: 'levi',   role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face' },
+  { key: 'maya',   name: 'מאיה לוי',     email: 'maya.levi@demo.com',    phone: '0506789012', household: 'levi',   role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face' },
   // Singles
-  { key: 'tomer',  name: 'תומר בר',      email: 'tomer.bar@demo.com',    phone: '0507890123', household: 'tomer',  role: 'admin',  isAdmin: true },
+  { key: 'tomer',  name: 'תומר בר',      email: 'tomer.bar@demo.com',    phone: '0507890123', household: 'tomer',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face' },
   { key: 'shiran', name: 'שירן גל',      email: 'shiran.gal@demo.com',   phone: '0508901234', household: 'shiran', role: 'admin',  isAdmin: true },
   // Power user
-  { key: 'naama',  name: 'נעמה רוזן',    email: 'naama.rozen@demo.com',  phone: '0511234567', household: 'naama',  role: 'admin',  isAdmin: true },
+  { key: 'naama',  name: 'נעמה רוזן',    email: 'naama.rozen@demo.com',  phone: '0511234567', household: 'naama',  role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face' },
   // Inactive user
   { key: 'lior',   name: 'ליאור דהן',    email: 'lior.dahan@demo.com',   phone: '0512345678', household: 'lior',   role: 'admin',  isAdmin: true },
   // Fresh user
-  { key: 'yael',   name: 'יעל חדשה',     email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
-  // Google Sign-In user (no phone, has profile image)
-  { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://lh3.googleusercontent.com/a/default-user' },
-  // Apple Sign-In user (no phone, no display name initially)
-  { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple' },
+  { key: 'yael',   name: 'יעל מזרחי',    email: 'yael.fresh@demo.com',   phone: '0513456789', household: 'yael',   role: 'admin',  isAdmin: true },
+  // Google Sign-In user (has profile image from Google account, like real Google login)
+  { key: 'google_user', name: 'גיל גוגל', email: 'gil.google@demo.com', phone: '', household: 'google_user', role: 'admin', isAdmin: true, provider: 'google', profileImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' },
+  // Apple Sign-In user (Apple hides real name AND photo — no profileImage, email as display name)
+  { key: 'apple_user', name: 'apple_user@icloud.com', email: 'apple_user@icloud.com', phone: '', household: 'apple_user', role: 'admin', isAdmin: true, provider: 'apple', applePrivateRelay: true },
   // English-speaking user (English name, English locale preference)
-  { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en' },
+  { key: 'mike', name: 'Mike Johnson', email: 'mike.johnson@demo.com', phone: '+972541234567', household: 'mike', role: 'admin', isAdmin: true, locale: 'en', profileImageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face' },
   // Special characters in name (Hebrew with geresh/gershayim)
   { key: 'george', name: "ג'ורג' חביב", email: 'george.haviv@demo.com', phone: '0521234567', household: 'george', role: 'admin', isAdmin: true },
+  // ── Roommates (3 girls sharing apartment — not family) ──
+  { key: 'keren', name: 'קרן אביב',  email: 'keren.aviv@demo.com',  phone: '0531234567', household: 'roommates', role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face' },
+  { key: 'hila',  name: 'הילה מורג',  email: 'hila.morag@demo.com',  phone: '0532345678', household: 'roommates', role: 'admin',  isAdmin: true, profileImageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face' },
+  { key: 'sapir', name: 'ספיר דוד',   email: 'sapir.david@demo.com', phone: '0533456789', household: 'roommates', role: 'member', isAdmin: false },
+  // Elderly user — minimal data, simple usage
+  { key: 'shlomo', name: 'שלמה ברקוביץ', email: 'shlomo.berk@demo.com', phone: '0541234567', household: 'shlomo', role: 'admin', isAdmin: true },
+  // Removed user — was in Cohen household, got removed, now has personal household
+  { key: 'removed_user', name: 'אילן פרץ', email: 'ilan.peretz@demo.com', phone: '0551234567', household: 'removed_user', role: 'admin', isAdmin: true },
 ];
 
 const HOUSEHOLDS = {
@@ -74,6 +82,9 @@ const HOUSEHOLDS = {
   apple_user:  { name: 'הבית שלי',       members: ['apple_user'] },
   mike:        { name: "Mike's Home",    members: ['mike'] },
   george:      { name: "הבית של ג'ורג'", members: ['george'] },
+  roommates:   { name: 'הדירה ברוטשילד',  members: ['keren', 'hila', 'sapir'] },
+  shlomo:      { name: 'הבית של שלמה',    members: ['shlomo'] },
+  removed_user: { name: 'הבית של אילן',   members: ['removed_user'] },
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -97,10 +108,20 @@ function byCategory(products, ...cats) {
 
 function normalizeUnit(u) {
   if (!u) return "יח'";
-  if (u === 'ק"ג' || u === 'קג') return 'ק"ג';
-  if (u === 'ליטר' || u === 'ל') return 'ליטר';
-  if (u === 'גרם' || u === 'גר') return 'גרם';
+  if (u === 'ק"ג' || u === 'קג' || u === 'קילוגרמים' || u === 'קילוגרם') return 'ק"ג';
+  if (u === 'ליטר' || u === 'ל' || u === 'ליטרים') return 'ליטר';
+  if (u === 'גרם' || u === 'גר' || u === 'גרמים') return 'גרם';
+  if (u === 'מ"ל' || u === 'מיליליטר' || u === 'מיליליטרים' || u === '100 מ"ל' || u === 'ל 100 מ"ל' || u === 'ל100 מ"ל') return "יח'";
+  if (u === '100 גרם' || u === 'ל 100 גרם' || u === 'לק"ג') return "יח'";
+  if (u === 'יחידה' || u === 'יחידות' || u === 'יח' || u === 'י"ח' || u === 'יחידו') return "יח'";
+  if (u === 'מטר' || u === 'מטרים' || u === '100 מטר') return "יח'";
+  if (u === 'אין' || u === 'אלף' || u === 'ארגז') return "יח'";
   return u;
+}
+
+/// For inventory: prefer defaultUnit (what user would use) over unit (Shufersal's measurement)
+function inventoryUnit(product) {
+  return normalizeUnit(product.defaultUnit || product.unit);
 }
 
 // מיקומי אחסון — חייבים להתאים ל-StorageLocations IDs באפליקציה
@@ -260,16 +281,52 @@ async function main() {
   console.log(`📦 Loaded ${products.length} products from catalog\n`);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 0. CLEANUP — delete pending_invites and custom_locations (top-level)
+  // 0. CLEANUP — delete ALL old data from previous runs
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  console.log('🧹 Cleaning up old top-level data...');
-  const pendingSnap = await db.collection('pending_invites').get();
-  const customLocSnap = await db.collection('custom_locations').get();
-  const batch0 = db.batch();
-  for (const doc of pendingSnap.docs) batch0.delete(doc.ref);
-  for (const doc of customLocSnap.docs) batch0.delete(doc.ref);
-  await batch0.commit();
-  console.log(`   🧹 Deleted ${pendingSnap.size} pending_invites + ${customLocSnap.size} custom_locations`);
+  console.log('🧹 Cleaning up ALL old data...');
+
+  // Helper: delete all docs in a collection (batched)
+  async function deleteCollection(collectionRef) {
+    const snap = await collectionRef.get();
+    if (snap.empty) return 0;
+    const batches = [];
+    let batch = db.batch();
+    let count = 0;
+    for (const doc of snap.docs) {
+      batch.delete(doc.ref);
+      count++;
+      if (count % 400 === 0) { batches.push(batch.commit()); batch = db.batch(); }
+    }
+    batches.push(batch.commit());
+    await Promise.all(batches);
+    return snap.size;
+  }
+
+  // Top-level collections
+  let cleaned = 0;
+  cleaned += await deleteCollection(db.collection('pending_invites'));
+  cleaned += await deleteCollection(db.collection('custom_locations'));
+  console.log(`   🧹 Top-level: ${cleaned} docs deleted`);
+
+  // User subcollections
+  const allUsers = await db.collection('users').get();
+  for (const userDoc of allUsers.docs) {
+    const uid = userDoc.id;
+    for (const sub of ['private_lists', 'notifications', 'pending_invites', 'saved_contacts', 'inventory']) {
+      await deleteCollection(db.collection('users').doc(uid).collection(sub));
+    }
+  }
+  console.log(`   🧹 User subcollections cleaned (${allUsers.size} users)`);
+
+  // Household subcollections
+  const allHouseholds = await db.collection('households').get();
+  for (const hDoc of allHouseholds.docs) {
+    const hId = hDoc.id;
+    for (const sub of ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests']) {
+      await deleteCollection(db.collection('households').doc(hId).collection(sub));
+    }
+  }
+  console.log(`   🧹 Household subcollections cleaned (${allHouseholds.size} households)`);
 
   const uids = {}; // key → firebase UID
 
@@ -687,7 +744,7 @@ async function main() {
         category: p.category || 'כללי',
         location: locationForCategory(p.category),
         quantity: qty,
-        unit: normalizeUnit(p.unit),
+        unit: inventoryUnit(p),
         min_quantity: minQty,
         expiry_date: p.category === 'מוצרי חלב'
           ? (i === 0 ? daysAgo(2).toISOString()     // expired 2 days ago!
@@ -902,7 +959,7 @@ async function main() {
     makeNotification('notif_avi_6', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
     makeNotification('notif_avi_7', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'נשארה יחידה אחרונה של "ביצים L', { createdAt: hoursAgo(6), actionData: { productName: 'ביצים L' } }),
     makeNotification('notif_avi_8', uids.avi, hIds.cohen, 'role_changed', 'שינוי תפקיד', 'אורי שלום קיבל תפקיד צפייה ברשימת "קניות שבועיות"', { createdAt: daysAgo(60), isRead: true, readAt: daysAgo(60), actionData: { listId: 'list_cohen_weekly', newRole: 'viewer' } }),
-    makeNotification('notif_avi_9', uids.avi, hIds.cohen, 'member_left', 'חבר עזב', 'ליאור דהן עזב את הבית', { createdAt: daysAgo(45), isRead: true, readAt: daysAgo(44), actionData: {} }),
+    makeNotification('notif_avi_9', uids.avi, hIds.cohen, 'member_left', 'חבר עזב', 'אורי שלום עזב את הבית (וחזר מאוחר יותר כצופה)', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), senderId: uids.ori, senderName: 'אורי שלום', actionData: {} }),
     makeNotification('notif_avi_10', uids.avi, hIds.cohen, 'invite', 'הזמנה לבית', 'נעמה רוזן הזמינה אותך להצטרף לבית שלה', { createdAt: hoursAgo(3), senderId: uids.naama, senderName: 'נעמה רוזן', actionData: { householdId: hIds.naama } }),
     // Edge case: user_removed notification
     makeNotification('notif_avi_11', uids.avi, hIds.cohen, 'user_removed', 'הוסרת מרשימה', 'הוסרת מרשימת "קניות ישנה"', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), actionData: { listId: 'old_list_123' } }),
@@ -1181,6 +1238,121 @@ async function main() {
   });
   console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
 
+  // ── ROOMMATES: 3 girls sharing apartment — different last names, shared household ──
+  const roommatesClean = pickRandom(byCategory(products, 'מוצרי ניקיון', 'מוצרי בית').filter(p => p.sourceFile === 'supermarket'), 8);
+  await db.collection('households').doc(hIds.roommates).collection('shared_lists').doc('list_room_clean').set({
+    id: 'list_room_clean', name: 'ניקיון שבועי לדירה 🧹', status: 'active', type: 'household',
+    budget: 200, is_shared: true, is_private: false, created_by: uids.keren,
+    format: 'shared', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    shared_with: [uids.hila, uids.sapir],
+    shared_users: {
+      [uids.hila]:  { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'הילה מורג', user_email: 'hila.morag@demo.com', can_start_shopping: true },
+      [uids.sapir]: { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'ספיר דוד', user_email: 'sapir.david@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: [
+      ...roommatesClean.map((p, i) => makeProductItem(p, i, { id: `item_rc_${i}`, isChecked: i < 3 })),
+      makeTaskItem('item_rc_t0', 'לנקות מקלחת (תור של ספיר)', { priority: 'high' }),
+      makeTaskItem('item_rc_t1', 'לקנות נורה למסדרון', { priority: 'medium' }),
+    ],
+  });
+  console.log('   🏠 Roommates: ניקיון שבועי (household, 8 products + 2 tasks, 3 members)');
+
+  const roommatesGrocery = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים', 'פירות וירקות', 'משקאות').filter(p => p.sourceFile === 'supermarket'), 12);
+  await db.collection('households').doc(hIds.roommates).collection('shared_lists').doc('list_room_grocery').set({
+    id: 'list_room_grocery', name: 'סופר לשבוע 🛒', status: 'active', type: 'supermarket',
+    budget: 400, is_shared: true, is_private: false, created_by: uids.hila,
+    format: 'shared', created_from_template: false,
+    created_date: hoursAgo(6).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    shared_with: [uids.keren, uids.sapir],
+    shared_users: {
+      [uids.keren]: { role: 'admin', shared_at: daysAgo(30).toISOString(), user_name: 'קרן אביב', user_email: 'keren.aviv@demo.com', can_start_shopping: true },
+      [uids.sapir]: { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'ספיר דוד', user_email: 'sapir.david@demo.com', can_start_shopping: false },
+    },
+    pending_requests: [
+      { id: 'req_sapir_1', list_id: 'list_room_grocery', requester_id: uids.sapir, type: 'addItem', status: 'pending',
+        created_at: hoursAgo(1).toISOString(),
+        request_data: { name: 'חומוס אבו גוש 400 גרם', quantity: 2, unit: "יח'", category: 'שימורים', type: 'product' },
+        reviewer_id: null, reviewed_at: null, requester_name: 'ספיר דוד', reviewer_name: null },
+    ],
+    active_shoppers: [], items: roommatesGrocery.map((p, i) => makeProductItem(p, i, { id: `item_rg_${i}`, isChecked: i < 4 })),
+  });
+  console.log('   🛒 Roommates: סופר לשבוע (supermarket, 12 items, 1 pending request from sapir)');
+
+  // Roommates inventory (shared pantry)
+  const roommatesPantry = pickRandom(byCategory(products, 'מוצרי ניקיון', 'משקאות', 'מוצרי חלב', 'אורז ופסטה'), 10);
+  await createInventory(hIds.roommates, roommatesPantry, uids.keren, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 4) });
+  console.log('   📦 Roommates: 10 pantry items (2 out-of-stock)');
+
+  // Roommates receipts
+  await createReceipts(hIds.roommates, [uids.keren, uids.hila, uids.sapir], 6, ['שופרסל דיזנגוף', 'AM:PM רוטשילד']);
+  console.log('   🧾 Roommates: 6 receipts');
+
+  // Roommates notifications
+  await createNotifications(uids.keren, [
+    makeNotification('notif_keren_1', uids.keren, hIds.roommates, 'low_stock', 'מלאי נמוך', 'נגמר נייר טואלט בדירה', { createdAt: hoursAgo(5), actionData: { productName: 'נייר טואלט' } }),
+    makeNotification('notif_keren_2', uids.keren, hIds.roommates, 'invite', 'בקשה חדשה', 'ספיר ביקשה להוסיף "חומוס" לרשימת הסופר', { createdAt: hoursAgo(1), senderId: uids.sapir, senderName: 'ספיר דוד', actionData: { listId: 'list_room_grocery', requestId: 'req_sapir_1' } }),
+  ]);
+  console.log('   🔔 קרן: 2 notifications');
+
+  // ── SHLOMO: Elderly user — simple, minimal data ──
+  const shlomoProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים', 'פירות וירקות').filter(p => p.sourceFile === 'supermarket'), 5);
+  await db.collection('users').doc(uids.shlomo).collection('private_lists').doc('list_shlomo_1').set({
+    id: 'list_shlomo_1', name: 'קניות', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.shlomo,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: shlomoProducts.map((p, i) => makeProductItem(p, i, { id: `item_shl_${i}` })),
+  });
+  console.log('   👴 שלמה: רשימה אחת פשוטה (5 items, no sharing, no budget)');
+
+  // Shlomo pantry — just basics
+  const shlomoPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים'), 4);
+  await createInventory(hIds.shlomo, shlomoPantry, uids.shlomo);
+  console.log('   📦 שלמה: 4 pantry items');
+
+  // ── REMOVED USER: Was in Cohen, got removed, now has personal household ──
+  // Private list from before removal (still works in personal household)
+  await db.collection('users').doc(uids.removed_user).collection('private_lists').doc('list_ilan_1').set({
+    id: 'list_ilan_1', name: 'הרשימה שלי', status: 'active', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.removed_user,
+    format: 'personal', created_from_template: false,
+    created_date: daysAgo(20).toISOString(), updated_date: daysAgo(3).toISOString(),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 4)
+      .map((p, i) => makeProductItem(p, i, { id: `item_ilan_${i}` })),
+  });
+  console.log('   🚪 אילן (removed): רשימה אישית אחרי הסרה מכהן (4 items)');
+
+  // Ilan notification about being removed
+  await createNotifications(uids.removed_user, [
+    makeNotification('notif_ilan_1', uids.removed_user, hIds.removed_user, 'user_removed', 'הוסרת מהבית', 'הוסרת ממשפחת כהן ע"י אבי כהן', { createdAt: daysAgo(10), isRead: true, readAt: daysAgo(10), senderId: uids.avi, senderName: 'אבי כהן', actionData: { householdId: hIds.cohen } }),
+  ]);
+  console.log('   🔔 אילן: 1 notification (user_removed)');
+
+  // ── PRE-SIGNUP INVITE: Invite to email that has no account yet ──
+  await db.collection('pending_invites').doc('invite_ronit_friend').set({
+    id: 'invite_ronit_friend',
+    list_id: hIds.cohen,
+    requester_id: uids.ronit,
+    type: 'inviteToHousehold',
+    status: 'pending',
+    created_at: daysAgo(2).toISOString(),
+    requester_name: 'רונית כהן',
+    reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
+    request_data: {
+      invited_user_id: null, // no account yet!
+      invited_user_email: 'michal.new@gmail.com',
+      invited_user_name: null,
+      household_id: hIds.cohen,
+      household_name: 'משפחת כהן',
+      role: 'editor',
+    },
+  });
+  console.log('   ✉️ רונית → michal.new@gmail.com: הזמנה למשתמשת שטרם נרשמה (pre-signup)');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 14. EDGE CASE PATCHES — fix missing scenarios found in audit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1193,12 +1365,19 @@ async function main() {
   console.log('   ⏰ Levi weekly: target_date set to 2 days AGO (tests urgency "עבר!")');
 
   // PATCH 2: Who Brings item that is FULL (neededCount == volunteers)
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat').update({
-    'items.3': makeWhoBringsItem('wb_4', 'לחם', 2, [
-      { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: hoursAgo(4).toISOString() },
-      { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: hoursAgo(3).toISOString() },
-    ]),
-  });
+  // ⚠️ Can't use 'items.3' — Firestore converts array to map. Read-modify-write instead.
+  const shabbatRef = db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat');
+  const shabbatDoc = await shabbatRef.get();
+  if (shabbatDoc.exists) {
+    const items = shabbatDoc.data().items || [];
+    if (items.length > 3) {
+      items[3] = makeWhoBringsItem('wb_4', 'לחם', 2, [
+        { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: hoursAgo(4).toISOString() },
+        { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: hoursAgo(3).toISOString() },
+      ]);
+      await shabbatRef.update({ items });
+    }
+  }
   console.log('   ✅ Shabbat wb_4 "לחם": now FULL (2/2 volunteers)');
 
   // PATCH 3: Inventory items with notes
@@ -1226,12 +1405,18 @@ async function main() {
   console.log('   ✅ Shiran: "הכל נקנה!" (active, 100% checked — tests green progress bar)');
 
   // PATCH 5: Product with very large quantity
-  await db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget').update({
-    'items.0': makeProductItem(
-      { name: 'מים מינרליים 1.5 ליטר', category: 'משקאות', price: 3.5, defaultUnit: 'ליטר' },
-      0, { id: 'item_bgt_0', quantity: 24, isChecked: false }
-    ),
-  });
+  const budgetRef = db.collection('users').doc(uids.naama).collection('private_lists').doc('list_naama_budget');
+  const budgetDoc = await budgetRef.get();
+  if (budgetDoc.exists) {
+    const budgetItems = budgetDoc.data().items || [];
+    if (budgetItems.length > 0) {
+      budgetItems[0] = makeProductItem(
+        { name: 'מים מינרליים 1.5 ליטר', category: 'משקאות', price: 3.5, defaultUnit: 'ליטר' },
+        0, { id: 'item_bgt_0', quantity: 24, isChecked: false }
+      );
+      await budgetRef.update({ items: budgetItems });
+    }
+  }
   console.log('   🔢 Naama budget list: item 0 quantity = 24 (large quantity display test)');
 
   // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
@@ -1277,7 +1462,7 @@ async function main() {
   console.log(`📦 ~110 inventory items`);
   console.log(`🧾 ~76 receipts`);
   console.log(`📝 ~26 activity log events`);
-  console.log(`🔔 ~39 notifications`);
+  console.log(`🔔 ~30 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');
@@ -1293,6 +1478,10 @@ async function main() {
   console.log('   apple_user@icloud.com — Apple Sign-In (email as name, no phone)');
   console.log('   mike.johnson@demo.com — English speaker (EN locale, English list names)');
   console.log("   george.haviv@demo.com — Special chars (ג'ורג', long item names, free items)");
+  console.log('   keren.aviv@demo.com — Roommates (3 girls, shared apartment, not family)');
+  console.log('   shlomo.berk@demo.com — Elderly user (minimal, simple usage)');
+  console.log('   ilan.peretz@demo.com — Removed user (was in Cohen, now personal household)');
+  console.log('   michal.new@gmail.com — Pre-signup invite (no account yet)');
 }
 
 main().then(() => process.exit(0)).catch(e => { console.error('❌', e); process.exit(1); });

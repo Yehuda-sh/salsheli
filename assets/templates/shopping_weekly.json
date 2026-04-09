@@ -1,77 +1,25 @@
 {
   "templateName": "קניות שבועיות",
-  "description": "מוצרי יסוד לשבוע",
+  "description": "מוצרי יסוד לשבוע — חלב, ירקות, פירות, מזווה",
   "icon": "🛒",
   "items": [
-    {
-      "source": "bakery",
-      "searchTerm": "לחם",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "לחם"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חלב 3",
-      "quantity": 2,
-      "unit": "ליטר",
-      "fallbackName": "חלב 3%"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "ביצים",
-      "quantity": 12,
-      "unit": "יח'",
-      "fallbackName": "ביצים"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "גבינה צהובה",
-      "quantity": 0.5,
-      "unit": "ק\"ג",
-      "fallbackName": "גבינה צהובה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חמאה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "חמאה"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "עגבניה",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "עגבניות"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "מלפפון",
-      "quantity": 4,
-      "unit": "יח'",
-      "fallbackName": "מלפפונים"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "בצל",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "בצל"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "תפוח עץ",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "תפוחים"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "בננה",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "בננות"
-    }
+    {"source": "supermarket", "searchTerm": "חלב 3", "quantity": 3, "unit": "ליטר", "fallbackName": "חלב 3%"},
+    {"source": "bakery", "searchTerm": "לחם", "quantity": 2, "unit": "יח'", "fallbackName": "לחם"},
+    {"source": "supermarket", "searchTerm": "ביצים", "quantity": 12, "unit": "יח'", "fallbackName": "ביצים"},
+    {"source": "supermarket", "searchTerm": "גבינה צהובה", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "גבינה צהובה"},
+    {"source": "supermarket", "searchTerm": "חמאה", "quantity": 1, "unit": "יח'", "fallbackName": "חמאה"},
+    {"source": "supermarket", "searchTerm": "יוגורט", "quantity": 4, "unit": "יח'", "fallbackName": "יוגורט"},
+    {"source": "greengrocer", "searchTerm": "עגבניה", "quantity": 1, "unit": "ק\"ג", "fallbackName": "עגבניות"},
+    {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 4, "unit": "יח'", "fallbackName": "מלפפונים"},
+    {"source": "greengrocer", "searchTerm": "בצל", "quantity": 1, "unit": "ק\"ג", "fallbackName": "בצל"},
+    {"source": "greengrocer", "searchTerm": "תפוח עץ", "quantity": 1, "unit": "ק\"ג", "fallbackName": "תפוחים"},
+    {"source": "greengrocer", "searchTerm": "בננה", "quantity": 1, "unit": "ק\"ג", "fallbackName": "בננות"},
+    {"source": "supermarket", "searchTerm": "אורז", "quantity": 1, "unit": "יח'", "fallbackName": "אורז"},
+    {"source": "supermarket", "searchTerm": "פסטה", "quantity": 2, "unit": "יח'", "fallbackName": "פסטה"},
+    {"source": "supermarket", "searchTerm": "שמן זית", "quantity": 1, "unit": "יח'", "fallbackName": "שמן זית"},
+    {"source": "supermarket", "searchTerm": "סוכר", "quantity": 1, "unit": "יח'", "fallbackName": "סוכר"},
+    {"source": "supermarket", "searchTerm": "קפה", "quantity": 1, "unit": "יח'", "fallbackName": "קפה"},
+    {"source": "supermarket", "searchTerm": "נייר טואלט", "quantity": 1, "unit": "יח'", "fallbackName": "נייר טואלט"},
+    {"source": "supermarket", "searchTerm": "סבון כלים", "quantity": 1, "unit": "יח'", "fallbackName": "סבון כלים"}
   ]
 }

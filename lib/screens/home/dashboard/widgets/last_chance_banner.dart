@@ -107,7 +107,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
           // 🏷️ Urgency emoji
           Text(
             _getUrgencyEmoji(suggestion.urgency),
-            style: const TextStyle(fontSize: 24), // הוגדל מעט
+            style: const TextStyle(fontSize: kFontSizeTitle), // הוגדל מעט
           ),
           const SizedBox(width: kSpacingMedium),
 
@@ -145,11 +145,11 @@ class _LastChanceCardState extends State<_LastChanceCard> {
               style: FilledButton.styleFrom(
                 backgroundColor: successColor.withValues(alpha: 0.2),
                 foregroundColor: successColor,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
                 minimumSize: const Size(0, 36), // גודל תקני ונוח
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               ),
-              child: const Icon(Icons.add, size: 20),
+              child: const Icon(Icons.add, size: kIconSizeSmallPlus),
             ),
             const SizedBox(width: 4),
             // ⏭️ Next button
@@ -162,14 +162,14 @@ class _LastChanceCardState extends State<_LastChanceCard> {
             // ❌ Skip session (הוחלף מאייקון סגירה לאייקון השתקה ברור יותר)
             IconButton(
               onPressed: () => _onSkipSessionPressed(context),
-              icon: const Icon(Icons.notifications_off_outlined, size: 20),
+              icon: const Icon(Icons.notifications_off_outlined, size: kIconSizeSmallPlus),
               style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant.withValues(alpha: 0.6)),
               tooltip: strings.skipSessionTooltip,
             ),
           ] else
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+              padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+              child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],
       ),

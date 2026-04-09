@@ -38,8 +38,8 @@ import '../../settings/household_members_screen.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
-import 'widgets/household_activity_feed.dart';
-// pending_invites_banner removed — invites via AppBar bell
+import 'widgets/action_center_card.dart';
+import 'widgets/onboarding_tips_card.dart';
 import 'widgets/suggestions_today_card.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
@@ -186,14 +186,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         heroTag: 'home_fab',
         onPressed: () {
           unawaited(HapticFeedback.lightImpact());
           Navigator.pushNamed(context, '/create-list');
         },
-        icon: Image.asset('assets/images/icon_new_list.webp', width: 32, height: 32),
-        label: Text(AppStrings.homeDashboard.newListButton),
+        tooltip: AppStrings.homeDashboard.newListButton,
+        child: Image.asset('assets/images/icon_new_list.webp', width: kSpacingLarge, height: kSpacingLarge),
       ).animate().scale(
             begin: const Offset(0.8, 0.8),
             end: const Offset(1.0, 1.0),
@@ -215,31 +215,21 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
+                  // === 1. באנרים (Error / Active Shopper) ===
                   _staggered(
                     Column(
                       children: [
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
-                        const EmailVerificationBanner(),
                       ],
                     ),
                     sectionIndex++,
                   ),
 
-                  // === 2. Header עם ברכה דינמית ===
-                  _staggered(
-                    _buildHeader(
-                      context,
-                      userName: userContext.displayName,
-                      familyName: familyName,
-                      activeListsCount: activeLists.length,
-                    ),
-                    sectionIndex++,
-                  ),
-
-                  const SizedBox(height: kSpacingMedium),
+                  // === 2. ברכה קומפקטית + אימות אימייל ===
+                  // === 2. אימות אימייל (אם צריך) ===
+                  const EmailVerificationBanner(),
 
                   // === 4. הצעות להיום ===
                   _staggered(
@@ -259,14 +249,26 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  const SizedBox(height: kSpacingMedium),
+                  const SizedBox(height: kSpacingSmall),
 
-                  // === 6. פיד פעילות הבית ===
+                  // === 5.5. טיפים למשתמש חדש (נעלם אוטומטית) ===
+                  OnboardingTipsCard(
+                    onNavigateToPantry: widget.onTabSelected != null
+                        ? () => widget.onTabSelected!(1)
+                        : null,
+                    onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
+                    onNavigateToInvite: () => Navigator.pushNamed(context, '/invite-users'),
+                  ),
+
+                  // === 6. Action Center — דורש טיפול ===
                   _staggered(
                     RepaintBoundary(
-                      child: HouseholdActivityFeed(
-                        onSeeAllHistory: widget.onTabSelected != null
-                            ? () => widget.onTabSelected!(2)
+                      child: ActionCenterCard(
+                        onNavigateToList: (list) {
+                          Navigator.pushNamed(context, '/list-details', arguments: list);
+                        },
+                        onNavigateToPantry: widget.onTabSelected != null
+                            ? () => widget.onTabSelected!(1)
                             : null,
                       ),
                     ),
@@ -333,7 +335,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
           TextButton.icon(
             onPressed: () => _refresh(context),
-            icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: 18),
+            icon: Icon(Icons.refresh, color: cs.onErrorContainer, size: kIconSizeSmall),
             label: Text(
               strings.retryButton,
               style: TextStyle(
@@ -351,20 +353,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   // ============================================
-  // 1. HEADER - Glassmorphic + ברכה דינמית לפי שעה
+  // 2. COMPACT GREETING — שורת ברכה קומפקטית (avatar עבר ל-AppBar)
   // ============================================
-  Widget _buildHeader(
-    BuildContext context, {
-    required String? userName,
-    required String? familyName,
-    required int activeListsCount,
-  }) {
+  Widget _buildCompactGreeting(BuildContext context, UserContext userContext, int activeListsCount) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.homeDashboard;
-    final userContext = context.read<UserContext>();
+    final userName = userContext.displayName;
 
-    // ברכה קצרה לפי שעה
     final hour = DateTime.now().hour;
     final greetingAsset = hour < 12
         ? 'assets/images/greeting_morning.webp'
@@ -374,114 +370,49 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ? 'assets/images/greeting_evening.webp'
                 : 'assets/images/greeting_night.webp';
 
-    // ✅ REMOVED: unused initials variable
-
     return Row(
       children: [
-        // User avatar — gradient ring + לחיצה פותחת bottom sheet
-        GestureDetector(
-          onTap: () => _showUserInfoSheet(context, userName, familyName),
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [cs.primary, cs.tertiary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+        Image.asset(greetingAsset, width: kIconSizeMedium, height: kIconSizeMedium),
+        const SizedBox(width: kSpacingSmall),
+        Flexible(
+          child: Text(
+            strings.timeBasedGreeting(userName, hour),
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: cs.onSurface,
             ),
-            child: Container(
-              margin: const EdgeInsets.all(2.5),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: userContext.profileImageUrl != null
-                  ? Image.network(
-                      userContext.profileImageUrl!,
-                      width: 43,
-                      height: 43,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Image.asset(
-                        'assets/images/default_avatar.webp',
-                        width: 43,
-                        height: 43,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/default_avatar.webp',
-                      width: 43,
-                      height: 43,
-                      fit: BoxFit.cover,
-                    ),
-            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: kSpacingSmall),
-
-        // ברכה + subtitle
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Image.asset(greetingAsset, width: 36, height: 36),
-                  const SizedBox(width: kSpacingSmall),
-                  Flexible(
-                    child: Text(
-                      strings.timeBasedGreeting(userName, hour),
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+        if (activeListsCount > 0)
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  strings.activeListsSubtitle(activeListsCount),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.onSurfaceVariant,
                   ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        activeListsCount > 0
-                            ? AppStrings.homeDashboard.activeListsSubtitle(activeListsCount)
-                            : familyName ?? '',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingXTiny),
-                    Icon(
-                      Directionality.of(context) == TextDirection.rtl
-                          ? Icons.chevron_left
-                          : Icons.chevron_right,
-                      size: kIconSizeSmall,
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ],
+                Icon(
+                  Directionality.of(context) == TextDirection.rtl
+                      ? Icons.chevron_left
+                      : Icons.chevron_right,
+                  size: kIconSizeSmall,
+                  color: cs.onSurfaceVariant,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-
-            ],
-          );
+      ],
+    );
   }
 
   /// Bottom sheet עם פרטי המשתמש
@@ -532,8 +463,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.home_outlined, size: 16, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 4),
+                  Icon(Icons.home_outlined, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                  const SizedBox(width: kSpacingXTiny),
                   Text(familyName, style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant)),
                 ],
               ),
@@ -547,7 +478,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   width: 8, height: 8,
                   decoration: BoxDecoration(shape: BoxShape.circle, color: cs.primary),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: kSpacingTiny),
                 Text(AppStrings.common.connected, style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
               ],
             ),
@@ -576,26 +507,35 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/icon_active_lists.webp', width: 36, height: 36),
-            const SizedBox(width: 8),
-            Text(
-              strings.activeListsTitle,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+          decoration: BoxDecoration(
+            color: theme.extension<AppBrand>()?.paperBackground?.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+              const SizedBox(width: kSpacingSmall),
+              Text(
+                strings.activeListsTitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              '${activeLists.length}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: cs.onSurfaceVariant,
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                '${activeLists.length}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.outline,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: kSpacingSmall),
 
@@ -733,19 +673,22 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
                   child: Row(
                     children: [
-                      // אימוג'י בעיגול צבעוני — Hero animation to details
+                      // Material Icon בעיגול צבעוני — Hero animation to details
                       Hero(
                         tag: 'list_hero_${list.id}',
                         child: Container(
-                          width: 50,
-                          height: 50,
+                          width: 44,
+                          height: 44,
                           decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.12),
+                            color: accentColor.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: Text(list.typeEmoji,
-                                style: const TextStyle(fontSize: kFontSizeTitle)),
+                            child: Icon(
+                              ListTypes.getByKeySafe(list.type).icon,
+                              color: accentColor,
+                              size: kIconSizeMedium,
+                            ),
                           ),
                         ),
                       ),
@@ -785,7 +728,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   minHeight: kProgressIndicatorHeight,
                                 ),
                               ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: kSpacingXTiny),
                               // סטטוס טקסט
                               Row(
                                 children: [

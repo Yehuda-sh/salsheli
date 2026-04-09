@@ -23,6 +23,9 @@ import '../../../../services/pending_invites_service.dart';
 class PendingInvitesBanner extends StatelessWidget {
   const PendingInvitesBanner({super.key});
 
+  /// Cached service — avoid creating new instance per build
+  static final _service = PendingInvitesService();
+
   @override
   Widget build(BuildContext context) {
     final userContext = context.watch<UserContext>();
@@ -30,10 +33,8 @@ class PendingInvitesBanner extends StatelessWidget {
 
     if (userId == null) return const SizedBox.shrink();
 
-    final service = PendingInvitesService();
-
     return StreamBuilder<List<PendingRequest>>(
-      stream: service.watchPendingInvitesForUser(userId),
+      stream: _service.watchPendingInvitesForUser(userId),
       initialData: const [],
       builder: (context, snapshot) {
         final invites = snapshot.data ?? [];
@@ -74,7 +75,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
         color: cs.tertiaryContainer.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: cs.tertiary.withValues(alpha: 0.3)),
-        boxShadow: [BoxShadow(color: cs.tertiary.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [BoxShadow(color: cs.tertiary.withValues(alpha: 0.08), blurRadius: kSpacingSmall, offset: const Offset(0, 2))],
       ),
       child: Material(
         color: Colors.transparent,
@@ -122,9 +123,9 @@ class _PendingInviteBannerContent extends StatelessWidget {
                           ),
                           if (invites.length > 1) ...[
                             // תיקון Const לביצועים
-                            const SizedBox(width: 6),
+                            const SizedBox(width: kSpacingTiny),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
                               decoration: BoxDecoration(
                                 color: cs.tertiary,
                                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),

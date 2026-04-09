@@ -1,0 +1,22 @@
+{
+  "templateName": "ארוחת שבת",
+  "description": "כל מה שצריך לשבת מושלמת — מקידוש ועד קינוח",
+  "icon": "🕯️",
+  "items": [
+    {"source": "bakery", "searchTerm": "חלה", "quantity": 2, "unit": "יח'", "fallbackName": "חלות"},
+    {"source": "supermarket", "searchTerm": "יין", "quantity": 1, "unit": "יח'", "fallbackName": "יין לקידוש"},
+    {"source": "supermarket", "searchTerm": "מיץ ענבים", "quantity": 1, "unit": "יח'", "fallbackName": "מיץ ענבים"},
+    {"source": "butcher", "searchTerm": "עוף", "quantity": 1, "unit": "יח'", "fallbackName": "עוף שלם"},
+    {"source": "butcher", "searchTerm": "בשר", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "בשר לצלי"},
+    {"source": "greengrocer", "searchTerm": "תפוח אדמה", "quantity": 1, "unit": "ק\"ג", "fallbackName": "תפוחי אדמה"},
+    {"source": "supermarket", "searchTerm": "אורז", "quantity": 1, "unit": "יח'", "fallbackName": "אורז"},
+    {"source": "supermarket", "searchTerm": "חומוס", "quantity": 2, "unit": "יח'", "fallbackName": "חומוס"},
+    {"source": "supermarket", "searchTerm": "טחינה", "quantity": 1, "unit": "יח'", "fallbackName": "טחינה"},
+    {"source": "greengrocer", "searchTerm": "עגבניה", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "עגבניות לסלט"},
+    {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 3, "unit": "יח'", "fallbackName": "מלפפונים לסלט"},
+    {"source": "supermarket", "searchTerm": "מרק", "quantity": 1, "unit": "יח'", "fallbackName": "מרק עוף"},
+    {"source": "supermarket", "searchTerm": "שתייה", "quantity": 2, "unit": "יח'", "fallbackName": "שתייה קלה"},
+    {"source": "bakery", "searchTerm": "עוגה", "quantity": 1, "unit": "יח'", "fallbackName": "עוגה/קינוח"},
+    {"source": "supermarket", "searchTerm": "נרות שבת", "quantity": 1, "unit": "יח'", "fallbackName": "נרות שבת"}
+  ]
+}

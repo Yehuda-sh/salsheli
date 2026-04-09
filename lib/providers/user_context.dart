@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/error_utils.dart';
 import '../services/push_notification_service.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
@@ -136,8 +137,8 @@ class UserContext with ChangeNotifier {
       return result;
     } catch (e) {
       _errorMessage = errorMessagePrefix != null
-          ? '$errorMessagePrefix: ${e.toString()}'
-          : e.toString();
+          ? '$errorMessagePrefix: ${userFriendlyError(e, context: 'loadUser')}'
+          : userFriendlyError(e, context: 'loadUser');
       if (rethrowError) rethrow;
       return null;
     } finally {
@@ -559,7 +560,11 @@ class UserContext with ChangeNotifier {
   }
 
   /// מעדכן פרופיל משתמש (עדכון חלקי)
-  Future<void> updateUserProfile({String? name, String? avatar}) async {
+  ///
+  /// [name] — שם חדש
+  /// [avatar] — אימוג'י אווטאר (legacy)
+  /// [profileImageUrl] — URL של תמונת פרופיל מ-Firebase Storage
+  Future<void> updateUserProfile({String? name, String? avatar, String? profileImageUrl}) async {
     if (_user == null) {
       throw UserRepositoryException('אין משתמש מחובר');
     }
@@ -569,10 +574,11 @@ class UserContext with ChangeNotifier {
       setLoading: false,
       errorMessagePrefix: 'שגיאה בעדכון פרופיל',
       action: () async {
+        // אם יש תמונת פרופיל חדשה, היא מחליפה את האימוג'י
         await _repository.updateProfile(
           userId: _user!.id,
           name: name,
-          avatar: avatar,
+          avatar: profileImageUrl ?? avatar,
         );
         _user = await _repository.fetchUser(_user!.id);
       },

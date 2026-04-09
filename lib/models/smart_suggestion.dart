@@ -74,6 +74,7 @@ class SmartSuggestion {
 
   /// 🇮🇱 יחידת מידה
   /// 🇬🇧 Unit of measurement
+  /// ⚠️ defaultValue must be literal for json_serializable — matches kDefaultProductUnit
   @JsonKey(defaultValue: 'יח\'')
   final String unit;
 

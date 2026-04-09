@@ -23,8 +23,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../config/storage_locations_config.dart';
+import '../../core/error_utils.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
+import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/custom_location.dart';
 import '../../providers/inventory_provider.dart';
@@ -37,17 +39,78 @@ import '../../config/filters_config.dart';
 import '../common/app_loading_skeleton.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
-  const PantryProductSelectionSheet({super.key});
+  /// סינון ראשוני — אם מועבר, הקטלוג נפתח עם חיפוש/סינון מוגדר מראש
+  final String? initialSearchQuery;
+
+  /// קטגוריות לסינון מראש (לדוגמה: מוצרי יסוד)
+  final Set<String>? initialCategories;
+
+  const PantryProductSelectionSheet({super.key, this.initialSearchQuery, this.initialCategories});
 
   /// מציג את ה-bottom sheet לבחירת מוצרים
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {String? initialSearchQuery, Set<String>? initialCategories}) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const PantryProductSelectionSheet(),
+      builder: (_) => PantryProductSelectionSheet(initialSearchQuery: initialSearchQuery, initialCategories: initialCategories),
     );
+  }
+
+  /// קטגוריות מוצרי יסוד — מהקטלוג האמיתי
+  static const Set<String> basicCategories = {
+    'מוצרי חלב',
+    'לחם ומאפים',
+    'אורז ופסטה',
+    'שמנים ורטבים',
+    'תבלינים ואפייה',
+    'שימורים',
+    'משקאות',
+    'מוצרי ניקיון',
+    'מוצרי בית',
+    'קפה ותה',
+  };
+
+  /// מוצרי יסוד — שמות ספציפיים (לא מילות מפתח רחבות)
+  /// כל ערך הוא תחילת שם מוצר — match מדויק יותר
+  static const List<String> _basicProductStarts = [
+    // חלב וביצים
+    'חלב תנובה', 'חלב 3%', 'חלב 1%',
+    'ביצים', '12 ביצים',
+    'חמאה', 'מרגרינה',
+    'גבינה צהובה', 'גבינה לבנה',
+    'שמנת מתוקה', 'שמנת חמוצה',
+    'יוגורט טבעי', 'יוגורט לבן', 'יוגורט ביו',
+    'קוטג',
+    // לחם
+    'לחם אחיד', 'לחם לבן', 'לחם מלא', 'לחם פרוס',
+    'פיתה',
+    // מזווה
+    'אורז בסמטי', 'אורז לבן', 'אורז 1',
+    'פסטה מסולסל', 'פסטה ספגטי', 'ספגטי',
+    'קמח לבן', 'קמח רגיל', 'קמח 1',
+    'סוכר לבן', 'סוכר 1',
+    'מלח שולחן', 'מלח רגיל',
+    'שמן זית', 'שמן קנולה', 'שמן חמניות',
+    // שימורים
+    'טונה', 'רסק עגבניות',
+    'גרגירי חומוס', 'חומוס מוכן',
+    'טחינה גולמית', 'טחינה יום',
+    'תירס מתוק',
+    // תבלינים
+    'פפריקה מתוקה', 'כורכום טחון', 'פלפל שחור',
+    // משקאות
+    'מים מינרליים',
+    'קפה טורקי', 'קפה נמס',
+    // ניקיון
+    'נייר טואלט', 'סבון כלים', 'אקונומיקה',
+  ];
+
+  /// בודק אם מוצר הוא מוצר יסוד — match מדויק לפי תחילת שם בלבד
+  static bool isBasicProduct(Map<String, dynamic> product) {
+    final name = (product['name'] as String? ?? '').toLowerCase();
+    return _basicProductStarts.any((start) => name.startsWith(start.toLowerCase()));
   }
 
   @override
@@ -65,6 +128,7 @@ class _PantryProductSelectionSheetState
   Set<String> _categories = {};
   String? _selectedCategory;
   String _searchQuery = '';
+  bool _showBasicsOnly = false;
 
   /// 🆕 שמות מוצרים שכבר קיימים במזווה (לתצוגת "במזווה")
   Set<String> _existingProductNames = {};
@@ -85,8 +149,18 @@ class _PantryProductSelectionSheetState
   @override
   void initState() {
     super.initState();
+    // אם יש סינון ראשוני — הפעל אותו
+    if (widget.initialSearchQuery != null) {
+      _searchQuery = widget.initialSearchQuery!;
+      _searchController.text = widget.initialSearchQuery!;
+    }
+    if (widget.initialCategories != null) {
+      _showBasicsOnly = true;
+    }
     _loadProducts();
   }
+
+  // _applyInitialCategoryFilter removed — replaced by _showBasicsOnly flag + _filterProducts()
 
   @override
   void dispose() {
@@ -186,17 +260,18 @@ class _PantryProductSelectionSheetState
 
       if (!mounted) return;
 
-      setState(() {
-        _allProducts = products;
-        _filteredProducts = products;
-        _categories = categories;
-        _existingProductNames = existingNames;
-        _isLoading = false;
-      });
+      _allProducts = products;
+      _categories = categories;
+      _existingProductNames = existingNames;
+      _isLoading = false;
+      // סנן לפי מצב ראשוני (basics / search)
+      _filterProducts();
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = AppStrings.inventory.loadProductsError(e.toString());
+        _errorMessage = AppStrings.inventory.loadProductsError(
+          userFriendlyError(e, context: 'loadProducts'),
+        );
         _isLoading = false;
       });
     }
@@ -205,9 +280,16 @@ class _PantryProductSelectionSheetState
   void _filterProducts() {
     setState(() {
       _filteredProducts = _allProducts.where((product) {
-        // סינון לפי קטגוריה
+        final category = product['category'] as String? ?? '';
+
+        // סינון "מוצרי יסוד" — שמות מוצרים ספציפיים
+        if (_showBasicsOnly && !PantryProductSelectionSheet.isBasicProduct(product)) {
+          return false;
+        }
+
+        // סינון לפי קטגוריה ספציפית
         if (_selectedCategory != null) {
-          if (product['category'] != _selectedCategory) {
+          if (category != _selectedCategory) {
             return false;
           }
         }
@@ -479,6 +561,7 @@ class _PantryProductSelectionSheetState
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final appBrand = Theme.of(context).extension<AppBrand>();
     final mediaQuery = MediaQuery.of(context);
 
     return Container(
@@ -507,11 +590,11 @@ class _PantryProductSelectionSheetState
                 // Handle
                 Container(
                   margin: const EdgeInsets.only(top: kSpacingSmall),
-                  width: 40,
-                  height: 4,
+                  width: kButtonHeightSmall + kSpacingXTiny,
+                  height: kSpacingXTiny,
                   decoration: BoxDecoration(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(kStickyNoteRadius),
                   ),
             ),
 
@@ -584,16 +667,34 @@ class _PantryProductSelectionSheetState
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                 children: [
+                  // מוצרי יסוד — chip מיוחד
+                  Padding(
+                    padding: const EdgeInsets.only(left: kSpacingSmall),
+                    child: FilterChip(
+                      label: Text(AppStrings.inventory.basicsCategoryFilter),
+                      selected: _showBasicsOnly,
+                      avatar: _showBasicsOnly ? const Icon(Icons.check, size: kFontSizeSmall) : null,
+                      onSelected: (_) {
+                        unawaited(HapticFeedback.selectionClick());
+                        setState(() {
+                          _showBasicsOnly = !_showBasicsOnly;
+                          _selectedCategory = null;
+                        });
+                        _filterProducts();
+                      },
+                    ),
+                  ),
                   // כל הקטגוריות
                   Padding(
                     padding: const EdgeInsets.only(left: kSpacingSmall),
                     child: FilterChip(
                       label: Text(AppStrings.inventory.allCategoriesFilter),
-                      selected: _selectedCategory == null,
+                      selected: _selectedCategory == null && !_showBasicsOnly,
                       onSelected: (_) {
                         unawaited(HapticFeedback.selectionClick());
                         setState(() {
                           _selectedCategory = null;
+                          _showBasicsOnly = false;
                         });
                         _filterProducts();
                       },
@@ -650,7 +751,7 @@ class _PantryProductSelectionSheetState
 
                 // רשימת מוצרים
                 Expanded(
-                  child: _buildProductsList(cs),
+                  child: _buildProductsList(cs, appBrand),
                 ),
               ],
             ),
@@ -660,7 +761,7 @@ class _PantryProductSelectionSheetState
     );
   }
 
-  Widget _buildProductsList(ColorScheme cs) {
+  Widget _buildProductsList(ColorScheme cs, AppBrand? appBrand) {
     if (_isLoading) {
       return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
     }
@@ -670,7 +771,7 @@ class _PantryProductSelectionSheetState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: cs.error),
+            Icon(Icons.error_outline, size: kIconSizeXXLarge, color: cs.error),
             const SizedBox(height: kSpacingMedium),
             Text(_errorMessage!, style: TextStyle(color: cs.error)),
             const SizedBox(height: kSpacingMedium),
@@ -691,7 +792,7 @@ class _PantryProductSelectionSheetState
           children: [
             Icon(
               Icons.search_off,
-              size: 64,
+              size: kIconSizeXXLarge,
               color: cs.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: kSpacingMedium),
@@ -731,12 +832,12 @@ class _PantryProductSelectionSheetState
       itemCount: _filteredProducts.length,
       itemBuilder: (context, index) {
         final product = _filteredProducts[index];
-        return _buildProductCard(product, cs);
+        return _buildProductCard(product, cs, appBrand);
       },
     );
   }
 
-  Widget _buildProductCard(Map<String, dynamic> product, ColorScheme cs) {
+  Widget _buildProductCard(Map<String, dynamic> product, ColorScheme cs, AppBrand? appBrand) {
     final name = product['name'] as String? ?? 'מוצר';
     final category = product['category'] as String? ?? 'אחר';
     final brand = product['brand'] as String?;
@@ -753,7 +854,7 @@ class _PantryProductSelectionSheetState
     final justAdded = _justAddedProductId == productId;
 
     // צבע לפי מקור
-    final sourceColor = _getSourceColor(source, cs);
+    final sourceColor = _getSourceColor(source, cs, appBrand);
 
     // ✅ Cache success color — used multiple times in this card
     final successColor = StatusColors.getColor(StatusType.success, context);
@@ -792,14 +893,14 @@ class _PantryProductSelectionSheetState
                 children: [
                   // אייקון
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: kIconSizeXLarge,
+                    height: kIconSizeXLarge,
                     decoration: BoxDecoration(
                       color: sourceColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(kBorderRadius),
                     ),
                     child: Center(
-                      child: Text(icon, style: const TextStyle(fontSize: 24)),
+                      child: Text(icon, style: const TextStyle(fontSize: kFontSizeTitle)),
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
@@ -840,7 +941,7 @@ class _PantryProductSelectionSheetState
                                   children: [
                                     Icon(
                                       Icons.check,
-                                      size: 12,
+                                      size: kFontSizeSmall,
                                       color: cs.onPrimary,
                                     ),
                                     const SizedBox(width: 2),
@@ -908,8 +1009,8 @@ class _PantryProductSelectionSheetState
 
                   // כפתור הוספה - גדול יותר עם אזור לחיצה נוח
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: kIconSizeXLarge,
+                    height: kIconSizeXLarge,
                     decoration: BoxDecoration(
                       color: isInPantry
                           ? successColor.withValues(alpha: 0.1)
@@ -919,8 +1020,8 @@ class _PantryProductSelectionSheetState
                     child: isAdding
                         ? const Center(
                             child: SizedBox(
-                              width: 24,
-                              height: 24,
+                              width: kIconSizeMedium,
+                              height: kIconSizeMedium,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
                           )
@@ -931,7 +1032,7 @@ class _PantryProductSelectionSheetState
                             color: isInPantry
                                 ? successColor
                                 : cs.primary,
-                            size: 32,
+                            size: kSpacingXLarge,
                           ),
                   ),
                 ],
@@ -944,18 +1045,18 @@ class _PantryProductSelectionSheetState
   }
 
   /// צבע לפי מקור - משתמש בצבעי sticky notes מהtheme
-  Color _getSourceColor(String source, ColorScheme cs) {
+  Color _getSourceColor(String source, ColorScheme cs, AppBrand? appBrand) {
     switch (source) {
       case 'pharmacy':
-        return kStickyPink;
+        return appBrand?.stickyPink ?? kStickyPink;
       case 'greengrocer':
-        return kStickyGreen;
+        return appBrand?.stickyGreen ?? kStickyGreen;
       case 'butcher':
-        return kStickyYellow;
+        return appBrand?.stickyYellow ?? kStickyYellow;
       case 'bakery':
-        return kStickyYellow;
+        return appBrand?.stickyYellow ?? kStickyYellow;
       case 'market':
-        return kStickyCyan;
+        return appBrand?.stickyCyan ?? kStickyCyan;
       case 'supermarket':
       default:
         return cs.primary;

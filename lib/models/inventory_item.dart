@@ -75,6 +75,7 @@ class InventoryItem {
   final int quantity;
 
   /// יחידת מידה (e.g., "יח'", "ק"ג", "ליטר")
+  /// ⚠️ defaultValue must be literal for json_serializable — matches kDefaultProductUnit
   @JsonKey(defaultValue: 'יח\'')
   final String unit;
 

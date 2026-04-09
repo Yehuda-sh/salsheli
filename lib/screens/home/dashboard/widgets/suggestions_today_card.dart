@@ -13,9 +13,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../../../config/list_types_config.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/suggestion_status.dart';
 import '../../../../models/shopping_list.dart';
@@ -62,11 +65,12 @@ class _LoadingState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: kStickyYellow.withValues(alpha: 0.3),
+        color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Center(
@@ -74,8 +78,8 @@ class _LoadingState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SizedBox(
-              width: 18,
-              height: 18,
+              width: kIconSizeSmallPlus,
+              height: kIconSizeSmallPlus,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 color: cs.primary,
@@ -104,125 +108,143 @@ String _cleanProductName(String name) {
   // הסר רווחים מיותרים
   var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
 
-  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל")
-  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח)\s*$'), '');
+  // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל", "750 מל", "1000 גרם")
+  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח|מיליליטר)\s*$'), '');
 
-  // קצר אם עדיין ארוך
-  if (clean.length > 25) {
-    clean = '${clean.substring(0, 22)}...';
-  }
+  // הסר מילים אנגליות בודדות בסוף (כמו "selected", "classic", "X")
+  clean = clean.replaceAll(RegExp(r'\s+[a-zA-Z]{1,15}\s*$'), '');
 
-  return clean;
+  // הסר סוגריים עם תוכן אנגלי
+  clean = clean.replaceAll(RegExp(r'\s*\([a-zA-Z\s]+\)\s*$'), '');
+
+  // הסר מספרים בודדים שנשארו בסוף (כמו "1", "500")
+  clean = clean.replaceAll(RegExp(r'\s+\d+\.?\d*\s*$'), '');
+
+  // לא מקצרים ידנית — maxLines+ellipsis ב-Text widget מטפל
+  return clean.trim();
 }
 
-class _SuggestionsCarousel extends StatelessWidget {
+class _SuggestionsCarousel extends StatefulWidget {
   final List<SmartSuggestion> suggestions;
 
   const _SuggestionsCarousel({required this.suggestions});
 
   @override
+  State<_SuggestionsCarousel> createState() => _SuggestionsCarouselState();
+}
+
+class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
+  int _currentPage = 0;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת Highlighter style (v4.0)
+        // כותרת: ממורכזת עם הוסף הכל בשורה מתחת
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: kStickyOrange.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-              border: const BorderDirectional(
-                start: BorderSide(
-                  color: kStickyOrangeDark,
-                  width: 4,
+          child: Column(
+            children: [
+              // שורה ראשית — ממורכזת, עם רקע paper לקריאות על קווי מחברת
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+                decoration: BoxDecoration(
+                  color: brand?.paperBackground?.withValues(alpha: 0.85),
+                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                    const SizedBox(width: kSpacingSmall),
+                    Text(
+                      AppStrings.suggestionsToday.title,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: kSpacingXTiny),
+                    Text(
+                      '${widget.suggestions.length}',
+                      style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+                    ),
+                    const SizedBox(width: kSpacingSmallPlus),
+                    _AddAllButton(suggestions: widget.suggestions),
+                  ],
                 ),
               ),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: kStickyOrange.withValues(alpha: 0.25),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                  ),
-                  child: const Icon(
-                    Icons.inventory_2_outlined,
-                    size: 18,
-                    color: kStickyOrangeDark,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  AppStrings.suggestionsToday.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                // "הוסף הכל" button
-                _AddAllButton(suggestions: suggestions),
-                const SizedBox(width: kSpacingSmall),
-                // Badge עם shimmer
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: kStickyOrange.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(kBorderRadius),
-                    border: Border.all(
-                      color: kStickyOrange.withValues(alpha: 0.4),
-                    ),
-                  ),
-                  child: Text(
-                    AppStrings.suggestionsToday.itemCount(suggestions.length),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: kStickyOrangeDark,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .shimmer(
-                      delay: 3000.ms,
-                      duration: 1000.ms,
-                      color: kStickyOrange.withValues(alpha: 0.3),
-                    ),
-              ],
-            ),
+            ],
           ),
         ),
 
         // קרוסלה אופקית
         SizedBox(
           height: 165,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            physics: const BouncingScrollPhysics(),
-            itemCount: suggestions.length,
-            itemBuilder: (context, index) {
-              // סיבוב אקראי קטן לכל כרטיס
-              final rotation = (index.isEven ? 1 : -1) * 0.02;
-              return RepaintBoundary(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    left: index == 0 ? 0 : kSpacingSmall,
-                    right: index == suggestions.length - 1 ? 0 : 0,
-                  ),
-                  child: _StickyNoteCard(
-                    suggestion: suggestions[index],
-                    rotation: rotation,
-                    index: index,
-                  ),
-                ),
-              );
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              if (notification is ScrollUpdateNotification) {
+                final page = (notification.metrics.pixels / 180).round();
+                if (page != _currentPage && page >= 0 && page < widget.suggestions.length) {
+                  setState(() => _currentPage = page);
+                }
+              }
+              return false;
             },
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              physics: const BouncingScrollPhysics(),
+              itemCount: widget.suggestions.length,
+              itemBuilder: (context, index) {
+                // סיבוב אקראי קטן לכל כרטיס
+                final rotation = (index.isEven ? 1 : -1) * 0.02;
+                return RepaintBoundary(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: index == 0 ? 0 : kSpacingSmall,
+                      right: index == widget.suggestions.length - 1 ? 0 : 0,
+                    ),
+                    child: _StickyNoteCard(
+                      suggestion: widget.suggestions[index],
+                      rotation: rotation,
+                      index: index,
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ),
+
+        // Dot indicator (רק אם יש יותר מ-2 כרטיסים)
+        if (widget.suggestions.length > 2)
+          Padding(
+            padding: const EdgeInsets.only(top: kSpacingSmall),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.suggestions.length, (i) {
+                final isActive = i == _currentPage;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: isActive ? 16 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? cs.primary.withValues(alpha: 0.7)
+                        : cs.outline.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                );
+              }),
+            ),
+          ),
       ],
     );
   }
@@ -252,19 +274,19 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool get _isUnknownStatus =>
       widget.suggestion.status == SuggestionStatus.unknown;
 
-  Color _getCardColor(String urgency) {
+  Color _getCardColor(String urgency, AppBrand? brand) {
     // ⚠️ Grey for unknown status
     if (_isUnknownStatus) return Theme.of(context).colorScheme.outline;
 
     switch (urgency) {
       case 'critical':
-        return kStickyPink;
+        return brand?.stickyPink ?? kStickyPink;
       case 'high':
-        return kStickyOrange;
+        return brand?.stickyOrange ?? kStickyOrange;
       case 'medium':
-        return kStickyYellow;
+        return brand?.stickyYellow ?? kStickyYellow;
       default:
-        return kStickyGreen;
+        return brand?.stickyGreen ?? kStickyGreen;
     }
   }
 
@@ -297,6 +319,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
   Future<void> _onAdd(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -314,13 +337,55 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.suggestionsToday.noActiveLists),
-            backgroundColor: kStickyOrange,
+            backgroundColor: brand?.stickyOrange ?? kStickyOrange,
           ),
         );
         return;
       }
 
-      final targetList = activeLists.first;
+      // אם יש יותר מרשימה אחת — dialog בחירה
+      ShoppingList targetList;
+      if (activeLists.length == 1) {
+        targetList = activeLists.first;
+      } else {
+        final chosen = await showModalBottomSheet<ShoppingList>(
+          context: context,
+          backgroundColor: cs.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+          ),
+          isScrollControlled: true,
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+          builder: (ctx) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Text(
+                    AppStrings.suggestionsToday.chooseListTitle,
+                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: activeLists.map((l) => ListTile(
+                      leading: Icon(ListTypes.getByKeySafe(l.type).icon, color: ListTypes.getColor(l.type, cs, brand)),
+                      title: Text(l.name),
+                      subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
+                      onTap: () => Navigator.pop(ctx, l),
+                    )).toList(),
+                  ),
+                ),
+                const SizedBox(height: kSpacingSmall),
+              ],
+            ),
+          ),
+        );
+        if (chosen == null || !mounted) return;
+        targetList = chosen;
+      }
       final item = widget.suggestion.toUnifiedListItem();
 
       await listsProvider.addUnifiedItem(targetList.id, item);
@@ -336,14 +401,14 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         SnackBar(
           content: Row(
             children: [
-              Icon(Icons.check_circle, color: cs.onPrimary, size: 20),
-              const SizedBox(width: 8),
+              Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
+              const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
               ),
             ],
           ),
-          backgroundColor: kStickyGreen,
+          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -353,7 +418,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -364,6 +429,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   Future<void> _onDismiss(BuildContext context) async {
+    final brand = Theme.of(context).extension<AppBrand>();
     if (_isProcessing) return;
 
     setState(() => _isProcessing = true);
@@ -380,7 +446,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
-          backgroundColor: kStickyCyan,
+          backgroundColor: brand?.stickyCyan ?? kStickyCyan,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -390,7 +456,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -404,8 +470,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
     final suggestion = widget.suggestion;
-    final cardColor = _getCardColor(suggestion.urgency);
+    final cardColor = _getCardColor(suggestion.urgency, brand);
     final shadowColor = theme.shadowColor;
 
     final result = GestureDetector(
@@ -475,7 +542,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
             // תוכן הכרטיס
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 20, 12, 10),
+              padding: const EdgeInsets.fromLTRB(kSpacingSmallPlus, 20, kSpacingSmallPlus, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -500,17 +567,17 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   ),
                   const SizedBox(height: kSpacingSmall),
 
-                  // שם המוצר — מנקה ומקצר
+                  // שם המוצר — מנקה, פונט קטן יותר, 3 שורות
                   Expanded(
                     child: Text(
                       _cleanProductName(suggestion.productName),
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
-                        height: 1.3,
-                        fontSize: kFontSizeBody,
+                        height: 1.25,
+                        fontSize: kFontSizeSmall,
                       ),
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
@@ -519,8 +586,8 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   // כמות במלאי
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: kSpacingSmall,
+                      vertical: kSpacingXTiny,
                     ),
                     decoration: BoxDecoration(
                       color: cs.scrim.withValues(alpha: 0.08),
@@ -539,7 +606,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 3),
                       decoration: BoxDecoration(
                         color: cs.tertiary.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -560,15 +627,15 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: kSpacingTiny),
                   ],
 
-                  // כפתורי פעולה
+                  // כפתורי פעולה — שורה מסודרת: X | + הוסף
                   if (_isProcessing)
                     Center(
                       child: SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: kIconSizeSmallPlus,
+                        height: kIconSizeSmallPlus,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
                           color: cs.onSurface.withValues(alpha: 0.6),
@@ -578,26 +645,39 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   else
                     Row(
                       children: [
-                        // כפתור הוסף (always enabled - safe operation)
+                        // כפתור X (dismiss) — עיגול קטן בצד
+                        if (!_isUnknownStatus)
+                          GestureDetector(
+                            onTap: () => _onDismiss(context),
+                            child: Container(
+                              width: kIconSizeLarge,
+                              height: kIconSizeLarge,
+                              decoration: BoxDecoration(
+                                color: cs.scrim.withValues(alpha: 0.08),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                size: kFontSizeMedium,
+                                color: cs.onSurface.withValues(alpha: 0.5),
+                              ),
+                            ),
+                          ),
+                        const SizedBox(width: kSpacingSmall),
+                        // כפתור הוסף — ממלא את השאר
                         Expanded(
                           child: Material(
-                            color: cs.scrim.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                            color: cs.scrim.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                             child: InkWell(
                               onTap: () => _onAdd(context),
-                              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                ),
+                                padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Icons.add,
-                                      size: 16,
-                                      color: cs.onSurface,
-                                    ),
+                                    Icon(Icons.add, size: kFontSizeMedium, color: cs.onSurface),
                                     const SizedBox(width: kSpacingXTiny),
                                     Text(
                                       AppStrings.suggestionsToday.addButton,
@@ -612,24 +692,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                             ),
                           ),
                         ),
+<<<<<<< HEAD
                         const SizedBox(width: kSpacingTiny),
                         // כפתור X - disabled for unknown
-                        Material(
-                          color: cs.scrim.withValues(alpha: _isUnknownStatus ? 0.03 : 0.06),
-                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          child: InkWell(
-                            onTap: _isUnknownStatus ? null : () => _onDismiss(context),
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Icon(
-                                Icons.close,
-                                size: 16,
-                                color: _isUnknownStatus ? cs.onSurface.withValues(alpha: 0.26) : cs.onSurface.withValues(alpha: 0.45),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                 ],
@@ -689,6 +754,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     final listsProvider = context.read<ShoppingListsProvider>();
     final suggestionsProvider = context.read<SuggestionsProvider>();
     final messenger = ScaffoldMessenger.of(context);
+    final brand = Theme.of(context).extension<AppBrand>();
 
     final activeLists = listsProvider.lists.where((l) => l.status == ShoppingList.statusActive).toList();
     if (activeLists.isEmpty) {
@@ -725,12 +791,14 @@ class _AddAllButtonState extends State<_AddAllButton> {
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],
       ),
-      backgroundColor: kStickyGreen,
+      backgroundColor: brand?.stickyGreen ?? kStickyGreen,
     ));
   }
 
   @override
   Widget build(BuildContext context) {
+    final brand = Theme.of(context).extension<AppBrand>();
+
     return SizedBox(
       height: 28,
       child: TextButton.icon(
@@ -740,14 +808,14 @@ class _AddAllButtonState extends State<_AddAllButton> {
                 width: 14, height: 14,
                 child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : const Icon(Icons.playlist_add, size: 16),
+            : const Icon(Icons.playlist_add, size: kIconSizeSmall),
         label: Text(
           AppStrings.suggestionsToday.addAll,
           style: const TextStyle(fontSize: kFontSizeTiny),
         ),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-          foregroundColor: kStickyOrangeDark,
+          foregroundColor: brand?.stickyOrange ?? kStickyOrange,
         ),
       ),
     );

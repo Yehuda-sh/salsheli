@@ -36,6 +36,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/status_colors.dart';
 import '../../services/auth_service.dart';
 import '../../core/ui_constants.dart';
@@ -120,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen>
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: StatusColors.getOnContainer(type, context), size: 24),
+            Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
             const SizedBox(width: kSpacingSmall),
             Expanded(
               child: Text(
@@ -198,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleLogin() | Login failed: $e');
-      final errorMsg = e.toString().replaceAll('Exception: ', '');
+      final errorMsg = userFriendlyError(e, context: 'login');
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -247,8 +248,7 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
-          final errorMsg = e.toString().replaceAll('Exception: ', '');
-          _showStatus(errorMsg, type: StatusType.error);
+          _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
         }
       }
     }
@@ -284,8 +284,7 @@ class _LoginScreenState extends State<LoginScreen>
         setState(() => _isLoading = false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
-          final errorMsg = e.toString().replaceAll('Exception: ', '');
-          _showStatus(errorMsg, type: StatusType.error);
+          _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
         }
       }
     }
@@ -360,6 +359,21 @@ class _LoginScreenState extends State<LoginScreen>
     {'name': 'אורי שלום', 'email': 'ori.shalom@demo.com', 'role': 'Member', 'group': '🧓 סבא, צופה בכהן'},
     {'name': 'ליאור דהן', 'email': 'lior.dahan@demo.com', 'role': 'Admin', 'group': '😴 לא פעיל'},
     {'name': 'נעמה רוזן', 'email': 'naama.rozen@demo.com', 'role': 'Admin', 'group': '🎉 Power User'},
+    // 🆕 משתמש חדש לגמרי
+    {'name': 'יעל מזרחי', 'email': 'yael.fresh@demo.com', 'role': 'Admin', 'group': '🆕 Empty States'},
+    // 🔵 Social login users
+    {'name': 'גיל גוגל', 'email': 'gil.google@demo.com', 'role': 'Admin', 'group': '🔵 Google Sign-In'},
+    {'name': 'apple_user@icloud.com', 'email': 'apple_user@icloud.com', 'role': 'Admin', 'group': '🍎 Apple Sign-In'},
+    // 🌍 International
+    {'name': 'Mike Johnson', 'email': 'mike.johnson@demo.com', 'role': 'Admin', 'group': '🌍 English Speaker'},
+    {"name": "ג'ורג' חביב", 'email': 'george.haviv@demo.com', 'role': 'Admin', 'group': '🔤 Special Chars'},
+    // 🏠 שותפות דירה
+    {'name': 'קרן אביב', 'email': 'keren.aviv@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},
+    {'name': 'הילה מורג', 'email': 'hila.morag@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},
+    {'name': 'ספיר דוד', 'email': 'sapir.david@demo.com', 'role': 'Editor', 'group': '🏠 שותפות דירה'},
+    // 👴 מבוגר + 🚪 הוסר
+    {'name': 'שלמה ברקוביץ', 'email': 'shlomo.berk@demo.com', 'role': 'Admin', 'group': '👴 Elderly'},
+    {'name': 'אילן פרץ', 'email': 'ilan.peretz@demo.com', 'role': 'Admin', 'group': '🚪 Removed User'},
   ];
 
   /// סיסמה לכל משתמשי הדמו
@@ -423,8 +437,8 @@ class _LoginScreenState extends State<LoginScreen>
               // 🧪 DEV MODE - Quick Login Button (Glassmorphic)
               if (kDebugMode)
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
-                  left: 8,
+                  top: MediaQuery.of(context).padding.top + kSpacingSmall,
+                  left: kSpacingSmall,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                     child: BackdropFilter(
@@ -442,12 +456,12 @@ class _LoginScreenState extends State<LoginScreen>
                           onTap: _showQuickLoginDialog,
                           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.bug_report, size: 16, color: cs.tertiary),
-                                SizedBox(width: 4),
+                                Icon(Icons.bug_report, size: kIconSizeSmall, color: cs.tertiary),
+                                const SizedBox(width: kSpacingXTiny),
                                 Text(
                                   'DEV',
                                   style: TextStyle(
@@ -519,7 +533,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 .animate()
                                 .fadeIn(duration: 400.ms)
                                 .slideX(begin: -0.1, curve: Curves.easeOutCubic),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: kSpacingXTiny),
                             Text(
                               AppStrings.auth.loginSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
@@ -592,7 +606,7 @@ class _LoginScreenState extends State<LoginScreen>
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.emailLabel,
                                 hintText: AppStrings.auth.emailHint,
-                                prefixIcon: Icon(Icons.email_outlined),
+                                prefixIcon: const Icon(Icons.email_outlined),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(kBorderRadius),
                                 ),
@@ -728,14 +742,14 @@ class _LoginScreenState extends State<LoginScreen>
                                 onPressed: _isLoading ? null : _handleLogin,
                                 icon: _isLoading
                                     ? SizedBox(
-                                        width: 20,
-                                        height: 20,
+                                        width: kIconSizeSmallPlus,
+                                        height: kIconSizeSmallPlus,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
                                           color: cs.onPrimary,
                                         ),
                                       )
-                                    : Icon(Icons.login),
+                                    : const Icon(Icons.login),
                                 label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
                                 style: FilledButton.styleFrom(
                                   minimumSize: const Size.fromHeight(48),

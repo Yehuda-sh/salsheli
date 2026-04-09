@@ -71,7 +71,7 @@ class ListTypeKeys with ConfigValidation {
   static final Set<String> _allSet = all.toSet();
 
   /// המרת String למפתח מוכר (עם Fallback)
-  /// שימושי בטעינת נתונים מה-Database (Firestore/Hive)
+  /// שימושי בטעינת נתונים מה-Database (Firestore)
   static String resolve(String? key) {
     _instance.ensureValid();
     if (key == null) return other;

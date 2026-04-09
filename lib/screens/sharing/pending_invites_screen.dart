@@ -379,9 +379,9 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         color: cs.primaryContainer.withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.mail_outline, size: 64, color: cs.primary),
+                      child: Icon(Icons.mail_outline, size: kIconSizeXXLarge, color: cs.primary),
                     ),
-                    SizedBox(height: kSpacingLarge),
+                    const SizedBox(height: kSpacingLarge),
                     Text(
                       AppStrings.pendingInvitesScreen.emptyTitle,
                       style: TextStyle(
@@ -390,13 +390,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                         color: cs.onSurface,
                       ),
                     ),
-                    SizedBox(height: kSpacingSmall),
+                    const SizedBox(height: kSpacingSmall),
                     Text(
                       AppStrings.pendingInvitesScreen.emptySubtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(color: cs.onSurfaceVariant),
                     ),
-                    SizedBox(height: kSpacingLarge),
+                    const SizedBox(height: kSpacingLarge),
                     Text(
                       AppStrings.pendingInvitesScreen.pullToRefresh,
                       style: TextStyle(fontSize: kFontSizeTiny, color: cs.outline),
@@ -481,7 +481,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 style: const TextStyle(fontSize: kFontSizeSmall),
               ),
 
-              SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingTiny),
 
               // תפקיד
               Row(
@@ -515,7 +515,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 ],
               ),
 
-              SizedBox(height: kSpacingTiny),
+              const SizedBox(height: kSpacingTiny),
 
               // זמן
               Text(
@@ -549,7 +549,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: OutlinedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _declineInvite(invite),
-                        icon: Icon(Icons.close, size: 18),
+                        icon: const Icon(Icons.close, size: kFontSizeLarge),
                         label: Text(strings.declineButton),
                         style: OutlinedButton.styleFrom(
                           // ✅ Theme-aware: צבע שגיאה
@@ -567,11 +567,11 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                       child: ElevatedButton.icon(
                         // נעול אם מעבדים הזמנה אחרת
                         onPressed: _processingInviteId != null ? null : () => _acceptInvite(invite),
-                        icon: Icon(Icons.check, size: 18),
+                        icon: const Icon(Icons.check, size: kFontSizeLarge),
                         label: Text(strings.acceptButton),
                         style: ElevatedButton.styleFrom(
                           // ✅ Theme-aware: צבע הצלחה מ-AppBrand
-                          backgroundColor: kStickyGreen,
+                          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
                           foregroundColor: cs.onSurface,
                       ),
                     ),

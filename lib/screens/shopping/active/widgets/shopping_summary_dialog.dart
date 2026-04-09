@@ -4,6 +4,7 @@ import '../../../../widgets/common/sticky_button.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import '../../../../core/ui_constants.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 
 enum ShoppingSummaryResult {
@@ -59,10 +60,11 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     // אם יש pending ומציגים אפשרויות - הצג מסך בחירה
     if (_showPendingOptions && widget.pending > 0) {
-      return _buildPendingOptionsDialog(cs);
+      return _buildPendingOptionsDialog(cs, brand);
     }
 
     // מסך סיכום רגיל
@@ -105,7 +107,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
               icon: Icons.check_circle,
               label: AppStrings.shopping.activePurchased,
               value: AppStrings.shopping.summaryPurchased(widget.purchased, widget.total),
-              color: kStickyGreen,
+              color: brand?.stickyGreen ?? kStickyGreen,
             ),
 
             // 🚫 לא צריך
@@ -127,7 +129,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 icon: Icons.radio_button_unchecked,
                 label: AppStrings.shopping.summaryNotMarked,
                 value: '${widget.pending}',
-                color: kStickyOrange,
+                color: brand?.stickyOrange ?? kStickyOrange,
               ),
 
             // 🏪 מאיפה קנית? (אופציונלי)
@@ -136,7 +138,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
               Row(
                 children: [
                   Icon(Icons.store_outlined, size: 18, color: cs.onSurfaceVariant),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: kSpacingTiny),
                   Text(
                     AppStrings.shopping.storeQuestion,
                     style: TextStyle(
@@ -145,7 +147,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                       color: cs.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: kSpacingXTiny),
                   Text(
                     AppStrings.common.optional,
                     style: TextStyle(
@@ -165,7 +167,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                     final store = entry.value;
                     final isSelected = _selectedStoreName == store;
                     // צבעים מתחלפים לפתקיות
-                    final colors = [kStickyYellow, kStickyGreen, kStickyCyan, kStickyPink, kStickyOrange, kStickyPurple];
+                    final colors = [brand?.stickyYellow ?? kStickyYellow, brand?.stickyGreen ?? kStickyGreen, brand?.stickyCyan ?? kStickyCyan, brand?.stickyPink ?? kStickyPink, brand?.stickyOrange ?? kStickyOrange, brand?.stickyPurple ?? kStickyPurple];
                     final noteColor = colors[entry.key % colors.length];
 
                     return GestureDetector(
@@ -219,7 +221,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
               SizedBox(
                 height: 42,
                 child: TextField(
-                  style: TextStyle(fontSize: kFontSizeSmall),
+                  style: const TextStyle(fontSize: kFontSizeSmall),
                   decoration: InputDecoration(
                     hintText: AppStrings.shopping.otherStoreHint,
                     hintStyle: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
@@ -235,7 +237,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                       borderRadius: BorderRadius.circular(kBorderRadius),
                       borderSide: BorderSide(color: cs.primary),
                     ),
-                    prefixIcon: Icon(Icons.edit_outlined, size: 16, color: cs.onSurfaceVariant),
+                    prefixIcon: Icon(Icons.edit_outlined, size: kIconSizeSmall, color: cs.onSurfaceVariant),
                   ),
                   onChanged: (value) {
                     setState(() {
@@ -254,7 +256,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           button: true,
           child: TextButton(
             onPressed: () {
-              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.cancel));
+              Navigator.pop(context, const ShoppingSummaryOutcome(ShoppingSummaryResult.cancel));
             },
             child: Text(AppStrings.shopping.summaryBack),
           ),
@@ -274,7 +276,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                 Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishNoPending, storeName: _selectedStoreName));
               }
             },
-            color: kStickyGreen,
+            color: brand?.stickyGreen ?? kStickyGreen,
             textColor: cs.onPrimary,
             height: 44,
           ),
@@ -284,12 +286,12 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
   }
 
   /// דיאלוג בחירת אפשרות עבור פריטים ב-pending
-  Widget _buildPendingOptionsDialog(ColorScheme cs) {
+  Widget _buildPendingOptionsDialog(ColorScheme cs, AppBrand? brand) {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.help_outline, color: kStickyOrange, size: kIconSizeLarge),
-          SizedBox(width: kSpacingSmallPlus),
+          Icon(Icons.help_outline, color: brand?.stickyOrange ?? kStickyOrange, size: kIconSizeLarge),
+          const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Text(
               AppStrings.shopping.summaryPendingQuestion(widget.pending),
@@ -325,7 +327,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
           // 📌 אופציה 2: השאר ברשימה
           PendingOptionTile(
             icon: Icons.pause_circle_outline,
-            iconColor: kStickyOrange,
+            iconColor: brand?.stickyOrange ?? kStickyOrange,
             title: AppStrings.shopping.summaryPendingLeave,
             subtitle: AppStrings.shopping.summaryPendingLeaveSubtitle,
             onTap: () {
@@ -402,7 +404,7 @@ class PendingOptionTile extends StatelessWidget {
           child: Row(
             children: [
               Icon(icon, color: iconColor, size: kIconSizeMedium),
-              SizedBox(width: kSpacingSmall),
+              const SizedBox(width: kSpacingSmall),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,8 +457,8 @@ class ShopperAvatar extends StatelessWidget {
     final fgColor = isStarter ? cs.onPrimary : cs.onPrimaryContainer;
 
     return Container(
-      width: 24,
-      height: 24,
+      width: kIconSizeMedium,
+      height: kIconSizeMedium,
       decoration: BoxDecoration(
         color: bgColor,
         shape: BoxShape.circle,

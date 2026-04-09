@@ -190,6 +190,8 @@ class AppStringsEn {
   static const tutorial = TutorialStrings();
   // Legal — uses Hebrew base (legal content stays in Hebrew for now)
   static const legal = LegalStrings();
+  static const actionCenter = ActionCenterStringsEn();
+  static const onboardingTips = OnboardingTipsStringsEn();
 }
 
 // ========================================
@@ -298,6 +300,7 @@ class CommonStringsEn extends CommonStrings {
 
   String get logout => 'Log Out';
   String get cancel => 'Cancel';
+  @override String get moreOptions => 'More options';
   String get save => 'Save';
   String get delete => 'Delete';
   String get edit => 'Edit';
@@ -861,6 +864,7 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get enterNameError => 'Please enter a name';
   @override String get profileUpdated => 'Profile updated successfully';
   @override String profileUpdateError(String error) => 'Error updating: $error';
+  @override String imageUploadCooldown(String timeRemaining) => 'You can change your photo again in $timeRemaining';
 
   @override String get loggingOut => 'Logging out...';
   @override String logoutError(String error) => 'Logout error: $error';
@@ -1226,6 +1230,7 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get inPantryBadge => 'In pantry';
   @override String get customProductNotFound => 'Not found? Add a custom product';
   @override String get allCategoriesFilter => 'All';
+  @override String get basicsCategoryFilter => 'Basics';
   @override String get tapToAddToPantry => 'Tap to add to pantry';
   @override String get productFallbackName => 'Product';
   @override String get categoryFallbackName => 'Other';
@@ -1236,6 +1241,17 @@ class InventoryStringsEn extends InventoryStrings {
   @override String pantryMergeContent(int count) =>
       'You have $count items in your personal pantry.\n\nWould you like to transfer them to your new household pantry?';
   @override String get pantryMergeButton => 'Transfer to household pantry';
+
+  // Quick Scan to decrement stock
+  @override String get quickScanTooltip => 'Scan to use item';
+  @override String get quickScanTitle => 'Quick Scan';
+  @override String quickScanDecremented(String name, int remaining) =>
+      '$name — $remaining left';
+  @override String quickScanOutOfStock(String name) =>
+      '$name is out! Add to shopping list?';
+  @override String get quickScanNotInPantry => 'Product not found in pantry';
+  @override String get quickScanAddToList => 'Add to list';
+  @override String get quickScanUndo => 'Undo';
 }
 
 // ========================================
@@ -1482,6 +1498,8 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   String inStock(int stock, String unit) => 'In stock: $stock $unit';
   String get addButton => 'Add';
   String get noActiveLists => 'No active lists - create a new list';
+  @override
+  String get chooseListTitle => 'Add to which list?';
   @override
   String get addedToList => 'Added to list';
   String addedToListName(String productName) => 'Added "$productName" to list';
@@ -1787,6 +1805,7 @@ class PantryStringsEn extends PantryStrings {
   String get noStarterItemsFound => 'No starter items found';
   String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   String get starterItemsError => 'Error adding starter items';
+  @override String get starterSearchQuery => 'milk eggs bread oil sugar flour rice';
   String get suggestionsTitle => 'Essentials for your pantry';
   String get hideSuggestions => 'Hide';
   String itemDeleted(String name) => '$name deleted';
@@ -1879,4 +1898,32 @@ class ShoppingSummaryStringsEn extends ShoppingSummaryStrings {
   @override String get loadError => 'Error loading summary';
   @override String get notFound => 'List not found';
   @override String get notFoundSubtitle => 'The list may have been deleted';
+}
+
+class OnboardingTipsStringsEn extends OnboardingTipsStrings {
+  const OnboardingTipsStringsEn();
+
+  @override String get fillPantryTitle => 'Set up your pantry';
+  @override String get fillPantrySubtitle => 'Tell us what you have at home — we\'ll alert when something runs out';
+  @override String get fillPantryAction => 'Start';
+
+  @override String get inviteFamilyTitle => 'Invite your family';
+  @override String get inviteFamilySubtitle => 'Share shopping lists — shop together in real time';
+  @override String get inviteFamilyAction => 'Invite';
+
+  @override String get createListsTitle => 'Create more lists';
+  @override String get createListsSubtitle => 'Supermarket, produce, bakery, events — a list for every need';
+  @override String get createListsAction => 'Create';
+}
+
+class ActionCenterStringsEn extends ActionCenterStrings {
+  const ActionCenterStringsEn();
+
+  @override String get title => 'Needs Attention';
+  @override String pendingRequests(int count) => '$count pending requests';
+  @override String get review => 'View';
+  @override String get overdueList => 'Overdue list!';
+  @override String get startShopping => 'Start';
+  @override String criticalStock(int count) => '$count items out of stock';
+  @override String get goToPantry => 'Pantry';
 }

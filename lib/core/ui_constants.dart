@@ -67,6 +67,11 @@ const Color kNotebookBlue = Color(0xFF4285F4);   // Blue notebook lines
 const Color kNotebookBlueSoft = Color(0xFF9CA8B8); // Soft grayish-blue lines (Hybrid Premium)
 const Color kNotebookRed = Color(0xFFE53935);    // Red notebook line
 
+// Dark mode variants — muted for dark paper
+const Color kNotebookBlueDark = Color(0xFF5A7FB5);     // Muted blue for dark paper
+const Color kNotebookBlueSoftDark = Color(0xFF5A6A80); // Soft blue for dark mode subtle lines
+const Color kNotebookRedDark = Color(0xFFB35B58);      // Muted red for dark paper
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Notebook Background Properties
 // ═══════════════════════════════════════════════════════════════════════════
@@ -109,15 +114,6 @@ const double kHighlightOpacity = 0.3;
 
 /// טשטוש רקע מאחורי דיאלוגים — ייצור תחושת עומק premium
 const double kDialogBlurSigma = 8.0;
-
-/// רוחב צל רך על דיאלוגים — blur radius גבוה = צל מפוזר ועדין
-const double kDialogShadowBlur = 24.0;
-
-/// שקיפות צל דיאלוג — עדין ולא כבד
-const double kDialogShadowOpacity = 0.15;
-
-/// היסט צל דיאלוג — יוצר תחושת ריחוף
-const double kDialogShadowOffset = 8.0;
 
 /// שקיפות barrier אחידה לכל דיאלוגים (scrim alpha)
 const double kDialogBarrierAlpha = 0.35;

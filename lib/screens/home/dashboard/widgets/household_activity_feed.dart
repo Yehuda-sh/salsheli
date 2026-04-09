@@ -25,7 +25,10 @@ class HouseholdActivityFeed extends StatelessWidget {
   /// Callback למעבר לטאב היסטוריה (במקום push חדש)
   final VoidCallback? onSeeAllHistory;
 
-  const HouseholdActivityFeed({super.key, this.onSeeAllHistory});
+  /// האם להציג כפתור "ראה הכל" — false כשמוצג בתוך מסך היסטוריה
+  final bool showSeeAll;
+
+  const HouseholdActivityFeed({super.key, this.onSeeAllHistory, this.showSeeAll = true});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +59,7 @@ class HouseholdActivityFeed extends StatelessWidget {
             const SizedBox(width: kSpacingSmall),
             Text(AppStrings.homeDashboard.activityFeedTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const Spacer(),
-            TextButton(
+            if (showSeeAll) TextButton(
               onPressed: () {
                 unawaited(HapticFeedback.lightImpact());
                 if (onSeeAllHistory != null) {
@@ -317,14 +320,14 @@ class _ReceiptFallbackTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: kSpacingTiny),
                       Text(
                         '• ${_ActivityEventTile._formatRelativeDate(receipt.date)}',
                         style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: kSpacingXTiny),
                   Text(
                     AppStrings.homeDashboard.completedShoppingAt(receipt.storeName),
                     style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant.withValues(alpha: 0.9)),

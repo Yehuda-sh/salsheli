@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/ui_constants.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/shopping_item_status.dart';
 import '../../../../models/unified_list_item.dart';
@@ -31,12 +32,13 @@ class ActiveShoppingItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     // 🎨 צבע רקע לפי סטטוס
     Color? backgroundColor;
     switch (status) {
       case ShoppingItemStatus.purchased:
-        backgroundColor = kStickyGreen.withValues(alpha: 0.15);
+        backgroundColor = (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15);
         break;
       case ShoppingItemStatus.outOfStock:
         backgroundColor = cs.error.withValues(alpha: 0.15);
@@ -135,7 +137,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                         child: Icon(
                           _statusIcon,
                           key: ValueKey(status),
-                          color: _statusColor(cs),
+                          color: _statusColor(cs, brand),
                           size: kIconSizeMediumPlus,
                         ),
                       ),
@@ -149,7 +151,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                           decoration: status == ShoppingItemStatus.purchased
                               ? TextDecoration.lineThrough
                               : null,
-                          decorationColor: kStickyGreen,
+                          decorationColor: brand?.stickyGreen ?? kStickyGreen,
                           decorationThickness: 2.0,
                           color: status == ShoppingItemStatus.purchased ||
                                   status == ShoppingItemStatus.notNeeded
@@ -288,10 +290,10 @@ class ActiveShoppingItemTile extends StatelessWidget {
     }
   }
 
-  Color _statusColor(ColorScheme cs) {
+  Color _statusColor(ColorScheme cs, AppBrand? brand) {
     switch (status) {
       case ShoppingItemStatus.purchased:
-        return kStickyGreen;
+        return brand?.stickyGreen ?? kStickyGreen;
       case ShoppingItemStatus.outOfStock:
         return cs.error;
       case ShoppingItemStatus.notNeeded:
@@ -307,6 +309,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
 
   void _showQuantityEditor(BuildContext context, ThemeData theme, ColorScheme _) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     int qty = item.quantity ?? 1;
 
     showModalBottomSheet(
@@ -401,8 +404,8 @@ class ActiveShoppingItemTile extends StatelessWidget {
                                 }
                               : null,
                           style: IconButton.styleFrom(
-                            backgroundColor: kStickyGreen.withValues(alpha: 0.2),
-                            foregroundColor: kStickyGreen,
+                            backgroundColor: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.2),
+                            foregroundColor: brand?.stickyGreen ?? kStickyGreen,
                             minimumSize: const Size(48, 48),
                           ),
                           icon: const Icon(Icons.add, size: kIconSizeMedium),

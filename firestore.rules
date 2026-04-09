@@ -103,7 +103,8 @@ service cloud.firestore {
       return type in [
         'invite', 'request_approved', 'request_rejected',
         'role_changed', 'user_removed', 'who_brings_volunteer',
-        'new_vote', 'vote_tie', 'member_left', 'low_stock'
+        'new_vote', 'vote_tie', 'member_left', 'low_stock',
+        'expiry_expired', 'expiry_soon'
       ];
     }
 

@@ -280,6 +280,8 @@ class AppNotification {
       case NotificationType.voteTie:
         return listId != null;
       case NotificationType.lowStock:
+      case NotificationType.expiryExpired:
+      case NotificationType.expirySoon:
         return productId != null;
       case NotificationType.requestRejected:
       case NotificationType.userRemoved:
@@ -303,6 +305,8 @@ class AppNotification {
     NotificationType.invite => NotificationPriority.high,
     NotificationType.roleChanged => NotificationPriority.high,
     NotificationType.lowStock => NotificationPriority.high,
+    NotificationType.expiryExpired => NotificationPriority.high,
+    NotificationType.expirySoon => NotificationPriority.normal,
     NotificationType.requestApproved => NotificationPriority.normal,
     NotificationType.requestRejected => NotificationPriority.normal,
     NotificationType.whoBringsVolunteer => NotificationPriority.normal,
@@ -360,6 +364,12 @@ enum NotificationType {
   @JsonValue('low_stock')
   lowStock, // מלאי נמוך במזווה
 
+  @JsonValue('expiry_expired')
+  expiryExpired, // פג תוקף
+
+  @JsonValue('expiry_soon')
+  expirySoon, // תפוגה קרובה
+
   /// ❓ סוג לא מוכר (fallback למניעת קריסה)
   /// Used when server returns an unknown notification type
   @JsonValue('unknown')
@@ -390,6 +400,10 @@ extension NotificationTypeExtension on NotificationType {
         return '👋';
       case NotificationType.lowStock:
         return '📦';
+      case NotificationType.expiryExpired:
+        return '⚠️';
+      case NotificationType.expirySoon:
+        return '⏰';
       case NotificationType.unknown:
         return '❓';
     }
@@ -417,6 +431,10 @@ extension NotificationTypeExtension on NotificationType {
         return 'עזיבה';
       case NotificationType.lowStock:
         return 'מלאי נמוך';
+      case NotificationType.expiryExpired:
+        return 'פג תוקף';
+      case NotificationType.expirySoon:
+        return 'תפוגה קרובה';
       case NotificationType.unknown:
         return 'לא ידוע';
     }
@@ -439,7 +457,10 @@ extension NotificationTypeExtension on NotificationType {
       case NotificationType.requestRejected:
       case NotificationType.voteTie:
         return StatusType.error;
+      case NotificationType.expiryExpired:
+        return StatusType.error;
       case NotificationType.lowStock:
+      case NotificationType.expirySoon:
       case NotificationType.roleChanged:
         return StatusType.warning;
       case NotificationType.requestApproved:

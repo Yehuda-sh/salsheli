@@ -24,6 +24,8 @@ import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
+
+import '../core/constants.dart' show kDefaultProductUnit;
 import 'enums/item_type.dart';
 import 'timestamp_converter.dart' show NullableFlexibleDateTimeConverter;
 
@@ -199,7 +201,7 @@ class UnifiedListItem {
 
   /// 🇮🇱 יחידת מידה (רק למוצרים)
   /// 🇬🇧 Unit (products only)
-  String get unit => productData?['unit'] as String? ?? 'יח\'';
+  String get unit => productData?['unit'] as String? ?? kDefaultProductUnit;
 
   /// 🇮🇱 מותג/חברה (רק למוצרים)
   /// 🇬🇧 Brand (products only)
@@ -323,7 +325,7 @@ class UnifiedListItem {
     required int quantity,
     required double unitPrice,
     String? barcode,
-    String unit = 'יח\'',
+    String unit = kDefaultProductUnit,
     String? brand,
     bool isChecked = false,
     String? category,
@@ -347,7 +349,6 @@ class UnifiedListItem {
         'unit': unit,
         if (brand != null) 'brand': brand,
       },
-      taskData: null,
       checkedBy: checkedBy,
       checkedAt: checkedAt,
     );
@@ -376,7 +377,6 @@ class UnifiedListItem {
       category: category,
       notes: notes,
       imageUrl: imageUrl,
-      productData: null,
       taskData: {
         if (dueDate != null) 'dueDate': dueDate.toIso8601String(),
         if (assignedTo != null) 'assignedTo': assignedTo,
@@ -429,7 +429,7 @@ class UnifiedListItem {
       quantity: (data['quantity'] as num?)?.toInt() ?? 1,
       unitPrice: (data['unitPrice'] as num?)?.toDouble() ?? 0.0,
       barcode: data['barcode'] as String?,
-      unit: data['unit'] as String? ?? 'יח\'',
+      unit: data['unit'] as String? ?? kDefaultProductUnit,
       category: data['category'] as String?,
       notes: data['notes'] as String?,
       // 🔧 תומך גם ב-imageUrl וגם ב-image_url (לעקביות עם JSON)

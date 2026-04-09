@@ -80,19 +80,20 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         if (mounted) {
           final messenger = ScaffoldMessenger.of(context);
           final navigator = Navigator.of(context);
+          final brand = Theme.of(context).extension<AppBrand>();
 
           messenger.showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.block, color: kStickyPink),
-                  const SizedBox(width: 8),
+                  Icon(Icons.block, color: brand?.stickyPink ?? kStickyPink),
+                  const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(AppStrings.sharing.noPermissionInvite),
                   ),
                 ],
               ),
-              backgroundColor: kStickyPink,
+              backgroundColor: brand?.stickyPink ?? kStickyPink,
             ),
           );
 
@@ -209,6 +210,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final navigator = Navigator.of(context);
       final userContext = context.read<UserContext>();
       final currentUserId = userContext.userId;
+      // TODO: extract to AppStrings.common.unknownUser
       final currentUserName = userContext.user?.name ?? 'משתמש';
       final householdId = userContext.householdId;
 
@@ -320,10 +322,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           ? AppStrings.sharing.inviteSentPending(displayName)
           : AppStrings.sharing.inviteSentUnregistered(displayName);
 
+      final brand = Theme.of(context).extension<AppBrand>();
       messenger.showSnackBar(
         SnackBar(
           content: Text(successMessage),
-          backgroundColor: userExists ? kStickyGreen : kStickyOrange,
+          backgroundColor: userExists ? (brand?.stickyGreen ?? kStickyGreen) : (brand?.stickyOrange ?? kStickyOrange),
         ),
       );
 
@@ -331,10 +334,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      final brand = Theme.of(context).extension<AppBrand>();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'invite')),
-          backgroundColor: kStickyPink,
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
         ),
       );
     } finally {
@@ -369,6 +373,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
 
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -438,22 +443,22 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: kSpacingLarge),
 
                       // 📇 Saved Contacts Section
                       if (_savedContacts.isNotEmpty) ...[
                         StickyNote(
-                          color: kStickyCyan,
+                          color: brand?.stickyCyan ?? kStickyCyan,
                           rotation: 0.01,
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(kSpacingMedium),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
                                     Icon(Icons.contacts_outlined, color: cs.onSurface, size: kIconSizeMedium),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: kSpacingSmall),
                                     Text(
                                       AppStrings.sharing.savedContactsTitle,
                                       style: const TextStyle(
@@ -463,7 +468,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: kSpacingXTiny),
                                 Text(
                                   AppStrings.sharing.savedContactsSubtitle,
                                   style: TextStyle(
@@ -471,16 +476,16 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                     color: cs.onSurface.withValues(alpha: 0.6),
                                   ),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: kSpacingSmallPlus),
                                 // 📄 Pagination: הצגת 3 אנשי קשר ראשונים + "הצג עוד"
                                 ..._getVisibleContacts().map(_buildSavedContactOption),
                                 if (_savedContacts.length > _initialContactsToShow && !_showAllContacts)
                                   Padding(
-                                    padding: const EdgeInsets.only(top: 8),
+                                    padding: const EdgeInsets.only(top: kSpacingSmall),
                                     child: Center(
                                       child: TextButton.icon(
                                         onPressed: () => setState(() => _showAllContacts = true),
-                                        icon: const Icon(Icons.expand_more, size: 18),
+                                        icon: const Icon(Icons.expand_more, size: kIconSizeSmallPlus),
                                         label: Text(
                                           AppStrings.sharing.showMoreContacts(_savedContacts.length - _initialContactsToShow),
                                           style: const TextStyle(fontSize: kFontSizeSmall),
@@ -492,7 +497,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: kSpacingMedium),
                         Center(
                           child: Text(
                             AppStrings.sharing.orEnterNewEmail,
@@ -502,11 +507,11 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: kSpacingMedium),
                       ] else if (_isLoadingContacts) ...[
                         const Center(
                           child: Padding(
-                            padding: EdgeInsets.all(16),
+                            padding: EdgeInsets.all(kSpacingMedium),
                             child: CircularProgressIndicator(),
                           ),
                         ),
@@ -514,10 +519,10 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
                       // Email Field (StickyNote Yellow)
                       StickyNote(
-                        color: kStickyYellow,
+                        color: brand?.stickyYellow ?? kStickyYellow,
                         rotation: 0.01,
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(kSpacingMedium),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -528,7 +533,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: kSpacingSmall),
                               TextFormField(
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
@@ -554,7 +559,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               ),
                               if (_selectedSavedContact != null)
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 8),
+                                  padding: const EdgeInsets.only(top: kSpacingSmall),
                                   child: Text(
                                     AppStrings.sharing.contactSelectedEmailDisabled,
                                     style: TextStyle(
@@ -569,14 +574,14 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: kSpacingMedium),
 
                       // Role Selector (StickyNote Cyan)
                       StickyNote(
-                        color: kStickyCyan,
+                        color: brand?.stickyCyan ?? kStickyCyan,
                         rotation: -0.01,
                         child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(kSpacingMedium),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -587,7 +592,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: kSpacingSmallPlus),
 
                               // Admin Option
                               _buildRoleOption(
@@ -597,7 +602,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 description: AppStrings.sharing.roleAdminDesc,
                               ),
 
-                              const SizedBox(height: 8),
+                              const SizedBox(height: kSpacingSmall),
 
                               // Editor Option (Default)
                               _buildRoleOption(
@@ -607,7 +612,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                                 description: AppStrings.sharing.roleEditorDesc,
                               ),
 
-                              const SizedBox(height: 8),
+                              const SizedBox(height: kSpacingSmall),
 
                               // Viewer Option
                               _buildRoleOption(
@@ -621,7 +626,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: kSpacingMedium),
 
                       // 📝 Confirmation Text - מה יקרה בלחיצה
                       if (_selectedSavedContact != null ||
@@ -630,18 +635,18 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           padding: const EdgeInsets.all(kSpacingSmall),
                           margin: const EdgeInsets.only(bottom: kSpacingMedium),
                           decoration: BoxDecoration(
-                            color: kStickyGreen.withValues(alpha: 0.15),
+                            color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             border: Border.all(
-                              color: kStickyGreen.withValues(alpha: 0.3),
+                              color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.3),
                             ),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.info_outline,
-                                size: 16,
-                                color: kStickyGreen.withValues(alpha: 0.8),
+                                size: kIconSizeSmall,
+                                color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.8),
                               ),
                               const SizedBox(width: kSpacingSmall),
                               Expanded(
@@ -671,7 +676,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                             ),
                           ),
 
-                          const SizedBox(width: 16),
+                          const SizedBox(width: kSpacingMedium),
 
                           // Invite Button
                           Expanded(
@@ -680,7 +685,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                               label: _isLoading
                                   ? AppStrings.sharing.inviting
                                   : AppStrings.sharing.inviteButton,
-                              color: kStickyGreen,
+                              color: brand?.stickyGreen ?? kStickyGreen,
                               onPressed: _isLoading ? null : _inviteUser,
                             ),
                           ),
@@ -703,12 +708,13 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
 
   Widget _buildSavedContactOption(SavedContact contact) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final isSelected = _selectedSavedContact?.userId == contact.userId;
     final isAlreadyShared = widget.list.sharedUsers.values.any((u) => u.userId == contact.userId);
     final isOwner = widget.list.createdBy == contact.userId;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: GestureDetector(
         onTap: (isAlreadyShared || isOwner || _isLoading)
             ? null
@@ -721,7 +727,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                 });
               },
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(kSpacingSmallPlus),
           decoration: BoxDecoration(
             color: isSelected
                 ? cs.onPrimary
@@ -774,7 +780,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                         ),
                       ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: kSpacingSmallPlus),
               // User Info
               Expanded(
                 child: Column(
@@ -794,30 +800,30 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           ),
                         ),
                         if (isOwner) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: kSpacingSmall),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
                             decoration: BoxDecoration(
-                              color: kStickyPurple.withValues(alpha: 0.3),
+                              color: (brand?.stickyPurple ?? kStickyPurple).withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.roleOwner,
-                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyPurple.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: (brand?.stickyPurple ?? kStickyPurple).withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
                         if (isAlreadyShared && !isOwner) ...[
-                          const SizedBox(width: 8),
+                          const SizedBox(width: kSpacingSmall),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
                             decoration: BoxDecoration(
-                              color: kStickyOrange.withValues(alpha: 0.3),
+                              color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.3),
                               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             ),
                             child: Text(
                               AppStrings.sharing.alreadySharedBadge,
-                              style: TextStyle(fontSize: kFontSizeTiny, color: kStickyOrange.withValues(alpha: 0.8)),
+                              style: TextStyle(fontSize: kFontSizeTiny, color: (brand?.stickyOrange ?? kStickyOrange).withValues(alpha: 0.8)),
                             ),
                           ),
                         ],
@@ -857,7 +863,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
     return GestureDetector(
       onTap: _isLoading ? null : () => setState(() => _selectedRole = role),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(kSpacingSmallPlus),
         decoration: BoxDecoration(
           color: isSelected ? cs.onPrimary : cs.surface.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -874,7 +880,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
               color: isSelected ? cs.onSurface : cs.outline,
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(width: kSpacingSmallPlus),
 
             // Emoji
             Text(
@@ -882,7 +888,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
               style: const TextStyle(fontSize: kFontSizeTitle),
             ),
 
-            const SizedBox(width: 12),
+            const SizedBox(width: kSpacingSmallPlus),
 
             // Text
             Expanded(
