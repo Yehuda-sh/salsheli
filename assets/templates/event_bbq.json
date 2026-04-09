@@ -3,131 +3,23 @@
   "description": "כל מה שצריך למנגל מושלם",
   "icon": "🔥",
   "items": [
-    {
-      "source": "butcher",
-      "searchTerm": "פרגיות",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "פרגיות"
-    },
-    {
-      "source": "butcher",
-      "searchTerm": "קבב",
-      "quantity": 1,
-      "unit": "ק\"ג",
-      "fallbackName": "קבב"
-    },
-    {
-      "source": "butcher",
-      "searchTerm": "נקניקיות",
-      "quantity": 0.5,
-      "unit": "ק\"ג",
-      "fallbackName": "נקניקיות"
-    },
-    {
-      "source": "bakery",
-      "searchTerm": "פיתות",
-      "quantity": 6,
-      "unit": "יח'",
-      "fallbackName": "פיתות"
-    },
-    {
-      "source": "bakery",
-      "searchTerm": "לחמניות",
-      "quantity": 8,
-      "unit": "יח'",
-      "fallbackName": "לחמניות"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "עגבניות",
-      "quantity": 0.5,
-      "unit": "ק\"ג",
-      "fallbackName": "עגבניות"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "מלפפונים",
-      "quantity": 3,
-      "unit": "יח'",
-      "fallbackName": "מלפפונים"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "בצל",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "בצל"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "חסה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "חסה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "פחמים",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "פחמים למנגל"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חומוס",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "חומוס"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "טחינה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "טחינה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "עמבה",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "עמבה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "מלפפון חמוץ",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "מלפפונים חמוצים"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "קוקה קולה",
-      "quantity": 6,
-      "unit": "יח'",
-      "fallbackName": "קוקה קולה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "צ'יפס",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "צ'יפס"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "קטשופ",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "קטשופ"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חרדל",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "חרדל"
-    }
+    {"source": "butcher", "searchTerm": "פרגיות", "quantity": 1, "unit": "ק\"ג", "fallbackName": "פרגיות"},
+    {"source": "butcher", "searchTerm": "קבב", "quantity": 1, "unit": "ק\"ג", "fallbackName": "קבב"},
+    {"source": "butcher", "searchTerm": "נקניקיות", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "נקניקיות"},
+    {"source": "bakery", "searchTerm": "פיתה", "quantity": 6, "unit": "יח'", "fallbackName": "פיתות"},
+    {"source": "bakery", "searchTerm": "לחמניות", "quantity": 8, "unit": "יח'", "fallbackName": "לחמניות"},
+    {"source": "greengrocer", "searchTerm": "עגבניה", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "עגבניות"},
+    {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 3, "unit": "יח'", "fallbackName": "מלפפונים"},
+    {"source": "greengrocer", "searchTerm": "בצל", "quantity": 2, "unit": "יח'", "fallbackName": "בצל"},
+    {"source": "greengrocer", "searchTerm": "חסה", "quantity": 1, "unit": "יח'", "fallbackName": "חסה"},
+    {"source": "supermarket", "searchTerm": "פחמים למנגל", "quantity": 1, "unit": "יח'", "fallbackName": "פחמים למנגל"},
+    {"source": "supermarket", "searchTerm": "חומוס אבו", "quantity": 1, "unit": "יח'", "fallbackName": "חומוס"},
+    {"source": "supermarket", "searchTerm": "טחינה גולמית", "quantity": 1, "unit": "יח'", "fallbackName": "טחינה"},
+    {"source": "supermarket", "searchTerm": "עמבה", "quantity": 1, "unit": "יח'", "fallbackName": "עמבה"},
+    {"source": "supermarket", "searchTerm": "מלפפון חמוץ", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים חמוצים"},
+    {"source": "supermarket", "searchTerm": "קוקה קולה", "quantity": 6, "unit": "יח'", "fallbackName": "קוקה קולה"},
+    {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 2, "unit": "יח'", "fallbackName": "צ'יפס"},
+    {"source": "supermarket", "searchTerm": "קטשופ", "quantity": 1, "unit": "יח'", "fallbackName": "קטשופ"},
+    {"source": "supermarket", "searchTerm": "חרדל", "quantity": 1, "unit": "יח'", "fallbackName": "חרדל"}
   ]
 }

@@ -3,110 +3,20 @@
   "description": "חטיפים ושתייה לערב מהנה",
   "icon": "👥",
   "items": [
-    {
-      "source": "supermarket",
-      "searchTerm": "צ'יפס",
-      "quantity": 3,
-      "unit": "יח'",
-      "fallbackName": "צ'יפס"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "ביסלי",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "ביסלי"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "במבה",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "במבה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "בוטנים",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "בוטנים"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "שוקולד",
-      "quantity": 2,
-      "unit": "יח'",
-      "fallbackName": "שוקולד"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "עוגיות",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "עוגיות"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "חומוס",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "חומוס"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "קוקה קולה",
-      "quantity": 6,
-      "unit": "יח'",
-      "fallbackName": "קוקה קולה"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "מיץ",
-      "quantity": 2,
-      "unit": "ליטר",
-      "fallbackName": "מיץ תפוזים"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "מים מינרליים",
-      "quantity": 6,
-      "unit": "יח'",
-      "fallbackName": "מים מינרליים"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "גזר",
-      "quantity": 0.5,
-      "unit": "ק\"ג",
-      "fallbackName": "גזר (לטבילה)"
-    },
-    {
-      "source": "greengrocer",
-      "searchTerm": "מלפפון",
-      "quantity": 3,
-      "unit": "יח'",
-      "fallbackName": "מלפפונים (לטבילה)"
-    },
-    {
-      "source": "bakery",
-      "searchTerm": "פיתות",
-      "quantity": 4,
-      "unit": "יח'",
-      "fallbackName": "פיתות (לטבילה)"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "כוסות",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "כוסות חד פעמיות"
-    },
-    {
-      "source": "supermarket",
-      "searchTerm": "מפיות",
-      "quantity": 1,
-      "unit": "יח'",
-      "fallbackName": "מפיות"
-    }
+    {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 3, "unit": "יח'", "fallbackName": "צ'יפס"},
+    {"source": "supermarket", "searchTerm": "ביסלי", "quantity": 2, "unit": "יח'", "fallbackName": "ביסלי"},
+    {"source": "supermarket", "searchTerm": "במבה", "quantity": 2, "unit": "יח'", "fallbackName": "במבה"},
+    {"source": "supermarket", "searchTerm": "בוטנים מטוגנים", "quantity": 1, "unit": "יח'", "fallbackName": "בוטנים"},
+    {"source": "supermarket", "searchTerm": "שוקולד", "quantity": 2, "unit": "יח'", "fallbackName": "שוקולד"},
+    {"source": "supermarket", "searchTerm": "עוגיות אוזניים", "quantity": 1, "unit": "יח'", "fallbackName": "עוגיות"},
+    {"source": "supermarket", "searchTerm": "חומוס אבו", "quantity": 1, "unit": "יח'", "fallbackName": "חומוס"},
+    {"source": "supermarket", "searchTerm": "קוקה קולה", "quantity": 6, "unit": "יח'", "fallbackName": "קוקה קולה"},
+    {"source": "supermarket", "searchTerm": "מיץ", "quantity": 2, "unit": "ליטר", "fallbackName": "מיץ תפוזים"},
+    {"source": "supermarket", "searchTerm": "מים מינרליים", "quantity": 6, "unit": "יח'", "fallbackName": "מים מינרליים"},
+    {"source": "greengrocer", "searchTerm": "גזר", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "גזר (לטבילה)"},
+    {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 3, "unit": "יח'", "fallbackName": "מלפפונים (לטבילה)"},
+    {"source": "bakery", "searchTerm": "פיתה", "quantity": 4, "unit": "יח'", "fallbackName": "פיתות (לטבילה)"},
+    {"source": "supermarket", "searchTerm": "כוסות", "quantity": 1, "unit": "יח'", "fallbackName": "כוסות חד פעמיות"},
+    {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"}
   ]
 }
