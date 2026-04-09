@@ -310,6 +310,10 @@ class TemplateService {
         return '🎉';
       case 'birthday':
         return '🎂';
+      case 'shabbat':
+        return '🕯️';
+      case 'picnic':
+        return '🧺';
       default:
         return '📋';
     }
@@ -323,6 +327,8 @@ class TemplateService {
       case 'bbq':
       case 'birthday':
       case 'friends':
+      case 'shabbat':
+      case 'picnic':
         return 'event';
       case 'shopping':
         return 'supermarket';
@@ -335,7 +341,7 @@ class TemplateService {
 
   /// האם התבנית היא של אירוע?
   static bool isEventTemplate(String templateId) {
-    return ['bbq', 'birthday', 'friends'].contains(templateId);
+    return ['bbq', 'birthday', 'friends', 'shabbat', 'picnic'].contains(templateId);
   }
 
   /// מחזיר מצב אירוע ברירת מחדל לפי ID תבנית ונראות
