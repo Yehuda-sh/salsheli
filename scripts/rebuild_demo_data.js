@@ -257,7 +257,8 @@ function makeActiveShopper(uid, joinedAt, isStarter) {
 /**
  * Notification — matches AppNotification model
  * Valid types: invite, request_approved, request_rejected, role_changed,
- *   user_removed, who_brings_volunteer, new_vote, vote_tie, member_left, low_stock
+ *   user_removed, who_brings_volunteer, new_vote, vote_tie, member_left,
+ *   low_stock, expiry_expired, expiry_soon
  */
 function makeNotification(id, uid, householdId, type, title, message, opts = {}) {
   return {
@@ -832,7 +833,7 @@ async function main() {
       emoji: null,
       last_updated_by: uids.mike,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      last_purchased: daysAgo(randomInt(1, 7)).toISOString(),
+      last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(randomInt(1, 7))),
       purchase_count: randomInt(1, 10),
     });
   }
@@ -1048,8 +1049,11 @@ async function main() {
     makeNotification('notif_avi_11', uids.avi, hIds.cohen, 'user_removed', 'הוסרת מרשימה', 'הוסרת מרשימת "קניות ישנה"', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), actionData: { listId: 'old_list_123' } }),
     // Edge case: unknown notification type — app should not crash
     makeNotification('notif_avi_12', uids.avi, hIds.cohen, 'future_feature_xyz', 'עדכון מערכת', 'סוג התראה ממאפיין עתידי שטרם קיים באפליקציה', { createdAt: hoursAgo(1), actionData: {} }),
+    // Expiry notifications — tests expiry_soon and expiry_expired types
+    makeNotification('notif_avi_13', uids.avi, hIds.cohen, 'expiry_soon', 'תפוגה קרובה', '"חטיף חלבון" פג תוקף בעוד יומיים', { createdAt: hoursAgo(4), actionData: { productName: 'חטיף חלבון - תפוגה קרובה', productId: 'inv_cohen_expiry' } }),
+    makeNotification('notif_avi_14', uids.avi, hIds.cohen, 'expiry_expired', 'פג תוקף!', 'פג התוקף של "חלב תנובה 3%" — יש להשליך', { createdAt: hoursAgo(2), actionData: { productName: 'חלב תנובה 3%' } }),
   ]);
-  console.log('   🔔 אבי: 12 notifications (6 unread, includes unknown type edge case)');
+  console.log('   🔔 אבי: 14 notifications (8 unread, includes unknown type + expiry edge cases)');
 
   // Ronit notifications (5)
   await createNotifications(uids.ronit, [
@@ -1058,8 +1062,11 @@ async function main() {
     makeNotification('notif_ronit_3', uids.ronit, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
     makeNotification('notif_ronit_4', uids.ronit, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'יובל כהן התנדב להביא "סלט ירקות"', { createdAt: hoursAgo(5), senderId: uids.yuval, senderName: 'יובל כהן', actionData: { listId: 'list_cohen_shabbat' } }),
     makeNotification('notif_ronit_5', uids.ronit, hIds.cohen, 'request_approved', 'בקשה אושרה', 'אישרת את הבקשה של יובל להוסיף "קולה זירו"', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), actionData: { listId: 'list_cohen_weekly' } }),
+    // Vote notifications — tests new_vote and vote_tie types
+    makeNotification('notif_ronit_6', uids.ronit, hIds.cohen, 'new_vote', 'הצבעה חדשה', 'אבי כהן הצביע ברשימת "ארוחת שבת"', { createdAt: hoursAgo(1), senderId: uids.avi, senderName: 'אבי כהן', actionData: { listId: 'list_cohen_shabbat' } }),
+    makeNotification('notif_ronit_7', uids.ronit, hIds.cohen, 'vote_tie', 'תיקו בהצבעה!', 'יש תיקו בהצבעה ברשימת "ארוחת שבת" — נדרשת הכרעה', { createdAt: hoursAgo(0.5), actionData: { listId: 'list_cohen_shabbat' } }),
   ]);
-  console.log('   🔔 רונית: 5 notifications (4 unread)');
+  console.log('   🔔 רונית: 7 notifications (6 unread, includes vote types)');
 
   // Naama notifications (8)
   await createNotifications(uids.naama, [
@@ -1627,7 +1634,7 @@ async function main() {
   console.log(`📦 ~110 inventory items`);
   console.log(`🧾 ~76 receipts`);
   console.log(`📝 ~51 activity log events (all households except yael/apple)`);
-  console.log(`🔔 ~30 notifications`);
+  console.log(`🔔 ~34 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');

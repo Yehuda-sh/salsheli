@@ -20,6 +20,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
+import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/notification.dart';
@@ -500,22 +501,18 @@ class _NotificationTile extends StatelessWidget {
     return tile;
   }
 
-  /// ✅ FIX: Theme-aware colors from AppBrand
+  /// ✅ FIX: Theme-aware colors via model's statusType
   Color _getTypeColor(NotificationType type, ColorScheme cs, AppBrand? brand) {
-    switch (type) {
-      case NotificationType.invite:
-        return cs.primary;
-      case NotificationType.requestApproved:
-        return brand?.success ?? kStickyGreen;
-      case NotificationType.requestRejected:
-      case NotificationType.userRemoved:
-        return cs.error;
-      case NotificationType.roleChanged:
-        return brand?.warning ?? kStickyOrange;
-      case NotificationType.lowStock:
-        return brand?.accent ?? kStickyYellow;
-      default:
-        return cs.secondary;
-    }
+    // invite gets primary (distinct from status-based colors)
+    if (type == NotificationType.invite) return cs.primary;
+
+    // All other types — derive color from semantic statusType
+    return switch (type.statusType) {
+      StatusType.error   => cs.error,
+      StatusType.warning => brand?.warning ?? kStickyOrange,
+      StatusType.success => brand?.success ?? kStickyGreen,
+      StatusType.info    => cs.secondary,
+      StatusType.pending => cs.outline,
+    };
   }
 }
