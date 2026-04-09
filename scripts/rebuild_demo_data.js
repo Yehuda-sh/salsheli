@@ -743,6 +743,13 @@ async function main() {
       const p = inventoryProducts[i];
       const qty = opts.forceQty !== undefined ? opts.forceQty(i) : randomInt(1, 6);
       const minQty = i < 3 ? 3 : randomInt(1, 2);
+      // Notes for some items (every 5th item)
+      const itemNotes = i % 5 === 0 ? (
+        i === 0 ? 'לקנות רק מותג ספציפי' :
+        i === 5 ? 'לבדוק תאריך תפוגה לפני קנייה' :
+        i === 10 ? 'מארז משפחתי עדיף' :
+        'לא לקנות מהמבצע'
+      ) : null;
       await db.collection('households').doc(hId).collection('inventory').doc(`inv_${hId}_${i}`).set({
         id: `inv_${hId}_${i}`,
         product_name: p.name,
@@ -752,16 +759,18 @@ async function main() {
         unit: inventoryUnit(p),
         min_quantity: minQty,
         expiry_date: p.category === 'מוצרי חלב'
-          ? (i === 0 ? daysAgo(2).toISOString()     // expired 2 days ago!
-            : i === 1 ? daysFromNow(1).toISOString() // expires tomorrow
-            : daysFromNow(14).toISOString())          // expires in 2 weeks
+          ? admin.firestore.Timestamp.fromDate(
+              i === 0 ? daysAgo(2)         // expired 2 days ago!
+              : i === 1 ? daysFromNow(1)   // expires tomorrow
+              : daysFromNow(14)            // expires in 2 weeks
+            )
           : null,
-        notes: null,
+        notes: itemNotes,
         is_recurring: Math.random() > 0.3,
         emoji: p.icon || null,
         last_updated_by: ownerUid,
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
-        last_purchased: daysAgo(randomInt(1, 14)).toISOString(),
+        last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(randomInt(1, 14))),
         purchase_count: randomInt(0, 20),
       });
     }
@@ -1534,6 +1543,46 @@ async function main() {
     }
   }
   console.log('   🔢 Naama budget list: item 0 quantity = 24 (large quantity display test)');
+
+  // PATCH 5b: Pantry item with quantity 99 (max boundary test)
+  await db.collection('households').doc(hIds.naama).collection('inventory').doc('inv_naama_max99').set({
+    id: 'inv_naama_max99',
+    product_name: 'שקיות אשפה',
+    category: 'מוצרי ניקיון',
+    location: 'storage',
+    quantity: 99,
+    unit: "יח'",
+    min_quantity: 10,
+    expiry_date: null,
+    notes: 'מארז ענק מקוסטקו - 99 שקיות',
+    is_recurring: true,
+    emoji: null,
+    last_updated_by: uids.naama,
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(7)),
+    purchase_count: 3,
+  });
+  console.log('   🔢 Naama pantry: quantity=99 item (max boundary test)');
+
+  // PATCH 5c: Pantry item with expiry date on non-dairy (snack bar with expiry)
+  await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_cohen_expiry').set({
+    id: 'inv_cohen_expiry',
+    product_name: 'חטיף חלבון - תפוגה קרובה',
+    category: 'ממתקים וחטיפים',
+    location: 'main_pantry',
+    quantity: 3,
+    unit: "יח'",
+    min_quantity: 2,
+    expiry_date: admin.firestore.Timestamp.fromDate(daysFromNow(2)),
+    notes: 'לאכול לפני שנגמר התוקף!',
+    is_recurring: false,
+    emoji: null,
+    last_updated_by: uids.avi,
+    updated_at: admin.firestore.FieldValue.serverTimestamp(),
+    last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(10)),
+    purchase_count: 1,
+  });
+  console.log('   ⏰ Cohen pantry: non-dairy item with expiry date (2 days from now)');
 
   // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
   await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_chores').set({
