@@ -1686,6 +1686,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final hasImage =
         imageUrl != null && !_failedImageUrls.contains(imageUrl);
 
+    debugPrint('🖼️ ${item.productName}: barcode=${item.barcode}, url=$imageUrl, hasImage=$hasImage');
+
     if (!hasImage) {
       return Container(
         width: kIconSizeLarge,
