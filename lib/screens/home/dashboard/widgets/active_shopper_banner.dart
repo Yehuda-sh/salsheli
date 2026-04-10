@@ -178,8 +178,8 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                           // ✅ FIX: Theme-aware color
                           color: cs.onPrimary.withValues(alpha: 0.9),
                         ),
-                        // ✅ FIX: Overflow protection
-                        maxLines: 1,
+                        // ✅ FIX: Overflow protection (2 שורות לטקסט מלא)
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

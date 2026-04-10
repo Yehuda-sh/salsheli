@@ -256,7 +256,9 @@ class _AppLayoutState extends State<AppLayout> {
               destinations: _navItems.asMap().entries.map((entry) {
                 final index = entry.key;
                 final item = entry.value;
-                final badgeCount = widget.badges?[index];
+                // ⚠️ Tab 0 (Home) - לא מציגים תג כי הפעמון ב-AppBar
+                // כבר מציג את אותו ערך (unread notifications). למניעת כפילות.
+                final badgeCount = index == 0 ? null : widget.badges?[index];
 
                 Widget icon = Icon(item.icon);
                 Widget selectedIcon = Icon(item.icon, color: cs.primary);
