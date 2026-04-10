@@ -222,7 +222,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     final lowStockCount = inventoryProvider.getLowStockItems().length;
 
     // v4.0: Build dynamic badges map
-    // Tab 0 (Home): unread notification count
+    // Tab 0 (Home): unread notification count (shown only in AppBar bell, not bottom nav)
     // Tab 1 (Pantry): low stock item count
     final badges = <int, int?>{
       if (_unreadCount > 0) 0: _unreadCount,

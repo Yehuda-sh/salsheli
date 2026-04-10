@@ -105,7 +105,7 @@ class _LoadingState extends StatelessWidget {
 /// מנקה שם מוצר להצגה בפתקית:
 /// - מסיר מספרים בסוף (כמו "1.33ל")
 /// - מסיר סימני % צמודים למילים
-/// - מקצר ל-25 תווים מקסימום
+/// - מסיר מילים כפולות עוקבות (כמו "דג דג" → "דג")
 String _cleanProductName(String name) {
   // הסר רווחים מיותרים
   var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
@@ -121,6 +121,18 @@ String _cleanProductName(String name) {
 
   // הסר מספרים בודדים שנשארו בסוף (כמו "1", "500")
   clean = clean.replaceAll(RegExp(r'\s+\d+\.?\d*\s*$'), '');
+
+  // הסר מילים כפולות עוקבות (כמו "דג דג" → "דג", "טבעי טבעי" → "טבעי")
+  // משתמשים ב-split/dedupe במקום regex בגלל תמיכה ב-Unicode/עברית
+  final words = clean.split(' ');
+  final deduped = <String>[];
+  for (final word in words) {
+    if (word.isEmpty) continue;
+    if (deduped.isEmpty || deduped.last != word) {
+      deduped.add(word);
+    }
+  }
+  clean = deduped.join(' ');
 
   // לא מקצרים ידנית — maxLines+ellipsis ב-Text widget מטפל
   return clean.trim();
