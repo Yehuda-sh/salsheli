@@ -90,7 +90,7 @@ class _PantryStarterPreviewDialogState
               child: Text(
                 strings.starterPreviewTitle,
                 style: const TextStyle(
-                  fontSize: kFontSizeSubtitle,
+                  fontSize: kFontSizeLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),

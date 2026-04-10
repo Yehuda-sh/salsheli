@@ -96,7 +96,7 @@ class _TemplatePreviewDialogState extends State<TemplatePreviewDialog> {
               child: Text(
                 widget.template.name,
                 style: const TextStyle(
-                  fontSize: kFontSizeSubtitle,
+                  fontSize: kFontSizeLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),
