@@ -1458,7 +1458,6 @@ async function main() {
   // ── NAAMA: Add 25 more lists to reach 30+ (power user performance test) ──
   console.log('\n⚡ Creating 25 extra lists for naama (power user)...');
   const listTypes = ['supermarket', 'bakery', 'butcher', 'greengrocer', 'pharmacy', 'market', 'household', 'event', 'other'];
-  const storeNames = ['שופרסל', 'רמי לוי', 'יינות ביתן', 'אושר עד', 'מגה', 'סופר פארם', 'השוק'];
   for (let n = 1; n <= 25; n++) {
     const listType = listTypes[n % listTypes.length];
     const isCompleted = n <= 10;
