@@ -382,15 +382,15 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   ),
                   const Gap(kSpacingMedium),
 
-                  // 📸 תמונת מוצר (במצב עריכה)
+                  // 📸 תמונת מוצר (במצב עריכה) - גדולה ובולטת
                   if (isEditMode && widget.item?.barcode != null && widget.item!.barcode!.length >= 7)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: kSpacingSmall),
+                      padding: const EdgeInsets.only(bottom: kSpacingMedium),
                       child: Center(
                         child: ProductThumbnail(
                           barcode: widget.item!.barcode,
                           category: widget.item!.category ?? '',
-                          size: kIconSizeXXLarge + kSpacingMedium,
+                          size: 140,
                         ),
                       ),
                     ),

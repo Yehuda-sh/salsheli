@@ -38,6 +38,7 @@ import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
+import '../common/product_thumbnail.dart';
 
 enum PantryItemDialogMode {
   add,
@@ -527,6 +528,23 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // ═══════════════════════════════════════════════════════════
+              // 📸 תמונת מוצר (במצב עריכה - גדולה ובולטת)
+              // ═══════════════════════════════════════════════════════════
+              if (widget.mode == PantryItemDialogMode.edit &&
+                  widget.item?.barcode != null &&
+                  widget.item!.barcode!.length >= 7)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                  child: Center(
+                    child: ProductThumbnail(
+                      barcode: widget.item!.barcode,
+                      category: widget.item!.category,
+                      size: 140,
+                    ),
+                  ),
+                ),
+
               // ═══════════════════════════════════════════════════════════
               // 🟢 שלב עליון: אזור מהיר (תמיד פתוח)
               // ═══════════════════════════════════════════════════════════
