@@ -1704,6 +1704,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       child: Image.network(
         imageUrl,
+        headers: ProductImagesConfig.imageHeaders,
         width: kIconSizeXLarge,
         height: kIconSizeXLarge,
         fit: BoxFit.contain,
