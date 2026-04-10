@@ -1,29 +1,39 @@
 // 📄 lib/config/product_images_config.dart
 //
-// Purpose: Image URL generation for products using Rami Levy CDN
+// Purpose: Image URL generation for products using multiple CDN sources
 //
-// URL pattern: https://img.rami-levy.co.il/product/{barcode}/small.jpg
+// Sources (in priority order):
+//   1. Rami Levy CDN: https://img.rami-levy.co.il/product/{barcode}/small.jpg
+//   2. Shufersal Cloudinary: https://res.cloudinary.com/shufersal/image/upload/...
 //
-// Version: 4.1
+// Version: 5.0
 // Last Updated: 10/04/2026
 
-/// Product image URL helper using Rami Levy image CDN
+/// Product image URL helper with multi-source fallback
 class ProductImagesConfig {
   ProductImagesConfig._();
 
-  /// Image CDN base URL
-  static const String _cdnBase = 'https://img.rami-levy.co.il/product';
+  /// Rami Levy CDN base URL
+  static const String _ramiLevyCdnBase = 'https://img.rami-levy.co.il/product';
 
-  /// Credit source name
-  static const String creditSource = 'רמי לוי';
+  /// Shufersal Cloudinary base URL
+  static const String _shufersalCdnBase =
+      'https://res.cloudinary.com/shufersal/image/upload/f_auto,q_auto,w_200/v1/products/products_zoomed';
 
-  /// Credit URL
-  static const String creditUrl = 'https://www.rami-levy.co.il';
+  /// Generate all available image URLs for a barcode (primary first).
+  /// Returns empty list if barcode is invalid.
+  static List<String> getImageUrls(String? barcode) {
+    if (barcode == null || barcode.length < 7) return const [];
+    return [
+      '$_ramiLevyCdnBase/$barcode/small.jpg',
+      '$_shufersalCdnBase/$barcode',
+    ];
+  }
 
-  /// Generate product image URL from barcode.
+  /// Generate primary image URL from barcode (Rami Levy).
   /// Returns null if barcode is invalid or too short.
   static String? getImageUrl(String? barcode) {
     if (barcode == null || barcode.length < 7) return null;
-    return '$_cdnBase/$barcode/small.jpg';
+    return '$_ramiLevyCdnBase/$barcode/small.jpg';
   }
 }

@@ -30,11 +30,9 @@ import '../../../models/shopping_list.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
-import '../../../providers/user_context.dart';
 // notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../settings/household_members_screen.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
@@ -109,42 +107,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     }
   }
 
-  /// מחזיר שם הבית להצגה:
-  /// 1. בית אישי → "הבית שלי"
-  /// 2. householdName קיים → מחזיר אותו
-  /// 3. fallback → גוזר מהשם האחרון של המשתמש ("הבית של כהן")
-  String _getFamilyDisplayName(UserContext userContext) {
-    final strings = AppStrings.homeDashboard;
-    final householdId = userContext.householdId;
-    final userId = userContext.userId;
-
-    if (householdId == null || userId == null) {
-      return strings.personalFamily;
-    }
-
-    // בדיקה אם זו משפחה אישית (auto-generated)
-    if (householdId == 'house_$userId' ||
-        householdId == 'house_${userId.hashCode.abs()}') {
-      return strings.personalFamily;
-    }
-
-    // שם קבוצה אמיתי
-    final householdName = userContext.householdName;
-    if (householdName != null && householdName.trim().isNotEmpty) {
-      return householdName;
-    }
-
-    // fallback: גזירה מהשם האחרון של המשתמש
-    final displayName = userContext.displayName;
-    if (displayName != null && displayName.trim().isNotEmpty) {
-      final parts = displayName.trim().split(' ');
-      final lastName = parts.length >= 2 ? parts.last : parts.first;
-      return '${strings.familyOf}$lastName';
-    }
-
-    return strings.sharedFamily;
-  }
-
   /// עוטף widget באנימציית כניסה מדורגת (רק בפעם הראשונה)
   Widget _staggered(Widget child, int index) {
     if (_hasAnimated) return child;
@@ -166,7 +128,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
-    final userContext = context.watch<UserContext>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
@@ -178,9 +139,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         .where((l) => l.status == ShoppingList.statusActive)
         .toList()
       ..sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
-
-    // שם משפחה להצגה
-    final familyName = _getFamilyDisplayName(userContext);
 
     var sectionIndex = 0;
 
@@ -348,157 +306,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ============================================
-  // 2. COMPACT GREETING — שורת ברכה קומפקטית (avatar עבר ל-AppBar)
-  // ============================================
-  Widget _buildCompactGreeting(BuildContext context, UserContext userContext, int activeListsCount) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final strings = AppStrings.homeDashboard;
-    final userName = userContext.displayName;
-
-    final hour = DateTime.now().hour;
-    final greetingAsset = hour < 12
-        ? 'assets/images/greeting_morning.webp'
-        : hour < 17
-            ? 'assets/images/greeting_afternoon.webp'
-            : hour < 21
-                ? 'assets/images/greeting_evening.webp'
-                : 'assets/images/greeting_night.webp';
-
-    return Row(
-      children: [
-        Image.asset(greetingAsset, width: kIconSizeMedium, height: kIconSizeMedium),
-        const SizedBox(width: kSpacingSmall),
-        Flexible(
-          child: Text(
-            strings.timeBasedGreeting(userName, hour),
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: cs.onSurface,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        const SizedBox(width: kSpacingSmall),
-        if (activeListsCount > 0)
-          GestureDetector(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const HouseholdMembersScreen()),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  strings.activeListsSubtitle(activeListsCount),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-                Icon(
-                  Directionality.of(context) == TextDirection.rtl
-                      ? Icons.chevron_left
-                      : Icons.chevron_right,
-                  size: kIconSizeSmall,
-                  color: cs.onSurfaceVariant,
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// Bottom sheet עם פרטי המשתמש
-  void _showUserInfoSheet(BuildContext context, String? userName, String? familyName) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final userContext = context.read<UserContext>();
-    
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Avatar גדול — תמונת פרופיל מ-Google או initials
-            CircleAvatar(
-              radius: 36,
-              backgroundColor: cs.primaryContainer,
-              backgroundImage: userContext.profileImageUrl != null
-                  ? NetworkImage(userContext.profileImageUrl!)
-                  : null,
-              onBackgroundImageError: userContext.profileImageUrl != null
-                  ? (_, _) {} // fallback to child
-                  : null,
-              child: userContext.profileImageUrl == null
-                  ? Text(
-                      (userName ?? '?').split(' ').where((p) => p.isNotEmpty).map((p) => p[0]).take(2).join(),
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(height: kSpacingMedium),
-            // שם
-            Text(
-              userName ?? AppStrings.homeDashboard.userFallback,
-              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (familyName != null) ...[
-              const SizedBox(height: kSpacingTiny),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.home_outlined, size: kIconSizeSmall, color: cs.onSurfaceVariant),
-                  const SizedBox(width: kSpacingXTiny),
-                  Flexible(
-                    child: Text(
-                      familyName,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-            const SizedBox(height: kSpacingSmall),
-            // סטטוס
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 8, height: 8,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: cs.primary),
-                ),
-                const SizedBox(width: kSpacingTiny),
-                Text(AppStrings.common.connected, style: theme.textTheme.bodySmall?.copyWith(color: cs.primary)),
-              ],
-            ),
-            if (userContext.userEmail != null) ...[
-              const SizedBox(height: kSpacingSmall),
-              Text(userContext.userEmail!, style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant)),
-            ],
-            const SizedBox(height: kSpacingMedium),
-          ],
-        ),
-      ),
       ),
     );
   }
@@ -738,7 +545,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                 ),
                               ),
                               const SizedBox(height: kSpacingXTiny),
-                              // סטטוס טקסט
+                              // ספירה קומפקטית
                               Row(
                                 children: [
                                   Icon(
@@ -754,8 +561,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   Text(
                                     isDone
                                         ? strings.completed
-                                        : strings.remainingItems(
-                                            uncheckedCount),
+                                        : '$checkedCount/$totalCount',
                                     style:
                                         theme.textTheme.bodySmall?.copyWith(
                                       color: isDone
@@ -764,15 +570,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                       fontWeight: isDone
                                           ? FontWeight.w600
                                           : FontWeight.normal,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  // ספירה קומפקטית
-                                  Text(
-                                    '$checkedCount/$totalCount',
-                                    style:
-                                        theme.textTheme.labelSmall?.copyWith(
-                                      color: cs.onSurfaceVariant,
                                     ),
                                   ),
                                 ],

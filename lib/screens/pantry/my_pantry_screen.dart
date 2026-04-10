@@ -911,7 +911,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final totalItems = items.length;
     final lowStockCount = items.where((i) => i.isLowStock).length;
-    final locationsCount = items.map((i) => i.location).where((l) => l.isNotEmpty).toSet().length;
+
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
@@ -935,13 +935,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             ),
             const SizedBox(width: kSpacingSmall),
           ],
-          _buildSummaryChip(
-            emoji: '📍',
-            value: '$locationsCount',
-            label: AppStrings.pantry.tabLocations,
-            color: cs.tertiary,
-            theme: theme,
-          ),
+          const Spacer(),
         ],
       ),
     );
@@ -1481,24 +1475,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  Text(
-                                    FiltersConfig.getCategoryInfo(
-                                      FiltersConfig.resolveCategory(item.category),
-                                    ).label,
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: cs.onSurfaceVariant,
-                                      fontSize: kFontSizeTiny,
-                                    ),
-                                  ),
-                                  if (item.expiryDate != null) ...[
-                                    const SizedBox(width: kSpacingSmall),
-                                    _buildExpiryBadge(item),
-                                  ],
-                                ],
-                              ),
+                              if (item.expiryDate != null) ...[
+                                const SizedBox(height: 2),
+                                _buildExpiryBadge(item),
+                              ],
                             ],
                           ),
                         ),
@@ -1538,25 +1518,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                           : cs.primary.withValues(alpha: 0.15),
                                     ),
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        '${item.quantity}',
-                                        style: theme.textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: isWarning || isCritical ? statusColor : cs.primary,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      Text(
-                                        item.unit,
-                                        style: theme.textTheme.bodySmall?.copyWith(
-                                          fontSize: kFontSizeTiny,
-                                          color: cs.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    '${item.quantity} ${item.unit}',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: isWarning || isCritical ? statusColor : cs.primary,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
@@ -1655,7 +1623,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final thumbnail = ProductThumbnail(
       barcode: item.barcode,
       category: item.category,
-      size: kIconSizeXLarge,
+      size: kIconSizeXLarge + kSpacingSmall,
       tintColor: statusColor,
     );
 

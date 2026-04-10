@@ -34,6 +34,7 @@ import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
 import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
+import '../common/product_thumbnail.dart';
 import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
 
@@ -380,6 +381,20 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                     ],
                   ),
                   const Gap(kSpacingMedium),
+
+                  // 📸 תמונת מוצר (במצב עריכה)
+                  if (isEditMode && widget.item?.barcode != null && widget.item!.barcode!.length >= 7)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: kSpacingSmall),
+                      child: Center(
+                        child: ProductThumbnail(
+                          barcode: widget.item!.barcode,
+                          category: widget.item!.category ?? '',
+                          size: kIconSizeXXLarge + kSpacingMedium,
+                        ),
+                      ),
+                    ),
+
                   const Divider(),
                   const Gap(kSpacingSmall),
 

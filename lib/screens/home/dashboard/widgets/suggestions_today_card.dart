@@ -27,6 +27,7 @@ import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 import '../../../../core/error_utils.dart';
+import '../../../../widgets/common/product_thumbnail.dart';
 
 /// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
@@ -291,33 +292,6 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     }
   }
 
-  String _getUrgencyText(String urgency) {
-    final strings = AppStrings.suggestionsToday;
-    switch (urgency) {
-      case 'critical':
-        return strings.urgencyCritical;
-      case 'high':
-        return strings.urgencyHigh;
-      case 'medium':
-        return strings.urgencyMedium;
-      default:
-        return strings.urgencyLow;
-    }
-  }
-
-  IconData _getUrgencyIcon(String urgency) {
-    switch (urgency) {
-      case 'critical':
-        return Icons.error;
-      case 'high':
-        return Icons.warning_amber;
-      case 'medium':
-        return Icons.info_outline;
-      default:
-        return Icons.lightbulb_outline;
-    }
-  }
-
   Future<void> _onAdd(BuildContext context) async {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
@@ -547,24 +521,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Badge דחיפות
-                  Row(
-                    children: [
-                      Icon(
-                        _getUrgencyIcon(suggestion.urgency),
-                        size: 14,
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                      ),
-                      const SizedBox(width: kSpacingXTiny),
-                      Text(
-                        _getUrgencyText(suggestion.urgency),
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: cs.onSurface.withValues(alpha: 0.6),
-                          fontWeight: FontWeight.w600,
-                          fontSize: kFontSizeTiny,
-                        ),
-                      ),
-                    ],
+                  // תמונת מוצר
+                  Center(
+                    child: ProductThumbnail(
+                      barcode: suggestion.barcode.isNotEmpty ? suggestion.barcode : null,
+                      category: suggestion.category,
+                      size: kIconSizeXLarge,
+                    ),
                   ),
                   const SizedBox(height: kSpacingSmall),
 

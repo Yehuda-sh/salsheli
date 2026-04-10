@@ -52,6 +52,11 @@ class SmartSuggestion {
   @JsonKey(name: 'product_name', defaultValue: '')
   final String productName;
 
+  /// 🇮🇱 ברקוד המוצר (לתמונת CDN)
+  /// 🇬🇧 Product barcode (for CDN image)
+  @JsonKey(defaultValue: '')
+  final String barcode;
+
   /// 🇮🇱 קטגוריה
   /// 🇬🇧 Category
   @JsonKey(defaultValue: 'other')
@@ -117,6 +122,7 @@ class SmartSuggestion {
     required this.id,
     required this.productId,
     required this.productName,
+    this.barcode = '',
     required this.category,
     required this.currentStock,
     required this.threshold,
@@ -140,6 +146,7 @@ class SmartSuggestion {
     required String id,
     required String productId,
     required String productName,
+    String barcode = '',
     required String category,
     required int currentStock,
     required int threshold,
@@ -153,6 +160,7 @@ class SmartSuggestion {
       id: id,
       productId: productId,
       productName: productName,
+      barcode: barcode,
       category: category,
       currentStock: currentStock,
       threshold: threshold,
@@ -224,6 +232,7 @@ class SmartSuggestion {
     String? id,
     String? productId,
     String? productName,
+    String? barcode,
     String? category,
     int? currentStock,
     int? threshold,
@@ -239,6 +248,7 @@ class SmartSuggestion {
       id: id ?? this.id,
       productId: productId ?? this.productId,
       productName: productName ?? this.productName,
+      barcode: barcode ?? this.barcode,
       category: category ?? this.category,
       currentStock: currentStock ?? this.currentStock,
       threshold: threshold ?? this.threshold,

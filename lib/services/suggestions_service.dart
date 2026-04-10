@@ -86,6 +86,7 @@ class SuggestionsService {
           id: _uuid.v4(),
           productId: item.id,
           productName: item.productName,
+          barcode: item.barcode ?? '',
           category: item.category,
           currentStock: item.quantity,
           threshold: threshold,

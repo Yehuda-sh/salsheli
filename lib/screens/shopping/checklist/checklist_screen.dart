@@ -514,7 +514,7 @@ class _ChecklistItemTile extends StatelessWidget {
                 ProductThumbnail(
                   barcode: item.barcode,
                   category: item.category ?? '',
-                  size: kIconSizeLarge - kSpacingXTiny,
+                  size: kIconSizeMedium,
                 ),
 
                 const SizedBox(width: kSpacingSmall),

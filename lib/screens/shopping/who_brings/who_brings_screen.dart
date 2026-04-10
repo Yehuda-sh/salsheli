@@ -474,7 +474,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                 children: [
                   // אייקון סטטוס
                   Container(
-                    padding: const EdgeInsets.all(kSpacingSmall),
+                    padding: const EdgeInsets.all(kSpacingXTiny),
                     decoration: BoxDecoration(
                       color: isFull
                           ? cs.primary.withValues(alpha: 0.2)

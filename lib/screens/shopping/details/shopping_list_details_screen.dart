@@ -1126,7 +1126,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       ? ProductThumbnail(
                           barcode: item.barcode,
                           category: item.category ?? '',
-                          size: kIconSizeLarge + 4,
+                          size: kIconSizeLarge + kSpacingSmall,
                         )
                       : Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
                   const SizedBox(width: kSpacingSmall),

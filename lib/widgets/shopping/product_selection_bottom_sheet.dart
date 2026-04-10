@@ -1037,19 +1037,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       },
       placeholder: (_, __) => _buildEmojiPlaceholder(emoji),
       imageBuilder: (context, imageProvider) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(child: Image(image: imageProvider, fit: BoxFit.contain)),
-            Text(
-              ProductImagesConfig.creditSource,
-              style: TextStyle(
-                fontSize: 8,
-                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-              ),
-            ),
-          ],
-        );
+        return Image(image: imageProvider, fit: BoxFit.contain);
       },
     );
   }

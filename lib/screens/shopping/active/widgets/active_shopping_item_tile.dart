@@ -148,7 +148,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                     ProductThumbnail(
                       barcode: item.barcode,
                       category: item.category ?? '',
-                      size: kIconSizeLarge,
+                      size: kIconSizeLarge + kSpacingSmall,
                     ),
                     const SizedBox(width: kSpacingSmall),
                     // Product name with animated strikethrough
