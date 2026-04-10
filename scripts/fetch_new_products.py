@@ -4,30 +4,41 @@ fetch_new_products.py — Pull new products from Open Israeli Supermarkets
 and save only products NOT in the existing catalog.
 
 Output: assets/data/list_types/new_products.json
+        (or merged directly into supermarket.json with --merge)
 
 Usage:
   1. Install dependencies:
      pip install il-supermarket-scraper il-supermarket-parser pandas
 
   2. Run (from project root):
+     # Safe mode — saves new products to a separate file for review:
      python scripts/fetch_new_products.py
 
-  3. Review new_products.json, then merge what you want into supermarket.json
+     # Auto-merge mode — adds new products directly into supermarket.json
+     # (creates a timestamped backup first, asks for confirmation):
+     python scripts/fetch_new_products.py --merge
+
+     # Skip the confirmation prompt (still creates backup):
+     python scripts/fetch_new_products.py --merge --yes
+
+  3. (Without --merge) Review new_products.json, then merge manually
 
 Notes:
   - Downloads PricesFull XML files from ALL major Israeli chains
   - Supported chains: Shufersal, Rami Levy, Yochananof, Victory,
     Osher Ad, Yeinot Bitan, and more (all chains in il-supermarket-scraper)
-  - Compares by barcode against existing supermarket.json
-  - Only saves products with NEW barcodes
-  - Does NOT modify supermarket.json
+  - Compares by barcode (with leading-zero normalization) AND name
+  - --merge: applies smart auto-categorization, creates backup, asks before write
   - Some scraper sites are geo-blocked outside Israel
   - Use --chains flag to select specific chains
 """
 
 import argparse
+import datetime
 import json
 import os
+import re
+import shutil
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -293,12 +304,30 @@ def parse_kaggle_csv(csv_folder):
 # STEP 5: Compare and save new products
 # ════════════════════════════════════════════
 
+def normalize_barcode(barcode):
+    """Normalize a barcode for duplicate comparison.
+
+    Strips whitespace and leading zeros so '07290016' and '7290016' compare equal.
+    Empty/None becomes empty string.
+    """
+    if not barcode:
+        return ''
+    s = str(barcode).strip().lstrip('0')
+    return s
+
+
 def find_new_products(all_products, existing_barcodes, existing_names=None):
-    """Filter out products that already exist in any catalog file."""
+    """Filter out products that already exist in any catalog file.
+
+    Comparison is barcode-normalized (leading zeros stripped) AND name-based.
+    """
     existing_names = existing_names or set()
+    existing_norm_barcodes = {normalize_barcode(b) for b in existing_barcodes}
+
     new_products = []
     for barcode, product in all_products.items():
-        if barcode in existing_barcodes:
+        norm = normalize_barcode(barcode)
+        if norm and norm in existing_norm_barcodes:
             continue
         name = product.get('name', '').strip().lower()
         if name and name in existing_names:
@@ -308,6 +337,192 @@ def find_new_products(all_products, existing_barcodes, existing_names=None):
     # Sort by name
     new_products.sort(key=lambda p: p.get('name', ''))
     return new_products
+
+
+# ════════════════════════════════════════════
+# AUTO-CATEGORIZATION (used by --merge)
+# ════════════════════════════════════════════
+#
+# Same high-confidence rules used to fix the existing catalog.
+# Format: (regex, exclude_regex_or_None, target_category, description)
+# First matching rule wins. Products that match nothing get DEFAULT_CATEGORY.
+
+DEFAULT_CATEGORY = 'כללי'
+
+CATEGORIZATION_RULES = [
+    # ===== Personal Hygiene (היגיינה אישית) =====
+    (r'משחת שיניים', None, 'היגיינה אישית', 'toothpaste'),
+    (r'מברשת שיניים|מברשות שיניים', None, 'היגיינה אישית', 'toothbrush'),
+    (r'מי\s*פה(?!\s*ל)', None, 'היגיינה אישית', 'mouthwash'),
+    (r'שטיפת פה', None, 'היגיינה אישית', 'mouthwash'),
+    (r'חוט דנטלי', None, 'היגיינה אישית', 'dental floss'),
+    (r'דאודורנט|דיאודורנט|דאו רול|דיאו רול', None, 'היגיינה אישית', 'deodorant'),
+    (r'תחבושות? היגיינ|טמפון', None, 'היגיינה אישית', 'feminine hygiene'),
+    (r'נייר טואלט', None, 'היגיינה אישית', 'toilet paper'),
+    (r"קצף גילוח|ג'ל גילוח|מכונת גילוח|סכיני גילוח|סכין גילוח|להבי גילוח", None, 'היגיינה אישית', 'shaving'),
+    (r'שמפו', r'לרכב|לכלב|לחתול|לחיות|רכב|שמפו קוקוס', 'היגיינה אישית', 'shampoo'),
+    (r'מרכך שיער', None, 'היגיינה אישית', 'hair conditioner'),
+    (r'אל[\s־-]?סבון', None, 'היגיינה אישית', 'liquid hand soap'),
+    (r"ג'ל רחצה|תחפיף|תחליב רחצה", None, 'היגיינה אישית', 'shower gel'),
+
+    # ===== Cosmetics (קוסמטיקה וטיפוח) =====
+    (r'צבע שיער|צבע לשיער|אקסלנס.*צבע', None, 'קוסמטיקה וטיפוח', 'hair dye'),
+    (r'שפתון', None, 'קוסמטיקה וטיפוח', 'lipstick'),
+    (r'גלוס לשפתיים', None, 'קוסמטיקה וטיפוח', 'lip gloss'),
+    (r'מסקרה|אייליינר|איילינר', None, 'קוסמטיקה וטיפוח', 'eye makeup'),
+    (r'(?<!\S)פנקייק(?!\S)', r'תערובת|להכנת|פנקייקים|קפוא|כשל', 'קוסמטיקה וטיפוח', 'pancake makeup'),
+    (r'(?<!\S)בלאש(?!\S)', r'תערובת|להכנת', 'קוסמטיקה וטיפוח', 'blush'),
+    (r'לק לציפורניים|לק ציפורניים|מסיר לק', None, 'קוסמטיקה וטיפוח', 'nail polish'),
+    (r'(?<!\S)בושם(?!\S)|(?<!\S)בשמים(?!\S)|או דה טואלט|או דה פרפיום', None, 'קוסמטיקה וטיפוח', 'perfume'),
+
+    # ===== Cleaning (מוצרי ניקיון) =====
+    (r'אקונומיקה|אקונומיק', None, 'מוצרי ניקיון', 'bleach'),
+    (r'מרכך כביסה', None, 'מוצרי ניקיון', 'fabric softener'),
+    (r"אבקת כביסה|ג'ל כביסה|קפסולות כביסה|טבליות כביסה", None, 'מוצרי ניקיון', 'laundry detergent'),
+    (r'מטהר אוויר|מטהר אויר', None, 'מוצרי ניקיון', 'air freshener'),
+    (r'שקיות זבל|שקית זבל', None, 'מוצרי ניקיון', 'trash bags'),
+    (r'מגבוני רצפה|מגבונים? לרצפה', None, 'מוצרי ניקיון', 'floor wipes'),
+
+    # ===== Household items (מוצרי בית) =====
+    (r'נייר אפייה', None, 'מוצרי בית', 'parchment paper'),
+    (r'נייר כסף|נייר אלומיניום', None, 'מוצרי בית', 'foil'),
+    (r'ניילון נצמד', None, 'מוצרי בית', 'plastic wrap'),
+    (r'נרות שבת', None, 'מוצרי בית', 'shabbat candles'),
+    (r'צלחות.*קנה סוכר|כוסות.*קנה סוכר|סכ.*קנה סוכר', None, 'מוצרי בית', 'sugar cane disposables'),
+    (r'^צלחות (חד|ענקיות|פלסטיק|נייר|גדול)|^כוסות (חד|פלסטיק|נייר|חמות)|^סכו"ם חד', None, 'מוצרי בית', 'disposables'),
+    (r'כוסות נייר', None, 'מוצרי בית', 'paper cups'),
+
+    # ===== Baby (מוצרי תינוקות) =====
+    (r'^חיתולים|^חיתולי|חיתולי האגיס|חיתולי בייביסיטר|חיתולי הגיס|פרמיום חיתולים', None, 'מוצרי תינוקות', 'diapers'),
+    (r'^טיטולים|טיטולי האגיס', None, 'מוצרי תינוקות', 'diapers'),
+    (r'מטרנה|סימילק|תחליף חלב אם|תרכובת מזון לתינוק', None, 'מוצרי תינוקות', 'baby formula'),
+
+    # ===== Pet food (מזון לחיות מחמד) =====
+    (r'מזון לכלב|מזון לחתול|מזון לכלבים|מזון לחתולים|אוכל לכלב|אוכל לחתול', None, 'מזון לחיות מחמד', 'pet food'),
+    (r'חטיף לכלב|חטיפים לכלב|חטיף לחתול|חטיפים לחתול', None, 'מזון לחיות מחמד', 'pet treats'),
+    (r'חול לחתול|חול חתולים', None, 'מזון לחיות מחמד', 'cat litter'),
+]
+
+_compiled_rules = None
+
+
+def _get_compiled_rules():
+    global _compiled_rules
+    if _compiled_rules is None:
+        _compiled_rules = [
+            (re.compile(p), re.compile(e) if e else None, c, d)
+            for p, e, c, d in CATEGORIZATION_RULES
+        ]
+    return _compiled_rules
+
+
+def categorize_product(name):
+    """Apply categorization rules to a product name.
+
+    Returns the matched category, or DEFAULT_CATEGORY if no rule matches.
+    """
+    if not name:
+        return DEFAULT_CATEGORY
+    for pattern, exclude, target_cat, _desc in _get_compiled_rules():
+        if pattern.search(name):
+            if exclude and exclude.search(name):
+                continue
+            return target_cat
+    return DEFAULT_CATEGORY
+
+
+# ════════════════════════════════════════════
+# BACKUP & MERGE (used by --merge)
+# ════════════════════════════════════════════
+
+def backup_catalog(catalog_path):
+    """Create a timestamped backup of a catalog file.
+
+    Returns the backup file path.
+    """
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
+    backup_path = catalog_path.with_name(
+        f'{catalog_path.stem}.backup-{timestamp}{catalog_path.suffix}'
+    )
+    shutil.copy2(catalog_path, backup_path)
+    return backup_path
+
+
+def merge_into_catalog(new_products, catalog_path, assume_yes=False):
+    """Merge new_products into supermarket.json with safety checks.
+
+    Steps:
+      1. Auto-categorize each new product
+      2. Print categorization breakdown
+      3. Create timestamped backup
+      4. Confirm with user (unless assume_yes)
+      5. Append products and write
+    """
+    if not catalog_path.exists():
+        print(f'❌ Catalog file not found: {catalog_path}')
+        return False
+
+    # Load existing catalog
+    with open(catalog_path, 'r', encoding='utf-8') as f:
+        catalog = json.load(f)
+    before_count = len(catalog)
+
+    # Auto-categorize
+    print('\n🤖 מסווג אוטומטית לפי כללים:')
+    cat_counts = {}
+    enriched = []
+    for product in new_products:
+        # Make a shallow copy so we don't mutate the new_products list
+        item = dict(product)
+        # Only override category if it's None/missing/empty
+        if not item.get('category'):
+            item['category'] = categorize_product(item.get('name', ''))
+        cat = item['category']
+        cat_counts[cat] = cat_counts.get(cat, 0) + 1
+        enriched.append(item)
+
+    # Sort categories: known categories first by count, default last
+    sorted_cats = sorted(
+        cat_counts.items(),
+        key=lambda kv: (kv[0] == DEFAULT_CATEGORY, -kv[1])
+    )
+    for cat, n in sorted_cats:
+        marker = '  ⚠️ ' if cat == DEFAULT_CATEGORY else '   • '
+        label = f'{cat} (ללא סיווג)' if cat == DEFAULT_CATEGORY else cat
+        print(f'{marker}{label}: {n}')
+
+    auto_cnt = sum(n for c, n in cat_counts.items() if c != DEFAULT_CATEGORY)
+    default_cnt = cat_counts.get(DEFAULT_CATEGORY, 0)
+    print(f'\n   סווגו אוטומטית: {auto_cnt} | נשארו "כללי": {default_cnt}')
+
+    # Backup
+    backup_path = backup_catalog(catalog_path)
+    print(f'\n💾 גיבוי נשמר: {backup_path.name}')
+
+    # Confirmation
+    after_count = before_count + len(enriched)
+    print(f'\n🚨 עומד להוסיף {len(enriched)} מוצרים ל-{catalog_path.name}')
+    print(f'   לפני: {before_count} → אחרי: {after_count}')
+
+    if not assume_yes:
+        try:
+            answer = input('   להמשיך? [y/N]: ').strip().lower()
+        except EOFError:
+            answer = ''
+        if answer not in ('y', 'yes'):
+            print('\n❌ בוטל. לא בוצעו שינויים בקטלוג.')
+            print(f'   הגיבוי נשאר ב: {backup_path}')
+            return False
+
+    # Append and write
+    catalog.extend(enriched)
+    with open(catalog_path, 'w', encoding='utf-8') as f:
+        json.dump(catalog, f, ensure_ascii=False, indent=2)
+
+    print(f'\n✅ נכנסו {len(enriched)} מוצרים')
+    print(f'📦 {catalog_path.name}: {before_count} → {after_count}')
+    print(f'💾 גיבוי: {backup_path.name}')
+    return True
 
 
 def save_new_products(new_products):
@@ -334,6 +549,8 @@ def main():
     parser.add_argument('--skip-download', action='store_true', help='Skip download, parse existing dumps')
     parser.add_argument('--kaggle', type=str, help='Path to Kaggle CSV folder (alternative to scraping)')
     parser.add_argument('--list-chains', action='store_true', help='List available chain names and exit')
+    parser.add_argument('--merge', action='store_true', help='Auto-merge new products into supermarket.json (creates backup)')
+    parser.add_argument('--yes', '-y', action='store_true', help='Skip confirmation prompt when using --merge')
     args = parser.parse_args()
 
     print('═' * 55)
@@ -397,14 +614,20 @@ def main():
     print(f'   NEW products:      {len(new_products)}')
 
     if new_products:
-        save_new_products(new_products)
-
         # Show sample
         print(f'\n📋 Sample new products:')
         for p in new_products[:10]:
             print(f'   {p["barcode"]} — {p["name"]}')
         if len(new_products) > 10:
             print(f'   ... +{len(new_products) - 10} more')
+
+        if args.merge:
+            # Auto-merge directly into supermarket.json
+            catalog_path = LIST_TYPES_DIR / 'supermarket.json'
+            merge_into_catalog(new_products, catalog_path, assume_yes=args.yes)
+        else:
+            # Safe mode — write to a separate review file
+            save_new_products(new_products)
     else:
         print('\n✅ No new products found — catalog is up to date!')
 

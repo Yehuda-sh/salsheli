@@ -1,0 +1,109 @@
+name: Fetch New Products
+
+# שאיבת מוצרים חדשים מ-API של Open Israeli Supermarkets
+# והוספתם לקטלוג supermarket.json (בליווי גיבוי וסיווג אוטומטי)
+#
+# ⚠️ הערה חשובה: רוב אתרי הרשתות חסומים גיאוגרפית מחוץ לישראל.
+# רנרים של GitHub Actions רצים בארה״ב/אירופה — הסקריפט עלול להיכשל
+# או להחזיר 0 מוצרים. אם זה קורה — צריך להריץ ידנית מחיבור ישראלי.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'מצב הרצה'
+        required: true
+        type: choice
+        default: 'review'
+        options:
+          - review   # שומר ל-new_products.json לסקירה ידנית (בטוח)
+          - merge    # מוסיף ישר ל-supermarket.json (עם גיבוי וסיווג אוטומטי)
+      chains:
+        description: 'רשתות (ריק = כל הרשתות, או רשימה מופרדת ברווחים: SHUFERSAL RAMI_LEVY)'
+        required: false
+        default: ''
+      limit:
+        description: 'מקסימום קבצי PriceFull לכל רשת'
+        required: false
+        default: '3'
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # נדרש כדי ש-merge יוכל לדחוף commit חזרה לסניף
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install il-supermarket-scraper il-supermarket-parser pandas
+
+      - name: Build script arguments
+        id: args
+        run: |
+          ARGS=""
+          if [ "${{ github.event.inputs.mode }}" = "merge" ]; then
+            ARGS="$ARGS --merge --yes"
+          fi
+          if [ -n "${{ github.event.inputs.chains }}" ]; then
+            ARGS="$ARGS --chains ${{ github.event.inputs.chains }}"
+          fi
+          if [ -n "${{ github.event.inputs.limit }}" ]; then
+            ARGS="$ARGS --limit ${{ github.event.inputs.limit }}"
+          fi
+          echo "ARGS=$ARGS" >> $GITHUB_OUTPUT
+          echo "Computed args: $ARGS"
+
+      - name: Run fetch_new_products.py
+        run: python scripts/fetch_new_products.py ${{ steps.args.outputs.ARGS }}
+        continue-on-error: false
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet assets/data/list_types/ scripts/dumps/ 2>/dev/null; then
+            HAS_CHANGES=$(git status --porcelain assets/data/list_types/ | grep -c . || true)
+            if [ "$HAS_CHANGES" = "0" ]; then
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+              echo "✅ No catalog changes to commit."
+            else
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload new_products.json artifact (review mode)
+        if: github.event.inputs.mode == 'review' && steps.changes.outputs.has_changes == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: new-products
+          path: assets/data/list_types/new_products.json
+          retention-days: 14
+
+      - name: Commit and push (merge mode)
+        if: github.event.inputs.mode == 'merge' && steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Add only the catalog files + any backups created
+          git add assets/data/list_types/supermarket.json
+          git add assets/data/list_types/supermarket.backup-*.json || true
+
+          CHAINS_LABEL="${{ github.event.inputs.chains }}"
+          if [ -z "$CHAINS_LABEL" ]; then CHAINS_LABEL="all"; fi
+
+          COMMIT_BODY="Triggered by workflow_dispatch. Chains: $CHAINS_LABEL. Limit: ${{ github.event.inputs.limit }} files/chain. Backup file included for revert."
+          git commit -m "chore(catalog): auto-merge new products from supermarket APIs" -m "$COMMIT_BODY"
+
+          git push origin HEAD:${{ github.ref_name }}
