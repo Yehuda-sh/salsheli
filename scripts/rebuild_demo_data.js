@@ -787,7 +787,6 @@ async function main() {
   const leviPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'פירות וירקות', 'משקאות', 'אורז ופסטה'), 12);
   await createInventory(hIds.levi, leviPantry, uids.dan, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 5) });
   console.log('   📦 לוי: 12 items (2 out-of-stock)');
-  leviPantry.forEach(p => console.log(`      🖼️ ${p.name} | barcode=${p.barcode}`));
 
   // Tomer: 8 items
   const tomerPantry = pickRandom(byCategory(products, 'אורז ופסטה', 'שימורים', 'משקאות'), 8);

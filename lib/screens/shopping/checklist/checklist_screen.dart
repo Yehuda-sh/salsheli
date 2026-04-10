@@ -34,6 +34,7 @@ import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/product_thumbnail.dart';
 
 class ChecklistScreen extends StatefulWidget {
   final ShoppingList list;
@@ -507,7 +508,16 @@ class _ChecklistItemTile extends StatelessWidget {
                       : null,
                 ),
 
-                const SizedBox(width: kSpacingMedium),
+                const SizedBox(width: kSpacingSmall),
+
+                // תמונת מוצר
+                ProductThumbnail(
+                  barcode: item.barcode,
+                  category: item.category ?? '',
+                  size: kIconSizeLarge - kSpacingXTiny,
+                ),
+
+                const SizedBox(width: kSpacingSmall),
 
                 // שם הפריט — strikethrough animation
                 Expanded(

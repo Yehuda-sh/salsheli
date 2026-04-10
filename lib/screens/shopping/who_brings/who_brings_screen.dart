@@ -33,6 +33,7 @@ import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/user_context.dart';
 import '../../../services/notifications_service.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/product_thumbnail.dart';
 import '../../../widgets/common/sticky_note.dart';
 
 class WhoBringsScreen extends StatefulWidget {
@@ -486,6 +487,15 @@ class _WhoBringsItemTile extends StatelessWidget {
                       size: kIconSizeMedium,
                     ),
                   ),
+                  const SizedBox(width: kSpacingSmall),
+
+                  // תמונת מוצר
+                  ProductThumbnail(
+                    barcode: item.barcode,
+                    category: item.category ?? '',
+                    size: kIconSizeLarge - kSpacingXTiny,
+                  ),
+
                   const SizedBox(width: kSpacingSmall),
 
                   // שם הפריט
