@@ -7,6 +7,18 @@ and extracts the image URL. It outputs a Dart file with a static map
 of barcode -> image URL that can be used in the Flutter app.
 
 Usage:
+    # Step 1: Get your Bearer token from rami-levy.co.il:
+    #   - Open rami-levy.co.il in Chrome
+    #   - Press F12 → Network tab
+    #   - Search for any product
+    #   - Click on a request to "api/catalog"
+    #   - Copy the "authorization" header value (starts with "Bearer ...")
+    #
+    # Step 2: Run the script:
+    python3 scripts/fetch_product_images.py --token "Bearer YOUR_TOKEN_HERE"
+
+    # Or set environment variable:
+    export RAMI_LEVY_TOKEN="Bearer YOUR_TOKEN_HERE"
     python3 scripts/fetch_product_images.py
 
 Output:
@@ -17,6 +29,7 @@ Requirements:
     pip install requests
 """
 
+import argparse
 import json
 import os
 import sys
@@ -26,20 +39,13 @@ import requests
 # ── Config ──────────────────────────────────────────────────────────
 RAMI_LEVY_API = "https://www.rami-levy.co.il/api/catalog"
 RAMI_LEVY_BASE = "https://www.rami-levy.co.il"
-STORE_ID = 331  # Default store
-
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/120.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "he-IL,he;q=0.9,en;q=0.8",
-    "Referer": "https://www.rami-levy.co.il/he/online/market",
-    "Origin": "https://www.rami-levy.co.il",
-}
+STORE_ID = "331"  # Default store
 
 # Delay between API requests (seconds) - be respectful
-REQUEST_DELAY = 0.5
+REQUEST_DELAY = 0.3
+
+# How many products to fetch per batch before saving
+SAVE_INTERVAL = 50
 
 # ── Paths ───────────────────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -49,12 +55,29 @@ OUTPUT_JSON = os.path.join(SCRIPT_DIR, "image_urls.json")
 OUTPUT_DART = os.path.join(PROJECT_DIR, "lib/config/product_image_urls.dart")
 
 
+def get_headers(token):
+    """Build request headers with authentication."""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                      "AppleWebKit/537.36 (KHTML, like Gecko) "
+                      "Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "he-IL,he;q=0.9,en;q=0.8",
+        "Content-Type": "application/json;charset=UTF-8",
+        "Referer": "https://www.rami-levy.co.il/he/online/market",
+        "Origin": "https://www.rami-levy.co.il",
+        "locale": "he",
+    }
+    if token:
+        headers["Authorization"] = token
+    return headers
+
+
 def load_products():
     """Load product barcodes from supermarket.json."""
     with open(PRODUCTS_JSON, "r", encoding="utf-8") as f:
         products = json.load(f)
 
-    # Extract unique barcodes with product names
     barcode_map = {}
     for p in products:
         bc = p.get("barcode", "")
@@ -64,26 +87,30 @@ def load_products():
     return barcode_map
 
 
-def fetch_image_url(barcode, session):
+def fetch_image_url(barcode, session, headers):
     """Query Rami Levy API for a product's image URL."""
     try:
-        resp = session.get(
+        resp = session.post(
             RAMI_LEVY_API,
-            params={"store": STORE_ID, "q": barcode},
-            headers=HEADERS,
+            json={"q": barcode, "store": STORE_ID, "aggs": 1},
+            headers=headers,
             timeout=10,
         )
+
+        if resp.status_code == 401:
+            print("\n\n❌ Token expired or invalid! Get a new token and retry.")
+            sys.exit(1)
+
         resp.raise_for_status()
         data = resp.json()
 
-        # Extract image URL from response
         products = data.get("data", [])
         if not products:
             return None
 
         product = products[0]
 
-        # Try different image field paths
+        # Extract image path from API response
         images = product.get("images", {})
         if isinstance(images, dict):
             small = images.get("small", "")
@@ -92,18 +119,29 @@ def fetch_image_url(barcode, session):
                     return small
                 return f"{RAMI_LEVY_BASE}{small}"
 
-        # Try direct image field
-        img = product.get("image", "") or product.get("img", "")
-        if img:
-            if img.startswith("http"):
-                return img
-            return f"{RAMI_LEVY_BASE}{img}"
-
         return None
 
+    except requests.exceptions.HTTPError as e:
+        if e.response and e.response.status_code == 401:
+            print("\n\n❌ Token expired! Get a new one from the browser.")
+            sys.exit(1)
+        print(f"HTTP error: {e}")
+        return None
     except Exception as e:
-        print(f"  Error fetching {barcode}: {e}")
+        print(f"Error: {e}")
         return None
+
+
+def test_connection(session, headers):
+    """Test API connection with a known product."""
+    print("Testing connection with barcode 7290105693341 (Bamba)...")
+    url = fetch_image_url("7290105693341", session, headers)
+    if url:
+        print(f"✅ Connection works! Image URL: {url}")
+        return True
+    else:
+        print("❌ Connection failed. Check your token.")
+        return False
 
 
 def generate_dart_file(url_map):
@@ -120,7 +158,9 @@ def generate_dart_file(url_map):
     ]
 
     for barcode, url in sorted(url_map.items()):
-        lines.append(f"  '{barcode}': '{url}',")
+        # Escape single quotes in URLs
+        safe_url = url.replace("'", "\\'")
+        lines.append(f"  '{barcode}': '{safe_url}',")
 
     lines.append("};")
     lines.append("")
@@ -128,77 +168,134 @@ def generate_dart_file(url_map):
     with open(OUTPUT_DART, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-    print(f"\nDart file written: {OUTPUT_DART}")
+    print(f"\n📄 Dart file written: {OUTPUT_DART}")
+
+
+def save_progress(url_map):
+    """Save current progress to JSON."""
+    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(url_map, f, ensure_ascii=False, indent=2)
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Fetch Rami Levy product images")
+    parser.add_argument(
+        "--token",
+        default=os.environ.get("RAMI_LEVY_TOKEN", ""),
+        help='Bearer token (e.g., "Bearer eyJ...")',
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Limit number of products to fetch (0 = all)",
+    )
+    parser.add_argument(
+        "--test",
+        action="store_true",
+        help="Test connection only",
+    )
+    args = parser.parse_args()
+
     print("=" * 60)
-    print("Rami Levy Product Image URL Fetcher")
+    print("  Rami Levy Product Image URL Fetcher")
     print("=" * 60)
+
+    token = args.token
+    if not token:
+        print("""
+❌ No token provided!
+
+How to get your token:
+  1. Open https://www.rami-levy.co.il in Chrome
+  2. Press F12 → Network tab
+  3. Search for any product on the website
+  4. In Network tab, find a request to "catalog"
+  5. Click on it → Headers tab
+  6. Copy the "authorization" value (starts with "Bearer ...")
+  7. Run: python3 scripts/fetch_product_images.py --token "Bearer YOUR_TOKEN"
+""")
+        sys.exit(1)
+
+    # Ensure token has "Bearer " prefix
+    if not token.startswith("Bearer "):
+        token = f"Bearer {token}"
+
+    headers = get_headers(token)
+    session = requests.Session()
+
+    # Test connection
+    if not test_connection(session, headers):
+        sys.exit(1)
+
+    if args.test:
+        return
 
     # Load products
     barcode_map = load_products()
     total = len(barcode_map)
     print(f"\nFound {total} unique products with barcodes.")
 
-    # Check for existing results (resume support)
+    # Load existing progress
     existing = {}
     if os.path.exists(OUTPUT_JSON):
         with open(OUTPUT_JSON, "r", encoding="utf-8") as f:
             existing = json.load(f)
-        print(f"Found {len(existing)} existing results. Will skip those.")
+        print(f"Found {len(existing)} existing results. Resuming...")
 
-    # Fetch image URLs
     url_map = dict(existing)
-    session = requests.Session()
 
+    # Filter out already-fetched barcodes
     barcodes = [bc for bc in barcode_map if bc not in existing]
+    if args.limit:
+        barcodes = barcodes[: args.limit]
+
     found = 0
-    errors = 0
+    not_found = 0
 
     print(f"\nFetching {len(barcodes)} remaining products...")
-    print("(Press Ctrl+C to stop - progress is saved automatically)\n")
+    print("Press Ctrl+C to stop — progress is saved automatically.\n")
 
     try:
         for i, barcode in enumerate(barcodes):
             name = barcode_map[barcode]
-            print(f"  [{i+1}/{len(barcodes)}] {name} ({barcode})...", end=" ")
+            print(f"  [{i+1}/{len(barcodes)}] {name} ({barcode})...", end=" ", flush=True)
 
-            url = fetch_image_url(barcode, session)
+            url = fetch_image_url(barcode, session, headers)
 
             if url:
                 url_map[barcode] = url
                 found += 1
-                print(f"OK")
+                print("✅")
             else:
-                errors += 1
-                print(f"not found")
+                not_found += 1
+                print("—")
 
-            # Save progress every 50 products
-            if (i + 1) % 50 == 0:
-                with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-                    json.dump(url_map, f, ensure_ascii=False, indent=2)
-                print(f"  --- Saved progress ({len(url_map)} URLs) ---")
+            # Save progress periodically
+            if (i + 1) % SAVE_INTERVAL == 0:
+                save_progress(url_map)
+                pct = (i + 1) / len(barcodes) * 100
+                print(f"  💾 Saved ({len(url_map)} URLs, {pct:.1f}%)")
 
             time.sleep(REQUEST_DELAY)
 
     except KeyboardInterrupt:
-        print("\n\nInterrupted! Saving progress...")
+        print("\n\n⏸️  Interrupted! Saving progress...")
 
     # Save final results
-    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
-        json.dump(url_map, f, ensure_ascii=False, indent=2)
+    save_progress(url_map)
 
     print(f"\n{'=' * 60}")
-    print(f"Results: {found} found, {errors} not found")
-    print(f"Total URLs collected: {len(url_map)}")
-    print(f"JSON saved: {OUTPUT_JSON}")
+    print(f"  Results: {found} found, {not_found} not found")
+    print(f"  Total URLs: {len(url_map)}")
+    print(f"  JSON: {OUTPUT_JSON}")
 
     # Generate Dart file
     if url_map:
         generate_dart_file(url_map)
+        print(f"\n  Next: run 'dart analyze lib/' and commit!")
 
-    print(f"\nDone!")
+    print(f"\n{'=' * 60}")
 
 
 if __name__ == "__main__":
