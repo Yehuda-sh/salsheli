@@ -336,6 +336,7 @@ class _PantryProductSelectionSheetState
     final theme = Theme.of(context);
     final name = product['name'] as String? ?? 'מוצר';
     final category = product['category'] as String? ?? 'אחר';
+    final barcode = product['barcode'] as String?;
     try {
       // במזווה אנחנו סופרים יחידות של מוצרים (ברירת מחדל: יח')
       await provider.createItem(
@@ -343,6 +344,7 @@ class _PantryProductSelectionSheetState
         category: category,
         location: result['location'] as String,
         quantity: result['quantity'] as int,
+        barcode: barcode,
       );
 
       if (!mounted) return;

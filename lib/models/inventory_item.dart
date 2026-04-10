@@ -105,6 +105,9 @@ class InventoryItem {
   @JsonKey(name: 'purchase_count', defaultValue: 0)
   final int purchaseCount;
 
+  /// ברקוד מוצר (אופציונלי) — לטעינת תמונה מ-CDN
+  final String? barcode;
+
   /// אמוג'י מותאם (אופציונלי)
   /// 🔄 readValue: מחזיר null אם ריק → UI יציג fallback
   @JsonKey(readValue: _readEmoji)
@@ -134,6 +137,7 @@ class InventoryItem {
     this.isRecurring = false,
     this.lastPurchased,
     this.purchaseCount = 0,
+    this.barcode,
     this.emoji,
     this.updatedAt,
     this.lastUpdatedBy,
@@ -169,6 +173,8 @@ class InventoryItem {
     DateTime? lastPurchased,
     bool clearLastPurchased = false,
     int? purchaseCount,
+    String? barcode,
+    bool clearBarcode = false,
     String? emoji,
     bool clearEmoji = false,
     DateTime? updatedAt,
@@ -189,6 +195,7 @@ class InventoryItem {
       isRecurring: isRecurring ?? this.isRecurring,
       lastPurchased: clearLastPurchased ? null : (lastPurchased ?? this.lastPurchased),
       purchaseCount: purchaseCount ?? this.purchaseCount,
+      barcode: clearBarcode ? null : (barcode ?? this.barcode),
       emoji: clearEmoji ? null : (emoji ?? this.emoji),
       updatedAt: clearUpdatedAt ? null : (updatedAt ?? this.updatedAt),
       lastUpdatedBy: clearLastUpdatedBy ? null : (lastUpdatedBy ?? this.lastUpdatedBy),

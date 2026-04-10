@@ -768,6 +768,7 @@ async function main() {
           : null,
         notes: itemNotes,
         is_recurring: Math.random() > 0.3,
+        barcode: p.barcode || null,
         emoji: p.icon || null,
         last_updated_by: ownerUid,
         updated_at: admin.firestore.FieldValue.serverTimestamp(),

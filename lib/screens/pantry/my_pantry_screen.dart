@@ -41,6 +41,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
+import '../../config/product_images_config.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/constants.dart';
 import '../../core/ui_constants.dart';
@@ -75,6 +76,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
+
+  // 📸 URLs של תמונות שנכשלו — לא ננסה שוב
+  final Set<String> _failedImageUrls = {};
 
   // ⏱️ Debounce לחיפוש
   Timer? _searchDebounce;
@@ -1457,18 +1461,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     ),
                     child: Row(
                       children: [
-                        // 🏷️ אמוג'י בעיגול
-                        Container(
-                          width: kIconSizeLarge,
-                          height: kIconSizeLarge,
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: _buildCategoryEmoji(item, isCritical),
-                          ),
-                        ),
+                        // 🏷️ תמונת מוצר / אמוג'י בעיגול
+                        _buildProductThumbnail(item, isCritical, statusColor),
 
                         const SizedBox(width: kSpacingTiny),
 
@@ -1677,6 +1671,66 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         .scaleXY(
           begin: 1.0,
           end: 1.15,
+          duration: 800.ms,
+          curve: Curves.easeInOut,
+        );
+  }
+
+  /// 📸 Thumbnail: תמונת מוצר מ-CDN עם fallback לאמוג'י
+  Widget _buildProductThumbnail(
+    InventoryItem item,
+    bool isCritical,
+    Color statusColor,
+  ) {
+    final imageUrl = ProductImagesConfig.getImageUrl(item.barcode);
+    final hasImage =
+        imageUrl != null && !_failedImageUrls.contains(imageUrl);
+
+    if (!hasImage) {
+      return Container(
+        width: kIconSizeLarge,
+        height: kIconSizeLarge,
+        decoration: BoxDecoration(
+          color: statusColor.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: _buildCategoryEmoji(item, isCritical),
+        ),
+      );
+    }
+
+    final image = ClipRRect(
+      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      child: Image.network(
+        imageUrl,
+        width: kIconSizeXLarge,
+        height: kIconSizeXLarge,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) {
+          _failedImageUrls.add(imageUrl);
+          return Container(
+            width: kIconSizeLarge,
+            height: kIconSizeLarge,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: _buildCategoryEmoji(item, isCritical),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (!isCritical) return image;
+
+    return image
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .scaleXY(
+          begin: 1.0,
+          end: 1.1,
           duration: 800.ms,
           curve: Curves.easeInOut,
         );

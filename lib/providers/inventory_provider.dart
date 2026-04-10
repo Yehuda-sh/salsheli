@@ -359,6 +359,7 @@ class InventoryProvider with ChangeNotifier {
     DateTime? expiryDate,
     String? notes,
     bool isRecurring = false,
+    String? barcode,
     String? emoji,
   }) async {
     final userId = _userContext?.userId;
@@ -390,6 +391,7 @@ class InventoryProvider with ChangeNotifier {
       expiryDate: expiryDate,
       notes: notes,
       isRecurring: isRecurring,
+      barcode: barcode,
       emoji: emoji,
       lastUpdatedBy: userId,
     );
