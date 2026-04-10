@@ -187,11 +187,11 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
 
         // קרוסלה אופקית
         SizedBox(
-          height: 165,
+          height: 200,
           child: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is ScrollUpdateNotification) {
-                final page = (notification.metrics.pixels / 180).round();
+                final page = (notification.metrics.pixels / 178).round();
                 if (page != _currentPage && page >= 0 && page < widget.suggestions.length) {
                   setState(() => _currentPage = page);
                 }
@@ -461,7 +461,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         child: Transform.rotate(
       angle: widget.rotation,
       child: Container(
-        width: 145,
+        width: 170,
         decoration: BoxDecoration(
           // טקסטורת נייר: gradient עדין לתחושת קיפול
           gradient: LinearGradient(
@@ -517,7 +517,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
             // תוכן הכרטיס
             Padding(
-              padding: const EdgeInsets.fromLTRB(kSpacingSmallPlus, 20, kSpacingSmallPlus, 10),
+              padding: const EdgeInsets.fromLTRB(kSpacingSmall, 20, kSpacingSmall, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -526,7 +526,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     child: ProductThumbnail(
                       barcode: suggestion.barcode.isNotEmpty ? suggestion.barcode : null,
                       category: suggestion.category,
-                      size: kIconSizeXLarge,
+                      size: kIconSizeXXLarge,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
@@ -538,7 +538,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
-                        height: 1.25,
+                        height: 1.2,
                         fontSize: kFontSizeSmall,
                       ),
                       maxLines: 3,
@@ -547,23 +547,55 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     ),
                   ),
 
-                  // כמות במלאי
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingSmall,
-                      vertical: kSpacingXTiny,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cs.scrim.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                    ),
-                    child: Text(
-                      AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: cs.onSurface.withValues(alpha: 0.6),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  // כמות במלאי — אדום בולט אם אזל / קריטי
+                  Builder(
+                    builder: (context) {
+                      final isOutOfStock = suggestion.currentStock == 0;
+                      final isCritical = suggestion.urgency == 'critical' || isOutOfStock;
+                      final stockBgColor = isCritical
+                          ? cs.error.withValues(alpha: 0.18)
+                          : cs.scrim.withValues(alpha: 0.08);
+                      final stockTextColor = isCritical
+                          ? cs.error
+                          : cs.onSurface.withValues(alpha: 0.6);
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingSmall,
+                          vertical: kSpacingXTiny,
+                        ),
+                        decoration: BoxDecoration(
+                          color: stockBgColor,
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                          border: isCritical
+                              ? Border.all(color: cs.error.withValues(alpha: 0.4))
+                              : null,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (isCritical) ...[
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                size: kFontSizeSmall,
+                                color: cs.error,
+                              ),
+                              const SizedBox(width: kSpacingXTiny),
+                            ],
+                            Flexible(
+                              child: Text(
+                                AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: stockTextColor,
+                                  fontWeight: isCritical ? FontWeight.bold : FontWeight.w500,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: kSpacingSmall + 2),
 
