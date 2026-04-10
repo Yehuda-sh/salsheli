@@ -28,6 +28,7 @@ import '../../../services/pending_requests_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/barcode_helpers.dart';
+import '../../../widgets/common/product_thumbnail.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/painters/perforation_painter.dart';
 import '../../../widgets/common/pending_requests_section.dart';
@@ -1121,7 +1122,13 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               constraints: const BoxConstraints(minHeight: 44),
               child: Row(
                 children: [
-                  Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
+                  isProduct
+                      ? ProductThumbnail(
+                          barcode: item.barcode,
+                          category: item.category ?? '',
+                          size: kIconSizeLarge + 4,
+                        )
+                      : Text(emoji, style: const TextStyle(fontSize: kFontSizeTitle)),
                   const SizedBox(width: kSpacingSmall),
                   // שם + הערות + כמות/מחיר (2 שורות)
                   Expanded(

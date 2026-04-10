@@ -35,8 +35,8 @@ import '../../repositories/local_products_repository.dart';
 import '../common/add_location_dialog.dart';
 import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
-import '../../config/filters_config.dart';
 import '../common/app_loading_skeleton.dart';
+import '../common/product_thumbnail.dart';
 
 class PantryProductSelectionSheet extends StatefulWidget {
   /// סינון ראשוני — אם מועבר, הקטלוג נפתח עם חיפוש/סינון מוגדר מראש
@@ -844,7 +844,6 @@ class _PantryProductSelectionSheetState
     final category = product['category'] as String? ?? 'אחר';
     final brand = product['brand'] as String?;
     final size = product['size'] as String?;
-    final icon = FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category));
     final source = product['source'] as String? ?? 'supermarket';
     final productId = product['barcode'] as String? ?? name;
     final isAdding = _addingProductId == productId;
@@ -893,17 +892,12 @@ class _PantryProductSelectionSheetState
               padding: const EdgeInsets.all(kSpacingSmall),
               child: Row(
                 children: [
-                  // אייקון
-                  Container(
-                    width: kIconSizeXLarge,
-                    height: kIconSizeXLarge,
-                    decoration: BoxDecoration(
-                      color: sourceColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(kBorderRadius),
-                    ),
-                    child: Center(
-                      child: Text(icon, style: const TextStyle(fontSize: kFontSizeTitle)),
-                    ),
+                  // תמונת מוצר / אייקון
+                  ProductThumbnail(
+                    barcode: product['barcode'] as String?,
+                    category: category,
+                    size: kIconSizeXLarge,
+                    tintColor: sourceColor,
                   ),
                   const SizedBox(width: kSpacingSmall),
 

@@ -41,7 +41,6 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
-import '../../config/product_images_config.dart';
 import '../../config/storage_locations_config.dart';
 import '../../core/constants.dart';
 import '../../core/ui_constants.dart';
@@ -56,6 +55,7 @@ import '../../widgets/inventory/pantry_item_dialog.dart';
 import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../providers/products_provider.dart';
 import '../../widgets/common/add_location_dialog.dart';
+import '../../widgets/common/product_thumbnail.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
@@ -76,9 +76,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
-
-  // 📸 URLs של תמונות שנכשלו — לא ננסה שוב
-  final Set<String> _failedImageUrls = {};
 
   // ⏱️ Debounce לחיפוש
   Timer? _searchDebounce;
@@ -165,13 +162,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
 
     return locationKey; // fallback
-  }
-
-  /// 🎯 אימוג'י לפי קטגוריית מוצר
-  String _getCategoryEmoji(String category) {
-    // נסה להמיר מעברית לאנגלית
-    final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
-    return FiltersConfig.getCategoryEmoji(englishKey);
   }
 
   /// 🔍 סינון פריטים
@@ -1656,79 +1646,22 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     return base;
   }
 
-  /// 🏷️ אמוג'י קטגוריה עם Pulse לפריטים קריטיים
-  Widget _buildCategoryEmoji(InventoryItem item, bool isCritical) {
-    final emoji = Text(
-      _getCategoryEmoji(item.category),
-      style: const TextStyle(fontSize: kFontSizeTitle),
-    );
-
-    if (!isCritical) return emoji;
-
-    // 🔴 Pulse animation לפריטים קריטיים
-    return emoji
-        .animate(onPlay: (controller) => controller.repeat(reverse: true))
-        .scaleXY(
-          begin: 1.0,
-          end: 1.15,
-          duration: 800.ms,
-          curve: Curves.easeInOut,
-        );
-  }
-
   /// 📸 Thumbnail: תמונת מוצר מ-CDN עם fallback לאמוג'י
   Widget _buildProductThumbnail(
     InventoryItem item,
     bool isCritical,
     Color statusColor,
   ) {
-    final imageUrl = ProductImagesConfig.getImageUrl(item.barcode);
-    final hasImage =
-        imageUrl != null && !_failedImageUrls.contains(imageUrl);
-
-    if (!hasImage) {
-      return Container(
-        width: kIconSizeLarge,
-        height: kIconSizeLarge,
-        decoration: BoxDecoration(
-          color: statusColor.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: _buildCategoryEmoji(item, isCritical),
-        ),
-      );
-    }
-
-    final image = Container(
-      width: kIconSizeXLarge,
-      height: kIconSizeXLarge,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        color: statusColor.withValues(alpha: 0.05),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Image.network(
-        imageUrl,
-        fit: BoxFit.contain,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(
-            child: _buildCategoryEmoji(item, false),
-          );
-        },
-        errorBuilder: (_, error, ___) {
-          _failedImageUrls.add(imageUrl);
-          return Center(
-            child: _buildCategoryEmoji(item, false),
-          );
-        },
-      ),
+    final thumbnail = ProductThumbnail(
+      barcode: item.barcode,
+      category: item.category,
+      size: kIconSizeXLarge,
+      tintColor: statusColor,
     );
 
-    if (!isCritical) return image;
+    if (!isCritical) return thumbnail;
 
-    return image
+    return thumbnail
         .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .scaleXY(
           begin: 1.0,

@@ -13,6 +13,7 @@ import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/shopping_item_status.dart';
 import '../../../../models/unified_list_item.dart';
+import '../../../../widgets/common/product_thumbnail.dart';
 
 class ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;
@@ -141,6 +142,13 @@ class ActiveShoppingItemTile extends StatelessWidget {
                           size: kIconSizeMediumPlus,
                         ),
                       ),
+                    ),
+                    const SizedBox(width: kSpacingXTiny),
+                    // Product image
+                    ProductThumbnail(
+                      barcode: item.barcode,
+                      category: item.category ?? '',
+                      size: kIconSizeLarge,
                     ),
                     const SizedBox(width: kSpacingSmall),
                     // Product name with animated strikethrough

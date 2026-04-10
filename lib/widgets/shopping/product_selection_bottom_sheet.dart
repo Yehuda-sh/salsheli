@@ -20,6 +20,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -1026,31 +1027,29 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       return _buildEmojiPlaceholder(emoji);
     }
 
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) {
+      fadeInDuration: const Duration(milliseconds: 200),
+      errorWidget: (_, __, ___) {
         _failedImageUrls.add(url);
         return _buildEmojiPlaceholder(emoji);
       },
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) {
-          // Image loaded — show with credit underneath
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(child: child),
-              Text(
-                ProductImagesConfig.creditSource,
-                style: TextStyle(
-                  fontSize: 8,
-                  color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                ),
+      placeholder: (_, __) => _buildEmojiPlaceholder(emoji),
+      imageBuilder: (context, imageProvider) {
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(child: Image(image: imageProvider, fit: BoxFit.contain)),
+            Text(
+              ProductImagesConfig.creditSource,
+              style: TextStyle(
+                fontSize: 8,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
               ),
-            ],
-          );
-        }
-        return _buildEmojiPlaceholder(emoji);
+            ),
+          ],
+        );
       },
     );
   }
