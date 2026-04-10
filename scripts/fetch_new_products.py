@@ -135,13 +135,24 @@ def download_supermarket_data(chains=None, limit=3):
     print('   (This may take several minutes...)')
 
     try:
+        # il-supermarket-scraper >= 1.0.0 API:
+        #  - dump_folder_name was removed; use output_configuration / status_configuration
+        #  - limit moved from __init__ to start(limit=...)
+        #  - must call .join() to wait for the background thread
         scraper = ScarpingTask(
-            dump_folder_name=str(DUMPS_FOLDER),
             enabled_scrapers=selected,
-            files_types=['PriceFull'],  # Full product catalog with barcodes
-            limit=limit,
+            files_types=['PRICE_FULL_FILE'],  # Full product catalog with barcodes
+            output_configuration={
+                'output_mode': 'disk',
+                'base_storage_path': str(DUMPS_FOLDER),
+            },
+            status_configuration={
+                'database_type': 'json',
+                'base_path': str(DUMPS_FOLDER / 'status'),
+            },
         )
-        scraper.start()
+        scraper.start(limit=limit)
+        scraper.join()
         print('✅ Download complete')
     except Exception as e:
         print(f'⚠️ Download error: {e}')
