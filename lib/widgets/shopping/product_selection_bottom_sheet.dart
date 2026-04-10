@@ -1028,7 +1028,6 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     return Image.network(
       url,
-      headers: ProductImagesConfig.imageHeaders,
       fit: BoxFit.contain,
       errorBuilder: (_, __, ___) {
         _failedImageUrls.add(url);

@@ -1700,26 +1700,27 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       );
     }
 
-    final image = ClipRRect(
-      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+    final image = Container(
+      width: kIconSizeXLarge,
+      height: kIconSizeXLarge,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        color: statusColor.withValues(alpha: 0.05),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Image.network(
         imageUrl,
-        headers: ProductImagesConfig.imageHeaders,
-        width: kIconSizeXLarge,
-        height: kIconSizeXLarge,
         fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) {
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: _buildCategoryEmoji(item, false),
+          );
+        },
+        errorBuilder: (_, error, ___) {
           _failedImageUrls.add(imageUrl);
-          return Container(
-            width: kIconSizeLarge,
-            height: kIconSizeLarge,
-            decoration: BoxDecoration(
-              color: statusColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: _buildCategoryEmoji(item, isCritical),
-            ),
+          return Center(
+            child: _buildCategoryEmoji(item, false),
           );
         },
       ),
