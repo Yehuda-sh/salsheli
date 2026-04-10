@@ -1,39 +1,37 @@
 // 📄 lib/config/product_images_config.dart
 //
-// Purpose: Image URL generation for products using Open Food Facts
+// Purpose: Image URL generation for products using Rami Levy CDN
 //
-// Generates image URLs from barcodes using the Open Food Facts API.
-// Provides credit attribution for images.
+// Provides product image URLs from the Rami Levy online store.
+// Uses a URL pattern based on barcode.
+// Falls back to a static URL map if available.
 //
-// Version: 1.0
+// Version: 2.0
 // Last Updated: 09/04/2026
 
-/// Product image URL helper using Open Food Facts database
+import 'product_image_urls.dart';
+
+/// Product image URL helper using Rami Levy product images
 class ProductImagesConfig {
   ProductImagesConfig._();
 
   /// Credit source name
-  static const String creditSource = 'Open Food Facts';
+  static const String creditSource = 'רמי לוי';
 
   /// Credit URL
-  static const String creditUrl = 'https://openfoodfacts.org';
+  static const String creditUrl = 'https://www.rami-levy.co.il';
 
-  /// Generate Open Food Facts image URL from barcode.
+  /// Generate product image URL from barcode.
+  /// First checks the static URL map, then falls back to URL pattern.
   /// Returns null if barcode is invalid or too short.
   static String? getImageUrl(String? barcode) {
-    if (barcode == null || barcode.length < 8) return null;
+    if (barcode == null || barcode.length < 7) return null;
 
-    final path = _barcodePath(barcode);
-    return 'https://images.openfoodfacts.org/images/products/$path/1.400.jpg';
-  }
+    // Check static map first (most reliable)
+    final staticUrl = productImageUrls[barcode];
+    if (staticUrl != null) return staticUrl;
 
-  /// Split barcode into path segments for Open Food Facts URL.
-  /// 13-digit EAN: XXX/XXX/XXX/XXXX
-  /// Shorter barcodes: used as-is
-  static String _barcodePath(String barcode) {
-    if (barcode.length >= 13) {
-      return '${barcode.substring(0, 3)}/${barcode.substring(3, 6)}/${barcode.substring(6, 9)}/${barcode.substring(9)}';
-    }
-    return barcode;
+    // Fallback: Rami Levy URL pattern
+    return 'https://www.rami-levy.co.il/product/$barcode/small.jpg';
   }
 }
