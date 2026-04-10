@@ -1014,7 +1014,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // 📸 Product Image
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Product image with Open Food Facts fallback to category emoji.
+  /// Product image with Rami Levy CDN, fallback to category emoji.
   /// Credit text only appears when the image loads successfully.
   Widget _buildProductImage(String? barcode, String category, ColorScheme cs) {
     final url = ProductImagesConfig.getImageUrl(barcode);
