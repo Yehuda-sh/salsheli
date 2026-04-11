@@ -1455,7 +1455,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: kSpacingSmallPlus,
-                      vertical: kSpacingSmallPlus,
+                      vertical: kSpacingSmall,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1508,8 +1508,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               // Tier 3: quantity controls, pushed to trailing edge.
                               // Moving this here instead of sitting beside the name
                               // gives the name the full column width — essential for
-                              // long Hebrew product names.
-                              const SizedBox(height: kSpacingSmall),
+                              // long Hebrew product names. Tight gap (XTiny) so
+                              // the controls read as part of the same "group" as
+                              // the name, not as a separate section.
+                              const SizedBox(height: kSpacingXTiny),
                               Align(
                                 alignment: AlignmentDirectional.centerEnd,
                                 child: Directionality(
