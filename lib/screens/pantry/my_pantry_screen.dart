@@ -77,6 +77,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
 
+  // 🔍 Search-mode toggle: when true, the title bar morphs into a search field
+  bool _isSearchMode = false;
+  final _searchFocusNode = FocusNode();
+
   // ⏱️ Debounce לחיפוש
   Timer? _searchDebounce;
   final _searchController = TextEditingController();
@@ -97,6 +101,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   void dispose() {
     _searchDebounce?.cancel();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -108,6 +113,27 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         setState(() => _searchQuery = value);
       }
     });
+  }
+
+  /// 🔍 Toggle search mode: title ⇄ search field
+  void _toggleSearchMode() {
+    setState(() {
+      _isSearchMode = !_isSearchMode;
+      if (!_isSearchMode) {
+        // Leaving search mode — clear the query
+        _searchController.clear();
+        _searchDebounce?.cancel();
+        _searchQuery = '';
+      }
+    });
+    if (_isSearchMode) {
+      // Delay focus until after the morph animation settles
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _searchFocusNode.requestFocus();
+      });
+    } else {
+      _searchFocusNode.unfocus();
+    }
   }
 
   /// Backward compat: שמות עבריים ישנים → IDs חדשים
@@ -735,10 +761,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                           child: Column(
                                 children: [
                                   // 🏷️ כותרת המזווה (Collaborative Immersive)
-                                  _buildInlineTitle(provider, scheme),
-
-                                  // 📊 סיכום מזווה
-                                  _buildSummaryStrip(allItems),
+                                  // כוללת ספירה אינליין (📦 + ⚠️) וכפתור חיפוש.
+                                  _buildInlineTitle(provider, scheme, allItems),
 
                                   // 💡 הצעות חכמות
                                   PantrySuggestions(
@@ -800,8 +824,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   /// 🏷️ כותרת המזווה - Collaborative Immersive (Glassmorphic + Avatars)
-  Widget _buildInlineTitle(InventoryProvider provider, ColorScheme scheme) {
+  ///
+  /// שני מצבים:
+  /// 1) מצב רגיל: אייקון + שם המזווה + ספירה אינליין (📦 / ⚠️) + חיפוש + אווטר
+  /// 2) מצב חיפוש: אייקון חזרה + TextField + כפתור ניקוי
+  Widget _buildInlineTitle(
+    InventoryProvider provider,
+    ColorScheme scheme,
+    List<InventoryItem> allItems,
+  ) {
     final theme = Theme.of(context);
+    final brand = theme.extension<AppBrand>();
     final userContext = context.watch<UserContext>();
     final displayName = userContext.displayName ?? '';
     final initials = displayName.isNotEmpty
@@ -812,6 +845,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             .take(2)
             .join()
         : '?';
+
+    final totalItems = allItems.length;
+    final lowStockCount = allItems.where((i) => i.isLowStock).length;
+    final warnColor = brand?.warning ?? scheme.error;
 
     return ClipRRect(
       child: BackdropFilter(
@@ -824,255 +861,232 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             top: kSpacingSmall,
             bottom: kSpacingTiny,
           ),
-          child: Row(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SizeTransition(
+                sizeFactor: animation,
+                axisAlignment: -1,
+                child: child,
+              ),
+            ),
+            child: _isSearchMode
+                ? _buildTitleSearchRow(theme, scheme)
+                : _buildTitleContentRow(
+                    theme: theme,
+                    scheme: scheme,
+                    provider: provider,
+                    displayName: displayName,
+                    initials: initials,
+                    totalItems: totalItems,
+                    lowStockCount: lowStockCount,
+                    warnColor: warnColor,
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// כותרת במצב רגיל — אייקון + שם + ספירה + חיפוש + אווטר
+  Widget _buildTitleContentRow({
+    required ThemeData theme,
+    required ColorScheme scheme,
+    required InventoryProvider provider,
+    required String displayName,
+    required String initials,
+    required int totalItems,
+    required int lowStockCount,
+    required Color warnColor,
+  }) {
+    return Row(
+      key: const ValueKey('pantry_title_content'),
+      children: [
+        // 📦 Emoji in colored circle (like Dashboard)
+        Container(
+          width: kSpacingXLarge + kSpacingSmallPlus,
+          height: kSpacingXLarge + kSpacingSmallPlus,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.primaryContainer,
+          ),
+          child: Center(
+            child: Icon(Icons.inventory_2_outlined, color: scheme.primary, size: kIconSizeMedium),
+          ),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 📦 Emoji in colored circle (like Dashboard)
-              Container(
-                width: kSpacingXLarge + kSpacingSmallPlus,
-                height: kSpacingXLarge + kSpacingSmallPlus,
+              Text(
+                provider.inventoryTitle,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: scheme.onSurface,
+                ),
+              ),
+              if (totalItems > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: _buildInlineStats(
+                    theme: theme,
+                    scheme: scheme,
+                    totalItems: totalItems,
+                    lowStockCount: lowStockCount,
+                    warnColor: warnColor,
+                  ),
+                ),
+            ],
+          ),
+        ),
+
+        // 🔍 Search trigger (WhatsApp/Gmail style)
+        IconButton(
+          tooltip: AppStrings.pantry.searchHint,
+          onPressed: _toggleSearchMode,
+          icon: Icon(Icons.search, color: scheme.onSurfaceVariant),
+          visualDensity: VisualDensity.compact,
+        ),
+
+        // 👤 Avatar with gradient ring (like Dashboard)
+        if (displayName.isNotEmpty)
+          Tooltip(
+            message: displayName,
+            child: Container(
+              width: kIconSizeLarge,
+              height: kIconSizeLarge,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [scheme.primary, scheme.tertiary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Container(
+                margin: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: scheme.primaryContainer,
                 ),
                 child: Center(
-                  child: Icon(Icons.inventory_2_outlined, color: scheme.primary, size: kIconSizeMedium),
-                ),
-              ),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      provider.inventoryTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: scheme.onSurface,
-                      ),
-                    ),
-                    if (provider.items.isNotEmpty)
-                      Text(
-                        // TODO(l10n): Extract to AppStrings.pantry.itemCountInPantry(count)
-                        '${provider.items.length} ${AppStrings.settings.statsPantryItems}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-
-              // 👤 Avatar with gradient ring (like Dashboard)
-              if (displayName.isNotEmpty)
-                Tooltip(
-                  message: displayName,
-                  child: Container(
-                    width: kIconSizeLarge,
-                    height: kIconSizeLarge,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [scheme.primary, scheme.tertiary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: scheme.primaryContainer,
-                      ),
-                      child: Center(
-                        child: Text(
-                          initials,
-                          style: TextStyle(
-                            fontSize: kFontSizeTiny,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
+                  child: Text(
+                    initials,
+                    style: TextStyle(
+                      fontSize: kFontSizeTiny,
+                      fontWeight: FontWeight.bold,
+                      color: scheme.onPrimaryContainer,
                     ),
                   ),
                 ),
-            ],
+              ),
+            ),
           ),
-        ),
-      ),
+      ],
     );
   }
 
-  /// 📊 פס סיכום מזווה — פריטים, מלאי נמוך, מיקומים
-  Widget _buildSummaryStrip(List<InventoryItem> items) {
-    final cs = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-    final brand = theme.extension<AppBrand>();
-
-    final totalItems = items.length;
-    final lowStockCount = items.where((i) => i.isLowStock).length;
-
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
+  /// שורת משנה אינליין: "📦 21 · ⚠️ 2" עם צבע אזהרה לחסרים.
+  /// הופכת את הסיכום לתת-כותרת במקום Card נפרד.
+  Widget _buildInlineStats({
+    required ThemeData theme,
+    required ColorScheme scheme,
+    required int totalItems,
+    required int lowStockCount,
+    required Color warnColor,
+  }) {
+    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
+    return DefaultTextStyle.merge(
+      style: baseStyle ?? const TextStyle(),
       child: Row(
         children: [
-          _buildSummaryChip(
-            emoji: '📦',
-            value: '$totalItems',
-            label: AppStrings.pantry.tabItems,
-            color: cs.primary,
-            theme: theme,
-          ),
-          const SizedBox(width: kSpacingSmall),
+          const Text('📦', style: TextStyle(fontSize: kFontSizeSmall)),
+          const SizedBox(width: kSpacingXTiny),
+          Text('$totalItems'),
           if (lowStockCount > 0) ...[
-            _buildSummaryChip(
-              emoji: '⚠️',
-              value: '$lowStockCount',
-              label: AppStrings.pantry.tabMissing,
-              color: brand?.warning ?? cs.error,
-              theme: theme,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+              child: Text('·', style: TextStyle(color: scheme.outlineVariant)),
             ),
-            const SizedBox(width: kSpacingSmall),
+            // Tappable chip — navigates to low-stock filter (future).
+            const Text('⚠️', style: TextStyle(fontSize: kFontSizeSmall)),
+            const SizedBox(width: kSpacingXTiny),
+            Text(
+              '$lowStockCount',
+              style: baseStyle?.copyWith(
+                color: warnColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
-          const Spacer(),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryChip({
-    required String emoji,
-    required String value,
-    required String label,
-    required Color color,
-    required ThemeData theme,
-  }) {
-    return Expanded(
-      child: Card(
-        elevation: 0.5,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadius)),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny, horizontal: kSpacingSmall),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(kBorderRadius),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withValues(alpha: 0.12),
-                color.withValues(alpha: 0.04),
-              ],
+  /// כותרת במצב חיפוש — חזרה + TextField + ניקוי
+  Widget _buildTitleSearchRow(ThemeData theme, ColorScheme scheme) {
+    return Row(
+      key: const ValueKey('pantry_title_search'),
+      children: [
+        IconButton(
+          tooltip: AppStrings.common.cancel,
+          onPressed: _toggleSearchMode,
+          icon: Icon(Icons.arrow_back, color: scheme.onSurface),
+          visualDensity: VisualDensity.compact,
+        ),
+        Expanded(
+          child: TextField(
+            controller: _searchController,
+            focusNode: _searchFocusNode,
+            textInputAction: TextInputAction.search,
+            style: theme.textTheme.titleMedium,
+            decoration: InputDecoration(
+              hintText: AppStrings.pantry.searchHint,
+              hintStyle: TextStyle(color: scheme.onSurfaceVariant),
+              border: InputBorder.none,
+              isDense: true,
             ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: kFontSizeBody)),
-              const SizedBox(height: 1), // intentional 1px separator
-              Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: color.withValues(alpha: 0.8),
-                  fontSize: kFontSizeTiny,
-                ),
-              ),
-            ],
+            onChanged: _onSearchChanged,
           ),
         ),
-      ),
+        if (_searchQuery.isNotEmpty || _searchController.text.isNotEmpty)
+          IconButton(
+            tooltip: AppStrings.pantry.clearFilters,
+            onPressed: () {
+              _searchController.clear();
+              setState(() => _searchQuery = '');
+            },
+            icon: Icon(Icons.close, color: scheme.onSurfaceVariant),
+            visualDensity: VisualDensity.compact,
+          ),
+      ],
     );
   }
 
-  /// 🔍 סעיף חיפוש וסינון - Frosted Glass design
+  /// 🔍 סעיף סינון — רק שורת מיקומים אופקית.
+  /// החיפוש עבר לכותרת (toggle morph) כדי לחסוך מקום במסך.
   Widget _buildFiltersSection(List<InventoryItem> allItems) {
     if (allItems.isEmpty) return const SizedBox.shrink();
 
     final availableLocations = _getAvailableLocations(allItems);
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
+    if (availableLocations.isEmpty) return const SizedBox.shrink();
 
-    // ✅ Dark Mode colors - theme-aware
-    final glassBgColor = isDark
-        ? scheme.surfaceContainerHighest.withValues(alpha: 0.8)
-        : scheme.surface.withValues(alpha: 0.6);
-    final shadowColor = isDark
-        ? theme.shadowColor.withValues(alpha: 0.2)
-        : theme.shadowColor.withValues(alpha: 0.05);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // 1. שורת חיפוש (Frosted Glass)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-            child: BackdropFilter(
-              filter: ui.ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
-              child: Container(
-                height: kButtonHeight,
-                decoration: BoxDecoration(
-                  color: glassBgColor,
-                  borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-                  boxShadow: [
-                    BoxShadow(
-                      color: shadowColor,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  textAlignVertical: TextAlignVertical.center,
-                  decoration: InputDecoration(
-                    hintText: AppStrings.pantry.searchHint,
-                    hintStyle: const TextStyle(fontSize: kFontSizeMedium),
-                    prefixIcon: const Icon(Icons.search, size: kIconSizeSmallPlus),
-                    suffixIcon: _searchQuery.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: kIconSizeSmallPlus),
-                            tooltip: AppStrings.pantry.clearSearchTooltip,
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                    isDense: true,
-                  ),
-                  onChanged: _onSearchChanged,
-                ),
-              ),
-            ),
-          ),
+    return Padding(
+      padding: const EdgeInsets.only(top: kSpacingSmall, bottom: kSpacingSmall),
+      child: SizedBox(
+        height: kButtonHeightSmall + kSpacingXTiny,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+          children: _buildLocationChips(availableLocations),
         ),
-
-        // 2. רשימת מיקומים נגללת אופקית
-        if (availableLocations.isNotEmpty)
-          SizedBox(
-            height: kButtonHeightSmall + kSpacingXTiny,
-            child: ListView(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              children: _buildLocationChips(availableLocations),
-            ),
-          ),
-
-        const SizedBox(height: kSpacingSmall),
-      ],
+      ),
     );
   }
 
@@ -1401,56 +1415,56 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       },
       onDismissed: (_) => _deleteItem(item),
       child: Card(
-        margin: const EdgeInsets.only(bottom: kSpacingTiny),
-        elevation: isCritical ? 2 : 0.5,
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        elevation: isCritical ? 2 : 0,
         shadowColor: isCritical ? cs.error.withValues(alpha: 0.3) : null,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(
             color: isWarning || isCritical
                 ? statusColor.withValues(alpha: 0.3)
-                : cs.outlineVariant.withValues(alpha: 0.15),
+                : cs.outlineVariant.withValues(alpha: 0.12),
           ),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => _editItemDialog(item),
-          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // 🎨 פס צד צבעוני (כמו ברשימות בדף הבית)
+                // 🎨 פס צד צבעוני (הורחב מ-4→6 כדי להיות קריא יותר)
                 Container(
-                  width: kSpacingXTiny,
+                  width: kSpacingTiny,
                   decoration: BoxDecoration(
                     color: statusColor,
                     borderRadius: isRtl
                         ? const BorderRadius.only(
-                            topRight: Radius.circular(kBorderRadius),
-                            bottomRight: Radius.circular(kBorderRadius),
+                            topRight: Radius.circular(kBorderRadiusLarge),
+                            bottomRight: Radius.circular(kBorderRadiusLarge),
                           )
                         : const BorderRadius.only(
-                            topLeft: Radius.circular(kBorderRadius),
-                            bottomLeft: Radius.circular(kBorderRadius),
+                            topLeft: Radius.circular(kBorderRadiusLarge),
+                            bottomLeft: Radius.circular(kBorderRadiusLarge),
                           ),
                   ),
                 ),
 
-                // 📦 תוכן
+                // 📦 תוכן — padding הוגדל לתמונה 72px ולטיפוגרפיה חדשה
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: kSpacingSmall,
-                      vertical: kSpacingSmall,
+                      horizontal: kSpacingSmallPlus,
+                      vertical: kSpacingSmallPlus,
                     ),
                     child: Row(
                       children: [
-                        // 🏷️ תמונת מוצר / אמוג'י בעיגול
+                        // 🏷️ תמונת מוצר — Hero 72px
                         _buildProductThumbnail(item, isCritical, statusColor),
 
-                        const SizedBox(width: kSpacingTiny),
+                        const SizedBox(width: kSpacingSmallPlus),
 
-                        // 📝 שם + קטגוריה + recurring
+                        // 📝 שם + תפוגה + recurring
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1461,13 +1475,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   if (item.isRecurring)
                                     Padding(
                                       padding: const EdgeInsets.only(left: kSpacingXTiny),
-                                      child: Icon(Icons.star_rounded, color: theme.colorScheme.tertiary, size: kIconSizeSmall),
+                                      child: Icon(
+                                        Icons.star_rounded,
+                                        color: theme.colorScheme.tertiary,
+                                        size: kIconSizeSmallPlus,
+                                      ),
                                     ),
                                   Flexible(
                                     child: Text(
                                       item.productName,
-                                      style: theme.textTheme.titleSmall?.copyWith(
-                                        fontWeight: FontWeight.bold,
+                                      style: theme.textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.2,
                                       ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -1476,7 +1495,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                 ],
                               ),
                               if (item.expiryDate != null) ...[
-                                const SizedBox(height: 2),
+                                const SizedBox(height: kSpacingXTiny),
                                 _buildExpiryBadge(item),
                               ],
                             ],
@@ -1623,7 +1642,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final thumbnail = ProductThumbnail(
       barcode: item.barcode,
       category: item.category,
-      size: kIconSizeXLarge + kSpacingSmall,
+      // 72px hero image — up from 56. Gives brand logos/shape room to read
+      // without crowding the product name.
+      size: kIconSizeXLarge + kSpacingLarge,
       tintColor: statusColor,
     );
 
