@@ -1481,7 +1481,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         size: kIconSizeSmallPlus,
                                       ),
                                     ),
-                                  Flexible(
+                                  // Expanded (not Flexible) forces the Text to
+                                  // use the allocated width and wrap to 2 lines
+                                  // instead of trying to lay out on a single
+                                  // long line and then clipping mid-word.
+                                  Expanded(
                                     child: Text(
                                       item.productName,
                                       style: theme.textTheme.titleMedium?.copyWith(
