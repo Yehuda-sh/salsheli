@@ -449,10 +449,13 @@ def categorize_product(name):
 def backup_catalog(catalog_path):
     """Create a timestamped backup of a catalog file.
 
-    Returns the backup file path.
+    Backups are written to ``scripts/backups/`` so they are not bundled into the
+    Flutter APK via ``assets/``. Returns the backup file path.
     """
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d-%H%M')
-    backup_path = catalog_path.with_name(
+    backup_dir = Path(__file__).resolve().parent / 'backups'
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_dir / (
         f'{catalog_path.stem}.backup-{timestamp}{catalog_path.suffix}'
     )
     shutil.copy2(catalog_path, backup_path)

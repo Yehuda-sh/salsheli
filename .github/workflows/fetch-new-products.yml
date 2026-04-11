@@ -98,7 +98,7 @@ jobs:
 
           # Add only the catalog files + any backups created
           git add assets/data/list_types/supermarket.json
-          git add assets/data/list_types/supermarket.backup-*.json || true
+          git add scripts/backups/supermarket.backup-*.json || true
 
           CHAINS_LABEL="${{ github.event.inputs.chains }}"
           if [ -z "$CHAINS_LABEL" ]; then CHAINS_LABEL="all"; fi
