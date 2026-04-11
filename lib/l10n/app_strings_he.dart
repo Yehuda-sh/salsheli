@@ -1613,6 +1613,8 @@ class ActiveShopperBannerStrings {
 
   String get myActiveTitle => 'יש לך קנייה פעילה';
   String myActiveSubtitle(String listName, int remaining) => '"$listName" - נותרו $remaining פריטים';
+  // Compact single-line variant used in the home banner.
+  String myActiveCompact(String listName, int remaining) => '$listName · $remaining פריטים';
   String get continueButton => 'המשך';
   String othersActiveTitle(String shopperName) => '$shopperName קונה עכשיו';
   String othersActiveTitleMultiple(int count) => '$count קונים עכשיו';

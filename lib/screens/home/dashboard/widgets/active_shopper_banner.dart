@@ -106,6 +106,12 @@ class ActiveShopperBanner extends StatelessWidget {
 }
 
 /// באנר: יש לך קנייה פעילה - להמשיך?
+///
+/// Compact single-line pill (~50px tall). Displays:
+///   🛒  "שם הרשימה · N פריטים"                  ➜
+/// The generic "you have active shopping" title is omitted on purpose —
+/// the green accent background + cart icon already convey that state,
+/// and the list name is what the user actually needs to recognize it.
 class _MyActiveShoppingBanner extends StatelessWidget {
   final ShoppingList list;
 
@@ -125,17 +131,15 @@ class _MyActiveShoppingBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            // ✅ FIX: Theme-aware colors
             accentColor,
             accentColor.withValues(alpha: 0.85),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(kBorderRadius),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
         boxShadow: [
           BoxShadow(
-            // ✅ FIX: Theme-aware shadow
             color: accentColor.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -146,57 +150,66 @@ class _MyActiveShoppingBanner extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => _onContinue(context),
-          borderRadius: BorderRadius.circular(kBorderRadius),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           child: Padding(
-            padding: const EdgeInsets.all(kSpacingMedium),
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingSmallPlus,
+              vertical: kSpacingSmall,
+            ),
             child: Row(
               children: [
-                // אייקון מונפש
-                _PulsingIcon(backgroundColor: cs.onPrimary),
-                const SizedBox(width: kSpacingMedium),
+                // 🛒 Compact pulsing cart icon (32px — down from 40)
+                _PulsingIcon(backgroundColor: cs.onPrimary, size: 32),
+                const SizedBox(width: kSpacingSmallPlus),
 
-                // טקסט
+                // Single-line content — list name · items remaining
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        strings.myActiveTitle,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          // ✅ FIX: Theme-aware color
-                          color: cs.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        // ✅ FIX: Overflow protection
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        strings.myActiveSubtitle(list.name, uncheckedCount),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          // ✅ FIX: Theme-aware color
-                          color: cs.onPrimary.withValues(alpha: 0.9),
-                        ),
-                        // ✅ FIX: Overflow protection (2 שורות לטקסט מלא)
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                  child: Text(
+                    strings.myActiveCompact(list.name, uncheckedCount),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: cs.onPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
 
-                // כפתור המשך
-                ElevatedButton.icon(
-                  onPressed: () => _onContinue(context),
-                  icon: const Icon(Icons.play_arrow, size: kIconSizeSmallPlus),
-                  label: Text(strings.continueButton),
-                  style: ElevatedButton.styleFrom(
-                    // ✅ FIX: Theme-aware colors
-                    backgroundColor: cs.onPrimary,
-                    foregroundColor: accentColor,
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-                    textStyle: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
+                const SizedBox(width: kSpacingSmall),
+
+                // Trailing "continue" arrow — icon-only for compactness.
+                // Accessible via Semantics label.
+                Semantics(
+                  button: true,
+                  label: strings.continueButton,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingSmallPlus,
+                      vertical: kSpacingTiny,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cs.onPrimary,
+                      borderRadius: BorderRadius.circular(kBorderRadius),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          strings.continueButton,
+                          style: TextStyle(
+                            color: accentColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: kFontSizeSmall,
+                          ),
+                        ),
+                        const SizedBox(width: kSpacingXTiny),
+                        Icon(
+                          Icons.play_arrow,
+                          size: kIconSizeSmall,
+                          color: accentColor,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -402,23 +415,28 @@ class _PulsingIcon extends StatelessWidget {
   /// ✅ FIX: Theme-aware color parameter
   final Color backgroundColor;
 
-  const _PulsingIcon({required this.backgroundColor});
+  /// Outer container size (defaults to the legacy 40px).
+  /// The compact banner passes 32 for a tighter layout.
+  final double size;
+
+  const _PulsingIcon({required this.backgroundColor, this.size = 40});
 
   @override
   Widget build(BuildContext context) {
+    // Scale the icon down alongside the container so it keeps its optical
+    // weight when the caller asks for a smaller badge.
+    final iconSize = size >= 40 ? kIconSizeMedium : kIconSizeSmallPlus;
     return Container(
-          width: 40,
-          height: 40,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
-            // ✅ FIX: Theme-aware color
             color: backgroundColor.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),
           child: Icon(
             Icons.shopping_cart,
-            // ✅ FIX: Theme-aware color
             color: backgroundColor,
-            size: kIconSizeMedium,
+            size: iconSize,
           ),
         )
         .animate(onPlay: (c) => c.repeat(reverse: true))

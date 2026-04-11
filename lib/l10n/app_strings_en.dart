@@ -1472,6 +1472,8 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
 
   String get myActiveTitle => 'You have active shopping';
   String myActiveSubtitle(String listName, int remaining) => '"$listName" - $remaining items remaining';
+  // Compact single-line variant used in the home banner.
+  String myActiveCompact(String listName, int remaining) => '$listName · $remaining items';
   String get continueButton => 'Continue';
   String othersActiveTitle(String shopperName) => '$shopperName is shopping now';
   String othersActiveTitleMultiple(int count) => '$count shoppers active now';
