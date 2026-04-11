@@ -1458,18 +1458,21 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       vertical: kSpacingSmallPlus,
                     ),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // 🏷️ תמונת מוצר — Hero 72px
                         _buildProductThumbnail(item, isCritical, statusColor),
 
                         const SizedBox(width: kSpacingSmallPlus),
 
-                        // 📝 שם + תפוגה + recurring
+                        // 📝 Two-tier column: name (full width) → badges → qty row
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
+                              // Tier 1: name (+ recurring star)
                               Row(
                                 children: [
                                   if (item.isRecurring)
@@ -1481,10 +1484,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         size: kIconSizeSmallPlus,
                                       ),
                                     ),
-                                  // Expanded (not Flexible) forces the Text to
-                                  // use the allocated width and wrap to 2 lines
-                                  // instead of trying to lay out on a single
-                                  // long line and then clipping mid-word.
+                                  // Expanded (not Flexible) forces wrapping.
                                   Expanded(
                                     child: Text(
                                       item.productName,
@@ -1498,67 +1498,73 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   ),
                                 ],
                               ),
+
+                              // Tier 2: expiry badge (only when present)
                               if (item.expiryDate != null) ...[
                                 const SizedBox(height: kSpacingXTiny),
                                 _buildExpiryBadge(item),
                               ],
-                            ],
-                          ),
-                        ),
 
-                        const SizedBox(width: kSpacingSmall),
-
-                        // 🔢 כמות — כפתורי +/- מהירים
-                        // Force LTR so +/- buttons stay in consistent visual order
-                        Directionality(
-                          textDirection: TextDirection.ltr,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // כפתור מינוס
-                              _buildQuantityButton(
-                                icon: Icons.remove,
-                                color: item.quantity <= 1 ? cs.error : cs.onSurfaceVariant,
-                                onTap: item.quantity > 0
-                                    ? () => _updateQuantity(item, item.quantity - 1)
-                                    : null,
-                              ),
-
-                              // מספר כמות
-                              GestureDetector(
-                                onTap: () => _showQuickQuantityDialog(item),
-                                child: Container(
-                                  constraints: const BoxConstraints(minWidth: 40),
-                                  padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: kSpacingTiny),
-                                  decoration: BoxDecoration(
-                                    color: isWarning || isCritical
-                                        ? statusColor.withValues(alpha: 0.12)
-                                        : cs.primaryContainer.withValues(alpha: 0.4),
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
-                                    border: Border.all(
-                                      color: isWarning || isCritical
-                                          ? statusColor.withValues(alpha: 0.3)
-                                          : cs.primary.withValues(alpha: 0.15),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '${item.quantity} ${item.unit}',
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: isWarning || isCritical ? statusColor : cs.primary,
-                                    ),
-                                    textAlign: TextAlign.center,
+                              // Tier 3: quantity controls, pushed to trailing edge.
+                              // Moving this here instead of sitting beside the name
+                              // gives the name the full column width — essential for
+                              // long Hebrew product names.
+                              const SizedBox(height: kSpacingSmall),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: Directionality(
+                                  // Force LTR so the +/- visual order is consistent
+                                  // regardless of the surrounding text direction.
+                                  textDirection: TextDirection.ltr,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      _buildQuantityButton(
+                                        icon: Icons.remove,
+                                        color: item.quantity <= 1 ? cs.error : cs.onSurfaceVariant,
+                                        onTap: item.quantity > 0
+                                            ? () => _updateQuantity(item, item.quantity - 1)
+                                            : null,
+                                      ),
+                                      GestureDetector(
+                                        onTap: () => _showQuickQuantityDialog(item),
+                                        child: Container(
+                                          constraints: const BoxConstraints(minWidth: 44),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: kSpacingSmall,
+                                            vertical: kSpacingTiny,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isWarning || isCritical
+                                                ? statusColor.withValues(alpha: 0.12)
+                                                : cs.primaryContainer.withValues(alpha: 0.4),
+                                            borderRadius: BorderRadius.circular(kBorderRadius),
+                                            border: Border.all(
+                                              color: isWarning || isCritical
+                                                  ? statusColor.withValues(alpha: 0.3)
+                                                  : cs.primary.withValues(alpha: 0.15),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${item.quantity} ${item.unit}',
+                                            style: theme.textTheme.titleSmall?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              color: isWarning || isCritical ? statusColor : cs.primary,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                      _buildQuantityButton(
+                                        icon: Icons.add,
+                                        color: cs.primary,
+                                        onTap: item.quantity < kMaxPantryQuantity
+                                            ? () => _updateQuantity(item, item.quantity + 1)
+                                            : null,
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-
-                              // כפתור פלוס
-                              _buildQuantityButton(
-                                icon: Icons.add,
-                                color: cs.primary,
-                                onTap: item.quantity < kMaxPantryQuantity
-                                    ? () => _updateQuantity(item, item.quantity + 1)
-                                    : null,
                               ),
                             ],
                           ),
