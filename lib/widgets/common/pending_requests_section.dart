@@ -125,7 +125,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     if (hasBarcode) {
       return ProductThumbnail(
         barcode: barcode,
-        category: data['category']?.toString(),
+        category: data['category']?.toString() ?? '',
         size: kIconSizeLarge + kSpacingXTiny,
       );
     }
