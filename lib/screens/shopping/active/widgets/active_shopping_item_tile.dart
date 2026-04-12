@@ -55,7 +55,14 @@ class ActiveShoppingItemTile extends StatelessWidget {
       key: ValueKey('swipe_${item.id}'),
       confirmDismiss: (direction) async {
         unawaited(HapticFeedback.lightImpact());
-        if (direction == DismissDirection.startToEnd) {
+        // RTL-aware: in Hebrew, startToEnd is visual RIGHT→LEFT,
+        // which is the "out of stock" gesture. Without this check
+        // the swipe directions are backwards for RTL users.
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
+        final isOutOfStock = isRtl
+            ? direction == DismissDirection.endToStart
+            : direction == DismissDirection.startToEnd;
+        if (isOutOfStock) {
           onStatusChanged(status == ShoppingItemStatus.outOfStock
               ? ShoppingItemStatus.pending
               : ShoppingItemStatus.outOfStock);
@@ -134,7 +141,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
                       child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 100),
                         child: Icon(
                           _statusIcon,
                           key: ValueKey(status),
@@ -154,7 +161,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                     // Product name with animated strikethrough
                     Expanded(
                       child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 100),
                         style: theme.textTheme.bodyLarge!.copyWith(
                           decoration: status == ShoppingItemStatus.purchased
                               ? TextDecoration.lineThrough

@@ -1214,25 +1214,34 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                                     ),
                                   ),
                                 ),
-                                // 🔢 מספר פריטים בקטגוריה
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: kSpacingSmall,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: cs.onSurface.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(kBorderRadius),
-                                  ),
-                                  child: Text(
-                                    '${items.length}',
-                                    style: TextStyle(
-                                      fontSize: kFontSizeSmall,
-                                      fontWeight: FontWeight.bold,
-                                      color: cs.onSurfaceVariant,
+                                // 🔢 Progress per category — "2/6"
+                                Builder(builder: (_) {
+                                  final done = items.where((i) =>
+                                      _itemStatuses[i.id] == ShoppingItemStatus.purchased).length;
+                                  final allDone = done == items.length;
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: kSpacingSmall,
+                                      vertical: 2,
                                     ),
-                                  ),
-                                ),
+                                    decoration: BoxDecoration(
+                                      color: allDone
+                                          ? (brand?.successContainer ?? cs.primaryContainer)
+                                          : cs.onSurface.withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(kBorderRadius),
+                                    ),
+                                    child: Text(
+                                      '$done/${items.length}',
+                                      style: TextStyle(
+                                        fontSize: kFontSizeSmall,
+                                        fontWeight: FontWeight.bold,
+                                        color: allDone
+                                            ? (brand?.success ?? cs.primary)
+                                            : cs.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  );
+                                }),
                                 const SizedBox(width: kSpacingXTiny),
                                 // ▼/▲ חץ קיפול
                                 AnimatedRotation(
@@ -1253,12 +1262,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         // פריטים בקטגוריה (מוסתרים כשמקופל)
                         if (!_collapsedCategories.contains(category))
                           ...items.map<Widget>(
-                            (item) => ActiveShoppingItemTile(
-                              item: item,
-                              // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
-                              status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
-                              onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
-                              onQuantityChanged: (newQty) => _updateItemQuantity(item, newQty),
+                            (item) => RepaintBoundary(
+                              child: ActiveShoppingItemTile(
+                                item: item,
+                                // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
+                                status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
+                                onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                                onQuantityChanged: (newQty) => _updateItemQuantity(item, newQty),
+                              ),
                             ),
                           ),
 
