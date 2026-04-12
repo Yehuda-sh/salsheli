@@ -161,6 +161,33 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
   }
 
+  /// Dialog title row — title text + optional inline product thumbnail.
+  /// In edit mode with a barcode, the 48px thumbnail sits beside the
+  /// title in one row, saving ~50px of vertical space vs stacked layout.
+  Widget _buildDialogTitle(ColorScheme cs, Color accent, String title) {
+    final hasImage = widget.mode == PantryItemDialogMode.edit &&
+        widget.item?.barcode != null &&
+        widget.item!.barcode!.length >= 7;
+
+    if (!hasImage) {
+      return Text(title, style: TextStyle(color: accent));
+    }
+
+    return Row(
+      children: [
+        Expanded(
+          child: Text(title, style: TextStyle(color: accent)),
+        ),
+        const SizedBox(width: kSpacingSmall),
+        ProductThumbnail(
+          barcode: widget.item!.barcode,
+          category: widget.item!.category,
+          size: kIconSizeXLarge,
+        ),
+      ],
+    );
+  }
+
   /// 🆕 בונה שדה כמות עם כפתורי +/-
   /// Quantity +/- stepper. [accentColor] controls the icon/text tint so
   /// callers can visually distinguish "current quantity" (primary, bold)
@@ -526,44 +553,25 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       textDirection: TextDirection.rtl,
       child: AlertDialog(
         backgroundColor: cs.surface,
-        title: Text(
-          title,
-          style: TextStyle(color: accent),
-        ),
+        title: _buildDialogTitle(cs, accent, title),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ═══════════════════════════════════════════════════════════
-              // 📸 תמונת מוצר (במצב עריכה - גדולה ובולטת)
-              // ═══════════════════════════════════════════════════════════
-              if (widget.mode == PantryItemDialogMode.edit &&
-                  widget.item?.barcode != null &&
-                  widget.item!.barcode!.length >= 7)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: kSpacingSmall),
-                  child: Center(
-                    child: ProductThumbnail(
-                      barcode: widget.item!.barcode,
-                      category: widget.item!.category,
-                      // 72px — confirmation-only, not hero. Same size as list row.
-                      size: kIconSizeXLarge + kSpacingLarge,
-                    ),
-                  ),
-                ),
-
-              // ═══════════════════════════════════════════════════════════
               // 🟢 שלב עליון: אזור מהיר (תמיד פתוח)
               // ═══════════════════════════════════════════════════════════
 
-              // שם המוצר — textDirection RTL ensures the cursor and
-              // visible portion start at the right (=beginning) of the
-              // Hebrew text, not scrolled to the end.
+              // שם המוצר — 2 שורות, ללא prefixIcon שאוכל רוחב.
+              // textDirection RTL keeps the visible portion at the
+              // Hebrew string start (right edge).
               TextField(
                 controller: _nameController,
                 style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
                 textDirection: TextDirection.rtl,
+                maxLines: 2,
+                minLines: 1,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
@@ -572,7 +580,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   hintStyle: TextStyle(
                     color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                   ),
-                  prefixIcon: Icon(Icons.inventory_2_outlined, color: cs.primary),
                 ),
                 enabled: !_isLoading,
               ),
