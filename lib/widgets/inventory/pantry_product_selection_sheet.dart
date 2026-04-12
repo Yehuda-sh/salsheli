@@ -896,6 +896,7 @@ class _PantryProductSelectionSheetState
                   ProductThumbnail(
                     barcode: product['barcode'] as String?,
                     category: category,
+                    productName: product['name'] as String?,
                     size: kIconSizeXLarge,
                     tintColor: sourceColor,
                   ),

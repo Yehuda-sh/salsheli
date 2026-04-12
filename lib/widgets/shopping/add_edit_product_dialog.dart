@@ -390,6 +390,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                         child: ProductThumbnail(
                           barcode: widget.item!.barcode,
                           category: widget.item!.category ?? '',
+                          productName: widget.item!.name,
                           size: 140,
                         ),
                       ),

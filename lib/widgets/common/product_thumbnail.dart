@@ -102,7 +102,7 @@ class ProductThumbnail extends StatelessWidget {
 
   Text get _emojiText {
     // Try product-specific emoji first (keyword match on Hebrew name)
-    final specificEmoji = _matchProductEmoji(productName);
+    final specificEmoji = matchProductEmoji(productName);
     if (specificEmoji != null) {
       return Text(specificEmoji, style: TextStyle(fontSize: size * 0.45));
     }
@@ -115,7 +115,10 @@ class ProductThumbnail extends StatelessWidget {
   /// Keyword → emoji mapping for common Israeli products.
   /// Matches the FIRST keyword found in the product name.
   /// Returns null if no keyword matches → caller uses category emoji.
-  static String? _matchProductEmoji(String? name) {
+  ///
+  /// Public so other widgets (e.g., product_selection_bottom_sheet) can
+  /// use the same mapping without going through the full Thumbnail widget.
+  static String? matchProductEmoji(String? name) {
     if (name == null || name.isEmpty) return null;
 
     // Ordered: longer/more-specific keywords first to avoid false matches.

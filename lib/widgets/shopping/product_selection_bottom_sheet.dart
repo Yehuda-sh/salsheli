@@ -45,6 +45,7 @@ import '../common/notebook_background.dart';
 import 'add_edit_product_dialog.dart';
 import '../../config/filters_config.dart';
 import '../common/app_loading_skeleton.dart';
+import '../common/product_thumbnail.dart';
 
 class ProductSelectionBottomSheet extends StatefulWidget {
   final ShoppingList list;
@@ -927,7 +928,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
               flex: 3,
               child: Container(
                 color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
-                child: _buildProductImage(barcode, category, cs),
+                child: _buildProductImage(barcode, category, cs, productName: name),
               ),
             ),
 
@@ -1015,13 +1016,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // 📸 Product Image
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Product image with Rami Levy CDN, fallback to category emoji.
-  /// Credit text only appears when the image loads successfully.
-  Widget _buildProductImage(String? barcode, String category, ColorScheme cs) {
+  /// Product image with Rami Levy CDN, fallback to product-specific emoji.
+  /// [productName] enables keyword→emoji matching (🥑 avocado, not 🍎 generic fruit).
+  Widget _buildProductImage(String? barcode, String category, ColorScheme cs, {String? productName}) {
     final url = ProductImagesConfig.getImageUrl(barcode);
-    final emoji = FiltersConfig.getCategoryEmoji(
-      FiltersConfig.hebrewCategoryToEnglish(category),
-    );
+    final emoji = ProductThumbnail.matchProductEmoji(productName)
+        ?? FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category));
 
     if (url == null || _failedImageUrls.contains(url)) {
       return _buildEmojiPlaceholder(emoji);
