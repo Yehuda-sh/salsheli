@@ -534,6 +534,7 @@ class ShoppingStrings {
   String get recentlyAdded => 'נוספו לאחרונה';
   String get cameraError => 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.';
   String get toggleFlash => 'הדלק/כבה פנס';
+  String get scanHint => 'כוון את הברקוד למרכז המסגרת';
   String get barcodeFoundAdd => 'המוצר לא ברשימה. להוסיף?';
   String get addToListButton => 'הוסף לרשימה';
   String barcodeNotFound(String code) => 'ברקוד $code לא נמצא';
