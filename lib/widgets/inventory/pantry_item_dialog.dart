@@ -162,8 +162,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   }
 
   /// Dialog title row — title text + optional inline product thumbnail.
-  /// In edit mode with a barcode, the 48px thumbnail sits beside the
-  /// title in one row, saving ~50px of vertical space vs stacked layout.
+  /// In edit mode with a barcode, the 56px thumbnail sits beside the
+  /// title. Tapping it opens a full-size preview dialog.
   Widget _buildDialogTitle(ColorScheme cs, Color accent, String title) {
     final hasImage = widget.mode == PantryItemDialogMode.edit &&
         widget.item?.barcode != null &&
@@ -179,12 +179,32 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           child: Text(title, style: TextStyle(color: accent)),
         ),
         const SizedBox(width: kSpacingSmall),
-        ProductThumbnail(
-          barcode: widget.item!.barcode,
-          category: widget.item!.category,
-          size: kIconSizeXLarge,
+        GestureDetector(
+          onTap: () => _showFullImage(cs),
+          child: ProductThumbnail(
+            barcode: widget.item!.barcode,
+            category: widget.item!.category,
+            size: kIconSizeXLarge + kSpacingSmall,
+          ),
         ),
       ],
+    );
+  }
+
+  /// Opens a centered dialog showing the product image at full size.
+  void _showFullImage(ColorScheme cs) {
+    showDialog(
+      context: context,
+      builder: (ctx) => GestureDetector(
+        onTap: () => Navigator.pop(ctx),
+        child: Center(
+          child: ProductThumbnail(
+            barcode: widget.item!.barcode,
+            category: widget.item!.category,
+            size: 220,
+          ),
+        ),
+      ),
     );
   }
 
@@ -204,6 +224,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   }) {
     final color = accentColor ?? cs.primary;
     // Force LTR so +/- buttons stay in consistent visual order (- left, + right)
+    // Compact padding — values are at most 2 digits so 28px is plenty.
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
@@ -222,13 +243,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   },
             borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             child: Padding(
-              padding: const EdgeInsets.all(kSpacingSmallPlus),
+              padding: const EdgeInsets.all(kSpacingSmall),
               child: Icon(Icons.remove_circle_outline, color: color, size: iconSize),
             ),
           ),
-          // ערך
+          // ערך — 28px wide, enough for 2 digits (max pantry qty is 99)
           SizedBox(
-            width: 40,
+            width: 28,
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
@@ -261,7 +282,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   },
             borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             child: Padding(
-              padding: const EdgeInsets.all(kSpacingSmallPlus),
+              padding: const EdgeInsets.all(kSpacingSmall),
               child: Icon(Icons.add_circle_outline, color: color, size: iconSize),
             ),
           ),
