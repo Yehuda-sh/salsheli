@@ -1571,7 +1571,7 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   String get declineSuccess => 'Invitation declined';
   String declineError(String error) => 'Error declining invitation: $error';
 
-  @override String pendingRequestsLabel(int count) => 'Pending requests, $count requests';
+  @override String pendingRequestsLabel(int count) => '$count pending requests';
   @override String get rejectRequest => 'Reject request';
   @override String get rejectButton => 'Reject';
   @override String get approveRequest => 'Approve request';
@@ -1936,6 +1936,7 @@ class ActionCenterStringsEn extends ActionCenterStrings {
   @override String pendingRequests(int count) => '$count pending requests';
   @override String get review => 'View';
   @override String get overdueList => 'Overdue list!';
+  String overdueListsCount(int count) => '$count overdue lists!';
   @override String get startShopping => 'Start';
   @override String criticalStock(int count) => '$count items out of stock';
   @override String get goToPantry => 'Pantry';

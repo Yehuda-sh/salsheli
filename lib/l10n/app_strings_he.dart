@@ -1713,7 +1713,7 @@ class PendingInvitesScreenStrings {
   String declineError(String error) => 'שגיאה בדחיית ההזמנה: $error';
 
   // Pending requests
-  String pendingRequestsLabel(int count) => 'בקשות ממתינות לאישור, $count בקשות';
+  String pendingRequestsLabel(int count) => '$count בקשות ממתינות';
   String get rejectRequest => 'דחה את הבקשה';
   String get rejectButton => 'דחה';
   String get approveRequest => 'אשר את הבקשה';
@@ -2144,6 +2144,7 @@ class ActionCenterStrings {
   String pendingRequests(int count) => '$count בקשות ממתינות';
   String get review => 'צפה';
   String get overdueList => 'רשימה באיחור!';
+  String overdueListsCount(int count) => '$count רשימות באיחור!';
   String get startShopping => 'התחל';
   String criticalStock(int count) => '$count מוצרים נגמרו';
   String get goToPantry => 'מזווה';

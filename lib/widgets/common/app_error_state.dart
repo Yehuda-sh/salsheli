@@ -69,6 +69,13 @@ class AppErrorState extends StatelessWidget {
               onPressed: onAction,
               icon: Icon(actionIcon),
               label: Text(actionLabel ?? AppStrings.common.retry),
+              // Force the app's primary seed color so the button stays
+              // green even when Material You / dynamic colors shift the
+              // system primary to blue.
+              style: FilledButton.styleFrom(
+                backgroundColor: cs.primary,
+                foregroundColor: cs.onPrimary,
+              ),
             ),
           ],
         ),

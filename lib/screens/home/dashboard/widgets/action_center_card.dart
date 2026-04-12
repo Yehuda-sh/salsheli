@@ -64,24 +64,43 @@ class ActionCenterCard extends StatelessWidget {
 
     // 2. רשימות באיחור (overdue target_date)
     // ⚠️ target מגיע כ-UTC מ-Firestore — נרמול ל-local date-only
+    // Consolidated: multiple overdue lists → one card with count.
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
+    final overdueLists = <ShoppingList>[];
     for (final list in listsProvider.lists) {
       if (list.status != ShoppingList.statusActive) continue;
       final target = list.targetDate;
       if (target == null) continue;
       final targetLocal = target.toLocal();
       final targetDay = DateTime(targetLocal.year, targetLocal.month, targetLocal.day);
-      if (!today.isAfter(targetDay)) continue;
+      if (today.isAfter(targetDay)) overdueLists.add(list);
+    }
+    if (overdueLists.length == 1) {
+      // Single overdue list — show its name directly
       actionItems.add(_ActionItem(
         icon: Icons.schedule,
         color: cs.error,
         title: AppStrings.actionCenter.overdueList,
-        subtitle: list.name,
+        subtitle: overdueLists.first.name,
         actionLabel: AppStrings.actionCenter.startShopping,
         onAction: () {
           unawaited(HapticFeedback.lightImpact());
-          onNavigateToList?.call(list);
+          onNavigateToList?.call(overdueLists.first);
+        },
+      ));
+    } else if (overdueLists.length > 1) {
+      // Multiple overdue lists — consolidated card with count + names
+      final names = overdueLists.map((l) => l.name).join(', ');
+      actionItems.add(_ActionItem(
+        icon: Icons.schedule,
+        color: cs.error,
+        title: AppStrings.actionCenter.overdueListsCount(overdueLists.length),
+        subtitle: names,
+        actionLabel: AppStrings.actionCenter.review,
+        onAction: () {
+          unawaited(HapticFeedback.lightImpact());
+          onNavigateToList?.call(overdueLists.first);
         },
       ));
     }

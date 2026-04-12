@@ -106,7 +106,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     } else if (!silent) {
       setState(() {
         _isInitialLoading = false;
-        _error = AppStrings.pendingInvitesScreen.loadError;
+        _error = result.errorMessage ?? AppStrings.pendingInvitesScreen.loadError;
       });
     }
   }
@@ -338,6 +338,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
             height: MediaQuery.of(context).size.height * 0.7,
             child: AppErrorState(
               message: _error!,
+              icon: Icons.cloud_off_outlined,
               onAction: _loadInvites,
               actionLabel: AppStrings.pendingInvitesScreen.retryButton,
             ),

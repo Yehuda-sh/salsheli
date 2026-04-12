@@ -175,28 +175,35 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
             ),
           ),
 
-          // כפתורי פעולה (44x44 — תקן נגישות מובייל)
+          // כפתורי פעולה — labeled buttons for clarity
           if (widget.canApprove && !_isProcessing) ...[
-            // ✅ אשר
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: IconButton(
-                onPressed: _approve,
-                icon: Icon(Icons.check_circle, size: kIconSizeMedium, color: successColor),
-                padding: EdgeInsets.zero,
-                tooltip: AppStrings.pendingInvitesScreen.approveRequest,
+            // ✅ אשר — filled green
+            FilledButton.icon(
+              onPressed: _approve,
+              icon: const Icon(Icons.check, size: kIconSizeSmall),
+              label: Text(AppStrings.pendingInvitesScreen.approveButton),
+              style: FilledButton.styleFrom(
+                backgroundColor: successColor,
+                foregroundColor: cs.onPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
+                minimumSize: const Size(0, 36),
+                textStyle: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
               ),
             ),
-            // ❌ דחה (עם אישור)
-            SizedBox(
-              width: 44,
-              height: 44,
-              child: IconButton(
-                onPressed: _confirmAndReject,
-                icon: Icon(Icons.cancel, size: kIconSizeMedium, color: cs.error.withValues(alpha: 0.7)),
-                padding: EdgeInsets.zero,
-                tooltip: AppStrings.pendingInvitesScreen.rejectRequest,
+            const SizedBox(width: kSpacingSmall),
+            // ❌ דחה — outlined red (less prominent = harder to tap by mistake)
+            OutlinedButton.icon(
+              onPressed: _confirmAndReject,
+              icon: Icon(Icons.close, size: kIconSizeSmall, color: cs.error),
+              label: Text(
+                AppStrings.pendingInvitesScreen.rejectButton,
+                style: TextStyle(color: cs.error),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
+                minimumSize: const Size(0, 36),
+                textStyle: const TextStyle(fontSize: kFontSizeSmall),
               ),
             ),
           ] else if (_isProcessing)
