@@ -1554,6 +1554,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                               color: isWarning || isCritical ? statusColor : cs.primary,
                                             ),
                                             textAlign: TextAlign.center,
+                                            // Force LTR so "2 יח'" renders as
+                                            // "2 יח'" (number first) not "יח' 2".
+                                            textDirection: TextDirection.ltr,
                                           ),
                                         ),
                                       ),
