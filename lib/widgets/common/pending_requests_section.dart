@@ -21,6 +21,7 @@ import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/pending_requests_service.dart';
+import 'product_thumbnail.dart';
 
 /// Widget להצגת בקשות ממתינות — קומפקטי
 class PendingRequestsSection extends StatelessWidget {
@@ -115,6 +116,26 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
     }
   }
 
+  /// Product thumbnail when barcode is available, emoji icon otherwise.
+  Widget _buildRequestIcon(PendingRequest request) {
+    final data = request.requestData;
+    final barcode = data['barcode']?.toString();
+    final hasBarcode = barcode != null && barcode.length >= 7;
+
+    if (hasBarcode) {
+      return ProductThumbnail(
+        barcode: barcode,
+        category: data['category']?.toString(),
+        size: kIconSizeLarge + kSpacingXTiny,
+      );
+    }
+
+    return Text(
+      _getIcon(request.type),
+      style: const TextStyle(fontSize: kFontSizeMedium),
+    );
+  }
+
   String _getContent(PendingRequest request) {
     final data = request.requestData;
     final strings = AppStrings.sharing;
@@ -153,8 +174,8 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       padding: const EdgeInsets.only(bottom: kSpacingTiny),
       child: Row(
         children: [
-          // אייקון סוג
-          Text(_getIcon(request.type), style: const TextStyle(fontSize: kFontSizeMedium)),
+          // תמונת מוצר (אם יש barcode) או אייקון סוג כ-fallback
+          _buildRequestIcon(request),
           const SizedBox(width: kSpacingSmall),
 
           // תוכן
