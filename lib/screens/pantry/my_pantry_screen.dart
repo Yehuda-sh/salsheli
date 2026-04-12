@@ -801,6 +801,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                                     setState(() {
                                                       _searchQuery = '';
                                                       _selectedLocation = null;
+                                                      _isSearchMode = false;
                                                     });
                                                   },
                                                   child: Text(strings.clearFilters),

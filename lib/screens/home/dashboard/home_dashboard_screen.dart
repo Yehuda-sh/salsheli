@@ -37,6 +37,7 @@ import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/action_center_card.dart';
+import 'widgets/household_activity_feed.dart';
 import 'widgets/onboarding_tips_card.dart';
 import 'widgets/suggestions_today_card.dart';
 
@@ -189,6 +190,21 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // === 2. אימות אימייל (אם צריך) ===
                   const EmailVerificationBanner(),
 
+                  // === 3. Action Center — דורש טיפול (דחוף → למעלה) ===
+                  _staggered(
+                    RepaintBoundary(
+                      child: ActionCenterCard(
+                        onNavigateToList: (list) {
+                          Navigator.pushNamed(context, '/list-details', arguments: list);
+                        },
+                        onNavigateToPantry: widget.onTabSelected != null
+                            ? () => widget.onTabSelected!(1)
+                            : null,
+                      ),
+                    ),
+                    sectionIndex++,
+                  ),
+
                   // === 4. הצעות להיום ===
                   _staggered(
                     const RepaintBoundary(
@@ -218,17 +234,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     onNavigateToInvite: () => Navigator.pushNamed(context, '/invite-users'),
                   ),
 
-                  // === 6. Action Center — דורש טיפול ===
+                  // === 6. פיד פעילות הבית ===
                   _staggered(
-                    RepaintBoundary(
-                      child: ActionCenterCard(
-                        onNavigateToList: (list) {
-                          Navigator.pushNamed(context, '/list-details', arguments: list);
-                        },
-                        onNavigateToPantry: widget.onTabSelected != null
-                            ? () => widget.onTabSelected!(1)
-                            : null,
-                      ),
+                    const RepaintBoundary(
+                      child: HouseholdActivityFeed(),
                     ),
                     sectionIndex++,
                   ),
@@ -520,7 +529,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               style: theme.textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: kSpacingTiny),
