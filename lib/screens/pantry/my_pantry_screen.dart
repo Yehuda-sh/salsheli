@@ -1479,7 +1479,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                     Padding(
                                       padding: const EdgeInsets.only(left: kSpacingXTiny),
                                       child: Icon(
-                                        Icons.star_rounded,
+                                        Icons.autorenew,
                                         color: theme.colorScheme.tertiary,
                                         size: kIconSizeSmallPlus,
                                       ),

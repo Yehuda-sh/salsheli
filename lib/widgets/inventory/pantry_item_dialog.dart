@@ -162,13 +162,20 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   }
 
   /// 🆕 בונה שדה כמות עם כפתורי +/-
+  /// Quantity +/- stepper. [accentColor] controls the icon/text tint so
+  /// callers can visually distinguish "current quantity" (primary, bold)
+  /// from "minimum alert" (muted, lighter).
   Widget _buildQuantityField({
     required TextEditingController controller,
     required String label,
     required ColorScheme cs,
     int minValue = 0,
     int maxValue = kMaxPantryQuantity,
+    Color? accentColor,
+    double fontSize = kFontSizeBody,
+    double iconSize = kIconSizeMedium,
   }) {
+    final color = accentColor ?? cs.primary;
     // Force LTR so +/- buttons stay in consistent visual order (- left, + right)
     return Directionality(
       textDirection: TextDirection.ltr,
@@ -189,7 +196,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             child: Padding(
               padding: const EdgeInsets.all(kSpacingSmallPlus),
-              child: Icon(Icons.remove_circle_outline, color: cs.primary, size: kIconSizeMedium),
+              child: Icon(Icons.remove_circle_outline, color: color, size: iconSize),
             ),
           ),
           // ערך
@@ -201,7 +208,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: cs.onSurface,
-                fontSize: kFontSizeBody,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
               decoration: InputDecoration(
@@ -228,7 +235,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             child: Padding(
               padding: const EdgeInsets.all(kSpacingSmallPlus),
-              child: Icon(Icons.add_circle_outline, color: cs.primary, size: kIconSizeMedium),
+              child: Icon(Icons.add_circle_outline, color: color, size: iconSize),
             ),
           ),
         ],
@@ -535,12 +542,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   widget.item?.barcode != null &&
                   widget.item!.barcode!.length >= 7)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: kSpacingMedium),
+                  padding: const EdgeInsets.only(bottom: kSpacingSmall),
                   child: Center(
                     child: ProductThumbnail(
                       barcode: widget.item!.barcode,
                       category: widget.item!.category,
-                      size: 140,
+                      // 72px — confirmation-only, not hero. Same size as list row.
+                      size: kIconSizeXLarge + kSpacingLarge,
                     ),
                   ),
                 ),
@@ -549,10 +557,13 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               // 🟢 שלב עליון: אזור מהיר (תמיד פתוח)
               // ═══════════════════════════════════════════════════════════
 
-              // שם המוצר
+              // שם המוצר — textDirection RTL ensures the cursor and
+              // visible portion start at the right (=beginning) of the
+              // Hebrew text, not scrolled to the end.
               TextField(
                 controller: _nameController,
                 style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
+                textDirection: TextDirection.rtl,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
@@ -565,21 +576,23 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 ),
                 enabled: !_isLoading,
               ),
-              const SizedBox(height: kSpacingMedium),
+              const SizedBox(height: kSpacingSmall),
 
               // כמות + מינימום עם כפתורי +/-
+              // Quantity uses primary color + larger font → "the main thing".
+              // Minimum uses muted outline-variant → "alert threshold".
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // כמות נוכחית
+                  // כמות נוכחית — prominent
                   Column(
                     children: [
                       Text(
                         AppStrings.inventory.quantityLabelShort,
                         style: TextStyle(
                           fontSize: kFontSizeSmall,
-                          color: cs.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
+                          color: cs.primary,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: kSpacingXTiny),
@@ -587,6 +600,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         controller: _quantityController,
                         label: '',
                         cs: cs,
+                        accentColor: cs.primary,
+                        fontSize: kFontSizeLarge,
                         minValue: widget.mode == PantryItemDialogMode.add ? 1 : 0,
                       ),
                     ],
@@ -597,7 +612,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     width: 1,
                     color: cs.outlineVariant,
                   ),
-                  // מינימום (התראה)
+                  // מינימום (התראה) — muted, secondary
                   Column(
                     children: [
                       Row(
@@ -620,12 +635,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         controller: _minQuantityController,
                         label: '',
                         cs: cs,
+                        accentColor: cs.onSurfaceVariant,
+                        iconSize: kIconSizeSmallPlus,
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: kSpacingMedium),
+              const SizedBox(height: kSpacingSmall),
 
               // מיקום אחסון
               Consumer<LocationsProvider>(
@@ -692,7 +709,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 },
               ),
 
-              const SizedBox(height: kSpacingMedium),
+              const SizedBox(height: kSpacingSmall),
 
               // ═══════════════════════════════════════════════════════════
               // ⚪ שלב ביניים: הגדרות נוספות (מתקפל)
