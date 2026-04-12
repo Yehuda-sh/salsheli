@@ -1549,14 +1549,16 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                             ),
                                           ),
                                           child: Text(
-                                            '${item.quantity} ${item.unit}',
+                                            // LRM (U+200E) before the number forces
+                                            // the BiDi algorithm to anchor the digit
+                                            // at the visual start, even when a parent
+                                            // Directionality leaks RTL base direction.
+                                            '\u200E${item.quantity} ${item.unit}',
                                             style: theme.textTheme.titleSmall?.copyWith(
                                               fontWeight: FontWeight.bold,
                                               color: isWarning || isCritical ? statusColor : cs.primary,
                                             ),
                                             textAlign: TextAlign.center,
-                                            // Force LTR so "2 יח'" renders as
-                                            // "2 יח'" (number first) not "יח' 2".
                                             textDirection: TextDirection.ltr,
                                           ),
                                         ),
