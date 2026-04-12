@@ -1658,6 +1658,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final thumbnail = ProductThumbnail(
       barcode: item.barcode,
       category: item.category,
+      productName: item.productName,
       // 72px hero image — up from 56. Gives brand logos/shape room to read
       // without crowding the product name.
       size: kIconSizeXLarge + kSpacingLarge,

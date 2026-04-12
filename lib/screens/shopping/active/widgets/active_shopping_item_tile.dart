@@ -155,6 +155,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                     ProductThumbnail(
                       barcode: item.barcode,
                       category: item.category ?? '',
+                      productName: item.name,
                       size: kIconSizeLarge + kSpacingSmall,
                     ),
                     const SizedBox(width: kSpacingSmall),

@@ -33,6 +33,12 @@ class ProductThumbnail extends StatelessWidget {
   /// Category key (Hebrew or English) for emoji fallback
   final String category;
 
+  /// Optional product name — when provided, the emoji fallback uses
+  /// keyword matching for a more specific icon (🧅 onion instead of
+  /// generic 🥬 vegetable). Falls back to category emoji if no
+  /// keyword matches.
+  final String? productName;
+
   /// Size of the thumbnail container
   final double size;
 
@@ -43,6 +49,7 @@ class ProductThumbnail extends StatelessWidget {
     super.key,
     this.barcode,
     required this.category,
+    this.productName,
     this.size = kIconSizeXLarge,
     this.tintColor,
   });
@@ -94,12 +101,84 @@ class ProductThumbnail extends StatelessWidget {
   }
 
   Text get _emojiText {
+    // Try product-specific emoji first (keyword match on Hebrew name)
+    final specificEmoji = _matchProductEmoji(productName);
+    if (specificEmoji != null) {
+      return Text(specificEmoji, style: TextStyle(fontSize: size * 0.45));
+    }
+    // Fall back to generic category emoji
     final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
     final emoji = FiltersConfig.getCategoryEmoji(englishKey);
-    return Text(
-      emoji,
-      style: TextStyle(fontSize: size * 0.45),
-    );
+    return Text(emoji, style: TextStyle(fontSize: size * 0.45));
+  }
+
+  /// Keyword → emoji mapping for common Israeli products.
+  /// Matches the FIRST keyword found in the product name.
+  /// Returns null if no keyword matches → caller uses category emoji.
+  static String? _matchProductEmoji(String? name) {
+    if (name == null || name.isEmpty) return null;
+
+    // Ordered: longer/more-specific keywords first to avoid false matches.
+    // e.g., "תפוח אדמה" before "תפוח" so potatoes don't get 🍎.
+    const mapping = <String, String>{
+      // Vegetables
+      'תפוח אדמה': '🥔', 'תפו"א': '🥔',
+      'ברוקולי': '🥦', 'כרובית': '🥦',
+      'בצל': '🧅', 'שום': '🧄',
+      'גזר': '🥕', 'מלפפון': '🥒',
+      'עגבני': '🍅', 'חסה': '🥬',
+      'כרוב': '🥬', 'פלפל': '🌶️',
+      'אבוקדו': '🥑', 'חציל': '🍆',
+      'תירס': '🌽', 'פטריו': '🍄',
+      'זנגביל': '🫚', 'קישוא': '🥒',
+      'סלק': '🫒', 'דלעת': '🎃',
+      // Fruits
+      'תפוז': '🍊', 'קלמנטינ': '🍊',
+      'לימון': '🍋', 'בננה': '🍌',
+      'תפוח': '🍎', 'ענבי': '🍇',
+      'אבטיח': '🍉', 'מלון': '🍈',
+      'אננס': '🍍', 'מנגו': '🥭',
+      'אגס': '🍐', 'שזיף': '🫐',
+      'דובדבן': '🍒', 'תות': '🍓',
+      'אפרסק': '🍑', 'נקטרינ': '🍑',
+      'רימון': '🫒', 'קיווי': '🥝',
+      // Dairy
+      'חלב': '🥛', 'גבינ': '🧀',
+      'יוגורט': '🥛', 'שמנת': '🥛',
+      'ביצ': '🥚',
+      // Bakery
+      'לחם': '🍞', 'חלה': '🍞',
+      'פיתה': '🫓', 'באגט': '🥖',
+      'לחמני': '🍞', 'קרואסון': '🥐',
+      // Meat & Fish
+      'עוף': '🍗', 'חזה': '🍗',
+      'שניצל': '🍗', 'בשר': '🥩',
+      'המבורגר': '🍔', 'נקניק': '🌭',
+      'דג': '🐟', 'סלמון': '🐟',
+      'טונה': '🐟',
+      // Grains & Pasta
+      'אורז': '🍚', 'פסטה': '🍝',
+      'אטריות': '🍝', 'גריסים': '🍚',
+      'קוסקוס': '🍚', 'בורגול': '🍚',
+      // Drinks
+      'מים': '💧', 'מיץ': '🧃',
+      'קולה': '🥤', 'סודה': '🥤',
+      'בירה': '🍺', 'יין': '🍷',
+      'קפה': '☕', 'תה ': '🍵',
+      // Snacks
+      'שוקולד': '🍫', 'במבה': '🥜',
+      'חטיף': '🍬', 'ביסקוויט': '🍪',
+      'עוגיו': '🍪', 'גלידה': '🍦',
+      // Cleaning & Hygiene
+      'סבון': '🧴', 'שמפו': '🧴',
+      'נייר טואלט': '🧻', 'כביסה': '🧺',
+      'משחת שיני': '🪥',
+    };
+
+    for (final entry in mapping.entries) {
+      if (name.contains(entry.key)) return entry.value;
+    }
+    return null;
   }
 }
 

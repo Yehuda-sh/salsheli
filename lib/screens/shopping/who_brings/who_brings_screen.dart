@@ -493,6 +493,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   ProductThumbnail(
                     barcode: item.barcode,
                     category: item.category ?? '',
+                    productName: item.name,
                     size: kIconSizeLarge - kSpacingXTiny,
                   ),
 

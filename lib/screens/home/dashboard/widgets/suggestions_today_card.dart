@@ -538,6 +538,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     child: ProductThumbnail(
                       barcode: suggestion.barcode.isNotEmpty ? suggestion.barcode : null,
                       category: suggestion.category,
+                      productName: suggestion.productName,
                       size: kIconSizeXXLarge,
                     ),
                   ),
