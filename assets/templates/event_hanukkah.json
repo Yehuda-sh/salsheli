@@ -3,15 +3,75 @@
   "description": "נס גדול היה פה — סופגניות, לביבות ושמן",
   "icon": "🕎",
   "items": [
-    {"source": "bakery", "searchTerm": "סופגניה", "quantity": 8, "unit": "יח'", "fallbackName": "סופגניות"},
-    {"source": "greengrocer", "searchTerm": "תפוח אדמה", "quantity": 2, "unit": "ק\"ג", "fallbackName": "תפוחי אדמה (ללביבות)"},
-    {"source": "supermarket", "searchTerm": "שמן לטיגון", "quantity": 1, "unit": "יח'", "fallbackName": "שמן לטיגון"},
-    {"source": "supermarket", "searchTerm": "ביצים", "quantity": 12, "unit": "יח'", "fallbackName": "ביצים"},
-    {"source": "supermarket", "searchTerm": "קמח", "quantity": 1, "unit": "יח'", "fallbackName": "קמח"},
-    {"source": "supermarket", "searchTerm": "שמנת חמוצה", "quantity": 2, "unit": "יח'", "fallbackName": "שמנת חמוצה"},
-    {"source": "supermarket", "searchTerm": "רסק תפוחים", "quantity": 1, "unit": "יח'", "fallbackName": "רסק תפוחים"},
-    {"source": "supermarket", "searchTerm": "נרות חנוכה", "quantity": 1, "unit": "יח'", "fallbackName": "נרות חנוכה"},
-    {"source": "supermarket", "searchTerm": "שוקולד מטבעות", "quantity": 2, "unit": "יח'", "fallbackName": "דמי חנוכה / שוקולד מטבעות"},
-    {"source": "supermarket", "searchTerm": "סביבון", "quantity": 1, "unit": "יח'", "fallbackName": "סביבון"}
+    {
+      "source": "bakery",
+      "searchTerm": "סופגניה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "סופגניות"
+    },
+    {
+      "source": "greengrocer",
+      "searchTerm": "תפוח אדמה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "תפוחי אדמה (ללביבות)"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "שמן לטיגון",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "שמן לטיגון"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "ביצים",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "ביצים"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "קמח",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "קמח"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "שמנת חמוצה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "שמנת חמוצה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "רסק תפוחים",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "רסק תפוחים"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "נרות חנוכה",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "נרות חנוכה"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "שוקולד מטבעות",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "דמי חנוכה / שוקולד מטבעות"
+    },
+    {
+      "source": "supermarket",
+      "searchTerm": "סביבון",
+      "quantity": 1,
+      "unit": "יח'",
+      "fallbackName": "סביבון"
+    }
   ]
 }
