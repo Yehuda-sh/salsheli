@@ -327,14 +327,44 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                 return true;
               },
               onDismissed: (_) {
-                final userId = context.read<UserContext>().userId;
-                if (userId != null) {
-                  unawaited(context.read<NotificationsService>().deleteNotification(
-                    notificationId: notification.id,
-                    userId: userId,
-                  ));
-                }
+                // Remove from UI immediately
+                final removedIndex = _notifications.indexOf(notification);
                 setState(() => _notifications.removeWhere((n) => n.id == notification.id));
+
+                // Show undo snackbar (5 sec) before actually deleting
+                final messenger = ScaffoldMessenger.of(context);
+                messenger.clearSnackBars();
+                messenger.showSnackBar(SnackBar(
+                  content: Text(AppStrings.common.deleted),
+                  action: SnackBarAction(
+                    label: AppStrings.common.undo,
+                    onPressed: () {
+                      // Restore to UI
+                      setState(() {
+                        if (removedIndex >= 0 && removedIndex <= _notifications.length) {
+                          _notifications.insert(removedIndex, notification);
+                        } else {
+                          _notifications.add(notification);
+                        }
+                      });
+                    },
+                  ),
+                  duration: const Duration(seconds: 5),
+                ));
+
+                // Delete from server after snackbar closes
+                Future.delayed(const Duration(seconds: 6), () {
+                  // Only delete if NOT restored (check if still removed)
+                  if (!_notifications.any((n) => n.id == notification.id)) {
+                    final userId = context.read<UserContext>().userId;
+                    if (userId != null) {
+                      unawaited(context.read<NotificationsService>().deleteNotification(
+                        notificationId: notification.id,
+                        userId: userId,
+                      ));
+                    }
+                  }
+                });
               },
               child: _NotificationTile(
                 notification: notification,

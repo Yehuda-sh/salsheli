@@ -605,32 +605,44 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       );
                     },
                   ),
-                // סריקת ברקוד
-                if (canEdit)
-                  IconButton(
-                    icon: const Icon(Icons.qr_code_scanner),
-                    tooltip: AppStrings.shopping.scanBarcode,
-                    onPressed: () => _scanBarcodeAndAdd(currentList),
-                  ),
-                // קטלוג מלא
-                if (canEdit)
-                  IconButton(
-                    icon: const Icon(Icons.library_add),
-                    tooltip: AppStrings.listDetails.addFromCatalogTooltip,
-                    onPressed: () {
-                      unawaited(HapticFeedback.lightImpact());
-                      _navigateToPopulateScreen(currentList);
-                    },
-                  ),
-                // ⋮ תפריט נוסף (מחיקה)
-                if (currentList.isCurrentUserOwner)
-                  PopupMenuButton<String>(
+                // ⋮ תפריט נוסף — barcode, catalog, delete consolidated
+                // (was 3 separate icons — too cluttered on small phones)
+                PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert),
                     tooltip: AppStrings.common.moreOptions,
                     onSelected: (value) {
-                      if (value == 'delete') _showDeleteListDialog(currentList);
+                      switch (value) {
+                        case 'scan':
+                          _scanBarcodeAndAdd(currentList);
+                        case 'catalog':
+                          unawaited(HapticFeedback.lightImpact());
+                          _navigateToPopulateScreen(currentList);
+                        case 'delete':
+                          _showDeleteListDialog(currentList);
+                      }
                     },
                     itemBuilder: (_) => [
+                      if (canEdit)
+                        PopupMenuItem(
+                          value: 'scan',
+                          child: ListTile(
+                            leading: const Icon(Icons.qr_code_scanner),
+                            title: Text(AppStrings.shopping.scanBarcode),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      if (canEdit)
+                        PopupMenuItem(
+                          value: 'catalog',
+                          child: ListTile(
+                            leading: const Icon(Icons.library_add),
+                            title: Text(AppStrings.listDetails.addFromCatalogTooltip),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      if (currentList.isCurrentUserOwner)
                       PopupMenuItem(
                         value: 'delete',
                         child: Row(

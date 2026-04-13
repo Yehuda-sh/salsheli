@@ -309,6 +309,8 @@ class CommonStrings {
   String get retry => 'נסה שוב';
   String get resetFilter => 'איפוס סינון';
   String get clearAll => 'נקה הכל';
+  String get undo => 'בטל';
+  String get deleted => 'נמחק';
   String get searchProductHint => 'חפש מוצר...';
   String get categories => 'קטגוריות';
   String get meatTypes => 'סוגי בשר';
