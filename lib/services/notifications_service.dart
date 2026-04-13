@@ -658,13 +658,18 @@ class NotificationsService {
 
       if (snapshot.docs.isEmpty) return 0;
 
-      final batch = _firestore.batch();
-      for (final doc in snapshot.docs) {
-        batch.delete(doc.reference);
+      // Split into batches of 500 (Firestore limit per commit)
+      final docs = snapshot.docs;
+      for (var i = 0; i < docs.length; i += 500) {
+        final batch = _firestore.batch();
+        final chunk = docs.skip(i).take(500);
+        for (final doc in chunk) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit();
       }
-      await batch.commit();
 
-      return snapshot.docs.length;
+      return docs.length;
     } catch (e, stackTrace) {
       _logError('cleanupOldNotifications', e, stackTrace);
       return -1;

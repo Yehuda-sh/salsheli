@@ -244,7 +244,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         ));
 
         // ✅ signOut() שומר seenOnboarding (לפי Guardrails)
-        await context.read<UserContext>().signOut();
+        // Cache provider before await — context may be invalid after signOut
+        // triggers auth state change that disposes this screen.
+        final userContext = context.read<UserContext>();
+        await userContext.signOut();
 
 
         if (!mounted) return;
@@ -334,7 +337,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           ),
         ));
 
-        await context.read<UserContext>().signOutAndClearAllData();
+        final userCtx = context.read<UserContext>();
+        await userCtx.signOutAndClearAllData();
 
 
         if (!mounted) return;
@@ -491,7 +495,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     if (confirmed == true && mounted) {
       // ✅ GDPR: ניקוי נתונים מקומיים (SharedPreferences + state)
       try {
-        await context.read<UserContext>().signOutAndClearAllData();
+        final uc = context.read<UserContext>();
+        await uc.signOutAndClearAllData();
       } catch (_) {
         // Auth כבר נמחק — ניקוי מקומי נכשל, ממשיכים בכל מקרה
         debugPrint('⚠️ signOutAndClearAllData failed after account deletion');
@@ -815,6 +820,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                         final picked = await imageService.pickImage();
                         if (picked == null) return;
+                        // Guard: bottom sheet may have been dismissed during picker
+                        if (!sheetCtx.mounted) return;
 
                         setBottomSheetState(() => isUploading = true);
                         try {
