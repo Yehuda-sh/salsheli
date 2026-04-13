@@ -753,7 +753,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
                                 style: FilledButton.styleFrom(
                                   minimumSize: const Size.fromHeight(48),
-                                  backgroundColor: cs.primary,
+                                  backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? cs.primary,
                                   foregroundColor: cs.onPrimary,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(

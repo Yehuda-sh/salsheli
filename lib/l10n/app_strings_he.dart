@@ -671,7 +671,7 @@ class AuthStrings {
   String get deleteAccountConfirm => 'האם אתה בטוח שברצונך למחוק את החשבון?';
   String get accountDeleted => 'החשבון נמחק בהצלחה';
   String get emailLabel => 'אימייל';
-  String get emailHint => 'example@email.com';
+  String get emailHint => 'your@email.com';
   String get passwordLabel => 'סיסמה';
   String get passwordHint => '••••••••';
   String get confirmPasswordLabel => 'אימות סיסמה';
@@ -1373,7 +1373,7 @@ class SharingStrings {
   String get inviteTitle => 'הזמנת משתמשים';
   String get inviteSubtitle => 'הזמן אנשים לשתף את הרשימה';
   String get emailLabel => 'אימייל';
-  String get emailHint => 'example@email.com';
+  String get emailHint => 'your@email.com';
   String get emailRequired => 'נא להזין כתובת אימייל';
   String get emailInvalid => 'אימייל לא תקין';
   String get selectRoleLabel => 'בחר תפקיד';

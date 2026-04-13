@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
 
 /// סוג התוכן המשפטי
@@ -156,7 +157,7 @@ class _LegalContentDialog extends StatelessWidget {
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: FilledButton.styleFrom(
-                      backgroundColor: scheme.primary,
+                      backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? scheme.primary,
                       foregroundColor: scheme.onPrimary,
                     ),
                     child: Text(AppStrings.common.understood),
