@@ -327,9 +327,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        // 🏠 Ask for household name (same as email registration)
+        await _askHouseholdName(userContext);
+        if (mounted) {
+          await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
@@ -363,9 +365,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       if (mounted) {
         setState(() => _isLoading = false);
-
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        // 🏠 Ask for household name (same as email registration)
+        await _askHouseholdName(userContext);
+        if (mounted) {
+          await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');

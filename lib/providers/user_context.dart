@@ -435,18 +435,21 @@ class UserContext with ChangeNotifier {
   /// אם משתמש חדש - יוצר פרופיל אוטומטית מנתוני Google.
   /// אם משתמש קיים - מתחבר כרגיל.
   Future<void> signInWithGoogle() async {
-    await _runAsync(
-      operation: 'signInWithGoogle',
-      errorMessagePrefix: 'שגיאה בהתחברות עם Google',
-      action: () async {
-        final result = await _authService.signInWithGoogle();
-        // בדיקה אם משתמש חדש - יצירת פרופיל
-        if (result.isNewUser) {
-          await _createUserFromSocialLogin(result);
-        }
-        // ה-listener של authStateChanges יטפל בטעינת המשתמש
-      },
-    );
+    _isSigningUp = true;
+    try {
+      await _runAsync(
+        operation: 'signInWithGoogle',
+        errorMessagePrefix: 'שגיאה בהתחברות עם Google',
+        action: () async {
+          final result = await _authService.signInWithGoogle();
+          if (result.isNewUser) {
+            await _createUserFromSocialLogin(result);
+          }
+        },
+      );
+    } finally {
+      _isSigningUp = false;
+    }
   }
 
   /// התחברות/הרשמה עם Apple
@@ -454,25 +457,32 @@ class UserContext with ChangeNotifier {
   /// אם משתמש חדש - יוצר פרופיל אוטומטית מנתוני Apple.
   /// אם משתמש קיים - מתחבר כרגיל.
   Future<void> signInWithApple() async {
-    await _runAsync(
-      operation: 'signInWithApple',
-      errorMessagePrefix: 'שגיאה בהתחברות עם Apple',
-      action: () async {
-        final result = await _authService.signInWithApple();
-        // בדיקה אם משתמש חדש - יצירת פרופיל
-        if (result.isNewUser) {
-          await _createUserFromSocialLogin(result);
-        }
-        // ה-listener של authStateChanges יטפל בטעינת המשתמש
-      },
-    );
+    _isSigningUp = true;
+    try {
+      await _runAsync(
+        operation: 'signInWithApple',
+        errorMessagePrefix: 'שגיאה בהתחברות עם Apple',
+        action: () async {
+          final result = await _authService.signInWithApple();
+          if (result.isNewUser) {
+            await _createUserFromSocialLogin(result);
+          }
+        },
+      );
+    } finally {
+      _isSigningUp = false;
+    }
   }
 
   /// יצירת משתמש חדש מ-Social Login (Google/Apple)
   ///
   /// מחלץ את פרטי המשתמש מ-SocialLoginResult ויוצר רשומה ב-Firestore.
   Future<void> _createUserFromSocialLogin(SocialLoginResult result) async {
-    final name = result.displayName ?? result.email?.split('@').first ?? 'משתמש';
+    // Apple can return "" (empty string) for displayName — treat as null.
+    final rawName = result.displayName?.trim();
+    final name = (rawName != null && rawName.isNotEmpty)
+        ? rawName
+        : (result.email?.split('@').first ?? 'משתמש');
 
     _user = await _repository.createUser(
       userId: result.uid,
