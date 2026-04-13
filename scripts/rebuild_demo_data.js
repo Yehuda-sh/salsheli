@@ -467,12 +467,12 @@ async function main() {
       // request_data matches what PendingRequestsService.createEditItemRequest produces (flat, not nested)
       { id: 'req_yuval_edit', list_id: 'list_cohen_weekly', requester_id: uids.yuval, type: 'editItem', status: 'pending',
         created_at: hoursAgo(1).toISOString(),
-        request_data: { name: 'חלב תנובה 3%', quantity: 5, unitPrice: 6.9, unit: 'ליטר', category: 'מוצרי חלב', barcode: null, notes: null },
+        request_data: { itemId: 'item_cw_0', name: 'חלב תנובה 3%', quantity: 5, unitPrice: 6.9, unit: 'ליטר', category: 'מוצרי חלב', barcode: null, notes: null },
         reviewer_id: null, reviewed_at: null, requester_name: 'יובל כהן', reviewer_name: null },
       // deleteItem request (pending) — tests pending_requests_section fix
       { id: 'req_noa_delete', list_id: 'list_cohen_weekly', requester_id: uids.noa, type: 'deleteItem', status: 'pending',
         created_at: hoursAgo(0.5).toISOString(),
-        request_data: { name: 'סוכר לבן 1 ק"ג', item_id: 'item_cw_3' },
+        request_data: { name: 'סוכר לבן 1 ק"ג', itemId: 'item_cw_3' },
         reviewer_id: null, reviewed_at: null, requester_name: 'נועה כהן', reviewer_name: null },
     ],
     active_shoppers: [],
