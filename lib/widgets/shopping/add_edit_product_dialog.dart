@@ -406,6 +406,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                       controller: _nameController,
                       focusNode: _nameFocus,
                       autofocus: true,
+                      maxLength: 80,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.productNameLabel,
                         icon: Icons.shopping_bag_outlined,
@@ -423,6 +424,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                     child: TextField(
                       controller: _brandController,
                       focusNode: _brandFocus,
+                      maxLength: 50,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.brandLabel,
                         icon: Icons.business_outlined,

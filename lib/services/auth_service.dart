@@ -573,6 +573,9 @@ class AuthService {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
+      // user-not-found: do NOT reveal whether the email is registered.
+      // Show generic success so attackers can't enumerate users.
+      if (e.code == 'user-not-found') return;
 
       final errorMessage = _getResetPasswordErrorMessage(e.code);
       throw AuthException.fromFirebaseCode(e.code, errorMessage);

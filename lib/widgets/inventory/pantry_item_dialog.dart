@@ -591,6 +591,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 controller: _nameController,
                 style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
                 textDirection: TextDirection.rtl,
+                maxLength: 80,
                 maxLines: 2,
                 minLines: 1,
                 textInputAction: TextInputAction.next,

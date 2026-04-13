@@ -527,6 +527,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
     return TextFormField(
       controller: _nameController,
       focusNode: _nameFocusNode,
+      maxLength: 50,
       decoration: InputDecoration(
         labelText: strings.nameLabel,
         hintText: strings.nameHint,

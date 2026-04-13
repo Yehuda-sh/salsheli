@@ -477,7 +477,17 @@ class FirebaseUserRepository implements UserRepository {
     try {
 
       final updates = <String, dynamic>{};
-      if (name != null) updates[FirestoreFields.name] = name;
+      if (name != null) {
+        // Sanitize name: trim, cap length, strip dangerous chars
+        var sanitizedName = name.trim();
+        if (sanitizedName.length > 30) {
+          sanitizedName = sanitizedName.substring(0, 30);
+        }
+        sanitizedName = sanitizedName.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
+        if (sanitizedName.isNotEmpty) {
+          updates[FirestoreFields.name] = sanitizedName;
+        }
+      }
       if (avatar != null) updates['profile_image_url'] = avatar;
 
       if (updates.isEmpty) {
