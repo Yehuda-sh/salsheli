@@ -145,6 +145,47 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   /// הצגת הודעת סטטוס אחידה עם StatusColors
   /// [type] = 'success' | 'error' | 'warning'
+  /// 🏠 Ask for household name after successful registration.
+  /// Optional — user can skip by tapping outside or pressing cancel.
+  Future<void> _askHouseholdName(UserContext userContext) async {
+    if (!mounted) return;
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      barrierDismissible: true,
+      builder: (ctx) => AlertDialog(
+        title: const Text('🏠 תן שם לבית שלך'),
+        content: TextField(
+          controller: controller,
+          maxLength: 40,
+          textDirection: TextDirection.rtl,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'למשל: משפחת כהן',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('דלג'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('שמור'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty && mounted) {
+      try {
+        await userContext.updateHouseholdName(result);
+      } catch (_) {
+        // Non-critical — default name will be used
+      }
+    }
+  }
+
   void _showStatus(String message, {required StatusType type}) {
     final icon = switch (type) {
       StatusType.success => Icons.check_circle,
@@ -218,15 +259,20 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       await prefs.setBool('seenOnboarding', true);
       if (kDebugMode) debugPrint('✅ _handleRegister() | Onboarding flag saved');
 
-      // 🎉 הצגת feedback ויזואלי + ניווט
+      // 🎉 הצגת feedback ויזואלי + שם בית + ניווט
       if (mounted) {
         setState(() => _isLoading = false);
 
+        // 🏠 שאלה על שם הבית (אופציונלי — המשתמש יכול לדלג)
+        await _askHouseholdName(userContext);
+
         // 🎉 הודעת הצלחה
-        _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+        if (mounted) {
+          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+        }
 
         // ⏱️ המתנה קצרה לפני ניווט
-        await Future.delayed(const Duration(milliseconds: 1500));
+        await Future.delayed(const Duration(milliseconds: 1200));
 
         if (mounted) {
           if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');

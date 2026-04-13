@@ -1751,6 +1751,9 @@ class HomeDashboardStrings {
   const HomeDashboardStrings();
 
   String get newListButton => 'רשימה חדשה';
+  String get inviteFamilyTitle => 'הזמן את המשפחה לקנות ביחד';
+  String get inviteFamilySubtitle => 'שתפו רשימות, מזווה והתראות';
+  String get inviteFamilyAction => 'הזמן';
   String get errorTitle => 'שגיאה בטעינת נתונים';
   String get retryButton => 'נסה שוב';
   String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'שלום, $userName!' : 'שלום!';

@@ -194,6 +194,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // === 2. אימות אימייל (אם צריך) ===
                   const EmailVerificationBanner(),
 
+                  // === 2.5. הזמנת משפחה (solo households only) ===
+                  _buildInviteFamilyBanner(context),
+
                   // === 3. Action Center — דורש טיפול (דחוף → למעלה) ===
                   _staggered(
                     RepaintBoundary(
@@ -251,6 +254,73 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================
+  // 0.5. INVITE FAMILY BANNER — shown for solo households
+  // ============================================
+  Widget _buildInviteFamilyBanner(BuildContext context) {
+    final userContext = context.watch<UserContext>();
+    final householdName = userContext.user?.householdName;
+    // Same solo heuristic as OnboardingTipsCard
+    final isSolo = userContext.user?.isSolo ??
+        (householdName == null ||
+         householdName.contains('של') ||
+         householdName.contains('Home'));
+
+    if (!isSolo) return const SizedBox.shrink();
+
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: kSpacingSmall),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.15),
+            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Text('👨‍👩‍👧‍👦', style: TextStyle(fontSize: kFontSizeLarge)),
+          const SizedBox(width: kSpacingSmallPlus),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.homeDashboard.inviteFamilyTitle,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
+                ),
+                Text(
+                  AppStrings.homeDashboard.inviteFamilySubtitle,
+                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          FilledButton(
+            onPressed: () {
+              unawaited(HapticFeedback.lightImpact());
+              Navigator.pushNamed(context, '/invite-users');
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: brand?.stickyCyan ?? kStickyCyan,
+              foregroundColor: cs.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
+              minimumSize: const Size(0, 36),
+            ),
+            child: Text(AppStrings.homeDashboard.inviteFamilyAction),
           ),
         ],
       ),
