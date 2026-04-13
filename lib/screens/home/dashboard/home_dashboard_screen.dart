@@ -340,7 +340,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
           decoration: BoxDecoration(
-            color: theme.extension<AppBrand>()?.paperBackground?.withValues(alpha: 0.85),
+            color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: 0.85),
             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           ),
           child: Row(

@@ -787,7 +787,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
           child: ListView(
             shrinkWrap: true,
             children: activeLists.map((list) => ListTile(
-              leading: Text(ListTypesConfig.getListTypeEmoji(list.type)),
+              leading: Text(ListTypes.getByKeySafe(list.type).emoji),
               title: Text(list.name),
               onTap: () => Navigator.pop(ctx, list),
             )).toList(),
