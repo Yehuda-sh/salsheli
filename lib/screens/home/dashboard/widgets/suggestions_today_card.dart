@@ -773,7 +773,34 @@ class _AddAllButtonState extends State<_AddAllButton> {
       return;
     }
 
-    final targetList = activeLists.first;
+    // If multiple active lists — let user choose (same as single-add)
+    ShoppingList targetList;
+    if (activeLists.length == 1) {
+      targetList = activeLists.first;
+    } else {
+      final chosen = await showModalBottomSheet<ShoppingList>(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+        ),
+        builder: (ctx) => SafeArea(
+          child: ListView(
+            shrinkWrap: true,
+            children: activeLists.map((list) => ListTile(
+              leading: Text(ListTypesConfig.getListTypeEmoji(list.type)),
+              title: Text(list.name),
+              onTap: () => Navigator.pop(ctx, list),
+            )).toList(),
+          ),
+        ),
+      );
+      if (chosen == null) {
+        if (mounted) setState(() => _isAdding = false);
+        return;
+      }
+      targetList = chosen;
+    }
+    if (!mounted) { return; }
     int added = 0;
 
     for (final suggestion in widget.suggestions) {
