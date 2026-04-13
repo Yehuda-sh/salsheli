@@ -14,6 +14,10 @@
     {"source": "supermarket", "searchTerm": "צלחות חד", "quantity": 1, "unit": "יח'", "fallbackName": "צלחות חד פעמיות"},
     {"source": "supermarket", "searchTerm": "שקיות אשפה", "quantity": 1, "unit": "יח'", "fallbackName": "שקיות אשפה"},
     {"source": "pharmacy", "searchTerm": "קרם הגנה", "quantity": 1, "unit": "יח'", "fallbackName": "קרם הגנה"},
-    {"source": "pharmacy", "searchTerm": "דוחה יתושים", "quantity": 1, "unit": "יח'", "fallbackName": "דוחה יתושים"}
+    {"source": "pharmacy", "searchTerm": "דוחה יתושים", "quantity": 1, "unit": "יח'", "fallbackName": "דוחה יתושים"},
+    {"source": "supermarket", "searchTerm": "מגבונים לחים", "quantity": 1, "unit": "יח'", "fallbackName": "מגבונים לחים"},
+    {"source": "supermarket", "searchTerm": "גבינה צהובה פרוסה", "quantity": 1, "unit": "יח'", "fallbackName": "גבינה לסנדוויצ'ים"},
+    {"source": "supermarket", "searchTerm": "חומוס", "quantity": 1, "unit": "יח'", "fallbackName": "חומוס"},
+    {"source": "supermarket", "searchTerm": "סכו\"ם חד פעמי", "quantity": 1, "unit": "יח'", "fallbackName": "סכו\"ם חד פעמי"}
   ]
 }

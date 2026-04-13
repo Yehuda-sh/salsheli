@@ -45,6 +45,24 @@
           "name": "פיקניק",
           "description": "כל מה שצריך לפיקניק או טיול בטבע",
           "templateFile": "event_picnic.json"
+        },
+        {
+          "id": "rosh_hashana",
+          "name": "ראש השנה",
+          "description": "שנה טובה ומתוקה — תפוח בדבש, רימון, חלה עגולה",
+          "templateFile": "event_rosh_hashana.json"
+        },
+        {
+          "id": "passover",
+          "name": "פסח",
+          "description": "ליל הסדר — מצות, יין, חרוסת ומרור",
+          "templateFile": "event_passover.json"
+        },
+        {
+          "id": "hanukkah",
+          "name": "חנוכה",
+          "description": "נס גדול היה פה — סופגניות, לביבות ושמן",
+          "templateFile": "event_hanukkah.json"
         }
       ]
     }

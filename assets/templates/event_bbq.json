@@ -20,6 +20,11 @@
     {"source": "supermarket", "searchTerm": "קוקה קולה", "quantity": 6, "unit": "יח'", "fallbackName": "קוקה קולה"},
     {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 2, "unit": "יח'", "fallbackName": "צ'יפס"},
     {"source": "supermarket", "searchTerm": "קטשופ היינץ", "quantity": 1, "unit": "יח'", "fallbackName": "קטשופ"},
-    {"source": "supermarket", "searchTerm": "חרדל", "quantity": 1, "unit": "יח'", "fallbackName": "חרדל"}
+    {"source": "supermarket", "searchTerm": "חרדל", "quantity": 1, "unit": "יח'", "fallbackName": "חרדל"},
+    {"source": "supermarket", "searchTerm": "צלחות חד פעמיות", "quantity": 1, "unit": "יח'", "fallbackName": "צלחות חד פעמיות"},
+    {"source": "supermarket", "searchTerm": "כוסות חד פעמיות", "quantity": 1, "unit": "יח'", "fallbackName": "כוסות חד פעמיות"},
+    {"source": "supermarket", "searchTerm": "סכו\"ם חד פעמי", "quantity": 1, "unit": "יח'", "fallbackName": "סכו\"ם חד פעמי"},
+    {"source": "supermarket", "searchTerm": "רדיד אלומיניום", "quantity": 1, "unit": "יח'", "fallbackName": "נייר אלומיניום"},
+    {"source": "greengrocer", "searchTerm": "תירס", "quantity": 4, "unit": "יח'", "fallbackName": "קלחי תירס"}
   ]
 }

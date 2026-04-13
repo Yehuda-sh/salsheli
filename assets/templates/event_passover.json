@@ -1,0 +1,21 @@
+{
+  "templateName": "פסח",
+  "description": "ליל הסדר — מצות, יין, חרוסת ומרור",
+  "icon": "🫓",
+  "items": [
+    {"source": "supermarket", "searchTerm": "מצות", "quantity": 3, "unit": "יח'", "fallbackName": "מצות"},
+    {"source": "supermarket", "searchTerm": "יין אדום", "quantity": 4, "unit": "יח'", "fallbackName": "יין אדום (4 כוסות)"},
+    {"source": "supermarket", "searchTerm": "מיץ ענבים", "quantity": 2, "unit": "יח'", "fallbackName": "מיץ ענבים"},
+    {"source": "greengrocer", "searchTerm": "חזרת", "quantity": 1, "unit": "יח'", "fallbackName": "חזרת (מרור)"},
+    {"source": "greengrocer", "searchTerm": "כרפס", "quantity": 1, "unit": "יח'", "fallbackName": "כרפס"},
+    {"source": "greengrocer", "searchTerm": "חסה", "quantity": 1, "unit": "יח'", "fallbackName": "חסה (לכורך)"},
+    {"source": "supermarket", "searchTerm": "ביצים", "quantity": 12, "unit": "יח'", "fallbackName": "ביצים"},
+    {"source": "supermarket", "searchTerm": "חרוסת", "quantity": 1, "unit": "יח'", "fallbackName": "חרוסת"},
+    {"source": "greengrocer", "searchTerm": "תפוח אדמה", "quantity": 2, "unit": "ק\"ג", "fallbackName": "תפוחי אדמה"},
+    {"source": "butcher", "searchTerm": "עוף שלם", "quantity": 1, "unit": "יח'", "fallbackName": "עוף שלם"},
+    {"source": "supermarket", "searchTerm": "חומץ", "quantity": 1, "unit": "יח'", "fallbackName": "חומץ (מי מלח)"},
+    {"source": "supermarket", "searchTerm": "קמח מצה", "quantity": 1, "unit": "יח'", "fallbackName": "קמח מצה"},
+    {"source": "supermarket", "searchTerm": "שוקולד כשר לפסח", "quantity": 2, "unit": "יח'", "fallbackName": "שוקולד כשר לפסח"},
+    {"source": "supermarket", "searchTerm": "קערת ליל הסדר", "quantity": 1, "unit": "יח'", "fallbackName": "קערת ליל הסדר (אם חסר)"}
+  ]
+}

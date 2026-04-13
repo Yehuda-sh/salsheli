@@ -20,6 +20,9 @@
     {"source": "supermarket", "searchTerm": "סוכר לבן", "quantity": 1, "unit": "יח'", "fallbackName": "סוכר"},
     {"source": "supermarket", "searchTerm": "קפה טורקי", "quantity": 1, "unit": "יח'", "fallbackName": "קפה"},
     {"source": "supermarket", "searchTerm": "נייר טואלט", "quantity": 1, "unit": "יח'", "fallbackName": "נייר טואלט"},
-    {"source": "supermarket", "searchTerm": "סבון כלים", "quantity": 1, "unit": "יח'", "fallbackName": "סבון כלים"}
+    {"source": "supermarket", "searchTerm": "סבון כלים", "quantity": 1, "unit": "יח'", "fallbackName": "סבון כלים"},
+    {"source": "butcher", "searchTerm": "חזה עוף", "quantity": 1, "unit": "ק\"ג", "fallbackName": "חזה עוף"},
+    {"source": "supermarket", "searchTerm": "קוטג' תנובה", "quantity": 1, "unit": "יח'", "fallbackName": "קוטג'"},
+    {"source": "greengrocer", "searchTerm": "חסה", "quantity": 1, "unit": "יח'", "fallbackName": "חסה"}
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "templateName": "ראש השנה",
+  "description": "שנה טובה ומתוקה — תפוח בדבש, רימון, חלה עגולה",
+  "icon": "🍎",
+  "items": [
+    {"source": "greengrocer", "searchTerm": "תפוח עץ", "quantity": 1, "unit": "ק\"ג", "fallbackName": "תפוחים"},
+    {"source": "supermarket", "searchTerm": "דבש", "quantity": 1, "unit": "יח'", "fallbackName": "דבש"},
+    {"source": "greengrocer", "searchTerm": "רימון", "quantity": 2, "unit": "יח'", "fallbackName": "רימונים"},
+    {"source": "bakery", "searchTerm": "חלה עגולה", "quantity": 2, "unit": "יח'", "fallbackName": "חלה עגולה"},
+    {"source": "supermarket", "searchTerm": "יין אדום", "quantity": 1, "unit": "יח'", "fallbackName": "יין אדום"},
+    {"source": "supermarket", "searchTerm": "מיץ ענבים", "quantity": 1, "unit": "יח'", "fallbackName": "מיץ ענבים"},
+    {"source": "butcher", "searchTerm": "עוף שלם", "quantity": 1, "unit": "יח'", "fallbackName": "עוף שלם"},
+    {"source": "greengrocer", "searchTerm": "תמר מגהול", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "תמרים"},
+    {"source": "supermarket", "searchTerm": "סילאן", "quantity": 1, "unit": "יח'", "fallbackName": "סילאן"},
+    {"source": "greengrocer", "searchTerm": "סלק", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "סלק"},
+    {"source": "greengrocer", "searchTerm": "דלעת", "quantity": 1, "unit": "יח'", "fallbackName": "דלעת"},
+    {"source": "butcher", "searchTerm": "דג", "quantity": 0.5, "unit": "ק\"ג", "fallbackName": "ראש דג (סימן)"},
+    {"source": "supermarket", "searchTerm": "אורז", "quantity": 1, "unit": "יח'", "fallbackName": "אורז"},
+    {"source": "supermarket", "searchTerm": "נרות חג", "quantity": 1, "unit": "יח'", "fallbackName": "נרות חג"}
+  ]
+}

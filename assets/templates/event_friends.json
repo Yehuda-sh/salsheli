@@ -17,6 +17,8 @@
     {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 3, "unit": "יח'", "fallbackName": "מלפפונים (לטבילה)"},
     {"source": "bakery", "searchTerm": "פיתה", "quantity": 4, "unit": "יח'", "fallbackName": "פיתות (לטבילה)"},
     {"source": "supermarket", "searchTerm": "כוסות", "quantity": 1, "unit": "יח'", "fallbackName": "כוסות חד פעמיות"},
-    {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"}
+    {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"},
+    {"source": "supermarket", "searchTerm": "בירה", "quantity": 6, "unit": "יח'", "fallbackName": "בירה"},
+    {"source": "supermarket", "searchTerm": "זיתים ירוקים", "quantity": 1, "unit": "יח'", "fallbackName": "זיתים"}
   ]
 }
