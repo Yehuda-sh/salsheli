@@ -30,6 +30,7 @@ import '../../../models/shopping_list.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
+import '../../../providers/user_context.dart';
 // notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';

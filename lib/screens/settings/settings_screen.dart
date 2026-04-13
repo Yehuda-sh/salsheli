@@ -604,6 +604,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         return; // ביטל בלי לבחור שם
       }
     }
+    if (!mounted) return;
 
     await showDialog<void>(
       context: context,

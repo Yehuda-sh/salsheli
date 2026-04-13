@@ -352,15 +352,17 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                   duration: const Duration(seconds: 5),
                 ));
 
+                // Cache providers before async gap to avoid context use after dispose
+                final cachedUserId = context.read<UserContext>().userId;
+                final cachedNotifService = context.read<NotificationsService>();
                 // Delete from server after snackbar closes
                 Future.delayed(const Duration(seconds: 6), () {
                   // Only delete if NOT restored (check if still removed)
                   if (!_notifications.any((n) => n.id == notification.id)) {
-                    final userId = context.read<UserContext>().userId;
-                    if (userId != null) {
-                      unawaited(context.read<NotificationsService>().deleteNotification(
+                    if (cachedUserId != null) {
+                      unawaited(cachedNotifService.deleteNotification(
                         notificationId: notification.id,
-                        userId: userId,
+                        userId: cachedUserId,
                       ));
                     }
                   }

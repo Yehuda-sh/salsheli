@@ -168,7 +168,7 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
                 decoration: BoxDecoration(
-                  color: brand?.paperBackground?.withValues(alpha: 0.85),
+                  color: brand?.paperBackground.withValues(alpha: 0.85),
                   borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
                 child: Row(
