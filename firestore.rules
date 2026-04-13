@@ -390,8 +390,10 @@ service cloud.firestore {
           isHouseholdMember(householdId) ||
           resource.data.invited_user_id == request.auth.uid
         );
-        // כתיבה: חברי משק הבית
-        allow write: if isHouseholdMember(householdId);
+        // כתיבה: רק admin יכול ליצור/לערוך/למחוק הזמנות
+        // ⚠️ v4.5: היה פתוח לכל member — תוקן
+        allow write: if isHouseholdMember(householdId) &&
+                     get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin';
       }
 
       // === Join Requests (Subcollection) ===
