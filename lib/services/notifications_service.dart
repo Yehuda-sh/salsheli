@@ -237,6 +237,40 @@ class NotificationsService {
     }
   }
 
+  /// 📋 Create "new request pending" notification for the list owner.
+  /// Sent when an Editor creates a request (add/edit/delete item).
+  Future<bool> createNewRequestNotification({
+    required String userId,
+    required String householdId,
+    required String listId,
+    required String listName,
+    required String requesterName,
+    required String itemName,
+  }) async {
+    try {
+      final notification = AppNotification(
+        id: _uuid.v4(),
+        userId: userId,
+        householdId: householdId,
+        type: NotificationType.requestApproved, // closest existing type
+        title: 'בקשה חדשה ממתינה 📋',
+        message: '$requesterName מבקש להוסיף "$itemName" לרשימה "$listName"',
+        actionData: {
+          'listId': listId,
+          'listName': listName,
+          'itemName': itemName,
+          'requesterName': requesterName,
+        },
+        createdAt: DateTime.now(),
+      );
+      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      return true;
+    } catch (e, stackTrace) {
+      _logError('createNewRequestNotification', e, stackTrace);
+      return false;
+    }
+  }
+
   /// ❌ Create request rejected notification
   /// Owner/Admin rejected Editor's item request
   ///
@@ -403,6 +437,16 @@ class NotificationsService {
     required int minStock,
   }) async {
     try {
+      // Dedup: skip if an unread low-stock notification for this product
+      // already exists (prevents daily duplicates while stock stays low).
+      final existing = await _notificationsCollection(userId)
+          .where('type', isEqualTo: NotificationType.lowStock.name)
+          .where('is_read', isEqualTo: false)
+          .where('action_data.productName', isEqualTo: productName)
+          .limit(1)
+          .get();
+      if (existing.docs.isNotEmpty) return false;
+
       final notification = AppNotification(
         id: _uuid.v4(),
         userId: userId,
@@ -438,6 +482,16 @@ class NotificationsService {
       final notifType = isExpired
           ? NotificationType.expiryExpired
           : NotificationType.expirySoon;
+
+      // Dedup: skip if an unread expiry notification for this product exists
+      final existing = await _notificationsCollection(userId)
+          .where('type', isEqualTo: notifType.name)
+          .where('is_read', isEqualTo: false)
+          .where('action_data.productName', isEqualTo: productName)
+          .limit(1)
+          .get();
+      if (existing.docs.isNotEmpty) return false;
+
       final title = isExpired ? 'פג תוקף!' : 'תפוגה קרובה';
       final message = isExpired
           ? '$productName — פג תוקף!'

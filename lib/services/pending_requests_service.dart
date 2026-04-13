@@ -77,6 +77,7 @@ class PendingRequestsService {
     required ShoppingList list,
     required RequestType type,
     required Map<String, dynamic> requestData,
+    NotificationsService? notificationsService,
   }) async {
     final currentUserId = _userContext.userId;
     if (currentUserId == null) {
@@ -115,6 +116,29 @@ class PendingRequestsService {
         householdId,
       );
       log('✅ בקשה נוצרה בהצלחה [PendingRequestsService]');
+
+      // Notify the list owner that a new request is waiting for approval.
+      // Uses the approved-notification channel (closest match) with
+      // a custom title/message that makes it clear this is a NEW request.
+      if (notificationsService != null) {
+        final ownerId = list.createdBy;
+        if (ownerId != null && ownerId != currentUserId) {
+          try {
+            final requesterName = _userContext.displayName ?? '';
+            final productName = requestData['name'] as String? ?? '';
+            await notificationsService.createNewRequestNotification(
+              userId: ownerId,
+              householdId: householdId,
+              listId: list.id,
+              listName: list.name,
+              requesterName: requesterName,
+              itemName: productName,
+            );
+          } catch (_) {
+            // Non-critical — request was created successfully
+          }
+        }
+      }
     } catch (e) {
       log('❌ כשל ביצירת בקשה: $e [PendingRequestsService]');
       rethrow;
@@ -151,6 +175,7 @@ class PendingRequestsService {
       list: list,
       type: RequestType.editItem,
       requestData: {
+        'itemId': item.id,
         'name': item.name,
         'quantity': item.quantity ?? 1,
         'unitPrice': item.unitPrice ?? 0.0,
@@ -241,13 +266,14 @@ class PendingRequestsService {
         break;
 
       case RequestType.editItem:
-        // עריכת מוצר קיים
+        // עריכת מוצר קיים — lookup by itemId first, fallback to name
+        final itemId = request.requestData['itemId'] as String?;
         final itemName = request.requestData['name'] as String?;
-        if (itemName != null) {
-          final index = updatedItems.indexWhere((i) => i.name == itemName);
-          if (index != -1) {
-            updatedItems[index] = UnifiedListItem.fromRequestData(request.requestData);
-          }
+        final index = itemId != null
+            ? updatedItems.indexWhere((i) => i.id == itemId)
+            : updatedItems.indexWhere((i) => i.name == itemName);
+        if (index != -1) {
+          updatedItems[index] = UnifiedListItem.fromRequestData(request.requestData);
         }
         break;
 
@@ -414,20 +440,20 @@ class PendingRequestsService {
   // ════════════════════════════════════════════
 
   /// 🇮🇱 מחיקת בקשות שנדחו לפני יותר מ-7 ימים
-  /// 🇬🇧 Delete rejected requests older than 7 days
-  /// 
+  /// 🇬🇧 Delete resolved (rejected + approved) requests older than 7 days
+  ///
   /// אפשר לקרוא אחת לשבוע או אוטומטית ב-background
   Future<void> cleanupOldRejectedRequests(ShoppingList list) async {
     final now = DateTime.now();
     const maxAge = Duration(days: 7);
 
-    // סינון: השאר רק בקשות חדשות או ממתינות/אושרות
+    // סינון: השאר רק בקשות ממתינות, או בקשות שעדיין < 7 ימים
     final updatedRequests = list.pendingRequests.where((request) {
-      if (request.isRejected) {
+      if (request.isRejected || request.isApproved) {
         final age = now.difference(request.reviewedAt ?? request.createdAt);
         return age < maxAge; // השאר רק אם < 7 ימים
       }
-      return true; // השאר בקשות אחרות
+      return true; // השאר בקשות ממתינות
     }).toList();
 
     // אם יש שינוי - עדכון Firebase
