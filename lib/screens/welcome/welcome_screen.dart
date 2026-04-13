@@ -498,7 +498,9 @@ class _BottomSection extends StatelessWidget {
                     style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w700),
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: cs.primary,
+                    // Use the brand's green (success) instead of cs.primary
+                    // which can shift to blue/purple on Material You devices.
+                    backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? cs.primary,
                     foregroundColor: cs.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(kBorderRadiusLarge),
