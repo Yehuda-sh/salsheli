@@ -326,7 +326,7 @@ async function main() {
   const allHouseholds = await db.collection('households').get();
   for (const hDoc of allHouseholds.docs) {
     const hId = hDoc.id;
-    for (const sub of ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests']) {
+    for (const sub of ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests', 'activity_log']) {
       await deleteCollection(db.collection('households').doc(hId).collection(sub));
     }
   }
