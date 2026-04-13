@@ -256,10 +256,28 @@ class FirebaseUserRepository implements UserRepository {
         sanitized = sanitized.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
       }
 
+      // Update the user's personal copy
       await _firestore
           .collection(FirestoreCollections.users)
           .doc(userId)
           .update({'household_name': sanitized});
+
+      // Also update the household document so ALL members see the new name.
+      // Read the user's householdId to find the right household doc.
+      final userDoc = await _firestore
+          .collection(FirestoreCollections.users)
+          .doc(userId)
+          .get();
+      final householdId = userDoc.data()?['household_id'] as String?;
+      if (householdId != null) {
+        await _firestore
+            .collection(FirestoreCollections.households)
+            .doc(householdId)
+            .update({
+          'name': sanitized ?? 'הבית שלנו',
+          'updated_at': FieldValue.serverTimestamp(),
+        });
+      }
 
     } catch (e, stackTrace) {
       if (e is UserRepositoryException) rethrow;
