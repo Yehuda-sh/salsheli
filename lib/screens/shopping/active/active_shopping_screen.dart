@@ -62,6 +62,7 @@ import '../../../services/activity_log_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/offline_banner.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
@@ -1061,7 +1062,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               if (!_isSaving)
                 Padding(
                   padding: const EdgeInsets.only(left: kSpacingXTiny),
-                  child: TextButton.icon(
+                  child: Tooltip(
+                    message: _hasUserInteracted ? '' : AppStrings.shopping.activeFinishHint,
+                    child: TextButton.icon(
                     onPressed: _hasUserInteracted ? _finishShopping : null,
                     style: TextButton.styleFrom(
                       backgroundColor: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
@@ -1075,6 +1078,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     icon: const Icon(Icons.check, size: kIconSizeSmallPlus),
                     label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
+                  ),
                 )
               else
                 const Padding(
@@ -1086,6 +1090,9 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           body: SafeArea(
             child: Column(
               children: [
+                // 🔌 Offline banner — critical during in-store shopping
+                const OfflineBanner(),
+
                 // 📊 Header קומפקטי — פס התקדמות + סטטיסטיקות
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),

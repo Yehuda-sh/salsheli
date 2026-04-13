@@ -60,6 +60,7 @@ import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../../widgets/common/offline_banner.dart';
 import '../../widgets/inventory/pantry_starter_preview_dialog.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
 import '../../services/notifications_service.dart';
@@ -760,6 +761,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       : SafeArea(
                           child: Column(
                                 children: [
+                                  // 🔌 Offline banner
+                                  const OfflineBanner(),
+
                                   // 🏷️ כותרת המזווה (Collaborative Immersive)
                                   // כוללת ספירה אינליין (📦 + ⚠️) וכפתור חיפוש.
                                   _buildInlineTitle(provider, scheme, allItems),

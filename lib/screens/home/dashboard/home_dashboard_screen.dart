@@ -35,6 +35,7 @@ import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
+import '../../../widgets/common/offline_banner.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/action_center_card.dart';
 import 'widgets/household_activity_feed.dart';
@@ -174,6 +175,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
+                  // === 0. Offline banner ===
+                  const OfflineBanner(),
+
                   // === 1. באנרים (Error / Active Shopper) ===
                   _staggered(
                     Column(

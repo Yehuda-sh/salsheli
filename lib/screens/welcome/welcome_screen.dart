@@ -516,7 +516,7 @@ class _BottomSection extends StatelessWidget {
               TextButton(
                 onPressed: onLogin,
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 36),
+                  minimumSize: const Size(44, 44),
                 ),
                 child: Text(
                   AppStrings.welcome.loginLink,

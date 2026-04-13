@@ -90,10 +90,9 @@ class _LoginScreenState extends State<LoginScreen>
       TweenSequenceItem(tween: Tween(begin: -4, end: 0), weight: 1),
     ]).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
 
-    // 🎯 Auto-focus על שדה אימייל בכניסה למסך
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.microtask(_emailFocusNode.requestFocus);
-    });
+    // Auto-focus disabled: the keyboard pushes social login buttons
+    // (Google/Apple) off-screen on small phones, hurting conversion.
+    // Users who want email login will tap the field themselves.
   }
 
   @override

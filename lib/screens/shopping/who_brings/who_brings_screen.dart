@@ -47,7 +47,7 @@ class WhoBringsScreen extends StatefulWidget {
 
 class _WhoBringsScreenState extends State<WhoBringsScreen> {
   late ShoppingList _list;
-  bool _isLoading = false;
+  final Set<String> _busyItemIds = {};
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
     unawaited(HapticFeedback.mediumImpact());
 
-    setState(() => _isLoading = true);
+    setState(() => _busyItemIds.add(item.id));
 
     try {
       final provider = context.read<ShoppingListsProvider>();
@@ -110,7 +110,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
       _showSnackBar(AppStrings.shopping.volunteerError);
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _busyItemIds.remove(item.id));
       }
     }
   }
@@ -129,7 +129,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
     unawaited(HapticFeedback.lightImpact());
 
-    setState(() => _isLoading = true);
+    setState(() => _busyItemIds.add(item.id));
 
     try {
       final provider = context.read<ShoppingListsProvider>();
@@ -155,7 +155,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
       _showSnackBar(AppStrings.shopping.cancelVolunteerError);
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _busyItemIds.remove(item.id));
       }
     }
   }
@@ -399,7 +399,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                               hasVolunteered: hasVolunteered,
                               onVolunteer: () => _volunteer(item),
                               onCancelVolunteer: () => _cancelVolunteer(item),
-                              isLoading: _isLoading,
+                              isLoading: _busyItemIds.contains(item.id),
                             );
                           },
                         ),
@@ -409,8 +409,8 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
           ),
         ),
 
-        // Loading Overlay
-        if (_isLoading)
+        // Loading Overlay — only when ALL items are busy (rare)
+        if (_busyItemIds.length > 3)
           Container(
             color: cs.scrim.withValues(alpha: 0.3),
             child: const Center(

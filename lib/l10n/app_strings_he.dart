@@ -562,6 +562,7 @@ class ShoppingStrings {
   String get purchasedLabel => 'נרכשו';
   String get missingLabel => 'חסרו';
   String get finishedButton => 'סיימתי';
+  String get activeFinishHint => 'סמן לפחות פריט אחד כדי לסיים';
   String get otherStoreHint => 'חנות אחרת...';
 }
 

@@ -1215,7 +1215,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       children: [
                         SectionHeader(
                           leading: Icon(Icons.notifications_outlined, color: cs.primary, size: kIconSizeMedium),
-                          title: AppStrings.settings.notificationsSectionTitle,
+                          title: '${AppStrings.settings.notificationsSectionTitle} (בקרוב)',
                         ),
                         const SizedBox(height: kSpacingSmall),
                         _NotificationToggle(
