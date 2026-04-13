@@ -196,5 +196,36 @@ class CategoriesData {
     'שונות': 'other',
     'כללי': 'other',
     'אחר': 'other',
+
+    // ── Missing catalog categories (bakery/butcher/greengrocer/market/pharmacy) ──
+    // bakery
+    'לחמים ולחמניות': 'bread_bakery',
+    'מאפים': 'bread_bakery',
+    'מאפים מזרחיים': 'bread_bakery',
+    'מאפים מלוחים': 'bread_bakery',
+    'מאפים מתוקים': 'cookies_sweets',
+    'עוגות': 'cakes',
+    // butcher
+    'בקר': 'beef',
+    'הודו': 'turkey',
+    'טלה וכבש': 'lamb',
+    'מוצרים נלווים': 'other',
+    // greengrocer
+    'ירקות תיבול': 'vegetables',
+    // market
+    'ביצים': 'dairy',
+    'דגנים וקטניות': 'legumes_grains',
+    'חטיפים ומתוקים': 'sweets_snacks',
+    'מוכנים ומרקים': 'ready_salads',
+    'רטבים ותבלינים': 'oils_sauces',
+    'שימורים וכבושים': 'canned',
+    // pharmacy
+    'דאודורנט והיגיינה': 'hygiene',
+    'הגנה מהשמש': 'hygiene',
+    'טיפוח גוף': 'hygiene',
+    'טיפוח פנים': 'cosmetics',
+    'טיפוח שיער': 'cosmetics',
+    'סבון ורחצה': 'hygiene',
+    'קוסמטיקה ואיפור': 'cosmetics',
   };
 }
