@@ -249,8 +249,12 @@ service cloud.firestore {
       // יצירה: כל משתמש מחובר יכול ליצור משק בית
       allow create: if isAuthenticated();
 
-      // עדכון: רק חברי משק הבית
-      allow update: if isHouseholdMember(householdId);
+      // עדכון: רק admin/owner של משק הבית (לא כל חבר)
+      // ⚠️ v4.4: היה פתוח לכל member — תוקן. רק admin יכול לעדכן.
+      //          created_by לא ניתן לשינוי (מניעת השתלטות).
+      allow update: if isHouseholdMember(householdId) &&
+                    get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin' &&
+                    request.resource.data.created_by == resource.data.created_by;
 
       // מחיקה: רק היוצר של משק הבית
       // ⚠️ v4.2: היה פתוח לכל authenticated — תוקן
@@ -368,11 +372,13 @@ service cloud.firestore {
           get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
         );
 
-        // מחיקה: חבר יכול להסיר את עצמו, או admin יכול להסיר אחרים (לא את עצמו)
+        // מחיקה: חבר יכול להסיר את עצמו, או admin יכול להסיר אחרים
+        // ⚠️ v4.5: admin לא יכול להסיר את הבעלים (created_by) של ה-household
         allow delete: if isHouseholdMember(householdId) && (
           memberId == request.auth.uid ||
           (get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin' &&
-           memberId != request.auth.uid)
+           memberId != request.auth.uid &&
+           memberId != get(/databases/$(database)/documents/households/$(householdId)).data.created_by)
         );
       }
 

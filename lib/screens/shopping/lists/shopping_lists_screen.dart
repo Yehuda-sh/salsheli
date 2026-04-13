@@ -895,10 +895,11 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           onTap: () {
             Navigator.pushNamed(context, '/populate-list', arguments: list);
           },
-          onDelete: () async {
+          // Only owner can delete — matches Firestore rules (created_by check)
+          onDelete: list.isCurrentUserOwner ? () async {
             final provider = context.read<ShoppingListsProvider>();
             await provider.deleteList(list.id);
-          },
+          } : null,
           onRestore: (deletedList) async {
             final provider = context.read<ShoppingListsProvider>();
             await provider.restoreList(deletedList);

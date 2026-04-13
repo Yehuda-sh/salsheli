@@ -383,6 +383,8 @@ class ShoppingListTile extends StatelessWidget {
                             ),
                           ),
                         ),
+                        // Only show delete option for owner (onDelete != null)
+                        if (onDelete != null)
                         PopupMenuItem(
                           value: 'delete',
                           child: Semantics(
