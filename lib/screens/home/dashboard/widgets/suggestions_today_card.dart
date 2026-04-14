@@ -214,6 +214,10 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
               physics: const BouncingScrollPhysics(),
+              // Fixed width per card — lets Flutter skip per-child layout
+              // measurement on scroll. Must match the value used for the
+              // page index calculation in the ScrollNotification above.
+              itemExtent: 178,
               itemCount: widget.suggestions.length,
               itemBuilder: (context, index) {
                 // סיבוב אקראי קטן לכל כרטיס

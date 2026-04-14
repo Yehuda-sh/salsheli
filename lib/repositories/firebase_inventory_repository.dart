@@ -259,6 +259,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   Stream<List<InventoryItem>> watchInventory(String householdId) {
     return _inventoryCollection(householdId)
         .orderBy(FirestoreFields.productName)
+        .limit(1000) // practical cap — no real family pantry exceeds 1k items
         .snapshots()
         .map(_mapSnapshotToItems);
   }
@@ -570,6 +571,7 @@ class FirebaseInventoryRepository implements InventoryRepository {
   Stream<List<InventoryItem>> watchUserInventory(String userId) {
     return _userInventoryCollection(userId)
         .orderBy(FirestoreFields.productName)
+        .limit(1000) // practical cap — no real personal pantry exceeds 1k items
         .snapshots()
         .map(_mapSnapshotToItems);
   }
