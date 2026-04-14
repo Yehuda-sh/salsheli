@@ -18,8 +18,19 @@ import '../../config/filters_config.dart';
 import '../../config/product_images_config.dart';
 import '../../core/ui_constants.dart';
 
-/// Cached set of URLs that failed to load (shared across all instances)
+/// Cached set of URLs that failed to load (shared across all instances).
+/// Capped to prevent unbounded memory growth if the CDN serves many
+/// broken URLs over a long session.
+const int _kMaxFailedUrls = 500;
 final Set<String> _failedImageUrls = {};
+void _cacheFailedUrl(String url) {
+  if (_failedImageUrls.length >= _kMaxFailedUrls) {
+    // Drop the oldest half — Set iteration order is insertion order in Dart
+    final toRemove = _failedImageUrls.take(_kMaxFailedUrls ~/ 2).toList();
+    _failedImageUrls.removeAll(toRemove);
+  }
+  _failedImageUrls.add(url);
+}
 
 /// Product thumbnail with CDN image and emoji fallback.
 ///
@@ -225,7 +236,7 @@ class _FallbackImageState extends State<_FallbackImage> {
           child: widget.emojiBuilder(),
         ),
         errorWidget: (_, __, ___) {
-          _failedImageUrls.add(url);
+          _cacheFailedUrl(url);
           // Try next URL
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {

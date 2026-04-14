@@ -171,7 +171,7 @@ class LocalProductsRepository implements ProductsRepository {
 
   @override
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
-    final lowerQuery = query.toLowerCase();
+    final normalizedQuery = _normalizeHebrew(query);
 
     // וודא שלפחות supermarket נטען (cache-first)
     if (_cache.isEmpty) {
@@ -181,9 +181,15 @@ class LocalProductsRepository implements ProductsRepository {
     // חפש בכל ה-cache הקיים בסריקה אחת
     return _cache.values
         .expand((products) => products)
-        .where((product) => _matchesQuery(product, lowerQuery))
+        .where((product) => _matchesQuery(product, normalizedQuery))
         .toList();
   }
+
+  /// Strip Hebrew nikud (vowel marks U+0591–U+05C7) and lowercase.
+  /// Ensures "חלב" matches "חָלָב" and vice versa.
+  static final RegExp _nikudRegex = RegExp(r'[\u0591-\u05C7]');
+  String _normalizeHebrew(String s) =>
+      s.toLowerCase().replaceAll(_nikudRegex, '');
 
   @override
   Stream<List<Map<String, dynamic>>> searchProductsStream(String query) {
@@ -191,10 +197,10 @@ class LocalProductsRepository implements ProductsRepository {
   }
 
   /// בודק אם מוצר תואם לחיפוש (שם או מותג)
-  bool _matchesQuery(Map<String, dynamic> product, String lowerQuery) {
-    final name = (product['name'] as String?)?.toLowerCase() ?? '';
-    final brand = (product['brand'] as String?)?.toLowerCase() ?? '';
-    return name.contains(lowerQuery) || brand.contains(lowerQuery);
+  bool _matchesQuery(Map<String, dynamic> product, String normalizedQuery) {
+    final name = _normalizeHebrew((product['name'] as String?) ?? '');
+    final brand = _normalizeHebrew((product['brand'] as String?) ?? '');
+    return name.contains(normalizedQuery) || brand.contains(normalizedQuery);
   }
 
   @override

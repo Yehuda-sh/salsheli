@@ -29,7 +29,10 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   bool _isSending = false;
   bool _isDismissed = false;
 
-  static const _dismissKey = 'email_banner_dismissed_until';
+  /// Per-user key — prevents user A's dismissal from hiding the banner
+  /// for user B when they log in on the same device.
+  String _keyForUser(String? userId) =>
+      'email_banner_dismissed_until_${userId ?? "anon"}';
 
   @override
   void initState() {
@@ -60,18 +63,22 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   }
 
   Future<void> _checkDismissed() async {
+    if (!mounted) return;
+    final userId = context.read<UserContext>().userId;
     final prefs = await SharedPreferences.getInstance();
-    final dismissedUntil = prefs.getInt(_dismissKey) ?? 0;
+    final dismissedUntil = prefs.getInt(_keyForUser(userId)) ?? 0;
     if (DateTime.now().millisecondsSinceEpoch < dismissedUntil) {
       if (mounted) setState(() => _isDismissed = true);
     }
   }
 
   Future<void> _dismiss() async {
+    if (!mounted) return;
+    final userId = context.read<UserContext>().userId;
     final prefs = await SharedPreferences.getInstance();
     // סגירה ל-24 שעות
     final until = DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch;
-    await prefs.setInt(_dismissKey, until);
+    await prefs.setInt(_keyForUser(userId), until);
     if (mounted) setState(() => _isDismissed = true);
   }
 

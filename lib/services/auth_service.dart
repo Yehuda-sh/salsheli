@@ -15,11 +15,13 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
+import 'image_upload_service.dart';
 
 // ========================================
 // 🆕 Auth DTOs — חוסמים דליפת firebase_auth
@@ -862,6 +864,27 @@ class AuthService {
         );
       }
 
+      final uid = _auth.currentUser!.uid;
+
+      // 1. Delete user Firestore doc FIRST — this triggers the
+      //    GDPR cascade Cloud Function (onDocumentDeleted on users/{uid}).
+      //    If we delete Auth first, the Cloud Function never fires and
+      //    we orphan: notifications, saved_contacts, shopping_patterns,
+      //    pending_invites, household memberships, shared_users refs.
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+      } catch (_) {
+        // Non-critical — Auth delete will still proceed
+      }
+
+      // 2. Delete profile image from Storage (no Cloud Function cleans this)
+      try {
+        await ImageUploadService().deleteProfileImage(uid);
+      } catch (_) {
+        // Non-critical
+      }
+
+      // 3. Now delete Auth user
       await _auth.currentUser!.delete();
     } on AuthException {
       rethrow;
