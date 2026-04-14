@@ -47,6 +47,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import '../models/receipt.dart';
+import '../repositories/firebase_receipt_repository.dart';
 import '../repositories/receipt_repository.dart';
 import 'user_context.dart';
 
@@ -237,7 +238,12 @@ class ReceiptProvider with ChangeNotifier {
       final localMatch = _receipts.any((r) => r.originalUrl == originalUrl);
       if (localMatch) return true;
 
-      // אם לא נמצא local - בודק ב-Repository (לבטח)
+      // Firestore query with where+limit(1) — O(1) instead of O(n)
+      final repo = _repository;
+      if (repo is FirebaseReceiptRepository) {
+        return await repo.existsByOriginalUrl(householdId, originalUrl);
+      }
+      // Fallback for other implementations (e.g., mock/test)
       final allReceipts = await _repository.fetchReceipts(householdId);
       return allReceipts.any((r) => r.originalUrl == originalUrl);
     } catch (e) {

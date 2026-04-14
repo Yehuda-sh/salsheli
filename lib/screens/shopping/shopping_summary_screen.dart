@@ -432,8 +432,8 @@ class _ReceiptCard extends StatelessWidget {
                         ),
                         child: Text(
                           budgetDiff >= 0
-                              ? strings.budgetRemaining('₪${budgetDiff.toStringAsFixed(0)}')
-                              : strings.budgetOver('₪${budgetDiff.abs().toStringAsFixed(0)}'),
+                              ? strings.budgetRemaining('₪${budgetDiff.toStringAsFixed(2)}')
+                              : strings.budgetOver('₪${budgetDiff.abs().toStringAsFixed(2)}'),
                           style: TextStyle(
                             fontSize: kFontSizeSmall,
                             fontWeight: FontWeight.w600,

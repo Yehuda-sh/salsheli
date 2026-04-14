@@ -248,10 +248,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final name = product['name'] as String? ?? '';
     final category = product['category'] as String?;
+    final scannedBarcode = product['barcode'] as String?;
 
-    // 🔍 בדיקת כפילויות — חיפוש מוצר דומה במזווה
+    // 🔍 בדיקת כפילויות — barcode first, then name similarity
     final inventoryProvider = context.read<InventoryProvider>();
-    final similar = _findSimilarItem(name, inventoryProvider.items);
+    final similar = _findSimilarItem(name, inventoryProvider.items, barcode: scannedBarcode);
 
     if (similar != null && mounted) {
       final action = await _showDuplicateDialog(name, similar);
@@ -371,8 +372,15 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   }
 
   /// 🔍 מחפש מוצר דומה במזווה לפי מילות מפתח
-  InventoryItem? _findSimilarItem(String scannedName, List<InventoryItem> items) {
+  InventoryItem? _findSimilarItem(String scannedName, List<InventoryItem> items, {String? barcode}) {
     if (items.isEmpty) return null;
+
+    // 0. Match by barcode first — most reliable identifier
+    // (prevents duplicates when catalog returns slightly different names)
+    if (barcode != null && barcode.isNotEmpty) {
+      final byBarcode = items.where((i) => i.barcode == barcode).firstOrNull;
+      if (byBarcode != null) return byBarcode;
+    }
 
     final scannedLower = scannedName.toLowerCase();
 

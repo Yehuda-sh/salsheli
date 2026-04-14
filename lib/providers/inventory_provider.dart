@@ -730,6 +730,16 @@ class InventoryProvider with ChangeNotifier {
 
     for (final item in purchasedItems) {
       if (item.type == ItemType.product && item.quantity != null) {
+        // Only update pantry for items that ALREADY exist there.
+        // Don't auto-create pantry entries for one-off purchases
+        // (fresh strawberries, random snack) — otherwise the pantry
+        // fills with ghost items the user never intended to track.
+        final existsInPantry = _items.any(
+          (i) => i.productName.trim().toLowerCase() == item.name.trim().toLowerCase() ||
+                 (item.barcode != null && i.barcode == item.barcode),
+        );
+        if (!existsInPantry) continue;
+
         try {
           await addStock(item.name, item.quantity!);
           successCount++;
@@ -881,7 +891,9 @@ class InventoryProvider with ChangeNotifier {
     final itemsWithExpiry = _items.where((item) => item.hasExpiryDate);
 
     for (final item in itemsWithExpiry) {
-      final expiry = item.expiryDate!;
+      // Convert Firestore UTC timestamp to local date-only to avoid
+      // "already expired" false-positives for users in UTC+N timezones.
+      final expiry = item.expiryDate!.toLocal();
       final isExpired = expiry.isBefore(now);
       final isExpiringSoon = !isExpired && expiry.isBefore(threshold);
 

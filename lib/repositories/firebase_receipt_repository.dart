@@ -65,6 +65,20 @@ class FirebaseReceiptRepository implements ReceiptRepository {
     }
   }
 
+  /// 🔍 Fast check: does a receipt with the given original URL exist?
+  /// Uses a where+limit(1) query instead of fetching the entire collection.
+  Future<bool> existsByOriginalUrl(String householdId, String originalUrl) async {
+    try {
+      final snap = await _receiptsCollection(householdId)
+          .where('original_url', isEqualTo: originalUrl)
+          .limit(1)
+          .get();
+      return snap.docs.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // === Save Receipt ===
 
   @override
