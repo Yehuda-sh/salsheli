@@ -100,16 +100,21 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
       }
     }
 
-    // 6. Remove user from shared_users in shopping_lists
+    // 6. Remove user from shared_users in all shared_lists subcollections.
+    // Lists live at households/{hid}/shared_lists/{lid} — use collectionGroup
+    // to scan across every household. The inequality filter on a nested map
+    // key is unreliable, so we scan and filter in-memory.
     const sharedListsSnap = await db
-      .collection("shopping_lists")
-      .where(`shared_users.${userId}`, "!=", null)
+      .collectionGroup("shared_lists")
       .get();
     for (const doc of sharedListsSnap.docs) {
-      await doc.ref.update({
-        [`shared_users.${userId}`]: FieldValue.delete(),
-      });
-      results.sharedLists++;
+      const sharedUsers = doc.data().shared_users;
+      if (sharedUsers && sharedUsers[userId] !== undefined) {
+        await doc.ref.update({
+          [`shared_users.${userId}`]: FieldValue.delete(),
+        });
+        results.sharedLists++;
+      }
     }
 
     console.log(`✅ GDPR: Cascade delete complete for ${userId}:`, results);

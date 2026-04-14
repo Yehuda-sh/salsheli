@@ -121,8 +121,9 @@ class PendingRequestsService {
       // Uses the approved-notification channel (closest match) with
       // a custom title/message that makes it clear this is a NEW request.
       if (notificationsService != null) {
+        // createdBy is non-nullable but may be '' for malformed docs
         final ownerId = list.createdBy;
-        if (ownerId != null && ownerId != currentUserId) {
+        if (ownerId.isNotEmpty && ownerId != currentUserId) {
           try {
             final requesterName = _userContext.displayName ?? '';
             final productName = requestData['name'] as String? ?? '';
@@ -162,6 +163,8 @@ class PendingRequestsService {
         'unit': item.unit,
         'category': item.category,
         'notes': item.notes,
+        'brand': item.brand,
+        'imageUrl': item.imageUrl,
       },
     );
   }
@@ -183,6 +186,8 @@ class PendingRequestsService {
         'unit': item.unit,
         'category': item.category,
         'notes': item.notes,
+        'brand': item.brand,
+        'imageUrl': item.imageUrl,
       },
     );
   }

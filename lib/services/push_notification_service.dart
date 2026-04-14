@@ -82,7 +82,12 @@ class PushNotificationService {
         await _firestore.collection('users').doc(_currentUserId).update({
           'fcm_token': FieldValue.delete(),
         });
-      } catch (_) {}
+      } catch (e) {
+        // Don't swallow — if offline during logout, the next user who
+        // logs in on this device may receive pushes meant for the
+        // previous user until the token is refreshed.
+        if (kDebugMode) debugPrint('⚠️ clearToken failed: $e');
+      }
     }
     unawaited(_tokenSub?.cancel());
     _tokenSub = null;
