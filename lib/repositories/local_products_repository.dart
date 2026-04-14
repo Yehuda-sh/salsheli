@@ -173,16 +173,26 @@ class LocalProductsRepository implements ProductsRepository {
   Future<List<Map<String, dynamic>>> searchProducts(String query) async {
     final normalizedQuery = _normalizeHebrew(query);
 
-    // וודא שלפחות supermarket נטען (cache-first)
-    if (_cache.isEmpty) {
-      await getProductsByListType(_fallbackType);
-    }
+    // Ensure every supported list type is loaded before searching.
+    // Otherwise a user viewing a pharmacy list who searches for "חלב"
+    // gets 0 results because supermarket.json was never loaded.
+    // Shared Futures + cache mean this is a one-time cost per session.
+    await Future.wait(_supportedTypes.map(getProductsByListType));
 
-    // חפש בכל ה-cache הקיים בסריקה אחת
-    return _cache.values
-        .expand((products) => products)
-        .where((product) => _matchesQuery(product, normalizedQuery))
-        .toList();
+    // סריקה אחת על כל ה-cache עם dedup לפי barcode/שם
+    final seen = <String>{};
+    final results = <Map<String, dynamic>>[];
+    for (final products in _cache.values) {
+      for (final product in products) {
+        if (!_matchesQuery(product, normalizedQuery)) continue;
+        final barcode = (product['barcode'] as String?) ?? '';
+        final key = barcode.isNotEmpty
+            ? 'bc:$barcode'
+            : 'nm:${_normalizeHebrew((product['name'] as String?) ?? '')}';
+        if (seen.add(key)) results.add(product);
+      }
+    }
+    return results;
   }
 
   /// Strip Hebrew nikud (vowel marks U+0591–U+05C7) and lowercase.

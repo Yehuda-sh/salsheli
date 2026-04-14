@@ -88,6 +88,16 @@ class PushNotificationService {
         // previous user until the token is refreshed.
         if (kDebugMode) debugPrint('⚠️ clearToken failed: $e');
       }
+      // Also delete the token at the FCM SDK level. Even if the Firestore
+      // cleanup above failed (offline, permission, etc.), invalidating the
+      // token with FCM guarantees the old user's token value becomes dead
+      // so stale references in Firestore cannot deliver pushes to the new
+      // user of this device. A fresh token is issued on the next login.
+      try {
+        await _messaging.deleteToken();
+      } catch (e) {
+        if (kDebugMode) debugPrint('⚠️ deleteToken failed: $e');
+      }
     }
     unawaited(_tokenSub?.cancel());
     _tokenSub = null;

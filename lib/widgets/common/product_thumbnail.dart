@@ -18,18 +18,33 @@ import '../../config/filters_config.dart';
 import '../../config/product_images_config.dart';
 import '../../core/ui_constants.dart';
 
-/// Cached set of URLs that failed to load (shared across all instances).
-/// Capped to prevent unbounded memory growth if the CDN serves many
-/// broken URLs over a long session.
+/// Cached map of URLs → failure time (shared across all instances).
+/// Entries expire after [_kFailedUrlTtl] so a transient network failure
+/// does not permanently mark the URL as broken for the rest of the
+/// session. Capped at [_kMaxFailedUrls] as a secondary safety net.
 const int _kMaxFailedUrls = 500;
-final Set<String> _failedImageUrls = {};
+const Duration _kFailedUrlTtl = Duration(hours: 1);
+final Map<String, DateTime> _failedImageUrls = {};
+
 void _cacheFailedUrl(String url) {
   if (_failedImageUrls.length >= _kMaxFailedUrls) {
-    // Drop the oldest half — Set iteration order is insertion order in Dart
-    final toRemove = _failedImageUrls.take(_kMaxFailedUrls ~/ 2).toList();
-    _failedImageUrls.removeAll(toRemove);
+    // Drop the oldest half — Map iteration order is insertion order in Dart
+    final toRemove = _failedImageUrls.keys.take(_kMaxFailedUrls ~/ 2).toList();
+    for (final k in toRemove) {
+      _failedImageUrls.remove(k);
+    }
   }
-  _failedImageUrls.add(url);
+  _failedImageUrls[url] = DateTime.now();
+}
+
+bool _isFailedRecent(String url) {
+  final t = _failedImageUrls[url];
+  if (t == null) return false;
+  if (DateTime.now().difference(t) > _kFailedUrlTtl) {
+    _failedImageUrls.remove(url);
+    return false;
+  }
+  return true;
 }
 
 /// Product thumbnail with CDN image and emoji fallback.
@@ -70,9 +85,9 @@ class ProductThumbnail extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final imageUrls = ProductImagesConfig.getImageUrls(barcode);
 
-    // Filter out known-failed URLs
+    // Filter out known-failed URLs (honoring TTL — stale failures expire)
     final validUrls =
-        imageUrls.where((url) => !_failedImageUrls.contains(url)).toList();
+        imageUrls.where((url) => !_isFailedRecent(url)).toList();
 
     if (validUrls.isEmpty) {
       return _buildEmojiCircle(cs);

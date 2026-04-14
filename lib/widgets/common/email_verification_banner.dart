@@ -58,7 +58,18 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   Future<void> _checkIfVerified() async {
     try {
       await context.read<AuthService>().reloadUser();
-      if (mounted) setState(() {}); // rebuild — isEmailVerified may have changed
+      if (!mounted) return;
+      // If the user just verified, clear the stale 24h dismiss key so the
+      // banner would re-appear immediately on the rare edge case of the
+      // user becoming unverified again (e.g., email changed in settings).
+      final userContext = context.read<UserContext>();
+      if (userContext.isEmailVerified) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove(_keyForUser(userContext.userId));
+        if (mounted) setState(() => _isDismissed = false);
+      } else {
+        setState(() {}); // rebuild — isEmailVerified may have changed
+      }
     } catch (_) {}
   }
 
