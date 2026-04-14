@@ -253,7 +253,7 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                     color: isActive
                         ? cs.primary.withValues(alpha: 0.7)
                         : cs.outline.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(3),
+                    borderRadius: BorderRadius.circular(kBorderRadiusTiny),
                   ),
                 );
               }),

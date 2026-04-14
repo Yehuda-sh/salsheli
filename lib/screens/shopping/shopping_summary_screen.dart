@@ -119,7 +119,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                       // 🎉 כותרת חגיגית (מעל הקבלה)
                       ScaleTransition(
                         scale: Tween<double>(begin: 0.3, end: 1.0).animate(_scaleEmoji),
-                        child: Text(celebrationEmoji, style: const TextStyle(fontSize: 72)),
+                        child: Text(celebrationEmoji, style: const TextStyle(fontSize: kFontSizeHeroEmoji)),
                       ),
                       const SizedBox(height: kSpacingSmall),
                       FadeTransition(

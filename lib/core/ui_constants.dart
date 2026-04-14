@@ -184,6 +184,7 @@ const double kInputPadding = 16.0;  // Standard input padding
 // BORDER RADIUS
 // ═══════════════════════════════════════════════════════════════════════════
 
+const double kBorderRadiusTiny = 3.0;    // Tiny (page indicators, pills)
 const double kBorderRadiusSmall = 8.0;   // Small (chips, tags, badges)
 const double kBorderRadius = 12.0;       // Default (cards, inputs)
 const double kBorderRadiusLarge = 16.0;  // Large (dialogs, sheets)
@@ -245,6 +246,7 @@ const double kFontSizeLarge = 20.0;   // Large text
 const double kFontSizeTitle = 24.0;   // Section titles / headlines
 const double kFontSizeXLarge = 28.0;  // Extra large text (titles)
 const double kFontSizeDisplay = 34.0; // Display / hero text
+const double kFontSizeHeroEmoji = 72.0; // Hero emoji (celebration screens)
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ICON SIZES
