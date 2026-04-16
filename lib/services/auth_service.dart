@@ -866,11 +866,18 @@ class AuthService {
 
       final uid = _auth.currentUser!.uid;
 
-      // 1. Delete user Firestore doc FIRST — this triggers the
-      //    GDPR cascade Cloud Function (onDocumentDeleted on users/{uid}).
-      //    If we delete Auth first, the Cloud Function never fires and
-      //    we orphan: notifications, saved_contacts, shopping_patterns,
-      //    pending_invites, household memberships, shared_users refs.
+      // ⚠️ Order matters: Firestore → Storage → Auth.
+      //
+      // We MUST delete Firestore while authenticated (security rules
+      // require isDocOwner).  The Firestore delete triggers the GDPR
+      // cascade Cloud Function.  Auth delete comes last because:
+      //   - It invalidates the token, blocking further Firestore writes.
+      //   - It's the step most likely to throw requires-recent-login.
+      //
+      // Trade-off: if Auth.delete() fails AFTER Firestore/Storage are
+      // cleaned, the user still has an Auth account but no app data.
+      // On retry (after re-auth) the cascade is idempotent and Auth
+      // delete will succeed.  Acceptable: user intended to delete.
       try {
         await FirebaseFirestore.instance.collection('users').doc(uid).delete();
       } catch (_) {
