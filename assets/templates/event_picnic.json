@@ -4,7 +4,7 @@
   "icon": "🧺",
   "items": [
     {"source": "bakery", "searchTerm": "לחם", "quantity": 1, "unit": "יח'", "fallbackName": "לחם לסנדוויצ'ים"},
-    {"source": "supermarket", "searchTerm": "גבינה צהובה פרוסה", "quantity": 1, "unit": "יח'", "fallbackName": "גבינה לסנדוויצ'ים"},
+    {"source": "supermarket", "searchTerm": "גבינה צהובה", "quantity": 1, "unit": "יח'", "fallbackName": "גבינה לסנדוויצ'ים"},
     {"source": "supermarket", "searchTerm": "ממרח שוקולד", "quantity": 1, "unit": "יח'", "fallbackName": "ממרח לסנדוויצ'ים"},
     {"source": "supermarket", "searchTerm": "חומוס", "quantity": 1, "unit": "יח'", "fallbackName": "חומוס"},
     {"source": "supermarket", "searchTerm": "טונה בשמן", "quantity": 1, "unit": "יח'", "fallbackName": "טונה"},

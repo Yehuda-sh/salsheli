@@ -20,7 +20,7 @@
     {"source": "greengrocer", "searchTerm": "מלפפון", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים לסלט"},
     {"source": "greengrocer", "searchTerm": "גזר", "quantity": 1, "unit": "יח'", "fallbackName": "גזר"},
     {"source": "greengrocer", "searchTerm": "בצל", "quantity": 1, "unit": "יח'", "fallbackName": "בצל"},
-    {"source": "supermarket", "searchTerm": "מלפפון חמוץ", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים חמוצים"},
+    {"source": "supermarket", "searchTerm": "מלפפונים חמוצים", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים חמוצים"},
     {"source": "supermarket", "searchTerm": "זיתים", "quantity": 1, "unit": "יח'", "fallbackName": "זיתים"},
     {"source": "supermarket", "searchTerm": "סלט חצילים", "quantity": 1, "unit": "יח'", "fallbackName": "סלט חצילים"},
     {"source": "supermarket", "searchTerm": "מטבוחה", "quantity": 1, "unit": "יח'", "fallbackName": "מטבוחה"},

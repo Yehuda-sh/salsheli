@@ -15,7 +15,7 @@
     {"source": "supermarket", "searchTerm": "טחינה גולמית", "quantity": 1, "unit": "יח'", "fallbackName": "טחינה"},
     {"source": "supermarket", "searchTerm": "עמבה", "quantity": 1, "unit": "יח'", "fallbackName": "עמבה"},
     {"source": "supermarket", "searchTerm": "סחוג", "quantity": 1, "unit": "יח'", "fallbackName": "סחוג"},
-    {"source": "supermarket", "searchTerm": "מלפפון חמוץ", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים חמוצים"},
+    {"source": "supermarket", "searchTerm": "מלפפונים חמוצים", "quantity": 1, "unit": "יח'", "fallbackName": "מלפפונים חמוצים"},
     {"source": "supermarket", "searchTerm": "קטשופ", "quantity": 1, "unit": "יח'", "fallbackName": "קטשופ"},
     {"source": "supermarket", "searchTerm": "חרדל", "quantity": 1, "unit": "יח'", "fallbackName": "חרדל"},
     {"source": "greengrocer", "searchTerm": "עגבניה", "quantity": 1, "unit": "יח'", "fallbackName": "עגבניות"},

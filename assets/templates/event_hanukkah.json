@@ -3,9 +3,9 @@
   "description": "נס גדול היה פה — סופגניות, לביבות ושמן",
   "icon": "🕎",
   "items": [
-    {"source": "bakery", "searchTerm": "סופגניה", "quantity": 1, "unit": "יח'", "fallbackName": "סופגניות"},
+    {"source": "bakery", "searchTerm": "סופגני", "quantity": 1, "unit": "יח'", "fallbackName": "סופגניות"},
     {"source": "greengrocer", "searchTerm": "תפוח אדמה", "quantity": 1, "unit": "יח'", "fallbackName": "תפוחי אדמה (ללביבות)"},
-    {"source": "supermarket", "searchTerm": "שמן לטיגון", "quantity": 1, "unit": "יח'", "fallbackName": "שמן לטיגון"},
+    {"source": "supermarket", "searchTerm": "שמן קנולה", "quantity": 1, "unit": "יח'", "fallbackName": "שמן לטיגון"},
     {"source": "supermarket", "searchTerm": "ביצים", "quantity": 1, "unit": "יח'", "fallbackName": "ביצים"},
     {"source": "supermarket", "searchTerm": "קמח", "quantity": 1, "unit": "יח'", "fallbackName": "קמח"},
     {"source": "supermarket", "searchTerm": "שמנת חמוצה", "quantity": 1, "unit": "יח'", "fallbackName": "שמנת חמוצה"},

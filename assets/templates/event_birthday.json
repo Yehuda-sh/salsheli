@@ -7,7 +7,7 @@
     {"source": "supermarket", "searchTerm": "נרות יום הולדת", "quantity": 1, "unit": "יח'", "fallbackName": "נרות ליום הולדת"},
     {"source": "supermarket", "searchTerm": "בלונים", "quantity": 1, "unit": "יח'", "fallbackName": "בלונים"},
     {"source": "supermarket", "searchTerm": "כובעי מסיבה", "quantity": 1, "unit": "יח'", "fallbackName": "כובעי מסיבה"},
-    {"source": "supermarket", "searchTerm": "פיצה קפואה", "quantity": 1, "unit": "יח'", "fallbackName": "פיצה"},
+    {"source": "supermarket", "searchTerm": "פיצה", "quantity": 1, "unit": "יח'", "fallbackName": "פיצה"},
     {"source": "supermarket", "searchTerm": "גלידה", "quantity": 1, "unit": "יח'", "fallbackName": "גלידה"},
     {"source": "supermarket", "searchTerm": "צ'יפס", "quantity": 1, "unit": "יח'", "fallbackName": "צ'יפס"},
     {"source": "supermarket", "searchTerm": "במבה", "quantity": 1, "unit": "יח'", "fallbackName": "במבה"},
