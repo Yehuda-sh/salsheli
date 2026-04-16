@@ -24,11 +24,12 @@ const db = getFirestore();
  * cascade delete all their data across collections:
  * - notifications subcollection
  * - saved_contacts subcollection
- * - shopping_patterns
- * - pending_invites (sent by user)
- * - household membership
- * - shared_users references in shopping_lists
- * - inventory items (if personal pantry)
+ * - private_lists subcollection (personal shopping lists)
+ * - inventory subcollection (personal pantry items)
+ * - shopping_patterns (top-level)
+ * - pending_invites (sent by user, top-level)
+ * - household membership (members subcollection)
+ * - shared_users references in shared_lists (collectionGroup)
  */
 exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
   const userId = event.params.userId;
@@ -40,6 +41,8 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
   const results = {
     notifications: 0,
     contacts: 0,
+    privateLists: 0,
+    inventory: 0,
     patterns: 0,
     invites: 0,
     household: false,
@@ -55,6 +58,16 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
     // 2. Delete saved_contacts subcollection
     results.contacts = await deleteSubcollection(
       `users/${userId}/saved_contacts`
+    );
+
+    // 2b. Delete private_lists subcollection (personal shopping lists)
+    results.privateLists = await deleteSubcollection(
+      `users/${userId}/private_lists`
+    );
+
+    // 2c. Delete personal inventory subcollection (pantry items)
+    results.inventory = await deleteSubcollection(
+      `users/${userId}/inventory`
     );
 
     // 3. Delete shopping patterns

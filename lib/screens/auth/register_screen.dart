@@ -154,25 +154,25 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       context: context,
       barrierDismissible: true,
       builder: (ctx) => AlertDialog(
-        title: const Text('🏠 תן שם לבית שלך'),
+        title: Text('🏠 ${AppStrings.sharing.householdNameDialogTitle}'),
         content: TextField(
           controller: controller,
           maxLength: 40,
           textDirection: TextDirection.rtl,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'למשל: משפחת כהן',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            hintText: AppStrings.sharing.householdNameDialogHint,
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('דלג'),
+            child: Text(AppStrings.sharing.householdNameDialogSkip),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('שמור'),
+            child: Text(AppStrings.common.save),
           ),
         ],
       ),
