@@ -12,7 +12,7 @@
     {"source": "supermarket", "searchTerm": "רסק תפוחים", "quantity": 1, "unit": "יח'", "fallbackName": "רסק תפוחים"},
     {"source": "greengrocer", "searchTerm": "בצל", "quantity": 1, "unit": "יח'", "fallbackName": "בצל (ללביבות)"},
     {"source": "supermarket", "searchTerm": "נרות חנוכה", "quantity": 1, "unit": "יח'", "fallbackName": "נרות חנוכה"},
-    {"source": "supermarket", "searchTerm": "שוקולד מטבעות", "quantity": 1, "unit": "יח'", "fallbackName": "דמי חנוכה / שוקולד מטבעות"},
+    {"source": "supermarket", "searchTerm": "מטבעות", "quantity": 1, "unit": "יח'", "fallbackName": "דמי חנוכה / שוקולד מטבעות"},
     {"source": "supermarket", "searchTerm": "סביבון", "quantity": 1, "unit": "יח'", "fallbackName": "סביבון"},
     {"source": "supermarket", "searchTerm": "שמן זית", "quantity": 1, "unit": "יח'", "fallbackName": "שמן זית"},
     {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"}

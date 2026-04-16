@@ -25,7 +25,7 @@
     {"source": "greengrocer", "searchTerm": "ענבים", "quantity": 1, "unit": "יח'", "fallbackName": "ענבים"},
     {"source": "supermarket", "searchTerm": "כוסות חד פעמיות", "quantity": 1, "unit": "יח'", "fallbackName": "כוסות חד פעמיות"},
     {"source": "supermarket", "searchTerm": "צלחות חד פעמיות", "quantity": 1, "unit": "יח'", "fallbackName": "צלחות חד פעמיות"},
-    {"source": "supermarket", "searchTerm": "מפיות צבעוניות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"},
+    {"source": "supermarket", "searchTerm": "מפיות", "quantity": 1, "unit": "יח'", "fallbackName": "מפיות"},
     {"source": "supermarket", "searchTerm": "סכו\"ם חד פעמי", "quantity": 1, "unit": "יח'", "fallbackName": "סכו\"ם חד פעמי"},
     {"source": "supermarket", "searchTerm": "שקיות הפתעה", "quantity": 1, "unit": "יח'", "fallbackName": "שקיות הפתעה"}
   ]
