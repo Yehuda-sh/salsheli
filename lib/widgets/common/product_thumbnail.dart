@@ -150,6 +150,11 @@ class ProductThumbnail extends StatelessWidget {
     // Ordered: longer/more-specific keywords first to avoid false matches.
     // e.g., "תפוח אדמה" before "תפוח" so potatoes don't get 🍎.
     const mapping = <String, String>{
+      // ── False-match guards ──
+      // These MUST appear before their shorter substring counterparts.
+      // "חלבון" (protein) before "חלב" (milk) — protein bars aren't dairy.
+      // "באגסו" (brand) before "אגס" (pear) — snack brand, not fruit.
+      'חלבון': '🍫', 'באגסו': '🍬',
       // Vegetables
       'תפוח אדמה': '🥔', 'תפו"א': '🥔',
       'ברוקולי': '🥦', 'כרובית': '🥦',
