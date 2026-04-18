@@ -196,9 +196,20 @@ class InventoryProvider with ChangeNotifier {
       return;
     }
 
-    // מזווה אישי/משפחתי (לפי householdId)
+    // Check if we need to switch to household mode. This handles the
+    // race where UserContext loads household_id AFTER the initial
+    // personal-mode fetch has already started or even completed empty.
+    final householdId = _userContext?.householdId;
+    final isPersonalHousehold = householdId == null ||
+        householdId == 'house_$userId' ||
+        householdId == 'house_${userId.hashCode.abs()}';
+
+    if (!isPersonalHousehold && _subscribedHouseholdId != householdId) {
+      _loadItems();
+      return;
+    }
+
     if (_currentMode != InventoryMode.personal || (_items.isEmpty && !_isLoading)) {
-      _currentMode = InventoryMode.personal;
       _loadItems();
     }
   }
