@@ -339,6 +339,7 @@ class InventoryItem {
           other.expiryDate == expiryDate &&
           other.notes == notes &&
           other.isRecurring == isRecurring &&
+          other.barcode == barcode &&
           other.lastPurchased == lastPurchased &&
           other.purchaseCount == purchaseCount &&
           other.emoji == emoji &&
@@ -357,6 +358,7 @@ class InventoryItem {
         expiryDate,
         notes,
         isRecurring,
+        barcode,
         lastPurchased,
         purchaseCount,
         emoji,
