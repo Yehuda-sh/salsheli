@@ -146,7 +146,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
                 backgroundColor: successColor.withValues(alpha: 0.2),
                 foregroundColor: successColor,
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-                minimumSize: const Size(0, 36), // גודל תקני ונוח
+                minimumSize: const Size(0, 44),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
               ),
               child: const Icon(Icons.add, size: kIconSizeSmallPlus),

@@ -536,7 +536,7 @@ class _BottomSection extends StatelessWidget {
                     onPressed: onTerms,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                      minimumSize: const Size(44, 32),
+                      minimumSize: const Size(44, 44),
                     ),
                     child: Text(
                       AppStrings.welcome.termsOfService,
@@ -554,7 +554,7 @@ class _BottomSection extends StatelessWidget {
                     onPressed: onPrivacy,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                      minimumSize: const Size(44, 32),
+                      minimumSize: const Size(44, 44),
                     ),
                     child: Text(
                       AppStrings.welcome.privacyPolicy,
