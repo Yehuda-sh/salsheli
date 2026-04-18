@@ -179,7 +179,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
                           height: 1.2,
                         ),
                         child: Text(
-                          item.name,
+                          fixBidiNumbers(item.name),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

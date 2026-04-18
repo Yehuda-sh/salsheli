@@ -1150,7 +1150,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          item.name,
+                          fixBidiNumbers(item.name),
                           style: theme.textTheme.bodyLarge!.copyWith(
                             fontSize: kFontSizeBody,
                             fontWeight: FontWeight.w500,

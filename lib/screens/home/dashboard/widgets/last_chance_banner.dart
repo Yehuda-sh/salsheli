@@ -118,7 +118,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  suggestion.productName,
+                  fixBidiNumbers(suggestion.productName),
                   style: TextStyle(
                     fontSize: kFontSizeBody,
                     fontWeight: FontWeight.bold,

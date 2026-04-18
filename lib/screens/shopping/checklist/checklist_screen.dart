@@ -526,7 +526,7 @@ class _ChecklistItemTile extends StatelessWidget {
                     alignment: AlignmentDirectional.centerStart,
                     children: [
                       Text(
-                        item.name,
+                        fixBidiNumbers(item.name),
                         style: TextStyle(
                           fontSize: kFontSizeMedium,
                           fontWeight: FontWeight.w500,
