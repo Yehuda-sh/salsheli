@@ -567,7 +567,7 @@ class ProductsProvider with ChangeNotifier {
   Map<String, int> get productsByCategory {
     final map = <String, int>{};
     for (final product in _products) {
-      final category = product['category'] as String;
+      final category = (product['category'] as String?) ?? 'כללי';
       map[category] = (map[category] ?? 0) + 1;
     }
     return map;
