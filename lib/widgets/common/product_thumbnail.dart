@@ -126,14 +126,23 @@ class ProductThumbnail extends StatelessWidget {
     );
   }
 
+  static const _nonFoodCategories = {
+    'cleaning', 'hygiene', 'cosmetics', 'baby_products',
+    'pet_food', 'vitamins', 'otc_medicine', 'first_aid',
+  };
+
   Text get _emojiText {
-    // Try product-specific emoji first (keyword match on Hebrew name)
-    final specificEmoji = matchProductEmoji(productName);
-    if (specificEmoji != null) {
-      return Text(specificEmoji, style: TextStyle(fontSize: size * 0.45));
+    final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
+    // Skip keyword matching for non-food categories — Hebrew food words
+    // appear as substrings in hygiene/cleaning product names (e.g.,
+    // "סנסודיין" contains "יין", "בישום" contains "שום").
+    if (!_nonFoodCategories.contains(englishKey)) {
+      final specificEmoji = matchProductEmoji(productName);
+      if (specificEmoji != null) {
+        return Text(specificEmoji, style: TextStyle(fontSize: size * 0.45));
+      }
     }
     // Fall back to generic category emoji
-    final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
     final emoji = FiltersConfig.getCategoryEmoji(englishKey);
     return Text(emoji, style: TextStyle(fontSize: size * 0.45));
   }
