@@ -27,28 +27,34 @@ class ProductImagesConfig {
   static const String _openFoodFactsBase =
       'https://images.openfoodfacts.org/images/products';
 
-  /// Valid barcode lengths (EAN-8, UPC-A, EAN-13)
-  /// Other lengths (7, 9, 11, etc.) are usually internal codes that
-  /// don't have CDN images.
-  static const Set<int> _validBarcodeLengths = {8, 12, 13};
+  /// Standard barcode lengths (EAN-8, UPC-A, EAN-13) — used for
+  /// Shufersal and Open Food Facts CDNs which require real EAN codes.
+  static const Set<int> _standardEanLengths = {8, 12, 13};
+
+  /// Rami Levy internal product IDs are typically 7 digits. Their CDN
+  /// accepts both internal IDs and standard EAN barcodes, so we always
+  /// include the Rami Levy URL regardless of barcode length.
+  static const int _minBarcodeLength = 7;
 
   /// Generate all available image URLs for a barcode (primary first).
-  /// Returns empty list if barcode is invalid or has unsupported length.
+  /// Rami Levy CDN is always included (works with internal 7-digit IDs).
+  /// Shufersal and Open Food Facts are only added for standard EAN lengths.
   static List<String> getImageUrls(String? barcode) {
-    if (barcode == null || !_validBarcodeLengths.contains(barcode.length)) {
+    if (barcode == null || barcode.length < _minBarcodeLength) {
       return const [];
     }
-    return [
-      '$_ramiLevyCdnBase/$barcode/small.jpg',
-      '$_shufersalCdnBase/$barcode',
-      _openFoodFactsUrl(barcode),
-    ];
+    final urls = ['$_ramiLevyCdnBase/$barcode/small.jpg'];
+    if (_standardEanLengths.contains(barcode.length)) {
+      urls.add('$_shufersalCdnBase/$barcode');
+      urls.add(_openFoodFactsUrl(barcode));
+    }
+    return urls;
   }
 
   /// Generate primary image URL from barcode (Rami Levy).
-  /// Returns null if barcode is invalid or unsupported length.
+  /// Returns null if barcode is too short.
   static String? getImageUrl(String? barcode) {
-    if (barcode == null || !_validBarcodeLengths.contains(barcode.length)) {
+    if (barcode == null || barcode.length < _minBarcodeLength) {
       return null;
     }
     return '$_ramiLevyCdnBase/$barcode/small.jpg';
