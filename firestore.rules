@@ -366,9 +366,11 @@ service cloud.firestore {
           get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
         );
 
-        // עדכון: חבר יכול לעדכן רק את עצמו, או admin יכול לעדכן אחרים
+        // עדכון: חבר יכול לעדכן רק את עצמו (חוץ מ-role), או admin יכול לעדכן אחרים
+        // ⚠️ v4.6: חסם self-escalation — חבר לא יכול לשנות את ה-role שלו עצמו
         allow update: if isHouseholdMember(householdId) && (
-          memberId == request.auth.uid ||
+          (memberId == request.auth.uid &&
+           !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])) ||
           get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
         );
 
