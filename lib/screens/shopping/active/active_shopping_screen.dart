@@ -1082,7 +1082,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                 )
               else
                 const Padding(
-                  padding: const EdgeInsets.all(kSpacingSmallPlus),
+                  padding: EdgeInsets.all(kSpacingSmallPlus),
                   child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
             ],
