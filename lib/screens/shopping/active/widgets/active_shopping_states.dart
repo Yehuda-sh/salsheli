@@ -40,9 +40,9 @@ class ActiveShoppingLoadingSkeleton extends StatelessWidget {
             padding: const EdgeInsets.all(kSpacingMedium),
             itemCount: 5,
             itemBuilder: (context, index) => const Card(
-              margin: const EdgeInsets.only(bottom: kSpacingSmall),
+              margin: EdgeInsets.only(bottom: kSpacingSmall),
               child: Padding(
-                padding: const EdgeInsets.all(kSpacingSmallPlus),
+                padding: EdgeInsets.all(kSpacingSmallPlus),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

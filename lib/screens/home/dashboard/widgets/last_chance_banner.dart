@@ -167,7 +167,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
               tooltip: strings.skipSessionTooltip,
             ),
           ] else
-            const Padding(
+            Padding(
               padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
               child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
