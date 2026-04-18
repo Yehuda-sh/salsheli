@@ -593,7 +593,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             onPressed: _clearAllFilters,
             tooltip: AppStrings.shopping.clearFilterLabel,
             visualDensity: VisualDensity.compact,
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
           ),
         ],

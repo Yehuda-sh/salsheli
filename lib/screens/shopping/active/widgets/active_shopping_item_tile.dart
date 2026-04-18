@@ -223,7 +223,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
             // ⋮ Zone 3: Three-dot menu
             // ═══════════════════════════════════════
             PopupMenuButton<String>(
-              padding: EdgeInsets.zero,
+              padding: const EdgeInsets.zero,
               iconSize: kIconSizeMedium,
               icon: Icon(Icons.more_vert, color: cs.onSurfaceVariant.withValues(alpha: 0.6)),
               onSelected: (value) {

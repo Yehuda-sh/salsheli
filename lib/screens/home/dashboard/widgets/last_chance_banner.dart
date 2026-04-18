@@ -168,7 +168,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
             ),
           ] else
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
               child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
             ),
         ],

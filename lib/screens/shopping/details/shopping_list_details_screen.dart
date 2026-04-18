@@ -816,7 +816,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         // 🔎 תוצאות חיפוש
         if (_isSearching)
           const Padding(
-            padding: EdgeInsets.all(kSpacingSmall),
+            padding: const EdgeInsets.all(kSpacingSmall),
             child: SizedBox(width: kIconSizeSmallPlus, height: kIconSizeSmallPlus, child: CircularProgressIndicator(strokeWidth: 2)),
           )
         else if (_searchResults.isNotEmpty)
