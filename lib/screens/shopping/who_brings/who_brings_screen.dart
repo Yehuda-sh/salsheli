@@ -502,7 +502,7 @@ class _WhoBringsItemTile extends StatelessWidget {
                   // שם הפריט
                   Expanded(
                     child: Text(
-                      item.name,
+                      fixBidiNumbers(item.name),
                       style: TextStyle(
                         fontSize: kFontSizeMedium,
                         fontWeight: FontWeight.bold,

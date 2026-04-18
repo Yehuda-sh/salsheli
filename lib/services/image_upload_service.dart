@@ -22,8 +22,9 @@ class ImageUploadService {
   final FirebaseStorage _storage;
   final ImagePicker _picker;
 
-  /// מפתח ב-SharedPreferences לשמירת זמן העלאה אחרון
-  static const _kLastUploadKey = 'profile_image_last_upload';
+  /// מפתח ב-SharedPreferences לשמירת זמן העלאה אחרון (per-user)
+  static String _keyForUser(String userId) =>
+      'profile_image_last_upload_$userId';
 
   /// cooldown בין העלאות (24 שעות)
   static const _uploadCooldown = Duration(hours: 24);
@@ -37,9 +38,9 @@ class ImageUploadService {
   /// בדיקה אם ניתן להעלות תמונה (cooldown 24 שעות)
   ///
   /// מחזיר null אם מותר, או Duration שנותר לחכות.
-  Future<Duration?> getCooldownRemaining() async {
+  Future<Duration?> getCooldownRemaining(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    final lastUpload = prefs.getInt(_kLastUploadKey) ?? 0;
+    final lastUpload = prefs.getInt(_keyForUser(userId)) ?? 0;
     final elapsed = DateTime.now().millisecondsSinceEpoch - lastUpload;
     final remaining = _uploadCooldown.inMilliseconds - elapsed;
     if (remaining <= 0) return null; // מותר להעלות
@@ -47,9 +48,9 @@ class ImageUploadService {
   }
 
   /// שמירת זמן העלאה אחרון
-  Future<void> _recordUploadTime() async {
+  Future<void> _recordUploadTime(String userId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_kLastUploadKey, DateTime.now().millisecondsSinceEpoch);
+    await prefs.setInt(_keyForUser(userId), DateTime.now().millisecondsSinceEpoch);
   }
 
   /// בחירת תמונה מהגלריה או מהמצלמה
@@ -81,12 +82,11 @@ class ImageUploadService {
   /// ```
   Future<String> uploadProfileImage(String userId, File imageFile) async {
     // 🛡️ Rate limiting — בדיקת cooldown
-    final cooldown = await getCooldownRemaining();
+    final cooldown = await getCooldownRemaining(userId);
     if (cooldown != null) {
-      final hours = cooldown.inHours;
-      final minutes = cooldown.inMinutes % 60;
-      final timeStr = hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
-      throw Exception(AppStrings.settings.imageUploadCooldown(timeStr));
+      throw Exception(AppStrings.settings.imageUploadCooldown(
+        AppStrings.common.durationText(cooldown.inHours, cooldown.inMinutes % 60),
+      ));
     }
 
     try {
@@ -103,7 +103,7 @@ class ImageUploadService {
       final downloadUrl = await ref.getDownloadURL();
 
       // שמירת זמן העלאה — cooldown מתחיל
-      await _recordUploadTime();
+      await _recordUploadTime(userId);
 
       if (kDebugMode) debugPrint('✅ Profile image uploaded: $downloadUrl');
       return downloadUrl;

@@ -302,6 +302,8 @@ class CommonStringsEn extends CommonStrings {
   String get cancel => 'Cancel';
   @override String get moreOptions => 'More options';
   String get save => 'Save';
+  String durationText(int hours, int minutes) =>
+      hours > 0 ? '$hours hours and $minutes minutes' : '$minutes minutes';
   String get delete => 'Delete';
   String get edit => 'Edit';
   String get add => 'Add';

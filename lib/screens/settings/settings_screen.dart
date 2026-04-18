@@ -814,13 +814,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         final imageService = ImageUploadService();
 
                         // בדיקת cooldown לפני פתיחת gallery
-                        final cooldown = await imageService.getCooldownRemaining();
+                        final uid = context.read<UserContext>().userId ?? '';
+                        final cooldown = await imageService.getCooldownRemaining(uid);
                         if (cooldown != null) {
-                          final hours = cooldown.inHours;
-                          final minutes = cooldown.inMinutes % 60;
-                          final timeStr = hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
                           scaffoldMessenger.showSnackBar(
-                            SnackBar(content: Text(AppStrings.settings.imageUploadCooldown(timeStr))),
+                            SnackBar(content: Text(AppStrings.settings.imageUploadCooldown(
+                              AppStrings.common.durationText(cooldown.inHours, cooldown.inMinutes % 60),
+                            ))),
                           );
                           return;
                         }

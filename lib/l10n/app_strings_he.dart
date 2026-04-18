@@ -302,6 +302,8 @@ class CommonStrings {
   String get cancel => 'ביטול';
   String get moreOptions => 'אפשרויות נוספות';
   String get save => 'שמור';
+  String durationText(int hours, int minutes) =>
+      hours > 0 ? '$hours שעות ו-$minutes דקות' : '$minutes דקות';
   String get delete => 'מחק';
   String get edit => 'ערוך';
   String get add => 'הוסף';
