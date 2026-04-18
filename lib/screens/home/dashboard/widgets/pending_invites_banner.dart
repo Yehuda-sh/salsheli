@@ -97,7 +97,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                     color: cs.tertiary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
-                  child: Icon(Icons.mail_outline, color: cs.tertiary, size: 22)
+                  child: Icon(Icons.mail_outline, color: cs.tertiary, size: kIconSizeSmallPlus)
                       .animate(onPlay: (c) => c.repeat(reverse: true))
                       .shimmer(
                         // קיצור זמני אנימציה ל-1000ms

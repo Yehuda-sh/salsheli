@@ -118,9 +118,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
   /// 📳 רצף רטט שגיאה
   Future<void> _errorHaptic() async {
-    await HapticFeedback.heavyImpact();
+    unawaited(HapticFeedback.heavyImpact());
     await Future.delayed(const Duration(milliseconds: 100));
-    await HapticFeedback.heavyImpact();
+    unawaited(HapticFeedback.heavyImpact());
   }
 
   @override

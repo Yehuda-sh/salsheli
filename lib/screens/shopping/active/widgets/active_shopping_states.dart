@@ -180,7 +180,7 @@ class CompactStat extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: color, size: 22),
+        Icon(icon, color: color, size: kIconSizeSmallPlus),
         const SizedBox(width: kSpacingXTiny),
         Text(
           total != null ? '$value/$total' : '$value',

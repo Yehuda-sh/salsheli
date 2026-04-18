@@ -159,7 +159,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
             child: Row(
               children: [
                 // 🛒 Compact pulsing cart icon (32px — down from 40)
-                _PulsingIcon(backgroundColor: cs.onPrimary, size: 32),
+                _PulsingIcon(backgroundColor: cs.onPrimary, size: kSpacingXLarge),
                 const SizedBox(width: kSpacingSmallPlus),
 
                 // Single-line content — list name · items remaining

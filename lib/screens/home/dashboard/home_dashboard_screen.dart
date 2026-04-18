@@ -251,7 +251,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
 
                   // מרווח לפני FAB
-                  const SizedBox(height: 80),
+                  const SizedBox(height: kIconSizeXLarge + kSpacingXLarge),
                 ],
               ),
             ),

@@ -570,7 +570,7 @@ class _NotFoundState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 80, color: cs.onSurfaceVariant),
+            Icon(Icons.search_off, size: kIconSizeXXLarge + kSpacingMedium, color: cs.onSurfaceVariant),
             const SizedBox(height: kSpacingMedium),
             Text(strings.notFound, style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface)),
             const SizedBox(height: kSpacingSmall),

@@ -155,7 +155,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
             // ⏭️ Next button
             IconButton(
               onPressed: () => _onNextPressed(context),
-              icon: const Icon(Icons.skip_next, size: 22),
+              icon: const Icon(Icons.skip_next, size: kIconSizeSmallPlus),
               style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant),
               tooltip: strings.nextTooltip,
             ),
