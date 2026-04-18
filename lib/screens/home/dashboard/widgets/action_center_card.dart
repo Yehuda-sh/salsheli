@@ -108,7 +108,7 @@ class ActionCenterCard extends StatelessWidget {
     // 3. מלאי קריטי (quantity = 0)
     final criticalItems = inventoryProvider.items.where((i) => i.quantity <= 0).toList();
     if (criticalItems.isNotEmpty) {
-      final names = criticalItems.take(2).map((i) => i.productName).join(', ');
+      final names = criticalItems.take(2).map((i) => fixBidiNumbers(i.productName)).join(', ');
       final more = criticalItems.length > 2 ? ' +${criticalItems.length - 2}' : '';
       actionItems.add(_ActionItem(
         icon: Icons.warning_amber_rounded,

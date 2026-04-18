@@ -1500,7 +1500,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   // Expanded (not Flexible) forces wrapping.
                                   Expanded(
                                     child: Text(
-                                      item.productName,
+                                      fixBidiNumbers(item.productName),
                                       style: theme.textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.w700,
                                         height: 1.2,

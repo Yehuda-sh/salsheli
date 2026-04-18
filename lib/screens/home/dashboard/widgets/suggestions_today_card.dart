@@ -135,7 +135,7 @@ String _cleanProductName(String name) {
   clean = deduped.join(' ');
 
   // לא מקצרים ידנית — maxLines+ellipsis ב-Text widget מטפל
-  return clean.trim();
+  return fixBidiNumbers(clean.trim());
 }
 
 class _SuggestionsCarousel extends StatefulWidget {

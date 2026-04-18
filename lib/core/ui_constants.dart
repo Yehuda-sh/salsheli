@@ -294,3 +294,17 @@ const double kStickyNoteRadius = 2.0;     // Border radius for sticky notes
 
 // Logo Glow Effect
 const double kShimmerAngle = 0.0;      // Shimmer effect angle (radians)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BIDI TEXT HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+const String _lrm = '\u200E';
+final RegExp _bidiDigitGroup = RegExp(r'\d[\d.,%]*');
+
+/// Inserts Unicode LRM (Left-to-Right Mark) around digit groups so that
+/// numbers with special characters (e.g. "25%", "1.5%", "180") display
+/// correctly in RTL context instead of being visually reversed
+/// (e.g. "25%" rendering as "%25").
+String fixBidiNumbers(String text) =>
+    text.replaceAllMapped(_bidiDigitGroup, (m) => '$_lrm${m[0]}$_lrm');
