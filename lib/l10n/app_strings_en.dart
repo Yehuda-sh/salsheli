@@ -796,6 +796,7 @@ class SettingsStringsEn extends SettingsStrings {
   String get statsPantryItems => 'Pantry Items';
   String get householdName => 'Group Name';
   String get householdNameHint => 'Group Name';
+  String get householdNameEmpty => 'Group name cannot be empty';
   String get editHouseholdNameSave => 'Save';
   String get editHouseholdNameEdit => 'Edit Name';
   String get roleOwner => 'Owner';

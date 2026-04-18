@@ -259,6 +259,16 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         }
       }
 
+      // Self-invite guard
+      final currentEmail = userContext.userEmail?.toLowerCase() ?? '';
+      if (invitedUserId == currentUserId ||
+          (currentEmail.isNotEmpty && invitedUserEmail == currentEmail)) {
+        messenger.showSnackBar(SnackBar(
+          content: Text(AppStrings.sharing.cannotInviteSelf),
+        ));
+        return;
+      }
+
       // בדוק אם יש שם קבוצה — אם לא, שאל לפני השליחה
       if (userContext.householdName == null ||
           userContext.householdName!.trim().isEmpty) {

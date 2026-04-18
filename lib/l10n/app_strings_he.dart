@@ -819,6 +819,7 @@ class SettingsStrings {
   String get statsPantryItems => 'פריטים במזווה';
   String get householdName => 'שם הקבוצה';
   String get householdNameHint => 'שם הקבוצה';
+  String get householdNameEmpty => 'שם הקבוצה לא יכול להיות ריק';
   String get editHouseholdNameSave => 'שמור';
   String get editHouseholdNameEdit => 'ערוך שם';
   String get roleOwner => 'בעלים';

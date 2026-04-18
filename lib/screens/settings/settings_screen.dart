@@ -555,10 +555,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 onPressed: isSaving
                     ? null
                     : () async {
+                        final trimmed = controller.text.trim();
+                        if (trimmed.isEmpty) {
+                          setDialogState(() {
+                            errorText = AppStrings.settings.householdNameEmpty;
+                          });
+                          return;
+                        }
                         setDialogState(() => isSaving = true);
                         try {
-                          await userContext
-                              .updateHouseholdName(controller.text.trim());
+                          await userContext.updateHouseholdName(trimmed);
                           if (ctx.mounted) Navigator.pop(dialogContext);
                         } catch (e) {
                           setDialogState(() {
