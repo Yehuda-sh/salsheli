@@ -581,7 +581,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                       color: cs.onSurfaceVariant,
                     ),
                     constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-                    padding: const EdgeInsets.zero,
+                    padding: EdgeInsets.zero,
                   ),
               ],
             ),

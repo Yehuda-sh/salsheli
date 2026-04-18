@@ -881,7 +881,7 @@ class _PantryProductSelectionSheetState
               : null,
         ),
         child: Card(
-          margin: const EdgeInsets.zero,
+          margin: EdgeInsets.zero,
           color: justAdded
               ? successColor.withValues(alpha: 0.1)
               : null,
