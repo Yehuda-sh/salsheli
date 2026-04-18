@@ -1874,7 +1874,7 @@ class PantryStrings {
   String get emptySubtitleGroup => 'הוסיפו מוצרים למזווה המשותף כדי לעקוב אחרי מה שיש בבית';
   String get howToStartTitle => 'איך להתחיל?';
   String get howToStartStep1 => 'לחץ על ״הוסף מוצר״ למטה';
-  String get howToStartStep2 => 'חפש מוצר מתוך 9,000+ מוצרים';
+  String get howToStartStep2 => 'חפש מוצר מתוך 30,000+ מוצרים';
   String get howToStartStep3 => 'הגדר כמות — וזהו! 🎯';
   String get howToStartHint => '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות';
   String get starterItemsTitle => 'רוצה להתחיל עם מוצרי יסוד?';
