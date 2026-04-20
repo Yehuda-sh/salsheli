@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Camera permission for barcode scanning -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
     <!-- Contacts permission for inviting group members -->
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
