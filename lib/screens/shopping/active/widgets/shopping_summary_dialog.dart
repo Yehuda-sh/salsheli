@@ -1,3 +1,5 @@
+// lib/screens/shopping/active/widgets/shopping_summary_dialog.dart — Shopping summary dialog — finish shopping confirmation with stats and store picker
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../widgets/common/sticky_button.dart';

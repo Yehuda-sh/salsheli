@@ -1,20 +1,4 @@
-// 📄 File: lib/services/saved_contacts_service.dart
-//
-// 🎯 Purpose: שירות לניהול אנשי קשר שמורים
-//
-// 📋 Features:
-// - שמירת אנשי קשר לאחר הזמנה מוצלחת
-// - טעינת אנשי קשר שמורים
-// - עדכון זמן הזמנה אחרונה
-// - מחיקת איש קשר
-//
-// 🔗 Related:
-// - saved_contact.dart - מודל איש קשר
-// - share_list_service.dart - שירות שיתוף
-// - invite_users_screen.dart - מסך הזמנה
-//
-// Version: 1.0
-// Created: 30/11/2025
+// lib/services/saved_contacts_service.dart — Saved contacts service — persist previously invited contacts for quick re-invite
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

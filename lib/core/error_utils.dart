@@ -1,9 +1,4 @@
-// 📄 lib/core/error_utils.dart
-//
-// 🎯 המרת שגיאות טכניות להודעות ידידותיות למשתמש.
-// ✅ מונע חשיפת מידע טכני פנימי (Firebase errors, stack traces).
-//
-// 🔗 Related: All screens that catch exceptions and show SnackBars
+// lib/core/error_utils.dart — Error formatting — userFriendlyError() converts Firebase/network errors to Hebrew messages
 
 import 'package:flutter/foundation.dart';
 

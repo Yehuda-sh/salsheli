@@ -1,9 +1,4 @@
-// 📄 lib/services/image_upload_service.dart
-//
-// 🎯 שירות העלאת תמונות לפרופיל משתמש
-// מעלה תמונות ל-Firebase Storage ומחזיר download URL.
-//
-// 🔗 Related: UserContext, settings_screen.dart, storage.rules
+// lib/services/image_upload_service.dart — Image upload service — profile photo to Firebase Storage with per-user 24h cooldown
 
 import 'dart:io';
 

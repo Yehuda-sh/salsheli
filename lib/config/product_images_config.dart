@@ -1,16 +1,5 @@
-// 📄 lib/config/product_images_config.dart
-//
-// Purpose: Image URL generation for products using multiple CDN sources
-//
-// Sources (in priority order):
-//   1. Rami Levy CDN: https://img.rami-levy.co.il/product/{barcode}/small.jpg
-//   2. Shufersal Cloudinary: https://res.cloudinary.com/shufersal/image/upload/...
-//   3. Open Food Facts (global free DB): https://images.openfoodfacts.org/...
-//
-// Version: 6.0
-// Last Updated: 10/04/2026
+// lib/config/product_images_config.dart — CDN image URLs — Rami Levy + Shufersal + Open Food Facts, supports 7-13 digit barcodes
 
-/// Product image URL helper with multi-source fallback
 class ProductImagesConfig {
   ProductImagesConfig._();
 

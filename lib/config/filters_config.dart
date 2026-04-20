@@ -1,12 +1,4 @@
-// 📄 lib/config/filters_config.dart
-//
-// 🗄️ Categories API - slim config class using shared validation
-// 
-// ✅ Extracted from 187-line manual data file
-// ✅ Uses ConfigValidation mixin (eliminates future validation debt)
-// ✅ Delegates data to filters_data.dart
-//
-// 🔗 Related: filters_data.dart, my_pantry_screen, base_config.dart
+// lib/config/filters_config.dart — Category API — resolve Hebrew/English category names, get emoji, validate keys
 
 import 'base_config.dart';
 import 'filters_data.dart';

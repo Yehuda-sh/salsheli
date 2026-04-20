@@ -1,17 +1,4 @@
-// 📄 lib/widgets/shopping/shopping_list_tile.dart
-//
-// כרטיס רשימת קניות Premium - פתק ממו יוקרתי עם משוב תחושתי.
-//
-// Features:
-//   - Paper Gradient: גרדיאנט עדין שיוצר עומק של נייר
-//   - Perforation Line: קו פרפורציה לפני כפתור הפעולה
-//   - Glassmorphic Tags: תגים שקופים למחצה
-//   - Staggered Entrance: אנימציית "נחיתה" מדורגת (flutter_animate)
-//   - Haptic Signature: רטט מובחן לכל סוג אינטראקציה
-//   - Organic Progress: פס התקדמות מעוגל עם שינוי צבע
-//   - RepaintBoundary + Gap: אופטימיזציה וריווח סמנטי
-//
-// 🔗 Related: ShoppingList, ShoppingListTags, PerforationPainter
+// lib/widgets/shopping/shopping_list_tile.dart — Shopping list tile — card with progress bar, emoji, status, swipe actions
 
 import 'dart:async' show unawaited;
 

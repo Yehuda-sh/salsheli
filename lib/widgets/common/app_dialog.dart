@@ -1,7 +1,4 @@
-// 📄 File: lib/widgets/common/app_dialog.dart
-//
-// Premium dialog wrapper — blur backdrop + scale/fade transition.
-// All app dialogs should use AppDialog.show() for consistent look.
+// lib/widgets/common/app_dialog.dart — App dialog — themed AlertDialog wrapper with notebook styling
 
 import 'dart:ui' as ui;
 

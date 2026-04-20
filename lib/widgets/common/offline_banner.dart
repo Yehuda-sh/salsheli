@@ -1,7 +1,4 @@
-// 📄 lib/widgets/common/offline_banner.dart
-//
-// 🔌 באנר "אין חיבור לאינטרנט" — מוצג בראש המסך כשאין רשת
-// אנימציית slide-down/up חלקה
+// lib/widgets/common/offline_banner.dart — Offline banner — connectivity status bar shown when device is offline
 
 import 'dart:async';
 

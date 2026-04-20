@@ -1,9 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/last_chance_banner.dart
-//
-// בנר "הזדמנות אחרונה" — תצוגה אופקית מרווחת בזמן קנייה פעילה.
-// מציג המלצות ככרטיס קומפקטי (אמוג'י מוגדל, טקסט ב-2 שורות) + כפתורי פעולה תקניים.
-//
-// Version: 5.1 (16/03/2026) — Compact Card Layout
+// lib/screens/home/dashboard/widgets/last_chance_banner.dart — Last chance banner — restock suggestion during active shopping session
 
 import 'dart:async';
 

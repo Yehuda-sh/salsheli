@@ -1,12 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/suggestions_today_card.dart
-//
-// כרטיס "הצעות מהמזווה" - קרוסלה אופקית בסגנון Sticky Notes.
-// כל כרטיס עם צללים, סיבוב קל, וכפתורי Add/Dismiss.
-// ✨ v4.0: עיצוב כותרת Highlighter, משוב Haptic דינמי (Add vs Dismiss),
-//          אפקט 'הרמה' (Lift) בלחיצה על פתקית, אופטימיזציה עם RepaintBoundary
-//
-// Version: 4.0 (22/02/2026)
-// 🔗 Related: SmartSuggestion, SuggestionsProvider, StickyNote
+// lib/screens/home/dashboard/widgets/suggestions_today_card.dart — Suggestions carousel — sticky-note cards with pantry restock recommendations
 
 import 'dart:async';
 

@@ -1,12 +1,5 @@
-// 📄 lib/l10n/app_strings_he.dart
-//
-// מחרוזות UI — עברית
-// מבנה: AppStringsHe.layout, .common, .auth, .inventory, .shoppingList, וכו'.
-//
-// Version: 4.1 (13/03/2026)
-// 🔗 Related: app_strings.dart (proxy), app_strings_en.dart (English)
+// lib/l10n/app_strings_he.dart — Hebrew strings — base string classes for all UI sections (30+ string groups)
 
-/// מחרוזות UI — עברית
 class AppStringsHe {
   // מניעת instances
   const AppStringsHe._();

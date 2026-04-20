@@ -1,7 +1,4 @@
-// 📄 lib/widgets/common/email_verification_banner.dart
-//
-// באנר קומפקטי לאימות אימייל — מוצג אחרי הברכה במסך הבית.
-// ניתן לסגירה ל-24 שעות.
+// lib/widgets/common/email_verification_banner.dart — Email verification banner — dismissible per-user prompt to verify email
 
 import 'dart:async';
 

@@ -1,12 +1,4 @@
-// 📄 File: lib/screens/shopping/create/template_preview_dialog.dart
-//
-// Purpose: דיאלוג תצוגה מקדימה של פריטי תבנית עם אפשרות לבחירה
-//
-// מאפשר למשתמש לסמן אילו פריטים מהתבנית להכניס לרשימה.
-// כולל "בחר הכל" / "בטל הכל" + כפתור אישור עם מונה פריטים.
-//
-// Version: 1.0
-// Last Updated: 09/04/2026
+// lib/screens/shopping/create/template_preview_dialog.dart — Template preview — review and select items from a template before applying
 
 import 'dart:async';
 

@@ -1,22 +1,4 @@
-// 📄 File: lib/models/enums/request_status.dart
-//
-// 🇮🇱 סטטוסים של בקשות שיתוף/הצטרפות:
-//     - pending: ממתין לאישור (ברירת מחדל לבקשות חדשות)
-//     - approved: אושר (המשתמש נוסף לרשימה/משק בית)
-//     - rejected: נדחה (הבקשה לא אושרה)
-//     - unknown: fallback לערכים לא מוכרים מהשרת
-//
-// 🇬🇧 Sharing/join request statuses:
-//     - pending: Awaiting approval (default for new requests)
-//     - approved: Approved (user added to list/household)
-//     - rejected: Rejected (request not approved)
-//     - unknown: fallback for unknown server values
-//
-// 🔗 Related:
-//     - PendingRequest (models/pending_request.dart)
-//     - PendingRequestsService (services/pending_requests_service.dart)
-//     - PendingRequestsScreen (screens/sharing/pending_requests_screen.dart)
-//
+// lib/models/enums/request_status.dart — Request status enum — pending, approved, rejected, unknown
 
 import 'package:json_annotation/json_annotation.dart';
 

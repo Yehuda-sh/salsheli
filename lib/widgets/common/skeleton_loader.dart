@@ -1,23 +1,4 @@
-// 📄 lib/widgets/common/skeleton_loader.dart
-//
-//
-// 🇮🇱 **Skeleton Widgets לטעינה חזותית** — SkeletonBox, SkeletonCircle,
-//     SkeletonListCard, SkeletonListView.
-//
-// ✨ Features:
-//     - שילוב shimmer package לביצועים גבוהים (replaces manual AnimationController)
-//     - אפקט Shimmer מדורג בזווית 45° (Phased Shimmer)
-//     - אופטימיזציית RepaintBoundary גלובלית — בידוד GPU לכל רכיב
-//     - תמיכה מלאה ב-AppBrand Palette עם withValues(alpha:)
-//     - flutter_animate fadeIn on list appearance
-//     - Gap-based spacing
-//
-// 📅 History:
-//                          45° angle, Gap spacing, StatelessWidget simplification
-//     v3.0              — Manual shimmer with AnimationController, StickyNote cards,
-//                          Dark Mode support, ExcludeSemantics
-//
-// 🔗 Related: StickyNote, ui_constants, DashboardCard
+// lib/widgets/common/skeleton_loader.dart — Skeleton loader — shimmer box/circle/line primitives for loading placeholders
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

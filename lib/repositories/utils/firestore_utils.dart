@@ -1,8 +1,4 @@
-// 📄 File: lib/repositories/utils/firestore_utils.dart
-//
-// 🎯 Purpose: Firestore utility functions
-// - Convert Firestore Timestamps to DateTime
-// - Handle null values safely
+// lib/repositories/utils/firestore_utils.dart — Firestore utils — recursive Timestamp→DateTime conversion, doc/query extensions
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 

@@ -1,11 +1,4 @@
-// 📄 lib/services/push_notification_service.dart
-//
-// שירות Push Notifications — ניהול FCM token ואתחול Firebase Messaging.
-// - שומר token ב-Firestore (users/{uid}/fcm_token)
-// - מאזין לעדכוני token
-// - מבקש הרשאות
-//
-// 🔗 Related: NotificationsService (in-app), Cloud Functions (trigger)
+// lib/services/push_notification_service.dart — Push notification service — FCM token management, initialize/clear on login/logout
 
 import 'dart:async';
 

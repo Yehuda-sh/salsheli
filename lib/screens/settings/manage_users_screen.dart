@@ -1,23 +1,4 @@
-// 📄 File: lib/screens/settings/manage_users_screen.dart
-//
-// 🇮🇱 מסך ניהול משתמשים משותפים:
-//     - רשימת כל המשתמשים ברשימה (Owner + Shared)
-//     - עריכת תפקידים (רק Owner)
-//     - הסרת משתמשים (רק Owner)
-//     - הזמנת משתמשים חדשים (רק Owner)
-//
-// 🔒 הרשאות:
-//     - רק Owner יכול לראות/לערוך מסך זה
-//     - Admin/Editor/Viewer רואים read-only
-//
-// 🎨 UI:
-//     - Sticky Notes Design
-//     - RTL Support
-//     - Empty State
-//     - Loading State
-//
-// Version 2.2 - Design tokens + withValues + NotebookBackground logged-out
-// Last Updated: 24/03/2026
+// lib/screens/settings/manage_users_screen.dart — Manage users — shared list user management: roles, remove, invite
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';

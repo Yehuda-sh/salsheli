@@ -1,6 +1,4 @@
-// 📄 lib/widgets/common/section_header.dart
-//
-// כותרת מדור אחידה — סגנון notebook highlighter.
+// lib/widgets/common/section_header.dart — Section header — reusable header with icon, title, and optional action button
 
 import 'package:flutter/material.dart';
 

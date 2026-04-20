@@ -1,12 +1,4 @@
-// 📄 File: lib/repositories/activity_log_repository.dart
-//
-// Repository לקריאת אירועי פעילות מ-Firestore.
-// כתיבה מתבצעת דרך ActivityLogService (fire-and-forget).
-//
-// Firestore: /households/{householdId}/activity_log/{eventId}
-//
-// Version: 1.0
-// Last Updated: 07/04/2026
+// lib/repositories/activity_log_repository.dart — Activity log repository — Firestore fetch with limit + ordering
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

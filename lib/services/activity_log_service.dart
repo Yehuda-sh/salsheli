@@ -1,14 +1,4 @@
-// 📄 File: lib/services/activity_log_service.dart
-//
-// שירות רישום פעילות — כותב אירועים ל-Firestore.
-// fire-and-forget: לא חוסם UI, לא זורק שגיאות.
-//
-// 🔗 Related:
-//     - ActivityEvent (models/activity_event.dart)
-//     - Firestore: /households/{householdId}/activity_log/{eventId}
-//
-// Version: 1.0
-// Last Updated: 07/04/2026
+// lib/services/activity_log_service.dart — Activity log service — fire-and-forget logging of household events to Firestore
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

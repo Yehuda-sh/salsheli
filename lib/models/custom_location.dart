@@ -1,22 +1,4 @@
-// 📄 File: lib/models/custom_location.dart
-//
-// מודל למיקום אחסון מותאם אישית:
-// - מייצג מיקום שהמשתמש הוסיף בעצמו (מעבר למיקומי ברירת המחדל).
-// - כולל מזהה ייחודי (key), שם בעברית, ואמוג'י.
-// - נתמך ע"י JSON לצורך שמירה מקומית.
-//
-// 📋 Features:
-// - יצירת Key אוטומטית (Smart Factory)
-// - תמיכה בצבעי מותג (AppBrand Integration)
-// - ולידציה קפדנית
-//
-// 🔗 Related:
-// - LocationsProvider (providers/locations_provider.dart)
-// - LocationsRepository (repositories/locations_repository.dart)
-// - StorageLocationManager (widgets/inventory/storage_location_manager.dart)
-//
-// 📝 Version: 4.0
-// 📅 Updated: 22/02/2026
+// lib/models/custom_location.dart — Custom location model — user-defined pantry storage locations
 
 import 'dart:ui';
 

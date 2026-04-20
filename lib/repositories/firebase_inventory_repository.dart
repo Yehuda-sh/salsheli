@@ -1,31 +1,4 @@
-// 📄 File: lib/repositories/firebase_inventory_repository.dart
-//
-// 🎯 מטרה: Repository למלאי עם Firestore
-//
-// 📋 כולל:
-//     - שמירת פריטי מלאי ב-Firestore
-//     - טעינת מלאי לפי householdId (⚠️ חובה!)
-//     - עדכון פריטים
-//     - מחיקת פריטים
-//     - Real-time updates (watchInventory)
-//     - Queries מתקדמים (לפי מיקום, קטגוריה, כמות נמוכה)
-//
-// 🏗️ Database Structure:
-//     - /households/{householdId}/inventory/{itemId}  ← legacy
-//     - /users/{userId}/inventory/{itemId}            ← מזווה אישי
-//
-// 🔒 Security:
-//     - גישה רק לחברי משק הבית (דרך Firestore Rules)
-//     - שימוש בקבועים מ-FirestoreCollections/Fields
-//
-// 📝 הערות:
-//     - משתמש ב-FirestoreUtils לטיפול ב-timestamps
-//     - כל הפונקציות זורקות InventoryRepositoryException בשגיאה
-//     - Error handling מלא + logging
-//
-// Version: 4.3
-// Last Updated: 22/02/2026
-// Changes: שימוש ב-doc.toDartMap() extension, DRY עם _mapSnapshotToItems
+// lib/repositories/firebase_inventory_repository.dart — Firebase inventory repo — CRUD + real-time streams for household/personal pantry
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

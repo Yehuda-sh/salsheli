@@ -1,40 +1,5 @@
-// 📄 File: lib/repositories/products_repository.dart
-//
-// 🎯 Purpose: Interface למוצרים - מגדיר את החוזה לכל מימושי Products Repository
-//
-// 📋 Features:
-//     - תיעוד מקיף ל-Intellisense
-//     - תמיכה בחיפוש Reactive (Streams)
-//     - Pagination support (limit/offset)
-//     - Fallback אוטומטי לסופרמרקט עבור סוגי רשימות לא נתמכים
-//
-// 📋 Implementations:
-//     - HybridProductsRepository - מימוש הייצור (Local + Firebase)
-//     - LocalProductsRepository - JSON assets
-//     - FirebaseProductsRepository - Firestore fallback
-//
-// 🔗 Related:
-//     - lib/repositories/hybrid_products_repository.dart - המימוש המשולב
-//     - lib/repositories/local_products_repository.dart - JSON storage
-//     - lib/repositories/firebase_products_repository.dart - Firestore fallback
-//     - lib/providers/products_provider.dart - Provider שמשתמש ב-repository
-//
-// 📜 History:
-//     - v1.0 (09/10/2025): Interface ראשוני
-//     - v2.0 (09/10/2025): הוספת docstrings + getProductsByListType
-//     - v3.0 (22/02/2026): ארגון לפי קטגוריות, searchProductsStream, תיעוד מלא
-//
-// Version: 3.0
-// Last Updated: 22/02/2026
+// lib/repositories/products_repository.dart — Products repository interface — abstract search, barcode lookup, categories
 
-/// Interface למוצרים - מגדיר methods חובה לכל Repository
-///
-/// כל מקור נתונים (Local JSON, Firebase, Hybrid) חייב לממש את הממשק הזה.
-///
-/// המתודות מחולקות לשלושה עולמות:
-/// - **Fetch** - טעינת מוצרים (לפי סוג, קטגוריה, ברקוד)
-/// - **Search** - חיפוש טקסט חופשי (Future + Stream)
-/// - **Management** - רענון וקטגוריות
 abstract class ProductsRepository {
   // ========================================
   // Fetch - טעינת מוצרים

@@ -1,27 +1,4 @@
-// 📄 File: lib/services/share_list_service.dart
-//
-// 🇮🇱 שירות שיתוף רשימות:
-//     - ניהול משתמשים משותפים (הזמנה, הסרה, עדכון תפקיד)
-//     - אכיפת הרשאות (רק Owner יכול לנהל)
-//     - סנכרון עם Firebase
-//     - תמיכה ב-4 רמות הרשאה (Owner, Admin, Editor, Viewer)
-//
-// 🔒 אבטחה:
-//     - רק Owner יכול להזמין/להסיר/לשנות תפקידים
-//     - Owner לא ניתן להסרה
-//     - בדיקת הרשאות לפני כל פעולה
-//
-// 🔁 תהליך עבודה:
-//     1. inviteUser() - הזמנת משתמש חדש עם תפקיד
-//     2. removeUser() - הסרת משתמש מהרשימה
-//     3. updateUserRole() - שינוי תפקיד משתמש
-//     4. getUsersForList() - קבלת כל המשתמשים ברשימה
-//
-// 🇬🇧 Share list service:
-//     - Manage shared users (invite, remove, update role)
-//     - Enforce permissions (only Owner can manage)
-//     - Sync with Firebase
-//     - Support 4 permission levels (Owner, Admin, Editor, Viewer)
+// lib/services/share_list_service.dart — Share list service — add/remove/update shared users, role management, permissions
 
 import 'dart:async';
 

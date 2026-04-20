@@ -1,22 +1,4 @@
-// 📄 File: lib/screens/shopping/create/contact_selector_dialog.dart
-//
-// 🎯 Purpose: דיאלוג לבחירת אנשי קשר לשיתוף רשימה
-//
-// 📋 Features:
-// - טעינת אנשי קשר שמורים (SavedContacts)
-// - חיפוש לפי שם/אימייל
-// - בחירת תפקיד (Admin/Editor/Viewer) לכל איש קשר
-// - הוספת אימייל/טלפון חדש (משתמש לא רשום)
-// - RadioGroup (Flutter 3.33+) לבחירת סוג קלט
-//
-// 🔗 Related:
-// - create_list_screen.dart - מסך יצירת רשימה
-// - selected_contact.dart - מודל איש קשר נבחר
-// - saved_contacts_service.dart - שירות אנשי קשר שמורים
-//
-// Version: 1.1 — deprecated_member_use suppressed (RadioGroup needs Flutter 3.33+)
-// Created: 06/01/2026
-// Last Updated: 24/03/2026
+// lib/screens/shopping/create/contact_selector_dialog.dart — Contact selector — pick contacts to share a new list with
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

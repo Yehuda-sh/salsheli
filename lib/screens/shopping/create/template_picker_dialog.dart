@@ -1,9 +1,4 @@
-// 📄 File: lib/screens/shopping/create/template_picker_dialog.dart
-//
-// Purpose: דיאלוג לבחירת תבנית רשימה מוכנה
-//
-// Version: 1.0
-// Last Updated: 26/11/2025
+// lib/screens/shopping/create/template_picker_dialog.dart — Template picker — browse and select shopping list templates by category
 
 import 'dart:async';
 

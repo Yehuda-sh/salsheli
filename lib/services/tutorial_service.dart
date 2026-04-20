@@ -1,14 +1,4 @@
-// 📄 File: lib/services/tutorial_service.dart
-// 🎯 Purpose: שירות הדרכה אינטראקטיבית למשתמשים חדשים
-//
-// 📋 Features:
-// - הדרכה פשוטה עם Dialog slides
-// - שמירת מצב ב-Firestore (נשמר עם המשתמש)
-// - RTL support מלא
-// - אנימציות חלקות
-//
-// Version: 2.0 - Firestore persistence
-// Updated: 01/01/2026
+// lib/services/tutorial_service.dart — Tutorial service — onboarding overlay with step-by-step highlights
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

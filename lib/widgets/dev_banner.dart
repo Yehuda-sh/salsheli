@@ -1,16 +1,4 @@
-// 📄 lib/widgets/dev_banner.dart
-//
-// באנר DEV - מוצג רק במצב פיתוח. CustomPainter ribbon עם glass gradient,
-// flutter_animate pulse + shimmer, ו-RepaintBoundary לאיזול אנימציה.
-//
-// עיצוב:
-//   - _RibbonPainter: shadow רך + gradient fill + white glass highlight
-//   - שקיפות ב-withValues(alpha:) לכל הגדרות הצבע
-//   - אנימציה: fade pulse (0.78↔1.0, 2.4s) + shimmer בזווית הריבון
-//   - RepaintBoundary: מונע re-render של עץ הווידג'טים בכל פריים
-//   - IgnorePointer: לא חוסם לחיצות על אלמנטים מתחתיו
-//
-// 🔗 Related: AppConfig, main.dart
+// lib/widgets/dev_banner.dart — Dev banner — DEV ribbon in top-right corner with glassmorphic animation (debug only)
 
 import 'dart:math' as math;
 

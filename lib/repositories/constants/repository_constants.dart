@@ -1,26 +1,5 @@
-// 📄 File: lib/repositories/constants/repository_constants.dart
-//
-// 🎯 Purpose: Firestore collection names and field names
-// - Centralized constants for Firestore operations
-// - Easier to maintain and refactor
-//
-// 🏗️ Database Structure:
-//   /users/{userId}/
-//     ├── private_lists/{listId}      ← רשימות פרטיות
-//     ├── inventory/{itemId}          ← מזווה אישי
-//     ├── notifications/{notifId}
-//     ├── pending_invites/{inviteId}
-//     └── saved_contacts/{contactId}
-//
-//   /households/{householdId}/         ← משק בית (נוצר אוטומטית)
-//     ├── info
-//     ├── members/{memberId}
-//     ├── inventory/{itemId}          ← מזווה משק בית
-//     ├── receipts/{receiptId}
-//     ├── shared_lists/{listId}       ← רשימות משותפות
-//     ├── invites/{inviteId}
-//     └── join_requests/{requestId}
-//
+// lib/repositories/constants/repository_constants.dart — Repository constants — Firestore collection/field name strings
+
 class FirestoreCollections {
   // === Top-level collections ===
   static const String users = 'users';

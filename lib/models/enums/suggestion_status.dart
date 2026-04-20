@@ -1,23 +1,4 @@
-// 📄 File: lib/models/enums/suggestion_status.dart
-//
-// 🇮🇱 סטטוס המלצה חכמה:
-//     - pending: ממתין להחלטת משתמש
-//     - added: נוסף לרשימת קניות
-//     - dismissed: נדחה זמנית (יוצג שוב בהמשך)
-//     - deleted: נמחק (לא להציע יותר)
-//     - unknown: fallback לערכים לא מוכרים מהשרת
-//
-// 🇬🇧 Smart suggestion status:
-//     - pending: Waiting for user decision
-//     - added: Added to shopping list
-//     - dismissed: Temporarily dismissed (will show again later)
-//     - deleted: Deleted (don't suggest anymore)
-//     - unknown: fallback for unknown server values
-//
-// 🔗 Related:
-//     - SmartSuggestion (models/smart_suggestion.dart)
-//     - SuggestionsService (services/suggestions_service.dart)
-//
+// lib/models/enums/suggestion_status.dart — Suggestion status enum — pending, added, dismissed, skipped, unknown
 
 import 'package:json_annotation/json_annotation.dart';
 

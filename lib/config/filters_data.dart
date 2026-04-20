@@ -1,12 +1,4 @@
-// 📄 lib/config/filters_data.dart
-//
-// 🗄️ Categories data only - extracted from filters_config.dart
-//
-// ✅ Single responsibility: category data and mappings
-// ✅ Lazy labels: CategoryInfo.label resolved via callback → locale-safe
-// ❌ No API methods here - see filters_config.dart
-//
-// 🔗 Related: filters_config.dart, my_pantry_screen
+// lib/config/filters_data.dart — Category data — 35 categories with emoji + 220 Hebrew→English synonym mappings
 
 import '../l10n/app_strings.dart';
 

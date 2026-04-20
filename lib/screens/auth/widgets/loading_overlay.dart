@@ -1,9 +1,4 @@
-// 📄 lib/screens/auth/widgets/loading_overlay.dart
-//
-// 🎯 Animated loading overlay for auth screens
-//    Cycles through progress messages with AnimatedSwitcher
-//
-// 🔗 Related: login_screen.dart, register_screen.dart
+// lib/screens/auth/widgets/loading_overlay.dart — Loading overlay — full-screen translucent overlay with spinner during auth
 
 import 'dart:async';
 import 'package:flutter/material.dart';

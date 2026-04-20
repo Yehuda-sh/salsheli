@@ -1,20 +1,4 @@
-// 📄 File: lib/models/saved_contact.dart
-//
-// 🎯 Purpose: מודל לאיש קשר שמור לשיתוף רשימות
-//
-// 📋 Features:
-// - שמירת פרטי משתמשים שהוזמנו בעבר
-// - גישה מהירה להזמנה חוזרת
-// - תמיכה ב-JSON serialization (Timestamp ל-Firestore)
-// - תאימות לאחור (camelCase + snake_case)
-//
-// 🔗 Related:
-// - shared_user.dart - משתמש משותף ברשימה
-// - share_list_service.dart - שירות שיתוף
-// - timestamp_converter.dart - Converters מרכזיים
-//
-// Version: 1.2 - Backward compat, nullable lastInvitedAt, emoji-safe initials
-// Last Updated: 13/01/2026
+// lib/models/saved_contact.dart — Saved contact model — previously invited contacts for quick re-invite
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

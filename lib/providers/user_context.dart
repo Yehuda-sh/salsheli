@@ -1,9 +1,4 @@
-// 📄 lib/providers/user_context.dart
-//
-// Provider לניהול הקשר המשתמש - פרופיל, אימות, והעדפות UI.
-// מאזין ל-Firebase Auth ומספק Single Source of Truth למצב משתמש.
-//
-// 🔗 Related: UserEntity, UserRepository, AuthService
+// lib/providers/user_context.dart — User context — auth state, user profile, household info, login/logout/social auth
 
 import 'dart:async';
 import 'package:flutter/material.dart';

@@ -1,23 +1,4 @@
-// 📄 File: lib/repositories/firebase_receipt_repository.dart
-//
-// 🎯 Purpose: Repository לקבלות עם Firestore
-//
-// 📋 Features:
-//     - CRUD operations לקבלות (שמירה, טעינה, עדכון, מחיקה)
-//     - Real-time updates (watchReceipts)
-//     - שימוש ב-FirestoreUtils להמרה בטוחה ורקורסיבית
-//     - ריכוז לוגיקת מיפוי (DRY) ב-_mapSnapshotToReceipts
-//
-// 🏗️ Database Structure:
-//     - /households/{householdId}/receipts/{receiptId}
-//
-// 📦 Dependencies:
-//     - cloud_firestore
-//     - Receipt model
-//     - FirestoreUtils להמרת Timestamps רקורסיבית
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/repositories/firebase_receipt_repository.dart — Firebase receipt repo — receipts CRUD + duplicate URL check + real-time stream
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

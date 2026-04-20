@@ -1,10 +1,4 @@
-// 📄 File: lib/screens/shopping/lists/shopping_lists_screen.dart
-//
-// מסך רשימות קניות - עיצוב נקי עם תפריט שלוש נקודות.
-// סינון/חיפוש/מיון נגישים דרך התפריט, לא תופסים מקום קבוע.
-//
-// Version: 6.0 - Clean UI with menu
-// Updated: 01/01/2026
+// lib/screens/shopping/lists/shopping_lists_screen.dart — Shopping lists — all lists with search, filter, swipe-to-delete, create FAB
 
 import 'dart:async';
 

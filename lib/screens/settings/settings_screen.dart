@@ -1,38 +1,4 @@
-// 📄 File: lib/screens/settings/settings_screen.dart
-//
-// 🎯 תיאור: מסך הגדרות ופרופיל משולב - ניהול פרופיל אישי, הגדרות קבוצה, והעדפות
-//
-// 🔧 תכונות:
-// ✅ פרופיל אישי מחובר ל-UserContext (שם, אימייל, תמונה)
-// ✅ הגדרות התראות עם שמירה ב-SharedPreferences
-// ✅ ערכת נושא (בהיר/כהה/מערכת)
-// ✅ קישורים מהירים למסכים נוספים
-// ✅ התנתקות בטוחה
-// ✅ Logging מפורט
-// ✅ Visual Feedback
-// ✅ i18n ready (AppStrings)
-// ✅ 🎬 Modern UI/UX: Animations + Skeleton + AnimatedCounter ⭐
-// ✅ ♿ Accessibility מלא
-//
-// 🎬 Animations (v3.0):
-// - AnimatedCounter על סטטיסטיקות (0 → value)
-// - TappableCard על כרטיסי סטטיסטיקות (scale + haptic)
-// - Skeleton Screen ל-Loading State
-//
-// 🔗 תלויות:
-// - UserContext (Provider)
-// - AuthService (Provider)
-// - SharedPreferences (שמירת הגדרות מקומית)
-// - TutorialService
-//
-// 📊 Flow:
-// 1. טעינת הגדרות התראות מ-SharedPreferences
-// 2. הצגת פרופיל + הגדרות
-// 3. עריכת הגדרות → שמירה אוטומטית
-// 4. התנתקות → ניקוי + חזרה ל-login
-//
-// Version: 3.6 - Fix use_build_context_synchronously warnings
-// Last Updated: 24/03/2026
+// lib/screens/settings/settings_screen.dart — Settings screen — profile edit, household name, notifications, theme, account deletion
 
 import 'dart:async';
 import 'dart:io';

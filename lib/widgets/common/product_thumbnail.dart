@@ -1,15 +1,4 @@
-// 📄 lib/widgets/common/product_thumbnail.dart
-//
-// 🎯 Shared product thumbnail widget with multi-source CDN image + emoji fallback
-//    Uses CachedNetworkImage for disk caching (offline support)
-//    Fallback chain: Rami Levy → Shufersal → category emoji
-//
-// 🔗 Used by: my_pantry_screen, shopping_list_details_screen,
-//    active_shopping_item_tile, checklist_screen, who_brings_screen,
-//    suggestions_today_card
-//
-// Version: 2.0
-// Last Updated: 10/04/2026
+// lib/widgets/common/product_thumbnail.dart — Product thumbnail — CDN image with emoji fallback, keyword matching, non-food gate
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';

@@ -1,21 +1,4 @@
-// 📄 lib/widgets/shopping/product_selection_bottom_sheet.dart
-//
-// Bottom Sheet לבחירת מוצרים מהקטלוג - חיפוש, פילטרים והוספה לרשימה.
-//
-// Features:
-//   - Grid/List toggle with SharedPreferences persistence
-//   - Recently Added products section (last 10, SharedPreferences)
-//   - Category section headers with emoji
-//   - Product images from Open Food Facts (with emoji fallback)
-//   - Price display in both views
-//   - Frosted Search Bar: BackdropFilter sigma:10, dark-mode aware surfaceContainerHighest
-//   - Staggered Product List: flutter_animate per-row, RepaintBoundary isolation
-//   - Glassmorphic Feedback Banner: ValueNotifier (לא setState), BackdropFilter
-//   - AnimatedButton quantity controls: ButtonHaptic.selection + AnimatedSwitcher pulse
-//   - mediumImpact haptic על הצגת feedback
-//   - Gap semantic spacing
-//
-// 🔗 Related: ProductsProvider, ShoppingListsProvider, ShoppingList
+// lib/widgets/shopping/product_selection_bottom_sheet.dart — Product selection sheet — search catalog and add products to shopping list
 
 import 'dart:async';
 import 'dart:ui' as ui;

@@ -1,20 +1,4 @@
-// 📄 File: lib/models/selected_contact.dart
-//
-// 🎯 Purpose: מודל לאיש קשר שנבחר לשיתוף רשימה
-//
-// 📋 Features:
-// - תפקיד לכל איש קשר (Admin/Editor/Viewer)
-// - תמיכה במשתמשים רשומים ולא רשומים (pending)
-// - נרמול email/phone למניעת כפילויות
-// - identityKey אחיד לזיהוי ייחודי
-//
-// 🔗 Related:
-// - saved_contact.dart - איש קשר שמור
-// - shared_user.dart - משתמש משותף ברשימה
-// - create_list_screen.dart - מסך יצירת רשימה
-//
-// Version: 1.1 - Added normalization, identityKey, emoji-safe initials
-// Last Updated: 13/01/2026
+// lib/models/selected_contact.dart — Selected contact — transient model for contact picker (name, email, phone)
 
 import 'package:flutter/foundation.dart' show immutable;
 

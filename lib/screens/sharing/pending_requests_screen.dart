@@ -1,18 +1,4 @@
-// 📄 File: lib/screens/sharing/pending_requests_screen.dart
-//
-// 🎯 מטרה: מסך אישור/דחיית בקשות מ-Editors (Phase 3B)
-//
-// 🔐 הרשאות: רק Owner/Admin רואים מסך זה
-//
-// 📝 תהליך:
-// 1. Editor הוסיף מוצר → בקשה נוצרה (RequestStatus.pending)
-// 2. Owner/Admin פותח מסך זה → רואה רשימת בקשות
-// 3. Owner/Admin לוחץ ✅ → approveRequest() → מוצר מתווסף לרשימה
-// 4. Owner/Admin לוחץ ❌ → rejectRequest() → בקשה נמחקת
-// 5. Badge: getPendingRequestsCount() מציג כמה בקשות ממתינות
-//
-// Version: 1.1 - Emoji icons → Material Icons
-// Last Updated: 24/03/2026
+// lib/screens/sharing/pending_requests_screen.dart — Pending requests — admin approval screen for editor add/edit/delete requests
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

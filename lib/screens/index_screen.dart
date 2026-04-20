@@ -1,9 +1,4 @@
-// 📄 lib/screens/index_screen.dart
-//
-// מסך פתיחה (Splash) - בודק מצב משתמש ומנווט למסך המתאים.
-// Flow: מחובר→/home, לא ראה welcome→WelcomeScreen, אחרת→/login.
-//
-// 🔗 Related: index_view, UserContext, WelcomeScreen, SharedPreferences
+// lib/screens/index_screen.dart — Index screen — auth routing: logged in→home, seen onboarding→login, else→welcome
 
 import 'dart:async';
 

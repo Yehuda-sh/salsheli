@@ -1,21 +1,4 @@
-// 📄 File: lib/models/timestamp_converter.dart
-//
-// 🇮🇱 ממירים מרכזיים ל-JSON:
-//     - DateTime ↔️ Timestamp/String/int
-//     - double גמיש (num/string עם פסיק)
-//
-// 🇬🇧 Central JSON converters:
-//     - DateTime ↔️ Timestamp/String/int
-//     - Flexible double (num/string with comma)
-//
-// 🔧 Supports: Timestamp, String, int (epoch), DateTime, num with comma
-//
-// 📋 Converter Types:
-//     - Strict (Timestamp/NullableTimestamp): זורק על טיפוס לא תקין
-//     - Lenient (Flexible...): מחזיר fallback + אזהרה בדיבאג
-//
-// Version: 1.3 - FlexibleDateTimeConverter fallback: DateTime.now() → epoch sentinel
-// Last Updated: 24/03/2026
+// lib/models/timestamp_converter.dart — Timestamp converter — FlexibleDateTimeConverter handles Firestore Timestamp + ISO strings
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

@@ -1,35 +1,4 @@
-// 📄 File: lib/screens/pantry/my_pantry_screen.dart
-//
-// 🎯 מטרה: מסך ניהול מזווה - ניהול פריטי מלאי לפי מיקומים
-//
-// 📋 כולל:
-// - תצוגת פריטים לפי מיקומי אחסון
-// - חיפוש וסינון (Frosted Glass design)
-// - CRUD מלא: הוספה, עריכה, מחיקה, עדכון כמות
-// - עיצוב "Clean Notebook" - תואם ל-ShoppingListDetailsScreen
-// - ללא AppBar - כותרת inline עם SafeArea
-//
-// ✨ Features:
-// - שילוב Collaborative Avatars ב-Header
-// - מערכת חיווי חזותי מבוססת LimitStatus
-// - משוב Haptic דינמי לניהול כמויות
-// - אנימציות Pulse לפריטים קריטיים
-//
-// ✅ תיקונים:
-//    - _isProcessing flag למניעת double-tap
-//    - Debounce לחיפוש (300ms)
-//    - Dark Mode - צבעים מה-Theme
-//    - Semantics לנגישות
-//    - Error state עם Retry
-//
-// 🔗 Dependencies:
-// - InventoryProvider: ניהול state
-// - StorageLocationsConfig: תצורת מיקומים
-// - LocationsProvider: מיקומים מותאמים
-// - UserContext: אווטארים שיתופיים
-//
-// Version: 6.1 - Design tokens compliance (hardcoded sizes → constants)
-// Last Updated: 24/03/2026
+// lib/screens/pantry/my_pantry_screen.dart — Pantry screen — inventory management with location grouping, search, barcode scan
 
 import 'dart:async';
 import 'dart:ui' as ui;

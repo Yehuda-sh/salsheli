@@ -1,37 +1,4 @@
-// 📄 File: lib/repositories/firebase_products_repository.dart
-//
-// 🎯 Purpose: Repository למוצרים מ-Firebase Firestore
-//
-// 📋 Features:
-//     - טעינה מהירה מ-Firestore עם cache חכם (configurable, ברירת מחדל: 1 שעה)
-//     - חיפוש מוצרים לפי שם, ברקוד, קטגוריה
-//     - Pagination עם limit/offset
-//     - שימוש ב-FirestoreUtils להמרת נתונים בטוחה ורקורסיבית
-//
-// 💾 מצב נוכחי:
-//     ⚠️ לא בשימוש כרגע! הפרויקט משתמש ב-LocalProductsRepository.
-//     לשימוש ב-Firebase:
-//     1. העלה מוצרים ל-Firestore (upload script required)
-//     2. עדכן main.dart להשתמש ב-FirebaseProductsRepository
-//     3. ודא ש-firebase_options.dart מוגדר נכון
-//
-// 💡 רעיונות עתידיים:
-//     - עדכונים בזמן אמת (snapshots)
-//     - סנכרון מחירים אוטומטי מה-API
-//     - Offline persistence
-//     - סטטיסטיקות: מוצרים פופולריים, חיפושים נפוצים
-//
-// 📦 Dependencies:
-//     - cloud_firestore
-//     - ProductsRepository (interface)
-//     - FirestoreUtils להמרה בטוחה ורקורסיבית של נתונים
-//
-// 🔗 Related:
-//     - ProductsRepository (interface)
-//     - LocalProductsRepository (current implementation)
-//
-// Version: 2.0
-// Last Updated: 22/02/2026
+// lib/repositories/firebase_products_repository.dart — Firebase products repo — product search, barcode lookup (server-side catalog)
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 

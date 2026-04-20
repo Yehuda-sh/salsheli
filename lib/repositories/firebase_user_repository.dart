@@ -1,26 +1,4 @@
-// 📄 File: lib/repositories/firebase_user_repository.dart
-//
-// 🎯 Purpose: Repository למשתמשים עם Firestore
-//
-// 📋 Features:
-//     - CRUD operations למשתמשים (יצירה, טעינה, עדכון, מחיקה)
-//     - חיפוש לפי אימייל/טלפון
-//     - Real-time updates (watchUser stream)
-//     - יצירת משתמש עם נתוני Onboarding
-//     - שימוש ב-FirestoreUtils להמרת נתונים בטוחה
-//     - ניהול עקבי של Timestamps רקורסיביים
-//
-// 📦 Dependencies:
-//     - cloud_firestore
-//     - UserEntity model
-//     - FirestoreUtils להמרת Timestamps רקורסיבית
-//
-// 🔗 Related:
-//     - user_repository.dart - הממשק שממומש כאן
-//     - user_context.dart - Provider שמשתמש בקלאס הזה
-//
-// Version: 3.0
-// Last Updated: 22/02/2026
+// lib/repositories/firebase_user_repository.dart — Firebase user repo — user CRUD, find by email/phone, profile updates
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

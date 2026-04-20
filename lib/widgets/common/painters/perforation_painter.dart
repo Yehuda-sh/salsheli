@@ -1,9 +1,4 @@
-// 📄 lib/widgets/common/painters/perforation_painter.dart
-//
-// CustomPainter שמצייר קו פרפורציה (מקווקו) אופקי.
-// נותן תחושה של "חלק שניתן לתלישה" בכרטיסי פתקים.
-//
-// 🔗 Related: NotebookBackground, ShoppingListTile
+// lib/widgets/common/painters/perforation_painter.dart — Perforation painter — dotted tear-line effect for receipt/sticky note edges
 
 import 'package:flutter/material.dart';
 

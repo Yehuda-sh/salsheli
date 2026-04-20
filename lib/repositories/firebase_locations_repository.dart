@@ -1,30 +1,4 @@
-// 📄 File: lib/repositories/firebase_locations_repository.dart
-//
-// 🎯 Purpose: מימוש Firebase למאגר מיקומי אחסון מותאמים
-//
-// 🏗️ Architecture: Repository Pattern Implementation
-//     - מממש את LocationsRepository interface
-//     - מתקשר עם Firestore collection: custom_locations
-//     - מסנן לפי household_id
-//
-// 🔥 Firestore Structure:
-//     custom_locations/{id}
-//       ├─ key: String (unique per household)
-//       ├─ name: String
-//       ├─ emoji: String
-//       ├─ household_id: String
-//       └─ created_at: Timestamp
-//
-// 🔐 Security: כל הפעולות מסננות לפי household_id
-//
-// 📦 Dependencies:
-//     - cloud_firestore
-//     - CustomLocation model
-//     - FirestoreUtils להמרה בטוחה ורקורסיבית של נתונים
-//
-// Version: 2.0
-// Last Updated: 22/02/2026
-// Created: 13/10/2025
+// lib/repositories/firebase_locations_repository.dart — Firebase locations repo — custom pantry locations CRUD + real-time stream
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

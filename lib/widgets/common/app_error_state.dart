@@ -1,8 +1,4 @@
-// 📄 lib/widgets/common/app_error_state.dart
-//
-// 🎯 Error state אחיד לכל המסכים
-// ✅ Icon + title (optional) + message + action button
-// ✅ Consistent styling — single source of truth
+// lib/widgets/common/app_error_state.dart — Error state — full-screen error with icon, message, retry button
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';

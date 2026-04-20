@@ -1,31 +1,4 @@
-// 📄 File: lib/repositories/firebase_shopping_lists_repository.dart
-//
-// 🎯 Purpose: Repository לרשימות קניות עם Firestore
-//
-// 📋 Features:
-//     - תמיכה ב-2 קולקציות: private_lists + shared_lists
-//     - טעינה ממוזגת של רשימות פרטיות ומשותפות
-//     - שמירה לפי isPrivate (פרטי/משותף)
-//     - העברת רשימה מפרטית למשותפת (atomic batch)
-//     - Sharing & Permissions (roles, ownership transfer)
-//     - Pending Requests (approve/reject with transactions)
-//     - Real-time updates (merged streams via RxDart)
-//     - שימוש ב-FirestoreUtils להמרה בטוחה ורקורסיבית
-//     - ריכוז לוגיקת מיפוי (DRY) עם _mapSnapshotToShoppingLists
-//     - שיפור בטיחות ב-Atomic Operations
-//
-// 🏗️ Database Structure:
-//     - /users/{userId}/private_lists/{listId} - רשימות פרטיות
-//     - /households/{householdId}/shared_lists/{listId} - רשימות משותפות
-//
-// 📦 Dependencies:
-//     - cloud_firestore
-//     - rxdart (for merged streams)
-//     - ShoppingList model
-//     - FirestoreUtils להמרת Timestamps רקורסיבית
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/repositories/firebase_shopping_lists_repository.dart — Firebase shopping lists repo — private + shared lists, real-time streams, migration
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

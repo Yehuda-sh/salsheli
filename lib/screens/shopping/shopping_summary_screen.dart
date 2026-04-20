@@ -1,8 +1,4 @@
-// 📄 lib/screens/shopping/shopping_summary_screen.dart
-//
-// מסך סיכום קנייה — מוצג לאחר סיום רשימת קניות.
-// Version: 6.0 — Receipt-style redesign with torn paper edges
-// Last Updated: 22/03/2026
+// lib/screens/shopping/shopping_summary_screen.dart — Shopping summary — post-shopping receipt view with item breakdown and stats
 
 import 'dart:async';
 

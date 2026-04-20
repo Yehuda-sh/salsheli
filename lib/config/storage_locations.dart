@@ -1,11 +1,4 @@
-// 📄 lib/config/storage_locations.dart
-//
-// 🗄️ Storage locations data only - extracted from oversized config file
-// 
-// ✅ Single responsibility: location data and info classes
-// ❌ No API methods here - see storage_locations_config.dart
-//
-// 🔗 Related: storage_locations_config.dart, InventoryItem
+// lib/config/storage_locations.dart — Storage location keys — fridge, freezer, pantry, kitchen, bathroom constants
 
 import 'package:flutter/material.dart';
 import '../l10n/app_strings.dart';

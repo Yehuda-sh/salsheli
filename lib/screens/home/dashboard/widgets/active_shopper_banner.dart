@@ -1,16 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/active_shopper_banner.dart
-//
-// באנר קניות פעילות - מוצג ב-2 מקרים:
-// 1. המשתמש הנוכחי יש לו קנייה פעילה → "להמשיך קנייה?"
-// 2. מישהו אחר קונה מרשימה משותפת → "קניות מתבצעות!"
-//
-// ✅ Features:
-//    - אנימציית כניסה לבאנר (flutter_animate)
-//    - מעבר חלק בין מצבי באנר (AnimatedSwitcher)
-//    - קוד נקי עם אנימציות חכמות ללא Boilerplate
-//
-// Version: 3.2 (22/02/2026)
-// 🔗 Related: ShoppingList, ActiveShopper
+// lib/screens/home/dashboard/widgets/active_shopper_banner.dart — Active shopper banner — green bar showing current shopping session with continue button
 
 import 'dart:async';
 

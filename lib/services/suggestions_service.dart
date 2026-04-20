@@ -1,34 +1,4 @@
-// 📄 File: lib/services/suggestions_service.dart
-//
-// 🎯 מטרה: שירות המלצות חכמות לקניות על בסיס מלאי המזווה
-//
-// 📋 Features:
-// - ניתוח מלאי ויצירת המלצות אוטומטיות
-// - תמיכה בדחייה זמנית (יום/שבוע/חודש/לעולם)
-// - ניהול תור המלצות (queue) לפי דחיפות
-// - מעקב סטטוס (pending/added/dismissed/deleted)
-// - סטטיסטיקות ודוחות על המלצות
-//
-// 🔁 Flow:
-// 1. generateSuggestions() - סורק מזווה, מוצא מוצרים שאוזלים
-// 2. getNextSuggestion() - מביא המלצה הבאה (הדחופה ביותר)
-// 3. dismissSuggestion() - דוחה זמנית (ברירת מחדל: שבוע)
-// 4. deleteSuggestion() - מוחק (יום/שבוע/חודש/לעולם)
-// 5. markAsAdded() - מסמן שנוסף לרשימה
-//
-// 📊 Urgency Algorithm:
-// - אזל לגמרי (0) → critical (אדום)
-// - < 20% מהסף → high (כתום)
-// - < 50% מהסף → medium (צהוב)
-// - אחרת → low (ירוק)
-//
-// 🔗 Related:
-// - SmartSuggestion (models/smart_suggestion.dart)
-// - InventoryItem (models/inventory_item.dart)
-// - SuggestionStatus (models/enums/suggestion_status.dart)
-//
-// Version: 1.0
-// Last Updated: 13/01/2026
+// lib/services/suggestions_service.dart — Suggestions service — generate restock suggestions from low-stock inventory items
 
 import 'package:uuid/uuid.dart';
 

@@ -1,24 +1,4 @@
-// 📄 File: lib/models/smart_suggestion.dart
-//
-// 🇮🇱 המלצה חכמה מתקדמת:
-//     - מבוססת על ניתוח מלאי במזווה
-//     - תומכת בדחייה זמנית (יום/שבוע/חודש/לעולם)
-//     - מעקב אחרי סטטוס (ממתין/נוסף/נדחה/נמחק)
-//     - מציגה מלאי נוכחי מול סף מינימום
-//
-// 💡 תרחיש שימוש:
-//     1. המערכת בודקת: חלב במזווה = 2, סף = 5
-//     2. יוצרת המלצה: "חלב - נשארו רק 2 יחידות"
-//     3. משתמש בוחר:
-//        - הוסף → מתווסף לרשימה הבאה
-//        - דחה → לא יציע השבוע (dismissedUntil = +7 days)
-//        - מחק → לא יציע יותר (status = deleted)
-//
-// 🇬🇧 Advanced smart suggestion:
-//     - Based on pantry inventory analysis
-//     - Supports temporary dismissal (day/week/month/forever)
-//     - Tracks status (pending/added/dismissed/deleted)
-//     - Shows current stock vs minimum threshold
+// lib/models/smart_suggestion.dart — Smart suggestion model — pantry restock recommendation with urgency and status
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

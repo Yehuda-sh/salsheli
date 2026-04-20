@@ -1,15 +1,4 @@
-// 📄 lib/widgets/common/sticky_note.dart
-//
-// פתק צבעוני בסגנון Post-it עם צללים וסיבוב.
-// - StickyNote - פתק כללי עם child
-//
-// Features:
-//   - עומק פיזי באמצעות גרדיאנט נייר (Paper Gradient)
-//   - אופטימיזציית RepaintBoundary לבידוד צללים
-//   - משוב Haptic מבוסס הקשר (selectionClick)
-//   - אנימציות Elastic מלוטשות
-//
-// 🔗 Related: ui_constants.dart, flutter_animate, sticky_button.dart
+// lib/widgets/common/sticky_note.dart — Sticky note — colored card with slight rotation and shadow (notebook design)
 
 import 'dart:async' show unawaited;
 

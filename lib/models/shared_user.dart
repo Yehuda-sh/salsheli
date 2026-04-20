@@ -1,29 +1,4 @@
-// 📄 File: lib/models/shared_user.dart
-//
-// 🇮🇱 מודל למשתמש משותף ברשימה:
-//     - מייצג משתמש שיש לו גישה לרשימת קניות משותפת
-//     - כולל תפקיד (owner/admin/editor/viewer)
-//     - תומך במבנה Map (userId כמפתח) לגישה מהירה ב-Firestore
-//     - מכיל מטאדאטה (cache) של שם/אימייל/אווטאר
-//
-// 🇬🇧 Model for shared list user:
-//     - Represents a user with access to a shared shopping list
-//     - Includes role (owner/admin/editor/viewer)
-//     - Supports Map structure (userId as key) for fast Firestore access
-//     - Contains metadata (cache) for name/email/avatar
-//
-// 🏗️ Firestore Structure:
-//     shared_users: {
-//       "user123": { role: "admin", shared_at: Timestamp, user_name: "יוני" },
-//       "user456": { role: "viewer", shared_at: Timestamp, user_name: "דנה" }
-//     }
-//
-// 🔗 Related:
-//     - timestamp_converter.dart - Converters מרכזיים
-//     - user_role.dart - הגדרת תפקידים
-//
-// Version: 1.2 - Use central converters, runtime validation, backward compat
-// Last Updated: 13/01/2026
+// lib/models/shared_user.dart — Shared user model — user role in a shared list (owner/admin/editor/viewer)
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

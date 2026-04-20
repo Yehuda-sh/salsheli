@@ -1,7 +1,4 @@
-// 📄 lib/widgets/dialogs/pantry_merge_dialog.dart
-//
-// דיאלוג שנשאל כשמשתמש מצטרף לבית חדש ויש לו מזווה אישי.
-// מאפשר למזג את המזווה האישי למזווה הבית.
+// lib/widgets/dialogs/pantry_merge_dialog.dart — Pantry merge dialog — resolve duplicate items when merging pantry data
 
 import 'package:flutter/material.dart';
 

@@ -1,8 +1,4 @@
-// 📄 lib/config/app_config.dart
-//
-// הגדרות סביבה לאפליקציה - development עם Emulators, production עם Firebase Cloud.
-//
-// 🔗 Related: Firebase, main.dart
+// lib/config/app_config.dart — App configuration — environment detection, Firebase emulator ports, feature flags
 
 import 'package:flutter/foundation.dart';
 

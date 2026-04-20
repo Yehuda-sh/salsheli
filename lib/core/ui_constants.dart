@@ -1,19 +1,4 @@
-// 📄 lib/core/ui_constants.dart
-//
-// קבועי UI מרכזיים לעיצוב עקבי באפליקציה.
-// - Spacing (גריד גמיש - ערכים נפוצים לפי צורך עיצובי)
-// - Colors (פלטת Sticky Notes + רקעים)
-// - Sizes (כפתורים, אייקונים, אווטארים)
-// - Durations (אנימציות, snackbars)
-//
-// 📋 Features:
-// - הגדרת רמות Glassmorphism (Low/Medium/High)
-// - קבועי Haptic Feedback
-// - צבעי Dark Mode מופחתי רוויה (Desaturated)
-// - Border Radius מורחב (כולל Super)
-//
-// 📝 Version: 4.1 — Added kGlassBlurMedium constant
-// 📅 Updated: 22/02/2026
+// lib/core/ui_constants.dart — Design tokens — spacing, border radius, font sizes, icon sizes, colors, fixBidiNumbers()
 
 import 'dart:ui';
 

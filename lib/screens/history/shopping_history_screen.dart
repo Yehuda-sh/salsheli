@@ -1,20 +1,4 @@
-// 📄 lib/screens/history/shopping_history_screen.dart
-//
-// מסך היסטוריית קניות - צפייה בקבלות קודמות.
-// כולל סינון וסטטיסטיקות הוצאות.
-// שילוב: רקע מחברת + Glass AppBar + אנימציות מדורגות
-//
-// ✅ Features:
-//    - Glass blur AppBar
-//    - אנימציות כניסה מדורגות (AnimationController + Interval, פעם ראשונה בלבד)
-//    - סטטיסטיקות 2×2: קניות, פריטים, סה"כ, ממוצע
-//    - כרטיסי קבלות עם סכום + progress bar
-//    - Empty state אנימטיבי עם CTA
-//    - Haptic feedback ב-refresh וסינון
-//    - נגישות משופרת
-//
-// Version: 5.1 (18/03/2026)
-// 🔗 Related: ReceiptProvider, Receipt
+// lib/screens/history/shopping_history_screen.dart — Shopping history — past receipts with date grouping, totals, receipt details
 
 import 'dart:async';
 import 'dart:ui';

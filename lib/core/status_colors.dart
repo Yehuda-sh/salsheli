@@ -1,10 +1,4 @@
-// 📄 lib/core/status_colors.dart
-//
-// צבעי סטטוס סמנטיים - עטיפה ל-Theme (AppBrand + ColorScheme).
-// מספק API אחיד לצבעי success/error/warning/pending/info.
-//
-// Version: 4.1 (25/03/2026)
-// 🔗 Related: app_theme.dart (AppBrand), ColorScheme
+// lib/core/status_colors.dart — Status colors — success/error/warning/info colors from theme (StatusColors.getColor)
 
 import 'package:flutter/material.dart';
 

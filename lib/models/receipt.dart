@@ -1,21 +1,4 @@
-// 📄 File: lib/models/receipt.dart
-//
-// 🇮🇱 מודלים לייצוג קבלה (Receipt) ופריטים בקבלה (ReceiptItem):
-//     - המרה מלאה ל־JSON כולל Converters (תאריכים, double).
-//     - כולל חישובי סה"כ, בדיקות התאמה, ולוגיקת עזר.
-//     - מתאים לניהול רשימות קניות, ניתוח הוצאות, סנכרון עם API.
-//
-// 🇬🇧 Models for Receipt and ReceiptItem:
-//     - Full JSON serialization with converters (dates, doubles).
-//     - Includes totals, validations, and helper logic.
-//     - Useful for shopping lists, expense analysis, and API sync.
-//
-// 🔗 Related:
-//     - timestamp_converter.dart - Converters מרכזיים
-//     - receipts_repository.dart - אחסון Firestore
-//
-// Version: 1.1 - Use centralized converters, add immutability
-// Last Updated: 13/01/2026
+// lib/models/receipt.dart — Receipt model — shopping receipt with store, date, items, totals + ReceiptItem
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

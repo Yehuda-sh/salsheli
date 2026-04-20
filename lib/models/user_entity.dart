@@ -1,33 +1,4 @@
-// 📄 File: lib/models/user_entity.dart
-//
-// 🇮🇱 מודל ישות משתמש:
-//     - מייצג משתמש באפליקציה עם כל הפרטים האישיים והעדפות.
-//     - כולל שיוך למשק בית (household), תקציב שבועי, וחנויות מועדפות.
-//     - מאפשר שיתוף נתונים בין משתמשים באותו משק בית.
-//     - נתמך ע"י JSON לצורך סנכרון עם שרת ושמירה מקומית.
-//
-// 💡 רעיונות עתידיים:
-//     - הוספת מטבע למשתמשים בינלאומיים (ILS, USD, EUR).
-//     - העדפות שפה למשתמש (עברית, אנגלית, ערבית).
-//     - אזכורים וניהול התראות.
-//     - מעקב אחר מגמות קנייה אישיות (insights).
-//     - ניהול הרשאות בתוך משק הבית (viewer, editor, admin).
-//
-// 🇬🇧 User entity model:
-//     - Represents an app user with personal details and preferences.
-//     - Includes household association, weekly budget, and favorite stores.
-//     - Enables data sharing between users in the same household.
-//     - Supports JSON for server sync and local storage.
-//
-// 💡 Future ideas:
-//     - Add currency support for international users (ILS, USD, EUR).
-//     - User language preferences (Hebrew, English, Arabic).
-//     - Reminders and notification management.
-//     - Personal shopping trend tracking (insights).
-//     - Household permission management (viewer, editor, admin).
-//
-// Version: 1.1 - DateTime converters, FlexDoubleConverter, empty string handling
-// Last Updated: 13/01/2026
+// lib/models/user_entity.dart — User entity model — profile, household, settings, auth provider, favorite products
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

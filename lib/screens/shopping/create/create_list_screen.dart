@@ -1,18 +1,4 @@
-// 📄 File: lib/screens/shopping/create/create_list_screen.dart
-//
-// Purpose: מסך יצירת רשימת קניות חדשה
-//
-// ✨ Features:
-// - ✅ מסך מלא (לא Dialog) לחווית משתמש טובה יותר
-// - ✅ i18n: כל המחרוזות דרך AppStrings
-// - ✅ Validation בזמן הקלדה
-// - ✅ Focus management עם FocusNodes
-// - ✅ Preview ויזואלי לסוג הרשימה
-// - ✅ תמיכה בתבניות מוכנות
-// - ✅ 3 אופציות נראות: אישית / משפחתית / שיתוף ספציפי
-//
-// Version 5.0 - Hybrid: NotebookBackground + AppBar
-// Last Updated: 27/01/2026
+// lib/screens/shopping/create/create_list_screen.dart — Create list screen — new list form with type, budget, template, contacts, event mode
 
 import 'dart:async' show unawaited;
 import 'dart:ui';

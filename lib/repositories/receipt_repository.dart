@@ -1,31 +1,4 @@
-// 📄 File: lib/repositories/receipt_repository.dart
-//
-// 🎯 Purpose: Interface לניהול קבלות (Receipts)
-//
-// 📋 Features:
-//     - תמיכה ב-Real-time Updates (watchReceipts)
-//     - תיעוד מלא ל-Intellisense
-//     - CRUD operations מלאות
-//
-// 🏗️ Architecture: Repository Pattern
-//     - Interface מופשט - שכבת ביניים בין Provider ל-Data Source
-//     - מאפשר החלפת מימוש (Firebase / Mock) ללא שינוי UI
-//
-// 📋 Implementations:
-//     - FirebaseReceiptRepository - מימוש הייצור (Firestore)
-//
-// 🔗 Related:
-//     - lib/repositories/firebase_receipt_repository.dart - המימוש
-//     - lib/providers/receipt_provider.dart - Provider שמשתמש ב-repository
-//     - lib/models/receipt.dart - מבנה הנתונים
-//
-// 📜 History:
-//     - v1.0 (09/10/2025): Interface ראשוני - fetch, save, delete
-//     - v2.0 (09/10/2025): הוספת docstrings
-//     - v3.0 (22/02/2026): סנכרון מול Implementation - watch, queries, תיעוד מלא
-//
-// Version: 3.0
-// Last Updated: 22/02/2026
+// lib/repositories/receipt_repository.dart — Receipt repository interface — abstract CRUD + stream for shopping receipts
 
 import '../models/receipt.dart';
 

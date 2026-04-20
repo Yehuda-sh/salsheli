@@ -1,20 +1,4 @@
-// 📄 File: lib/services/template_service.dart
-//
-// 🎯 מטרה: שירות לטעינת תבניות רשימות קניות מוכנות
-//
-// 📝 תהליך:
-// 1. טעינת קבצי מוצרים מ-list_types/ (פעם אחת)
-// 2. טעינת תבניות מ-templates/
-// 3. חיפוש מוצרים אמיתיים לפי searchTerm
-// 4. המרה ל-UnifiedListItem עם מחירים ופרטים מלאים
-//
-// 💡 יתרונות:
-// - מוצרים עם מחירים אמיתיים (לא גנריים)
-// - אין כפילויות - כל מוצר מהמקור שלו
-// - אפשר למקס מוצרים מחנויות שונות
-//
-// Version: 2.0 - Fixed busy-wait, safe casting, kDebugMode
-// Last Updated: 13/01/2026
+// lib/services/template_service.dart — Template service — load shopping list templates from JSON assets, item resolution
 
 import 'dart:async';
 import 'dart:convert';

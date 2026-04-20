@@ -1,24 +1,4 @@
-// 📄 File: lib/models/enums/user_role.dart
-//
-// 🇮🇱 תפקידי משתמשים ברשימות משותפות:
-//     - owner: בעלים - מלוא ההרשאות (מחיקת רשימה, ניהול משתמשים)
-//     - admin: מנהל - הכל מלבד מחיקת רשימה ושינוי הרשאות
-//     - editor: עורך - יכול לבקש הוספה/עריכה/מחיקה (עם אישור)
-//     - viewer: צופה - רק קריאה
-//     - unknown: fallback לערכים לא מוכרים מהשרת
-//
-// 🇬🇧 User roles in shared lists:
-//     - owner: Full permissions (delete list, manage users)
-//     - admin: All except delete list and manage permissions
-//     - editor: Can request add/edit/delete (requires approval)
-//     - viewer: Read-only access
-//     - unknown: fallback for unknown server values
-//
-// 🔗 Related:
-//     - SharedUser (models/shared_user.dart)
-//     - ShoppingList (models/shopping_list.dart)
-//     - ShareListDialog (screens/sharing/share_list_dialog.dart)
-//
+// lib/models/enums/user_role.dart — User role enum — owner, admin, editor, viewer, unknown (with Hebrew names)
 
 import 'package:json_annotation/json_annotation.dart';
 

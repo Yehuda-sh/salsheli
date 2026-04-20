@@ -1,6 +1,4 @@
-// 📄 Quick Login Bottom Sheet — DEV ONLY
-// 🔧 Debug tool for fast demo user login. Guarded by kDebugMode at call site.
-// Hebrew strings intentionally not in AppStrings (dev-only, not user-facing).
+// lib/screens/auth/widgets/quick_login_bottom_sheet.dart — Quick login sheet — DEV ONLY: one-tap demo user login picker
 
 import 'dart:ui';
 import 'package:flutter/material.dart';

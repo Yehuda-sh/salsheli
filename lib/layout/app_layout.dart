@@ -1,25 +1,4 @@
-// 📄 File: lib/layout/app_layout.dart
-//
-// 🎯 Purpose: פריסת היישום הראשית - AppBar + BottomNavigation
-//
-// 📋 Features:
-//     - AppBar עם כותרת, התראות ו-logout
-//     - NavigationBar (Material 3) עם animated badges
-//     - משוב Haptic מבוסס מגע (Selection Feedback)
-//     - עיצוב Glassmorphic ל-Bottom Navigation
-//     - RTL support מלא
-//     - Theme-aware colors (Dark Mode support)
-//     - Accessibility: Semantics + Tooltips
-//     - Micro-animations: Scale effect, badge counter
-//     - Error handling with user feedback
-//
-// 🔗 Related:
-//     - lib/l10n/app_strings.dart - AppStrings.layout
-//     - lib/providers/user_context.dart - UserContext
-//     - Parent: MainNavigationScreen (manages state)
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/layout/app_layout.dart — App scaffold layout — NotebookBackground + DevBanner wrapper for all screens
 
 import 'dart:async';
 import 'dart:ui';

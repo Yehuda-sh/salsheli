@@ -1,21 +1,4 @@
-// 📄 lib/screens/home/dashboard/home_dashboard_screen.dart
-//
-// מסך הבית - פשוט ונקי:
-// 1. Header: ברכה דינמית (בוקר/צהריים/ערב) + שם הבית + התראות
-// 2. באנרים (Active Shopper, Pending Invite)
-// 3. Quick Actions
-// 4. הצעות להיום (≤3 פריטים)
-// 5. רשימות פעילות (Cards)
-// 6. פיד פעילות הבית
-//
-// 📋 Features:
-// - ברכת בוקר/ערב דינמית
-// - אנימציות כניסה מדורגות (Staggered)
-// - Glassmorphic Header משופר
-// - Haptic Feedback מלא ב-Refresh ובניווט
-//
-// Version: 7.0 (22/02/2026) - Hybrid Premium dashboard
-// 🔗 Related: ShoppingListsProvider, ReceiptProvider, NotificationsService
+// lib/screens/home/dashboard/home_dashboard_screen.dart — Home dashboard — active shopping banner, action center, lists, activity feed
 
 import 'dart:async';
 import 'package:flutter/material.dart';

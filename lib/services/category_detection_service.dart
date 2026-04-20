@@ -1,11 +1,5 @@
-// 📄 File: lib/services/category_detection_service.dart
-//
-// שירות זיהוי אוטומטי של קטגוריות מוצרים
-// - זיהוי לפי מילות מפתח בשם המוצר
-// - זיהוי לפי מותג
-// - Fallback ל-'אחר' אם לא זוהה
+// lib/services/category_detection_service.dart — Category detection — auto-categorize products by Hebrew name keywords
 
-/// שירות זיהוי אוטומטי של קטגוריות
 class CategoryDetectionService {
   /// מיפוי מותגים לקטגוריות
   static const Map<String, String> _brandToCategory = {

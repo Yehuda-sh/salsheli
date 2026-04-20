@@ -1,21 +1,4 @@
-// 📄 File: lib/screens/shopping/who_brings/who_brings_screen.dart
-//
-// 🎯 Purpose: מסך רשימת "מי מביא" - הצגת פריטים עם אפשרות התנדבות
-//
-// ✨ Features:
-// - 📋 רשימת פריטים עם תצוגת X/Y מתנדבים
-// - ✋ כפתור "אני מביא" לכל פריט
-// - 👥 תצוגת שמות מתנדבים
-// - 🔒 חסימה כשהפריט מלא
-// - ↩️ ביטול התנדבות
-// - 🎨 עיצוב Sticky Note
-//
-// 🔗 Related:
-// - unified_list_item.dart - מודל פריט עם volunteers
-// - shopping_lists_provider.dart - עדכון מתנדבים
-//
-// Version 2.1 - Emoji icons → Material Icons + design tokens
-// Last Updated: 24/03/2026
+// lib/screens/shopping/who_brings/who_brings_screen.dart — Who brings — volunteer assignment for shared event lists (potluck style)
 
 import '../../../l10n/app_strings.dart';
 import 'dart:async';

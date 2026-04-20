@@ -1,19 +1,4 @@
-// 📄 lib/widgets/common/animated_button.dart
-// Version 1.0
-//
-// Wrapper שמוסיף אנימציית לחיצה (scale + opacity) + haptic feedback אופציונלי.
-// **אפקט בלבד** - לא מפעיל את הפעולה, הכפתור הפנימי מטפל בלחיצה.
-//
-// Features:
-//   - תמיכה בדרגות Haptic מרובות (Patterns): none, light, medium, selection
-//   - אופטימיזציית RepaintBoundary למניעת render מיותר
-//   - ניהול מצב לחיצה חכם (Press Opacity)
-//
-// ✅ שימוש:
-//    - CTA / כפתורים חשובים: עם haptic: ButtonHaptic.light
-//    - כפתורים רגילים / אייקונים: בלי haptic, עם scale עדין יותר
-//
-// 🔗 Related: FilledButton, ElevatedButton, IconButton
+// lib/widgets/common/animated_button.dart — Animated button — scale-down press effect (0.97-0.98) for CTA buttons
 
 import 'dart:async' show unawaited;
 

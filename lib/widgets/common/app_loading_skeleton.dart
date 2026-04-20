@@ -1,8 +1,4 @@
-// 📄 lib/widgets/common/app_loading_skeleton.dart
-//
-// 🎯 Loading skeleton אחיד — Template מבוסס Settings Screen
-// ✅ Consistent shimmer layout across all screens
-// ✅ Configurable sections count
+// lib/widgets/common/app_loading_skeleton.dart — Loading skeleton — shimmer placeholder for screens during initial load
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';

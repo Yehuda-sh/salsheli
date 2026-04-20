@@ -1,18 +1,4 @@
-// 📄 lib/config/list_types_config.dart
-//
-// 🎯 מטרה: הגדרה מרכזית של כל סוגי הרשימות (9 סוגים)
-//
-// ✨ יתרונות:
-// - מקור אמת יחיד (Single Source of Truth)
-// - תמיכה מלאה ב-i18n דרך AppStrings
-// - עקביות ויזואלית (צבעים ואייקונים) בכל האפליקציה
-//
-// 📜 חוקי עבודה:
-// - key לא מוכר → fallback ל-ListTypeKeys.other
-// - סדר all = סדר UX, other חייב להיות אחרון
-// - חייב להיות 1:1 עם ListTypeKeys.all
-//
-// 🔗 Related: list_type_keys.dart, AppStrings, AppTheme
+// lib/config/list_types_config.dart — List types config — 9 shopping list types with Hebrew names, emoji, and colors
 
 import 'package:flutter/material.dart';
 

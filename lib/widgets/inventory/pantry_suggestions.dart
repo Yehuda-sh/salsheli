@@ -1,13 +1,4 @@
-// 📄 lib/widgets/inventory/pantry_suggestions.dart
-//
-// 🧠 הצעות חכמות למזווה — "כדאי שיהיה בבית"
-//
-// חוקי הצגה:
-// - 0 פריטים → עד 8 הצעות
-// - 1-14 → עד 4 הצעות
-// - 15+ → לא מציג
-// - הצעה שנדחתה → לא חוזרת (SharedPreferences)
-// - "הסתר הצעות" → נעלם ל-24 שעות, אחר כך חוזר
+// lib/widgets/inventory/pantry_suggestions.dart — Pantry suggestions — inline low-stock recommendations on pantry screen
 
 import 'dart:convert';
 

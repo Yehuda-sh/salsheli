@@ -1,8 +1,4 @@
-// 📄 lib/widgets/common/pending_requests_section.dart
-//
-// מציג בקשות ממתינות לאישור — כרטיסים קומפקטיים.
-// Version: 5.0 — Compact inline design (no StickyNote, no BackdropFilter)
-// Last Updated: 16/03/2026
+// lib/widgets/common/pending_requests_section.dart — Pending requests section — approve/reject editor requests inline widget
 
 import 'dart:async';
 

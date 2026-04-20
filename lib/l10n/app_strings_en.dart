@@ -1,10 +1,4 @@
-// 📄 lib/l10n/app_strings_en.dart
-//
-// UI strings grouped by screens - English translation.
-// Structure: AppStringsEn.layout, .common, .auth, .inventory, .shoppingList, etc.
-//
-// Version: 1.0 (12/03/2026) — English translation
-// 🔗 Related: All screens and widgets, filters_config (for categories)
+// lib/l10n/app_strings_en.dart — English strings — all UI text, extends Hebrew base classes with English overrides
 
 import 'app_strings_he.dart';
 

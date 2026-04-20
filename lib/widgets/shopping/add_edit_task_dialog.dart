@@ -1,20 +1,4 @@
-// 📄 lib/widgets/shopping/add_edit_task_dialog.dart
-//
-// דיאלוג הוספה/עריכה של משימה - שם, הערות, תאריך יעד ועדיפות.
-// כולל validation, אנימציות, haptic feedback ותמיכה בנגישות.
-//
-// Features:
-//   - עיצוב Sticky Note פיזי (ורוד - מובחן ממוצרים)
-//   - אנימציית שדות מדורגת (Staggered)
-//   - ניהול Focus Shadows
-//   - חתימות Haptic מותאמות
-//
-// ✅ אבטחות:
-//    - מניעת שמירה כפולה (_isSaving flag)
-//    - אישור יציאה כשיש שינויים לא שמורים
-//    - firstDate מותאם לתאריכי עבר (מניעת קריסה)
-//
-// 🔗 Related: UnifiedListItem, StickyNote, StickyButton, AppBrand
+// lib/widgets/shopping/add_edit_task_dialog.dart — Add/edit task dialog — task form with name, notes, assignee
 
 import 'dart:async';
 import 'dart:ui' as ui;

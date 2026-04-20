@@ -1,3 +1,5 @@
+// lib/screens/shopping/active/widgets/active_shopping_states.dart — Shopping states — loading skeleton, error state, empty state, compact stat widgets
+
 import 'package:flutter/material.dart';
 import '../../../../widgets/common/sticky_button.dart';
 import '../../../../core/ui_constants.dart';

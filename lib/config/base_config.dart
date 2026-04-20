@@ -1,12 +1,4 @@
-// 📄 lib/config/base_config.dart
-//
-// 🎯 Base mixin for all config classes - eliminates 85% code duplication
-// 
-// ✅ Replaces repeated ensureSanity() patterns in:
-// - storage_locations_config.dart (16 lines)  
-// - list_types_config.dart (16 lines)
-//
-// 🔗 Related: All config classes
+// lib/config/base_config.dart — Base config mixin — ConfigValidation for ensureValid() pattern across all configs
 
 import 'package:flutter/foundation.dart';
 

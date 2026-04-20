@@ -1,12 +1,4 @@
-// 📄 lib/l10n/app_strings.dart
-//
-// 🌐 Locale-aware proxy — delegates to Hebrew or English strings.
-// All existing `AppStrings.xxx.yyy` references work without changes.
-//
-// To switch language: LocaleManager.instance.setLocale(AppLocale.en)
-// Default: Hebrew (he)
-//
-// Version: 5.0 (13/03/2026)
+// lib/l10n/app_strings.dart — Locale proxy — delegates to Hebrew or English strings based on LocaleManager
 
 import 'app_strings_he.dart';
 import 'app_strings_en.dart';

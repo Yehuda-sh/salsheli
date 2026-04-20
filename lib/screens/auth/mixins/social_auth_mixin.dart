@@ -1,18 +1,4 @@
-// 📄 lib/screens/auth/mixins/social_auth_mixin.dart
-//
-// 🎯 Shared social login logic for Login + Register screens
-// ✅ DRY: Eliminates duplicate _handleGoogleSignIn/_handleAppleSignIn
-//
-// Usage:
-// ```dart
-// class _LoginScreenState extends State<LoginScreen>
-//     with SocialAuthMixin {
-//   @override
-//   void onSocialAuthError(String message) {
-//     _showStatus(message, type: StatusType.error);
-//   }
-// }
-// ```
+// lib/screens/auth/mixins/social_auth_mixin.dart — Social auth mixin — shared Google/Apple sign-in logic for login + register screens
 
 import 'dart:async';
 

@@ -1,16 +1,4 @@
-// 📄 lib/widgets/common/tappable_card.dart
-//
-// כרטיס אינטראקטיבי עם אנימציות scale + elevation בלחיצה.
-// - TappableCard - גרסה מלאה עם כל האפשרויות
-// - SimpleTappableCard REMOVED → use TappableCard(animateElevation: false)
-//
-// Features:
-//   - בידוד RepaintBoundary לאנימציות scale/elevation
-//   - חתימות Haptic מרובות (Selection vs Medium) באמצעות ButtonHaptic
-//   - אנימציית גובה מותאמת (Smooth Elevation)
-//   - אופטימיזציית Hit-Test עם splashColor עדין
-//
-// 🔗 Related: AnimatedButton, dashboard_card.dart
+// lib/widgets/common/tappable_card.dart — Tappable card — animated press-to-shrink card for list items
 
 import 'dart:async';
 

@@ -1,3 +1,5 @@
+// lib/widgets/common/barcode_helpers.dart — Barcode helpers — scan-and-lookup utility combining scanner + product search
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';

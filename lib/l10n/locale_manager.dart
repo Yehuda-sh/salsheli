@@ -1,9 +1,4 @@
-// 📄 lib/l10n/locale_manager.dart
-//
-// 🌐 Locale manager — switches between Hebrew and English strings.
-// Persists choice in SharedPreferences.
-//
-// Version: 1.1 (13/03/2026)
+// lib/l10n/locale_manager.dart — Locale manager — persist language preference, switch between Hebrew/English
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';

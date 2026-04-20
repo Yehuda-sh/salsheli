@@ -1,10 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/pending_invites_banner.dart
-//
-// באנר הזמנות ממתינות - מוצג כשיש הזמנות שטרם טופלו
-// ✨ v2.1: Shimmer מהיר יותר, ספירת תגית מדויקת, ללא התנגשות אנימציות, ותיקוני const
-//
-// Version: 2.1 (22/02/2026)
-// 🔗 Related: PendingInvitesService, UserContext
+// lib/screens/home/dashboard/widgets/pending_invites_banner.dart — Pending invites banner — notification about received list/household invitations
 
 import 'dart:async';
 

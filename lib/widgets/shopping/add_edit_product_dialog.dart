@@ -1,23 +1,4 @@
-// 📄 lib/widgets/shopping/add_edit_product_dialog.dart
-//
-// דיאלוג הוספה/עריכה של מוצר - שם, מותג, קטגוריה, כמות ומחיר.
-// כולל validation, Sticky Notes design, אנימציות ותמיכה בנגישות.
-//
-// Features:
-//   - אנימציות שדות מדורגות (Staggered Fields)
-//   - חתימות Haptic מותאמות לסטטוס
-//   - ריווח סמנטי מבוסס Gap
-//   - אופטימיזציית RepaintBoundary
-//
-// ✅ אבטחות:
-//    - מניעת קריסה כשקטגוריה לא קיימת ברשימה
-//    - null safety מלא ל-quantity/unitPrice
-//    - מניעת שמירה כפולה (_isSaving flag)
-//    - אישור יציאה כשיש שינויים לא שמורים
-//    - InputFormatters למניעת קלט לא תקין
-//    - תמיכה בפסיק כמפריד עשרוני (12,5 → 12.5)
-//
-// 🔗 Related: UnifiedListItem, StickyNote, StickyButton, showGeneralDialog
+// lib/widgets/shopping/add_edit_product_dialog.dart — Add/edit product dialog — product form with name, brand, quantity, price, category
 
 import 'dart:async';
 import 'dart:ui' as ui;

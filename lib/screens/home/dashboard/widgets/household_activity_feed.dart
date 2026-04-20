@@ -1,9 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/household_activity_feed.dart
-//
-// פיד פעילות הבית — מציג פעולות אחרונות של חברי הבית
-// מבוסס על ActivityLogProvider. אם אין אירועים — fallback לקבלות.
-//
-// Version: 2.1 (09/04/2026) — fallback לקבלות כשאין אירועי activity_log
+// lib/screens/home/dashboard/widgets/household_activity_feed.dart — Activity feed — recent household events with receipt fallback
 
 import 'dart:async';
 

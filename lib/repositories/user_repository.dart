@@ -1,32 +1,4 @@
-// 📄 File: lib/repositories/user_repository.dart
-//
-// 🎯 Purpose: Interface לניהול משתמשים (Users)
-//
-// 📋 Features:
-//     - תמיכה בנתוני Onboarding מורחבים (createUser)
-//     - ניהול Exceptions אחיד (UserRepositoryException)
-//     - תיעוד Intellisense מלא
-//     - Real-time Updates (watchUser)
-//
-// 🏗️ Architecture: Repository Pattern
-//     - Interface מופשט - שכבת ביניים בין Provider ל-Data Source
-//     - מאפשר החלפת מימוש (Firebase / Mock) ללא שינוי UI
-//
-// 📋 Implementations:
-//     - FirebaseUserRepository - מימוש הייצור (Firestore)
-//
-// 🔗 Related:
-//     - lib/repositories/firebase_user_repository.dart - המימוש
-//     - lib/providers/user_context.dart - Provider שמשתמש ב-repository
-//     - lib/models/user_entity.dart - מבנה הנתונים
-//
-// 📜 History:
-//     - v1.0: Interface ראשוני
-//     - v2.0 (09/10/2025): הוספת docstrings, Onboarding fields
-//     - v3.0 (22/02/2026): ארגון לפי קטגוריות, תיעוד מלא, סנכרון מול Implementation
-//
-// Version: 3.0
-// Last Updated: 22/02/2026
+// lib/repositories/user_repository.dart — User repository interface — abstract user CRUD + find by email/phone
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 

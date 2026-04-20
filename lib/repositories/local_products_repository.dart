@@ -1,32 +1,4 @@
-// 📄 File: lib/repositories/local_products_repository.dart
-//
-// 🎯 Purpose: Repository למוצרים מקובצי JSON מקומיים (assets)
-//
-// 📋 Features:
-//     - טעינת מוצרים מ-assets/data/list_types/{type}.json
-//     - Cache חכם (נפרד לכל סוג רשימה)
-//     - טעינה מקבילית (Parallel Loading) עם Future.wait
-//     - ניהול Concurrency מבוסס Future-Sharing (ללא polling)
-//     - ייעול אלגוריתם החיפוש (cache-first + lazy load)
-//     - Fallback ל-supermarket.json אם הקובץ לא קיים
-//
-// 📦 Supported List Types:
-//     - supermarket, pharmacy, greengrocer, butcher, bakery, market
-//     - household, other → fallback to supermarket
-//
-// 💡 Usage:
-//     ```dart
-//     final repo = LocalProductsRepository();
-//     final products = await repo.getProductsByListType('bakery');
-//     ```
-//
-// 🔗 Related:
-//     - lib/repositories/products_repository.dart - Interface
-//     - lib/repositories/hybrid_products_repository.dart - מימוש משולב
-//     - lib/providers/products_provider.dart - Provider
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/repositories/local_products_repository.dart — Local products repo — JSON asset catalog (31K products), search with nikud normalization
 
 import 'dart:async';
 import 'dart:convert';

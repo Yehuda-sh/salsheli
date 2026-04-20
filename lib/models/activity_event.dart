@@ -1,14 +1,4 @@
-// 📄 File: lib/models/activity_event.dart
-//
-// מודל אירוע פעילות — רישום פעולות חברי הבית ביומן משותף.
-//
-// 🔗 Related:
-//     - ActivityLogService (services/activity_log_service.dart)
-//     - ActivityLogProvider (providers/activity_log_provider.dart)
-//     - Firestore: /households/{householdId}/activity_log/{eventId}
-//
-// Version: 1.0
-// Last Updated: 07/04/2026
+// lib/models/activity_event.dart — Activity event model — household activity log entries (type, actor, data, timestamp)
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

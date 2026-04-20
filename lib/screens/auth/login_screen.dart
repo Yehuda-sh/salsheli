@@ -1,26 +1,4 @@
-// 📄 lib/screens/auth/login_screen.dart
-//
-// 🎯 Purpose: מסך התחברות עם Firebase Auth
-//
-// 📋 Features:
-//     - שילוב NotebookBackground (Paper & Ink design language)
-//     - אנימציות כניסה מדורגות (Staggered) עם flutter_animate
-//     - Loading Overlay משופר עם Glassmorphism וטקסט משתנה
-//     - Form validation + shake animation לשגיאות
-//     - Password reset בלחיצה על "שכחת סיסמה"
-//     - PopScope חוסם Back (חובה להתחבר)
-//     - Haptic Feedback משולב
-//     - ריכוז לוגיקת SnackBar
-//     - DEV Mode עם Glassmorphic UI
-//
-// 🔗 Related: UserContext, RegisterScreen, AppStrings.auth
-//
-// 📜 History:
-//     - v3.1: Form validation, shake, haptic, social login
-//     - v4.0 (22/02/2026): NotebookBackground, staggered animations, glassmorphic overlay
-//
-// Version: 4.1 - Dev menu (5-tap on title) + design tokens
-// Last Updated: 24/03/2026
+// lib/screens/auth/login_screen.dart — Login screen — email/password login, social auth buttons, demo user picker (dev)
 
 import 'dart:async';
 import 'dart:ui';

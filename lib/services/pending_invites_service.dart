@@ -1,25 +1,4 @@
-// 📄 File: lib/services/pending_invites_service.dart
-//
-// 🎯 Purpose: שירות לניהול הזמנות ממתינות לרשימות/משפחה
-//
-// 📋 Features:
-// - יצירת הזמנה ממתינה
-// - אישור הזמנה (המוזמן מאשר)
-// - דחיית הזמנה
-// - שליפת הזמנות ממתינות למשתמש
-//
-// ✅ תיקונים:
-//    - InviteResult typed result במקום throw Exception
-//    - try-catch בכל מתודה
-//    - Email validation ב-createInvite
-//
-// 🔗 Related:
-// - share_list_service.dart - שירות שיתוף
-// - notifications_service.dart - התראות
-// - pending_request.dart - מודל בקשה ממתינה
-//
-// 📝 Version: 1.2 — Security comment on email auth source
-// Created: 30/11/2025
+// lib/services/pending_invites_service.dart — Pending invites service — create/accept/decline list and household invitations
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

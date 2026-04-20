@@ -1,12 +1,4 @@
-// 📄 lib/config/storage_locations_config.dart
-//
-// 🗄️ Storage locations API - slim config class using shared validation
-// 
-// ✅ Extracted from 262-line oversized file
-// ✅ Uses ConfigValidation mixin (eliminates code duplication)
-// ✅ Delegates data to storage_locations.dart
-//
-// 🔗 Related: storage_locations.dart, base_config.dart
+// lib/config/storage_locations_config.dart — Storage locations config — Hebrew labels, emoji, and sort order for pantry locations
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

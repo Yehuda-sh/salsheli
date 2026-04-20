@@ -1,13 +1,4 @@
-// 📄 lib/screens/welcome/welcome_screen.dart
-// 🎯 Purpose: מסך קבלת פנים — Clean onboarding with logo, carousel, benefits
-//
-// 📋 Design:
-// - רקע מחברת עדין (NotebookBackground.subtle)
-// - Logo image + subtitle
-// - Carousel פשוט — illustration + title + description
-// - Benefits + CTA בתחתית (unified bottom section)
-//
-// 🔗 Related: ui_constants.dart, app_theme.dart, NotebookBackground
+// lib/screens/welcome/welcome_screen.dart — Welcome screen — onboarding carousel with auto-play, shown only before first login
 
 import 'dart:async';
 import 'dart:ui';

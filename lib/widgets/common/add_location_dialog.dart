@@ -1,7 +1,4 @@
-// 📄 lib/widgets/common/add_location_dialog.dart
-//
-// 🎯 דיאלוג משותף להוספת מיקום אחסון חדש
-// משמש ב: my_pantry_screen, pantry_product_selection_sheet
+// lib/widgets/common/add_location_dialog.dart — Add location dialog — create custom pantry storage location
 
 import 'dart:async' show unawaited;
 

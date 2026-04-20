@@ -1,20 +1,4 @@
-// 📄 lib/config/list_type_keys.dart
-//
-// 🎯 מפתחות סוגי רשימות - קובץ משותף למניעת circular imports.
-//
-// ✅ השימוש:
-// - ListTypes (config) מייבא את הקובץ הזה.
-// - ShoppingList (model) יכול לייבא גם ListTypes וגם הקובץ הזה.
-// - אין מעגל תלות!
-//
-// 📜 חוקי עבודה:
-// - המפתחות הם חוזה נתונים: לא משנים keys קיימים לעולם, רק מוסיפים.
-// - key לא מוכר ← fallback ל-ListTypeKeys.other.
-// - ListTypeKeys.all = סוגים שמוצגים למשתמש (UI בלבד).
-// - סדר all = סדר תצוגה, other חייב להיות אחרון.
-// - naming: lowercase באנגלית, underscore לפי צורך.
-//
-// 🔗 Related: list_types_config.dart, shopping_list.dart
+// lib/config/list_type_keys.dart — List type string constants — supermarket, pharmacy, greengrocer, butcher, bakery, market, etc.
 
 import 'base_config.dart';
 

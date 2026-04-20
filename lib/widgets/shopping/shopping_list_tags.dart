@@ -1,9 +1,4 @@
-// 📄 lib/widgets/shopping/shopping_list_tags.dart
-//
-// תגי מידע לכרטיס רשימת קניות - סוג, שיתוף, פרטיות, דחיפות.
-// עיצוב Glassmorphic: שקיפות עדינה שמאפשרת לרקע הגרדיאנט להשתקף.
-//
-// 🔗 Related: ShoppingListTile, ShoppingListUrgency
+// lib/widgets/shopping/shopping_list_tags.dart — Shopping list tags — urgency/status badges for list tiles
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';

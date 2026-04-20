@@ -1,23 +1,5 @@
-// 📄 lib/core/constants.dart
-//
-// קבועים לוגיים של האפליקציה (לא UI).
-// - Data limits עם severity levels
-// - Query limits
-//
-// 📋 Features:
-// - ניהול מגבלות סמנטי (Soft vs Hard Limits)
-// - סטטוסים לניצול מכסה (LimitStatus)
-//
-// 🔗 Related: ui_constants.dart (UI), repository_constants.dart (Firestore)
-//
-// 📝 Version: 4.1
-// 📅 Updated: 25/03/2026
+// lib/core/constants.dart — App-wide constants — Firestore collection names, field names, default values
 
-// ═══════════════════════════════════════════════════════════════════════════
-// DATA LIMITS
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// מקסימום פריטים ברשימת קניות אחת
 const int kMaxItemsPerList = 200;
 
 /// מקסימום פריטים במזווה

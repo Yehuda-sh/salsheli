@@ -1,11 +1,4 @@
-// 📄 lib/services/analytics_service.dart
-//
-// שירות Analytics - מעקב אחר 3 אירועים מרכזיים בלבד:
-// 1. create_list - יצירת רשימה חדשה
-// 2. add_item - הוספת מוצר לרשימה
-// 3. mark_purchased - סימון מוצר כנקנה
-//
-// 🔗 Related: FirebaseAnalytics, AppConfig
+// lib/services/analytics_service.dart — Analytics service — Firebase Analytics event tracking wrapper
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 

@@ -1,12 +1,4 @@
-// 📄 File: lib/widgets/inventory/pantry_starter_preview_dialog.dart
-//
-// Purpose: דיאלוג תצוגה מקדימה של מוצרי יסוד למזווה עם אפשרות בחירה
-//
-// כשהמזווה ריק, המשתמש רואה את רשימת מוצרי היסוד עם checkboxes
-// ובוחר מה להוסיף. כולל "בחר הכל" / "בטל הכל" + כפתור אישור.
-//
-// Version: 1.0
-// Last Updated: 09/04/2026
+// lib/widgets/inventory/pantry_starter_preview_dialog.dart — Pantry starter preview — preview basic pantry template items before adding
 
 import 'dart:async';
 

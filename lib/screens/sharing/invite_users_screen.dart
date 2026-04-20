@@ -1,17 +1,4 @@
-// 📄 File: lib/screens/sharing/invite_users_screen.dart
-//
-// 🎯 מטרה: מסך הזמנת משתמשים לרשימה משותפת (Phase 3B)
-//
-// 🔐 הרשאות: רק Owner יכול להזמין משתמשים
-//
-// 📝 תהליך:
-// 1. בעלים מזין email + בוחר role
-// 2. ShareListService.inviteUser()
-// 3. משתמש מקבל התראה
-// 4. משתמש מתווסף לשותפים ברשימה
-//
-// Version 2.1 - Emoji icons → Material Icons
-// Last Updated: 24/03/2026
+// lib/screens/sharing/invite_users_screen.dart — Invite users — share list via email/saved contacts with role selection
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

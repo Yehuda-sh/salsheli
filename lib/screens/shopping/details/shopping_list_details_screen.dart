@@ -1,8 +1,4 @@
-// 📄 lib/screens/shopping/details/shopping_list_details_screen.dart
-//
-// מסך תכנון רשימת קניות — הוספת מוצרים מהירה לפני הקנייה.
-// Version: 5.0 — Planning-first redesign
-// Last Updated: 16/03/2026
+// lib/screens/shopping/details/shopping_list_details_screen.dart — List details — view/edit items, add products, start shopping, manage sharing
 
 import 'dart:async';
 import 'dart:ui' as ui;

@@ -1,40 +1,4 @@
-// 📄 File: lib/services/shopping_patterns_service.dart
-//
-// 🎯 Purpose: ניתוח דפוסי קנייה וסידור אוטומטי של רשימות
-//
-// ✨ Features:
-// - 📊 שמירת סדר הקנייה (איזה מוצר נקנה ראשון, שני, וכו')
-// - 🧠 למידת מסלולי קנייה בחנות
-// - 🔄 סידור אוטומטי של רשימה הבאה לפי הדפוס הנלמד
-// - 📈 חישוב דירוג עבור כל מוצר (איך לסדר)
-//
-// 🔥 Firebase Collection:
-// shopping_patterns/{patternId}
-//   - userId: string
-//   - householdId: string (CRITICAL!)
-//   - storeType: string (supermarket, pharmacy, etc.)
-//   - purchaseOrder: array[itemName, purchaseIndex, timestamp]
-//   - createdAt: timestamp
-//   - updatedAt: timestamp
-//
-// Usage:
-// ```dart
-// final service = ShoppingPatternsService(
-//   firestore: FirebaseFirestore.instance,
-//   userContext: userContext,
-// );
-//
-// // שמירת דפוס קנייה
-// await service.saveShoppingPattern(
-//   listType: 'supermarket',
-//   purchasedItems: ['חלב', 'לחם', 'ביצים'],
-// );
-//
-// // סידור רשימה לפי דפוס נלמד
-// final sortedList = await service.sortListByPattern(
-//   shoppingList: myList,
-// );
-// ```
+// lib/services/shopping_patterns_service.dart — Shopping patterns — learn purchase order from history, suggest item sorting
 
 import 'dart:async';
 

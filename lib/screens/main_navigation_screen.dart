@@ -1,28 +1,4 @@
-// 📄 File: lib/screens/main_navigation_screen.dart
-//
-// Version: 4.0 (22/02/2026)
-//
-// 🇮🇱 **מסך הניווט הראשי** - Bottom Navigation Shell
-//
-// **4 Tabs:**
-// 0. 🏠 בית - HomeDashboardScreen
-// 1. 📦 מזווה - MyPantryScreen
-// 2. 📜 היסטוריה - ShoppingHistoryScreen
-// 3. ⚙️ הגדרות - SettingsScreen
-//
-// ✨ Features:
-//     - Fade transition on tab switch (200ms, preserves tab state)
-//     - Smart Badges: NotificationsService (unread) + InventoryProvider (low stock)
-//     - Context-aware Haptic: selectionClick for nav, heavyImpact for exit warning
-//     - Improved global state management
-//
-// 📅 History:
-//     v4.0 (22/02/2026) — Fade transition, Smart Badges, Haptic, improved state
-//     v3.0              — PopScope, double-tap exit, AppLayout integration
-//
-// **Back Button:**
-// - מטאב 1-3 → חזרה לדשבורד (tab 0)
-// - מדשבורד → double-tap ליציאה (2 שניות)
+// lib/screens/main_navigation_screen.dart — Main navigation — bottom tab bar (home, pantry, history, settings) + unread badge
 
 import 'dart:async';
 

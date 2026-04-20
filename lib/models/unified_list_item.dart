@@ -1,24 +1,4 @@
-// 📄 File: lib/models/unified_list_item.dart
-//
-// 🇮🇱 פריט מאוחד ברשימת קניות (Hybrid Approach):
-//     - תומך גם במוצרים (product) וגם במשימות (task)
-//     - שדות משותפים: id, name, type, isChecked, category, notes
-//     - שדות ייחודיים למוצרים: productData (quantity, unitPrice, barcode, unit)
-//     - שדות ייחודיים למשימות: taskData (dueDate, assignedTo, priority)
-//     - סוגי משנה: task/whoBrings (דרך itemSubType)
-//     - Helpers: quantity, totalPrice, dueDate, isUrgent, isWhoBrings
-//
-// 🇬🇧 Unified list item (Hybrid Approach):
-//     - Supports both products and tasks
-//     - Shared fields: id, name, type, isChecked, category, notes
-//     - Product-specific: productData (quantity, unitPrice, barcode, unit)
-//     - Task-specific: taskData (dueDate, assignedTo, priority)
-//     - Sub-types: task/whoBrings (via itemSubType)
-//     - Helpers for easy access
-//
-// Version: 2.3 - checkedAt: String? → DateTime? with NullableFlexibleDateTimeConverter
-// Last Updated: 22/02/2026
-//
+// lib/models/unified_list_item.dart — Unified list item — product or task with quantity, price, checked status, volunteers
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
 import 'package:flutter/foundation.dart' show immutable;

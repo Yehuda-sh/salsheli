@@ -1,25 +1,4 @@
-// 📄 File: lib/main.dart
-//
-// 🎯 Purpose: נקודת הכניסה לאפליקציה — אתחול וחיווט כל השכבות
-//
-// 🇮🇱 אתחול:
-//     - Firebase (Auth, Firestore, Storage, Analytics, Crashlytics)
-//     - Hive (local cache)
-//     - LocaleManager (שפה שמורה)
-//     - Provider tree (repositories → providers → UI)
-//
-// ✨ Features:
-//     - Dynamic Color (Material You) עם fallback לתמה קבועה
-//     - Firebase Emulators (דרך AppConfig / dart-define)
-//     - Crashlytics error handling (production only)
-//     - RTL/LTR + Hebrew/English locale support
-//     - Shared Axis transition למסכי Auth
-//
-// 🔗 Related:
-//     - AppConfig (lib/config/app_config.dart) — environment flags
-//     - UserContext (lib/providers/user_context.dart) — auth state
-//     - IndexScreen (lib/screens/index_screen.dart) — routing logic
-//     - AppTheme (lib/theme/app_theme.dart) — light/dark themes
+// lib/main.dart — App entry point — Firebase init, Provider tree setup, theme, routing
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart';

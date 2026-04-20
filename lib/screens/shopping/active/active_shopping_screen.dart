@@ -1,40 +1,4 @@
-// 📄 File: lib/screens/shopping/active_shopping_screen.dart
-//
-// Version 4.1 - Design tokens + hardcoded sizes → kSpacing/kFontSize/kIconSize
-// Last Updated: 24/03/2026
-//
-// 🎯 Purpose: מסך קנייה פעילה - המשתמש בחנות וקונה מוצרים
-//
-// ✨ Features:
-// - ⏱️ טיימר - מודד כמה זמן עובר מתחילת הקנייה
-// - 📊 מונים - כמה נקנה / כמה נשאר / כמה לא היה
-// - 🗂️ סידור לפי קטגוריות + מיון דינמי (checked → bottom)
-// - ✅ סימון מוצרים: נקנה / לא במלאי / לא צריך
-// - 📱 כפתורי פעולה מהירה
-// - 🏁 סיכום מפורט בסיום
-// - 🎨 Skeleton Screen & Error Handling
-// - 💫 Micro Animations (flutter_animate fadeIn/slideX)
-// - 📝 Sticky Notes Design System
-// - 🧊 Glassmorphic stats header (BackdropFilter)
-// - 👥 Collaborative AppBar with active shopper avatars
-// - ⚡ RepaintBoundary per item row
-//
-// 🎨 UI:
-// - Header עם טיימר וסטטיסטיקות (glassmorphic)
-// - רשימת מוצרים לפי קטגוריות עם StickyNote
-// - כפתורים בסגנון StickyButton
-// - מסך סיכום בסוף
-// - 4 Empty States: Loading/Error/Empty/Initial
-//
-// Usage:
-// ```dart
-// Navigator.push(
-//   context,
-//   MaterialPageRoute(
-//     builder: (context) => ActiveShoppingScreen(list: shoppingList),
-//   ),
-// );
-// ```
+// lib/screens/shopping/active/active_shopping_screen.dart — Active shopping — real-time shopping flow with item status, finish, receipt creation
 
 import 'dart:async';
 import 'dart:ui';

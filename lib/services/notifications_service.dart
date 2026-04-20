@@ -1,18 +1,4 @@
-// 📄 lib/services/notifications_service.dart
-//
-// 📬 שירות התראות In-App - ניהול התראות ב-Firestore
-//     - יצירת התראות (invite, approve, reject, role change, etc.)
-//     - שאילתות (getUserNotifications, getUnreadCount)
-//     - עדכון (markAsRead, markAllAsRead)
-//     - מחיקה (deleteNotification, cleanupOldNotifications)
-//
-// ✅ תיקונים:
-//    - try-catch לכל פעולות Firestore
-//    - logging גם ב-release mode (dart:developer log)
-//    - NotificationQueryResult typed result לשאילתות
-//    - פעולות Create מחזירות Future<bool>
-//
-// 🔗 Related: AppNotification, FirestoreCollections
+// lib/services/notifications_service.dart — Notifications service — in-app notifications CRUD, dedup, batch mark-read/delete
 
 import 'dart:developer' as developer;
 

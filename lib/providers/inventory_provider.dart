@@ -1,9 +1,4 @@
-// 📄 lib/providers/inventory_provider.dart
-//
-// Provider לניהול מזווה - אישי (לפי household).
-// CRUD מלא, פילטרים, וניהול מלאי.
-//
-// 🔗 Related: InventoryItem, InventoryRepository, UserContext
+// lib/providers/inventory_provider.dart — Inventory provider — household/personal pantry CRUD, stock management, expiry tracking
 
 import 'dart:async';
 

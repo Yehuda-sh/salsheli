@@ -1,25 +1,4 @@
-// 📄 lib/widgets/common/sticky_button.dart
-//
-// כפתור בסגנון פתק Post-it עם צללים ואנימציות.
-// - StickyButton (48px) + StickyButtonSmall (36px)
-// - תמיכה ב-isLoading, disabled state, נגישות (Semantics)
-//
-// ✨ Features:
-// - עומק ויזואלי באמצעות גרדיאנט עדין
-// - ניהול ריווחים באמצעות Gap
-// - אופטימיזציית RepaintBoundary
-// - משוב Haptic מבוסס מצב
-//
-// ✅ תיקונים:
-//    - ברירת מחדל לצבע: brand.accent (צבע מותג) במקום primary
-//    - עקביות עם ElevatedButton שמשתמש ב-accent
-//    - הוספת elevation parameter לשליטה בצללים
-//    - הוספת Tooltip לנגישות
-//    - הוספת HapticFeedback בלחיצה
-//    - שימוש בצבע צל מ-Theme (לא Colors.black)
-//
-// 🔗 Related: AnimatedButton, ui_constants.dart, AppBrand, sticky_note.dart
-//
+// lib/widgets/common/sticky_button.dart — Sticky button — notebook-themed button with paper shadow effect
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';

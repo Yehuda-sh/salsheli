@@ -1,6 +1,4 @@
-// 📄 lib/widgets/common/barcode_scanner_sheet.dart
-//
-// Bottom sheet עם סורק ברקוד — MobileScanner + scan-guide overlay + torch.
+// lib/widgets/common/barcode_scanner_sheet.dart — Barcode scanner — camera bottom sheet with scan guide overlay
 
 import 'dart:async';
 import 'dart:math' as math;

@@ -1,27 +1,4 @@
-// 📄 File: lib/models/active_shopper.dart
-//
-// 🇮🇱 קונה פעיל בקנייה משותפת:
-//     - userId: מזהה המשתמש
-//     - joinedAt: מתי הצטרף לקנייה
-//     - isStarter: האם הוא זה שהתחיל (הראשון)
-//     - isActive: האם עדיין פעיל (או עזב)
-//
-// 🇬🇧 Active shopper in collaborative shopping:
-//     - userId: User identifier
-//     - joinedAt: When joined the shopping session
-//     - isStarter: Is the one who started (first)
-//     - isActive: Is still active (or left)
-//
-// 💡 תרחיש שימוש:
-//     1. אבא מתחיל קנייה → ActiveShopper.starter(userId: 'dad')
-//     2. אמא מצטרפת → ActiveShopper.helper(userId: 'mom')
-//     3. אבא עוזב → shopper.copyWith(isActive: false)
-//     4. hasLeft == true
-//
-// 🔗 Related:
-//     - ShoppingSession (models/shopping_session.dart)
-//     - ActiveShoppingScreen (screens/shopping/active/)
-//     - ShoppingProvider (providers/shopping_provider.dart)
+// lib/models/active_shopper.dart — Active shopper model — who is currently shopping (userId, startedAt, isActive)
 
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';

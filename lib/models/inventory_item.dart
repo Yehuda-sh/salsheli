@@ -1,28 +1,4 @@
-// 📄 File: lib/models/inventory_item.dart
-//
-// 🇮🇱 מודל פריט במלאי/מזווה:
-//     - מייצג פריט במלאי של משק הבית
-//     - תומך בתאריך תפוגה, הערות, ומוצרים קבועים
-//     - כולל סטטיסטיקות קנייה (purchaseCount, lastPurchased)
-//     - household_id לא חלק מהמודל (Repository מוסיף אותו)
-//
-// 🇬🇧 Inventory/pantry item model:
-//     - Represents an item in household inventory
-//     - Supports expiry date, notes, and recurring items
-//     - Includes purchase statistics (purchaseCount, lastPurchased)
-//     - household_id not part of model (Repository handles it)
-//
-// ✨ v4.0: אינטגרציה עם LimitStatus, רמזי UI ו-Haptics סמנטיים,
-//          תמיכה בשדות שיתופיים (Last Updated By)
-//
-// 🔗 Related:
-//     - InventoryRepository (repositories/inventory_repository.dart)
-//     - InventoryProvider (providers/inventory_provider.dart)
-//     - SmartSuggestion (models/smart_suggestion.dart)
-//     - LimitStatus (core/constants.dart)
-//     - StatusType (core/status_colors.dart)
-//
-// Version: 4.0 (22/02/2026)
+// lib/models/inventory_item.dart — Inventory item model — pantry product with quantity, min stock, expiry, location, barcode
 
 import 'dart:math' show max;
 

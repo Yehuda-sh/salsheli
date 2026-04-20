@@ -1,19 +1,4 @@
-// 📄 File: lib/models/enums/item_type.dart
-//
-// 🇮🇱 סוגי פריטים ברשימת קניות:
-//     - product: מוצר לקנייה (חלב, לחם, וכו')
-//     - task: משימה (להזמין DJ, לשכור צלם, וכו')
-//     - unknown: fallback לערכים לא מוכרים מהשרת
-//
-// 🇬🇧 Shopping list item types:
-//     - product: Product to buy (milk, bread, etc.)
-//     - task: Task to do (book DJ, rent photographer, etc.)
-//     - unknown: fallback for unknown server values
-//
-// 🔗 Related:
-//     - UnifiedListItem (models/unified_list_item.dart)
-//     - ShoppingList (models/shopping_list.dart)
-//
+// lib/models/enums/item_type.dart — Item type enum — product, task, unknown (with unknownValue fallback)
 
 import 'package:json_annotation/json_annotation.dart';
 

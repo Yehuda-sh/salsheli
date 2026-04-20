@@ -1,3 +1,5 @@
+// lib/screens/auth/widgets/social_login_button.dart — Social login button — Google/Apple branded sign-in button widget
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/ui_constants.dart';

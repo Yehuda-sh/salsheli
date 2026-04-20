@@ -1,8 +1,4 @@
-// 📄 lib/widgets/dialogs/legal_content_dialog.dart
-//
-// דיאלוג להצגת תוכן משפטי (תנאי שימוש / מדיניות פרטיות)
-//
-// 🔗 Related: welcome_screen.dart, settings_screen.dart
+// lib/widgets/dialogs/legal_content_dialog.dart — Legal content dialog — terms of service and privacy policy viewer
 
 import 'package:flutter/material.dart';
 

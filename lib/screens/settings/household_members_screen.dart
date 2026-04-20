@@ -1,6 +1,4 @@
-// 📄 lib/screens/settings/household_members_screen.dart
-//
-// 🏠 מסך חברי הבית — "Professional Notebook" design
+// lib/screens/settings/household_members_screen.dart — Household members — view/remove members, toggle roles (owner only), leave household
 
 import 'dart:async';
 

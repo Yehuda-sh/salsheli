@@ -1,31 +1,4 @@
-// 📄 File: lib/models/pending_request.dart
-//
-// 🇮🇱 מודל לבקשה ממתינה לאישור:
-//     - Editor שולח בקשה להוספה/עריכה/מחיקה
-//     - Owner/Admin מאשר או דוחה
-//     - תומך ב-3 סוגי בקשות: addItem, editItem, deleteItem
-//     - כולל מטאדאטה (cache) לשמות המבקש והמאשר
-//     - ולידציה לפי type (isValidForType)
-//
-// 🇬🇧 Model for pending approval request:
-//     - Editor sends request for add/edit/delete
-//     - Owner/Admin approves or rejects
-//     - Supports 3 request types: addItem, editItem, deleteItem
-//     - Includes metadata (cache) for requester/reviewer names
-//     - Validation by type (isValidForType)
-//
-// 📋 Request Data Structure (by type):
-//     - addItem:    { name, quantity?, unitPrice?, barcode?, ... }
-//     - editItem:   { itemId, changes: { name?, quantity?, ... } }
-//     - deleteItem: { itemId }
-//
-// 🔗 Related:
-//     - request_type.dart - סוגי בקשות (addItem/editItem/deleteItem)
-//     - request_status.dart - סטטוסים (pending/approved/rejected)
-//     - firebase_shopping_lists_repository.dart - שמירה/אישור/דחייה
-//
-// Version: 1.1 - DateTime converter, validation helpers, equality fix
-// Last Updated: 30/12/2025
+// lib/models/pending_request.dart — Pending request model — editor's add/edit/delete requests awaiting admin approval
 
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';

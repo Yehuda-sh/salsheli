@@ -1,9 +1,4 @@
-// 📄 lib/models/shopping_list.dart
-//
-// מודל רשימת קניות - פריטים, תקציב, סטטוס ושיתוף.
-// תומך בסוגי רשימות (סופר/מרקחת/ירקן...) ובקנייה משותפת.
-//
-// 🔗 Related: UnifiedListItem, SharedUser, ActiveShopper
+// lib/models/shopping_list.dart — Shopping list model — items, budget, status, sharing, active shoppers, pending requests
 
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';

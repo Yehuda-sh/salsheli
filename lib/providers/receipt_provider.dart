@@ -1,47 +1,4 @@
-// 📄 File: lib/providers/receipt_provider.dart
-//
-// 🎯 Purpose: Provider לניהול קבלות - ניהול state מרכזי של כל הקבלות באפליקציה
-//
-// 📦 Dependencies:
-// - ReceiptRepository: ממשק לטעינת/שמירת קבלות
-// - UserContext: household_id + auth state
-//
-// ✨ Features:
-// - 📥 טעינה אוטומטית: מאזין ל-UserContext ומריענן כשמשתמש משתנה
-// - ✏️ CRUD מלא: יצירה, עדכון, מחיקה של קבלות
-// - 📊 State management: isLoading, hasError, isEmpty
-// - 🔄 Auto-sync: רענון אוטומטי כשמשתמש מתחבר/מתנתק
-// - 🛡️ Dispose-safe: _isDisposed guard + _notifySafe() prevents post-dispose crash
-// - 🐛 Logging מפורט: כל פעולה עם debugPrint
-//
-// 📝 Usage:
-// ```dart
-// // בקריאת נתונים:
-// final provider = context.watch<ReceiptProvider>();
-// final receipts = provider.receipts;
-//
-// // ביצירת קבלה:
-// final receipt = await context.read<ReceiptProvider>().createReceipt(
-//   storeName: 'שופרסל',
-//   date: DateTime.now(),
-//   items: [item1, item2],
-// );
-//
-// // בעדכון:
-// await context.read<ReceiptProvider>().updateReceipt(updatedReceipt);
-//
-// // במחיקה:
-// await context.read<ReceiptProvider>().deleteReceipt(receiptId);
-// ```
-//
-// 🔄 State Flow:
-// 1. Constructor → updateUserContext() → _initialize()
-// 2. UserContext changes → _onUserChanged() → _loadReceipts()
-// 3. CRUD operations → Repository → Update local state → notifyListeners()
-//
-// Version: 3.3 (_isDisposed guard + _notifySafe)
-// Last Updated: 24/03/2026
-//
+// lib/providers/receipt_provider.dart — Receipt provider — shopping receipts CRUD, household-scoped, fetch with retention
 
 import 'dart:async';
 

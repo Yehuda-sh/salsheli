@@ -1,9 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/action_center_card.dart
-//
-// 🎯 Action Center — מציג פריטים שדורשים טיפול מהמשתמש.
-// נעלם כשאין מה לטפל. כל פריט הוא actionable.
-//
-// 🔗 Related: ShoppingListsProvider, InventoryProvider, PendingInvitesService
+// lib/screens/home/dashboard/widgets/action_center_card.dart — Action center — pending requests, overdue lists, critical stock alerts
 
 import 'dart:async';
 

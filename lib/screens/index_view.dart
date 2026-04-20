@@ -1,24 +1,4 @@
-// 📄 lib/screens/index_view.dart
-//
-// Version: 4.0 (22/02/2026)
-//
-// 🇮🇱 **מרכיבים חזותיים למסך הפתיחה** — IndexLoadingView, IndexErrorView.
-//
-// ✨ Features:
-//     - NotebookBackground hint (opacity ~0.05) — רקע מחברת עדין
-//     - RepaintBoundary — בידוד אנימציות גלים ולוגו
-//     - flutter_animate — fadeIn → slideY → shimmer לשם האפליקציה
-//     - Blur transition — אפקט טשטוש בהחלפת הודעות
-//     - Haptic Feedback — vibrate on error, lightImpact on retry, selectionClick on logo
-//     - Glassmorphism — כרטיס שגיאה עם BackdropFilter
-//     - Gradient curve: easeInOutCubic (נשימה עדינה)
-//
-// 📅 History:
-//     v4.0 (22/02/2026) — NotebookBackground hint, RepaintBoundary, flutter_animate,
-//                          blur messages, haptic feedback, glassmorphism error card
-//     v3.0              — Splash gradient, wave animation, message rotation
-//
-// 🔗 Related: index_screen, ui_constants, AppStrings.index, notebook_background
+// lib/screens/index_view.dart — Index view — animated splash/loading screen with logo and rotating messages
 
 import 'dart:async';
 import 'dart:math' as math;

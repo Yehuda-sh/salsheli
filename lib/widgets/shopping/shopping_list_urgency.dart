@@ -1,9 +1,4 @@
-// 📄 lib/widgets/shopping/shopping_list_urgency.dart
-//
-// לוגיקת חישוב דחיפות לפי תאריך יעד.
-// מופרד מ-ShoppingListTile לקריאות וטסטביליות.
-//
-// 🔗 Related: ShoppingListTile, ShoppingListTags
+// lib/widgets/shopping/shopping_list_urgency.dart — Shopping list urgency — calculate urgency level from list age and items
 
 import 'package:flutter/material.dart';
 import '../../core/status_colors.dart';

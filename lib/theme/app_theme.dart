@@ -1,9 +1,4 @@
-// 📄 lib/theme/app_theme.dart
-//
-// מערכת Theme מרכזית - Material 3, Light/Dark, Dynamic Color, AppBrand.
-// כולל צבעי מותג (Amber), success/warning, Sticky Notes, ו-Typography מדויק.
-//
-// 🔗 Related: AppBrand, ui_constants, ColorScheme
+// lib/theme/app_theme.dart — App theme — Material 3 light/dark themes, AppBrand extension, dynamic colors
 
 import 'package:flutter/material.dart';
 

@@ -1,24 +1,4 @@
-// 📄 File: lib/widgets/inventory/pantry_item_dialog.dart
-//
-// 🎯 מטרה: דיאלוג מאוחד להוספה ועריכת פריטי מזווה
-//
-// 📋 כולל:
-// - תמיכה בשני מצבים: add/edit
-// - ולידציה מלאה של שדות
-// - בחירת מיקום אחסון עם אמוג'י
-// - תצוגה אדפטיבית לפי theme
-// - תאריך תפוגה (DatePicker)
-// - הערות (TextField)
-// - מוצר קבוע (Checkbox)
-// - סטטיסטיקות קנייה (read-only)
-//
-// 🔗 Dependencies:
-// - InventoryItem: המודל של הפריט
-// - StorageLocationsConfig: הגדרות מיקומים
-// - InventoryProvider: ניהול state
-//
-// Version: 2.1 - Design tokens (hardcoded sizes → kSpacing/kFontSize constants)
-// Last Updated: 24/03/2026
+// lib/widgets/inventory/pantry_item_dialog.dart — Pantry item dialog — add/edit inventory item with all fields and barcode scan
 
 import 'dart:async';
 

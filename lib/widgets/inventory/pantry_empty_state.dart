@@ -1,16 +1,4 @@
-// 📄 lib/widgets/inventory/pantry_empty_state.dart
-//
-// Empty State למזווה — חוויה מזמינה, "חיה" ויוקרתית.
-//
-// Features:
-//   - Choreographed Entrance: כניסה מדורגת 5 קבוצות, 200ms בין כל קבוצה
-//   - Physical Sticky Notes: rotate 0.01/-0.01, animate:false (תיזמון חיצוני)
-//   - Haptic via StickyButton.haptic (not manual)
-//   - RepaintBoundary: מבודד אנימציות כניסה משאר עץ הווידג'טים
-//   - Gap: ריווח סמנטי במקום SizedBox
-//   - Status Badge: Center wrapper לתיקון יישור RTL
-//
-// 🔗 Related: MyPantryScreen, InventoryProvider
+// lib/widgets/inventory/pantry_empty_state.dart — Pantry empty state — onboarding illustration with how-to-start steps
 
 import 'package:flutter/material.dart';
 import '../../l10n/app_strings.dart';

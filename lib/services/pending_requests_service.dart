@@ -1,26 +1,4 @@
-// 📄 File: lib/services/pending_requests_service.dart
-//
-// 🎯 מטרה: ניהול בקשות ממתינות לשינויים ברשימות קניות משותפות
-//
-// 📋 Features:
-// - יצירת בקשות (Editor מבקש הוספת מוצר)
-// - אישור/דחיית בקשות (Owner/Admin בלבד)
-// - שליפת בקשות ממתינות (לבאדג' ולממשק)
-// - ניקוי אוטומטי של בקשות ישנות (מעל 7 ימים)
-// - שליחת התראות למבקש על אישור/דחייה
-//
-// 🔐 Permission Model:
-// - Editor: יכול רק לבקש (createRequest)
-// - Admin/Owner: יכול לאשר/לדחות (approve/reject)
-//
-// 🔗 Related:
-// - PendingRequest (models/pending_request.dart)
-// - ShoppingList (models/shopping_list.dart)
-// - ShareListService (services/share_list_service.dart)
-// - NotificationsService (services/notifications_service.dart)
-//
-// Version: 1.0
-// Last Updated: 13/01/2026
+// lib/services/pending_requests_service.dart — Pending requests service — editor approval workflow (add/edit/delete item requests)
 
 import 'dart:developer';
 

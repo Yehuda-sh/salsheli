@@ -1,7 +1,4 @@
-// 📄 lib/screens/home/dashboard/widgets/onboarding_tips_card.dart
-//
-// 🎯 כרטיסי הדרכה למשתמשים חדשים — Sticky Notes צבעוניים.
-// נעלמים אוטומטית כשהמשתמש מתקדם.
+// lib/screens/home/dashboard/widgets/onboarding_tips_card.dart — Onboarding tips — invite family card for solo users
 
 import 'dart:async';
 

@@ -1,9 +1,4 @@
-// 📄 lib/services/home_widget_service.dart
-//
-// שירות לעדכון Home Screen Widget עם נתוני מזווה.
-// משתמש ב-home_widget package לתקשורת עם native widgets.
-//
-// 🔗 Related: InventoryProvider, InventoryItem
+// lib/services/home_widget_service.dart — Home widget service — Android/iOS home screen widget data updates
 
 import 'dart:convert';
 

@@ -1,35 +1,5 @@
-// 📄 File: lib/models/notification.dart
-//
-// Version: 4.0 (22/02/2026)
-//
-// 🇮🇱 מודל התראה באפליקציה — "UI-aware notification":
-//     - הזמנות לרשימות
-//     - אישור/דחייה של בקשות
-//     - שינויי תפקיד והסרות
-//     - התראות מזווה (מלאי נמוך)
-//
-// 🇬🇧 App notification model — UI-aware:
-//     - List invitations
-//     - Request approvals/rejections
-//     - Role changes and removals
-//     - Pantry alerts (low stock)
-//
-// ✨ Features:
-//     - StatusType linkage (semantic status per notification type)
-//     - Haptic Hints (recommendedHaptic per priority)
-//     - Priority Mapping (NotificationPriority enum)
-//     - Extended actionData helpers (productId, volunteerName, etc.)
-//
-// 📅 History:
-//     v4.0 (22/02/2026) — StatusType linkage, Priority enum, Haptic hints, extended helpers
-//     v3.0              — actionData converter, immutable factory, copyWith
-//
-// 🔗 Related:
-//     - NotificationsProvider (providers/notifications_provider.dart)
-//     - NotificationsRepository (repositories/notifications_repository.dart)
-//     - NotificationsList (screens/notifications/)
-//     - StatusColors (core/status_colors.dart)
-//
+// lib/models/notification.dart — Notification model — in-app notifications with type, action data, read status
+
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 

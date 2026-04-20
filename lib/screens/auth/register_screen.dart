@@ -1,30 +1,4 @@
-// 📄 lib/screens/auth/register_screen.dart
-//
-// **מסך הרשמה** - יצירת חשבון חדש עם Firebase Auth.
-// כולל Form validation, shake animation לשגיאות,
-// תמיכה מלאה ב-RTL ו-Dark Mode.
-//
-// ✅ Features:
-//    - Form validation עם הודעות שגיאה בעברית
-//    - Shake animation לפידבק ויזואלי על שגיאות
-//    - Theme-aware colors (Dark Mode support)
-//    - Accessibility: Semantics + Tooltips
-//    - RTL support מלא
-//    - בדיקת הזמנות ממתינות לקבוצות אחרי הרשמה
-//    - Haptic Feedback משולב
-//    - ריכוז לוגיקת SnackBar
-//    - אנימציות כניסה מדורגות (Staggered Entrance)
-//    - Loading Overlay בעיצוב Glassmorphic
-//    - שילוב NotebookBackground עמוק
-//
-// 🔗 Related: UserContext, LoginScreen, PendingInvitesProvider
-//
-// 📜 History:
-//     - v3.1: Form validation, shake, haptic, social login
-//     - v4.0 (22/02/2026): Staggered animations, glassmorphic overlay, deep NotebookBackground
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/screens/auth/register_screen.dart — Register screen — email/password signup with household name prompt + pending invites
 
 import 'dart:async';
 import 'dart:ui';

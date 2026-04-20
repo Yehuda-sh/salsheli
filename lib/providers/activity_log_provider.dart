@@ -1,13 +1,4 @@
-// 📄 File: lib/providers/activity_log_provider.dart
-//
-// Provider ליומן פעילות הבית — טוען ומנהל אירועים.
-// עוקב אחרי אותו pattern של ReceiptProvider:
-//   - מאזין ל-UserContext
-//   - טעינה אוטומטית בהתחברות
-//   - dispose-safe
-//
-// Version: 1.0
-// Last Updated: 07/04/2026
+// lib/providers/activity_log_provider.dart — Activity log provider — fetch/watch household activity events with pagination
 
 import 'dart:async';
 

@@ -1,10 +1,4 @@
-// 📄 lib/widgets/common/notebook_background.dart
-//
-// רקע מחברת עם קווים - CustomPaint יעיל.
-// Constructors: NotebookBackground() — קלאסי, NotebookBackground.subtle() — עדין (Auth)
-// RTL-aware, Dark Mode, Theme-aware (AppBrand), fadeEdges אופציונלי.
-//
-// 🔗 Related: ui_constants.dart, app_theme.dart (AppBrand)
+// lib/widgets/common/notebook_background.dart — Notebook background — lined paper with red margin line (app signature design)
 
 import 'package:flutter/material.dart';
 import '../../core/ui_constants.dart';

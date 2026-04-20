@@ -1,19 +1,4 @@
-// 📄 File: lib/screens/sharing/pending_invites_screen.dart
-//
-// 🎯 Purpose: מסך הזמנות ממתינות - לאישור או דחיית הזמנות לרשימות
-//
-// 📋 Features:
-// - תצוגת הזמנות ממתינות
-// - אישור הזמנה (הצטרפות לרשימה)
-// - דחיית הזמנה
-// - Real-time updates
-//
-// 🔗 Related:
-// - pending_invites_service.dart - שירות ניהול הזמנות
-// - invite_users_screen.dart - מסך שליחת הזמנות
-//
-// Version 3.1 - Emoji icons → Material Icons
-// Last Updated: 24/03/2026
+// lib/screens/sharing/pending_invites_screen.dart — Pending invites — accept/decline received list and household invitations
 
 import 'dart:async';
 

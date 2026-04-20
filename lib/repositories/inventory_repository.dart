@@ -1,30 +1,4 @@
-// 📄 File: lib/repositories/inventory_repository.dart
-//
-// 🎯 Purpose: Interface לניהול מלאי (Inventory)
-//
-// 📋 Features:
-//     - תמיכה במזווה אישי (/users/{userId}/inventory)
-//     - תמיכה במזווה משק בית (/households/{householdId}/inventory) - Legacy
-//     - תמיכה במעבר חלק בין מזווה אישי למשק בית (Legacy)
-//     - תיעוד מלא ל-Intellisense
-//
-// 📋 Implementations:
-//     - FirebaseInventoryRepository - מימוש הייצור הרשמי (Firestore)
-//
-// 🔗 Related:
-//     - lib/repositories/firebase_inventory_repository.dart - המימוש
-//     - lib/providers/inventory_provider.dart - Provider שמשתמש ב-repository
-//     - lib/models/inventory_item.dart - מבנה הנתונים
-//
-// 📜 History:
-//     - v1.0 (06/10/2025): Interface + MockInventoryRepository
-//     - v2.0 (09/10/2025): הוסר Mock אחרי מעבר מלא ל-Firebase
-//     - v3.0 (16/12/2025): תמיכה במזווה אישי (/users) ומשותף (/groups)
-//     - v3.1 (27/01/2026): הוסר תמיכה בקבוצות (Groups feature removed)
-//     - v4.0 (22/02/2026): תיעוד מלא, יישור עם שכבת הנתונים החדשה
-//
-// Version: 4.0
-// Last Updated: 22/02/2026
+// lib/repositories/inventory_repository.dart — Inventory repository interface — abstract CRUD + streams for pantry items
 
 import '../models/inventory_item.dart';
 

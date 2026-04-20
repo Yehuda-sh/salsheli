@@ -1,34 +1,4 @@
-// 📄 File: lib/repositories/shopping_lists_repository.dart
-//
-// 🎯 Purpose: Interface לניהול רשימות קניות (Shopping Lists)
-//
-// 📋 Features:
-//     - תמיכה בטעינה ממוזגת (Merged Fetch/Watch) - פרטיות + משותפות
-//     - ניהול הרשאות מתקדם (Roles: owner/admin/editor/viewer)
-//     - מערכת בקשות ממתינות (Pending Requests)
-//     - תיעוד מלא ל-Intellisense
-//
-// 🏗️ Database Structure (Dual Collection):
-//     - Private lists: `/users/{userId}/private_lists/{listId}`
-//     - Shared lists: `/households/{householdId}/shared_lists/{listId}`
-//
-// 📋 Implementations:
-//     - FirebaseShoppingListsRepository - מימוש הייצור (Firestore)
-//
-// 🔗 Related:
-//     - lib/repositories/firebase_shopping_lists_repository.dart - המימוש
-//     - lib/providers/shopping_lists_provider.dart - Provider שמשתמש ב-repository
-//     - lib/models/shopping_list.dart - מבנה הנתונים
-//
-// 📜 History:
-//     - v1.0: Interface ראשוני
-//     - v2.0: הוספת sharing + roles
-//     - v3.0 (14/12/2025): Dual collection (private + shared)
-//     - v4.0 (22/02/2026): getListById, ארגון לפי קטגוריות, תיעוד מלא
-//     - v4.1 (24/03/2026): addSharedUserToPrivateList added to interface
-//
-// Version: 4.1
-// Last Updated: 24/03/2026
+// lib/repositories/shopping_lists_repository.dart — Shopping lists repository interface — abstract CRUD + streams for lists
 
 import '../models/shopping_list.dart';
 

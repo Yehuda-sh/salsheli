@@ -1,15 +1,4 @@
-// 📄 lib/screens/notifications/notifications_center_screen.dart
-//
-// מרכז ההתראות - מציג את כל ההתראות של המשתמש:
-// - הזמנות לרשימות/קבוצות
-// - אישורים ודחיות
-// - שינויי תפקיד
-// - התראות מלאי
-// ✨ v4.0: אנימציות כניסה מדורגות (Staggered Entrance), מחוות Swipe-to-Action,
-//          AppBar בעיצוב Glassmorphic, משוב Haptic מורחב
-//
-// Version: 4.0 (22/02/2026)
-// 🔗 Related: NotificationsService, AppNotification
+// lib/screens/notifications/notifications_center_screen.dart — Notifications center — in-app notification list with mark-read, delete, pagination
 
 import 'dart:async';
 import 'dart:ui';

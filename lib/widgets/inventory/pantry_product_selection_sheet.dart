@@ -1,20 +1,4 @@
-// 📄 File: lib/widgets/inventory/pantry_product_selection_sheet.dart
-//
-// 🎯 מטרה: Bottom sheet לבחירת מוצרים להוספה למזווה
-//
-// 📋 כולל:
-// - טעינת מוצרים מכל סוגי הרשימות (סופרמרקט, בית מרקחת, ירקן וכו')
-// - חיפוש וסינון לפי קטגוריה
-// - בחירת מיקום אחסון וכמות
-// - הוספה ישירה למזווה
-//
-// 🔗 Dependencies:
-// - LocalProductsRepository: טעינת מוצרים מ-assets
-// - InventoryProvider: הוספה למזווה
-// - StorageLocationsConfig: מיקומי אחסון
-//
-// Version: 1.0
-// Last Updated: 30/11/2025
+// lib/widgets/inventory/pantry_product_selection_sheet.dart — Pantry product selection — search and pick products from catalog to add to pantry
 
 import 'dart:async';
 

@@ -1,23 +1,4 @@
-// 📄 File: lib/screens/shopping/checklist/checklist_screen.dart
-//
-// 🎯 Purpose: מסך צ'קליסט פשוט - סימון V פשוט
-//
-// ✨ Features:
-// - ✅ סימון פריטים פשוט (optimistic update)
-// - 📊 מונה התקדמות עם אנימציה חלקה
-// - 🎨 עיצוב Glassmorphic Header (BackdropFilter)
-// - 💫 Staggered animations לפריטים (fadeIn/slideX)
-// - 📳 Haptic Feedback משופר (check/uncheck/completion)
-// - ⚠️ אינדיקציית שגיאת סנכרון
-// - ⚡ RepaintBoundary per item row
-// - 🔙 כפתור סגור צף (Immersive UI)
-//
-// 🔗 Related:
-// - unified_list_item.dart - מודל פריט
-// - shopping_lists_provider.dart - עדכון סימון
-//
-// Version 3.0 - Hybrid Premium
-// Last Updated: 22/02/2026
+// lib/screens/shopping/checklist/checklist_screen.dart — Checklist screen — simple check/uncheck mode with optimistic updates and rollback
 
 import 'dart:async';
 import 'dart:ui';

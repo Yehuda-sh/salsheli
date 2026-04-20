@@ -1,14 +1,4 @@
-// 📄 lib/services/auth_service.dart
-//
-// שירות אימות עוטף Firebase Auth - הרשמה, התחברות, התנתקות, איפוס סיסמה.
-// כולל הודעות שגיאה בעברית (AppStrings), עדכון פרופיל, ומחיקת חשבון.
-//
-// ✅ תיקונים:
-//    - AuthException typed exception עם AuthErrorCode enum
-//    - signOut() מחזיר bool להצלחה/כישלון
-//    - AuthUser & SocialLoginResult DTOs — חוסמים דליפת firebase_auth ל-providers
-//
-// 🔗 Related: FirebaseAuth, AppStrings.auth, UserContext
+// lib/services/auth_service.dart — Auth service — Firebase Auth wrapper: login, register, social auth, delete account
 
 import 'dart:convert';
 import 'dart:math';

@@ -1,12 +1,4 @@
-// 📄 lib/services/household_service.dart
-//
-// 🏠 שירות ניהול משק בית — עוטף את כל הגישות הישירות ל-Firestore
-// שמשמשות את household_members_screen ו-household_activity_feed.
-//
-// ✅ מרכז את לוגיקת ה-membership במקום אחד
-// ✅ משתמש ב-FirestoreCollections constants
-//
-// 🔗 Related: household_members_screen.dart, household_activity_feed.dart
+// lib/services/household_service.dart — Household service — members CRUD, role toggle, leave/remove, create personal household
 
 import 'dart:async';
 

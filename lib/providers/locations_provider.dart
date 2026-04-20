@@ -1,9 +1,4 @@
-// 📄 lib/providers/locations_provider.dart
-//
-// Provider לניהול מיקומי אחסון מותאמים אישית - משותף לכל household.
-// CRUD מלא עם סנכרון אוטומטי ב-Firestore.
-//
-// 🔗 Related: CustomLocation, LocationsRepository, UserContext
+// lib/providers/locations_provider.dart — Locations provider — custom storage locations CRUD for pantry organization
 
 import 'package:flutter/foundation.dart';
 
