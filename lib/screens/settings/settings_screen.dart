@@ -1364,22 +1364,30 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: _forwardChevron(),
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  const HouseholdMembersScreen(),
-                            ),
-                          ),
+                          onTap: () {
+                            unawaited(HapticFeedback.selectionClick());
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    const HouseholdMembersScreen(),
+                              ),
+                            );
+                          },
                         ),
+                        const Divider(height: 1, indent: kIconSizeXLarge),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: Icon(Icons.person_add_outlined, color: cs.tertiary),
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
                           trailing: _forwardChevron(),
-                          onTap: () => _showInviteToHouseholdDialog(userContext),
+                          onTap: () {
+                            unawaited(HapticFeedback.selectionClick());
+                            _showInviteToHouseholdDialog(userContext);
+                          },
                         ),
+                        const Divider(height: 1, indent: kIconSizeXLarge),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: Icon(Icons.label_outline, color: cs.secondary),
@@ -1477,11 +1485,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                       const SizedBox(height: kSpacingSmall),
                       ListTile(
-                        leading: Icon(Icons.info_outline, color: cs.primary),
+                        leading: Icon(Icons.info_outline, color: cs.secondary),
                         title: Text(AppStrings.settings.about),
                         subtitle: Text(AppStrings.settings.versionLabel(_appVersion)),
                         trailing: _forwardChevron(),
                         onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
                           showAboutDialog(
                             context: context,
                             applicationName: 'MemoZap',
@@ -1503,17 +1512,23 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: Icon(Icons.description_outlined, color: cs.primary),
+                        leading: Icon(Icons.description_outlined, color: cs.outline),
                         title: Text(AppStrings.settings.termsOfService),
                         trailing: _forwardChevron(),
-                        onTap: () => showTermsOfServiceDialog(context),
+                        onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          showTermsOfServiceDialog(context);
+                        },
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: Icon(Icons.privacy_tip_outlined, color: cs.primary),
+                        leading: Icon(Icons.privacy_tip_outlined, color: cs.outline),
                         title: Text(AppStrings.settings.privacyPolicy),
                         trailing: _forwardChevron(),
-                        onTap: () => showPrivacyPolicyDialog(context),
+                        onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
+                          showPrivacyPolicyDialog(context);
+                        },
                       ),
                     ],
                   ),
@@ -1535,7 +1550,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error, fontWeight: FontWeight.w600)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
                     trailing: _forwardChevron(color: cs.error),
-                    onTap: _logout,
+                    onTap: () {
+                      unawaited(HapticFeedback.heavyImpact());
+                      _logout();
+                    },
                   ),
                 )),
 
@@ -1573,7 +1591,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       style: TextStyle(color: cs.error.withValues(alpha: 0.6)),
                     ),
                     trailing: _forwardChevron(color: cs.error),
-                    onTap: _showDeleteAccountDialog,
+                    onTap: () {
+                      unawaited(HapticFeedback.heavyImpact());
+                      _showDeleteAccountDialog();
+                    },
                   ),
                 )),
 
