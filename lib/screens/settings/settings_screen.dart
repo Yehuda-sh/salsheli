@@ -1118,19 +1118,23 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     padding: const EdgeInsets.all(kSpacingLarge),
                     child: Column(
                       children: [
-                        // Avatar with gradient ring
-                        Container(
-                          padding: const EdgeInsets.all(kSpacingXTiny),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [cs.primary, cs.tertiary],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 40,
+                        // Avatar with gradient ring + camera hint
+                        GestureDetector(
+                          onTap: _showEditProfileBottomSheet,
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(kSpacingXTiny),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [cs.primary, cs.tertiary],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: kIconSizeXLarge,
                             backgroundColor: cs.surface,
                             backgroundImage: userContext.profileImageUrl != null &&
                                     userContext.profileImageUrl!.startsWith('http')
@@ -1151,6 +1155,23 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                         userName.isNotEmpty ? userName[0] : '?',
                                         style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.primary),
                                       ),
+                          ),
+                        ),
+                              // Camera badge
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(kSpacingXTiny),
+                                  decoration: BoxDecoration(
+                                    color: cs.primary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: cs.surface, width: 2),
+                                  ),
+                                  child: Icon(Icons.camera_alt, size: kIconSizeSmall, color: cs.onPrimary),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
@@ -1495,14 +1516,14 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 התנתקות
                 _animatedSection(6, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.errorContainer.withValues(alpha: 0.3),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.error.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.error.withValues(alpha: 0.25)),
                   ),
                   child: ListTile(
                     leading: Icon(Icons.logout, color: cs.error),
-                    title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error)),
+                    title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error, fontWeight: FontWeight.w600)),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
                     trailing: _forwardChevron(color: cs.error),
                     onTap: _logout,
