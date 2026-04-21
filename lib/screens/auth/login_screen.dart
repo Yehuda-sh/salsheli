@@ -782,12 +782,12 @@ class _LoginScreenState extends State<LoginScreen>
                                   ),
                                 ),
                               ],
+                            ),
                             )
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 400.ms),
                             const SizedBox(height: kSpacingMedium),
                           ],
-                        ),
                         ),
                       ),
                     ),
