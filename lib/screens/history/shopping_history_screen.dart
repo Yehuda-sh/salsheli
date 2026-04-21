@@ -223,9 +223,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                 children: [
                   Icon(
                     Icons.history,
-                    size: kIconSizeXLarge,
-                    color: cs.onSurfaceVariant,
-                  ),
+                    size: kIconSizeXLarge * 2,
+                    color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                  ).animate(onPlay: (c) => c.repeat(reverse: true))
+                   .scaleXY(begin: 1.0, end: 1.05, duration: 2000.ms),
                   const SizedBox(height: kSpacingMedium),
                   Text(
                     strings.emptyTitle,
@@ -691,7 +692,7 @@ class _ReceiptTile extends StatelessWidget {
             ),
           ),
           title: Text(
-            receipt.storeName,
+            fixBidiNumbers(receipt.storeName),
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: kFontSizeMedium,
@@ -723,7 +724,7 @@ class _ReceiptTile extends StatelessWidget {
               const SizedBox(height: kSpacingXTiny),
               // 💰 סכום הקנייה — שורה נפרדת ובולטת
               Text(
-                '₪${receipt.totalAmount.toStringAsFixed(0)}',
+                fixBidiNumbers('₪${receipt.totalAmount.toStringAsFixed(0)}'),
                 style: TextStyle(
                   fontSize: kFontSizeBody,
                   fontWeight: FontWeight.bold,
@@ -815,7 +816,7 @@ class _ReceiptTile extends StatelessWidget {
           // שם פריט — פונט קטן יותר + 2 שורות
           Expanded(
             child: Text(
-              item.name ?? '?',
+              fixBidiNumbers(item.name ?? AppStrings.common.defaultProductName),
               style: TextStyle(
                 fontSize: kFontSizeSmall,
                 decoration:
@@ -830,7 +831,7 @@ class _ReceiptTile extends StatelessWidget {
           ),
           // מחיר
           Text(
-            '₪${item.totalPrice.toStringAsFixed(2)}',
+            fixBidiNumbers('₪${item.totalPrice.toStringAsFixed(2)}'),
             style: TextStyle(
               fontWeight: FontWeight.w600,
               color: cs.primary,
