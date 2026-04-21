@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
@@ -321,7 +322,10 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          FilterChip(
+                          AnimatedScale(
+                            scale: _filterPeriod == 'month' ? 1.05 : 1.0,
+                            duration: const Duration(milliseconds: 150),
+                            child: FilterChip(
                             label: Text(strings.filterThisMonth),
                             selected: _filterPeriod == 'month',
                             selectedColor:
@@ -332,8 +336,12 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                               setState(() => _filterPeriod = 'month');
                             },
                           ),
+                          ),
                           const SizedBox(width: kSpacingSmall),
-                          FilterChip(
+                          AnimatedScale(
+                            scale: _filterPeriod == '3months' ? 1.05 : 1.0,
+                            duration: const Duration(milliseconds: 150),
+                            child: FilterChip(
                             label: Text(strings.filterThreeMonths),
                             selected: _filterPeriod == '3months',
                             selectedColor:
@@ -344,8 +352,12 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                               setState(() => _filterPeriod = '3months');
                             },
                           ),
+                          ),
                           const SizedBox(width: kSpacingSmall),
-                          FilterChip(
+                          AnimatedScale(
+                            scale: _filterPeriod == 'all' ? 1.05 : 1.0,
+                            duration: const Duration(milliseconds: 150),
+                            child: FilterChip(
                             label: Text(strings.filterAll),
                             selected: _filterPeriod == 'all',
                             selectedColor:
@@ -355,6 +367,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                               unawaited(HapticFeedback.lightImpact());
                               setState(() => _filterPeriod = 'all');
                             },
+                          ),
                           ),
                         ],
                       ),
@@ -957,30 +970,43 @@ class _ActivityEventTile extends StatelessWidget {
   const _ActivityEventTile({required this.event});
 
   IconData _iconForType(ActivityType type) {
-    switch (type) {
-      case ActivityType.shoppingCompleted:
-        return Icons.check_circle;
-      case ActivityType.shoppingStarted:
-        return Icons.shopping_cart;
-      case ActivityType.shoppingJoined:
-        return Icons.group_add;
-      case ActivityType.listCreated:
-        return Icons.playlist_add;
-      case ActivityType.itemAdded:
-        return Icons.add_circle_outline;
-      case ActivityType.stockUpdated:
-        return Icons.inventory_2;
-      case ActivityType.memberLeft:
-        return Icons.person_remove;
-      case ActivityType.roleChanged:
-        return Icons.admin_panel_settings;
-      case ActivityType.unknown:
-        return Icons.info_outline;
+    return switch (type) {
+      ActivityType.shoppingCompleted => Icons.check_circle,
+      ActivityType.shoppingStarted => Icons.shopping_cart,
+      ActivityType.shoppingJoined => Icons.group_add,
+      ActivityType.listCreated => Icons.playlist_add,
+      ActivityType.itemAdded => Icons.add_circle_outline,
+      ActivityType.stockUpdated => Icons.inventory_2,
+      ActivityType.memberLeft => Icons.person_remove,
+      ActivityType.roleChanged => Icons.admin_panel_settings,
+      ActivityType.unknown => Icons.info_outline,
+    };
+  }
+
+  Color _colorForType(ActivityType type, ColorScheme cs) {
+    return switch (type) {
+      ActivityType.shoppingCompleted => cs.primary,
+      ActivityType.shoppingStarted => cs.tertiary,
+      ActivityType.shoppingJoined => cs.tertiary,
+      ActivityType.listCreated => cs.secondary,
+      ActivityType.itemAdded => cs.primary,
+      ActivityType.stockUpdated => cs.secondary,
+      ActivityType.memberLeft => cs.error,
+      ActivityType.roleChanged => cs.tertiary,
+      ActivityType.unknown => cs.outline,
+    };
+  }
+
+  String _formatEventTime(DateTime date, String locale) {
+    final diff = DateTime.now().difference(date);
+    if (diff.inHours < 24) {
+      return timeago.format(date, locale: locale == 'he' ? 'he' : 'en');
     }
+    return DateFormat('dd/MM  HH:mm', locale).format(date);
   }
 
   String _descriptionForEvent(ActivityLogStrings strings) {
-    final actor = event.actorName.isNotEmpty ? event.actorName : '?';
+    final actor = event.actorName.isNotEmpty ? event.actorName : AppStrings.common.defaultUserName;
     switch (event.type) {
       case ActivityType.shoppingCompleted:
         return strings.shoppingCompleted(actor, event.listName ?? '');
@@ -1014,19 +1040,19 @@ class _ActivityEventTile extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar circle with icon
+          // Avatar circle with color-coded icon
           Container(
             width: kIconSizeLarge,
             height: kIconSizeLarge,
             decoration: BoxDecoration(
-              color: cs.primaryContainer,
+              color: _colorForType(event.type, cs).withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Icon(
               _iconForType(event.type),
               size: kIconSizeSmallPlus,
-              color: cs.onPrimaryContainer,
+              color: _colorForType(event.type, cs),
             ),
           ),
           const SizedBox(width: kSpacingSmallPlus),
@@ -1044,7 +1070,7 @@ class _ActivityEventTile extends StatelessWidget {
                 ),
                 const SizedBox(height: kSpacingXTiny),
                 Text(
-                  DateFormat('dd/MM  HH:mm', locale).format(event.createdAt),
+                  _formatEventTime(event.createdAt, locale),
                   style: TextStyle(
                     fontSize: kFontSizeSmall,
                     color: cs.onSurfaceVariant,
