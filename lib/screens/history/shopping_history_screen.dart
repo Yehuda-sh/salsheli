@@ -204,14 +204,13 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
         if (provider.isLoading) {
           return const AppLoadingSkeleton(
             sectionCount: 4,
-            showHero: false,
           );
         }
 
         if (provider.hasError) {
           return AppErrorState(
             message: strings.defaultError,
-            onAction: () => provider.retry(),
+            onAction: provider.retry,
             actionLabel: strings.retryButton,
           );
         }
@@ -298,7 +297,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
               if (provider.hasError) {
                 return AppErrorState(
                   message: provider.errorMessage ?? strings.defaultError,
-                  onAction: () => provider.retry(),
+                  onAction: provider.retry,
                   actionLabel: strings.retryButton,
                 );
               }
@@ -476,8 +475,8 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                   const SizedBox(height: kSpacingSmall),
 
                   // 📰 פיד פעילות הבית
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
                     child: RepaintBoundary(
                       child: HouseholdActivityFeed(showSeeAll: false),
                     ),
