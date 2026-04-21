@@ -49,7 +49,6 @@ class ActiveShoppingItemTile extends StatelessWidget {
     return Dismissible(
       key: ValueKey('swipe_${item.id}'),
       confirmDismiss: (direction) async {
-        unawaited(HapticFeedback.lightImpact());
         // RTL-aware: in Hebrew, startToEnd is visual RIGHT→LEFT,
         // which is the "out of stock" gesture. Without this check
         // the swipe directions are backwards for RTL users.
@@ -58,10 +57,12 @@ class ActiveShoppingItemTile extends StatelessWidget {
             ? direction == DismissDirection.endToStart
             : direction == DismissDirection.startToEnd;
         if (isOutOfStock) {
+          unawaited(HapticFeedback.heavyImpact());
           onStatusChanged(status == ShoppingItemStatus.outOfStock
               ? ShoppingItemStatus.pending
               : ShoppingItemStatus.outOfStock);
         } else {
+          unawaited(HapticFeedback.selectionClick());
           onStatusChanged(status == ShoppingItemStatus.notNeeded
               ? ShoppingItemStatus.pending
               : ShoppingItemStatus.notNeeded);
@@ -125,10 +126,13 @@ class ActiveShoppingItemTile extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  unawaited(HapticFeedback.mediumImpact());
-                  onStatusChanged(status == ShoppingItemStatus.purchased
+                  final nextStatus = status == ShoppingItemStatus.purchased
                       ? ShoppingItemStatus.pending
-                      : ShoppingItemStatus.purchased);
+                      : ShoppingItemStatus.purchased;
+                  unawaited(nextStatus == ShoppingItemStatus.purchased
+                      ? HapticFeedback.lightImpact()
+                      : HapticFeedback.selectionClick());
+                  onStatusChanged(nextStatus);
                 },
                 child: Row(
                   children: [

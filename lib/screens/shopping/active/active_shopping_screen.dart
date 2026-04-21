@@ -1230,19 +1230,25 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         ),
                         const SizedBox(height: kSpacingSmall),
 
-                        // פריטים בקטגוריה (מוסתרים כשמקופל)
-                        if (!_collapsedCategories.contains(category))
-                          ...items.map<Widget>(
-                            (item) => RepaintBoundary(
-                              child: ActiveShoppingItemTile(
-                                item: item,
-                                // 🔧 Fallback ל-pending אם פריט לא קיים במפה (הגנה מקריסה)
-                                status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
-                                onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
-                                onQuantityChanged: (newQty) => _updateItemQuantity(item, newQty),
-                              ),
-                            ),
-                          ),
+                        // פריטים בקטגוריה — animated collapse/expand
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          child: _collapsedCategories.contains(category)
+                              ? const SizedBox.shrink()
+                              : Column(
+                                  children: items.map<Widget>(
+                                    (item) => RepaintBoundary(
+                                      child: ActiveShoppingItemTile(
+                                        item: item,
+                                        status: _itemStatuses[item.id] ?? ShoppingItemStatus.pending,
+                                        onStatusChanged: (newStatus) => _updateItemStatus(item, newStatus),
+                                        onQuantityChanged: (newQty) => _updateItemQuantity(item, newQty),
+                                      ),
+                                    ),
+                                  ).toList(),
+                                ),
+                        ),
 
                         const SizedBox(height: kSpacingMedium),
                       ],
