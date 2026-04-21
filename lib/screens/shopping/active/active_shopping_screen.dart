@@ -469,7 +469,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       for (final r in receipts.take(20)) {
         if (r.storeName.isNotEmpty) stores.add(r.storeName);
       }
-    } catch (_) { // Non-critical
+    } catch (e) {
       debugPrint('ActiveShopping: failed to collect stores — $e');
     }
     // הסר את שם הרשימה הנוכחית (לא רלוונטי)
@@ -644,7 +644,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               },
             ));
           }
-        } catch (_) { // Non-critical
+        } catch (e) {
           debugPrint('❌ Failed to create receipt: $e');
         }
       }

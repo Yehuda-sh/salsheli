@@ -938,7 +938,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     return list.items.fold(0.0, (total, item) {
       final price = item.unitPrice ?? 0.0;
       final qty = item.quantity ?? 1;
-      return sum + (price * qty);
+      return total + (price * qty);
     });
   }
 
