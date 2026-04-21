@@ -3,6 +3,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart' show HapticFeedback;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -1585,7 +1587,10 @@ class _NotificationToggle extends StatelessWidget {
         ),
       ),
       value: value,
-      onChanged: onChanged,
+      onChanged: (val) {
+        unawaited(val ? HapticFeedback.lightImpact() : HapticFeedback.selectionClick());
+        onChanged(val);
+      },
       activeThumbColor: cs.primary,
       activeTrackColor: cs.primary.withValues(alpha: 0.3),
       dense: true,
@@ -1613,8 +1618,14 @@ class _ThemeCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Expanded(
       child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          onTap();
+        },
+        child: AnimatedScale(
+          scale: isSelected ? 1.05 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus, horizontal: kSpacingSmall),
           decoration: BoxDecoration(
@@ -1643,6 +1654,7 @@ class _ThemeCard extends StatelessWidget {
               ],
             ],
           ),
+        ),
         ),
       ),
     );
