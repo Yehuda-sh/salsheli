@@ -218,7 +218,7 @@ class UserContext with ChangeNotifier {
 
       _compactView = prefs.getBool('compactView') ?? false;
       _showPrices = prefs.getBool('showPrices') ?? true;
-    } catch (e) {
+    } catch (_) { // Non-critical
     } finally {
       _notifySafe();
     }
@@ -233,7 +233,7 @@ class UserContext with ChangeNotifier {
       await prefs.setInt('themeMode', _themeMode.index);
       await prefs.setBool('compactView', _compactView);
       await prefs.setBool('showPrices', _showPrices);
-    } catch (e) {
+    } catch (_) { // Non-critical
     }
   }
 
@@ -401,7 +401,7 @@ class UserContext with ChangeNotifier {
               // 🔄 Rollback: אם יצירת הפרופיל נכשלה - מחק את המשתמש מ-Auth
               try {
                 await credential.user?.delete();
-              } catch (deleteError) {
+              } catch (_) { // Non-critical
               }
               rethrow;
             }
@@ -658,7 +658,7 @@ class UserContext with ChangeNotifier {
       await prefs.remove('themeMode');
       await prefs.remove('compactView');
       await prefs.remove('showPrices');
-    } catch (e) {
+    } catch (_) { // Non-critical
     }
 
     _notifySafe();

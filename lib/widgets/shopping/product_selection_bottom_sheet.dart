@@ -1019,7 +1019,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
         _failedImageUrls.add(url);
         return _buildEmojiPlaceholder(emoji);
       },
-      placeholder: (_, __) => _buildEmojiPlaceholder(emoji),
+      placeholder: (_, _) => _buildEmojiPlaceholder(emoji),
       imageBuilder: (context, imageProvider) {
         return Image(image: imageProvider, fit: BoxFit.contain);
       },

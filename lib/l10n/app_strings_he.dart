@@ -1759,14 +1759,15 @@ class HomeDashboardStrings {
   String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'שלום, $userName!' : 'שלום!';
   String timeBasedGreeting(String? userName, int hour) {
     final String greet;
-    if (hour >= 5 && hour < 12)
+    if (hour >= 5 && hour < 12) {
       greet = 'בוקר טוב';
-    else if (hour >= 12 && hour < 17)
+    } else if (hour >= 12 && hour < 17) {
       greet = 'צהריים טובים';
-    else if (hour >= 17 && hour < 21)
+    } else if (hour >= 17 && hour < 21) {
       greet = 'ערב טוב';
-    else
+    } else {
       greet = 'לילה טוב';
+    }
     return (userName?.trim().isNotEmpty ?? false) ? '$greet, $userName!' : '$greet!';
   }
 

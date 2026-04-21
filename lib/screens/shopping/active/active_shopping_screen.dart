@@ -144,7 +144,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       setState(() {
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (_) { // Non-critical
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -238,7 +238,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           _failedSyncCount = 0;
         });
       }
-    } catch (e) {
+    } catch (_) { // Non-critical
 
       // ⚠️ הצג אינדיקציה למשתמש שיש בעיית סנכרון
       if (mounted) {
@@ -271,7 +271,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     for (final entry in _itemStatuses.entries) {
       try {
         await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
-      } catch (e) {
+      } catch (_) { // Non-critical
         failedCount++;
         // ממשיך למרות שגיאה - כדי לסנכרן כמה שיותר
       }
@@ -300,7 +300,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     for (final entry in _itemStatuses.entries) {
       try {
         await provider.updateItemStatus(widget.list.id, entry.key, entry.value);
-      } catch (e) {
+      } catch (_) { // Non-critical
         anyFailed = true;
       }
     }
@@ -469,7 +469,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       for (final r in receipts.take(20)) {
         if (r.storeName.isNotEmpty) stores.add(r.storeName);
       }
-    } catch (e) {
+    } catch (_) { // Non-critical
       debugPrint('ActiveShopping: failed to collect stores — $e');
     }
     // הסר את שם הרשימה הנוכחית (לא רלוונטי)
@@ -583,7 +583,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             listType: widget.list.type,
             purchasedItems: purchasedNames,
           );
-        } catch (e) {
+        } catch (_) { // Non-critical
         }
       } else if (purchasedItems.isNotEmpty) {
       }
@@ -644,7 +644,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               },
             ));
           }
-        } catch (e) {
+        } catch (_) { // Non-critical
           debugPrint('❌ Failed to create receipt: $e');
         }
       }
@@ -690,7 +690,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         setState(() => _isSaving = false);
 
         unawaited(navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id));
-    } catch (e) {
+    } catch (_) { // Non-critical
 
       if (mounted) {
         // הצג הודעת שגיאה עם אפשרות retry

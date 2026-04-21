@@ -1734,14 +1734,15 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'Hello, $userName!' : 'Hello!';
   @override String timeBasedGreeting(String? userName, int hour) {
     final String greet;
-    if (hour >= 5 && hour < 12)
+    if (hour >= 5 && hour < 12) {
       greet = 'Good morning';
-    else if (hour >= 12 && hour < 17)
+    } else if (hour >= 12 && hour < 17) {
       greet = 'Good afternoon';
-    else if (hour >= 17 && hour < 21)
+    } else if (hour >= 17 && hour < 21) {
       greet = 'Good evening';
-    else
+    } else {
       greet = 'Good night';
+    }
     return (userName?.trim().isNotEmpty ?? false) ? '$greet, $userName!' : '$greet!';
   }
 

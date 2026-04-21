@@ -93,7 +93,7 @@ class ShareListService {
           inviterName: inviterName,
           role: role.hebrewName,
         );
-      } catch (e) {
+      } catch (_) { // Non-critical
       }
     }
 
@@ -160,7 +160,7 @@ class ShareListService {
           listName: list.name,
           removerName: removerName,
         );
-      } catch (e) {
+      } catch (_) { // Non-critical
       }
     }
 
@@ -237,7 +237,7 @@ class ShareListService {
           newRole: newRole.hebrewName,
           changerName: changerName,
         );
-      } catch (e) {
+      } catch (_) { // Non-critical
       }
     }
 
