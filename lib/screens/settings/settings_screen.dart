@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:flutter/services.dart' show Clipboard, ClipboardData, HapticFeedback;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -1089,7 +1089,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
-        child: ListView(
+        child: RefreshIndicator(
+          onRefresh: _loadSettings,
+          color: cs.primary,
+          child: ListView(
               padding: const EdgeInsets.all(kSpacingMedium),
               children: [
                 // 🏷️ כותרת inline
@@ -1447,11 +1450,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: Icon(Icons.school_outlined, color: cs.primary),
+                        leading: Icon(Icons.school_outlined, color: cs.secondary),
                         title: Text(AppStrings.settings.showOnboardingAgain),
                         subtitle: Text(AppStrings.settings.showOnboardingSubtitle),
                         trailing: _forwardChevron(),
                         onTap: () async {
+                          unawaited(HapticFeedback.selectionClick());
                           await TutorialService.resetTutorial(context);
                           if (!mounted) return;
                           await TutorialService.showHomeTutorialIfNeeded(context);
@@ -1489,6 +1493,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         title: Text(AppStrings.settings.about),
                         subtitle: Text(AppStrings.settings.versionLabel(_appVersion)),
                         trailing: _forwardChevron(),
+                        onLongPress: () {
+                          unawaited(HapticFeedback.mediumImpact());
+                          Clipboard.setData(ClipboardData(text: 'MemoZap v$_appVersion'));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('v$_appVersion copied'),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        },
                         onTap: () {
                           unawaited(HapticFeedback.selectionClick());
                           showAboutDialog(
@@ -1602,6 +1616,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
               ],
             ),
           ),
+        ),
         ),
       ],
     );
