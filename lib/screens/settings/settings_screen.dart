@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   late final AnimationController _animController;
   late final List<Animation<double>> _fadeAnims;
   late final List<Animation<Offset>> _slideAnims;
-  static const int _sectionCount = 7;
+  static const int _sectionCount = 9;
   // Keys לשמירה מקומית - התראות
   // TODO(fcm): הכפתורים נשמרים ב-SharedPreferences אבל עדיין לא מחוברים ל-FCM.
   //   כשנחבר FCM — צריך לקרוא את הערכים האלה ב-NotificationsService ולסנן לפיהם.
@@ -1355,7 +1355,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         const SizedBox(height: kSpacingSmall),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.people_outline),
+                          leading: Icon(Icons.people_outline, color: cs.primary),
                           title: Text(AppStrings.settings.householdMembersTitle),
                           subtitle: Text(AppStrings.settings.householdMembersSubtitle),
                           trailing: _forwardChevron(),
@@ -1369,7 +1369,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.person_add_outlined),
+                          leading: Icon(Icons.person_add_outlined, color: cs.tertiary),
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
                           trailing: _forwardChevron(),
@@ -1377,7 +1377,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         ),
                         ListTile(
                           contentPadding: EdgeInsets.zero,
-                          leading: const Icon(Icons.label_outline),
+                          leading: Icon(Icons.label_outline, color: cs.secondary),
                           title: Text(AppStrings.settings.householdName),
                           subtitle: Text(
                             userContext.householdName?.isNotEmpty == true
@@ -1549,7 +1549,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 const SizedBox(height: kSpacingMedium),
 
                 // 🔹 מחיקת חשבון (GDPR)
-                Card(
+                _animatedSection(_sectionCount - 1, Card(
                   elevation: 0,
                   color: cs.errorContainer.withValues(alpha: 0.85),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
@@ -1566,7 +1566,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     trailing: _forwardChevron(color: cs.error),
                     onTap: _showDeleteAccountDialog,
                   ),
-                ),
+                )),
 
                 const SizedBox(height: kSpacingLarge),
               ],
