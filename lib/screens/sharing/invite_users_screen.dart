@@ -508,7 +508,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                       ] else if (_isLoadingContacts) ...[
                         const Center(
                           child: Padding(
-                            padding: const EdgeInsets.all(kSpacingMedium),
+                            padding: EdgeInsets.all(kSpacingMedium),
                             child: CircularProgressIndicator(),
                           ),
                         ),

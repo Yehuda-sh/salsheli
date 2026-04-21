@@ -344,7 +344,7 @@ class _LoginScreenState extends State<LoginScreen>
     {'name': 'apple_user@icloud.com', 'email': 'apple_user@icloud.com', 'role': 'Admin', 'group': '🍎 Apple Sign-In'},
     // 🌍 International
     {'name': 'Mike Johnson', 'email': 'mike.johnson@demo.com', 'role': 'Admin', 'group': '🌍 English Speaker'},
-    {"name": "ג'ורג' חביב", 'email': 'george.haviv@demo.com', 'role': 'Admin', 'group': '🔤 Special Chars'},
+    {'name': "ג'ורג' חביב", 'email': 'george.haviv@demo.com', 'role': 'Admin', 'group': '🔤 Special Chars'},
     // 🏠 שותפות דירה
     {'name': 'קרן אביב', 'email': 'keren.aviv@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},
     {'name': 'הילה מורג', 'email': 'hila.morag@demo.com', 'role': 'Admin', 'group': '🏠 שותפות דירה'},

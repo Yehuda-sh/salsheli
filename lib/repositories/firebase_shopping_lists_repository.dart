@@ -259,6 +259,7 @@ class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   ///
   /// משמש כאשר משתף רשימה עם אנשים ספציפיים מחוץ למשפחה.
   /// הרשימה נשארת ב-private_lists אבל יש לה shared_users.
+  @override
   Future<void> addSharedUserToPrivateList({
     required String ownerId,
     required String listId,

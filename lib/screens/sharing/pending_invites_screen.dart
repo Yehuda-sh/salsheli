@@ -520,7 +520,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                 // 🔄 מעבד הזמנה זו
                 const Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+                    padding: EdgeInsets.symmetric(vertical: kSpacingSmall),
                     child: SizedBox(
                       width: 24,
                       height: 24,

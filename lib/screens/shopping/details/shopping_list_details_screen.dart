@@ -813,7 +813,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
         // 🔎 תוצאות חיפוש
         if (_isSearching)
           const Padding(
-            padding: const EdgeInsets.all(kSpacingSmall),
+            padding: EdgeInsets.all(kSpacingSmall),
             child: SizedBox(width: kIconSizeSmallPlus, height: kIconSizeSmallPlus, child: CircularProgressIndicator(strokeWidth: 2)),
           )
         else if (_searchResults.isNotEmpty)
@@ -935,7 +935,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
   }
 
   double _totalEstimatedPrice(ShoppingList list) {
-    return list.items.fold(0.0, (sum, item) {
+    return list.items.fold(0.0, (total, item) {
       final price = item.unitPrice ?? 0.0;
       final qty = item.quantity ?? 1;
       return sum + (price * qty);

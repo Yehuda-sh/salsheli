@@ -667,7 +667,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   }
 
                   return DropdownButtonFormField<String>(
-                    value: _selectedLocation,
+                    initialValue: _selectedLocation,
                     dropdownColor: cs.surface,
                     style: TextStyle(color: cs.onSurface),
                     decoration: InputDecoration(
@@ -753,7 +753,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   children: [
                     // קטגוריה
                     DropdownButtonFormField<String>(
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       dropdownColor: cs.surface,
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
