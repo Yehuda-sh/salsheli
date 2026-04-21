@@ -419,7 +419,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final strings = AppStrings.pendingInvitesScreen;
     final isHouseholdInvite = invite.type == RequestType.inviteToHousehold;
     final listName = isHouseholdInvite
-        ? (_safeString(invite.requestData['household_name']) ?? 'הבית')
+        ? (_safeString(invite.requestData['household_name']) ?? strings.listFallback)
         : (_safeString(invite.requestData['list_name']) ?? strings.listFallback);
     final inviterName = invite.requesterName ?? strings.userFallback;
     final roleName = _safeString(invite.requestData['role']) ?? 'editor';
