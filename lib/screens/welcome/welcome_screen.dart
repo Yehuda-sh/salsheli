@@ -268,7 +268,9 @@ class _SimpleFeatureCard extends StatelessWidget {
           Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
+                Semantics(
+                  header: true,
+                  child: Text(
                   title,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
@@ -276,6 +278,7 @@ class _SimpleFeatureCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     fontSize: kFontSizeTitle,
                   ),
+                ),
                 ),
                 const SizedBox(height: kSpacingTiny),
                 Padding(
@@ -446,24 +449,27 @@ class _BottomSection extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // === Benefits — compact, inline ===
+              // === Benefits — compact, staggered entrance ===
               _BenefitChip(
                 icon: FontAwesomeIcons.userGroup,
                 text: AppStrings.welcome.benefit1Title,
                 color: cs.primary,
-              ),
+              ).animate().fadeIn(duration: 300.ms, delay: 400.ms)
+               .slideX(begin: 0.1, duration: 300.ms, delay: 400.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.listCheck,
                 text: AppStrings.welcome.benefit2Title,
                 color: cs.primary,
-              ),
+              ).animate().fadeIn(duration: 300.ms, delay: 500.ms)
+               .slideX(begin: 0.1, duration: 300.ms, delay: 500.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.jar,
                 text: AppStrings.welcome.benefit3Title,
                 color: cs.primary,
-              ),
+              ).animate().fadeIn(duration: 300.ms, delay: 600.ms)
+               .slideX(begin: 0.1, duration: 300.ms, delay: 600.ms),
 
               const SizedBox(height: kSpacingMedium),
 
@@ -586,7 +592,9 @@ class _BenefitChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Row(
+    return Semantics(
+      label: text,
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -601,6 +609,7 @@ class _BenefitChip extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }
