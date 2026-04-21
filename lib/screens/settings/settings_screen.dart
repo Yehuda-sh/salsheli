@@ -871,7 +871,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     alignment: WrapAlignment.center,
                     children: _avatarOptions.map((avatar) {
                       final isSelected = avatar == selectedAvatar;
-                      return GestureDetector(
+                      return Semantics(
+                        button: true,
+                        label: avatar,
+                        selected: isSelected,
+                        child: GestureDetector(
                         onTap: () {
                           unawaited(HapticFeedback.selectionClick());
                           setBottomSheetState(() => selectedAvatar = avatar);
@@ -897,6 +901,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               style: const TextStyle(fontSize: kFontSizeTitle),
                             ),
                           ),
+                        ),
                         ),
                         ),
                       );
@@ -1127,7 +1132,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                     child: Column(
                       children: [
                         // Avatar with gradient ring + camera hint
-                        GestureDetector(
+                        Semantics(
+                          button: true,
+                          label: AppStrings.settings.editProfile,
+                          child: GestureDetector(
                           onTap: _showEditProfileBottomSheet,
                           child: Stack(
                             children: [
@@ -1181,6 +1189,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               ),
                             ],
                           ),
+                        ),
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
                         Text(
@@ -1683,7 +1692,11 @@ class _ThemeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     return Expanded(
-      child: GestureDetector(
+      child: Semantics(
+        button: true,
+        label: label,
+        selected: isSelected,
+        child: GestureDetector(
         onTap: () {
           unawaited(HapticFeedback.selectionClick());
           onTap();
@@ -1722,6 +1735,7 @@ class _ThemeCard extends StatelessWidget {
           ),
         ),
         ),
+      ),
       ),
     );
   }
