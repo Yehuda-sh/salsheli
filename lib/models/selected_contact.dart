@@ -41,7 +41,7 @@ class SelectedContact {
     required this.role,
     this.isPending = false,
   }) : assert(
-          userId != null || email.length > 0 || (phone != null && phone.length > 0),
+          userId != null || email.isNotEmpty || (phone != null && phone.isNotEmpty),
           'SelectedContact must have userId, email, or phone',
         );
 
