@@ -298,6 +298,9 @@ class CommonStringsEn extends CommonStrings {
   String get save => 'Save';
   String durationText(int hours, int minutes) =>
       hours > 0 ? '$hours hours and $minutes minutes' : '$minutes minutes';
+  String get defaultUserName => 'User';
+  String get newUserName => 'New User';
+  String get defaultProductName => 'Product';
   String get delete => 'Delete';
   String get edit => 'Edit';
   String get add => 'Add';

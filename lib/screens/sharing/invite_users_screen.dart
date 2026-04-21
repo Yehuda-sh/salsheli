@@ -197,8 +197,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final navigator = Navigator.of(context);
       final userContext = context.read<UserContext>();
       final currentUserId = userContext.userId;
-      // TODO: extract to AppStrings.common.unknownUser
-      final currentUserName = userContext.user?.name ?? 'משתמש';
+      final currentUserName = userContext.user?.name ?? AppStrings.common.defaultUserName;
       final householdId = userContext.householdId;
 
       // Validate user is logged in

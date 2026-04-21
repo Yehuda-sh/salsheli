@@ -306,6 +306,9 @@ class CommonStrings {
   String get clearAll => 'נקה הכל';
   String get undo => 'בטל';
   String get deleted => 'נמחק';
+  String get defaultUserName => 'משתמש';
+  String get newUserName => 'משתמש חדש';
+  String get defaultProductName => 'מוצר';
   String get searchProductHint => 'חפש מוצר...';
   String get categories => 'קטגוריות';
   String get meatTypes => 'סוגי בשר';

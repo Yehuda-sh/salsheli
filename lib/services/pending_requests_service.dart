@@ -2,6 +2,7 @@
 
 import 'dart:developer';
 
+import '../l10n/app_strings.dart';
 import '../models/enums/request_status.dart';
 import '../models/enums/request_type.dart';
 import '../models/pending_request.dart';
@@ -308,7 +309,7 @@ class PendingRequestsService {
           householdId: householdId,
           listId: list.id,
           listName: list.name,
-          itemName: request.requestData['name'] as String? ?? 'מוצר',
+          itemName: request.requestData['name'] as String? ?? AppStrings.common.defaultProductName,
           approverName: approverName,
         );
         log('📬 התראת אישור נשלחה למבקש [PendingRequestsService]');
@@ -403,7 +404,7 @@ class PendingRequestsService {
           householdId: householdId,
           listId: list.id,
           listName: list.name,
-          itemName: request.requestData['name'] as String? ?? 'מוצר',
+          itemName: request.requestData['name'] as String? ?? AppStrings.common.defaultProductName,
           reviewerName: rejecterName,
           reason: reason,
         );

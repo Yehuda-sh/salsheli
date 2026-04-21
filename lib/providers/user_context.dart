@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/error_utils.dart';
+import '../l10n/app_strings.dart';
 import '../services/push_notification_service.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
@@ -335,7 +336,7 @@ class UserContext with ChangeNotifier {
           _user = await _repository.createUser(
             userId: authUser.uid,
             email: authUser.email ?? '',
-            name: authUser.displayName ?? 'משתמש חדש',
+            name: authUser.displayName ?? AppStrings.common.newUserName,
           );
         }
       }
@@ -477,7 +478,7 @@ class UserContext with ChangeNotifier {
     final rawName = result.displayName?.trim();
     final name = (rawName != null && rawName.isNotEmpty)
         ? rawName
-        : (result.email?.split('@').first ?? 'משתמש');
+        : (result.email?.split('@').first ?? AppStrings.common.defaultUserName);
 
     _user = await _repository.createUser(
       userId: result.uid,
