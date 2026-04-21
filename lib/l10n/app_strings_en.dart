@@ -263,7 +263,7 @@ class LayoutStringsEn extends LayoutStrings {
   @override String get notificationsSubtitle => 'Recent updates & activity';
   @override String get lowStockTitle => 'Low Stock';
   @override String lowStockSubtitle(int count) => '$count items running low';
-  String navSemanticLabel(String selectedTab) => 'Main navigation. Selected tab: $selectedTab';
+  @override String navSemanticLabel(String selectedTab) => 'Main navigation. Selected tab: $selectedTab';
   @override String get navSemanticHint => 'Swipe left or right to select another tab';
   @override String get longPressHint => 'Long press for more options';
 }
@@ -295,7 +295,7 @@ class CommonStringsEn extends CommonStrings {
   @override String get logout => 'Log Out';
   @override String get cancel => 'Cancel';
   @override String get moreOptions => 'More options';
-  String get save => 'Save';
+  @override String get save => 'Save';
   @override String durationText(int hours, int minutes) =>
       hours > 0 ? '$hours hours and $minutes minutes' : '$minutes minutes';
   @override String get defaultUserName => 'User';
@@ -411,7 +411,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get typeHouseholdShort => 'Home';
   @override String get typeEventShort => 'Event';
   @override String get typeOtherShort => 'Other';
-  String get deleteListTitle => 'Delete List';
+  @override String get deleteListTitle => 'Delete List';
   @override String deleteListMessage(String name) => 'Delete list "$name"?';
   @override String get deleteButton => 'Delete';
   @override String itemsAndDate(int count, String date) => 'Items: $count • Updated: $date';
@@ -434,7 +434,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get leaveShoppingMessage => 'Shopping is still active. You can come back later.';
   @override String get continueShoppingButton => 'Keep shopping';
   @override String get leaveButton => 'Leave';
-  String get summaryOutOfStock => 'Out of stock';
+  @override String get summaryOutOfStock => 'Out of stock';
   @override String get summaryNotMarked => 'Not marked';
   @override String get summaryBack => 'Back';
   @override String get summaryFinishShopping => 'Finish Shopping';
@@ -510,7 +510,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get legendPending => 'Pending';
   @override String get editQuantity => 'Edit quantity';
   @override String get scanBarcode => 'Scan barcode';
-  String get scanHint => 'Point the barcode at the center of the frame';
+  @override String get scanHint => 'Point the barcode at the center of the frame';
   @override String get addNewProductTooltip => 'Add new product';
   @override String get increaseQuantityTooltip => 'Increase quantity';
   @override String get decreaseQuantityTooltip => 'Decrease quantity';
@@ -522,7 +522,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get barcodeFoundAdd => 'Product not in list. Add it?';
   @override String get addToListButton => 'Add to list';
   @override String barcodeNotFound(String code) => 'Barcode $code not found';
-  String get retryLoadSemantics => 'Double tap to try loading the list again';
+  @override String get retryLoadSemantics => 'Double tap to try loading the list again';
   @override String get backToListSemantics => 'Double tap to return to the shopping list';
   @override String get finishAndSaveSemantics => 'Double tap to finish shopping and save data';
   @override String outOfStockToggleSemantics(String itemName, bool isOutOfStock) =>
@@ -704,7 +704,7 @@ class AuthStringsEn extends AuthStrings {
   @override String get loginSuccessRedirect => 'Logged in successfully! Redirecting...';
   @override String get orLoginWith => 'Or log in with';
   @override String get orWithEmail => 'or with email';
-  String get showPassword => 'Show password';
+  @override String get showPassword => 'Show password';
   @override String get hidePassword => 'Hide password';
   @override String get enterEmailFirst => 'Please enter your email address in the field above';
   @override String resetEmailSentTo(String email) => 'Password reset email sent to $email';
@@ -1302,7 +1302,7 @@ class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
   @override String get addTaskButton => 'Add Task';
   @override String get shareListTooltip => 'Share list';
   @override
-  String get pendingRequestsTooltip => 'Pending requests';
+  @override String get pendingRequestsTooltip => 'Pending requests';
   @override String get addFromCatalogTooltip => 'Add from catalog';
   @override String get deleteTitle => 'Delete Product';
   @override String deleteMessage(String name) => 'Delete "$name"?';
@@ -1310,14 +1310,14 @@ class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
   @override String get totalLabel => 'Total:';
   @override String get emptyListTitle => 'List is empty';
   @override
-  String get emptyListSubtitle => 'Search for products above or add from catalog';
+  @override String get emptyListSubtitle => 'Search for products above or add from catalog';
   @override String get populateFromCatalog => 'Populate from catalog';
   @override
-  String get quickSearchHint => 'Search product to add...';
+  @override String get quickSearchHint => 'Search product to add...';
   @override
-  String get addFreeText => 'Add as free text';
+  @override String get addFreeText => 'Add as free text';
   @override
-  String categoriesCount(int count) => '$count categories';
+  @override String categoriesCount(int count) => '$count categories';
   @override String get noSearchResultsTitle => 'No items found';
   @override String get clearSearchButton => 'Clear search';
   @override String get loadingError => 'Error loading data';
@@ -1423,44 +1423,44 @@ class ActivityLogStringsEn extends ActivityLogStrings {
   const ActivityLogStringsEn();
 
   @override
-  String get tabTitle => 'Activity Log';
+  @override String get tabTitle => 'Activity Log';
   @override
-  String get receiptsTab => 'Receipts';
+  @override String get receiptsTab => 'Receipts';
   @override
-  String get emptyTitle => 'No activity yet';
+  @override String get emptyTitle => 'No activity yet';
   @override
-  String get emptySubtitle => 'Household activity will appear here';
+  @override String get emptySubtitle => 'Household activity will appear here';
   @override
-  String get defaultError => 'Error loading activity';
+  @override String get defaultError => 'Error loading activity';
   @override
-  String get retryButton => 'Try Again';
+  @override String get retryButton => 'Try Again';
 
   @override
-  String shoppingCompleted(String actor, String listName) =>
+  @override String shoppingCompleted(String actor, String listName) =>
       '$actor completed shopping from "$listName"';
   @override
-  String shoppingStarted(String actor, String listName) =>
+  @override String shoppingStarted(String actor, String listName) =>
       '$actor started shopping from "$listName"';
   @override
-  String shoppingJoined(String actor, String listName) =>
+  @override String shoppingJoined(String actor, String listName) =>
       '$actor joined shopping from "$listName"';
   @override
-  String listCreated(String actor, String listName) =>
+  @override String listCreated(String actor, String listName) =>
       '$actor created list "$listName"';
   @override
-  String itemAdded(String actor, String itemName, String listName) =>
+  @override String itemAdded(String actor, String itemName, String listName) =>
       '$actor added "$itemName" to "$listName"';
   @override
-  String stockUpdated(String actor, String productName) =>
+  @override String stockUpdated(String actor, String productName) =>
       '$actor updated stock for "$productName"';
   @override
-  String memberLeft(String actor) =>
+  @override String memberLeft(String actor) =>
       '$actor left the household';
   @override
-  String roleChanged(String actor, String targetName, String newRole) =>
+  @override String roleChanged(String actor, String targetName, String newRole) =>
       '$actor changed $targetName\'s role to $newRole';
   @override
-  String unknownActivity(String actor) =>
+  @override String unknownActivity(String actor) =>
       '$actor performed an action';
 }
 
@@ -1510,9 +1510,9 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String get addButton => 'Add';
   @override String get noActiveLists => 'No active lists - create a new list';
   @override
-  String get chooseListTitle => 'Add to which list?';
+  @override String get chooseListTitle => 'Add to which list?';
   @override
-  String get addedToList => 'Added to list';
+  @override String get addedToList => 'Added to list';
   @override String addedToListName(String productName) => 'Added "$productName" to list';
   @override String dismissedForWeek(String productName) => 'Dismissed "$productName" for a week';
   @override String suggestionError(String error) => 'Error: $error';
@@ -1819,7 +1819,7 @@ class PantryStringsEn extends PantryStrings {
   @override String get starterPreviewTitle => 'Pantry Essentials';
   @override String get starterPreviewSubtitle => 'Check the products you usually have at home';
   @override String get starterSearchQuery => 'milk eggs bread oil sugar flour rice';
-  String get suggestionsTitle => 'Essentials for your pantry';
+  @override String get suggestionsTitle => 'Essentials for your pantry';
   @override String get hideSuggestions => 'Hide';
   @override String itemDeleted(String name) => '$name deleted';
   @override String get deleteItemError => 'Error deleting item';
@@ -1881,7 +1881,7 @@ class ContactSelectorStringsEn extends ContactSelectorStrings {
   @override String get phoneLabel => 'Phone';
   @override String get emailHint => 'Enter email...';
   @override String get phoneHint => '05X-XXXXXXX';
-  String get invalidEmail => 'Please enter a valid email';
+  @override String get invalidEmail => 'Please enter a valid email';
   @override String get invalidPhone => 'Please enter a valid phone number (05X-XXXXXXX)';
   @override String get contactAlreadySelected => 'This contact is already selected';
   @override String genericError(String error) => 'Error: $error';
@@ -1936,7 +1936,7 @@ class ActionCenterStringsEn extends ActionCenterStrings {
   @override String pendingRequests(int count) => '$count pending requests';
   @override String get review => 'View';
   @override String get overdueList => 'Overdue list!';
-  String overdueListsCount(int count) => '$count overdue lists!';
+  @override String overdueListsCount(int count) => '$count overdue lists!';
   @override String get startShopping => 'Start';
   @override String criticalStock(int count) => '$count items out of stock';
   @override String get goToPantry => 'Pantry';

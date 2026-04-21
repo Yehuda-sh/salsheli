@@ -1467,6 +1467,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           unawaited(HapticFeedback.selectionClick());
                           await TutorialService.resetTutorial(context);
                           if (!mounted) return;
+                          // ignore: use_build_context_synchronously
                           await TutorialService.showHomeTutorialIfNeeded(context);
                         },
                       ),
