@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../config/filters_config.dart';
+import '../../../core/error_utils.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/enums/item_type.dart';
@@ -24,10 +25,10 @@ import '../../../services/pending_requests_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/barcode_helpers.dart';
-import '../../../widgets/common/product_thumbnail.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/painters/perforation_painter.dart';
 import '../../../widgets/common/pending_requests_section.dart';
+import '../../../widgets/common/product_thumbnail.dart';
 import '../../../widgets/shopping/add_edit_product_dialog.dart';
 import '../../../widgets/shopping/add_edit_task_dialog.dart';
 import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
@@ -36,7 +37,7 @@ import '../../sharing/pending_requests_screen.dart';
 import '../active/active_shopping_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../who_brings/who_brings_screen.dart';
-import '../../../core/error_utils.dart';
+
 
 class ShoppingListDetailsScreen extends StatefulWidget {
   final ShoppingList list;

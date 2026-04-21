@@ -1,14 +1,17 @@
 // lib/screens/shopping/active/widgets/active_shopping_item_tile.dart — Shopping item tile — swipeable product row with status buttons and quantity controls
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../../../../core/ui_constants.dart';
-import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/shopping_item_status.dart';
 import '../../../../models/unified_list_item.dart';
+import '../../../../theme/app_theme.dart';
 import '../../../../widgets/common/product_thumbnail.dart';
+
 
 class ActiveShoppingItemTile extends StatelessWidget {
   final UnifiedListItem item;

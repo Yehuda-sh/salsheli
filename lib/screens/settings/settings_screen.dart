@@ -3,11 +3,10 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/services.dart' show Clipboard, ClipboardData, HapticFeedback;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData, HapticFeedback;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,14 +20,15 @@ import '../../services/auth_service.dart';
 import '../../services/image_upload_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/common/skeleton_loader.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});

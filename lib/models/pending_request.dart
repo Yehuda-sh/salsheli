@@ -3,9 +3,11 @@
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
-import 'enums/request_type.dart';
+
 import 'enums/request_status.dart';
+import 'enums/request_type.dart';
 import 'timestamp_converter.dart' show FlexibleDateTimeConverter, NullableFlexibleDateTimeConverter;
+
 
 part 'pending_request.g.dart';
 

@@ -20,9 +20,10 @@ import '../../providers/user_context.dart';
 import '../../services/household_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
-import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/notebook_background.dart';
 import '../home/dashboard/widgets/household_activity_feed.dart';
+
 
 class ShoppingHistoryScreen extends StatefulWidget {
   /// אם מועבר, הקבלה הזו תוצג מורחבת אוטומטית

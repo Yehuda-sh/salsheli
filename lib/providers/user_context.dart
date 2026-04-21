@@ -1,15 +1,17 @@
 // lib/providers/user_context.dart — User context — auth state, user profile, household info, login/logout/social auth
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
-import '../services/push_notification_service.dart';
 import '../models/user_entity.dart';
 import '../repositories/user_repository.dart';
 import '../services/auth_service.dart';
+import '../services/push_notification_service.dart';
+
 
 /// Provider המנהל את הקשר המשתמש באפליקציה
 ///

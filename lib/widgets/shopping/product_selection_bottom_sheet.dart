@@ -11,10 +11,10 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/filters_config.dart';
 import '../../config/product_images_config.dart';
 import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
-import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/shopping_list.dart';
 import '../../models/unified_list_item.dart';
@@ -22,13 +22,14 @@ import '../../providers/products_provider.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/category_detection_service.dart';
+import '../../theme/app_theme.dart';
 import '../common/animated_button.dart';
+import '../common/app_loading_skeleton.dart';
 import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
-import 'add_edit_product_dialog.dart';
-import '../../config/filters_config.dart';
-import '../common/app_loading_skeleton.dart';
 import '../common/product_thumbnail.dart';
+import 'add_edit_product_dialog.dart';
+
 
 class ProductSelectionBottomSheet extends StatefulWidget {
   final ShoppingList list;

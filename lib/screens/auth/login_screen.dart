@@ -2,9 +2,6 @@
 
 import 'dart:async';
 import 'dart:ui';
-import 'widgets/quick_login_bottom_sheet.dart';
-import 'widgets/social_login_button.dart';
-import 'widgets/loading_overlay.dart';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -16,12 +13,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/error_utils.dart';
 import '../../core/status_colors.dart';
-import '../../services/auth_service.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
+import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import 'widgets/loading_overlay.dart';
+import 'widgets/quick_login_bottom_sheet.dart';
+import 'widgets/social_login_button.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

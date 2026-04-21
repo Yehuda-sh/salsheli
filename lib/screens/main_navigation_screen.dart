@@ -12,11 +12,12 @@ import '../layout/app_layout.dart';
 import '../providers/inventory_provider.dart';
 import '../providers/user_context.dart';
 import '../services/notifications_service.dart';
+import '../widgets/common/offline_banner.dart';
 import 'history/shopping_history_screen.dart';
 import 'home/dashboard/home_dashboard_screen.dart';
 import 'pantry/my_pantry_screen.dart';
 import 'settings/settings_screen.dart';
-import '../widgets/common/offline_banner.dart';
+
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});

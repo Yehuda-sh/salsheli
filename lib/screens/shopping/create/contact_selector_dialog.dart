@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/error_utils.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/enums/user_role.dart';
@@ -12,7 +13,7 @@ import '../../../providers/user_context.dart';
 import '../../../repositories/firebase_user_repository.dart';
 import '../../../services/saved_contacts_service.dart';
 import '../../../widgets/common/app_loading_skeleton.dart';
-import '../../../core/error_utils.dart';
+
 
 /// סוג קלט לאיש קשר חדש
 enum _ContactInputType { email, phone }

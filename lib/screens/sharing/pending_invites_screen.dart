@@ -16,12 +16,13 @@ import '../../models/pending_request.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/pending_invites_service.dart';
-import '../../widgets/dialogs/pantry_merge_dialog.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
+import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/dialogs/pantry_merge_dialog.dart';
+
 
 class PendingInvitesScreen extends StatefulWidget {
   const PendingInvitesScreen({super.key});

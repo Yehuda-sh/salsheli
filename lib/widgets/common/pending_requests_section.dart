@@ -10,14 +10,15 @@ import 'package:provider/provider.dart';
 import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../theme/app_theme.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/pending_requests_service.dart';
+import '../../theme/app_theme.dart';
 import 'product_thumbnail.dart';
+
 
 /// Widget להצגת בקשות ממתינות — קומפקטי
 class PendingRequestsSection extends StatelessWidget {

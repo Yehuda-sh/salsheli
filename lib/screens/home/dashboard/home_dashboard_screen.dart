@@ -1,6 +1,7 @@
 // lib/screens/home/dashboard/home_dashboard_screen.dart — Home dashboard — active shopping banner, action center, lists, activity feed
 
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -14,17 +15,17 @@ import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
 import '../../../providers/user_context.dart';
-// notifications_service import removed — bell moved to AppBar
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
-import 'widgets/active_shopper_banner.dart';
 import 'widgets/action_center_card.dart';
+import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
 import 'widgets/onboarding_tips_card.dart';
 import 'widgets/suggestions_today_card.dart';
+
 
 class HomeDashboardScreen extends StatefulWidget {
   final Function(int)? onTabSelected;

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../theme/app_theme.dart';
 import '../../models/enums/user_role.dart';
 import '../../models/saved_contact.dart';
 import '../../models/shopping_list.dart';
@@ -15,10 +15,11 @@ import '../../repositories/firebase_user_repository.dart';
 import '../../services/notifications_service.dart';
 import '../../services/pending_invites_service.dart';
 import '../../services/saved_contacts_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/sticky_button.dart';
 import '../../widgets/common/sticky_note.dart';
-import '../../core/error_utils.dart';
+
 
 class InviteUsersScreen extends StatefulWidget {
   final ShoppingList list;

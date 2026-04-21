@@ -12,6 +12,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../config/filters_config.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
+import '../../../models/activity_event.dart';
 import '../../../models/enums/shopping_item_status.dart';
 import '../../../models/receipt.dart';
 import '../../../models/shopping_list.dart';
@@ -21,17 +22,17 @@ import '../../../providers/products_provider.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/user_context.dart';
-import '../../../models/activity_event.dart';
 import '../../../services/activity_log_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/barcode_scanner_sheet.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
-import '../../../widgets/common/barcode_scanner_sheet.dart';
 import 'widgets/shopping_summary_dialog.dart';
+
 
 class ActiveShoppingScreen extends StatefulWidget {
   final ShoppingList list;

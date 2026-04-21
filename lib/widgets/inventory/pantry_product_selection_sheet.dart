@@ -10,17 +10,18 @@ import '../../config/storage_locations_config.dart';
 import '../../core/error_utils.dart';
 import '../../core/status_colors.dart';
 import '../../core/ui_constants.dart';
-import '../../theme/app_theme.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/custom_location.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
+import '../../theme/app_theme.dart';
 import '../common/add_location_dialog.dart';
+import '../common/app_loading_skeleton.dart';
 import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
-import '../common/app_loading_skeleton.dart';
 import '../common/product_thumbnail.dart';
+
 
 class PantryProductSelectionSheet extends StatefulWidget {
   /// סינון ראשוני — אם מועבר, הקטלוג נפתח עם חיפוש/סינון מוגדר מראש

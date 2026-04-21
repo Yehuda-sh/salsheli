@@ -8,10 +8,8 @@ import 'package:uuid/uuid.dart';
 import '../core/constants.dart';
 import '../core/error_utils.dart';
 import '../l10n/app_strings.dart';
-import '../services/analytics_service.dart';
-import '../services/activity_log_service.dart';
-import '../models/activity_event.dart';
 import '../models/active_shopper.dart';
+import '../models/activity_event.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/shopping_item_status.dart';
 import '../models/enums/user_role.dart';
@@ -21,7 +19,10 @@ import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
 import '../repositories/receipt_repository.dart';
 import '../repositories/shopping_lists_repository.dart';
+import '../services/activity_log_service.dart';
+import '../services/analytics_service.dart';
 import 'user_context.dart';
+
 
 class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;

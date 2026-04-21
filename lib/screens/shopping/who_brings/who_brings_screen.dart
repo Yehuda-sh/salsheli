@@ -1,6 +1,5 @@
 // lib/screens/shopping/who_brings/who_brings_screen.dart — Who brings — volunteer assignment for shared event lists (potluck style)
 
-import '../../../l10n/app_strings.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -9,15 +8,17 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/ui_constants.dart';
-import '../../../theme/app_theme.dart';
+import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/user_context.dart';
 import '../../../services/notifications_service.dart';
+import '../../../theme/app_theme.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/product_thumbnail.dart';
 import '../../../widgets/common/sticky_note.dart';
+
 
 class WhoBringsScreen extends StatefulWidget {
   final ShoppingList list;

@@ -2,11 +2,13 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rxdart/rxdart.dart';
+
 import '../models/shopping_list.dart';
 import '../repositories/constants/repository_constants.dart';
 import '../repositories/shopping_lists_repository.dart';
 import '../repositories/utils/firestore_utils.dart';
-import 'package:rxdart/rxdart.dart';
+
 
 class FirebaseShoppingListsRepository implements ShoppingListsRepository {
   final FirebaseFirestore _firestore;

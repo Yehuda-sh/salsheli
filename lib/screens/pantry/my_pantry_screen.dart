@@ -17,23 +17,24 @@ import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
-import '../../providers/user_context.dart';
-import '../../theme/app_theme.dart';
-import '../../widgets/inventory/pantry_empty_state.dart';
-import '../../widgets/inventory/pantry_item_dialog.dart';
-import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../providers/products_provider.dart';
+import '../../providers/user_context.dart';
+import '../../services/notifications_service.dart';
+import '../../services/template_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/add_location_dialog.dart';
-import '../../widgets/common/product_thumbnail.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/offline_banner.dart';
+import '../../widgets/common/product_thumbnail.dart';
+import '../../widgets/inventory/pantry_empty_state.dart';
+import '../../widgets/inventory/pantry_item_dialog.dart';
+import '../../widgets/inventory/pantry_product_selection_sheet.dart';
 import '../../widgets/inventory/pantry_starter_preview_dialog.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
-import '../../services/notifications_service.dart';
-import '../../services/template_service.dart';
+
 
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});

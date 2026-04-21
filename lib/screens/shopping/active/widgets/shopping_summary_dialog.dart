@@ -1,13 +1,16 @@
 // lib/screens/shopping/active/widgets/shopping_summary_dialog.dart — Shopping summary dialog — finish shopping confirmation with stats and store picker
 
-import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../widgets/common/sticky_button.dart';
-import 'package:flutter/services.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
 import '../../../../core/ui_constants.dart';
-import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_strings.dart';
+import '../../../../theme/app_theme.dart';
+import '../../../../widgets/common/sticky_button.dart';
+
 
 enum ShoppingSummaryResult {
   cancel, // חזור לרשימה
