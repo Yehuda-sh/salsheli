@@ -818,8 +818,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         children: [
                           // Avatar circle
                           Container(
-                            width: 80,
-                            height: 80,
+                            width: kIconSizeXLarge + kSpacingXLarge,
+                            height: kIconSizeXLarge + kSpacingXLarge,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: cs.surfaceContainerHighest,
@@ -829,16 +829,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             child: isUploading
                                 ? Center(child: CircularProgressIndicator(strokeWidth: 2, color: cs.primary))
                                 : pendingImageUrl != null
-                                    ? Image.network(pendingImageUrl!, fit: BoxFit.cover, width: 80, height: 80)
+                                    ? Image.network(pendingImageUrl!, fit: BoxFit.cover)
                                     : hasRealImage
-                                        ? Image.network(currentAvatar, fit: BoxFit.cover, width: 80, height: 80,
+                                        ? Image.network(currentAvatar, fit: BoxFit.cover,
                                             errorBuilder: (_, _, _) => Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))))
                                         : Center(child: Text(selectedAvatar, style: const TextStyle(fontSize: kFontSizeDisplay))),
                           ),
-                          // Camera badge
-                          Positioned(
+                          // Camera badge — RTL-aware
+                          PositionedDirectional(
                             bottom: 0,
-                            left: 0,
+                            start: 0,
                             child: Container(
                               padding: const EdgeInsets.all(kSpacingXTiny),
                               decoration: BoxDecoration(
@@ -873,9 +873,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       final isSelected = avatar == selectedAvatar;
                       return GestureDetector(
                         onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
                           setBottomSheetState(() => selectedAvatar = avatar);
                         },
-                        child: Container(
+                        child: AnimatedScale(
+                          scale: isSelected ? 1.15 : 1.0,
+                          duration: const Duration(milliseconds: 150),
+                          child: Container(
                           width: kIconSizeXLarge,
                           height: kIconSizeXLarge,
                           decoration: BoxDecoration(
@@ -893,6 +897,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               style: const TextStyle(fontSize: kFontSizeTitle),
                             ),
                           ),
+                        ),
                         ),
                       );
                     }).toList(),
@@ -1383,6 +1388,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                             userContext.householdName?.isNotEmpty == true
                                 ? userContext.householdName!
                                 : AppStrings.settings.householdNameHint,
+                            style: userContext.householdName?.isNotEmpty != true
+                                ? TextStyle(fontStyle: FontStyle.italic, color: cs.onSurfaceVariant.withValues(alpha: 0.5))
+                                : null,
                           ),
                           trailing: _isHouseholdAdmin
                               ? TextButton(
@@ -1420,11 +1428,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                       const SizedBox(height: kSpacingSmall),
                       ListTile(
-                        leading: Icon(Icons.mail_outline, color: cs.primary),
+                        leading: Icon(Icons.mail_outline, color: cs.tertiary),
                         title: Text(AppStrings.settings.pendingInvitesTitle),
                         subtitle: Text(AppStrings.settings.pendingInvitesSubtitle),
                         trailing: _forwardChevron(),
                         onTap: () {
+                          unawaited(HapticFeedback.selectionClick());
                           Navigator.pushNamed(context, '/pending-invites');
                         },
                       ),
