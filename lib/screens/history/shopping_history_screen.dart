@@ -262,7 +262,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(kSpacingMedium),
             itemCount: provider.events.length,
-            separatorBuilder: (_, __) => Divider(
+            separatorBuilder: (_, _) => Divider(
               height: kSpacingMedium,
               color: cs.outlineVariant.withValues(alpha: 0.15),
             ),

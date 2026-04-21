@@ -260,10 +260,10 @@ class _FallbackImageState extends State<_FallbackImage> {
         imageUrl: url,
         fit: BoxFit.contain,
         fadeInDuration: const Duration(milliseconds: 200),
-        placeholder: (_, __) => Center(
+        placeholder: (_, _) => Center(
           child: widget.emojiBuilder(),
         ),
-        errorWidget: (_, __, ___) {
+        errorWidget: (_, _, _) {
           _cacheFailedUrl(url);
           // Try next URL
           WidgetsBinding.instance.addPostFrameCallback((_) {

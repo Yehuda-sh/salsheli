@@ -1015,7 +1015,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       imageUrl: url,
       fit: BoxFit.contain,
       fadeInDuration: const Duration(milliseconds: 200),
-      errorWidget: (_, __, ___) {
+      errorWidget: (_, _, _) {
         _failedImageUrls.add(url);
         return _buildEmojiPlaceholder(emoji);
       },

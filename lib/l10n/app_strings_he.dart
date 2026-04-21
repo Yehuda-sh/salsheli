@@ -764,14 +764,15 @@ class HomeStrings {
 
   String timeBasedGreeting(String userName, int hour) {
     final String greeting;
-    if (hour >= 5 && hour < 12)
+    if (hour >= 5 && hour < 12) {
       greeting = 'בוקר טוב';
-    else if (hour >= 12 && hour < 17)
+    } else if (hour >= 12 && hour < 17) {
       greeting = 'צהריים טובים';
-    else if (hour >= 17 && hour < 21)
+    } else if (hour >= 17 && hour < 21) {
       greeting = 'ערב טוב';
-    else
+    } else {
       greeting = 'לילה טוב';
+    }
     return '$greeting, $userName! 👋';
   }
 

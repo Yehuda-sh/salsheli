@@ -230,7 +230,7 @@ class ReceiptProvider with ChangeNotifier {
   }) async {
     final householdId = _userContext?.user?.householdId;
     if (householdId == null) {
-      throw Exception("❌ householdId לא נמצא");
+      throw Exception('householdId not found');
     }
 
     try {

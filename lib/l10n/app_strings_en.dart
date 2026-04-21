@@ -742,14 +742,15 @@ class HomeStringsEn extends HomeStrings {
 
   @override String timeBasedGreeting(String userName, int hour) {
     final String greeting;
-    if (hour >= 5 && hour < 12)
+    if (hour >= 5 && hour < 12) {
       greeting = 'Good morning';
-    else if (hour >= 12 && hour < 17)
+    } else if (hour >= 12 && hour < 17) {
       greeting = 'Good afternoon';
-    else if (hour >= 17 && hour < 21)
+    } else if (hour >= 17 && hour < 21) {
       greeting = 'Good evening';
-    else
+    } else {
       greeting = 'Good night';
+    }
     return '$greeting, $userName! 👋';
   }
 

@@ -45,7 +45,7 @@ class ShoppingListsProvider with ChangeNotifier {
   // 🔄 Real-time updates
   StreamSubscription<List<ShoppingList>>? _listsSubscription;
   String? _watchedUserId; // מניעת restart מיותר של ה-Stream
-  bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
+  final bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
   bool _isDisposed = false;
   bool _didCleanupSessions = false;
 

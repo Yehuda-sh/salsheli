@@ -86,7 +86,7 @@ class StickyNote extends StatelessWidget {
     final shadowColor = theme.shadowColor;
 
     // 🎨 RepaintBoundary isolates shadow calculations from parent repaints
-    Widget noteContent = Container(
+    final Widget noteContent = Container(
           width: double.infinity,
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
