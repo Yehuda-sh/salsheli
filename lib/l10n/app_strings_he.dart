@@ -635,6 +635,7 @@ class WelcomeStrings {
   String get termsOfService => 'תנאי שימוש';
   String get privacyPolicy => 'מדיניות פרטיות';
   String get logoLabel => 'לוגו אפליקציית ${AppStringsHe.appName}';
+  String get carouselLabel => 'גלילה בין מסכי ההסבר';
 }
 
 // ========================================

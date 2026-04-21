@@ -615,6 +615,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   @override String get termsOfService => 'Terms of Service';
   @override String get privacyPolicy => 'Privacy Policy';
   @override String get logoLabel => '${AppStringsEn.appName} app logo';
+  @override String get carouselLabel => 'Swipe between feature screens';
 }
 
 // ========================================
