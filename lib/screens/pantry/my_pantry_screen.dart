@@ -516,10 +516,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
       if (allItems.isEmpty) {
         // fallback — אם אין פריטים, פתח קטלוג מסונן
-        PantryProductSelectionSheet.show(
+        unawaited(PantryProductSelectionSheet.show(
           context,
           initialCategories: PantryProductSelectionSheet.basicCategories,
-        );
+        ));
         return;
       }
 

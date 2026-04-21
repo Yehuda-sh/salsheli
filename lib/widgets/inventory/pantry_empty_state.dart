@@ -167,7 +167,7 @@ class PantryEmptyState extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
                   decoration: BoxDecoration(
-                    color: brand?.paperBackground?.withValues(alpha: 0.85),
+                    color: brand?.paperBackground.withValues(alpha: 0.85),
                     borderRadius: BorderRadius.circular(kBorderRadius),
                   ),
                   child: Column(

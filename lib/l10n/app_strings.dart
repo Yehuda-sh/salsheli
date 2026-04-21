@@ -1,7 +1,7 @@
 // lib/l10n/app_strings.dart — Locale proxy — delegates to Hebrew or English strings based on LocaleManager
 
-import 'app_strings_he.dart';
 import 'app_strings_en.dart';
+import 'app_strings_he.dart';
 import 'locale_manager.dart';
 
 // Re-export for files that import specific string classes

@@ -685,9 +685,9 @@ class _ReceiptTile extends StatelessWidget {
     final time = DateFormat('HH:mm', locale).format(date);
 
     if (dateOnly == today) {
-      return '${AppStrings.shoppingHistory.today}  $time';
+      return '${AppStrings.homeDashboard.today}  $time';
     } else if (dateOnly == today.subtract(const Duration(days: 1))) {
-      return '${AppStrings.shoppingHistory.yesterday}  $time';
+      return '${AppStrings.homeDashboard.yesterday}  $time';
     }
     return DateFormat('dd/MM/yyyy  HH:mm', locale).format(date);
   }
