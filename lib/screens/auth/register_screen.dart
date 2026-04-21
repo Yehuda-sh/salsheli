@@ -126,7 +126,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final controller = TextEditingController();
     final result = await showDialog<String>(
       context: context,
-      barrierDismissible: true,
       builder: (ctx) => AlertDialog(
         title: Text('🏠 ${AppStrings.sharing.householdNameDialogTitle}'),
         content: TextField(

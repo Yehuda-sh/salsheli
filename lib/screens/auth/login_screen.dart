@@ -629,6 +629,7 @@ class _LoginScreenState extends State<LoginScreen>
                                         : Icons.visibility_off_outlined,
                                   ),
                                   onPressed: () {
+                                    unawaited(HapticFeedback.selectionClick());
                                     setState(() {
                                       _obscurePassword = !_obscurePassword;
                                     });
@@ -684,9 +685,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: kSpacingSmall,
                                     ),
-                                    minimumSize: Size.zero,
-                                    tapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
+                                    minimumSize: const Size(44, 44),
                                   ),
                                   child: Text(
                                     AppStrings.auth.forgotPassword,
@@ -730,7 +729,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     : const Icon(Icons.login),
                                 label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
                                 style: FilledButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(48),
+                                  minimumSize: const Size.fromHeight(kButtonHeight),
                                   backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? cs.primary,
                                   foregroundColor: cs.onPrimary,
                                   elevation: 0,
@@ -753,7 +752,10 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: kSpacingLarge),
 
                             // 🔗 קישור להרשמה
-                            Row(
+                            Semantics(
+                              label: AppStrings.auth.registerNow,
+                              button: true,
+                              child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
@@ -785,6 +787,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 .fadeIn(duration: 400.ms, delay: 400.ms),
                             const SizedBox(height: kSpacingMedium),
                           ],
+                        ),
                         ),
                       ),
                     ),
