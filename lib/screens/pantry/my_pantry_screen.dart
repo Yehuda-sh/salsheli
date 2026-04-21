@@ -768,31 +768,39 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   // 🔍 חיפוש וסינון
                                   _buildFiltersSection(allItems),
 
-                                  // 📋 תוכן
+                                  // 📋 תוכן — pull-to-refresh wraps the list
                                   Expanded(
-                                    child: filteredItems.isEmpty && allItems.isNotEmpty
-                                        ? Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Text(strings.noItemsFound, style: TextStyle(color: scheme.onSurface)),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    _searchController.clear();
-                                                    setState(() {
-                                                      _searchQuery = '';
-                                                      _selectedLocation = null;
-                                                      _isSearchMode = false;
-                                                    });
-                                                  },
-                                                  child: Text(strings.clearFilters),
+                                    child: RefreshIndicator(
+                                      onRefresh: () => provider.loadItems(),
+                                      color: scheme.primary,
+                                      child: filteredItems.isEmpty && allItems.isNotEmpty
+                                        ? ListView(
+                                            children: [
+                                              SizedBox(height: MediaQuery.of(context).size.height * 0.25),
+                                              Center(
+                                                child: Column(
+                                                  children: [
+                                                    Text(strings.noItemsFound, style: TextStyle(color: scheme.onSurface)),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        _searchController.clear();
+                                                        setState(() {
+                                                          _searchQuery = '';
+                                                          _selectedLocation = null;
+                                                          _isSearchMode = false;
+                                                        });
+                                                      },
+                                                      child: Text(strings.clearFilters),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           )
                                         : filteredItems.length >= 5
                                             ? _buildGroupedList(filteredItems)
                                             : _buildFlatList(filteredItems),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1529,18 +1537,20 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                                   : cs.primary.withValues(alpha: 0.15),
                                             ),
                                           ),
-                                          child: Text(
-                                            // LRM (U+200E) before the number forces
-                                            // the BiDi algorithm to anchor the digit
-                                            // at the visual start, even when a parent
-                                            // Directionality leaks RTL base direction.
-                                            '\u200E${item.quantity} ${item.unit}',
-                                            style: theme.textTheme.titleSmall?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                              color: isWarning || isCritical ? statusColor : cs.primary,
+                                          child: AnimatedSwitcher(
+                                            duration: const Duration(milliseconds: 150),
+                                            transitionBuilder: (child, animation) =>
+                                                ScaleTransition(scale: animation, child: child),
+                                            child: Text(
+                                              '\u200E\${item.quantity} \${item.unit}',
+                                              key: ValueKey(item.quantity),
+                                              style: theme.textTheme.titleSmall?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                                color: isWarning || isCritical ? statusColor : cs.primary,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              textDirection: TextDirection.ltr,
                                             ),
-                                            textAlign: TextAlign.center,
-                                            textDirection: TextDirection.ltr,
                                           ),
                                         ),
                                       ),
