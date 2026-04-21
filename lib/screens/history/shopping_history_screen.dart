@@ -257,13 +257,26 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             unawaited(HapticFeedback.mediumImpact());
             await provider.loadEvents();
           },
-          child: ListView.builder(
+          child: ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(kSpacingMedium),
             itemCount: provider.events.length,
+            separatorBuilder: (_, __) => Divider(
+              height: kSpacingMedium,
+              color: cs.outlineVariant.withValues(alpha: 0.15),
+            ),
             itemBuilder: (context, index) {
               final event = provider.events[index];
-              return _ActivityEventTile(event: event);
+              final clampedDelay = (40 * index).clamp(0, 400);
+              return _ActivityEventTile(event: event)
+                  .animate()
+                  .fadeIn(duration: 250.ms, delay: clampedDelay.ms)
+                  .slideX(
+                    begin: 0.1,
+                    duration: 250.ms,
+                    delay: clampedDelay.ms,
+                    curve: Curves.easeOut,
+                  );
             },
           ),
         );
@@ -472,7 +485,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                                 Icon(
                                   Icons.search_off,
                                   size: kIconSizeXLarge,
-                                  color: cs.onSurfaceVariant,
+                                  color: cs.onSurfaceVariant.withValues(alpha: 0.4),
                                 ),
                                 const SizedBox(height: kSpacingSmall),
                                 Text(
@@ -491,6 +504,17 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                                     color: cs.onSurfaceVariant,
                                   ),
                                 ),
+                                if (_filterPeriod != 'all') ...[
+                                  const SizedBox(height: kSpacingMedium),
+                                  TextButton.icon(
+                                    onPressed: () {
+                                      unawaited(HapticFeedback.selectionClick());
+                                      setState(() => _filterPeriod = 'all');
+                                    },
+                                    icon: const Icon(Icons.filter_list_off, size: kIconSizeSmallPlus),
+                                    label: Text(strings.filterAll),
+                                  ),
+                                ],
                               ],
                             ),
                           )
@@ -680,6 +704,7 @@ class _ReceiptTile extends StatelessWidget {
         ),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
+          onExpansionChanged: (_) => unawaited(HapticFeedback.selectionClick()),
           iconColor: leadingColor,
           collapsedIconColor: leadingColor,
           tilePadding: const EdgeInsets.symmetric(
