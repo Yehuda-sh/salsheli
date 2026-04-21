@@ -290,7 +290,6 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
               if (provider.isLoading) {
                 return const AppLoadingSkeleton(
                   sectionCount: 4,
-                  showHero: false,
                 );
               }
 
@@ -820,10 +819,35 @@ class _ReceiptTile extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               )
-            else
+            else ...[
               ...receipt.items.map(
                 (item) => _buildItemRow(context, item, cs, successColor),
               ),
+              // Total summary line
+              Padding(
+                padding: const EdgeInsets.only(top: kSpacingSmall),
+                child: Row(
+                  children: [
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      ),
+                      child: Text(
+                        fixBidiNumbers('${strings.totalLabel}: ₪${receipt.totalAmount.toStringAsFixed(2)}'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: kFontSizeMedium,
+                          color: cs.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -836,7 +860,9 @@ class _ReceiptTile extends StatelessWidget {
     ColorScheme cs,
     Color successColor,
   ) {
-    return Padding(
+    return Semantics(
+      label: '${item.name ?? ""}, ×${_formatQuantity(item.quantity)}, ₪${item.totalPrice.toStringAsFixed(2)}',
+      child: Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Row(
         children: [
@@ -899,6 +925,7 @@ class _ReceiptTile extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
@@ -1081,7 +1108,12 @@ class _ActivityEventTile extends StatelessWidget {
     final strings = AppStrings.activityLog;
     final locale = Localizations.localeOf(context).languageCode;
 
-    return Padding(
+    final description = _descriptionForEvent(strings);
+    final time = _formatEventTime(event.createdAt, locale);
+
+    return Semantics(
+      label: '$description, $time',
+      child: Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1108,7 +1140,7 @@ class _ActivityEventTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _descriptionForEvent(strings),
+                  description,
                   style: TextStyle(
                     fontSize: kFontSizeBody,
                     color: cs.onSurface,
@@ -1116,7 +1148,7 @@ class _ActivityEventTile extends StatelessWidget {
                 ),
                 const SizedBox(height: kSpacingXTiny),
                 Text(
-                  _formatEventTime(event.createdAt, locale),
+                  time,
                   style: TextStyle(
                     fontSize: kFontSizeSmall,
                     color: cs.onSurfaceVariant,
@@ -1127,6 +1159,7 @@ class _ActivityEventTile extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }
