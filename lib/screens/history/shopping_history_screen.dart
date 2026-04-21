@@ -404,7 +404,14 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                           vertical: kSpacingSmall,
                         ),
                         decoration: BoxDecoration(
-                          color: cs.primaryContainer,
+                          gradient: LinearGradient(
+                            colors: [
+                              cs.primaryContainer,
+                              cs.primaryContainer.withValues(alpha: 0.6),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          ),
                           borderRadius:
                               BorderRadius.circular(kBorderRadiusLarge),
                         ),
@@ -670,6 +677,21 @@ class _ReceiptTile extends StatelessWidget {
     }).toList();
   }
 
+  /// Format receipt date — relative for recent, full for older
+  String _formatReceiptDate(DateTime date, String locale) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    final time = DateFormat('HH:mm', locale).format(date);
+
+    if (dateOnly == today) {
+      return '${AppStrings.shoppingHistory.today}  $time';
+    } else if (dateOnly == today.subtract(const Duration(days: 1))) {
+      return '${AppStrings.shoppingHistory.yesterday}  $time';
+    }
+    return DateFormat('dd/MM/yyyy  HH:mm', locale).format(date);
+  }
+
   /// Format quantity to avoid "1.0" display
   String _formatQuantity(num quantity) {
     if (quantity == quantity.toInt()) {
@@ -746,8 +768,7 @@ class _ReceiptTile extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    DateFormat('dd/MM/yyyy  HH:mm', locale)
-                        .format(receipt.date),
+                    _formatReceiptDate(receipt.date, locale),
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
                       color: cs.onSurfaceVariant,
@@ -956,11 +977,11 @@ class _StatItemState extends State<_StatItem>
                 animation: _animation,
                 builder: (context, _) {
                   final current = (targetNum * _animation.value);
-                  final display = targetNum == targetNum.toInt().toDouble()
+                  final raw = targetNum == targetNum.toInt().toDouble()
                       ? '$prefix${current.toInt()}'
                       : '$prefix${current.toStringAsFixed(0)}';
                   return Text(
-                    display,
+                    fixBidiNumbers(raw),
                     style: TextStyle(
                       fontSize: kFontSizeLarge,
                       fontWeight: FontWeight.bold,
