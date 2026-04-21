@@ -46,6 +46,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
+  final Set<String> _collapsedLocations = {};
 
   // 🔍 Search-mode toggle: when true, the title bar morphs into a search field
   bool _isSearchMode = false;
@@ -1002,16 +1003,21 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
               child: Text('·', style: TextStyle(color: scheme.outlineVariant)),
             ),
-            // Tappable chip — navigates to low-stock filter (future).
-            const Text('⚠️', style: TextStyle(fontSize: kFontSizeSmall)),
-            const SizedBox(width: kSpacingXTiny),
-            Text(
-              '$lowStockCount',
-              style: baseStyle?.copyWith(
-                color: warnColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('⚠️', style: TextStyle(fontSize: kFontSizeSmall)),
+                const SizedBox(width: kSpacingXTiny),
+                Text(
+                  '$lowStockCount',
+                  style: baseStyle?.copyWith(
+                    color: warnColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ).animate(onPlay: (c) => c.repeat(reverse: true))
+             .scaleXY(begin: 1.0, end: 1.08, duration: 1200.ms, curve: Curves.easeInOut),
           ],
         ],
       ),
@@ -1266,74 +1272,100 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // === כותרת סקשן (עיצוב מרקר רחב) ===
+              // === כותרת סקשן — tap to collapse/expand ===
               Padding(
                 padding: EdgeInsets.only(top: isFirstSection ? 0 : kSpacingSmallPlus, bottom: 2),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    right: kSpacingMedium,
-                    top: kSpacingXTiny,
-                    bottom: kSpacingXTiny,
-                  ),
-                  decoration: BoxDecoration(
-                    color: highlightColor,
-                    border: Border(
-                      right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: kSpacingXTiny),
+                child: GestureDetector(
+                  onTap: () {
+                    unawaited(HapticFeedback.selectionClick());
+                    setState(() {
+                      if (_collapsedLocations.contains(location)) {
+                        _collapsedLocations.remove(location);
+                      } else {
+                        _collapsedLocations.add(location);
+                      }
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.only(
+                      right: kSpacingMedium,
+                      top: kSpacingXTiny,
+                      bottom: kSpacingXTiny,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        '${_getLocationEmoji(location)} ${_getLocationName(location)}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    decoration: BoxDecoration(
+                      color: highlightColor,
+                      border: Border(
+                        right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: kSpacingXTiny),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${_getLocationEmoji(location)} ${_getLocationName(location)}',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: scheme.onSurface,
+                                fontSize: kFontSizeBody,
+                              ),
+                        ),
+                        const SizedBox(width: kSpacingSmall),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                                : scheme.surface.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Text(
+                            '${locationItems.length}',
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
                               fontWeight: FontWeight.bold,
                               color: scheme.onSurface,
-                              fontSize: kFontSizeBody,
                             ),
-                      ),
-                      const SizedBox(width: kSpacingSmall),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? scheme.surfaceContainerHighest.withValues(alpha: 0.6)
-                              : scheme.surface.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(kBorderRadius),
-                        ),
-                        child: Text(
-                          '${locationItems.length}',
-                          style: TextStyle(
-                            fontSize: kFontSizeSmall,
-                            fontWeight: FontWeight.bold,
-                            color: scheme.onSurface,
                           ),
                         ),
-                      ),
-                    ],
+                        const Spacer(),
+                        AnimatedRotation(
+                          turns: _collapsedLocations.contains(location) ? 0.5 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(Icons.expand_more, size: kIconSizeSmallPlus, color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
 
-              // === פריטים במיקום (staggered animate) ===
-              ...locationItems.map((item) {
-                final itemIndex = globalItemIndex++;
-                return RepaintBoundary(
-                  child: _buildItemRow(item)
-                      .animate()
-                      .fadeIn(
-                        duration: 350.ms,
-                        delay: (itemIndex * 30).ms,
-                        curve: Curves.easeOutQuart,
-                      )
-                      .slideX(
-                        begin: 0.15,
-                        duration: 350.ms,
-                        delay: (itemIndex * 30).ms,
-                        curve: Curves.easeOutQuart,
+              // === פריטים במיקום — animated collapse/expand ===
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: _collapsedLocations.contains(location)
+                    ? const SizedBox.shrink()
+                    : Column(
+                        children: locationItems.map((item) {
+                          final itemIndex = globalItemIndex++;
+                          return RepaintBoundary(
+                            child: _buildItemRow(item)
+                                .animate()
+                                .fadeIn(
+                                  duration: 350.ms,
+                                  delay: (itemIndex * 30).ms,
+                                  curve: Curves.easeOutQuart,
+                                )
+                                .slideX(
+                                  begin: 0.15,
+                                  duration: 350.ms,
+                                  delay: (itemIndex * 30).ms,
+                                  curve: Curves.easeOutQuart,
+                                ),
+                          );
+                        }).toList(),
                       ),
-                );
-              }),
+              ),
             ],
           );
         },
@@ -1462,7 +1494,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Tier 1: name (+ recurring star)
+                              // Tier 1: name (+ recurring icon + notes icon)
                               Row(
                                 children: [
                                   if (item.isRecurring)
@@ -1472,6 +1504,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         Icons.autorenew,
                                         color: theme.colorScheme.tertiary,
                                         size: kIconSizeSmallPlus,
+                                      ),
+                                    ),
+                                  if (item.notes != null && item.notes!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: kSpacingXTiny),
+                                      child: Tooltip(
+                                        message: item.notes!,
+                                        child: Icon(
+                                          Icons.sticky_note_2_outlined,
+                                          color: cs.outline,
+                                          size: kIconSizeSmall,
+                                        ),
                                       ),
                                     ),
                                   // Expanded (not Flexible) forces wrapping.
