@@ -1465,10 +1465,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         trailing: _forwardChevron(),
                         onTap: () async {
                           unawaited(HapticFeedback.selectionClick());
-                          final ctx = context;
-                          await TutorialService.resetTutorial(ctx);
+                          await TutorialService.resetTutorial(context);
                           if (!mounted) return;
-                          await TutorialService.showHomeTutorialIfNeeded(ctx);
+                          await TutorialService.showHomeTutorialIfNeeded(context);
                         },
                       ),
                     ],
