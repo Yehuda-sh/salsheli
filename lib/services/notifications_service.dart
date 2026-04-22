@@ -627,7 +627,7 @@ class NotificationsService {
     }
   }
 
-  /// ניקוי התראות ישנות שנקראו (30+ יום)
+  /// ניקוי התראות ישנות — קראו (30+ יום) + לא נקראו (90+ יום)
   ///
   /// קורא לזה פעם אחת ב-app startup אחרי login.
   Future<int> cleanupOldNotifications({
@@ -635,27 +635,32 @@ class NotificationsService {
     int daysOld = 30,
   }) async {
     try {
-      final cutoffDate = DateTime.now().subtract(Duration(days: daysOld));
+      final readCutoff = DateTime.now().subtract(Duration(days: daysOld));
+      final unreadCutoff = DateTime.now().subtract(const Duration(days: 90));
 
-      final snapshot = await _notificationsCollection(userId)
+      final readSnapshot = await _notificationsCollection(userId)
           .where('is_read', isEqualTo: true)
-          .where('read_at', isLessThan: Timestamp.fromDate(cutoffDate))
+          .where('read_at', isLessThan: Timestamp.fromDate(readCutoff))
           .get();
 
-      if (snapshot.docs.isEmpty) return 0;
+      final unreadSnapshot = await _notificationsCollection(userId)
+          .where('is_read', isEqualTo: false)
+          .where('created_at', isLessThan: Timestamp.fromDate(unreadCutoff))
+          .get();
 
-      // Split into batches of 500 (Firestore limit per commit)
-      final docs = snapshot.docs;
-      for (var i = 0; i < docs.length; i += 500) {
+      final allDocs = [...readSnapshot.docs, ...unreadSnapshot.docs];
+      if (allDocs.isEmpty) return 0;
+
+      for (var i = 0; i < allDocs.length; i += 500) {
         final batch = _firestore.batch();
-        final chunk = docs.skip(i).take(500);
+        final chunk = allDocs.skip(i).take(500);
         for (final doc in chunk) {
           batch.delete(doc.reference);
         }
         await batch.commit();
       }
 
-      return docs.length;
+      return allDocs.length;
     } catch (e, stackTrace) {
       _logError('cleanupOldNotifications', e, stackTrace);
       return -1;

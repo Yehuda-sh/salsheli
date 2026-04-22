@@ -109,9 +109,9 @@ class InventoryProvider with ChangeNotifier {
 
   // === Validation Helpers ===
 
-  /// בודק אם שם מוצר תקין (לא ריק)
+  /// בודק אם שם מוצר תקין (לא ריק, עד 200 תווים)
   bool _isValidProductName(String? name) =>
-      name != null && name.trim().isNotEmpty;
+      name != null && name.trim().isNotEmpty && name.trim().length <= 200;
 
   /// בודק אם ID תקין (לא ריק)
   bool _isValidId(String? id) =>

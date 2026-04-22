@@ -394,19 +394,15 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         // Navigate to list if listId exists
         if (notification.listId != null && mounted) {
           final listsProvider = context.read<ShoppingListsProvider>();
-          try {
-            final list = listsProvider.lists.firstWhere(
-              (l) => l.id == notification.listId,
+          final list = listsProvider.lists.where(
+            (l) => l.id == notification.listId,
+          ).firstOrNull;
+          if (list != null && mounted) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => ShoppingListDetailsScreen(list: list),
+              ),
             );
-            if (mounted) {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => ShoppingListDetailsScreen(list: list),
-                ),
-              );
-            }
-          } catch (_) {
-            // רשימה לא נמצאה — אולי נמחקה
           }
         }
         break;

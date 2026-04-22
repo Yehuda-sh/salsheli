@@ -526,6 +526,10 @@ class ShoppingListsProvider with ChangeNotifier {
 
   // === Add Item To List ===
   Future<void> addItemToList(String listId, String name, int quantity, String unit, {String? category}) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) return;
+    final safeQuantity = quantity < 1 ? 1 : quantity;
+
     final list = getById(listId);
     if (list == null) {
       throw Exception('רשימה $listId לא נמצאה');
@@ -539,8 +543,8 @@ class ShoppingListsProvider with ChangeNotifier {
     // יצירת UnifiedListItem חדש (מוצר)
     final item = UnifiedListItem.product(
       id: _uuid.v4(),
-      name: name,
-      quantity: quantity,
+      name: trimmedName,
+      quantity: safeQuantity,
       unit: unit,
       unitPrice: 0.0,
       category: category,

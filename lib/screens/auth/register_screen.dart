@@ -588,8 +588,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
                                 }
-                                if (!value.contains('@') || !value.contains('.') ||
-                                    value.indexOf('.') <= value.indexOf('@') + 1) {
+                                final trimmed = value.trim();
+                                if (!trimmed.contains('@') ||
+                                    trimmed.startsWith('@') ||
+                                    trimmed.endsWith('@') ||
+                                    !trimmed.contains('.') ||
+                                    trimmed.endsWith('.') ||
+                                    trimmed.indexOf('.') <= trimmed.indexOf('@') + 1) {
                                   return AppStrings.auth.emailInvalid;
                                 }
                                 return null;
