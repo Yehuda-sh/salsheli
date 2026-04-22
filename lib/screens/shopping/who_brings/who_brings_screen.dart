@@ -160,14 +160,14 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
   /// 📬 שליחת התראה על התנדבות חדשה
   Future<void> _sendVolunteerNotification(UnifiedListItem item, String volunteerName) async {
+    final userContext = context.read<UserContext>();
+    final currentUserId = userContext.userId;
+    final householdId = userContext.user?.householdId;
+    final notificationsService = context.read<NotificationsService>();
+
+    if (householdId == null) return;
+
     try {
-      final userContext = context.read<UserContext>();
-      final currentUserId = userContext.userId;
-      final householdId = userContext.user?.householdId;
-
-      if (householdId == null) return;
-
-      final notificationsService = context.read<NotificationsService>();
 
       // שלח התראה לבעל הרשימה (אם זה לא המשתמש הנוכחי)
       final creatorId = _list.createdBy;

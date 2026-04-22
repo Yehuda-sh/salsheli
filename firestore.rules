@@ -92,6 +92,7 @@ service cloud.firestore {
       return data.keys().hasOnly(inventoryAllowedFields()) &&
              data.product_name is string &&
              data.product_name.size() >= 2 &&
+             data.product_name.size() <= 200 &&
              data.quantity is number &&
              data.quantity >= 0 &&
              data.min_quantity is number &&
@@ -179,8 +180,10 @@ service cloud.firestore {
         // קריאה ומחיקה: רק הבעלים
         allow read, delete: if isDocOwner(userId);
 
-        // עדכון: רק הבעלים (mark as read)
-        allow update: if isDocOwner(userId);
+        // עדכון: רק הבעלים — מוגבל לשדות is_read ו-read_at בלבד
+        allow update: if isDocOwner(userId) &&
+                      request.resource.data.diff(resource.data).affectedKeys()
+                        .hasOnly(['is_read', 'read_at']);
 
         // ➕ יצירה: v4.2 — ולידציה מותאמת לקוד בפועל
         // ⚠️ v4.2: sender_id הוסר כשדה חובה — NotificationsService לא תמיד שולח אותו
@@ -246,8 +249,9 @@ service cloud.firestore {
       // קריאה: רק חברי משק הבית
       allow read: if isHouseholdMember(householdId);
 
-      // יצירה: כל משתמש מחובר יכול ליצור משק בית
-      allow create: if isAuthenticated();
+      // יצירה: כל משתמש מחובר יכול ליצור משק בית (חובת created_by)
+      allow create: if isAuthenticated() &&
+                    request.resource.data.created_by == request.auth.uid;
 
       // עדכון: רק admin/owner של משק הבית (לא כל חבר)
       // ⚠️ v4.4: היה פתוח לכל member — תוקן. רק admin יכול לעדכן.
@@ -409,8 +413,9 @@ service cloud.firestore {
         // יצירה: כל משתמש מחובר יכול לבקש להצטרף
         allow create: if isAuthenticated() &&
                       request.resource.data.requester_id == request.auth.uid;
-        // עדכון/מחיקה: חברי משק הבית (לאשר/לדחות בקשות)
-        allow update, delete: if isHouseholdMember(householdId);
+        // עדכון/מחיקה: רק admin של משק הבית (לאשר/לדחות בקשות)
+        allow update, delete: if isHouseholdMember(householdId) &&
+                              get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin';
       }
     }
 
@@ -502,8 +507,10 @@ service cloud.firestore {
                     );
 
       // ✏️ עדכון: רק הבעלים או חבר משק הבית (לא תבניות מערכת)
+      // v4.7: חסם is_system escalation — אי אפשר להפוך תבנית אישית למערכתית
       allow update: if isAuthenticated() &&
                     resource.data.is_system != true &&
+                    request.resource.data.is_system != true &&
                     (
                       resource.data.user_id == request.auth.uid ||
                       (resource.data.household_id != null && isHouseholdMember(resource.data.household_id))
