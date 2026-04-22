@@ -9,6 +9,10 @@ import 'constants/repository_constants.dart';
 import 'user_repository.dart';
 import 'utils/firestore_utils.dart';
 
+/// Shared sanitization — strips HTML-unsafe chars from user-supplied text.
+String _sanitizeText(String input) =>
+    input.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
+
 class FirebaseUserRepository implements UserRepository {
   final FirebaseFirestore _firestore;
 
@@ -231,7 +235,7 @@ class FirebaseUserRepository implements UserRepository {
         if (sanitized.length > 40) {
           throw UserRepositoryException('שם קבוצה ארוך מדי (מקסימום 40 תווים)');
         }
-        sanitized = sanitized.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
+        sanitized = _sanitizeText(sanitized);
       }
 
       // Update the user's personal copy
@@ -461,7 +465,7 @@ class FirebaseUserRepository implements UserRepository {
         if (sanitizedName.length > 30) {
           sanitizedName = sanitizedName.substring(0, 30);
         }
-        sanitizedName = sanitizedName.replaceAll(RegExp(r'[<>&"\\]'), '').replaceAll("'", '');
+        sanitizedName = _sanitizeText(sanitizedName);
         if (sanitizedName.isNotEmpty) {
           updates[FirestoreFields.name] = sanitizedName;
         }

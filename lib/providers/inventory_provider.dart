@@ -311,6 +311,9 @@ class InventoryProvider with ChangeNotifier {
     _inventorySubscription = _repository.watchInventory(householdId).listen(
       (items) {
         if (_isDisposed) return;
+        // Skip rebuild if data hasn't changed (prevents unnecessary UI updates
+        // from Firestore metadata-only snapshots)
+        if (_items.length == items.length && _listEquals(_items, items)) return;
         _items = items;
         _isLoading = false;
         _errorMessage = null;
@@ -933,5 +936,15 @@ class InventoryProvider with ChangeNotifier {
     }
 
     super.dispose();
+  }
+
+  /// Shallow equality check — avoids rebuild when Firestore sends
+  /// identical data (e.g. metadata-only update or reconnection).
+  bool _listEquals(List<InventoryItem> a, List<InventoryItem> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
   }
 }
