@@ -484,7 +484,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                           ],
                         ),
                         child: FilledButton.icon(
-                          onPressed: () => _startShopping(currentList),
+                          onPressed: () {
+                            unawaited(HapticFeedback.mediumImpact());
+                            _startShopping(currentList);
+                          },
                           icon: const Icon(Icons.shopping_cart_checkout),
                           label: Text(
                             AppStrings.shopping.startShoppingButton,

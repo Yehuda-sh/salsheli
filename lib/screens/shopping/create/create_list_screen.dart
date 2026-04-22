@@ -806,6 +806,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
       onTap: _isSubmitting
           ? null
           : () {
+              unawaited(HapticFeedback.selectionClick());
               setState(() => _eventMode = mode);
             },
       borderRadius: BorderRadius.circular(kBorderRadius),

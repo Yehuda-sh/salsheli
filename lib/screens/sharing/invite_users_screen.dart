@@ -1,6 +1,9 @@
 // lib/screens/sharing/invite_users_screen.dart — Invite users — share list via email/saved contacts with role selection
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
@@ -716,6 +719,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
         onTap: (isAlreadyShared || isOwner || _isLoading)
             ? null
             : () {
+                unawaited(HapticFeedback.selectionClick());
                 setState(() {
                   _selectedSavedContact = isSelected ? null : contact;
                   if (!isSelected) {
