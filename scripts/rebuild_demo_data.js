@@ -132,21 +132,81 @@ function inventoryUnit(product) {
 // (lib/config/storage_locations.dart)
 function locationForCategory(cat) {
   const map = {
+    // מקרר
     'מוצרי חלב': 'refrigerator',
+    'חלב וביצים': 'refrigerator',
     'פירות וירקות': 'refrigerator',
+    'ירקות': 'refrigerator',
+    'פירות': 'refrigerator',
+    'ירקות ופירות': 'refrigerator',
+    'ירקות תיבול': 'refrigerator',
+    'סלטים מוכנים': 'refrigerator',
+    'ממרחים מתוקים': 'refrigerator',
+    'תחליפי חלב': 'refrigerator',
+    'מוכנים ומרקים': 'refrigerator',
+    // מקפיא
     'בשר ועוף': 'freezer',
+    'בשר ודגים': 'freezer',
     'דגים': 'freezer',
+    'בקר': 'freezer',
+    'עוף': 'freezer',
+    'הודו': 'freezer',
+    'טלה וכבש': 'freezer',
+    'קפואים': 'freezer',
+    'תחליפי בשר': 'freezer',
+    // מטבח
     'לחם ומאפים': 'kitchen',
+    'לחמים ולחמניות': 'kitchen',
+    'מאפים': 'kitchen',
+    'מאפים מזרחיים': 'kitchen',
+    'מאפים מלוחים': 'kitchen',
+    'מאפים מתוקים': 'kitchen',
+    'עוגות': 'kitchen',
     'תבלינים ואפייה': 'kitchen',
+    'תבלינים': 'kitchen',
+    'תבלינים ורטבים': 'kitchen',
+    'רטבים ותבלינים': 'kitchen',
     'שמנים ורטבים': 'kitchen',
+    'קפה ותה': 'kitchen',
+    // מזווה
     'משקאות': 'main_pantry',
+    'שתייה': 'main_pantry',
     'שימורים': 'main_pantry',
+    'שימורים וכבושים': 'main_pantry',
     'אורז ופסטה': 'main_pantry',
+    'דגנים': 'main_pantry',
+    'דגנים וקטניות': 'main_pantry',
+    'קטניות ודגנים': 'main_pantry',
     'ממתקים וחטיפים': 'main_pantry',
+    'חטיפים ומתוקים': 'main_pantry',
+    'אגוזים וגרעינים': 'main_pantry',
+    'פירות יבשים': 'main_pantry',
+    'מזון בריאות': 'main_pantry',
+    'מזון לחיות מחמד': 'main_pantry',
+    // ניקיון
     'מוצרי ניקיון': 'service_porch',
+    'ניקיון': 'service_porch',
+    // אחסון
     'מוצרי בית': 'storage',
-    'היגיינה ויופי': 'bathroom',
+    'מוצרי תינוקות': 'storage',
+    // חדר אמבטיה
     'היגיינה אישית': 'bathroom',
+    'קוסמטיקה וטיפוח': 'bathroom',
+    'קוסמטיקה ואיפור': 'bathroom',
+    'טיפוח': 'bathroom',
+    'טיפוח גוף': 'bathroom',
+    'טיפוח פנים': 'bathroom',
+    'טיפוח שיער': 'bathroom',
+    'טיפוח הפה': 'bathroom',
+    'סבון ורחצה': 'bathroom',
+    'דאודורנט והיגיינה': 'bathroom',
+    'היגיינה נשית': 'bathroom',
+    'מוצרי גילוח': 'bathroom',
+    'הגנה מהשמש': 'bathroom',
+    'עזרה ראשונה': 'bathroom',
+    'ויטמינים ותוספי תזונה': 'bathroom',
+    'תרופות ללא מרשם': 'bathroom',
+    'מוצרי עזר רפואיים': 'bathroom',
   };
   return map[cat] || 'main_pantry';
 }
@@ -1425,8 +1485,8 @@ async function main() {
     created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(daysAgo(1)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      makeProductItem({ name: 'Sunscreen SPF 50', category: 'היגיינה ויופי', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
-      makeProductItem({ name: 'Vitamin D3 1000IU', category: 'היגיינה ויופי', price: 35 }, 1, { id: 'item_mike_ph2' }),
+      makeProductItem({ name: 'Sunscreen SPF 50', category: 'הגנה מהשמש', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
+      makeProductItem({ name: 'Vitamin D3 1000IU', category: 'ויטמינים ותוספי תזונה', price: 35 }, 1, { id: 'item_mike_ph2' }),
       makeTaskItem('item_mike_ph3', 'Ask about allergy medicine', { priority: 'medium' }),
     ],
   });
@@ -1445,7 +1505,7 @@ async function main() {
       // Item with very long name (overflow test)
       makeProductItem({ name: 'שמנת מתוקה תנובה 38% שומן למטבח - מארז חיסכון משפחתי 3 יחידות במחיר מיוחד', category: 'מוצרי חלב', price: 15.9 }, 10, { id: 'item_geo_long' }),
       // Item with price 0 (free/unknown price)
-      makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'היגיינה ויופי', price: 0 }, 11, { id: 'item_geo_free' }),
+      makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'קוסמטיקה וטיפוח', price: 0 }, 11, { id: 'item_geo_free' }),
     ],
   });
   console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
