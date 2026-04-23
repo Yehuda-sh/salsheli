@@ -27,6 +27,7 @@ const HOUR = 3600000;
 function daysAgo(n) { return new Date(now.getTime() - n * DAY); }
 function hoursAgo(n) { return new Date(now.getTime() - n * HOUR); }
 function daysFromNow(n) { return new Date(now.getTime() + n * DAY); }
+function toTimestamp(d) { return admin.firestore.Timestamp.fromDate(d); }
 function pickRandom(arr, count) { return [...arr].sort(() => Math.random() - 0.5).slice(0, Math.min(count, arr.length)); }
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
@@ -250,7 +251,7 @@ function makeReceiptItem(product, idx, shopperUid, date) {
 function makeActiveShopper(uid, joinedAt, isStarter) {
   return {
     user_id: uid,
-    joined_at: joinedAt.toISOString(),
+    joined_at: toTimestamp(joinedAt),
     is_starter: isStarter,
     is_active: true,
   };
@@ -272,8 +273,8 @@ function makeNotification(id, uid, householdId, type, title, message, opts = {})
     message,
     action_data: opts.actionData || {},
     is_read: opts.isRead || false,
-    created_at: (opts.createdAt || now).toISOString(),
-    read_at: opts.readAt ? opts.readAt.toISOString() : null,
+    created_at: toTimestamp(opts.createdAt || now),
+    read_at: opts.readAt ? toTimestamp(opts.readAt) : null,
     sender_id: opts.senderId || null,
     sender_name: opts.senderName || null,
   };
@@ -410,8 +411,8 @@ async function main() {
       id: uid, name: u.name, email: u.email, phone: u.phone || '',
       household_id: hId,
       household_name: HOUSEHOLDS[u.household].name,
-      joined_at: isFresh ? hoursAgo(0.5).toISOString() : isSocial ? daysAgo(7).toISOString() : daysAgo(180).toISOString(),
-      last_login_at: isInactive ? daysAgo(45).toISOString() : isFresh ? hoursAgo(0.5).toISOString() : hoursAgo(randomInt(1, 12)).toISOString(),
+      joined_at: toTimestamp(isFresh ? hoursAgo(0.5) : isSocial ? daysAgo(7) : daysAgo(180)),
+      last_login_at: toTimestamp(isInactive ? daysAgo(45) : isFresh ? hoursAgo(0.5) : hoursAgo(randomInt(1, 12))),
       favorite_products: [],
       weekly_budget: u.key === 'naama' ? 3000 : u.key === 'tomer' ? 600 : isSocial ? 0 : u.isAdmin ? 2000 : 0,
       is_admin: u.isAdmin,
@@ -439,7 +440,7 @@ async function main() {
     id: 'list_cohen_weekly', name: 'קניות שבועיות', status: 'active', type: 'supermarket',
     budget: 800, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.avi, uids.yuval, uids.noa, uids.ori],
     shared_users: {
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(150).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
@@ -448,33 +449,33 @@ async function main() {
     },
     pending_requests: [
       { id: 'req_yuval_1', list_id: 'list_cohen_weekly', requester_id: uids.yuval, type: 'addItem', status: 'pending',
-        created_at: hoursAgo(2).toISOString(),
+        created_at: toTimestamp(hoursAgo(2)),
         request_data: { name: 'במבה 80 גרם', quantity: 3, unit: "יח'", category: 'ממתקים וחטיפים', type: 'product' },
         reviewer_id: null, reviewed_at: null, requester_name: 'יובל כהן', reviewer_name: null },
       { id: 'req_noa_1', list_id: 'list_cohen_weekly', requester_id: uids.noa, type: 'addItem', status: 'pending',
-        created_at: hoursAgo(0.5).toISOString(),
+        created_at: toTimestamp(hoursAgo(0.5)),
         request_data: { name: 'נייר טואלט 32 גלילים', quantity: 1, unit: "יח'", category: 'מוצרי בית', type: 'product' },
         reviewer_id: null, reviewed_at: null, requester_name: 'נועה כהן', reviewer_name: null },
       // Previously approved
       { id: 'req_yuval_old', list_id: 'list_cohen_weekly', requester_id: uids.yuval, type: 'addItem', status: 'approved',
-        created_at: daysAgo(3).toISOString(),
+        created_at: toTimestamp(daysAgo(3)),
         request_data: { name: 'קולה זירו 1.5 ליטר', quantity: 2, unit: "יח'", category: 'משקאות', type: 'product' },
-        reviewer_id: uids.ronit, reviewed_at: daysAgo(3).toISOString(), requester_name: 'יובל כהן', reviewer_name: 'רונית כהן' },
+        reviewer_id: uids.ronit, reviewed_at: toTimestamp(daysAgo(3)), requester_name: 'יובל כהן', reviewer_name: 'רונית כהן' },
       // Previously rejected
       { id: 'req_noa_old', list_id: 'list_cohen_weekly', requester_id: uids.noa, type: 'addItem', status: 'rejected',
-        created_at: daysAgo(2).toISOString(),
+        created_at: toTimestamp(daysAgo(2)),
         request_data: { name: 'שוקולד פרה 100 גרם', quantity: 5, unit: "יח'", category: 'ממתקים וחטיפים', type: 'product' },
-        reviewer_id: uids.avi, reviewed_at: daysAgo(2).toISOString(), requester_name: 'נועה כהן', reviewer_name: 'אבי כהן',
+        reviewer_id: uids.avi, reviewed_at: toTimestamp(daysAgo(2)), requester_name: 'נועה כהן', reviewer_name: 'אבי כהן',
         rejection_reason: 'יש כבר במזווה' },
       // editItem request (pending) — tests pending_requests_section fix
       // request_data matches what PendingRequestsService.createEditItemRequest produces (flat, not nested)
       { id: 'req_yuval_edit', list_id: 'list_cohen_weekly', requester_id: uids.yuval, type: 'editItem', status: 'pending',
-        created_at: hoursAgo(1).toISOString(),
+        created_at: toTimestamp(hoursAgo(1)),
         request_data: { itemId: 'item_cw_0', name: 'חלב תנובה 3%', quantity: 5, unitPrice: 6.9, unit: 'ליטר', category: 'מוצרי חלב', barcode: null, notes: null },
         reviewer_id: null, reviewed_at: null, requester_name: 'יובל כהן', reviewer_name: null },
       // deleteItem request (pending) — tests pending_requests_section fix
       { id: 'req_noa_delete', list_id: 'list_cohen_weekly', requester_id: uids.noa, type: 'deleteItem', status: 'pending',
-        created_at: hoursAgo(0.5).toISOString(),
+        created_at: toTimestamp(hoursAgo(0.5)),
         request_data: { name: 'סוכר לבן 1 ק"ג', itemId: 'item_cw_3' },
         reviewer_id: null, reviewed_at: null, requester_name: 'נועה כהן', reviewer_name: null },
     ],
@@ -489,7 +490,7 @@ async function main() {
     id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'greengrocer',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
-    created_date: hoursAgo(5).toISOString(), updated_date: hoursAgo(0.3).toISOString(),
+    created_date: toTimestamp(hoursAgo(5)), updated_date: toTimestamp(hoursAgo(0.3)),
     shared_with: [uids.avi], shared_users: {}, pending_requests: [],
     active_shoppers: [
       makeActiveShopper(uids.ronit, hoursAgo(0.5), true),
@@ -509,7 +510,7 @@ async function main() {
     id: 'list_cohen_bakery', name: 'מאפייה לשבת 🥖', status: 'active', type: 'bakery',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
     shared_with: [uids.avi, uids.noa],
     shared_users: {
       [uids.noa]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: true },
@@ -525,7 +526,7 @@ async function main() {
     id: 'list_cohen_butcher', name: 'קצביה ליום שישי 🥩', status: 'active', type: 'butcher',
     budget: null, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: butcherProducts.map((p, i) => makeProductItem(p, i, { id: `item_bt_${i}`, isChecked: i < 2 })),
   });
@@ -537,7 +538,7 @@ async function main() {
     id: 'list_cohen_mixed', name: 'קניות + משימות לשבת', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
-    created_date: hoursAgo(8).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(hoursAgo(8)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.ronit, uids.yuval],
     shared_users: {
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
@@ -559,7 +560,7 @@ async function main() {
     id: 'list_cohen_household', name: 'צרכי בית 🏠', status: 'active', type: 'household',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(5).toISOString(), updated_date: daysAgo(1).toISOString(),
+    created_date: toTimestamp(daysAgo(5)), updated_date: toTimestamp(daysAgo(1)),
     shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3 })),
   });
@@ -570,8 +571,8 @@ async function main() {
     id: 'list_cohen_shabbat', name: 'ארוחת שבת משפחתית 🎉', status: 'active', type: 'event',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false, event_mode: 'who_brings',
-    event_date: daysFromNow(3).toISOString(),
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    event_date: toTimestamp(daysFromNow(3)),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [uids.avi, uids.yuval, uids.noa],
     shared_users: {
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(1).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: false },
@@ -597,7 +598,7 @@ async function main() {
     id: 'list_cohen_birthday', name: 'יום הולדת נועה 🎂', status: 'completed', type: 'event',
     budget: 500, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false, event_mode: 'tasks',
-    created_date: daysAgo(30).toISOString(), updated_date: daysAgo(28).toISOString(),
+    created_date: toTimestamp(daysAgo(30)), updated_date: toTimestamp(daysAgo(28)),
     shared_with: [uids.avi, uids.yuval], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_bd_0', 'עוגת שוקולד 3 קומות', { isChecked: true, notes: 'מהקונדיטוריה ברחוב הרצל' }),
@@ -616,7 +617,7 @@ async function main() {
     id: 'list_cohen_lastweek', name: 'קניות שבוע שעבר', status: 'completed', type: 'supermarket',
     budget: 750, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(10).toISOString(), updated_date: daysAgo(7).toISOString(),
+    created_date: toTimestamp(daysAgo(10)), updated_date: toTimestamp(daysAgo(7)),
     shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: lastWeekProducts.map((p, i) => makeProductItem(p, i, { id: `item_clw_${i}`, isChecked: true, checkedBy: uids.avi, checkedAt: daysAgo(7).toISOString() })),
   });
@@ -627,7 +628,7 @@ async function main() {
     id: 'list_cohen_archived', name: 'חג פסח 2025', status: 'archived', type: 'supermarket',
     budget: 1500, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(365).toISOString(), updated_date: daysAgo(358).toISOString(),
+    created_date: toTimestamp(daysAgo(365)), updated_date: toTimestamp(daysAgo(358)),
     shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 20).map((p, i) =>
       makeProductItem(p, i, { id: `item_arch_${i}`, isChecked: true })),
@@ -640,7 +641,7 @@ async function main() {
     id: 'list_levi_weekly', name: 'רשימה לסופר', status: 'active', type: 'supermarket',
     budget: 500, is_shared: true, is_private: false, created_by: uids.maya,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
     shared_with: [uids.dan], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: leviProducts.map((p, i) => makeProductItem(p, i, { id: `item_lv_${i}`, isChecked: i < 2 })),
   });
@@ -652,7 +653,7 @@ async function main() {
     id: 'list_levi_market', name: 'שוק מחנה יהודה 🏪', status: 'active', type: 'market',
     budget: null, is_shared: true, is_private: false, created_by: uids.dan,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(3).toISOString(), updated_date: daysAgo(1).toISOString(),
+    created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(daysAgo(1)),
     shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: marketProducts.map((p, i) => makeProductItem(p, i, { id: `item_mk_${i}`, isChecked: i < 3 })),
   });
@@ -664,7 +665,7 @@ async function main() {
     id: 'list_tomer_pharm', name: 'סופרפארם 💊', status: 'active', type: 'pharmacy',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(3).toISOString(), updated_date: hoursAgo(5).toISOString(),
+    created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(hoursAgo(5)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       ...pharmProducts.map((p, i) => makeProductItem(p, i, { id: `item_tp_${i}` })),
@@ -678,7 +679,7 @@ async function main() {
     id: 'list_tomer_misc', name: 'דברים לקנות 📝', status: 'active', type: 'other',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(7).toISOString(), updated_date: daysAgo(2).toISOString(),
+    created_date: toTimestamp(daysAgo(7)), updated_date: toTimestamp(daysAgo(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_misc_0', 'סוללות AA', { priority: 'medium' }),
@@ -693,7 +694,7 @@ async function main() {
     id: 'list_shiran_empty', name: 'רשימה חדשה', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.shiran,
     format: 'personal', created_from_template: false,
-    created_date: hoursAgo(1).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(hoursAgo(1)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [],
   });
@@ -705,7 +706,7 @@ async function main() {
     id: 'list_naama_big', name: 'קניות חודשיות 🛒', status: 'active', type: 'supermarket',
     budget: 2000, is_shared: false, is_private: true, created_by: uids.naama,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(5).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    created_date: toTimestamp(daysAgo(5)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: naamaProducts.map((p, i) => makeProductItem(p, i, { id: `item_nb_${i}`, isChecked: i < 20 })),
   });
@@ -718,7 +719,7 @@ async function main() {
       id: `list_naama_past_${w}`, name: `קניות שבוע ${w}`, status: 'completed', type: 'supermarket',
       budget: null, is_shared: false, is_private: true, created_by: uids.naama,
       format: 'personal', created_from_template: false,
-      created_date: daysAgo(w * 7 + 5).toISOString(), updated_date: daysAgo(w * 7).toISOString(),
+      created_date: toTimestamp(daysAgo(w * 7 + 5)), updated_date: toTimestamp(daysAgo(w * 7)),
       shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
       items: pastProducts.map((p, i) => makeProductItem(p, i, { id: `item_np${w}_${i}`, isChecked: true })),
     });
@@ -731,7 +732,7 @@ async function main() {
     id: 'list_naama_budget', name: 'קניות בתקציב 💰', status: 'active', type: 'supermarket',
     budget: 300, is_shared: false, is_private: true, created_by: uids.naama,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(4).toISOString(),
+    created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(4)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: budgetProducts.map((p, i) => makeProductItem(p, i, { id: `item_bgt_${i}`, isChecked: i < 3 })),
   });
@@ -862,8 +863,8 @@ async function main() {
       await db.collection('households').doc(hId).collection('receipts').doc(`receipt_${hId}_${w}`).set({
         id: `receipt_${hId}_${w}`,
         store_name: storePool[w % storePool.length],
-        date: date.toISOString(),
-        created_date: date.toISOString(),
+        date: toTimestamp(date),
+        created_date: toTimestamp(date),
         household_id: hId,
         items,
         total_amount: Math.round(totalAmount * 100) / 100,
@@ -1137,7 +1138,7 @@ async function main() {
     requester_id: uids.dan,
     type: 'inviteToHousehold',
     status: 'pending',
-    created_at: daysAgo(5).toISOString(),
+    created_at: toTimestamp(daysAgo(5)),
     requester_name: 'דן לוי',
     reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
     request_data: {
@@ -1158,7 +1159,7 @@ async function main() {
     requester_id: uids.naama,
     type: 'inviteToHousehold',
     status: 'pending',
-    created_at: hoursAgo(3).toISOString(),
+    created_at: toTimestamp(hoursAgo(3)),
     requester_name: 'נעמה רוזן',
     reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
     request_data: {
@@ -1179,9 +1180,9 @@ async function main() {
     requester_id: uids.lior,
     type: 'inviteToHousehold',
     status: 'rejected',
-    created_at: daysAgo(60).toISOString(),
+    created_at: toTimestamp(daysAgo(60)),
     requester_name: 'ליאור דהן',
-    reviewer_id: uids.tomer, reviewed_at: daysAgo(59).toISOString(),
+    reviewer_id: uids.tomer, reviewed_at: toTimestamp(daysAgo(59)),
     rejection_reason: null, reviewer_name: 'תומר בר', list_name: null,
     request_data: {
       invited_user_id: uids.tomer,
@@ -1213,7 +1214,7 @@ async function main() {
       user_phone: contact.phone,
       user_avatar: null,
       last_invited_at: daysAgo(30).toISOString(),
-      created_at: daysAgo(180).toISOString(),
+      added_at: daysAgo(180).toISOString(),
     });
   }
   console.log('   👤 רונית: 3 saved contacts');
@@ -1231,7 +1232,7 @@ async function main() {
       user_phone: contact.phone,
       user_avatar: null,
       last_invited_at: daysAgo(5).toISOString(),
-      created_at: daysAgo(90).toISOString(),
+      added_at: daysAgo(90).toISOString(),
     });
   }
   console.log('   👤 דן: 2 saved contacts');
@@ -1249,7 +1250,7 @@ async function main() {
       user_phone: contact.phone,
       user_avatar: null,
       last_invited_at: daysAgo(7).toISOString(),
-      created_at: daysAgo(180).toISOString(),
+      added_at: daysAgo(180).toISOString(),
     });
   }
   console.log('   👤 אבי: 2 saved contacts');
@@ -1267,7 +1268,7 @@ async function main() {
       user_phone: contact.phone,
       user_avatar: null,
       last_invited_at: daysAgo(30).toISOString(),
-      created_at: daysAgo(60).toISOString(),
+      added_at: daysAgo(60).toISOString(),
     });
   }
   console.log('   👤 קרן: 2 saved contacts');
@@ -1283,7 +1284,7 @@ async function main() {
     name: 'מקרר יין',
     emoji: '🍷',
     household_id: hIds.cohen,
-    created_by: uids.avi,
+    createdBy: uids.avi,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
 
@@ -1293,7 +1294,7 @@ async function main() {
     name: 'מחסן בגראז\'',
     emoji: '🚗',
     household_id: hIds.cohen,
-    created_by: uids.ronit,
+    createdBy: uids.ronit,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
   console.log('   📍 כהן: 2 custom locations (מקרר יין, מחסן בגראז\')');
@@ -1305,7 +1306,7 @@ async function main() {
     name: 'מחסן במרפסת',
     emoji: '🌿',
     household_id: hIds.naama,
-    created_by: uids.naama,
+    createdBy: uids.naama,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
   console.log('   📍 נעמה: 1 custom location (מחסן במרפסת)');
@@ -1317,7 +1318,7 @@ async function main() {
     name: 'מדף משותף במטבח',
     emoji: '🍽️',
     household_id: hIds.roommates,
-    created_by: uids.keren,
+    createdBy: uids.keren,
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
   console.log('   📍 שותפות: 1 custom location (מדף משותף)');
@@ -1329,13 +1330,13 @@ async function main() {
 
   // Update existing lists with target_date for urgency tags
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_weekly').update({
-    target_date: daysFromNow(1).toISOString(), // מחר — urgency "מחר"
+    target_date: toTimestamp(daysFromNow(1)), // מחר — urgency "מחר"
   });
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_butcher').update({
-    target_date: daysFromNow(0).toISOString(), // היום — urgency "היום!"
+    target_date: toTimestamp(daysFromNow(0)), // היום — urgency "היום!"
   });
   await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_market').update({
-    target_date: daysFromNow(5).toISOString(), // 5 ימים — urgency "עוד 5 ימים"
+    target_date: toTimestamp(daysFromNow(5)), // 5 ימים — urgency "עוד 5 ימים"
   });
   console.log('   ⏰ Cohen weekly: target=tomorrow, butcher: target=today, Levi market: target=5 days');
 
@@ -1350,7 +1351,7 @@ async function main() {
     id: 'list_google_basic', name: 'רשימה ראשונה', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.google_user,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: googleProducts.map((p, i) => makeProductItem(p, i, { id: `item_gu_${i}` })),
   });
@@ -1365,8 +1366,8 @@ async function main() {
     id: 'list_mike_weekly', name: 'Weekly Groceries 🛒', status: 'active', type: 'supermarket',
     budget: 500, is_shared: false, is_private: true, created_by: uids.mike,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
-    target_date: daysFromNow(2).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
+    target_date: toTimestamp(daysFromNow(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       ...mikeProducts.map((p, i) => makeProductItem(p, i, { id: `item_mike_${i}`, isChecked: i < 2 })),
@@ -1383,7 +1384,7 @@ async function main() {
     id: 'list_mike_pharm', name: 'Pharmacy & Personal Care', status: 'active', type: 'pharmacy',
     budget: null, is_shared: false, is_private: true, created_by: uids.mike,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(3).toISOString(), updated_date: daysAgo(1).toISOString(),
+    created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(daysAgo(1)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeProductItem({ name: 'Sunscreen SPF 50', category: 'היגיינה ויופי', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
@@ -1399,7 +1400,7 @@ async function main() {
     id: 'list_george_1', name: "קניות של ג'ורג'", status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.george,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(4).toISOString(),
+    created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(4)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       ...georgeProducts.map((p, i) => makeProductItem(p, i, { id: `item_geo_${i}` })),
@@ -1417,7 +1418,7 @@ async function main() {
     id: 'list_room_clean', name: 'ניקיון שבועי לדירה 🧹', status: 'active', type: 'household',
     budget: 200, is_shared: true, is_private: false, created_by: uids.keren,
     format: 'shared', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [uids.hila, uids.sapir],
     shared_users: {
       [uids.hila]:  { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'הילה מורג', user_email: 'hila.morag@demo.com', can_start_shopping: true },
@@ -1437,7 +1438,7 @@ async function main() {
     id: 'list_room_grocery', name: 'סופר לשבוע 🛒', status: 'active', type: 'supermarket',
     budget: 400, is_shared: true, is_private: false, created_by: uids.hila,
     format: 'shared', created_from_template: false,
-    created_date: hoursAgo(6).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(hoursAgo(6)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.keren, uids.sapir],
     shared_users: {
       [uids.keren]: { role: 'admin', shared_at: daysAgo(30).toISOString(), user_name: 'קרן אביב', user_email: 'keren.aviv@demo.com', can_start_shopping: true },
@@ -1445,7 +1446,7 @@ async function main() {
     },
     pending_requests: [
       { id: 'req_sapir_1', list_id: 'list_room_grocery', requester_id: uids.sapir, type: 'addItem', status: 'pending',
-        created_at: hoursAgo(1).toISOString(),
+        created_at: toTimestamp(hoursAgo(1)),
         request_data: { name: 'חומוס אבו גוש 400 גרם', quantity: 2, unit: "יח'", category: 'שימורים', type: 'product' },
         reviewer_id: null, reviewed_at: null, requester_name: 'ספיר דוד', reviewer_name: null },
     ],
@@ -1475,7 +1476,7 @@ async function main() {
     id: 'list_shlomo_1', name: 'קניות', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.shlomo,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(3).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: shlomoProducts.map((p, i) => makeProductItem(p, i, { id: `item_shl_${i}` })),
   });
@@ -1492,7 +1493,7 @@ async function main() {
     id: 'list_ilan_1', name: 'הרשימה שלי', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.removed_user,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(20).toISOString(), updated_date: daysAgo(3).toISOString(),
+    created_date: toTimestamp(daysAgo(20)), updated_date: toTimestamp(daysAgo(3)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 4)
       .map((p, i) => makeProductItem(p, i, { id: `item_ilan_${i}` })),
@@ -1512,7 +1513,7 @@ async function main() {
     requester_id: uids.ronit,
     type: 'inviteToHousehold',
     status: 'pending',
-    created_at: daysAgo(2).toISOString(),
+    created_at: toTimestamp(daysAgo(2)),
     requester_name: 'רונית כהן',
     reviewer_id: null, reviewed_at: null, rejection_reason: null, reviewer_name: null, list_name: null,
     request_data: {
@@ -1532,7 +1533,7 @@ async function main() {
     id: 'list_long_1', name: 'קניות לבית', status: 'active', type: 'supermarket',
     budget: 1500, is_shared: false, is_private: true, created_by: uids.longname,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(2).toISOString(), updated_date: hoursAgo(6).toISOString(),
+    created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(6)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: longProducts.map((p, i) => makeProductItem(p, i, { id: `item_long_${i}`, isChecked: i < 3 })),
   });
@@ -1556,8 +1557,8 @@ async function main() {
       budget: n % 3 === 0 ? randomInt(100, 500) : null,
       is_shared: false, is_private: true, created_by: uids.naama,
       format: 'personal', created_from_template: false,
-      created_date: daysAgo(n + 5).toISOString(),
-      updated_date: daysAgo(Math.max(0, n - 3)).toISOString(),
+      created_date: toTimestamp(daysAgo(n + 5)),
+      updated_date: toTimestamp(daysAgo(Math.max(0, n - 3))),
       shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
       items: listProducts.map((p, i) => makeProductItem(p, i, {
         id: `item_ne_${n}_${i}`,
@@ -1574,7 +1575,7 @@ async function main() {
 
   // PATCH 1: Add overdue target_date to an existing list (urgency "עבר!")
   await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_weekly').update({
-    target_date: daysAgo(2).toISOString(), // 2 days overdue!
+    target_date: toTimestamp(daysAgo(2)), // 2 days overdue!
   });
   console.log('   ⏰ Levi weekly: target_date set to 2 days AGO (tests urgency "עבר!")');
 
@@ -1609,7 +1610,7 @@ async function main() {
     id: 'list_shiran_done', name: 'הכל נקנה! ✅', status: 'active', type: 'supermarket',
     budget: 200, is_shared: false, is_private: true, created_by: uids.shiran,
     format: 'personal', created_from_template: false,
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(0.5).toISOString(),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(0.5)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: allCheckedProducts.map((p, i) => makeProductItem(p, i, {
       id: `item_sh_done_${i}`, isChecked: true,
@@ -1678,8 +1679,8 @@ async function main() {
     id: 'list_tomer_chores', name: 'משימות לסוף שבוע', status: 'active', type: 'event',
     budget: 0, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false, event_mode: 'tasks',
-    event_date: daysFromNow(2).toISOString(),
-    created_date: daysAgo(1).toISOString(), updated_date: hoursAgo(2).toISOString(),
+    event_date: toTimestamp(daysFromNow(2)),
+    created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_chore_0', 'לנקות את הדירה 🧹', { priority: 'high' }),
@@ -1697,7 +1698,7 @@ async function main() {
     id: 'list_levi_template', name: 'קניות שבועיות (תבנית)', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.dan,
     format: 'shared', created_from_template: true, template_id: 'tmpl_shopping_weekly',
-    created_date: hoursAgo(6).toISOString(), updated_date: hoursAgo(1).toISOString(),
+    created_date: toTimestamp(hoursAgo(6)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8)
       .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3 })),
