@@ -1,7 +1,7 @@
 # דוח Code Review — MemoZap
-**תאריך:** 12 מרץ 2026 | עודכן: 9 אפריל 2026
+**תאריך:** 12 מרץ 2026 | עודכן: 22 אפריל 2026
 **סוקר:** ראפטור
-**גרסה:** 5.0
+**גרסה:** 6.0
 
 ---
 
@@ -106,8 +106,9 @@
 ### לתקן (עדיפות גבוהה)
 | # | בעיה | מיקום | חומרה | סטטוס |
 |---|-------|-------|--------|--------|
-| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ⏳ deferred — פתוח |
-| W3 | `deprecated_member_use` — RadioListTile | `contact_selector_dialog.dart` | Warning | ✅ תוקן — הוחלף ב-Radio + GestureDetector |
+| W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ⏳ deferred — יש `mounted` guards, ממתין לאימות analyzer |
+| ~~W2~~ | ~~`directives_ordering` infos~~ | 31 files | Info | ✅ תוקן (סשן 6) — sort imports in 31 files |
+| ~~W3~~ | ~~`deprecated_member_use` — RadioListTile~~ | `contact_selector_dialog.dart` | Warning | ✅ תוקן (סשן 4) — הוחלף ב-Radio + GestureDetector |
 
 ### לתקן (עדיפות בינונית)
 | # | בעיה | מיקום | סטטוס |
@@ -155,13 +156,15 @@
 
 | מדד | ערך |
 |-----|-----|
-| קבצי Dart | ~164 |
-| שורות קוד (lib/) | ~57,000 |
+| קבצי Dart | ~168 |
+| שורות קוד (lib/) | ~58,000 |
 | Errors | **0** |
 | Warnings | **1** (W1 — has `mounted` guards, pending verify) |
 | Tests | 15 test files, 396 passing |
-| i18n coverage | ~95% |
+| i18n coverage | ~97% |
 | Firestore Rules | v4.4 (כולל activity_log subcollection) |
+| Firestore indexes | עודכן — 3 אינדקסים חסרים הוספו (סשן 6) |
+| Android permissions | `CAMERA` הוסף (עבור barcode scanner) |
 
 ---
 
@@ -232,3 +235,71 @@
 ---
 
 *Code Review v5.0 — Activity Log feature + deep scan | 9 April 2026*
+
+---
+
+## מה בוצע (18–22 אפריל 2026 — סשן 6: UX Polish + Lint Cleanup + Catalog Sanitization)
+
+### UX/A11y overhaul (21 commits)
+| מסך | שיפורים |
+|------|---------|
+| **Settings** (7 commits) | haptic throughout, theme card animation, tappable avatar + camera badge, logout card tint, colored icon hierarchy, animated delete card, section count fix, RTL camera badge, pull-to-refresh, version copy, Semantics labels |
+| **History** (6 commits) | BiDi fixes, empty state animation, color-coded activity icons, staggered entrance, receipt haptic, filter scale animation, relative dates, stats gradient, receipt total summary, item+event a11y |
+| **Welcome** (2 commits) | staggered benefits, card semantics, chip a11y, blur token, shadow match, carousel a11y |
+| **Auth** (2 commits) | haptic, touch targets ≥44dp, semantics, design tokens, login_screen Semantics wrapper fix |
+| **Pantry** (2 commits) | collapsible locations, notes indicator, low-stock pulse, pull-to-refresh, animated quantity counter |
+| **Global UX** (3 commits) | premium haptic choreography, animated category collapse, haptic on 3 more screens, touch targets ≥44dp across 5 files |
+
+### Lint Cleanup (10 commits) — resolves W2
+| תיקון | היקף |
+|--------|------|
+| `@override` annotations | 1030 English string members + 32 more |
+| `sort_imports` | **31 files** (resolves W2) |
+| `prefer_is_empty` | כל המופעים |
+| Curly braces, single quotes, underscores, final fields | רב |
+| Deprecated APIs, unnecessary const, const assert, build context | 5 analyzer errors |
+| `redundant_args`, `const`, `tearoff` ב-history screen | ניקוי נקודתי |
+
+### תיקוני באגים
+| תיקון | חומרה | פירוט |
+|--------|--------|-------|
+| Unsafe type casts | **High** | 4 casts שקרסו על Firestore data לא תקין |
+| Self-invite guard | **Medium** | משתמש יכל להזמין את עצמו לבית |
+| Empty household name | **Medium** | validation חסר — התאפשר בית ללא שם |
+| Image upload cooldown | **Medium** | cooldown היה גלובלי → per-user |
+| Missing Firestore indexes | **Medium** | 3 אינדקסים הוספו — compound queries |
+| Android CAMERA permission | **High** | חסרה ב-AndroidManifest — barcode scanner נפל |
+| BiDi numbers | **Low** | `fixBidiNumbers` יושם ב-4 display paths נוספים |
+
+### i18n progress
+- 5 hardcoded Hebrew fallbacks → AppStrings
+- `'הבית'` fallback → `AppStrings.household.defaultName`
+- i18n coverage: ~95% → ~97%
+
+### Catalog sanitization (4 commits)
+| תיקון | היקף |
+|--------|------|
+| שמות מותגים ארגוניים | 273 + 3 שמות נוקו מקטלוג מוצרים |
+| מספרים דבוקים | 2,320 מספרים תוקנו |
+| Trailing asterisks | 324 + 3 ב-butcher.json |
+| Sanitization helper | חולץ + skip redundant rebuilds (5-role audit) |
+
+### תיעוד
+- **Dart file headers**: 154 קבצי Dart קיבלו header אחיד באנגלית
+- **`.gitignore`**: `firebase_options.dart` נוסף (auto-generated)
+- **CLAUDE.md**: תוקן typo `Flutter 3.38+` → `3.8+`
+
+### סיכום כמותי (סשן 6)
+| מדד | ערך |
+|------|-----|
+| Commits | **50** |
+| קבצים ששונו | **~200+** (כולל lint על רב הקוד) |
+| Warning שנפתר | **W2** (directives_ordering) |
+| באגי type safety שתוקנו | **4** |
+| אינדקסים חסרים שנוספו | **3** |
+| הפרות design tokens שתוקנו | **~20** (7 files sized + 9 files const + 5 files 44dp) |
+| Haptic/a11y improvements | **21** מסכים/ווידג'טים |
+
+---
+
+*Code Review v6.0 — UX polish + lint cleanup + catalog sanitization | 22 April 2026*

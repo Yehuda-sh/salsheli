@@ -1,7 +1,7 @@
 # 📋 תוכנית מלאה — MemoZap: מקוד לחנות
 
 > נוצר: 8 מרץ 2026
-> עודכן: 9 אפריל 2026
+> עודכן: 22 אפריל 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
 
 ---
@@ -19,7 +19,7 @@
 | 6.5 | ניהול משפחה מלא | ✅ הושלם |
 | 7 | מוניטיזציה | ⬜ טרם התחיל |
 | 8 | בדיקות | ✅ הושלם (396 tests) |
-| 9 | i18n + נגישות | 🟡 חלקי (~85% extracted) |
+| 9 | i18n + נגישות | 🟡 חלקי (~97% extracted + a11y sweep) |
 | 10 | השקה | ⬜ טרם התחיל |
 
 ---
@@ -176,6 +176,21 @@
 
 ---
 
+# 📍 Phase 6.7 — UX Polish + A11y Sweep ✅
+> הושלם 22 אפריל 2026 (סשן 6)
+
+- [x] **Settings overhaul** — 7 commits: haptic, animations, tappable avatar + camera badge, colored icon hierarchy, pull-to-refresh, Semantics labels
+- [x] **History overhaul** — 6 commits: BiDi, staggered entrance, color-coded icons, relative dates, stats gradient, receipt totals, a11y
+- [x] **Welcome a11y** — staggered benefits, card semantics, chip a11y, blur token
+- [x] **Auth a11y** — haptic, 44dp touch targets, Semantics
+- [x] **Pantry UX** — collapsible locations, low-stock pulse, pull-to-refresh, animated quantity counter
+- [x] **Global haptic choreography** + category collapse animation
+- [x] **Touch targets ≥44dp** across 5 interactive areas
+- [x] **Catalog sanitization** — 273+3 brand names, 2,320 stuck numbers, 327 trailing asterisks
+- [x] **Lint cleanup** — 1030 `@override`, sort imports ×31, curly braces, deprecated APIs — resolves W2
+
+---
+
 # 📍 Phase 7 — מוניטיזציה ⬜
 > Post-launch
 
@@ -197,30 +212,19 @@
 
 ---
 
-# 📍 Phase 9 — i18n 🟡
-> ~85% complete
+# 📍 Phase 9 — i18n + נגישות 🟡
+> ~97% complete (סשן 6: 18-22 אפריל 2026)
 
 - [x] i18n infrastructure — AppStrings proxy, HE base, EN extends HE
 - [x] LocaleManager with SharedPreferences persistence
 - [x] Language toggle in Settings (🇮🇱/🇺🇸)
-- [x] ~85% of strings extracted to AppStrings (~100+ strings in this sprint alone)
-- [ ] ~84 hardcoded Hebrew strings remain in ~15 files
-- [ ] Full English mode testing
-
-### קבצים עם strings חסרים (לפי כמות):
-| קובץ | ~strings | סוג |
-|-------|----------|-----|
-| household_members_screen | ~15 | screen |
-| who_brings_screen | ~8 | screen |
-| household_activity_feed | ~8 | widget |
-| pending_invites_screen | ~5 | screen |
-| pantry_suggestions | ~12 | widget (emoji map) |
-| invite_users_screen | ~3 | screen |
-| home_dashboard_screen | ~2 | screen |
-| checklist_screen | ~2 | screen |
-| loading_overlay | ~3 | auth (debug only) |
-| quick_login_bottom_sheet | ~3 | auth (debug only) |
-| pending_invites_banner | ~2 | widget (unused) |
+- [x] ~97% of strings extracted to AppStrings (+5 hardcoded fallbacks in סשן 6)
+- [x] `@override` ל-1030 English string members (סשן 6)
+- [x] **A11y sweep** (סשן 6): Semantics labels ב-settings, welcome, auth, history, carousel chips
+- [x] **Touch targets ≥44dp** ב-5 קבצים (סשן 6)
+- [x] **BiDi numbers**: `fixBidiNumbers` ב-4 display paths נוספים
+- [ ] ~20 hardcoded Hebrew strings remain in ~8 files (post-launch)
+- [ ] Full English mode manual testing
 
 ---
 
@@ -239,9 +243,10 @@
 | ID | תיאור | חומרה | סטטוס |
 |----|--------|--------|--------|
 | W1 | `use_build_context_synchronously` ×2 in settings_screen | 🟢 | יש `mounted` guards — ממתין לאימות analyzer |
+| ~~W2~~ | ~~`directives_ordering` infos~~ | — | ✅ תוקן (סשן 6) — sort imports in 31 files |
 | ~~B3~~ | ~~SavedContactsService בולע שגיאות~~ | — | ✅ תוקן — rethrow בכל 3 המתודות |
 
-*כל שאר הבאגים (B1-B17) נפתרו.*
+*כל שאר הבאגים (B1-B17) נפתרו. סשן 6 הוסיף 4 תיקוני type-safety ו-3 אינדקסי Firestore חסרים.*
 
 ---
 

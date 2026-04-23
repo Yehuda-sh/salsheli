@@ -69,33 +69,73 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Last Session (April 9, 2026) — Activity Log + CI Fixes + Demo Data + Deep Scan
+### Last Session (April 18-22, 2026) — UX Polish + Lint Cleanup + Catalog Sanitization
 
-**Activity Log Feature (Complete):**
-- Full architecture: Model → Service → Repository → Provider → UI
-- All 8 injection points wired and verified
-- Dashboard feed + History screen (2 tabs) — fully functional
-- Firestore rules, AppStrings (HE+EN), demo data — all complete
+**Settings screen overhaul (7 commits):**
+- Haptic feedback throughout + theme card scale animation
+- Tappable avatar with camera badge + logout card tint
+- Colored icon hierarchy + animated delete card + section count fix
+- RTL camera badge + household hint + emoji haptic/scale
+- Comprehensive dividers + icon color hierarchy
+- Pull-to-refresh + version copy + onboarding haptic
+- Semantics labels on all interactive elements
 
-**CI/Build Fixes:**
-- Fixed merge conflict marker in `suggestions_today_card.dart:695`
-- Fixed bracket mismatch in `shopping_history_screen.dart:549`
-- Build #346 passed successfully on `claude/dev`
+**History screen overhaul (6 commits):**
+- BiDi fixes + empty state animation + defaultProductName fallback
+- Color-coded activity icons + relative time + filter scale animation
+- Staggered activity entrance + receipt haptic + filter hint
+- Relative receipt dates + stats gradient + BiDi counter
+- Receipt total summary + item/event a11y + lint
+- Lint cleanup (redundant args, const, tearoff)
 
-**Demo Data Script Fixes:**
-- `created_at`: changed from `.toISOString()` to `admin.firestore.Timestamp.fromDate()` — fixes orderBy/where queries
-- Added missing `list_id` to 3 `shopping_started` events (Levi + Naama)
-- Added `member_left` event — all 9 event types now covered (27 events total)
-- Added GitHub Action (`rebuild-demo-data.yml`) for running script from browser/phone
+**Pantry improvements:**
+- Collapsible locations + notes indicator + low-stock pulse
+- Pull-to-refresh + animated quantity counter
 
-**Deep Scan Results — Issues Resolved (were listed as open):**
-- ~~B3: SavedContactsService swallows errors~~ — all 3 methods now rethrow properly
-- ~~0 tests~~ — 15 test files exist (6,627 lines)
-- ~~kSticky colors without dark mode~~ — all 40+ SnackBars use `brand?.sticky* ?? kSticky*`
+**Auth/Welcome a11y + design tokens:**
+- Welcome: staggered benefits, card semantics, chip a11y
+- Welcome: blur token, shadow match, carousel a11y, dead code removal
+- Auth: haptic, touch targets, semantics, design tokens
+- login_screen Semantics wrapper paren nesting fix
 
-**Previous Sessions:**
+**Catalog sanitization (4 commits):**
+- 273 + 3 corporate brand names cleaned from product names
+- 2,320 stuck numbers + 324 trailing asterisks fixed
+- butcher.json final cleanup (last 3 trailing asterisks)
+- Extract sanitization helper + skip redundant rebuilds (5-role audit)
+
+**Lint cleanup (major):**
+- Added `@override` to 1030 English string members
+- Sorted imports in 31 files (resolves **W2: directives_ordering**) ✅
+- 32 more `@override` annotations + error/warning resolves
+- `prefer_is_empty` — `.length > 0` → `.isNotEmpty`
+- Curly braces, single quotes, underscores, final fields
+- Deprecated APIs, unnecessary const, const assert, build context
+- 5 analyzer errors + warnings resolved
+
+**Bug fixes:**
+- 4 unsafe type casts that crash on malformed Firestore data
+- Self-invite guard + empty household name validation
+- Per-user image upload cooldown (was global) + hardcoded Hebrew + BiDi
+- 3 missing Firestore indexes + Android CAMERA permission
+- BiDi fixes on 4 more product name displays
+- 5 hardcoded Hebrew fallbacks → AppStrings (i18n coverage bump)
+
+**UX:**
+- Touch targets increased to 44dp minimum across 5 files
+- Premium haptic choreography + animated category collapse
+- Haptic feedback on 3 remaining screens
+- Hardcoded UI values → design tokens across 7 files
+- Missing const on EdgeInsets/margin across 9 files
+
+**Docs/infra:**
+- Standardized all 154 Dart file headers with English descriptions
+- `firebase_options.dart` added to `.gitignore`
+
+### Previous Sessions
+- April 9, 2026: Activity Log feature + CI fixes + demo data + deep scan
 - March 26, 2026: Full 17-category review, 18 critical bugs fixed, 55+ commits, APK 127→94.4MB
-- April 9, 2026 (early): Activity Log feature + settings fixes
+- March 24, 2026: Code review session 3 — 4 security fixes, 5 logic bugs, ~50 design system fixes
 
 ### Next Priorities
 1. **Enable Google Sign-In** in Firebase Console (user action)
@@ -105,6 +145,7 @@ Claude operates in **two different environments**. Identify which one at session
 5. **Manual testing** of all 16 demo users
 6. **Implement pantry merge logic** (dialog result currently ignored — `pending_invites_screen.dart:164`)
 7. **Refactor SocialAuthMixin** — login/register duplicate social auth logic inline
+8. **Verify W1** (`use_build_context_synchronously` in settings_screen) — analyzer run pending
 
 ### Currently Blocking
 - Google/Apple Sign-In requires Firebase Console configuration (not code)

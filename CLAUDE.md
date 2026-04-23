@@ -18,7 +18,7 @@
 
 ## Tech Stack
 
-- **Framework:** Flutter 3.38+ / Dart 3.8.1+
+- **Framework:** Flutter 3.8+ / Dart 3.8.1+
 - **Backend:** Firebase (Auth, Firestore, Storage, Analytics, Crashlytics, Messaging)
 - **State:** Provider + ChangeNotifier
 - **UI:** Hebrew RTL first, Material 3, Dark Mode
@@ -129,7 +129,7 @@ flutter run          # הרצה
 
 - ~~**B3:** SavedContactsService בולע שגיאות~~ ✅ תוקן — כל 3 המתודות עושות rethrow
 - **W1:** `use_build_context_synchronously` (2) ב-settings_screen (יש `mounted` guards — ממתין לאימות analyzer)
-- **W2:** `directives_ordering` infos בכמה קבצים (pre-existing, cosmetic)
+- ~~**W2:** `directives_ordering` infos~~ ✅ תוקן (סשן 6) — `sort imports in 31 files`
 - ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
@@ -138,7 +138,7 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 9/4/2026)
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 22/4/2026)
 - [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
 - [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
