@@ -1924,10 +1924,6 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
   @override String get fillPantrySubtitle => 'Tell us what you have at home — we\'ll alert when something runs out';
   @override String get fillPantryAction => 'Start';
 
-  @override String get inviteFamilyTitle => 'Invite your family';
-  @override String get inviteFamilySubtitle => 'Share shopping lists — shop together in real time';
-  @override String get inviteFamilyAction => 'Invite';
-
   @override String get createListsTitle => 'Create more lists';
   @override String get createListsSubtitle => 'Supermarket, produce, bakery, events — a list for every need';
   @override String get createListsAction => 'Create';

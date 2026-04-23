@@ -1,4 +1,4 @@
-// lib/screens/home/dashboard/widgets/onboarding_tips_card.dart — Onboarding tips — invite family card for solo users
+// lib/screens/home/dashboard/widgets/onboarding_tips_card.dart — Onboarding tips — pantry & lists reminders for new users
 
 import 'dart:async';
 
@@ -17,13 +17,11 @@ import '../../../../theme/app_theme.dart';
 class OnboardingTipsCard extends StatelessWidget {
   final VoidCallback? onNavigateToPantry;
   final VoidCallback? onNavigateToCreateList;
-  final VoidCallback? onNavigateToInvite;
 
   const OnboardingTipsCard({
     super.key,
     this.onNavigateToPantry,
     this.onNavigateToCreateList,
-    this.onNavigateToInvite,
   });
 
   @override
@@ -37,12 +35,6 @@ class OnboardingTipsCard extends StatelessWidget {
 
     final listCount = listsProvider.lists.length;
     final pantryCount = inventoryProvider.items.length;
-    final householdName = userContext.user?.householdName;
-    // isSolo field — fallback to heuristic for existing users without the field
-    final isSoloHousehold = userContext.user?.isSolo ??
-        (householdName == null ||
-         householdName.contains('של') ||
-         householdName.contains('Home'));
 
     final tips = <_TipData>[];
 
@@ -56,20 +48,6 @@ class OnboardingTipsCard extends StatelessWidget {
         onAction: () {
           unawaited(HapticFeedback.lightImpact());
           onNavigateToPantry?.call();
-        },
-      ));
-    }
-
-    if (isSoloHousehold) {
-      tips.add(_TipData(
-        icon: Icons.people_outline,
-        color: brand?.stickyCyan ?? kStickyCyan,
-        title: AppStrings.onboardingTips.inviteFamilyTitle,
-        subtitle: AppStrings.onboardingTips.inviteFamilySubtitle,
-        actionLabel: AppStrings.onboardingTips.inviteFamilyAction,
-        onAction: () {
-          unawaited(HapticFeedback.lightImpact());
-          onNavigateToInvite?.call();
         },
       ));
     }

@@ -224,7 +224,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ? () => widget.onTabSelected!(1)
                         : null,
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
-                    onNavigateToInvite: () => showHouseholdInviteDialog(context),
                   ),
 
                   // === 6. פיד פעילות הבית ===

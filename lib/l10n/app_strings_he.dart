@@ -2137,10 +2137,6 @@ class OnboardingTipsStrings {
   String get fillPantrySubtitle => 'ספר לנו מה יש לך בבית — נתריע כשמשהו נגמר';
   String get fillPantryAction => 'התחל';
 
-  String get inviteFamilyTitle => 'הזמן את המשפחה';
-  String get inviteFamilySubtitle => 'שתף רשימות קניות — תקנו יחד בזמן אמת';
-  String get inviteFamilyAction => 'הזמן';
-
   String get createListsTitle => 'צור עוד רשימות';
   String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
   String get createListsAction => 'צור';
