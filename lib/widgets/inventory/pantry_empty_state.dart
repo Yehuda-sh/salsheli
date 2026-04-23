@@ -132,12 +132,17 @@ class PantryEmptyState extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: RepaintBoundary(
-        child: Center(
-          child: SingleChildScrollView(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge, vertical: kSpacingMedium),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - kSpacingMedium * 2,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                 // Group 1 — אייקון ראשי
                 Semantics(
                   label: strings.emptyLabel,
@@ -235,7 +240,8 @@ class PantryEmptyState extends StatelessWidget {
                       .animate()
                       .fadeIn(duration: 350.ms, delay: d4)
                       .slideY(begin: 0.06, end: 0, duration: 350.ms, delay: d4, curve: Curves.easeOut),
-              ],
+                ],
+              ),
             ),
           ),
         ),
