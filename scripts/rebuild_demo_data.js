@@ -491,7 +491,11 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(hoursAgo(5)), updated_date: toTimestamp(hoursAgo(0.3)),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [],
+    shared_with: [uids.avi],
+    shared_users: {
+      [uids.avi]: { role: 'editor', shared_at: daysAgo(150).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [],
     active_shoppers: [
       makeActiveShopper(uids.ronit, hoursAgo(0.5), true),
       makeActiveShopper(uids.avi, hoursAgo(0.3), false),
@@ -527,8 +531,12 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(1)),
-    shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: butcherProducts.map((p, i) => makeProductItem(p, i, { id: `item_bt_${i}`, isChecked: i < 2 })),
+    shared_with: [uids.ronit],
+    shared_users: {
+      [uids.ronit]: { role: 'admin', shared_at: daysAgo(150).toISOString(), user_name: 'רונית כהן', user_email: 'ronit.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: butcherProducts.map((p, i) => makeProductItem(p, i, { id: `item_bt_${i}`, isChecked: i < 2, defaultChecker: uids.avi })),
   });
   console.log('   📋 כהן: קצביה (butcher, 6 items, 2/6 checked)');
 
@@ -547,7 +555,7 @@ async function main() {
     items: [
       ...mixedProducts.map((p, i) => makeProductItem(p, i, { id: `item_mix_p${i}`, isChecked: i < 2 })),
       makeTaskItem('item_mix_t0', 'לנקות את המקרר', { notes: 'לפני שמכניסים קניות', priority: 'high' }),
-      makeTaskItem('item_mix_t1', 'להוציא בשר מהמקפיא', { isChecked: true, notes: 'לארוחת שבת' }),
+      makeTaskItem('item_mix_t1', 'להוציא בשר מהמקפיא', { isChecked: true, defaultChecker: uids.avi, notes: 'לארוחת שבת' }),
       makeTaskItem('item_mix_t2', 'לבדוק תאריכי תפוגה במזווה', {}),
       makeTaskItem('item_mix_t3', 'להזמין גז', { notes: 'אמישראגז 1-800-225-225', priority: 'high' }),
     ],
@@ -561,8 +569,12 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(5)), updated_date: toTimestamp(daysAgo(1)),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3 })),
+    shared_with: [uids.avi],
+    shared_users: {
+      [uids.avi]: { role: 'editor', shared_at: daysAgo(5).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3, defaultChecker: uids.ronit })),
   });
   console.log('   📋 כהן: צרכי בית (household, 8 items)');
 
@@ -601,12 +613,12 @@ async function main() {
     created_date: toTimestamp(daysAgo(30)), updated_date: toTimestamp(daysAgo(28)),
     shared_with: [uids.avi, uids.yuval], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      makeTaskItem('item_bd_0', 'עוגת שוקולד 3 קומות', { isChecked: true, notes: 'מהקונדיטוריה ברחוב הרצל' }),
-      makeTaskItem('item_bd_1', 'נרות יום הולדת', { isChecked: true }),
-      makeTaskItem('item_bd_2', 'בלונים ורוד וזהב (20)', { isChecked: true }),
-      makeTaskItem('item_bd_3', 'להזמין פיצה מדומינוס', { isChecked: true, notes: '4 מגשים' }),
-      makeProductItem(findProd('במבה') || { name: 'במבה 80 גרם', category: 'ממתקים וחטיפים', price: 5.9 }, 4, { id: 'item_bd_4', isChecked: true, quantity: 5 }),
-      makeProductItem(findProd('ביסלי') || { name: 'ביסלי גריל 200 גרם', category: 'ממתקים וחטיפים', price: 8.9 }, 5, { id: 'item_bd_5', isChecked: true, quantity: 3 }),
+      makeTaskItem('item_bd_0', 'עוגת שוקולד 3 קומות', { isChecked: true, defaultChecker: uids.ronit, notes: 'מהקונדיטוריה ברחוב הרצל' }),
+      makeTaskItem('item_bd_1', 'נרות יום הולדת', { isChecked: true, defaultChecker: uids.ronit }),
+      makeTaskItem('item_bd_2', 'בלונים ורוד וזהב (20)', { isChecked: true, defaultChecker: uids.yuval }),
+      makeTaskItem('item_bd_3', 'להזמין פיצה מדומינוס', { isChecked: true, defaultChecker: uids.avi, notes: '4 מגשים' }),
+      makeProductItem(findProd('במבה') || { name: 'במבה 80 גרם', category: 'ממתקים וחטיפים', price: 5.9 }, 4, { id: 'item_bd_4', isChecked: true, defaultChecker: uids.noa, quantity: 5 }),
+      makeProductItem(findProd('ביסלי') || { name: 'ביסלי גריל 200 גרם', category: 'ממתקים וחטיפים', price: 8.9 }, 5, { id: 'item_bd_5', isChecked: true, defaultChecker: uids.ronit, quantity: 3 }),
     ],
   });
   console.log('   📋 כהן: יום הולדת נועה (event/tasks, completed)');
@@ -631,7 +643,7 @@ async function main() {
     created_date: toTimestamp(daysAgo(365)), updated_date: toTimestamp(daysAgo(358)),
     shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 20).map((p, i) =>
-      makeProductItem(p, i, { id: `item_arch_${i}`, isChecked: true })),
+      makeProductItem(p, i, { id: `item_arch_${i}`, isChecked: true, defaultChecker: uids.ronit })),
   });
   console.log('   📋 כהן: חג פסח 2025 (ARCHIVED, 20 items)');
 
@@ -642,8 +654,12 @@ async function main() {
     budget: 500, is_shared: true, is_private: false, created_by: uids.maya,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
-    shared_with: [uids.dan], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: leviProducts.map((p, i) => makeProductItem(p, i, { id: `item_lv_${i}`, isChecked: i < 2 })),
+    shared_with: [uids.dan],
+    shared_users: {
+      [uids.dan]: { role: 'admin', shared_at: daysAgo(90).toISOString(), user_name: 'דן לוי', user_email: 'dan.levi@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: leviProducts.map((p, i) => makeProductItem(p, i, { id: `item_lv_${i}`, isChecked: i < 2, defaultChecker: uids.maya })),
   });
   console.log('   📋 לוי: רשימה לסופר (supermarket, 7 items)');
 
@@ -654,8 +670,12 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.dan,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(daysAgo(1)),
-    shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: marketProducts.map((p, i) => makeProductItem(p, i, { id: `item_mk_${i}`, isChecked: i < 3 })),
+    shared_with: [uids.maya],
+    shared_users: {
+      [uids.maya]: { role: 'admin', shared_at: daysAgo(90).toISOString(), user_name: 'מאיה לוי', user_email: 'maya.levi@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
+    items: marketProducts.map((p, i) => makeProductItem(p, i, { id: `item_mk_${i}`, isChecked: i < 3, defaultChecker: uids.dan })),
   });
   console.log('   📋 לוי: שוק מחנה יהודה (market, 8 items)');
 
@@ -683,7 +703,7 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_misc_0', 'סוללות AA', { priority: 'medium' }),
-      makeTaskItem('item_misc_1', 'מטען לאייפון', { isChecked: true }),
+      makeTaskItem('item_misc_1', 'מטען לאייפון', { isChecked: true, defaultChecker: uids.tomer }),
       makeTaskItem('item_misc_2', 'מפתח חלופי לבית', { priority: 'high' }),
     ],
   });
@@ -721,7 +741,7 @@ async function main() {
       format: 'personal', created_from_template: false,
       created_date: toTimestamp(daysAgo(w * 7 + 5)), updated_date: toTimestamp(daysAgo(w * 7)),
       shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-      items: pastProducts.map((p, i) => makeProductItem(p, i, { id: `item_np${w}_${i}`, isChecked: true })),
+      items: pastProducts.map((p, i) => makeProductItem(p, i, { id: `item_np${w}_${i}`, isChecked: true, defaultChecker: uids.naama })),
     });
   }
   console.log('   📋 נעמה: 8 completed past lists (history)');
@@ -1482,6 +1502,19 @@ async function main() {
   });
   console.log('   👴 שלמה: רשימה אחת פשוטה (5 items, no sharing, no budget)');
 
+  // Shlomo: completed list with 1 item (single-item edge case)
+  await db.collection('users').doc(uids.shlomo).collection('private_lists').doc('list_shlomo_single').set({
+    id: 'list_shlomo_single', name: 'חלב', status: 'completed', type: 'supermarket',
+    budget: null, is_shared: false, is_private: true, created_by: uids.shlomo,
+    format: 'personal', created_from_template: false,
+    created_date: toTimestamp(daysAgo(3)), updated_date: toTimestamp(daysAgo(2)),
+    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
+    items: [
+      makeProductItem({ name: 'חלב תנובה 3%', category: 'מוצרי חלב', price: 6.9, defaultUnit: 'ליטר' }, 0, { id: 'item_shl_single', isChecked: true, defaultChecker: uids.shlomo }),
+    ],
+  });
+  console.log('   👴 שלמה: רשימת פריט בודד (1 item — single-item edge case)');
+
   // Shlomo pantry — just basics
   const shlomoPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'לחם ומאפים'), 4);
   await createInventory(hIds.shlomo, shlomoPantry, uids.shlomo);
@@ -1563,6 +1596,7 @@ async function main() {
       items: listProducts.map((p, i) => makeProductItem(p, i, {
         id: `item_ne_${n}_${i}`,
         isChecked: isCompleted || (isArchived && i < itemCount - 1),
+        defaultChecker: uids.naama,
       })),
     });
   }
@@ -1614,7 +1648,7 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: allCheckedProducts.map((p, i) => makeProductItem(p, i, {
       id: `item_sh_done_${i}`, isChecked: true,
-      checked_by: uids.shiran, checked_at: hoursAgo(1).toISOString(),
+      checkedBy: uids.shiran, checkedAt: hoursAgo(1).toISOString(),
     })),
   });
   console.log('   ✅ Shiran: "הכל נקנה!" (active, 100% checked — tests green progress bar)');
@@ -1684,7 +1718,7 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_chore_0', 'לנקות את הדירה 🧹', { priority: 'high' }),
-      makeTaskItem('item_chore_1', 'כביסה + גיהוץ', { isChecked: true, priority: 'medium' }),
+      makeTaskItem('item_chore_1', 'כביסה + גיהוץ', { isChecked: true, defaultChecker: uids.tomer, priority: 'medium' }),
       makeTaskItem('item_chore_2', 'לארגן את הארון', { priority: 'low', notes: 'לתרום בגדים ישנים' }),
       makeTaskItem('item_chore_3', 'לתקן את הברז במטבח 🔧', { priority: 'high' }),
       // Item with emoji in name
