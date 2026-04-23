@@ -695,9 +695,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     FloatingActionButton.small(
                       heroTag: 'pantry_quick_scan_btn',
                       onPressed: _quickScanToDecrement,
-                      backgroundColor: scheme.errorContainer,
+                      backgroundColor: scheme.tertiaryContainer,
                       tooltip: AppStrings.inventory.quickScanTooltip,
-                      child: Icon(Icons.remove_shopping_cart, color: scheme.onErrorContainer, size: kIconSizeSmallPlus),
+                      child: Icon(Icons.remove_shopping_cart, color: scheme.onTertiaryContainer, size: kIconSizeSmallPlus),
                     ),
                     const SizedBox(height: kSpacingSmall),
                     // 📷⬆️ סריקת ברקוד להוספה
