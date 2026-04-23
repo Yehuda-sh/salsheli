@@ -651,6 +651,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
     final primaryColor = scheme.primaryContainer;
     // final backgroundColor = scheme.surface;
@@ -695,9 +696,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     FloatingActionButton.small(
                       heroTag: 'pantry_quick_scan_btn',
                       onPressed: _quickScanToDecrement,
-                      backgroundColor: scheme.tertiaryContainer,
+                      backgroundColor: brand?.stickyOrange ?? kStickyOrange,
                       tooltip: AppStrings.inventory.quickScanTooltip,
-                      child: Icon(Icons.remove_shopping_cart, color: scheme.onTertiaryContainer, size: kIconSizeSmallPlus),
+                      child: Icon(Icons.remove_shopping_cart, color: scheme.onSurface, size: kIconSizeSmallPlus),
                     ),
                     const SizedBox(height: kSpacingSmall),
                     // 📷⬆️ סריקת ברקוד להוספה
