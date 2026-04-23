@@ -115,7 +115,7 @@ function normalizeUnit(u) {
   if (u === 'ק"ג' || u === 'קג' || u === 'קילוגרמים' || u === 'קילוגרם') return 'ק"ג';
   if (u === 'ליטר' || u === 'ל' || u === 'ליטרים') return 'ליטר';
   if (u === 'גרם' || u === 'גר' || u === 'גרמים') return 'גרם';
-  if (u === 'מ"ל' || u === 'מיליליטר' || u === 'מיליליטרים' || u === '100 מ"ל' || u === 'ל 100 מ"ל' || u === 'ל100 מ"ל') return "יח'";
+  if (u === 'מ"ל' || u === 'מיליליטר' || u === 'מיליליטרים' || u === '100 מ"ל' || u === 'ל 100 מ"ל' || u === 'ל100 מ"ל' || u === '100 מיליליטר') return "יח'";
   if (u === '100 גרם' || u === 'ל 100 גרם' || u === 'לק"ג') return "יח'";
   if (u === 'יחידה' || u === 'יחידות' || u === 'יח' || u === 'י"ח' || u === 'יחידו') return "יח'";
   if (u === 'מטר' || u === 'מטרים' || u === '100 מטר') return "יח'";
@@ -304,15 +304,16 @@ async function main() {
       count++;
       if (count % 400 === 0) { batches.push(batch.commit()); batch = db.batch(); }
     }
-    batches.push(batch.commit());
+    if (count % 400 !== 0) batches.push(batch.commit());
     await Promise.all(batches);
     return snap.size;
   }
 
-  // Top-level collections
+  // Top-level collections (includes stale data from app usage)
   let cleaned = 0;
   cleaned += await deleteCollection(db.collection('pending_invites'));
   cleaned += await deleteCollection(db.collection('custom_locations'));
+  cleaned += await deleteCollection(db.collection('shopping_patterns'));
   console.log(`   🧹 Top-level: ${cleaned} docs deleted`);
 
   // User subcollections
@@ -1645,6 +1646,20 @@ async function main() {
     }
   }
   console.log('   ✅ Shabbat wb_4 "לחם": now FULL (2/2 volunteers)');
+
+  // PATCH 2b: Who Brings item with volunteers > neededCount (overflow edge case)
+  if (shabbatDoc.exists) {
+    const items = (await shabbatRef.get()).data().items || [];
+    if (items.length > 4) {
+      items[4] = makeWhoBringsItem('wb_5', 'שתייה', 2, [
+        { userId: uids.yuval, displayName: 'יובל כהן' },
+        { userId: uids.noa, displayName: 'נועה כהן' },
+        { userId: uids.avi, displayName: 'אבי כהן' },
+      ]);
+      await shabbatRef.update({ items });
+    }
+  }
+  console.log('   ⚠️ Shabbat wb_5 "שתייה": OVERFLOW (3/2 volunteers — edge case)');
 
   // PATCH 3: Inventory items with notes
   await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_household_cohen_0').update({
