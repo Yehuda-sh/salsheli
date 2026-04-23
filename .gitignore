@@ -6,6 +6,7 @@
 *.pyc
 *.swp
 *.orig
+*.bak
 .DS_Store
 Thumbs.db
 
