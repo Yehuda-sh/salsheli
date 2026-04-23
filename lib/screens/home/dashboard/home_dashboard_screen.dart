@@ -18,6 +18,7 @@ import '../../../providers/user_context.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/email_verification_banner.dart';
+import '../../../widgets/common/household_invite_dialog.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
 import 'widgets/action_center_card.dart';
@@ -223,7 +224,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ? () => widget.onTabSelected!(1)
                         : null,
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
-                    onNavigateToInvite: () => Navigator.pushNamed(context, '/invite-users'),
+                    onNavigateToInvite: () => showHouseholdInviteDialog(context),
                   ),
 
                   // === 6. פיד פעילות הבית ===
@@ -297,7 +298,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           FilledButton(
             onPressed: () {
               unawaited(HapticFeedback.lightImpact());
-              Navigator.pushNamed(context, '/invite-users');
+              showHouseholdInviteDialog(context);
             },
             style: FilledButton.styleFrom(
               backgroundColor: brand?.stickyCyan ?? kStickyCyan,

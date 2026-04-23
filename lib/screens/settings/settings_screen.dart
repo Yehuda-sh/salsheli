@@ -18,11 +18,10 @@ import '../../l10n/locale_manager.dart';
 import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 import '../../services/image_upload_service.dart';
-import '../../services/pending_invites_service.dart';
 import '../../services/tutorial_service.dart';
-import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/household_invite_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/common/skeleton_loader.dart';
@@ -559,157 +558,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       ),
     );
     controller.dispose(); // ✅ dispose controller after dialog closes
-  }
-
-  /// 🏠 דיאלוג הזמנה לבית
-  Future<void> _showInviteToHouseholdDialog(UserContext userContext) async {
-    final cs = Theme.of(context).colorScheme;
-    final emailController = TextEditingController();
-    bool isSending = false;
-    String? errorText;
-    String? successText;
-
-    // וודא שיש שם לבית
-    if (userContext.householdName == null ||
-        userContext.householdName!.trim().isEmpty) {
-      await _showEditHouseholdNameDialog(userContext);
-      if (userContext.householdName == null ||
-          userContext.householdName!.trim().isEmpty) {
-        return; // ביטל בלי לבחור שם
-      }
-    }
-    if (!mounted) return;
-
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            title: Text(AppStrings.settings.inviteToHouseholdTitle),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  textDirection: TextDirection.ltr,
-                  decoration: InputDecoration(
-                    hintText: AppStrings.settings.inviteToHouseholdHint,
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.email_outlined),
-                    errorText: errorText,
-                  ),
-                ),
-                if (successText != null) ...[
-                  const SizedBox(height: kSpacingSmall),
-                  Text(
-                    successText!,
-                    style: TextStyle(
-                      color: Theme.of(ctx).extension<AppBrand>()?.stickyGreen ?? kStickyGreen,
-                      fontSize: kFontSizeSmall,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(AppStrings.common.cancel),
-              ),
-              FilledButton.icon(
-                icon: isSending
-                    ? const SizedBox(
-                        width: kIconSizeSmall,
-                        height: kIconSizeSmall,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.send, size: kIconSizeSmall),
-                label: Text(AppStrings.settings.inviteToHouseholdButton),
-                style: FilledButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                ),
-                onPressed: isSending
-                    ? null
-                    : () async {
-                        final email = emailController.text.trim();
-                        if (email.isEmpty || !email.contains('@')) {
-                          setDialogState(() => errorText = AppStrings.settings.invalidEmail);
-                          return;
-                        }
-
-                        setDialogState(() {
-                          isSending = true;
-                          errorText = null;
-                          successText = null;
-                        });
-
-                        final service = PendingInvitesService();
-                        final userId = userContext.userId!;
-                        final userName =
-                            userContext.user?.name ?? AppStrings.settings.defaultUserName;
-                        final householdId = userContext.householdId!;
-                        final householdName =
-                            userContext.householdName ?? AppStrings.settings.defaultHouseholdName;
-
-                        // חפש אם המשתמש קיים
-                        String? invitedUserId;
-                        try {
-                          final usersQuery = await FirebaseFirestore.instance
-                              .collection('users')
-                              .where('email',
-                                  isEqualTo: email.toLowerCase())
-                              .limit(1)
-                              .get();
-                          if (usersQuery.docs.isNotEmpty) {
-                            invitedUserId = usersQuery.docs.first.id;
-                          }
-                        } catch (e) {
-                          debugPrint('⚠️ Failed to lookup invited user: $e');
-                        }
-
-                        final result =
-                            await service.createHouseholdInvite(
-                          inviterId: userId,
-                          inviterName: userName,
-                          invitedUserEmail: email,
-                          invitedUserId: invitedUserId,
-                          householdId: householdId,
-                          householdName: householdName,
-                        );
-
-                        if (!ctx.mounted) return;
-
-                        if (result.isSuccess) {
-                          setDialogState(() {
-                            isSending = false;
-                            successText = AppStrings
-                                .settings.inviteToHouseholdSuccess;
-                            emailController.clear();
-                          });
-                        } else if (result.type ==
-                            InviteResultType.inviteAlreadyPending) {
-                          setDialogState(() {
-                            isSending = false;
-                            errorText = AppStrings
-                                .settings.inviteToHouseholdAlreadyPending;
-                          });
-                        } else {
-                          setDialogState(() {
-                            isSending = false;
-                            errorText =
-                                result.errorMessage ?? AppStrings.settings.inviteError('');
-                          });
-                        }
-                      },
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    emailController.dispose(); // ✅ dispose controller after dialog closes
   }
 
   /// Bottom Sheet לעריכת פרופיל
@@ -1394,9 +1242,19 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           title: Text(AppStrings.settings.inviteToHouseholdTitle),
                           subtitle: Text(AppStrings.settings.inviteToHouseholdSubtitle),
                           trailing: _forwardChevron(),
-                          onTap: () {
+                          onTap: () async {
                             unawaited(HapticFeedback.selectionClick());
-                            _showInviteToHouseholdDialog(userContext);
+                            // Make sure household has a name before opening the dialog
+                            if (userContext.householdName == null ||
+                                userContext.householdName!.trim().isEmpty) {
+                              await _showEditHouseholdNameDialog(userContext);
+                              if (userContext.householdName == null ||
+                                  userContext.householdName!.trim().isEmpty) {
+                                return;
+                              }
+                            }
+                            if (!mounted) return;
+                            await showHouseholdInviteDialog(context);
                           },
                         ),
                         const Divider(height: 1, indent: kIconSizeXLarge),

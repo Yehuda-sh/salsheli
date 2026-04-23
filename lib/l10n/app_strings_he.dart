@@ -859,6 +859,7 @@ class SettingsStrings {
   String get inviteToHouseholdAlreadyMember => 'המשתמש כבר חבר בבית';
   String get inviteToHouseholdAlreadyPending => 'כבר יש הזמנה ממתינה';
   String get inviteToHouseholdButton => 'שלח הזמנה';
+  String get inviteToHouseholdNeedName => 'תחילה קבע שם לבית בהגדרות';
   String get householdJoinedSuccess => '🏠 הצטרפת לבית בהצלחה!';
   String get myPantry => 'המזווה שלי';
   String get priceComparison => 'השוואת מחירים';
