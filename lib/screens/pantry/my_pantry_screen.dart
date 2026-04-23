@@ -692,15 +692,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // 📷⬇️ סריקה מהירה להורדת מלאי
-                    FloatingActionButton.small(
-                      heroTag: 'pantry_quick_scan_btn',
-                      onPressed: _quickScanToDecrement,
-                      backgroundColor: brand?.stickyOrange ?? kStickyOrange,
-                      tooltip: AppStrings.inventory.quickScanTooltip,
-                      child: Icon(Icons.remove_shopping_cart, color: scheme.onSurface, size: kIconSizeSmallPlus),
-                    ),
-                    const SizedBox(height: kSpacingSmall),
+                    // 📷⬇️ סריקה מהירה להורדת מלאי — only when there's stock to remove
+                    if (allItems.isNotEmpty) ...[
+                      FloatingActionButton.small(
+                        heroTag: 'pantry_quick_scan_btn',
+                        onPressed: _quickScanToDecrement,
+                        backgroundColor: brand?.stickyOrange ?? kStickyOrange,
+                        tooltip: AppStrings.inventory.quickScanTooltip,
+                        child: Icon(Icons.remove_shopping_cart, color: scheme.onSurface, size: kIconSizeSmallPlus),
+                      ),
+                      const SizedBox(height: kSpacingSmall),
+                    ],
                     // 📷⬆️ סריקת ברקוד להוספה
                     FloatingActionButton.small(
                       heroTag: 'pantry_scan_btn',

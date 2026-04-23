@@ -186,9 +186,9 @@ class _AppLayoutState extends State<AppLayout> {
                   final url = userCtx.profileImageUrl;
                   if (url != null) {
                     return Image.network(url, fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover));
+                      errorBuilder: (_, _, _) => _avatarInitials(context, userCtx.displayName, cs));
                   }
-                  return Image.asset('assets/images/default_avatar.webp', fit: BoxFit.cover);
+                  return _avatarInitials(context, userCtx.displayName, cs);
                 },
               ),
             ),
@@ -207,6 +207,25 @@ class _AppLayoutState extends State<AppLayout> {
           onPressed: () => _showNotificationsMenu(context),
         ),
       ],
+    );
+  }
+
+  /// 👤 Avatar fallback: circle with the user's first letter when no
+  /// profile image is set. Prefers Hebrew initials.
+  Widget _avatarInitials(BuildContext context, String? name, ColorScheme cs) {
+    final trimmed = name?.trim() ?? '';
+    final initial = trimmed.isNotEmpty ? trimmed.characters.first.toUpperCase() : '?';
+    return Container(
+      color: cs.primaryContainer,
+      alignment: Alignment.center,
+      child: Text(
+        initial,
+        style: TextStyle(
+          fontSize: kFontSizeMedium,
+          fontWeight: FontWeight.bold,
+          color: cs.onPrimaryContainer,
+        ),
+      ),
     );
   }
 

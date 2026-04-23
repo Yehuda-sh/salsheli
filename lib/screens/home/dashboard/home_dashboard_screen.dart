@@ -559,21 +559,38 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   child: Row(
                     children: [
                       // Material Icon בעיגול צבעוני — Hero animation to details
+                      // Progress ring wraps the icon so users can see
+                      // completion at a glance without reading the counter.
                       Hero(
                         tag: 'list_hero_${list.id}',
-                        child: Container(
+                        child: SizedBox(
                           width: 44,
                           height: 44,
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(alpha: 0.15),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              ListTypes.getByKeySafe(list.type).icon,
-                              color: accentColor,
-                              size: kIconSizeMedium,
-                            ),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              if (totalCount > 0)
+                                SizedBox.expand(
+                                  child: CircularProgressIndicator(
+                                    value: progress,
+                                    strokeWidth: 3,
+                                    backgroundColor: accentColor.withValues(alpha: 0.15),
+                                    valueColor: AlwaysStoppedAnimation(accentColor),
+                                  ),
+                                )
+                              else
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: accentColor.withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              Icon(
+                                ListTypes.getByKeySafe(list.type).icon,
+                                color: accentColor,
+                                size: kIconSizeMedium,
+                              ),
+                            ],
                           ),
                         ),
                       ),

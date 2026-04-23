@@ -167,13 +167,14 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
                 : TextButton(
                     onPressed: _sendVerification,
                     style: TextButton.styleFrom(
+                      foregroundColor: cs.primary,
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                     child: Text(
                       AppStrings.auth.sendVerificationEmailButton,
-                      style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.w600),
                     ),
                   ),
             // כפתור X — סגירה ל-24 שעות
