@@ -480,7 +480,7 @@ async function main() {
         reviewer_id: null, reviewed_at: null, requester_name: 'נועה כהן', reviewer_name: null },
     ],
     active_shoppers: [],
-    items: weeklyProducts.map((p, i) => makeProductItem(p, i, { id: `item_cw_${i}`, isChecked: i < 4 })),
+    items: weeklyProducts.map((p, i) => makeProductItem(p, i, { id: `item_cw_${i}`, isChecked: i < 4, defaultChecker: i < 2 ? uids.ronit : uids.avi })),
   });
   console.log('   📋 כהן: קניות שבועיות (supermarket, 14 items, 2 pending + 1 approved + 1 rejected)');
 
@@ -520,7 +520,7 @@ async function main() {
       [uids.noa]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: true },
     },
     pending_requests: [], active_shoppers: [],
-    items: bakeryProducts.map((p, i) => makeProductItem(p, i, { id: `item_bk_${i}`, isChecked: i === 0, notes: i === 0 ? 'הגדולה, לא הקטנה' : null })),
+    items: bakeryProducts.map((p, i) => makeProductItem(p, i, { id: `item_bk_${i}`, isChecked: i === 0, defaultChecker: uids.ronit, notes: i === 0 ? 'הגדולה, לא הקטנה' : null })),
   });
   console.log('   📋 כהן: מאפייה לשבת (bakery, 5 items)');
 
@@ -549,11 +549,12 @@ async function main() {
     created_date: toTimestamp(hoursAgo(8)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.ronit, uids.yuval],
     shared_users: {
+      [uids.ronit]: { role: 'admin', shared_at: daysAgo(150).toISOString(), user_name: 'רונית כהן', user_email: 'ronit.cohen@demo.com', can_start_shopping: true },
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
     },
     pending_requests: [], active_shoppers: [],
     items: [
-      ...mixedProducts.map((p, i) => makeProductItem(p, i, { id: `item_mix_p${i}`, isChecked: i < 2 })),
+      ...mixedProducts.map((p, i) => makeProductItem(p, i, { id: `item_mix_p${i}`, isChecked: i < 2, defaultChecker: uids.avi })),
       makeTaskItem('item_mix_t0', 'לנקות את המקרר', { notes: 'לפני שמכניסים קניות', priority: 'high' }),
       makeTaskItem('item_mix_t1', 'להוציא בשר מהמקפיא', { isChecked: true, defaultChecker: uids.avi, notes: 'לארוחת שבת' }),
       makeTaskItem('item_mix_t2', 'לבדוק תאריכי תפוגה במזווה', {}),
@@ -728,7 +729,7 @@ async function main() {
     format: 'personal', created_from_template: false,
     created_date: toTimestamp(daysAgo(5)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: naamaProducts.map((p, i) => makeProductItem(p, i, { id: `item_nb_${i}`, isChecked: i < 20 })),
+    items: naamaProducts.map((p, i) => makeProductItem(p, i, { id: `item_nb_${i}`, isChecked: i < 20, defaultChecker: uids.naama })),
   });
   console.log('   📋 נעמה: קניות חודשיות (50 items! performance test, 20/50 checked)');
 
@@ -754,7 +755,7 @@ async function main() {
     format: 'personal', created_from_template: false,
     created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(4)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: budgetProducts.map((p, i) => makeProductItem(p, i, { id: `item_bgt_${i}`, isChecked: i < 3 })),
+    items: budgetProducts.map((p, i) => makeProductItem(p, i, { id: `item_bgt_${i}`, isChecked: i < 3, defaultChecker: uids.naama })),
   });
   console.log('   📋 נעמה: קניות בתקציב (budget: 300₪, 10 items)');
 
@@ -937,7 +938,7 @@ async function main() {
   await createActivityEvents(hIds.cohen, [
     makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'super' }, daysAgo(7)),
     makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
-    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_fruits' }, daysAgo(6)),
+    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות לשבוע', list_id: 'list_cohen_green' }, daysAgo(6)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_5', hIds.cohen, 'shopping_joined', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_6', hIds.cohen, 'shopping_completed', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', item_count: 12, store_name: 'רמי לוי' }, daysAgo(3)),
@@ -945,15 +946,15 @@ async function main() {
     makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'cleaning' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
-    makeActivityEvent('act_cohen_11', hIds.cohen, 'member_left', uids.noa, 'נועה כהן', {}, hoursAgo(3)),
+    makeActivityEvent('act_cohen_11', hIds.cohen, 'item_added', uids.noa, 'נועה כהן', { item_name: 'נייר טואלט 32 גלילים', list_name: 'קניות שבועיות' }, hoursAgo(3)),
   ]);
   console.log('   📝 כהן: 11 activity events');
 
   // Levi household — 5 events
   await createActivityEvents(hIds.levi, [
     makeActivityEvent('act_levi_1', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', list_type: 'super' }, daysAgo(5)),
-    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_shabbat' }, daysAgo(2)),
-    makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
+    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'רשימה לסופר', list_id: 'list_levi_weekly' }, daysAgo(2)),
+    makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'רשימה לסופר', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
     makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'cleaning' }, daysAgo(1)),
   ]);
@@ -962,11 +963,11 @@ async function main() {
   // Naama household — 8 events (power user)
   await createActivityEvents(hIds.naama, [
     makeActivityEvent('act_naama_1', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_type: 'super' }, daysAgo(10)),
-    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_weekly' }, daysAgo(7)),
-    makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל' }, daysAgo(7)),
+    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'קניות חודשיות', list_id: 'list_naama_big' }, daysAgo(7)),
+    makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'קניות חודשיות', item_count: 25, store_name: 'שופרסל' }, daysAgo(7)),
     makeActivityEvent('act_naama_4', hIds.naama, 'stock_updated', uids.naama, 'נעמה רוזן', { product_name: 'גבינה צהובה', quantity: 1 }, daysAgo(5)),
     makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
-    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_id: 'list_naama_pharm' }, daysAgo(3)),
+    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_id: 'list_naama_extra_5' }, daysAgo(3)),
     makeActivityEvent('act_naama_7', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'פארם', item_count: 5, store_name: 'סופר פארם' }, daysAgo(3)),
     makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'super' }, hoursAgo(2)),
   ]);
@@ -1062,8 +1063,8 @@ async function main() {
   // Avi notifications (10)
   await createNotifications(uids.avi, [
     makeNotification('notif_avi_1', uids.avi, hIds.cohen, 'invite', 'הזמנה לרשימה', 'רונית הזמינה אותך לרשימת "קניות שבועיות"', { createdAt: daysAgo(7), isRead: true, readAt: daysAgo(7), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
-    makeNotification('notif_avi_2', uids.avi, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "קולה זירו" אושרה', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly', requestId: 'req_yuval_old' } }),
-    makeNotification('notif_avi_3', uids.avi, hIds.cohen, 'request_rejected', 'בקשה נדחתה', 'הבקשה של נועה להוסיף "שוקולד פרה" נדחתה', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
+    makeNotification('notif_avi_2', uids.avi, hIds.cohen, 'request_approved', 'בקשה אושרה', 'רונית אישרה את הבקשה של יובל להוסיף "קולה זירו"', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly', requestId: 'req_yuval_old' } }),
+    makeNotification('notif_avi_3', uids.avi, hIds.cohen, 'request_rejected', 'בקשה נדחתה', 'הבקשה של נועה להוסיף "שוקולד פרה" נדחתה', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.avi, senderName: 'אבי כהן', actionData: { listId: 'list_cohen_weekly' } }),
     makeNotification('notif_avi_4', uids.avi, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'יובל כהן התנדב להביא "סלט ירקות"', { createdAt: hoursAgo(5), senderId: uids.yuval, senderName: 'יובל כהן', actionData: { listId: 'list_cohen_shabbat', volunteerName: 'יובל כהן' } }),
     makeNotification('notif_avi_5', uids.avi, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'נועה כהן התנדבה להביא "קינוח"', { createdAt: hoursAgo(3), senderId: uids.noa, senderName: 'נועה כהן', actionData: { listId: 'list_cohen_shabbat', volunteerName: 'נועה כהן' } }),
     makeNotification('notif_avi_6', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
@@ -1123,7 +1124,7 @@ async function main() {
   // Noa notifications (editor — sees rejection)
   await createNotifications(uids.noa, [
     makeNotification('notif_noa_1', uids.noa, hIds.cohen, 'request_rejected', 'בקשה נדחתה', 'הבקשה שלך להוסיף "שוקולד פרה" נדחתה ע"י אבי', { createdAt: daysAgo(2), senderId: uids.avi, senderName: 'אבי כהן', actionData: { listId: 'list_cohen_weekly' } }),
-    makeNotification('notif_noa_2', uids.noa, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "נייר טואלט" אושרה', { createdAt: hoursAgo(1), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
+    makeNotification('notif_noa_2', uids.noa, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(6), actionData: { productName: 'חלב תנובה 3%' } }),
   ]);
   console.log('   🔔 נועה: 2 notifications (1 unread)');
 
@@ -1133,7 +1134,7 @@ async function main() {
     makeNotification('notif_dan_2', uids.dan, hIds.levi, 'low_stock', 'מלאי נמוך', 'נשאר מעט "מיץ תפוזים"', { createdAt: hoursAgo(4), actionData: { productName: 'מיץ תפוזים' } }),
     makeNotification('notif_dan_3', uids.dan, hIds.levi, 'invite', 'הזמנה לרשימה', 'מאיה הוסיפה אותך לרשימת "רשימה לסופר"', { createdAt: daysAgo(1), isRead: true, readAt: daysAgo(1), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_weekly' } }),
     makeNotification('notif_dan_4', uids.dan, hIds.levi, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להזמין את נעמה רוזן למשפחת לוי נשלחה', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), actionData: { householdId: hIds.levi } }),
-    makeNotification('notif_dan_5', uids.dan, hIds.levi, 'who_brings_volunteer', 'מתנדב חדש', 'מאיה לוי התנדבה להביא מהשוק', { createdAt: hoursAgo(2), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_market', volunteerName: 'מאיה לוי' } }),
+    makeNotification('notif_dan_5', uids.dan, hIds.levi, 'invite', 'הזמנה לרשימה', 'מאיה יצרה רשימה חדשה "שוק מחנה יהודה 🏪"', { createdAt: hoursAgo(2), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_market' } }),
   ]);
   console.log('   🔔 דן: 5 notifications (3 unread)');
 
@@ -1390,7 +1391,7 @@ async function main() {
     target_date: toTimestamp(daysFromNow(2)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      ...mikeProducts.map((p, i) => makeProductItem(p, i, { id: `item_mike_${i}`, isChecked: i < 2 })),
+      ...mikeProducts.map((p, i) => makeProductItem(p, i, { id: `item_mike_${i}`, isChecked: i < 2, defaultChecker: uids.mike })),
       // English-named custom items (user typed in English)
       makeProductItem({ name: 'Organic Milk 1L', category: 'מוצרי חלב', price: 12.9, defaultUnit: 'ליטר' }, 10, { id: 'item_mike_custom1' }),
       makeProductItem({ name: 'Peanut Butter (crunchy)', category: 'ממתקים וחטיפים', price: 24.9 }, 11, { id: 'item_mike_custom2' }),
@@ -1446,7 +1447,7 @@ async function main() {
     },
     pending_requests: [], active_shoppers: [],
     items: [
-      ...roommatesClean.map((p, i) => makeProductItem(p, i, { id: `item_rc_${i}`, isChecked: i < 3 })),
+      ...roommatesClean.map((p, i) => makeProductItem(p, i, { id: `item_rc_${i}`, isChecked: i < 3, defaultChecker: i < 2 ? uids.keren : uids.hila })),
       makeTaskItem('item_rc_t0', 'לנקות מקלחת (תור של ספיר)', { priority: 'high' }),
       makeTaskItem('item_rc_t1', 'לקנות נורה למסדרון', { priority: 'medium' }),
     ],
@@ -1470,7 +1471,7 @@ async function main() {
         request_data: { name: 'חומוס אבו גוש 400 גרם', quantity: 2, unit: "יח'", category: 'שימורים', type: 'product' },
         reviewer_id: null, reviewed_at: null, requester_name: 'ספיר דוד', reviewer_name: null },
     ],
-    active_shoppers: [], items: roommatesGrocery.map((p, i) => makeProductItem(p, i, { id: `item_rg_${i}`, isChecked: i < 4 })),
+    active_shoppers: [], items: roommatesGrocery.map((p, i) => makeProductItem(p, i, { id: `item_rg_${i}`, isChecked: i < 4, defaultChecker: i < 2 ? uids.hila : uids.keren })),
   });
   console.log('   🛒 Roommates: סופר לשבוע (supermarket, 12 items, 1 pending request from sapir)');
 
@@ -1568,7 +1569,7 @@ async function main() {
     format: 'personal', created_from_template: false,
     created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(6)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: longProducts.map((p, i) => makeProductItem(p, i, { id: `item_long_${i}`, isChecked: i < 3 })),
+    items: longProducts.map((p, i) => makeProductItem(p, i, { id: `item_long_${i}`, isChecked: i < 3, defaultChecker: uids.longname })),
   });
   console.log("   📏 Long name user: 1 list (8 items, tests overflow in all name displays)");
 
@@ -1735,7 +1736,7 @@ async function main() {
     created_date: toTimestamp(hoursAgo(6)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8)
-      .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3 })),
+      .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3, defaultChecker: uids.dan })),
   });
   console.log('   📋 Levi: Template-based list (created_from_template: true)');
 
