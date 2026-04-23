@@ -158,16 +158,17 @@ function locationForCategory(cat) {
  * Product item — nested productData (matches UnifiedListItem model)
  */
 function makeProductItem(product, idx, opts = {}) {
+  const isChecked = opts.isChecked || false;
   return {
     id: opts.id || `item_${idx}`,
     name: product.name,
     type: 'product',
-    isChecked: opts.isChecked || false,
+    isChecked,
     category: product.category || null,
     notes: opts.notes || null,
     image_url: null,
-    checked_by: opts.checkedBy || null,
-    checked_at: opts.checkedAt || null,
+    checked_by: opts.checkedBy || (isChecked ? (opts.defaultChecker || null) : null),
+    checked_at: opts.checkedAt || (isChecked ? hoursAgo(randomInt(1, 24)).toISOString() : null),
     productData: {
       quantity: opts.quantity || product.defaultQty || randomInt(1, 3),
       unitPrice: product.price || 0,
@@ -183,16 +184,17 @@ function makeProductItem(product, idx, opts = {}) {
  * Task item — nested taskData (matches UnifiedListItem model)
  */
 function makeTaskItem(id, name, opts = {}) {
+  const isChecked = opts.isChecked || false;
   return {
     id,
     name,
     type: 'task',
-    isChecked: opts.isChecked || false,
+    isChecked,
     category: null,
     notes: opts.notes || null,
     image_url: null,
-    checked_by: opts.checkedBy || null,
-    checked_at: opts.checkedAt || null,
+    checked_by: opts.checkedBy || (isChecked ? (opts.defaultChecker || null) : null),
+    checked_at: opts.checkedAt || (isChecked ? hoursAgo(randomInt(1, 24)).toISOString() : null),
     productData: null,
     taskData: {
       itemType: 'task',
@@ -344,6 +346,7 @@ async function main() {
         email: u.email,
         password: DEMO_PASSWORD,
         displayName: u.name,
+        emailVerified: true,
         ...(u.profileImageUrl ? { photoURL: u.profileImageUrl } : {}),
       };
       const record = await auth.createUser(createParams);
@@ -740,17 +743,18 @@ async function main() {
   console.log('\n📦 Creating inventory...');
 
   async function createInventory(hId, inventoryProducts, ownerUid, opts = {}) {
+    const memberUids = opts.memberUids || [ownerUid];
     for (let i = 0; i < inventoryProducts.length; i++) {
       const p = inventoryProducts[i];
       const qty = opts.forceQty !== undefined ? opts.forceQty(i) : randomInt(1, 6);
       const minQty = i < 3 ? 3 : randomInt(1, 2);
-      // Notes for some items (every 5th item)
       const itemNotes = i % 5 === 0 ? (
         i === 0 ? 'לקנות רק מותג ספציפי' :
         i === 5 ? 'לבדוק תאריך תפוגה לפני קנייה' :
         i === 10 ? 'מארז משפחתי עדיף' :
         'לא לקנות מהמבצע'
       ) : null;
+      const updatedBy = memberUids[i % memberUids.length];
       await db.collection('households').doc(hId).collection('inventory').doc(`inv_${hId}_${i}`).set({
         id: `inv_${hId}_${i}`,
         product_name: p.name,
@@ -761,16 +765,16 @@ async function main() {
         min_quantity: minQty,
         expiry_date: p.category === 'מוצרי חלב'
           ? admin.firestore.Timestamp.fromDate(
-              i === 0 ? daysAgo(2)         // expired 2 days ago!
-              : i === 1 ? daysFromNow(1)   // expires tomorrow
-              : daysFromNow(14)            // expires in 2 weeks
+              i === 0 ? daysAgo(2)
+              : i === 1 ? daysFromNow(1)
+              : daysFromNow(14)
             )
           : null,
         notes: itemNotes,
-        is_recurring: Math.random() > 0.3,
+        is_recurring: Math.random() > 0.75,
         barcode: p.barcode || null,
         emoji: p.icon || null,
-        last_updated_by: ownerUid,
+        last_updated_by: updatedBy,
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
         last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(randomInt(1, 14))),
         purchase_count: randomInt(0, 20),
@@ -780,12 +784,12 @@ async function main() {
 
   // Cohen: 20 items (2 low stock, 1 out of stock)
   const cohenPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'אורז ופסטה', 'שימורים', 'מוצרי ניקיון', 'משקאות', 'תבלינים ואפייה', 'ממתקים וחטיפים'), 20);
-  await createInventory(hIds.cohen, cohenPantry, uids.avi, { forceQty: (i) => i === 0 ? 0 : i === 1 ? 1 : randomInt(2, 6) });
-  console.log('   📦 כהן: 20 items (1 out-of-stock, 1 low)');
+  await createInventory(hIds.cohen, cohenPantry, uids.avi, { forceQty: (i) => i === 0 ? 0 : i === 1 ? 1 : randomInt(2, 6), memberUids: [uids.avi, uids.ronit, uids.yuval, uids.ronit] });
+  console.log('   📦 כהן: 20 items (1 out-of-stock, 1 low, mixed updaters)');
 
   // Levi: 12 items
   const leviPantry = pickRandom(byCategory(products, 'מוצרי חלב', 'פירות וירקות', 'משקאות', 'אורז ופסטה'), 12);
-  await createInventory(hIds.levi, leviPantry, uids.dan, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 5) });
+  await createInventory(hIds.levi, leviPantry, uids.dan, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 5), memberUids: [uids.dan, uids.maya] });
   console.log('   📦 לוי: 12 items (2 out-of-stock)');
 
   // Tomer: 8 items
@@ -863,7 +867,7 @@ async function main() {
         household_id: hId,
         items,
         total_amount: Math.round(totalAmount * 100) / 100,
-        is_virtual: true,
+        is_virtual: w > 2,
         created_by: shopperUid,
         linked_shopping_list_id: linkedListId || null,
       });
@@ -1214,6 +1218,60 @@ async function main() {
   }
   console.log('   👤 רונית: 3 saved contacts');
 
+  // Dan saved Maya and Naama
+  for (const [i, contact] of [
+    { userId: uids.maya, name: 'מאיה לוי', email: 'maya.levi@demo.com', phone: '0506789012' },
+    { userId: uids.naama, name: 'נעמה רוזן', email: 'naama.rozen@demo.com', phone: '0511234567' },
+  ].entries()) {
+    await db.collection('users').doc(uids.dan).collection('saved_contacts').doc(`contact_dan_${i}`).set({
+      id: `contact_dan_${i}`,
+      user_id: contact.userId,
+      user_name: contact.name,
+      user_email: contact.email,
+      user_phone: contact.phone,
+      user_avatar: null,
+      last_invited_at: daysAgo(5).toISOString(),
+      created_at: daysAgo(90).toISOString(),
+    });
+  }
+  console.log('   👤 דן: 2 saved contacts');
+
+  // Avi saved family + Naama
+  for (const [i, contact] of [
+    { userId: uids.ronit, name: 'רונית כהן', email: 'ronit.cohen@demo.com', phone: '0502345678' },
+    { userId: uids.naama, name: 'נעמה רוזן', email: 'naama.rozen@demo.com', phone: '0511234567' },
+  ].entries()) {
+    await db.collection('users').doc(uids.avi).collection('saved_contacts').doc(`contact_avi_${i}`).set({
+      id: `contact_avi_${i}`,
+      user_id: contact.userId,
+      user_name: contact.name,
+      user_email: contact.email,
+      user_phone: contact.phone,
+      user_avatar: null,
+      last_invited_at: daysAgo(7).toISOString(),
+      created_at: daysAgo(180).toISOString(),
+    });
+  }
+  console.log('   👤 אבי: 2 saved contacts');
+
+  // Keren saved roommates
+  for (const [i, contact] of [
+    { userId: uids.hila, name: 'הילה מורג', email: 'hila.morag@demo.com', phone: '0532345678' },
+    { userId: uids.sapir, name: 'ספיר דוד', email: 'sapir.david@demo.com', phone: '0533456789' },
+  ].entries()) {
+    await db.collection('users').doc(uids.keren).collection('saved_contacts').doc(`contact_keren_${i}`).set({
+      id: `contact_keren_${i}`,
+      user_id: contact.userId,
+      user_name: contact.name,
+      user_email: contact.email,
+      user_phone: contact.phone,
+      user_avatar: null,
+      last_invited_at: daysAgo(30).toISOString(),
+      created_at: daysAgo(60).toISOString(),
+    });
+  }
+  console.log('   👤 קרן: 2 saved contacts');
+
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 10. CUSTOM LOCATIONS — custom_locations collection
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1239,6 +1297,30 @@ async function main() {
     created_at: admin.firestore.FieldValue.serverTimestamp(),
   });
   console.log('   📍 כהן: 2 custom locations (מקרר יין, מחסן בגראז\')');
+
+  // Naama custom locations
+  await db.collection('custom_locations').doc('loc_naama_balcony').set({
+    id: 'loc_naama_balcony',
+    key: 'balcony_storage',
+    name: 'מחסן במרפסת',
+    emoji: '🌿',
+    household_id: hIds.naama,
+    created_by: uids.naama,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  console.log('   📍 נעמה: 1 custom location (מחסן במרפסת)');
+
+  // Roommates custom locations
+  await db.collection('custom_locations').doc('loc_room_shelf').set({
+    id: 'loc_room_shelf',
+    key: 'shared_shelf',
+    name: 'מדף משותף במטבח',
+    emoji: '🍽️',
+    household_id: hIds.roommates,
+    created_by: uids.keren,
+    created_at: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  console.log('   📍 שותפות: 1 custom location (מדף משותף)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 11. LISTS WITH TARGET DATE — urgency testing
@@ -1373,7 +1455,7 @@ async function main() {
 
   // Roommates inventory (shared pantry)
   const roommatesPantry = pickRandom(byCategory(products, 'מוצרי ניקיון', 'משקאות', 'מוצרי חלב', 'אורז ופסטה'), 10);
-  await createInventory(hIds.roommates, roommatesPantry, uids.keren, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 4) });
+  await createInventory(hIds.roommates, roommatesPantry, uids.keren, { forceQty: (i) => i < 2 ? 0 : randomInt(1, 4), memberUids: [uids.keren, uids.hila, uids.sapir] });
   console.log('   📦 Roommates: 10 pantry items (2 out-of-stock)');
 
   // Roommates receipts
@@ -1635,6 +1717,8 @@ async function main() {
   console.log(`🧾 ~76 receipts`);
   console.log(`📝 ~51 activity log events (all households except yael/apple)`);
   console.log(`🔔 ~34 notifications`);
+  console.log(`👤 ~7 saved contact entries`);
+  console.log(`📍 ~5 custom locations`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');

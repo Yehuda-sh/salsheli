@@ -83,8 +83,8 @@ service cloud.firestore {
     function inventoryAllowedFields() {
       return ['product_name', 'category', 'location', 'quantity', 'unit',
               'min_quantity', 'expiry_date', 'notes', 'is_recurring',
-              'last_purchased', 'purchase_count', 'emoji', 'updated_at',
-              'last_updated_by'];
+              'last_purchased', 'purchase_count', 'emoji', 'barcode',
+              'updated_at', 'last_updated_by'];
     }
 
     // ולידציית סכימה למזווה — שדות חובה עם ערכים תקינים + hasOnly
