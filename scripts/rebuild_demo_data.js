@@ -443,6 +443,7 @@ async function main() {
     created_date: toTimestamp(daysAgo(2)), updated_date: toTimestamp(hoursAgo(1)),
     shared_with: [uids.avi, uids.yuval, uids.noa, uids.ori],
     shared_users: {
+      [uids.avi]:   { role: 'admin', shared_at: daysAgo(150).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(150).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
       [uids.noa]:   { role: 'editor', shared_at: daysAgo(120).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: false },
       [uids.ori]:   { role: 'viewer', shared_at: daysAgo(60).toISOString(), user_name: 'אורי שלום', user_email: 'ori.shalom@demo.com', can_start_shopping: false },
@@ -517,6 +518,7 @@ async function main() {
     created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(3)),
     shared_with: [uids.avi, uids.noa],
     shared_users: {
+      [uids.avi]: { role: 'admin', shared_at: daysAgo(150).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
       [uids.noa]: { role: 'editor', shared_at: daysAgo(7).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: true },
     },
     pending_requests: [], active_shoppers: [],
@@ -588,6 +590,7 @@ async function main() {
     created_date: toTimestamp(daysAgo(1)), updated_date: toTimestamp(hoursAgo(2)),
     shared_with: [uids.avi, uids.yuval, uids.noa],
     shared_users: {
+      [uids.avi]:   { role: 'admin', shared_at: daysAgo(1).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: false },
       [uids.yuval]: { role: 'editor', shared_at: daysAgo(1).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: false },
       [uids.noa]:   { role: 'editor', shared_at: daysAgo(1).toISOString(), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: false },
     },
@@ -612,7 +615,12 @@ async function main() {
     budget: 500, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false, event_mode: 'tasks',
     created_date: toTimestamp(daysAgo(30)), updated_date: toTimestamp(daysAgo(28)),
-    shared_with: [uids.avi, uids.yuval], shared_users: {}, pending_requests: [], active_shoppers: [],
+    shared_with: [uids.avi, uids.yuval],
+    shared_users: {
+      [uids.avi]:   { role: 'admin', shared_at: daysAgo(30).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
+      [uids.yuval]: { role: 'editor', shared_at: daysAgo(30).toISOString(), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
     items: [
       makeTaskItem('item_bd_0', 'עוגת שוקולד 3 קומות', { isChecked: true, defaultChecker: uids.ronit, notes: 'מהקונדיטוריה ברחוב הרצל' }),
       makeTaskItem('item_bd_1', 'נרות יום הולדת', { isChecked: true, defaultChecker: uids.ronit }),
@@ -631,7 +639,11 @@ async function main() {
     budget: 750, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(10)), updated_date: toTimestamp(daysAgo(7)),
-    shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
+    shared_with: [uids.ronit],
+    shared_users: {
+      [uids.ronit]: { role: 'admin', shared_at: daysAgo(10).toISOString(), user_name: 'רונית כהן', user_email: 'ronit.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
     items: lastWeekProducts.map((p, i) => makeProductItem(p, i, { id: `item_clw_${i}`, isChecked: true, checkedBy: uids.avi, checkedAt: daysAgo(7).toISOString() })),
   });
   console.log('   📋 כהן: קניות שבוע שעבר (completed, 15 items all checked)');
@@ -642,7 +654,11 @@ async function main() {
     budget: 1500, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: toTimestamp(daysAgo(365)), updated_date: toTimestamp(daysAgo(358)),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
+    shared_with: [uids.avi],
+    shared_users: {
+      [uids.avi]: { role: 'admin', shared_at: daysAgo(365).toISOString(), user_name: 'אבי כהן', user_email: 'avi.cohen@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 20).map((p, i) =>
       makeProductItem(p, i, { id: `item_arch_${i}`, isChecked: true, defaultChecker: uids.ronit })),
   });
@@ -1734,7 +1750,11 @@ async function main() {
     budget: null, is_shared: true, is_private: false, created_by: uids.dan,
     format: 'shared', created_from_template: true, template_id: 'tmpl_shopping_weekly',
     created_date: toTimestamp(hoursAgo(6)), updated_date: toTimestamp(hoursAgo(1)),
-    shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
+    shared_with: [uids.maya],
+    shared_users: {
+      [uids.maya]: { role: 'admin', shared_at: hoursAgo(6).toISOString(), user_name: 'מאיה לוי', user_email: 'maya.levi@demo.com', can_start_shopping: true },
+    },
+    pending_requests: [], active_shoppers: [],
     items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8)
       .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3, defaultChecker: uids.dan })),
   });
