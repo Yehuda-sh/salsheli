@@ -918,6 +918,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                   fontWeight: FontWeight.bold,
                   color: scheme.onSurface,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               if (totalItems > 0)
                 Padding(

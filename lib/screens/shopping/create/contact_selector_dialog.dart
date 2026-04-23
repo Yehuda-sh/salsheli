@@ -522,8 +522,8 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                 final contact = _filteredContacts[index];
                                 final isSelected = _isSelected(contact);
                                 final selectedContact = isSelected
-                                    ? _selectedContacts.firstWhere(
-                                        (c) => c.email == contact.userEmail)
+                                    ? _selectedContacts.where(
+                                        (c) => c.email == contact.userEmail).firstOrNull
                                     : null;
 
                                 return Dismissible(

@@ -636,7 +636,7 @@ class PendingInvitesService {
         'user_id': userId,
         'role': UserRole.editor.name,
         'joined_at': FieldValue.serverTimestamp(),
-        'display_name': userName,
+        'name': userName,
         'email': userEmail,
       });
 

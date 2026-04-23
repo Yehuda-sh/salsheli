@@ -251,8 +251,13 @@ class PendingRequestsService {
 
       case RequestType.editItem:
         // עריכת מוצר קיים — lookup by itemId first, fallback to name
-        final itemId = request.requestData['itemId'] as String?;
+        final itemId = request.requestData['itemId'] as String? ??
+            request.requestData['item_id'] as String?;
         final itemName = request.requestData['name'] as String?;
+        if (itemId == null && itemName == null) {
+          log('⚠️ editItem request missing both itemId and name — skipping');
+          break;
+        }
         final index = itemId != null
             ? updatedItems.indexWhere((i) => i.id == itemId)
             : updatedItems.indexWhere((i) => i.name == itemName);
@@ -264,8 +269,14 @@ class PendingRequestsService {
       case RequestType.deleteItem:
         // מחיקת מוצר
         final itemName = request.requestData['name'] as String?;
-        if (itemName != null) {
+        final itemId = request.requestData['itemId'] as String? ??
+            request.requestData['item_id'] as String?;
+        if (itemId != null) {
+          updatedItems.removeWhere((i) => i.id == itemId);
+        } else if (itemName != null) {
           updatedItems.removeWhere((i) => i.name == itemName);
+        } else {
+          log('⚠️ deleteItem request missing both itemId and name — skipping');
         }
         break;
 

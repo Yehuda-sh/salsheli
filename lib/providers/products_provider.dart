@@ -363,9 +363,10 @@ class ProductsProvider with ChangeNotifier {
 
   // === Search ===
   void setSearchQuery(String query) {
-    if (_searchQuery == query) return;
+    final bounded = query.length > 100 ? query.substring(0, 100) : query;
+    if (_searchQuery == bounded) return;
 
-    _searchQuery = query;
+    _searchQuery = bounded;
     _notifySafe();
   }
 

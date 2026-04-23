@@ -44,6 +44,7 @@ class PerforationPainter extends CustomPainter {
     var x = 0.0;
     final step = dashWidth + dashGap;
 
+    if (step <= 0) return;
     while (x < size.width) {
       canvas.drawLine(
         Offset(x, y),

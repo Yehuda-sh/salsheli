@@ -1005,7 +1005,7 @@ class _StatItemState extends State<_StatItem>
                 builder: (context, _) {
                   final current = (targetNum * _animation.value);
                   final raw = targetNum == targetNum.toInt().toDouble()
-                      ? '$prefix${current.toInt()}'
+                      ? '$prefix${current.round()}'
                       : '$prefix${current.toStringAsFixed(0)}';
                   return Text(
                     fixBidiNumbers(raw),

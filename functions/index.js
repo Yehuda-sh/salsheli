@@ -70,24 +70,28 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
       `users/${userId}/inventory`
     );
 
-    // 3. Delete shopping patterns
+    // 3. Delete shopping patterns (chunked for 500 batch limit)
     const patternsSnap = await db
       .collection("shopping_patterns")
       .where("userId", "==", userId)
       .get();
-    const patternsBatch = db.batch();
-    patternsSnap.docs.forEach((doc) => patternsBatch.delete(doc.ref));
-    if (patternsSnap.docs.length > 0) await patternsBatch.commit();
+    for (let i = 0; i < patternsSnap.docs.length; i += 500) {
+      const batch = db.batch();
+      patternsSnap.docs.slice(i, i + 500).forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
     results.patterns = patternsSnap.docs.length;
 
-    // 4. Delete pending invites sent by this user
+    // 4. Delete pending invites sent by this user (chunked for 500 batch limit)
     const invitesSnap = await db
       .collection("pending_invites")
       .where("requester_id", "==", userId)
       .get();
-    const invitesBatch = db.batch();
-    invitesSnap.docs.forEach((doc) => invitesBatch.delete(doc.ref));
-    if (invitesSnap.docs.length > 0) await invitesBatch.commit();
+    for (let i = 0; i < invitesSnap.docs.length; i += 500) {
+      const batch = db.batch();
+      invitesSnap.docs.slice(i, i + 500).forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
     results.invites = invitesSnap.docs.length;
 
     // 5. Remove from household members
@@ -113,22 +117,36 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
       }
     }
 
-    // 6. Remove user from shared_users in all shared_lists subcollections.
-    // Lists live at households/{hid}/shared_lists/{lid} — use collectionGroup
-    // to scan across every household. The inequality filter on a nested map
-    // key is unreliable, so we scan and filter in-memory.
-    const sharedListsSnap = await db
-      .collectionGroup("shared_lists")
-      .get();
-    for (const doc of sharedListsSnap.docs) {
-      const sharedUsers = doc.data().shared_users;
-      if (sharedUsers && sharedUsers[userId] !== undefined) {
-        await doc.ref.update({
-          [`shared_users.${userId}`]: FieldValue.delete(),
-        });
-        results.sharedLists++;
+    // 6. Remove user from shared_users in shared_lists.
+    // Scoped to user's household first, then check cross-household shares.
+    if (householdId) {
+      const householdListsSnap = await db
+        .collection("households")
+        .doc(householdId)
+        .collection("shared_lists")
+        .get();
+      for (const doc of householdListsSnap.docs) {
+        const sharedUsers = doc.data().shared_users;
+        if (sharedUsers && sharedUsers[userId] !== undefined) {
+          await doc.ref.update({
+            [`shared_users.${userId}`]: FieldValue.delete(),
+          });
+          results.sharedLists++;
+        }
       }
     }
+
+    // 7. Delete user's personal templates
+    const templatesSnap = await db
+      .collection("templates")
+      .where("user_id", "==", userId)
+      .get();
+    for (let i = 0; i < templatesSnap.docs.length; i += 500) {
+      const batch = db.batch();
+      templatesSnap.docs.slice(i, i + 500).forEach((doc) => batch.delete(doc.ref));
+      await batch.commit();
+    }
+    results.templates = templatesSnap.docs.length;
 
     console.log(`✅ GDPR: Cascade delete complete for ${userId}:`, results);
   } catch (error) {

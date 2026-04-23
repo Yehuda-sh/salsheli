@@ -143,6 +143,7 @@ class SuggestionsProvider with ChangeNotifier {
   }
 
   void _onInventoryChanged() {
+    if (_isDisposed) return;
     // ⏭️ דלג אם המלאי עדיין טוען (isLoading=true)
     if (_inventoryProvider.isLoading) {
       return;

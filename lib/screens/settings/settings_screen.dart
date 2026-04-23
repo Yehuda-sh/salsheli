@@ -347,7 +347,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (dialogCtx, setDialogState) {
-          final isConfirmValid = confirmController.text == AppStrings.settings.deleteAccountConfirmText;
+          final isConfirmValid = confirmController.text.trim() == AppStrings.settings.deleteAccountConfirmText;
 
           return AlertDialog(
             title: Row(
@@ -1196,12 +1196,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           userName,
                           style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold, color: cs.onSurface),
                           textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: kSpacingXTiny),
                         Text(
                           userEmail,
                           style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant),
                           textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: kSpacingSmallPlus),
                         OutlinedButton.icon(
