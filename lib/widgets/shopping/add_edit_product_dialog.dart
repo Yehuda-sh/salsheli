@@ -23,12 +23,15 @@ class AddEditProductDialog extends StatefulWidget {
   final UnifiedListItem? item;
   final void Function(UnifiedListItem item) onSave;
   final List<String> categories;
+  /// שם מוצע למוצר חדש (למשל מטקסט חיפוש שלא החזיר תוצאות)
+  final String? suggestedName;
 
   const AddEditProductDialog({
     super.key,
     this.item,
     required this.onSave,
     this.categories = const [],
+    this.suggestedName,
   });
 
   @override
@@ -55,7 +58,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
   void initState() {
     super.initState();
 
-    _nameController = TextEditingController(text: widget.item?.name ?? '');
+    _nameController = TextEditingController(text: widget.item?.name ?? widget.suggestedName ?? '');
     _brandController = TextEditingController(text: widget.item?.brand ?? '');
 
     // ✅ Safe null handling for quantity and price
@@ -566,6 +569,7 @@ Future<void> showAddEditProductDialog(
   UnifiedListItem? item,
   required void Function(UnifiedListItem item) onSave,
   List<String> categories = const [],
+  String? suggestedName,
 }) {
   return AppDialog.show(
     context: context,
@@ -573,6 +577,7 @@ Future<void> showAddEditProductDialog(
       item: item,
       onSave: onSave,
       categories: categories,
+      suggestedName: suggestedName,
     ),
   );
 }

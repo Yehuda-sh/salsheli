@@ -227,13 +227,15 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   }
 
   /// ➕ הוספת מוצר חדש (לא מהקטלוג) — פותח דיאלוג
-  Future<void> _handleAddCustomProduct() async {
+  /// [suggestedName] — שם מוצע למילוי-מראש (משימוש בכפתור CTA כשחיפוש לא החזיר תוצאות)
+  Future<void> _handleAddCustomProduct({String? suggestedName}) async {
     final provider = context.read<ShoppingListsProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final theme = Theme.of(context);
 
     await showAddEditProductDialog(
       context,
+      suggestedName: suggestedName,
       onSave: (item) async {
         try {
           await provider.addUnifiedItem(widget.list.id, item);
@@ -649,28 +651,53 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     }
 
     if (products.isEmpty) {
+      final hasSearch = provider.searchQuery.isNotEmpty;
+      final appBrand = Theme.of(context).extension<AppBrand>();
+
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox, size: kIconSizeXXLarge, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
-            const Gap(kSpacingMedium),
-            Text(
-              provider.searchQuery.isNotEmpty
-                  ? AppStrings.shopping.noProductsMatchingSearch(provider.searchQuery)
-                  : AppStrings.shopping.noProductsAvailable,
-              style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            if (provider.searchQuery.isEmpty) ...[
-              const Gap(kSpacingLarge),
-              TextButton.icon(
-                onPressed: () => provider.loadProducts(),
-                icon: const Icon(Icons.refresh),
-                label: Text(AppStrings.shopping.loadProductsButton),
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                hasSearch ? Icons.search_off : Icons.inbox,
+                size: kIconSizeXXLarge,
+                color: cs.onSurfaceVariant.withValues(alpha: 0.5),
               ),
+              const Gap(kSpacingMedium),
+              Text(
+                hasSearch
+                    ? AppStrings.shopping.noProductsMatchingSearch(provider.searchQuery)
+                    : AppStrings.shopping.noProductsAvailable,
+                style: const TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const Gap(kSpacingLarge),
+              if (hasSearch)
+                // ➕ CTA יוקרתי — צור מוצר חדש עם שם החיפוש מילוי-מראש
+                ElevatedButton.icon(
+                  onPressed: () => _handleAddCustomProduct(suggestedName: provider.searchQuery),
+                  icon: const Icon(Icons.add),
+                  label: Text(AppStrings.shopping.addNewProductTooltip),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: appBrand?.stickyYellow ?? kStickyYellow,
+                    foregroundColor: cs.onSurface,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: kSpacingLarge,
+                      vertical: kSpacingSmallPlus,
+                    ),
+                    minimumSize: const Size(0, kMinInteractiveDimension),
+                  ),
+                )
+              else
+                TextButton.icon(
+                  onPressed: () => provider.loadProducts(),
+                  icon: const Icon(Icons.refresh),
+                  label: Text(AppStrings.shopping.loadProductsButton),
+                ),
             ],
-          ],
+          ),
         ),
       );
     }
@@ -690,9 +717,15 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
     // 🎨 Outer RepaintBoundary isolates scroll repaints from the sheet
     return RepaintBoundary(
-      child: CustomScrollView(
-        controller: scrollController,
-        slivers: [
+      child: RefreshIndicator(
+        // 📥 Pull-to-refresh — מרענן את הקטלוג כולו
+        onRefresh: () => provider.loadProducts(),
+        color: cs.primary,
+        child: CustomScrollView(
+          controller: scrollController,
+          // ⚡ AlwaysScrollable — מאפשר pull-to-refresh גם כשרשימה קצרה
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           // 📌 Recently Added Section
           if (recentProducts.isNotEmpty && provider.searchQuery.isEmpty)
             SliverToBoxAdapter(
@@ -765,6 +798,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             padding: EdgeInsets.only(bottom: kSpacingXLarge * 3 + kSpacingXTiny),
           ),
         ],
+        ),
       ),
     );
   }
@@ -1178,8 +1212,25 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                 const SizedBox(width: kSpacingSmall),
               ],
 
-              // ➕ כפתור הוספה / בקרי כמות
-              isInList ? _buildQuantityControls(product, currentQuantity) : _buildAddButton(isAdding),
+              // ➕ כפתור הוספה / בקרי כמות — מעבר חלק
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                switchInCurve: Curves.easeOutBack,
+                switchOutCurve: Curves.easeIn,
+                transitionBuilder: (child, animation) => ScaleTransition(
+                  scale: animation,
+                  child: FadeTransition(opacity: animation, child: child),
+                ),
+                child: isInList
+                    ? KeyedSubtree(
+                        key: ValueKey('qty-$productId'),
+                        child: _buildQuantityControls(product, currentQuantity),
+                      )
+                    : KeyedSubtree(
+                        key: ValueKey('add-$productId'),
+                        child: _buildAddButton(isAdding),
+                      ),
+              ),
             ],
           ),
         ),
