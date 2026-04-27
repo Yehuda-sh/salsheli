@@ -5,7 +5,6 @@ import 'dart:math' show max;
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
-import '../core/constants.dart';
 import '../core/status_colors.dart';
 import 'timestamp_converter.dart';
 
@@ -241,15 +240,6 @@ class InventoryItem {
 
   // ---- 🆕 v4.0: Smart Status Getters ----
 
-  /// סטטוס ניצול מלאי לפי LimitStatus
-  ///
-  /// משתמש ב-[getLimitStatus] מ-constants.dart:
-  /// - safe → מלאי מעל המינימום
-  /// - warning → מתקרב למינימום
-  /// - critical → קרוב מאוד למינימום
-  /// - full → מלאי מלא (quantity >= minQuantity)
-  LimitStatus get status => getLimitStatus(quantity, minQuantity);
-
   /// אחוז ניצול מלאי (0.0 = ריק, 1.0 = מלא/מעל המינימום)
   ///
   /// ```dart
@@ -275,13 +265,13 @@ class InventoryItem {
   /// רמז לסוג רטט המתאים למצב הפריט
   ///
   /// מחזיר מחרוזת סמנטית שה-UI ממפה ל-HapticFeedback:
-  /// - `'heavy'` → heavyImpact (פג תוקף / קריטי)
+  /// - `'heavy'` → heavyImpact (פג תוקף / אזל)
   /// - `'medium'` → mediumImpact (מלאי נמוך / תפוגה קרובה)
   /// - `'light'` → lightImpact (תקין)
   /// - `'selection'` → selectionClick (ברירת מחדל)
   ///
   String get recommendedHaptic {
-    if (isExpired || status == LimitStatus.critical) return 'heavy';
+    if (isExpired || quantity == 0) return 'heavy';
     if (isLowStock || isExpiringSoon) return 'medium';
     if (statusType == StatusType.success) return 'light';
     return 'selection';
@@ -291,10 +281,8 @@ class InventoryItem {
   ///
   /// מחזיר `true` אם:
   /// - פג תוקף
-  /// - מלאי קריטי (critical)
   /// - אזל לגמרי (quantity == 0)
-  bool get needsUrgentAttention =>
-      isExpired || status == LimitStatus.critical || quantity == 0;
+  bool get needsUrgentAttention => isExpired || quantity == 0;
 
   // ---- Equality & Debug ----
 

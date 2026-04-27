@@ -684,19 +684,6 @@ void main() {
         expect(item.stockPercentage, 1.0);
       });
 
-      test('status returns LimitStatus values', () {
-        const safe = InventoryItem(
-          id: 'ls-1', productName: 'a', category: 'c', location: 'l',
-          quantity: 10, unit: 'u', minQuantity: 5,
-        );
-        const low = InventoryItem(
-          id: 'ls-2', productName: 'a', category: 'c', location: 'l',
-          quantity: 4, unit: 'u', minQuantity: 5,
-        );
-        expect(safe.status, LimitStatus.full);
-        expect(low.isLowStock, true);
-      });
-
       test('statusType error when expired', () {
         final item = InventoryItem(
           id: 'stt-1',

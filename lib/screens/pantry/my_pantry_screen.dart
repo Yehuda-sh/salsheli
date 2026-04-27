@@ -1383,8 +1383,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final strings = AppStrings.pantry;
-    final isCritical = item.status == LimitStatus.critical || item.needsUrgentAttention;
-    final isWarning = item.status == LimitStatus.warning || item.isLowStock;
+    final isCritical = item.needsUrgentAttention;
+    final isWarning = item.isLowStock;
 
     // 🎨 צבע פס צד לפי סטטוס (קריטי/אזהרה) או קטגוריה
     final Color statusColor;
