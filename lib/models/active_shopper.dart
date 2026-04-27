@@ -59,10 +59,6 @@ class ActiveShopper {
   /// 🇬🇧 Has the shopper left the shopping session
   bool get hasLeft => !isActive;
 
-  /// 🇮🇱 האם זה עוזר (לא ה-starter)
-  /// 🇬🇧 Is this a helper (not the starter)
-  bool get isHelper => !isStarter;
-
   const ActiveShopper({
     required this.userId,
     required this.joinedAt,

@@ -161,43 +161,6 @@ class UserEntity {
     this.isSolo,
   });
 
-  /// 🇮🇱 משתמש ריק (ברירת מחדל)
-  /// 🇬🇧 Empty user (default)
-  UserEntity.empty()
-      : id = '',
-        name = '',
-        email = '',
-        phone = null,
-        householdId = '',
-        householdName = null,
-        joinedAt = DateTime(1970),
-        lastLoginAt = null,
-        profileImageUrl = null,
-        favoriteProducts = const [],
-        weeklyBudget = 0.0,
-        isAdmin = false,
-        seenOnboarding = false,
-        seenTutorial = false,
-        isSolo = null;
-
-  /// 🇮🇱 משתמש דמה לבדיקות
-  /// 🇬🇧 Demo user for testing
-  factory UserEntity.demo({
-    required String id,
-    required String name,
-    String? email,
-    String? householdId,
-  }) {
-    return UserEntity(
-      id: id,
-      name: name,
-      email: email ?? '$id@example.com',
-      householdId: householdId ?? 'house_${id.hashCode.abs()}',
-      joinedAt: DateTime.now(),
-      lastLoginAt: DateTime.now(),
-    );
-  }
-
   /// 🇮🇱 יצירת משתמש חדש
   /// 🇬🇧 Create new user
   factory UserEntity.newUser({
@@ -242,19 +205,6 @@ class UserEntity {
   Map<String, dynamic> toJson() {
     return _$UserEntityToJson(this);
   }
-
-  /// 🇮🇱 המרת רשימה מ-JSON
-  /// 🇬🇧 Convert list from JSON
-  /// 🔧 תומך ב-`Map<dynamic,dynamic>` (Firestore) וגם `Map<String,dynamic>`
-  static List<UserEntity> listFromJson(List<dynamic>? arr) => (arr ?? [])
-      .whereType<Map>()
-      .map((m) => UserEntity.fromJson(Map<String, dynamic>.from(m)))
-      .toList();
-
-  /// 🇮🇱 המרת רשימה ל-JSON
-  /// 🇬🇧 Convert list to JSON
-  static List<Map<String, dynamic>> listToJson(List<UserEntity> list) =>
-      list.map((u) => u.toJson()).toList(growable: false);
 
   // ---- Copy & Update ----
 

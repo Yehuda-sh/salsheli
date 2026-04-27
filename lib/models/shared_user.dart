@@ -120,51 +120,6 @@ class SharedUser {
 
   Map<String, dynamic> toJson() => _$SharedUserToJson(this);
 
-  /// יצירה מ-Map entry (userId הוא המפתח)
-  ///
-  /// 🔧 ממיר בבטחה מ-`Map<dynamic, dynamic>` ל-`Map<String, dynamic>`
-  /// כדי לתמוך בנתונים מ-Firestore שיכולים להגיע עם טיפוסים שונים.
-  ///
-  /// Example:
-  /// ```dart
-  /// final entry = MapEntry('user123', {'role': 'admin', 'shared_at': ...});
-  /// final user = SharedUser.fromMapEntry(entry);
-  /// ```
-  factory SharedUser.fromMapEntry(MapEntry<String, dynamic> entry) {
-    // 🔧 המרה בטוחה - entry.value יכול להיות Map<dynamic, dynamic> מ-Firestore
-    final rawValue = entry.value;
-    final Map<String, dynamic> json;
-    if (rawValue is Map<String, dynamic>) {
-      json = rawValue;
-    } else if (rawValue is Map) {
-      json = Map<String, dynamic>.from(
-        rawValue.map((k, v) => MapEntry(k.toString(), v)),
-      );
-    } else {
-      throw ArgumentError('Cannot convert ${rawValue.runtimeType} to Map<String, dynamic>');
-    }
-    final user = SharedUser.fromJson(json);
-    return user.copyWith(userId: entry.key);
-  }
-
-  /// המרה ל-Map entry (userId הופך למפתח)
-  ///
-  /// ⚠️ זורק ArgumentError אם userId ריק - חייב להיות מוגדר לפני שמירה.
-  /// 🔧 Runtime validation (לא רק debug) - מגן גם בפרודקשן.
-  ///
-  /// Example:
-  /// ```dart
-  /// final entry = sharedUser.toMapEntry();
-  /// // entry.key = 'user123'
-  /// // entry.value = {'role': 'admin', 'shared_at': ...}
-  /// ```
-  MapEntry<String, Map<String, dynamic>> toMapEntry() {
-    if (userId.isEmpty) {
-      throw ArgumentError('userId cannot be empty when converting to MapEntry');
-    }
-    return MapEntry(userId, toJson());
-  }
-
   /// Copy with
   SharedUser copyWith({
     String? userId,
@@ -185,33 +140,6 @@ class SharedUser {
       canStartShopping: canStartShopping ?? this.canStartShopping,
     );
   }
-
-  // === Permission Helpers ===
-  // 🔧 קיצורים נוחים להרשאות - מבוססים על ה-role
-
-  /// האם הוא הבעלים של הרשימה
-  bool get isOwner => role == UserRole.owner;
-
-  /// האם יכול לערוך פריטים (owner/admin/editor)
-  bool get canEdit => role == UserRole.owner || role == UserRole.admin || role == UserRole.editor;
-
-  /// האם יכול לשתף/לנהל משתמשים (owner/admin)
-  bool get canShare => role == UserRole.owner || role == UserRole.admin;
-
-  /// האם יכול לבצע פעולות ישירות ללא אישור (owner/admin)
-  bool get canActDirectly => role.canAddDirectly;
-
-  /// האם רק צופה (viewer או unknown)
-  /// 🔒 Uses isReadOnly to safely handle unknown roles
-  bool get isViewerOnly => role.isReadOnly;
-
-  /// 🆕 האם יכול להתחיל קנייה
-  /// 🇬🇧 Can this user start shopping
-  ///
-  /// owner/admin - תמיד יכולים
-  /// editor - רק אם canStartShopping מופעל
-  /// viewer - לעולם לא
-  bool get canShop => role == UserRole.owner || role == UserRole.admin || (role == UserRole.editor && canStartShopping);
 
   // === Equality ===
   // 🔧 שוויון לפי userId בלבד - אותו משתמש נחשב זהה גם אם role או sharedAt שונים.
