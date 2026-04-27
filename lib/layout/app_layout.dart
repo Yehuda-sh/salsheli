@@ -202,7 +202,7 @@ class _AppLayoutState extends State<AppLayout> {
           icon: Badge.count(
             count: widget.badges?[0] ?? 0,
             isLabelVisible: (widget.badges?[0] ?? 0) > 0,
-            child: Icon(Icons.notifications_outlined, size: kIconSizeMedium),
+            child: const Icon(Icons.notifications_outlined, size: kIconSizeMedium),
           ),
           onPressed: () => _showNotificationsMenu(context),
         ),

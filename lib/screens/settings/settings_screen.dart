@@ -910,7 +910,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
         }
       });
-      return Scaffold(body: const AppLoadingSkeleton(sectionCount: 4, showHero: true));
+      return const Scaffold(body: AppLoadingSkeleton(sectionCount: 4, showHero: true));
     }
 
     // פרטי משתמש - תמיד יש user בשלב זה
@@ -1253,7 +1253,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                 return;
                               }
                             }
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             await showHouseholdInviteDialog(context);
                           },
                         ),
@@ -1383,7 +1383,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                 'assets/images/app_icon.png',
                                 width: kIconSizeXLarge,
                                 height: kIconSizeXLarge,
-                                errorBuilder: (_, _, _) => Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
+                                errorBuilder: (_, _, _) => const Text('📝', style: TextStyle(fontSize: kFontSizeDisplay)),
                               ),
                             ),
                             children: [

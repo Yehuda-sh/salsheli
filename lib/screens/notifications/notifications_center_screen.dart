@@ -455,7 +455,7 @@ class _NotificationTile extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
       onTap: () {
         unawaited(HapticFeedback.selectionClick());
-        onTap?.call();
+        onTap();
       },
       leading: Container(
         width: 44,
