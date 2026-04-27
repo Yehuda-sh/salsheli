@@ -1,4 +1,4 @@
-// lib/config/app_config.dart — App configuration — environment detection, Firebase emulator ports, feature flags
+// lib/config/app_config.dart — App configuration — environment detection + Firebase emulator ports
 
 import 'package:flutter/foundation.dart';
 
@@ -7,10 +7,12 @@ enum AppEnvironment { development, production }
 class AppConfig {
   AppConfig._();
 
-  /// 🌍 קביעת הסביבה: אם זה Release - תמיד Production.
+  /// 🌍 קביעת הסביבה: אם זה Release — תמיד Production.
+  /// קביעה ידנית לפיתוח: `flutter run --dart-define=ENV=production`
+  /// (קלט case-insensitive — `production`/`PRODUCTION`/`Production` תקפים).
   static AppEnvironment get environment {
     const env = String.fromEnvironment('ENV');
-    if (env == 'production' || kReleaseMode) return AppEnvironment.production;
+    if (env.toLowerCase() == 'production' || kReleaseMode) return AppEnvironment.production;
     return AppEnvironment.development;
   }
 
