@@ -411,18 +411,22 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                   ],
                 ),
-              // קנייה אחרונה
+              // קנייה אחרונה — מציג גם relative ('לפני 3 ימים') וגם
+              // התאריך המדויק כ-tooltip להעמקה.
               if (item.lastPurchased != null)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
-                    const SizedBox(width: kSpacingXTiny),
-                    Text(
-                      '${AppStrings.inventory.lastPurchaseLabel}: ${dateFormat.format(item.lastPurchased!)}',
-                      style: TextStyle(fontSize: smallFont, color: mutedColor),
-                    ),
-                  ],
+                Tooltip(
+                  message: dateFormat.format(item.lastPurchased!),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
+                      const SizedBox(width: kSpacingXTiny),
+                      Text(
+                        AppStrings.inventory.relativePurchaseLabel(item.lastPurchased!),
+                        style: TextStyle(fontSize: smallFont, color: mutedColor),
+                      ),
+                    ],
+                  ),
                 ),
               // פופולרי
               if (item.isPopular)
@@ -882,40 +886,47 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                     const SizedBox(height: kSpacingSmall),
 
-                    // תאריך תפוגה
-                    InkWell(
-                      onTap: _isLoading ? null : _selectExpiryDate,
-                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: AppStrings.inventory.expiryDateLabel,
-                          labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                          prefixIcon: Icon(Icons.event_outlined, color: cs.primary),
-                          suffixIcon: _expiryDate != null
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear, size: kIconSizeSmall),
-                                  onPressed: _isLoading
-                                      ? null
-                                      : () => setState(() {
-                                            _expiryDate = null;
-                                            _hasChanges = true;
-                                          }),
-                                  tooltip: AppStrings.inventory.clearDateTooltip,
-                                )
-                              : const Icon(Icons.calendar_today, size: kIconSizeSmall),
-                        ),
-                        child: Text(
-                          _expiryDate != null
-                              ? DateFormat('dd/MM/yyyy').format(_expiryDate!)
-                              : AppStrings.inventory.notSetLabel,
-                          style: TextStyle(
-                            color: _expiryDate != null
-                                ? cs.onSurface
-                                : cs.onSurfaceVariant.withValues(alpha: 0.5),
+                    // תאריך תפוגה — empty state is a real CTA, not a
+                    // half-filled InputDecorator with grey "not set" text.
+                    if (_expiryDate != null)
+                      InkWell(
+                        onTap: _isLoading ? null : _selectExpiryDate,
+                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: AppStrings.inventory.expiryDateLabel,
+                            labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                            prefixIcon: Icon(Icons.event_outlined, color: cs.primary),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.clear, size: kIconSizeSmall),
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => setState(() {
+                                        _expiryDate = null;
+                                        _hasChanges = true;
+                                      }),
+                              tooltip: AppStrings.inventory.clearDateTooltip,
+                            ),
+                          ),
+                          child: Text(
+                            DateFormat('dd/MM/yyyy').format(_expiryDate!),
+                            style: TextStyle(color: cs.onSurface),
                           ),
                         ),
+                      )
+                    else
+                      OutlinedButton.icon(
+                        onPressed: _isLoading ? null : _selectExpiryDate,
+                        icon: Icon(Icons.event_outlined, color: cs.primary),
+                        label: Text(AppStrings.inventory.expiryNotSetCta),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: cs.primary,
+                          side: BorderSide(color: cs.outlineVariant),
+                          minimumSize: const Size.fromHeight(kButtonHeight),
+                          alignment: AlignmentDirectional.centerStart,
+                          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                        ),
                       ),
-                    ),
                     const SizedBox(height: kSpacingSmall),
 
                     // הערות

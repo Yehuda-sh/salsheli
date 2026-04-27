@@ -1151,6 +1151,16 @@ class InventoryStringsEn extends InventoryStrings {
   @override String purchaseCountLabel(int count) =>
       count == 1 ? 'Bought once' : 'Bought $count times';
   @override String get lastPurchaseLabel => 'Last bought';
+  @override String relativePurchaseLabel(DateTime date) {
+    final diff = DateTime.now().difference(date).inDays;
+    if (diff == 0) return 'Bought today';
+    if (diff == 1) return 'Bought yesterday';
+    if (diff < 7) return '$diff days ago';
+    if (diff < 30) return '${(diff / 7).floor()} weeks ago';
+    if (diff < 365) return '${(diff / 30).floor()} months ago';
+    return 'over a year ago';
+  }
+  @override String get expiryNotSetCta => 'Add expiry date';
   @override String get selectExpiryDate => 'Select expiry date';
   @override String get cancelLabel => 'Cancel';
   @override String get confirmLabel => 'Confirm';

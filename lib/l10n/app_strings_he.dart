@@ -1173,6 +1173,16 @@ class InventoryStrings {
   String purchaseCountLabel(int count) =>
       count == 1 ? 'נקנה פעם אחת' : 'נקנה $count פעמים';
   String get lastPurchaseLabel => 'קנייה אחרונה';
+  String relativePurchaseLabel(DateTime date) {
+    final diff = DateTime.now().difference(date).inDays;
+    if (diff == 0) return 'נקנה היום';
+    if (diff == 1) return 'נקנה אתמול';
+    if (diff < 7) return 'לפני $diff ימים';
+    if (diff < 30) return 'לפני ${(diff / 7).floor()} שבועות';
+    if (diff < 365) return 'לפני ${(diff / 30).floor()} חודשים';
+    return 'לפני יותר משנה';
+  }
+  String get expiryNotSetCta => 'הוסף תאריך תפוגה';
   String get selectExpiryDate => 'בחר תאריך תפוגה';
   String get cancelLabel => 'ביטול';
   String get confirmLabel => 'אישור';
