@@ -145,14 +145,37 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       final products = context.read<ProductsProvider>();
       final product = await products.getProductByBarcode(barcode);
       if (!mounted || product == null) return;
+
       final brand = (product['brand'] as String?)?.trim();
       final size = (product['size'] as String?)?.trim();
-      if ((brand == null || brand.isEmpty) && (size == null || size.isEmpty)) {
+      final catalogCategory = (product['category'] as String?)?.trim();
+
+      // 🔄 Catalog re-sync: if the stored item's category is stale (we
+      // moved candies from תבלינים to ממתקים in a script run, but the
+      // user's pantry doc was cached before), pull the fresh value.
+      // Mark _hasChanges so the save button picks it up — the user gets
+      // a one-tap "save" to commit the correction.
+      String? syncedCategoryKey;
+      if (catalogCategory != null && catalogCategory.isNotEmpty) {
+        final newKey = FiltersConfig.hebrewCategoryToEnglish(catalogCategory);
+        if (newKey != _selectedCategory) {
+          syncedCategoryKey = newKey;
+        }
+      }
+
+      final newBrand = (brand != null && brand.isNotEmpty) ? brand : null;
+      final newSize = (size != null && size.isNotEmpty) ? size : null;
+
+      if (newBrand == null && newSize == null && syncedCategoryKey == null) {
         return;
       }
       setState(() {
-        _catalogBrand = (brand != null && brand.isNotEmpty) ? brand : null;
-        _catalogSize = (size != null && size.isNotEmpty) ? size : null;
+        _catalogBrand = newBrand;
+        _catalogSize = newSize;
+        if (syncedCategoryKey != null) {
+          _selectedCategory = syncedCategoryKey;
+          _hasChanges = true;
+        }
       });
     } catch (_) {
       // Best-effort lookup — silently skip if catalog fetch fails.
