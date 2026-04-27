@@ -1,14 +1,13 @@
 // lib/config/list_type_keys.dart — List type string constants — supermarket, pharmacy, greengrocer, butcher, bakery, market, etc.
 
-import 'base_config.dart';
-
-/// 🗂️ מפתחות סוגי רשימות
-///
-/// משמש כ-Single Source of Truth למפתחות (keys) בלבד.
+/// 🗂️ מפתחות סוגי רשימות — Single Source of Truth ל-keys בלבד.
 /// ה-metadata (אמוג'י, שם, אייקון) מנוהל בנפרד ב-ListTypesConfig.
-class ListTypeKeys with ConfigValidation {
+///
+/// אין כאן validation runtime — בדיקת השלמות (duplicates, סדר 'other'
+/// בסוף, 1:1 מול ListTypesConfig) מתבצעת ב-ListTypes.performValidation()
+/// שמתבצע ב-warmup הראשון של ListTypes.getByKeySafe().
+class ListTypeKeys {
   ListTypeKeys._();
-  static final ListTypeKeys _instance = ListTypeKeys._();
 
   /// 🛒 סופרמרקט - כל המוצרים הכלליים
   static const String supermarket = 'supermarket';
@@ -50,28 +49,4 @@ class ListTypeKeys with ConfigValidation {
     event,
     other,
   ];
-
-  /// Set for O(1) lookup in resolve()
-  static final Set<String> _allSet = all.toSet();
-
-  /// המרת String למפתח מוכר (עם Fallback)
-  /// שימושי בטעינת נתונים מה-Database (Firestore)
-  static String resolve(String? key) {
-    _instance.ensureValid();
-    if (key == null) return other;
-    final normalized = key.trim().toLowerCase();
-    if (!_allSet.contains(normalized)) return other;
-    return normalized;
-  }
-
-  @override
-  void performValidation() {
-    ConfigValidation.validateNoDuplicates(all, 'ListTypeKeys.all');
-
-    if (all.isNotEmpty && all.last != other) {
-      throw AssertionError(
-        'ListTypeKeys: "$other" must be last in all, found: "${all.last}"',
-      );
-    }
-  }
 }
