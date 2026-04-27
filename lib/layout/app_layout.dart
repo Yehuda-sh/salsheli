@@ -121,8 +121,7 @@ class _AppLayoutState extends State<AppLayout> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final safeIndex = widget.currentIndex.clamp(0, _navItems.length - 1);
 
     // ✅ RTL Support: Let MaterialApp's localization handle direction automatically
@@ -177,14 +176,14 @@ class _AppLayoutState extends State<AppLayout> {
               height: kIconSizeLarge,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: cs.primary.withValues(alpha: 0.3), width: 1.5),
+                border: Border.all(color: cs.primary.withValues(alpha: kOpacityLight), width: 1.5),
               ),
               clipBehavior: Clip.antiAlias,
               child: Builder(
                 builder: (ctx) {
                   final userCtx = ctx.watch<UserContext>();
                   final url = userCtx.profileImageUrl;
-                  if (url != null) {
+                  if (url != null && url.isNotEmpty) {
                     return Image.network(url, fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => _avatarInitials(context, userCtx.displayName, cs));
                   }
@@ -210,8 +209,8 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// 👤 Avatar fallback: circle with the user's first letter when no
-  /// profile image is set. Prefers Hebrew initials.
+  /// 👤 Avatar fallback: circle with the first character of the user's
+  /// name (Hebrew or Latin) when no profile image is set.
   Widget _avatarInitials(BuildContext context, String? name, ColorScheme cs) {
     final trimmed = name?.trim() ?? '';
     final initial = trimmed.isNotEmpty ? trimmed.characters.first.toUpperCase() : '?';
