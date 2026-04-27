@@ -16,9 +16,6 @@ class ActivityLogProvider with ChangeNotifier {
   bool _hasInitialized = false;
   bool _isDisposed = false;
 
-  /// retention: אירועים ישנים מ-90 יום נמחקים בטעינה
-  static const _retentionDays = 90;
-
   bool _isLoading = false;
   String? _errorMessage;
   List<ActivityEvent> _events = [];
@@ -99,10 +96,8 @@ class ActivityLogProvider with ChangeNotifier {
     try {
       _events = await _repository.fetchEvents(householdId);
 
-      // ניקוי אירועים ישנים ברקע
-      unawaited(
-        _repository.deleteOldEvents(householdId, days: _retentionDays),
-      );
+      // ניקוי אירועים ישנים ברקע (retention מוגדר ב-repository — 90 יום)
+      unawaited(_repository.deleteOldEvents(householdId));
     } catch (e) {
       _errorMessage = AppStrings.activityLog.defaultError;
       if (kDebugMode) debugPrint('❌ ActivityLogProvider._loadEvents: $e');
