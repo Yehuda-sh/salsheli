@@ -134,7 +134,7 @@ flutter run          # הרצה
 - **RTL1:** מופעים של `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional`. ב-סשן 7 תוקנו 8 מופעים (shopping screens, home dashboard, pantry chips). נשאר זנב כללי בקוד.
 - **DS1:** ~364 מופעים של `fontSize:` קשיח (TextStyle inline) במקום `kFontSize*` constants. בעיקר ב-auth/landing flows. (ממצא מסקירה רחבה 23/4)
 - **i18n1:** ~50 מחרוזות עברית קשיחות ב-services + providers (Hebrew error prefixes, notification titles). דורש הרחבת `AppStrings` והפניות. (ממצא סשן 7)
-- **AUTH1:** Pending invites guard לא מחווט ב-`login_screen` + `register_screen` — לפי הנחיות (Pending Invites) צריך post-auth check כולל Google/Apple. (ממצא סשן 7)
+- ~~**AUTH1:** Pending invites guard לא מחווט ב-`login_screen` + `register_screen`~~ ✅ תוקן — `navigateAfterAuth()` helper מחווט ל-6 הזרמים (email/Google/Apple ב-login + register), בודק לפי uid+email אחרי signIn ומנווט ל-`/pending-invites` אם יש.
 - **CAT1:** מלכודות substring ב-`category_detection_service` (`'מנגו'`/`'מנגולד'`, `'תפוז'` לפני `'מיץ '`, `'תמר'` ללא רווח). (ממצא סשן 7)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
