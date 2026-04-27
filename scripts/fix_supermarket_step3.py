@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
 """
 Step 3 — final categorization pass:
-1. NEW categories: צעצועים ומתנות, אלקטרוניקה
-2. Expanded keyword coverage for existing categories
-3. Tightened rules with word-boundary checks to avoid false positives
+1. NEW categories: צעצועים ומתנות, אלקטרוניקה.
+2. Expanded keyword coverage for existing categories.
+3. Tightened rules with word-boundary checks (`word_in`) to avoid
+   false positives like 'גבורי על' matching the meat keyword 'בורי'.
+
+Pipeline: step1 → step2 → **step3** → step4 → step5 → step6. Run only
+after `fetch_new_products.py --merge`; otherwise the catalog is
+already past step3.
+
+Idempotent: rules only fire on rows still in 'כללי', so a second run
+finds nothing new to do. The `.bak3` snapshot is rewritten on every
+run on purpose — the chain assumes a single sequential execution.
 """
 import json
 import re
 from collections import Counter
+from pathlib import Path
 
-PATH = 'assets/data/list_types/supermarket.json'
-BACKUP = PATH + '.bak3'
+PATH = Path('assets/data/list_types/supermarket.json')
+BACKUP = PATH.with_suffix('.json.bak3')
 
 
 def has_any(name, words):
