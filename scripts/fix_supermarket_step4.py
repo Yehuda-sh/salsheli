@@ -7,7 +7,6 @@ Based on bigram analysis of remaining 24,864 generic items.
   seasonal items, toys, pastries, meat cuts, seeds, etc.)
 """
 import json
-import re
 from collections import Counter
 
 PATH = 'assets/data/list_types/supermarket.json'
@@ -90,7 +89,8 @@ def main():
                                 'חוטי ציפורן', 'גוזז ציפורניים',
                                 'סכין גילוח', 'מחסנית גילוח',
                                 'ג\'ילט', 'ונוס'])
-                   and not has_any(n, ['גלידה', 'שוקולד', 'ממרח']),
+                   and not has_any(n, ['גלידה', 'שוקולד', 'ממרח',
+                                       'אג\'אקס', 'אזאקס']),
          '→ היגיינה אישית: דיאודורנט/שמפו/היגיינה'),
 
         # קוסמטיקה וטיפוח — sunscreens
@@ -133,7 +133,9 @@ def main():
                                 'LOL', 'טרול ', 'אולאף',
                                 'פרזנט', 'מתנת ', 'שק מתנ',
                                 'באלון', 'בלוני'])
-                   and not has_any(n, ['קפה', 'שוקולד', 'רוטב', 'חלב', 'גבינה']),
+                   and not has_any(n, ['קפה', 'שוקולד', 'רוטב', 'חלב', 'גבינה',
+                                       'סט סכו"ם', 'פמוט כתר', 'חלת בריוש',
+                                       'קינוחית כתר', 'מסיכה ללא']),
          '→ צעצועים ומתנות: דמויות/ים/פורים'),
 
         # מוצרי בית — cutting boards, tablecloths, candles, storage

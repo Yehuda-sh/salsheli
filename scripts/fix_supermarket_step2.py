@@ -59,17 +59,24 @@ def main():
     # Order matters: more specific rules first.
     rules = [
         # NEW CATEGORY: אלכוהול (exclude glasses/accessories)
+        # NOTE on substring traps:
+        #   'מרלו' alone matches 'מרלוזה' (fish) / 'מרלוג' (logistics) — use ' מרלו'/'מרלו ' anchored variants
+        #   'רוזה ' alone matches 'ארוזה ' (packaged) — require leading space
+        #   'ליקר' alone matches 'בליקר' (chocolate) / 'סליקר' (mascara brush) — anchor it
         ('אלכוהול',
          lambda n: has_any(n, [
              'וודקה', 'ויסקי', 'וויסקי', 'קוניאק', 'ברנדי', 'טקילה',
-             'ליקר', 'אראק', 'ערק ', "ג'ין ", "ג'ין,",
+             ' ליקר', 'ליקר ', 'ליקר,', 'אראק', 'ערק ', "ג'ין ", "ג'ין,",
              'VSOP', 'XO ', 'ABSOLUT', 'JACK DANIEL', 'CHIVAS',
              'SMIRNOFF', 'JOHNNIE WALKER', 'GLENFIDDICH', 'BACARDI',
              'ג&#039;יימסון',
-             'שמפניה', 'פרוסקו', 'מרלו', 'סוביניון', 'שרדונה',
-             'קברנה', 'מוסקטו', 'רוזה ', 'רוזה,',
+             'שמפניה', 'פרוסקו', ' מרלו', 'מרלו ', 'מרלו,',
+             'סוביניון', 'שרדונה',
+             'קברנה', 'מוסקטו', ' רוזה ', ' רוזה,',
              "סאווין'", 'ערקים',
-         ]) and not has_any(n, ['כוס ', 'ספל ', 'כד ', 'קנקן', 'מגש', 'בקבוק ריק', 'פקק']),
+         ]) and not has_any(n, ['כוס ', 'כוסיות', 'כוסות', 'ספל ', 'כד ', 'קנקן', 'מגש',
+                                 'בקבוק ריק', 'פקק', 'מברשת', 'בליקר', 'סליקר',
+                                 'מרלוז', 'מרלוג', 'ארוזה']),
          'NEW אלכוהול'),
 
         # NEW CATEGORY: סיגריות וטבק
@@ -125,6 +132,8 @@ def main():
          '→ ממרחים מתוקים: דבש'),
 
         # Route to existing: מוצרי בית — kitchen goods
+        # NOTE on substring traps:
+        #   'מגש ' alone matches food-trays like 'מגש פירות יבשים' (the food itself)
         ('מוצרי בית',
          lambda n: has_any(n, ['נירוסטה', 'פיירקס', 'טפלון', 'כלי אפייה',
                                 'מחבת ', 'סיר ', 'מגש ', 'קערה ', 'קערת ',
@@ -132,7 +141,10 @@ def main():
                                 'סוטאז', 'סוטז', 'סירים', 'מחבתות',
                                 'בקבוק טריטן', 'בקבוק ילדים',
                                 'סכום חד פעמי', 'סכו״ם', 'סכום ', 'סכום,'])
-                   and not has_any(n, ['רוטב', 'ממרח', 'קפה', 'שוקולד']),
+                   and not has_any(n, ['רוטב', 'ממרח', 'קפה', 'שוקולד',
+                                        'מגש פירות', 'מגש ירק', 'מגש בשר',
+                                        'מגש גבינות', 'מגש סלט', 'מגש דגים',
+                                        'מגש עוף', 'מגש ביצ']),
          '→ מוצרי בית: כלי מטבח'),
 
         # Route to existing: מוצרי בית — disposables (food-shape exclusion)
@@ -173,12 +185,20 @@ def main():
          '→ ממתקים וחטיפים: מותגים'),
 
         # Route to existing: משקאות — additional drink keywords
+        # NOTE on substring traps:
+        #   'פיוז' alone matches 'פיוז\'ן/פיוזן' (Gillette razors) — use 'פיוז ' / 'פיוז-' anchored
+        #   'נקטר' alone matches 'נקטרינה' (nectarine fruit) — use 'נקטר ' anchored
+        #   'תפוגן' is a CHIPS brand, NOT a drink — keyword removed entirely
         ('משקאות',
          lambda n: has_any(n, ['סבן אפ', 'סבנ אפ', 'סבנ-אפ',
-                                'פריגת', 'תפוגן', 'סן פלגרינו', 'סן-פלגרינו',
+                                'פריגת', 'סן פלגרינו', 'סן-פלגרינו',
                                 'שוקו ', 'שוקו,', 'שטראוס שוקו', 'אייס קפה',
-                                'נקטר', 'פיוז', 'פיוזטי', 'RED BULL', 'רד בול'])
-                   and not has_any(n, ['ממרח', 'גלידה']),
+                                'נקטר ', 'נקטר,', 'פיוז ', 'פיוז-', 'פיוזטי',
+                                'RED BULL', 'רד בול'])
+                   and not has_any(n, ['ממרח', 'גלידה', 'פיוזן', "פיוז'ן",
+                                        'פיוז\'ן', 'פיוז`ן', 'נקטרינ', 'תפוגן',
+                                        'סכין', 'סכיני', 'גילט', "ג'ילט",
+                                        'דיפיוז', 'דפיוז']),
          '→ משקאות: מותגים'),
 
         # Route to existing: מזון לחיות מחמד
