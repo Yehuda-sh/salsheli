@@ -2,18 +2,23 @@ rules_version = '2';
 
 // 🔒 MemoZap Firestore Security Rules
 //
-// Version: 4.4 (March 2026) — S6: getUserHouseholdId budget fix, S7: inventory hasOnly
+// Version: 4.5 (April 2026) — Closed 3 privilege-escalation holes (audit Apr 27)
 //
 // ✅ Strict Schema Validation & Audit Trail
-// 📅 Last Updated: March 2026
+// 📅 Last Updated: 27 April 2026
 //
 // ✨ Features:
 //     - Strict Schema Validation (inventory, notifications)
 //     - Audit Trail enforcement (last_updated_by on inventory changes)
-//     - Anti-spam protection (notification type enum, message length)
+//     - Anti-spam protection (notification type enum, message length, sender required)
 //     - Schema validation helpers
 //
 // 📅 History:
+//     v4.5 (27/04/2026) — Security: users.household_id self-update blocked unless
+//                          membership exists; members self-create blocked unless
+//                          household creator (first-member case); notifications
+//                          require sender_id when cross-user (no anonymous spam)
+//     v4.4 (26/03/2026) — S6: getUserHouseholdId budget fix, S7: inventory hasOnly
 //     v4.3 (24/03/2026) — Fix: household delete restricted to creator, receipts schema validation + created_by, group update restricted fields, pending_invites validation
 //     v4.2 (15/03/2026) — Fix: household delete, notification sender_id, group_invites read, editor active_shoppers
 //     v4.0 (22/02/2026) — Schema validation, Audit Trail, anti-spam, helper functions
@@ -151,7 +156,24 @@ service cloud.firestore {
       allow read: if isDocOwner(userId) ||
                   (isAuthenticated() &&
                    isHouseholdMember(get(/databases/$(database)/documents/users/$(userId)).data.household_id));
-      allow write: if isDocOwner(userId);
+      allow create, delete: if isDocOwner(userId);
+
+      // ✏️ עדכון — v4.5 closed privilege-escalation:
+      // The user can update their own profile freely, EXCEPT they cannot
+      // unilaterally set `household_id` to an arbitrary household. The
+      // new value must either:
+      //   1. equal the existing one (no change to that field), OR
+      //   2. be null (leaving a household), OR
+      //   3. point to a household where /members/{uid} already exists
+      //      (i.e. an admin already admitted them).
+      // Without this guard, an attacker could rewrite their own user doc
+      // and `isHouseholdMember()` would trust the field, granting full
+      // access to a foreign household.
+      allow update: if isDocOwner(userId) && (
+        request.resource.data.household_id == resource.data.household_id ||
+        request.resource.data.household_id == null ||
+        exists(/databases/$(database)/documents/households/$(request.resource.data.household_id)/members/$(userId))
+      );
 
       // === Private Lists (Subcollection) ===
       // Path: /users/{userId}/private_lists/{listId}
@@ -182,22 +204,28 @@ service cloud.firestore {
         // עדכון: רק הבעלים (mark as read)
         allow update: if isDocOwner(userId);
 
-        // ➕ יצירה: v4.2 — ולידציה מותאמת לקוד בפועל
-        // ⚠️ v4.2: sender_id הוסר כשדה חובה — NotificationsService לא תמיד שולח אותו
-        //    (התראות מערכת כמו low_stock נוצרות ללא sender).
-        //    אם sender_id קיים — חייב להתאים ל-UID (מניעת התחזות).
-        // 1. user_id חייב להתאים לנתיב (data consistency)
-        // 2. type חייב להיות מתוך רשימת Enums מותרת
-        // 3. message מוגבל ל-500 תווים
-        // 4. sender_id (אם קיים) חייב להתאים ל-UID ולא להיות הנמען
+        // ➕ יצירה — v4.5 closed anonymous spam vector:
+        // 1. user_id must match the path (data consistency).
+        // 2. type must be in the Enum list.
+        // 3. message ≤ 500 chars.
+        // 4. Self-notifications (recipient writes to their own inbox) are
+        //    fine — used by system flows like low_stock / expiry_soon.
+        // 5. Cross-user notifications MUST carry a non-null sender_id
+        //    that equals the writer's UID (and is not the recipient
+        //    themselves). The previous rule allowed sender_id=null on
+        //    cross-user writes, which let any authenticated account
+        //    drop anonymous notifications into anyone's inbox.
+        // Per-sender rate limiting still has to live in a Cloud Function
+        // — Firestore rules can't enforce throughput.
         allow create: if isAuthenticated() &&
                       request.resource.data.user_id == userId &&
                       isValidNotificationType(request.resource.data.type) &&
                       request.resource.data.message is string &&
                       request.resource.data.message.size() <= 500 &&
                       (
-                        !('sender_id' in request.resource.data.keys()) ||
-                        request.resource.data.sender_id == null ||
+                        // Self-notification (system-style)
+                        request.auth.uid == userId ||
+                        // Cross-user — sender_id required, must equal writer
                         (request.resource.data.sender_id == request.auth.uid &&
                          request.resource.data.sender_id != userId)
                       );
@@ -360,9 +388,17 @@ service cloud.firestore {
       match /members/{memberId} {
         allow read: if isHouseholdMember(householdId);
 
-        // יצירה: המשתמש מוסיף את עצמו, או admin מוסיף חבר חדש
+        // ➕ יצירה — v4.5 closed privilege-escalation:
+        //   1. First-member onboarding: the household creator may add
+        //      themselves as the first member.
+        //   2. Admin adding any member: an existing admin can add others.
+        // The previous rule allowed ANY authenticated user to write
+        // /households/X/members/{their_uid} for any X — combined with
+        // the users.household_id self-update bug, that gave full access
+        // to any household.
         allow create: if isAuthenticated() && (
-          memberId == request.auth.uid ||
+          (memberId == request.auth.uid &&
+           get(/databases/$(database)/documents/households/$(householdId)).data.created_by == request.auth.uid) ||
           get(/databases/$(database)/documents/households/$(householdId)/members/$(request.auth.uid)).data.role == 'admin'
         );
 
