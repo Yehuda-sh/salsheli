@@ -181,66 +181,12 @@ class PendingRequest {
   // === Request Data Helpers ===
   // 🔧 גישה בטוחה לנתוני הבקשה לפי type
 
-  /// 🔧 קורא מ-requestData עם תמיכה ב-camelCase וגם snake_case
-  String? _getData(String camelCase, String snakeCase) =>
-      (requestData[camelCase] ?? requestData[snakeCase]) as String?;
-
-  /// 🔧 מזהה הפריט (ל-editItem/deleteItem)
-  String? get targetItemId => _getData('itemId', 'item_id');
-
-  /// 🔧 שם המוצר המבוקש (ל-addItem)
-  String? get requestedName => requestData['name'] as String?;
-
   /// 🔧 השינויים המבוקשים (ל-editItem)
   Map<String, dynamic>? get changes {
     final data = requestData['changes'];
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
     return null;
-  }
-
-  /// 🔧 האם הבקשה תקינה לפי הסוג שלה
-  ///
-  /// - addItem: חייב להיות name
-  /// - editItem: חייב להיות itemId + changes
-  /// - deleteItem: חייב להיות itemId
-  /// - inviteToList: חייב להיות userId או email
-  /// - unknown: תמיד לא תקין (לא ניתן לאמת סוג לא מוכר)
-  bool get isValidForType {
-    switch (type) {
-      case RequestType.addItem:
-        return requestedName != null && requestedName!.isNotEmpty;
-      case RequestType.editItem:
-        return targetItemId != null && targetItemId!.isNotEmpty && changes != null;
-      case RequestType.deleteItem:
-        return targetItemId != null && targetItemId!.isNotEmpty;
-      case RequestType.inviteToList:
-      case RequestType.inviteToHousehold:
-        // 🔧 תמיכה גם ב-camelCase וגם snake_case
-        final userId = _getData('userId', 'user_id');
-        final email = requestData['email'] as String?;
-        return (userId?.isNotEmpty ?? false) || (email?.isNotEmpty ?? false);
-      case RequestType.unknown:
-        return false; // לא ניתן לאמת סוג לא מוכר
-    }
-  }
-
-  // === Reviewer Validation Helpers ===
-
-  /// 🔧 האם יש נתוני reviewer מלאים (id + תאריך)
-  bool get hasReviewerData => reviewerId != null && reviewedAt != null;
-
-  /// 🔧 האם יש סיבת דחייה (רלוונטי רק ל-rejected)
-  bool get hasRejectionReason => isRejected && (rejectionReason?.isNotEmpty ?? false);
-
-  /// 🔧 האם הבקשה תקינה מבחינת נתוני אישור/דחייה
-  ///
-  /// - pending: לא צריך reviewer data
-  /// - approved/rejected: צריך reviewer data
-  /// - rejected: עדיף שיהיה גם rejectionReason
-  bool get hasValidReviewData {
-    if (isPending) return true; // לא צריך עדיין
-    return hasReviewerData;
   }
 
   // === Factory Constructors ===

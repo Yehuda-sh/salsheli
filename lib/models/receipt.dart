@@ -116,18 +116,6 @@ class Receipt {
     );
   }
 
-  /// 🇮🇱 האם קבלה וירטואלית (ללא סריקה)
-  /// 🇬🇧 Is this a virtual receipt (no scan)
-  bool get isVirtualReceipt => isVirtual && fileUrl == null;
-
-  /// 🇮🇱 האם קבלה וירטואלית עם סריקה מחוברת
-  /// 🇬🇧 Is this a virtual receipt with connected scan
-  bool get isRealConnected => isVirtual && fileUrl != null;
-
-  /// 🇮🇱 האם קבלה אמיתית סרוקה
-  /// 🇬🇧 Is this a real scanned receipt
-  bool get isRealScanned => !isVirtual && fileUrl != null;
-
   /// יצירת קבלה חדשה עם id אוטומטי
   factory Receipt.newReceipt({
     required String storeName,
@@ -257,10 +245,6 @@ class ReceiptItem {
     this.checkedAt,
   }) : assert(quantity >= 0, 'Quantity must be >= 0'),
        assert(unitPrice >= 0, 'Unit price must be >= 0');
-
-  /// 🇮🇱 האם הפריט סומן על ידי מישהו (יש checkedBy)
-  /// 🇬🇧 Was the item checked by someone (has checkedBy)
-  bool get wasChecked => checkedBy != null;
 
   /// מחיר כולל (כמות * מחיר ליחידה)
   double get totalPrice => quantity * unitPrice;
