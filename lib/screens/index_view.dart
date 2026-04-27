@@ -62,7 +62,6 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   static const _shimmerAnimationDuration = Duration(milliseconds: 2000);
   static const _waveAnimationDuration = Duration(milliseconds: 3000);
   static const _messageRotationDelay = Duration(seconds: 2);
-  static const _gradientAnimationDuration = Duration(milliseconds: 1500);
 
   // 📝 אינדקס הודעת טעינה נוכחית
   int _currentMessageIndex = 0;
@@ -167,38 +166,19 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
     );
   }
 
-  /// 🎨 Gradient Background - Dark Mode Responsive
-  /// v4.0: Curves.easeInOutCubic for smoother "breathing" gradient
+  /// 🎨 Solid splash-coloured background.
+  ///
+  /// The native Android splash (configured in pubspec.yaml under
+  /// flutter_native_splash) paints `#FFF8F0` (light) / `#1A1A2E` (dark)
+  /// behind the logo. To make the splash → Flutter handoff invisible,
+  /// IndexLoadingView paints the same colour. The TweenAnimationBuilder
+  /// fades from transparent over the user's first 1.5s — so even if the
+  /// background colour is identical, the rest of the UI (logo, name,
+  /// spinner) eases in instead of popping.
   Widget _buildGradientBackground(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: _gradientAnimationDuration,
-      curve: Curves.easeInOutCubic,
-      builder: (context, value, child) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final startColor =
-            isDark ? kSplashGradientStartDark : kSplashGradientStart;
-        final middleColor =
-            isDark ? kSplashGradientMiddleDark : kSplashGradientMiddle;
-        final endColor = isDark ? kSplashGradientEndDark : kSplashGradientEnd;
-
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color.lerp(cs.outline, startColor, value)!,
-                Color.lerp(cs.outline, middleColor, value)!,
-                Color.lerp(cs.outline, endColor, value)!,
-              ],
-              stops: const [0.0, 0.5, 1.0],
-            ),
-          ),
-        );
-      },
-    );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? kSplashBackgroundDark : kSplashBackground;
+    return Container(color: bg);
   }
 
   /// 🌊 Wave Animation
@@ -270,7 +250,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // 💫 Pulsing Circle (חיצוני)
+              // 💫 Pulsing Circle (חיצוני) — primary tint, soft on cream
               AnimatedBuilder(
                 animation: pulseAnimation,
                 builder: (context, child) {
@@ -282,14 +262,14 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                       height: _kLogoSize * _kLogoPulseScale,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: cs.onPrimary.withValues(alpha: 0.1),
+                        color: cs.primary.withValues(alpha: 0.08),
                       ),
                     ),
                   );
                 },
               ),
 
-              // ✨ Shimmer Effect
+              // ✨ Shimmer Effect — primary tint sweeping over the cream surface
               AnimatedBuilder(
                 animation: _shimmerController,
                 builder: (context, child) {
@@ -303,9 +283,9 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                             -1 + (_shimmerController.value * 2), -1),
                         end: Alignment(1 + (_shimmerController.value * 2), 1),
                         colors: [
-                          cs.onPrimary.withValues(alpha: 0.0),
-                          cs.onPrimary.withValues(alpha: kOpacityLight),
-                          cs.onPrimary.withValues(alpha: 0.0),
+                          cs.primary.withValues(alpha: 0.0),
+                          cs.primary.withValues(alpha: kOpacitySubtle),
+                          cs.primary.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -358,16 +338,12 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       child: Text(
         AppStrings.index.appName,
         style: TextStyle(
-          fontSize: kFontSizeXLarge,
-          fontWeight: FontWeight.bold,
-          color: cs.onPrimary,
-          shadows: [
-            Shadow(
-              color: cs.shadow.withValues(alpha: 0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
+          fontFamily: 'Caveat',
+          fontSize: kFontSizeDisplay,
+          fontWeight: FontWeight.w700,
+          color: cs.primary,
+          letterSpacing: 0.5,
+          height: 1.0,
         ),
       ),
     )
@@ -382,7 +358,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
         .then(delay: 1.seconds)
         .shimmer(
           duration: kAnimationDurationSlow,
-          color: cs.onPrimary.withValues(alpha: kOpacityLow),
+          color: cs.primary.withValues(alpha: kOpacityLow),
           angle: kShimmerAngle,
         );
   }
@@ -400,14 +376,14 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
         label: AppStrings.index.loadingLabel,
         child: Column(
           children: [
-            // עיגול טעינה
+            // עיגול טעינה — primary tint readable on cream
             SizedBox(
               width: kIconSizeLarge + kSpacingXTiny,
               height: kIconSizeLarge + kSpacingXTiny,
               child: CircularProgressIndicator(
                 strokeWidth: 3,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  cs.onPrimary.withValues(alpha: 0.9),
+                  cs.primary.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -446,15 +422,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                 key: ValueKey<int>(_currentMessageIndex),
                 style: TextStyle(
                   fontSize: kFontSizeBody,
-                  color: cs.onPrimary.withValues(alpha: 0.9),
+                  color: cs.onSurface.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
-                  shadows: [
-                    Shadow(
-                      color: cs.shadow.withValues(alpha: 0.3),
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -649,7 +618,7 @@ class WavePainter extends CustomPainter {
 
     // גל ראשון
     final paint = Paint()
-      ..color = colorScheme.onPrimary.withValues(alpha: 0.1)
+      ..color = colorScheme.primary.withValues(alpha: 0.08)
       ..style = PaintingStyle.fill;
 
     final yFront = size.height * _kWaveYOffsetFront;
@@ -667,7 +636,7 @@ class WavePainter extends CustomPainter {
 
     // גל שני
     final paint2 = Paint()
-      ..color = colorScheme.onPrimary.withValues(alpha: 0.05)
+      ..color = colorScheme.primary.withValues(alpha: 0.04)
       ..style = PaintingStyle.fill;
 
     final yBack = size.height * _kWaveYOffsetBack;
