@@ -2108,10 +2108,6 @@ MemoZap מאפשרת ניהול רשימות קניות משותפות, מעקב
 }
 
 // ========================================
-// Action Center Strings
-// ========================================
-
-// ========================================
 // Onboarding Tips Strings
 // ========================================
 
@@ -2126,6 +2122,10 @@ class OnboardingTipsStrings {
   String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
   String get createListsAction => 'צור';
 }
+
+// ========================================
+// Action Center Strings
+// ========================================
 
 class ActionCenterStrings {
   const ActionCenterStrings();
