@@ -412,10 +412,4 @@ class TemplateService {
     return items;
   }
 
-  /// מנקה את המטמון (לדוגמה: אחרי עדכון מוצרים)
-  static void clearCache() {
-    _productsCache = null;
-    _loadingCompleter = null; // ✅ Reset completer too
-    if (kDebugMode) debugPrint('🗑️ [TemplateService] המטמון נוקה');
-  }
 }

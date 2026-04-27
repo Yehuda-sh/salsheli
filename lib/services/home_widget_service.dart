@@ -29,19 +29,8 @@ class HomeWidgetService {
   HomeWidgetService._();
   static final instance = HomeWidgetService._();
 
-  bool _initialized = false;
-
-  /// אתחול — קורא פעם אחת ב-startup
-  Future<void> initialize() async {
-    if (_initialized) return;
-    _initialized = true;
-
-    try {
-      await HomeWidget.setAppGroupId(_kAppGroupId);
-    } catch (e) {
-      debugPrint('HomeWidgetService: init failed: $e');
-    }
-  }
+  /// האם appGroupId כבר הוגדר (lazy init — iOS widget data sharing).
+  bool _appGroupIdSet = false;
 
   /// עדכון נתוני Widget עם המצב הנוכחי של המזווה
   ///
@@ -50,6 +39,12 @@ class HomeWidgetService {
     required List<InventoryItem> allItems,
   }) async {
     try {
+      // ✅ Lazy init של appGroupId (חיוני ל-iOS widget data sharing).
+      if (!_appGroupIdSet) {
+        await HomeWidget.setAppGroupId(_kAppGroupId);
+        _appGroupIdSet = true;
+      }
+
       // מלאי נמוך
       final lowStock = allItems.where((i) => i.isLowStock && i.quantity > 0).toList()
         ..sort((a, b) => a.quantity.compareTo(b.quantity));
