@@ -127,47 +127,112 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
   }
 
-  /// Dialog title row — title text + optional inline product thumbnail.
-  /// In edit mode with a barcode, the 56px thumbnail sits beside the
-  /// title. Tapping it opens a full-size preview dialog.
+  /// Dialog title row — title text + product thumbnail (or category emoji
+  /// fallback when no barcode is available). Tapping the thumbnail opens
+  /// the full-screen image viewer.
   Widget _buildDialogTitle(ColorScheme cs, Color accent, String title) {
-    final hasImage = widget.mode == PantryItemDialogMode.edit &&
+    final isEdit = widget.mode == PantryItemDialogMode.edit;
+    final hasImage = isEdit &&
         widget.item?.barcode != null &&
         widget.item!.barcode!.length >= 7;
+    final categoryKey = isEdit
+        ? FiltersConfig.hebrewCategoryToEnglish(widget.item!.category)
+        : _selectedCategory;
+    final categoryEmoji = FiltersConfig.getCategoryInfo(categoryKey).emoji;
 
-    if (!hasImage) {
-      return Text(title, style: TextStyle(color: accent));
+    final titleText = Expanded(
+      child: Text(
+        title,
+        // cs.onSurface keeps the title from glaring green; accent is still
+        // used elsewhere (action button, etc.) so the brand colour shows up.
+        style: TextStyle(
+          color: cs.onSurface,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+
+    if (hasImage) {
+      return Row(
+        children: [
+          titleText,
+          const SizedBox(width: kSpacingSmall),
+          GestureDetector(
+            onTap: () => _showFullImage(cs),
+            child: Hero(
+              tag: 'pantry-thumb-${widget.item!.barcode}',
+              child: ProductThumbnail(
+                barcode: widget.item!.barcode,
+                category: widget.item!.category,
+                size: kIconSizeXLarge + kSpacingSmall,
+              ),
+            ),
+          ),
+        ],
+      );
     }
 
+    // Fallback: small circle with the category emoji so the title row never
+    // looks empty for items added without a barcode.
     return Row(
       children: [
-        Expanded(
-          child: Text(title, style: TextStyle(color: accent)),
-        ),
+        titleText,
         const SizedBox(width: kSpacingSmall),
-        GestureDetector(
-          onTap: () => _showFullImage(cs),
-          child: ProductThumbnail(
-            barcode: widget.item!.barcode,
-            category: widget.item!.category,
-            size: kIconSizeXLarge + kSpacingSmall,
+        Container(
+          width: kIconSizeXLarge + kSpacingSmall,
+          height: kIconSizeXLarge + kSpacingSmall,
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerHighest,
+            shape: BoxShape.circle,
           ),
+          alignment: Alignment.center,
+          child: Text(categoryEmoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
         ),
       ],
     );
   }
 
-  /// Opens a centered dialog showing the product image at full size.
+  /// Opens a full-screen image viewer with pinch-to-zoom + drag-to-pan.
+  /// Tap anywhere to dismiss.
   void _showFullImage(ColorScheme cs) {
-    showDialog(
-      context: context,
-      builder: (ctx) => GestureDetector(
-        onTap: () => Navigator.pop(ctx),
-        child: Center(
-          child: ProductThumbnail(
-            barcode: widget.item!.barcode,
-            category: widget.item!.category,
-            size: 220,
+    final barcode = widget.item!.barcode;
+    final category = widget.item!.category;
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        opaque: false,
+        barrierColor: Colors.black87,
+        transitionDuration: const Duration(milliseconds: 250),
+        pageBuilder: (_, __, ___) => GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Stack(
+            children: [
+              Center(
+                child: Hero(
+                  tag: 'pantry-thumb-${barcode ?? category}',
+                  child: InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 4.0,
+                    child: ProductThumbnail(
+                      barcode: barcode,
+                      category: category,
+                      // Generous size — InteractiveViewer scales it further.
+                      size: 360,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: kSpacingLarge,
+                right: kSpacingLarge,
+                child: SafeArea(
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    color: Colors.white,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -561,6 +626,18 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 maxLines: 2,
                 minLines: 1,
                 textInputAction: TextInputAction.next,
+                // Counter only appears once the user gets close to the
+                // limit — quietly hides for short names where it's clutter.
+                buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+                    currentLength >= 70
+                        ? Text(
+                            '$currentLength/$maxLength',
+                            style: TextStyle(
+                              fontSize: kFontSizeTiny,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          )
+                        : null,
                 decoration: InputDecoration(
                   labelText: AppStrings.inventory.productNameLabel,
                   labelStyle: TextStyle(color: cs.onSurfaceVariant),
