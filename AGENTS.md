@@ -69,7 +69,88 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Last Session (April 18-22, 2026) — UX Polish + Lint Cleanup + Catalog Sanitization
+### Last Session (April 27, 2026) — Multi-agent Sweep + Pantry Edit-Dialog UX
+
+**15 parallel agents** swept every directory under lib/ (core, l10n, models,
+providers, repositories, services, screens, widgets, theme, layout) plus
+catalog audit + post-merge polish.
+
+**Real bugs fixed:**
+- Pantry tile rendered the literal string `${item.quantity} ${item.unit}` on
+  every row (escape-sequence regression in pull-to-refresh patch).
+- FCM token race in `clearToken()` — listener wasn't cancelled before
+  `deleteToken()`, the SDK refresh callback could write a fresh token to
+  the previous user's Firestore doc after logout (privacy leak).
+- `LimitStatus get status` on InventoryItem used `getLimitStatus` inverted
+  — a quantity=0 item reported SAFE, a 9.5/10 item reported CRITICAL. The
+  getter was removed and the two callers cleaned up.
+- TextEditingController leak in `register_screen._askHouseholdName`.
+- 8 RTL bugs across shopping/home/pantry chips (`EdgeInsets.only(left/right)`
+  → `EdgeInsetsDirectional`).
+- Activity-log error displayed snake_case key verbatim — now localized.
+- Avatar emoji disappeared in app bar after picking it (Image.network
+  on emoji string, missing `startsWith('http')` branch).
+
+**Cleanup:**
+- ~80 dead methods/classes removed (providers, services, repos, models).
+- l10n: 25 EN parity gaps closed + 31 TODO translations finalised.
+- Catalog audit: butcher (278→26 in 'אחר' + new 'נקניקים' category),
+  bakery ('מאפים' 175→7), pharmacy (15 misclassified items removed).
+- 8,032 brand pollutants in supermarket.json (`'לא ידוע'`/`,`) → null.
+- 14 short Israeli barcodes auto-repaired via EAN-13 checksum.
+
+**Pantry edit-dialog UX overhaul (Phase 1 + 2):**
+- Full-screen InteractiveViewer image with Hero animation + pinch-zoom.
+- Title de-glared (cs.onSurface), category-emoji fallback, name counter
+  appears only past 70 chars.
+- Statistics: relative dates ("נקנה היום", "לפני 3 ימים"), exact date
+  in Tooltip; clearer purchase-count phrasing.
+- Empty expiry → CTA button instead of greyed "לא הוגדר".
+- "Advanced settings" inline (no expand-tile cliff).
+- Equal-width Cancel/Save (OutlinedButton + ElevatedButton).
+- Hardware Enter saves, Escape cancels.
+- **Brand + size badges** loaded async from product catalog (no schema
+  change — read-only display from supermarket.json by barcode).
+- **Auto-resync** stale category from catalog when opening edit (fixes
+  the candy/sucariot items still tagged 'תבלינים' from before the
+  catalog re-categorization).
+
+**Splash → loading transition unified:**
+- IndexLoadingView dropped the purple gradient; now uses `kSplashBackground`
+  (#FFF8F0) — exact match with `flutter_native_splash` config so the
+  Android splash → Flutter handoff has no visible flash.
+- Loading-screen icon switched from generic Material basket to actual
+  `assets/images/logo.png`.
+- App-name typography now matches the AppBar (Caveat font, primary colour).
+
+**Index/main_navigation cleanups:**
+- index_screen: extracted `_completeNavigation` helper, wrapped
+  `_isChecking` in try/finally to prevent stuck state.
+- index_view: WavePainter stride 1px → 2px (halves per-frame path
+  cost, identical visually); ~15 magic numbers hoisted to file-level
+  consts; cached phase/widthInv inside the painter loop.
+- main_navigation: tab-fade `Duration(200ms)` extracted to a const.
+
+**Welcome screen perf:**
+- PageController listener was driving a full-screen rebuild ~60fps.
+  Now the offset lives in a ValueNotifier with two scoped
+  ValueListenableBuilders (parallax + worm dots only). Magic numbers
+  (page count, autoplay interval, dot dimensions) hoisted to consts.
+
+**Storage rules:**
+- Removed dead `/groups/` write-anyone rule (DoS vector).
+- Profile filename pinned to `avatar.(jpg|jpeg|png|webp)`.
+- Last-Updated stamp bumped to 27/04/2026.
+
+**Docs:**
+- WORK_PLAN.md deleted (stale March-24 snapshot, fully superseded by
+  CODE_REVIEW.md).
+- README.md: platform badge fixed, Quick-Start added, docs index added.
+- CODE_REVIEW.md bumped to v7.0 with full session 7 history.
+- CLAUDE.md Known-Issues refreshed (RTL1 partial fix, i18n1 + AUTH1 +
+  CAT1 added).
+
+### Previous Session (April 18-22, 2026) — UX Polish + Lint Cleanup + Catalog Sanitization
 
 **Settings screen overhaul (7 commits):**
 - Haptic feedback throughout + theme card scale animation
@@ -138,14 +219,16 @@ Claude operates in **two different environments**. Identify which one at session
 - March 24, 2026: Code review session 3 — 4 security fixes, 5 logic bugs, ~50 design system fixes
 
 ### Next Priorities
-1. **Enable Google Sign-In** in Firebase Console (user action)
-2. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes`
-3. **Deploy Cloud Functions**: `firebase deploy --only functions` (requires Blaze plan)
-4. **Run demo data** via GitHub Actions → "Rebuild Demo Data" → type `yes`
-5. **Manual testing** of all 16 demo users
-6. **Implement pantry merge logic** (dialog result currently ignored — `pending_invites_screen.dart:164`)
-7. **Refactor SocialAuthMixin** — login/register duplicate social auth logic inline
-8. **Verify W1** (`use_build_context_synchronously` in settings_screen) — analyzer run pending
+1. **Fix `firestore.rules` privilege-escalation holes** (see Known Issues #11
+   below — found in session 7, not yet patched)
+2. **Phase 3** of pantry catalog dialog — add "אחרונים" tab + "+" new-product
+   button + barcode-not-found flow
+3. **Enable Google Sign-In** in Firebase Console (user action)
+4. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes`
+5. **Deploy Cloud Functions**: `firebase deploy --only functions` (Blaze)
+6. **Implement pantry merge logic** (dialog result ignored — `pending_invites_screen.dart:164`)
+7. **Verify W1** (`use_build_context_synchronously` in settings_screen) —
+   analyzer run pending
 
 ### Currently Blocking
 - Google/Apple Sign-In requires Firebase Console configuration (not code)
@@ -159,7 +242,7 @@ Claude operates in **two different environments**. Identify which one at session
 |---|-------|------------------|
 | 1 | **Google/Apple Sign-In providers not enabled** in Firebase Console | Config change, not code — user must enable in Console |
 | 2 | **Pantry merge dialog result ignored** — user clicks "merge" but nothing happens | Feature not implemented — TODO in `pending_invites_screen.dart:164` |
-| 3 | **SocialAuthMixin is dead code** — login/register duplicate the logic inline | Refactor needed — both screens work, just not DRY |
+| 3 | ~~**SocialAuthMixin is dead code**~~ | ✅ Fixed (session 7) — file deleted, login/register handle social inline |
 | 4 | **Phone validation too strict** — only accepts `05X-XXXXXXX`, rejects `+972`, international | Design decision needed from user |
 | 5 | ~~**~25 `kSticky*` colors in SnackBars**~~ | ✅ Fixed — all 40+ SnackBars use `brand?.sticky*` fallback |
 | 6 | **Cloud Functions not deployed** — GDPR deletion + FCM push defined but not live | Requires `firebase deploy --only functions` + Blaze plan |
@@ -167,6 +250,12 @@ Claude operates in **two different environments**. Identify which one at session
 | 8 | ~~**0 tests**~~ | ✅ Fixed — 15 test files, 6,627 lines |
 | 9 | **`use_build_context_synchronously` warnings** in settings_screen (2 locations) | Known W1 issue — has `mounted` guards, likely fixed but needs analyzer verify |
 | 10 | **`app_locale` stored in Firestore but read from SharedPreferences** | Firestore field is metadata only — locale switch is local |
+| 11 | 🔴 **`firestore.rules` privilege-escalation holes** (session 7 audit) | (a) `users/{uid}` write is field-unrestricted — user can self-set `household_id` to any household and `isHouseholdMember()` trusts the field. (b) `members/{memberId}` create allows `memberId == request.auth.uid` — self-add to any household. (c) Any auth user can write to `/users/X/notifications/*` with `sender_id: null` — spam vector. Needs a security pass before public release. |
+| 12 | **i18n1**: ~50 hardcoded Hebrew error strings in providers/services | Found session 7. Needs new AppStrings entries for error prefixes (createItem, updateItem, addStock, etc.) |
+| 13 | **CAT1**: substring traps in `category_detection_service.dart` | `'מנגו'` matches `'מנגולד'`; `'תפוז'` matches before `'מיץ '` (orange juice → fruit); `'תמר'` not anchored. Found session 7. |
+| 14 | **active_shopping_screen + who_brings_screen** don't re-watch provider — concurrent edits by other shoppers don't appear live | Pre-existing architectural choice. Found session 7. |
+| 15 | **75 short Israeli barcodes (7290 prefix)** in supermarket.json | 14 auto-fixed via EAN-13 checksum (session 7). Remaining 60 didn't validate — likely not simple leading-zero strips. |
+| 16 | **`product_selection_bottom_sheet._failedImageUrls`** Set grows unbounded | Memory leak risk in long sessions. Found session 7. |
 
 ---
 
@@ -251,7 +340,7 @@ The following must NOT be changed without **explicit user confirmation**:
 
 | Item | Reason |
 |------|--------|
-| `firestore.rules` | Security rules v4.3+ (includes activity_log) — affects all data access |
+| `firestore.rules` | Security rules v4.4 — affects all data access. ⚠️ Session-7 audit found 3 critical holes (see Known Issue #11). Touch only with explicit task to fix the audit findings. |
 | `firebase_options.dart` | Generated by FlutterFire CLI — auto-generated |
 | `pubspec.yaml` dependency versions | May break builds — upgrade only when asked |
 | `android/app/google-services.json` | Firebase config — user manages manually |
