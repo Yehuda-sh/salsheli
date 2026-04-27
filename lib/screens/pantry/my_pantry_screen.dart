@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 
 import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
-import '../../core/constants.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../models/inventory_item.dart';
