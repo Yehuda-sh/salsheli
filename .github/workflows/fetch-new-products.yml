@@ -106,4 +106,21 @@ jobs:
           COMMIT_BODY="Triggered by workflow_dispatch. Chains: $CHAINS_LABEL. Limit: ${{ github.event.inputs.limit }} files/chain. Backup file included for revert."
           git commit -m "chore(catalog): auto-merge new products from supermarket APIs" -m "$COMMIT_BODY"
 
-          git push origin HEAD:${{ github.ref_name }}
+          # Push with rebase-on-conflict retry. While this workflow runs (a few
+          # minutes for the scrape), other commits may land on the same branch.
+          # Pushing the bot commit rebased on top of those is safe — the bot
+          # only touches assets/data/list_types/supermarket.json and the
+          # scripts/backups/* file (created in this run, no conflict possible).
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ Push succeeded on attempt $attempt"
+              break
+            fi
+            echo "⚠️ Push rejected on attempt $attempt — pulling with rebase and retrying"
+            git fetch origin ${{ github.ref_name }}
+            git rebase origin/${{ github.ref_name }}
+            if [ "$attempt" = "3" ]; then
+              echo "❌ Push failed after 3 attempts" >&2
+              exit 1
+            fi
+          done
