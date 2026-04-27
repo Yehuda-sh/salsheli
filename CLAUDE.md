@@ -107,7 +107,7 @@ flutter run          # הרצה
 | **Config** | `lib/config/list_types_config.dart`, `filters_config.dart`, `storage_locations_config.dart` |
 | **Models** | `lib/models/shopping_list.dart`, `unified_list_item.dart`, `user_entity.dart`, `inventory_item.dart`, `activity_event.dart` |
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart`, `activity_log_provider.dart` |
-| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner, SectionHeader, AppDialog, SkeletonLoader, BarcodeScannerSheet |
+| **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner, SectionHeader, AppDialog, SkeletonLoader, BarcodeScannerSheet, EmailVerificationBanner, HouseholdInviteDialog (`showHouseholdInviteDialog()`) |
 | **Strings** | `lib/l10n/app_strings.dart` |
 | **Security** | `firestore.rules` (v4.4), `firestore.indexes.json` |
 
@@ -131,6 +131,8 @@ flutter run          # הרצה
 - **W1:** `use_build_context_synchronously` (2) ב-settings_screen (יש `mounted` guards — ממתין לאימות analyzer)
 - ~~**W2:** `directives_ordering` infos~~ ✅ תוקן (סשן 6) — `sort imports in 31 files`
 - ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
+- **RTL1:** ~84 מופעים של `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional` — באג RTL אמיתי כשהשפה משתנה ל-LTR. ריכוז עיקרי ב-`screens/shopping/` ו-`screens/home/`. (ממצא מסקירה רחבה 23/4)
+- **DS1:** ~364 מופעים של `fontSize:` קשיח (TextStyle inline) במקום `kFontSize*` constants. בעיקר ב-auth/landing flows. (ממצא מסקירה רחבה 23/4)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
