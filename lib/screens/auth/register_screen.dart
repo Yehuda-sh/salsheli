@@ -21,6 +21,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'widgets/loading_overlay.dart';
 import 'widgets/social_login_button.dart';
+import 'post_auth_navigation.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -216,9 +217,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       return;
     }
 
-    // שמירת context לפני async
-    final navigator = Navigator.of(context);
-
     setState(() => _isLoading = true);
 
     try {
@@ -256,8 +254,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         await Future.delayed(const Duration(milliseconds: 1200));
 
         if (mounted) {
-          if (kDebugMode) debugPrint('🔄 _handleRegister() | Navigating to index screen');
-          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
+          // ✅ Pending invites guard: בדיקה לפני ניווט לבית
+          if (kDebugMode) debugPrint('🔄 _handleRegister() | Post-auth navigation');
+          await navigateAfterAuth(context, userContext);
         }
       }
     } catch (e) {
@@ -311,7 +310,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
         if (mounted) {
-          await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          // ✅ Pending invites guard
+          await navigateAfterAuth(context, userContext);
         }
       }
     } catch (e) {
@@ -349,7 +349,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
         if (mounted) {
-          await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+          // ✅ Pending invites guard
+          await navigateAfterAuth(context, userContext);
         }
       }
     } catch (e) {

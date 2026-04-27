@@ -22,6 +22,7 @@ import '../../widgets/common/notebook_background.dart';
 import 'widgets/loading_overlay.dart';
 import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
+import 'post_auth_navigation.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -144,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen>
 
       // 💡 שמור context/navigator לפני await (best practice!)
       final userContext = context.read<UserContext>();
-      final navigator = Navigator.of(context);
 
       // 🔹 1. התחברות דרך Firebase Auth
       if (kDebugMode) debugPrint('🔐 _handleLogin() | Signing in...');
@@ -169,10 +169,10 @@ class _LoginScreenState extends State<LoginScreen>
         await Future.delayed(const Duration(milliseconds: 1500));
 
         if (mounted) {
-          // ✅ FIX: ניווט ל-Index במקום Home
-          // Index מטפל ב-sync profile ומחליט לאן לנווט
-          if (kDebugMode) debugPrint('🔄 _handleLogin() | Navigating to index screen');
-          await navigator.pushNamedAndRemoveUntil('/', (route) => false);
+          // ✅ Pending invites guard: בודק ומנווט ל-/pending-invites אם יש,
+          // אחרת ל-Index שמטפל ב-sync profile.
+          if (kDebugMode) debugPrint('🔄 _handleLogin() | Post-auth navigation');
+          await navigateAfterAuth(context, userContext);
         }
       }
     } catch (e) {
@@ -217,8 +217,8 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        // ✅ Pending invites guard before home
+        await navigateAfterAuth(context, userContext);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
@@ -253,8 +253,8 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // ניווט לאפליקציה
-        await Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        // ✅ Pending invites guard before home
+        await navigateAfterAuth(context, userContext);
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
