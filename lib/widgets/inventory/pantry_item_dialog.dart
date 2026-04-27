@@ -44,20 +44,6 @@ class PantryItemDialog extends StatefulWidget {
           'Item is required in edit mode',
         );
 
-  /// מציג את הדיאלוג להוספת פריט חדש
-  static Future<bool?> showAddDialog(
-    BuildContext context, {
-    VoidCallback? onSuccess,
-  }) {
-    return AppDialog.show<bool>(
-      context: context,
-      child: PantryItemDialog(
-        mode: PantryItemDialogMode.add,
-        onSuccess: onSuccess,
-      ),
-    );
-  }
-
   /// מציג את הדיאלוג לעריכת פריט קיים
   static Future<bool?> showEditDialog(
     BuildContext context,

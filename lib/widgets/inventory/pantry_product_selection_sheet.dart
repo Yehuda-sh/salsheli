@@ -656,7 +656,7 @@ class _PantryProductSelectionSheetState
                 children: [
                   // מוצרי יסוד — chip מיוחד
                   Padding(
-                    padding: const EdgeInsets.only(left: kSpacingSmall),
+                    padding: const EdgeInsetsDirectional.only(end: kSpacingSmall),
                     child: FilterChip(
                       label: Text(AppStrings.inventory.basicsCategoryFilter),
                       selected: _showBasicsOnly,
@@ -673,7 +673,7 @@ class _PantryProductSelectionSheetState
                   ),
                   // כל הקטגוריות
                   Padding(
-                    padding: const EdgeInsets.only(left: kSpacingSmall),
+                    padding: const EdgeInsetsDirectional.only(end: kSpacingSmall),
                     child: FilterChip(
                       label: Text(AppStrings.inventory.allCategoriesFilter),
                       selected: _selectedCategory == null && !_showBasicsOnly,
@@ -690,7 +690,7 @@ class _PantryProductSelectionSheetState
                   // קטגוריות
                   ..._categories.map((category) {
                     return Padding(
-                      padding: const EdgeInsets.only(left: kSpacingSmall),
+                      padding: const EdgeInsetsDirectional.only(end: kSpacingSmall),
                       child: FilterChip(
                         label: Text(category),
                         selected: _selectedCategory == category,
