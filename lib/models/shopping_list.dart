@@ -334,17 +334,6 @@ class ShoppingList {
   List<UnifiedListItem> get tasks =>
       items.where((item) => item.type == ItemType.task).toList();
 
-  /// 🇮🇱 פריטים עם סוג לא מוכר (fallback מהשרת)
-  /// 🇬🇧 Items with unknown type (server fallback)
-  ///
-  /// פריטים אלה מגיעים כשהשרת מחזיר סוג שהאפליקציה לא מכירה.
-  /// הם מוצגים ב-UI בסקשן נפרד "פריטים לא נתמכים" כדי:
-  /// - לא לאבד אותם מהתצוגה
-  /// - להבהיר למשתמש שמשהו לא תקין
-  /// - לאפשר עדכון אפליקציה בעתיד
-  List<UnifiedListItem> get unknownItems =>
-      items.where((item) => item.type == ItemType.unknown).toList();
-
   /// 🇮🇱 כמות מוצרים
   /// 🇬🇧 Product count
   int get productCount => products.length;
@@ -352,14 +341,6 @@ class ShoppingList {
   /// 🇮🇱 כמות משימות
   /// 🇬🇧 Task count
   int get taskCount => tasks.length;
-
-  /// 🇮🇱 כמות פריטים לא מוכרים
-  /// 🇬🇧 Unknown item count
-  int get unknownCount => unknownItems.length;
-
-  /// 🇮🇱 האם יש פריטים לא מוכרים?
-  /// 🇬🇧 Are there unknown items?
-  bool get hasUnknownItems => unknownItems.isNotEmpty;
 
   /// 🇮🇱 סכום מחיר כולל של מוצרים
   /// 🇬🇧 Total price of all products
@@ -405,24 +386,11 @@ class ShoppingList {
   /// 🇬🇧 Can the current user delete the list (owner only!)
   bool get canCurrentUserDelete => currentUserRole == UserRole.owner;
 
-  /// 🇮🇱 בקשות ממתינות של המשתמש הנוכחי
-  /// 🇬🇧 Pending requests by the current user
-  List<PendingRequest> pendingRequestsByCurrentUser(String userId) {
-    return pendingRequests
-        .where((r) => r.requesterId == userId && r.isPending)
-        .toList();
-  }
-
   /// 🇮🇱 בקשות ממתינות לאישור (רק ל-Admin/Owner)
   /// 🇬🇧 Pending requests for review (only for Admin/Owner)
   List<PendingRequest> get pendingRequestsForReview {
     return pendingRequests.where((r) => r.isPending).toList();
   }
-
-  /// 🇮🇱 כמה בקשות ממתינות יש
-  /// 🇬🇧 How many pending requests exist
-  int get pendingRequestsCount =>
-      pendingRequests.where((r) => r.isPending).length;
 
   /// 🇮🇱 מצא משתמש משותף לפי userId
   /// 🇬🇧 Find shared user by userId
