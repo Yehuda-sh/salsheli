@@ -19,14 +19,22 @@ Strategy per row:
 We split the report by length: 12-digit candidates (1 missing zero,
 high confidence) are listed separately from 9-11 digit candidates
 (several missing — present but skipped from auto-fix unless --aggressive).
+
+Idempotent: re-running after --apply finds zero candidates because the
+fixed rows now have valid 13-digit barcodes. Running on a fresh scrape
+is the only legitimate reason to invoke again.
+
+Backup: writes `<catalog>.json.bak-barcodes` snapshot on the first
+mutating run. Subsequent runs leave the snapshot alone so the original
+pre-fix state stays recoverable.
 """
 import argparse
 import json
-import sys
 from collections import Counter
 from pathlib import Path
 
 PATH = Path('assets/data/list_types/supermarket.json')
+BAK = PATH.with_suffix('.json.bak-barcodes')
 
 
 def ean13_check_digit(twelve_digits: str) -> int:
@@ -92,9 +100,27 @@ def main():
             if kind == 'skipped':
                 print(f"  {before} ({len(before)}d) → {after}  | {name}")
 
-    if not args.apply:
-        print(f"\n💡 dry-run only. Re-run with --apply to write the file.")
+    # Collision warning: two distinct short barcodes mapping to the same
+    # 13-digit candidate. Highly unlikely (different inputs producing the
+    # same valid EAN-13) but a real correctness gap if it happens — the
+    # second write would silently produce a duplicate barcode in Firestore.
+    target_counts = Counter(after for _, _, _, after, kind in fixes if kind == 'fix')
+    collisions = {bc: cnt for bc, cnt in target_counts.items() if cnt > 1}
+    if collisions:
+        print("\n⚠️ COLLISIONS — same candidate from multiple sources:")
+        for bc, cnt in collisions.items():
+            print(f"  {bc} × {cnt}")
+        print("   Fix these manually before re-running with --apply.")
         return
+
+    if not args.apply:
+        print("\n💡 dry-run only. Re-run with --apply to write the file.")
+        return
+
+    # Snapshot once before mutation. Existing snapshot is preserved.
+    if not BAK.exists():
+        with open(BAK, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
 
     # Apply
     applied = 0
