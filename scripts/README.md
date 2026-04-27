@@ -1,57 +1,144 @@
 # Scripts
 
-## `rebuild_demo_data.js` (Main)
-יצירת נתוני דמו מלאים ב-Firebase Production.
-12 משתמשים, 7 בתים, ~27 רשימות, מזווה, קבלות, התראות.
+סקריפטים לתחזוקת הפרויקט: יצירת נתוני דמו, עדכון קטלוג מוצרים, ניקוי וסיווג.
 
+---
+
+## 📦 נתוני דמו
+
+### `rebuild_demo_data.js` (הראשי)
+
+יצירה מחדש של כל נתוני הדמו ב-Firebase Production. **מוחק** הכל לפני יצירה.
+
+**מה נוצר:**
+- 22 משתמשים (כולל edge cases: Google/Apple sign-in, שם ארוך, אנגלית, geresh, removed user, elderly, roommates)
+- 15 בתים
+- ~57 רשימות (כל 9 הסוגים, statuses שונים, who-brings, templates, target dates)
+- ~110 פריטי מזווה
+- ~76 קבלות
+- ~51 events ב-activity_log (כל 9 סוגי האירועים)
+- ~34 התראות (כל ה-types כולל edge cases)
+- 4 הזמנות ממתינות
+
+**הרצה:**
 ```bash
 node scripts/rebuild_demo_data.js
 ```
 
-**חשוב:** כשמשנים מבנה נתונים באפליקציה (models, configs) — לעדכן גם את הסקריפט!
+**Credentials:** הסקריפט מנסה קודם `scripts/firebase-service-account.json` (פיתוח מקומי), ובוחר fallback ל-`GOOGLE_APPLICATION_CREDENTIALS` (CI / GitHub Actions).
 
-## `debug_token_server.js`
-שרת debug ליצירת Firebase custom tokens (עוקף reCAPTCHA).
-לשימוש עם emulator בלבד.
+**אופטימיזציות אחרונות:**
+- כל ה-timestamps נשמרים כ-`Timestamp.fromDate()` (תומך ב-`where()` עם `DateTime` באפליקציה)
+- כתיבות מקבילות ב-`Promise.all` במקום סדרתי (~5-10× יותר מהיר)
 
-```bash
-node scripts/debug_token_server.js
-# ואז בדפדפן: http://localhost:9877/token?email=avi.cohen@demo.com
-```
+**⚠️ חשוב:** כשמשנים מבנה נתונים באפליקציה (models, configs) — לעדכן גם את הסקריפט!
 
-## `fix_supermarket_json.py`
-ניקוי וקטגוריזציה אוטומטית של `assets/data/list_types/supermarket.json`.
-להרצה כשמעדכנים את קטלוג המוצרים.
+**GitHub Action:** ניתן להריץ דרך `.github/workflows/rebuild-demo-data.yml` (workflow_dispatch).
 
-```bash
-python scripts/fix_supermarket_json.py
-```
+---
 
-## `fetch_new_products.py`
-משיכת מוצרים חדשים מכל רשתות הסופר בישראל (Open Israeli Supermarkets).
-משווה מול הקטלוג הקיים ושומר רק מוצרים עם ברקודים חדשים לקובץ נפרד.
+## 🛒 ניהול קטלוג
+
+### `fetch_new_products.py`
+
+משיכת מוצרים חדשים מ-API של רשתות הסופר הישראליות, השוואה מול הקטלוג הקיים ושמירה רק של מוצרים עם ברקודים/שמות חדשים.
 
 ```bash
 # התקנה (פעם אחת)
 pip install il-supermarket-scraper il-supermarket-parser pandas
 
-# הרצה — כל הרשתות
+# הרצה — כל 34 הרשתות
 python scripts/fetch_new_products.py
 
-# רשתות ספציפיות
+# רשתות ספציפיות (UPPERCASE — שמות enum, לא display names!)
 python scripts/fetch_new_products.py --chains SHUFERSAL RAMI_LEVY
 
 # רשימת רשתות זמינות
 python scripts/fetch_new_products.py --list-chains
 
-# שימוש בנתוני Kaggle (אלטרנטיבה)
+# מיזוג ישיר לקטלוג (--merge), עם אישור אוטומטי (--yes לשימוש ב-CI)
+python scripts/fetch_new_products.py --merge --yes
+
+# שימוש בנתוני Kaggle (אלטרנטיבה אם ה-scraper נחסם)
 python scripts/fetch_new_products.py --kaggle scripts/kaggle_data/
 ```
 
-**פלט:** `assets/data/list_types/new_products.json` — לא דורס את הקטלוג הקיים!
+**שמות רשתות חוקיים** (חלקי): `SHUFERSAL`, `RAMI_LEVY`, `YOHANANOF`, `VICTORY`, `OSHER_AD`, `SUPER_PHARM`, `GOOD_PHARM`, `TIV_TAAM`, `KESHET`, `KING_STORE`, `WOLT`, `YELLOW`, `BAREKET`, `HAZI_HINAM`, `NETIV_HASED`. ⚠️ לא: `Yes`, `Shufersal`, `RamiLevy` — הסקריפט מוודא וזורק שגיאה ברורה אם השם לא תקין.
 
-**הערה:** חלק מהרשתות חוסמות גישה מחוץ לישראל.
+**פלט:**
+- ללא `--merge`: `assets/data/list_types/new_products.json` (סקירה ידנית)
+- עם `--merge`: עדכון ישיר של `supermarket.json` + גיבוי ב-`scripts/backups/`
 
-## קבצי תצורה
+**Geo-blocking:** רוב ה-APIs חסומים מחוץ לישראל. ב-`--yes` mode (CI) הסקריפט יוצא בהצלחה (`exit 0`) ומדפיס הודעה. בריצה אינטראקטיבית — `exit 1` כדי שתזהה שמשהו נשבר.
 
-- `firebase-service-account.json` — credentials ל-Firebase (לא ב-git)
+**GitHub Action:** `.github/workflows/fetch-new-products.yml`.
+
+---
+
+### `fix_supermarket_json.py` + `fix_supermarket_step{2..6}.py`
+
+סקריפטים מצטברים לסיווג מוצרים מ"כללי" לקטגוריות מתאימות. הופעלו פעם אחת בסדר (1→2→3→4→5→6), הורידו את `supermarket.json` מ-88K פריטי "כללי" ל-21K (-76%) והוסיפו 5 קטגוריות חדשות (אלכוהול, סיגריות וטבק, תוספי תזונה, צעצועים ומתנות, אלקטרוניקה).
+
+```bash
+# הצעד הראשון — keyword classification + dedupe
+python scripts/fix_supermarket_json.py
+
+# צעדים נוספים — הרץ בסדר אם נטען מחדש קטלוג גולמי
+python scripts/fix_supermarket_step2.py
+python scripts/fix_supermarket_step3.py
+python scripts/fix_supermarket_step4.py
+python scripts/fix_supermarket_step5.py
+python scripts/fix_supermarket_step6.py
+```
+
+כל סקריפט שומר גיבוי `.bak`/`.bak2`/... לשחזור.
+
+**מתי להריץ?** רק אחרי `fetch_new_products.py --merge` שהוסיף הרבה מוצרים חדשים. ברגיל — לא צריך להריץ שוב.
+
+---
+
+### `fetch_product_images.py`
+
+משיכת URLs של תמונות מוצרים מ-API של רמי לוי לפי ברקוד, ויצירת מפת `barcode → image_url` כקובץ Dart.
+
+```bash
+# נדרש Bearer token מ-rami-levy.co.il (ראה התחלת הקובץ להוראות מפורטות)
+python3 scripts/fetch_product_images.py --token "Bearer YOUR_TOKEN_HERE"
+```
+
+הוראות מלאות לקבלת ה-token בהערה שבראש הסקריפט.
+
+---
+
+## 🔧 כלי פיתוח
+
+### `debug_token_server.js`
+
+שרת מקומי ליצירת Firebase custom tokens (עוקף reCAPTCHA / לוגין רגיל). **לשימוש עם emulator בלבד.**
+
+```bash
+node scripts/debug_token_server.js
+# בדפדפן: http://localhost:9877/token?email=avi.cohen@demo.com
+```
+
+---
+
+## 📁 תיקיות
+
+- `backups/` — גיבויים אוטומטיים מ-`fetch_new_products.py --merge` (`supermarket.backup-{timestamp}.json`)
+- `dumps/` — XML files מ-`il-supermarket-scraper` (זמני, לא ב-git)
+- `kaggle_data/` — CSV files אם הורדו מ-Kaggle כ-fallback (לא ב-git)
+
+---
+
+## 🔑 Credentials
+
+### `firebase-service-account.json`
+
+Service account של Firebase לכתיבה ל-Firestore.
+
+- **לא נשמר ב-git** (ב-`.gitignore`)
+- **בפיתוח מקומי**: שים את הקובץ ב-`scripts/firebase-service-account.json`
+- **ב-CI / GitHub Actions**: השתמש ב-secret `GOOGLE_APPLICATION_CREDENTIALS` שמצביע ל-path של הקובץ אחרי שחזור מ-secret
+
+הסקריפטים יודעים להתמודד עם שתי האפשרויות.
