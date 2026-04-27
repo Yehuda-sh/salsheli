@@ -25,17 +25,12 @@ class AppStrings {
   static WelcomeStrings get welcome => _isEnglish ? AppStringsEn.welcome : AppStringsHe.welcome;
   static AuthStrings get auth => _isEnglish ? AppStringsEn.auth : AppStringsHe.auth;
   static HomeStrings get home => _isEnglish ? AppStringsEn.home : AppStringsHe.home;
-  static PriceComparisonStrings get priceComparison => _isEnglish ? AppStringsEn.priceComparison : AppStringsHe.priceComparison;
   static SettingsStrings get settings => _isEnglish ? AppStringsEn.settings : AppStringsHe.settings;
   static HouseholdStrings get household => _isEnglish ? AppStringsEn.household : AppStringsHe.household;
-  static ListTypeGroupsStrings get listTypeGroups => _isEnglish ? AppStringsEn.listTypeGroups : AppStringsHe.listTypeGroups;
-  static TemplatesStrings get templates => _isEnglish ? AppStringsEn.templates : AppStringsHe.templates;
   static CreateListDialogStrings get createListDialog => _isEnglish ? AppStringsEn.createListDialog : AppStringsHe.createListDialog;
   static ManageUsersStrings get manageUsers => _isEnglish ? AppStringsEn.manageUsers : AppStringsHe.manageUsers;
   static InventoryStrings get inventory => _isEnglish ? AppStringsEn.inventory : AppStringsHe.inventory;
   static ShoppingListDetailsStrings get listDetails => _isEnglish ? AppStringsEn.listDetails : AppStringsHe.listDetails;
-  static SelectListStrings get selectList => _isEnglish ? AppStringsEn.selectList : AppStringsHe.selectList;
-  static RecurringStrings get recurring => _isEnglish ? AppStringsEn.recurring : AppStringsHe.recurring;
   static SharingStrings get sharing => _isEnglish ? AppStringsEn.sharing : AppStringsHe.sharing;
   static ReceiptDetailsStrings get receiptDetails => _isEnglish ? AppStringsEn.receiptDetails : AppStringsHe.receiptDetails;
   static ShoppingHistoryStrings get shoppingHistory => _isEnglish ? AppStringsEn.shoppingHistory : AppStringsHe.shoppingHistory;
