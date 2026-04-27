@@ -4,7 +4,7 @@
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
-[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)](https://play.google.com)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%C2%B7%20iOS-3DDC84?logo=android)](https://flutter.dev)
 
 ---
 
@@ -37,9 +37,44 @@ MemoZap is a smart family shopping list manager designed for Israeli households.
 
 ---
 
+## Quick Start
+
+```bash
+# 1. Clone + dependencies
+git clone https://github.com/yehuda-sh/salsheli.git
+cd salsheli
+flutter pub get
+
+# 2. Firebase config (one-time per machine)
+#    Drops the lib/firebase_options.dart and ios/Runner/GoogleService-Info.plist
+#    files — both gitignored.
+flutterfire configure
+
+# 3. Run on a connected device or emulator
+flutter run
+```
+
+For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
+
+---
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [CLAUDE.md](CLAUDE.md) | Project guardrails, design tokens, conventions |
+| [CODE_REVIEW.md](CODE_REVIEW.md) | Living code review — known issues + history |
+| [TEST_PLAN.md](TEST_PLAN.md) | Unit / widget / integration test plan |
+| [DESIGN_AUDIT.md](DESIGN_AUDIT.md) | UI design audit |
+| [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-step refactor roadmap |
+| [docs/spec-home-screen.md](docs/spec-home-screen.md) | Home dashboard spec (with Activity Feed) |
+
+---
+
 ## Status
 
 **Pre-beta** — Internal testing via Firebase App Distribution.
+See [CODE_REVIEW.md](CODE_REVIEW.md) for the latest review pass.
 
 ---
 
