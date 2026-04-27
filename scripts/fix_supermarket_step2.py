@@ -1,21 +1,43 @@
 #!/usr/bin/env python3
 """
 Step 2 — categorization expansion:
-1. Remove non-product entries (transit passes: 'חופשי שנתי/יומי/סמסטר', מנויי תקופתי)
-2. Add NEW categories: אלכוהול, סיגריות וטבק, תוספי תזונה
-3. Expand keywords so remaining 'כללי' items route to existing categories
-4. Tightened rules with explicit exclusions for common false positives
+1. Remove non-product entries (transit passes: 'חופשי שנתי/יומי/סמסטר',
+   מנויי תקופתי).
+2. Add NEW categories: אלכוהול, סיגריות וטבק, תוספי תזונה.
+3. Expand keywords so remaining 'כללי' items route to existing
+   categories.
+4. Tightened rules with explicit exclusions for common false positives.
+
+Pipeline: step1 (fix_supermarket_json) → step2 → ... → step6. Run only
+after `fetch_new_products.py --merge` adds a batch of new rows;
+otherwise the catalog is already post-step2.
+
+Idempotent: the move rules only fire for items still in 'כללי', so a
+second run finds nothing new to do. The `.bak2` snapshot is rewritten
+on every run so it always reflects the catalog state immediately
+before THIS run (consistent with how the chain is meant to be used).
 """
 import json
 import re
 from collections import Counter
+from pathlib import Path
 
-PATH = 'assets/data/list_types/supermarket.json'
-BACKUP = PATH + '.bak2'
+PATH = Path('assets/data/list_types/supermarket.json')
+BACKUP = PATH.with_suffix('.json.bak2')
 
 
 def has_any(name, words):
     return any(w in name for w in words)
+
+
+def is_transit(name):
+    return ('חופשי' in name and has_any(name, ['שנתי', 'שבועי', 'יומי', 'חודשי', 'סמסטר'])) \
+        or ('מנויי' in name and 'תקופתי' in name)
+
+
+def is_noise(name):
+    n = name.strip()
+    return len(n) < 3 or re.match(r'^\d{3,}\s', n) is not None
 
 
 def load():
@@ -32,24 +54,19 @@ def main():
     data = load()
     print(f"📂 נטען: {len(data)} פריטים")
 
-    # Backup
+    # Backup of the pre-step2 state (overwritten on each run — chain
+    # workflow assumes a sequential single execution).
     with open(BACKUP, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False)
     print(f"💾 גיבוי: {BACKUP}")
 
     # ======== STEP A: Remove non-product entries ========
     before = len(data)
-    def is_transit(name):
-        return ('חופשי' in name and has_any(name, ['שנתי', 'שבועי', 'יומי', 'חודשי', 'סמסטר'])) \
-            or ('מנויי' in name and 'תקופתי' in name)
     data = [it for it in data if not is_transit(it.get('name', ''))]
     removed_transit = before - len(data)
     print(f"🚫 הוסרו מנויי תחבורה: {removed_transit}")
 
     before = len(data)
-    def is_noise(name):
-        n = name.strip()
-        return len(n) < 3 or re.match(r'^\d{3,}\s', n) is not None
     data = [it for it in data if not is_noise(it.get('name', ''))]
     removed_noise = before - len(data)
     print(f"🚫 הוסרו רשומות רעש: {removed_noise}")
