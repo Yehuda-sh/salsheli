@@ -1013,7 +1013,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             // כותרת קטגוריה — מרקר
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(right: kSpacingMedium, top: kSpacingXTiny, bottom: kSpacingXTiny),
+              padding: const EdgeInsetsDirectional.only(end: kSpacingMedium, top: kSpacingXTiny, bottom: kSpacingXTiny),
               margin: const EdgeInsets.only(top: kSpacingMedium),
               decoration: BoxDecoration(
                 color: allChecked ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.1) : highlightColor,
@@ -1053,7 +1053,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 duration: const Duration(milliseconds: 300),
                 opacity: item.isChecked ? 0.5 : 1.0,
                 child: Container(
-                  margin: EdgeInsets.only(left: kNotebookRedLineOffset + kSpacingSmall, right: kSpacingMedium),
+                  margin: EdgeInsetsDirectional.only(start: kNotebookRedLineOffset + kSpacingSmall, end: kSpacingMedium),
                   decoration: BoxDecoration(
                     border: BorderDirectional(
                       start: BorderSide(

@@ -1,4 +1,4 @@
-// lib/widgets/shopping/shopping_list_urgency.dart — Shopping list urgency — calculate urgency level from list age and items
+// lib/widgets/shopping/shopping_list_urgency.dart — Shopping list urgency — calculate urgency level from list targetDate
 
 import 'package:flutter/material.dart';
 import '../../core/status_colors.dart';

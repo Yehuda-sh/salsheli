@@ -136,7 +136,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
         _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
         _isHouseholdAdmin = isAdmin;
-        // _isHouseholdOwner removed — unused
         _appVersion = packageInfo.version;
         _loading = false;
         _errorMessage = null;
@@ -227,7 +226,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           SnackBar(content: Text(userFriendlyError(e, context: 'logout')), backgroundColor: cs.error, duration: kSnackBarDurationLong),
         );
       }
-    } else {
     }
   }
 

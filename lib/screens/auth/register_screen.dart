@@ -1,4 +1,4 @@
-// lib/screens/auth/register_screen.dart — Register screen — email/password signup with household name prompt + pending invites
+// lib/screens/auth/register_screen.dart — Register screen — email/password signup with household name prompt
 
 import 'dart:async';
 import 'dart:ui';
@@ -114,51 +114,59 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // 📢 UI Helper - SnackBar מרוכז
+  // 🏠 Household name dialog (post-registration)
   // ═══════════════════════════════════════════════════════════════════
 
-  /// הצגת הודעת סטטוס אחידה עם StatusColors
-  /// [type] = 'success' | 'error' | 'warning'
   /// 🏠 Ask for household name after successful registration.
   /// Optional — user can skip by tapping outside or pressing cancel.
   Future<void> _askHouseholdName(UserContext userContext) async {
     if (!mounted) return;
     final controller = TextEditingController();
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('🏠 ${AppStrings.sharing.householdNameDialogTitle}'),
-        content: TextField(
-          controller: controller,
-          maxLength: 40,
-          textDirection: TextDirection.rtl,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: AppStrings.sharing.householdNameDialogHint,
-            border: const OutlineInputBorder(),
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('🏠 ${AppStrings.sharing.householdNameDialogTitle}'),
+          content: TextField(
+            controller: controller,
+            maxLength: 40,
+            textDirection: TextDirection.rtl,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: AppStrings.sharing.householdNameDialogHint,
+              border: const OutlineInputBorder(),
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppStrings.sharing.householdNameDialogSkip),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+              child: Text(AppStrings.common.save),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(AppStrings.sharing.householdNameDialogSkip),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: Text(AppStrings.common.save),
-          ),
-        ],
-      ),
-    );
-    if (result != null && result.isNotEmpty && mounted) {
-      try {
-        await userContext.updateHouseholdName(result);
-      } catch (_) {
-        // Non-critical — default name will be used
+      );
+      if (result != null && result.isNotEmpty && mounted) {
+        try {
+          await userContext.updateHouseholdName(result);
+        } catch (_) {
+          // Non-critical — default name will be used
+        }
       }
+    } finally {
+      controller.dispose();
     }
   }
 
+  // ═══════════════════════════════════════════════════════════════════
+  // 📢 UI Helper - SnackBar מרוכז
+  // ═══════════════════════════════════════════════════════════════════
+
+  /// הצגת הודעת סטטוס אחידה עם StatusColors
+  /// [type] = success / error / warning
   void _showStatus(String message, {required StatusType type}) {
     final icon = switch (type) {
       StatusType.success => Icons.check_circle,
@@ -866,4 +874,3 @@ class _ShimmerOnFocusState extends State<_ShimmerOnFocus> {
   }
 }
 
-// _SocialLoginButton — removed, using shared widgets/social_login_button.dart

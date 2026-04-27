@@ -203,7 +203,7 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
                           children: [
                             if (isSelected)
                               Padding(
-                                padding: const EdgeInsets.only(left: 4),
+                                padding: const EdgeInsetsDirectional.only(start: 4),
                                 child: Icon(Icons.check_circle, size: 14, color: cs.primary),
                               ),
                             Text(

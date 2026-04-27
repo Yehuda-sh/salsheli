@@ -985,7 +985,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                         }),
                         if (widget.list.currentShoppers.length > 4)
                           Padding(
-                            padding: const EdgeInsets.only(right: kSpacingXTiny),
+                            padding: const EdgeInsetsDirectional.only(end: kSpacingXTiny),
                             child: Text(
                               '+${widget.list.currentShoppers.length - 4}',
                               style: theme.textTheme.bodySmall?.copyWith(
@@ -1026,7 +1026,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
               // 🏁 כפתור סיום קנייה — מושבת עד אינטראקציה ראשונה
               if (!_isSaving)
                 Padding(
-                  padding: const EdgeInsets.only(left: kSpacingXTiny),
+                  padding: const EdgeInsetsDirectional.only(start: kSpacingXTiny),
                   child: Tooltip(
                     message: _hasUserInteracted ? '' : AppStrings.shopping.activeFinishHint,
                     child: TextButton.icon(

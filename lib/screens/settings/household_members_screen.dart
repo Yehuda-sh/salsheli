@@ -58,8 +58,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         userId: m.userId,
         name: m.name,
         role: m.role,
-        joinedAt: m.joinedAt,
-        email: m.email,
       )).toList();
 
       final currentMember = mapped.where((m) => m.userId == _currentUserId);
@@ -530,14 +528,10 @@ class _MemberData {
   final String userId;
   final String name;
   final String role;
-  final DateTime? joinedAt;
-  final String? email;
 
   _MemberData({
     required this.userId,
     required this.name,
     required this.role,
-    this.joinedAt,
-    this.email,
   });
 }

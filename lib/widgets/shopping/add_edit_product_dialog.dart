@@ -420,8 +420,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   // 🏷️ קטגוריה — Glassmorphic Dropdown
                   if (widget.categories.isNotEmpty) ...[
                     DropdownButtonFormField<String>(
-                      // ignore: deprecated_member_use
-                      value: _selectedCategory,
+                      initialValue: _selectedCategory,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.categoryLabel,
                         icon: Icons.category_outlined,

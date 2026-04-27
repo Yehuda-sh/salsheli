@@ -1,4 +1,4 @@
-// lib/widgets/shopping/add_edit_task_dialog.dart — Add/edit task dialog — task form with name, notes, assignee
+// lib/widgets/shopping/add_edit_task_dialog.dart — Add/edit task dialog — task form with name, notes, due date, priority
 
 import 'dart:async';
 import 'dart:ui' as ui;

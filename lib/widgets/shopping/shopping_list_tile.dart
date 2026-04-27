@@ -1,4 +1,4 @@
-// lib/widgets/shopping/shopping_list_tile.dart — Shopping list tile — card with progress bar, emoji, status, swipe actions
+// lib/widgets/shopping/shopping_list_tile.dart — Shopping list tile — card with progress bar, emoji, status tags, popup menu actions
 
 import 'dart:async' show unawaited;
 

@@ -1,6 +1,5 @@
 // lib/screens/settings/manage_users_screen.dart — Manage users — shared list user management: roles, remove, invite
 
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -49,8 +48,6 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
 
     // 🔒 Note: גם משתמשים ללא הרשאת ניהול יכולים לראות (read-only mode)
     // FAB והתפריט לא יוצגו להם
-    if (kDebugMode && !widget.list.canCurrentUserManage) {
-    }
 
     _loadUsers();
   }
