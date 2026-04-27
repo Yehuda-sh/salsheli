@@ -39,7 +39,7 @@ def main():
     data = [it for it in data
             if not has_any(it.get('name', ''),
                            ['נסיעה בודדת', 'כרטיסיית רב קו',
-                            'מע""מ', 'כולל מע"מ',
+                            'כולל מע"מ',
                             'אזור אילת ללא', 'אזור ירושלים',
                             'כרטיסיה ל-', 'מרחבית '])]
     removed_transit = before - len(data)
