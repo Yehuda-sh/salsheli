@@ -302,8 +302,7 @@ class CommonStringsEn extends CommonStrings {
   @override String get retry => 'Try Again';
   @override String get resetFilter => 'Reset Filter';
   @override String get clearAll => 'Clear All';
-  // TODO: translate from HE: 'נמחק'
-  @override String get deleted => 'נמחק';
+  @override String get deleted => 'Deleted';
   @override String get searchProductHint => 'Search product...';
   @override String get categories => 'Categories';
   @override String get meatTypes => 'Meat Types';
@@ -515,10 +514,8 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get gridViewTooltip => 'Grid view';
   @override String get listViewTooltip => 'List view';
   @override String get recentlyAdded => 'Recently added';
-  // TODO: translate from HE: 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.'
-  @override String get cameraError => 'לא ניתן לגשת למצלמה.\nבדוק הרשאות בהגדרות המכשיר.';
-  // TODO: translate from HE: 'הדלק/כבה פנס'
-  @override String get toggleFlash => 'הדלק/כבה פנס';
+  @override String get cameraError => 'Cannot access the camera.\nCheck permissions in device settings.';
+  @override String get toggleFlash => 'Toggle flash';
   @override String get barcodeFoundAdd => 'Product not in list. Add it?';
   @override String get addToListButton => 'Add to list';
   @override String barcodeNotFound(String code) => 'Barcode $code not found';
@@ -543,8 +540,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get purchasedLabel => 'Purchased';
   @override String get missingLabel => 'Missing';
   @override String get finishedButton => 'Done';
-  // TODO: translate from HE: 'סמן לפחות פריט אחד כדי לסיים'
-  @override String get activeFinishHint => 'סמן לפחות פריט אחד כדי לסיים';
+  @override String get activeFinishHint => 'Mark at least one item to finish';
   @override String get otherStoreHint => 'Other store...';
 }
 
@@ -630,13 +626,11 @@ class AuthStringsEn extends AuthStrings {
   @override String get loginTitle => 'Log In';
   @override String get loginSubtitle => 'Welcome back 👋';
   @override String get loginButton => 'Log In';
-  // TODO: translate from HE: 'מתחבר...'
-  @override String get loggingIn => 'מתחבר...';
+  @override String get loggingIn => 'Logging in...';
   @override String get registerTitle => 'Sign Up';
   @override String get registerSubtitle => 'Join the smarter way to shop ✨';
   @override String get registerButton => 'Sign Up';
-  // TODO: translate from HE: 'נרשם...'
-  @override String get registering => 'נרשם...';
+  @override String get registering => 'Signing up...';
   @override String get forgotPassword => 'Forgot password?';
   @override String get sendResetEmailButton => 'Send Link';
   @override String get resetEmailSent => 'Password reset email sent successfully!';
@@ -1219,14 +1213,10 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get locationMainPantry => 'Pantry';
   @override String get locationRefrigerator => 'Refrigerator';
   @override String get locationFreezer => 'Freezer';
-  // TODO: translate from HE: 'מטבח'
-  @override String get locationKitchen => 'מטבח';
-  // TODO: translate from HE: 'אמבטיה'
-  @override String get locationBathroom => 'אמבטיה';
-  // TODO: translate from HE: 'מחסן'
-  @override String get locationStorage => 'מחסן';
-  // TODO: translate from HE: 'מרפסת שירות'
-  @override String get locationServicePorch => 'מרפסת שירות';
+  @override String get locationKitchen => 'Kitchen';
+  @override String get locationBathroom => 'Bathroom';
+  @override String get locationStorage => 'Storage';
+  @override String get locationServicePorch => 'Service Porch';
   @override String get locationOther => 'Other';
   @override String get locationUnknown => 'Unknown';
   @override String maxItemsReached(int max) => 'You\'ve reached the maximum of $max pantry items';
@@ -1504,10 +1494,8 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String addedToListName(String productName) => 'Added "$productName" to list';
   @override String dismissedForWeek(String productName) => 'Dismissed "$productName" for a week';
   @override String suggestionError(String error) => 'Error: $error';
-  // TODO: translate from HE: 'הוסף הכל'
-  @override String get addAll => 'הוסף הכל';
-  // TODO: translate from HE: '$count פריטים נוספו ל"$listName"'
-  @override String addedAll(int count, String listName) => '$count פריטים נוספו ל"$listName"';
+  @override String get addAll => 'Add All';
+  @override String addedAll(int count, String listName) => '$count items added to "$listName"';
 }
 
 // ========================================
@@ -1710,12 +1698,9 @@ class SharingStringsEn extends SharingStrings {
   @override String get retryButton => 'Try Again';
   @override String maxGroupsReached(int max) => 'You\'ve reached the maximum of $max groups';
   @override String groupsNearLimit(int current, int max) => 'You have $current of $max groups';
-  // TODO: translate from HE: 'דחיית בקשה'
-  @override String get rejectRequestTitle => 'דחיית בקשה';
-  // TODO: translate from HE: 'בטוח שברצונך לדחות את הבקשה?'
-  @override String get rejectRequestConfirm => 'בטוח שברצונך לדחות את הבקשה?';
-  // TODO: translate from HE: 'דחה'
-  @override String get rejectRequestButton => 'דחה';
+  @override String get rejectRequestTitle => 'Reject Request';
+  @override String get rejectRequestConfirm => 'Are you sure you want to reject this request?';
+  @override String get rejectRequestButton => 'Reject';
 }
 
 // ========================================
@@ -1726,12 +1711,9 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   const HomeDashboardStringsEn();
 
   @override String get newListButton => 'New List';
-  // TODO: translate from HE: 'הזמן את המשפחה לקנות ביחד'
-  @override String get inviteFamilyTitle => 'הזמן את המשפחה לקנות ביחד';
-  // TODO: translate from HE: 'שתפו רשימות, מזווה והתראות'
-  @override String get inviteFamilySubtitle => 'שתפו רשימות, מזווה והתראות';
-  // TODO: translate from HE: 'הזמן'
-  @override String get inviteFamilyAction => 'הזמן';
+  @override String get inviteFamilyTitle => 'Invite your family to shop together';
+  @override String get inviteFamilySubtitle => 'Share lists, pantry, and notifications';
+  @override String get inviteFamilyAction => 'Invite';
   @override String get errorTitle => 'Error loading data';
   @override String get retryButton => 'Try Again';
   @override String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'Hello, $userName!' : 'Hello!';
@@ -1755,8 +1737,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get activeListsTitle => 'Active Lists';
   @override String get noActiveLists => 'No active lists';
   @override String get createListHint => 'Tap here to create a new list';
-  // TODO: translate from HE: 'צור רשימה ראשונה'
-  @override String get createFirstList => 'צור רשימה ראשונה';
+  @override String get createFirstList => 'Create your first list';
   @override String get emptyList => 'Empty list';
   @override String get completed => 'Completed! ✓';
   @override String remainingItems(int count) => '$count items remaining';
@@ -1849,30 +1830,18 @@ class PantryStringsEn extends PantryStrings {
   @override String get addBasicsButton => 'Yes, add!';
   @override String get emptyLabel => 'Pantry empty';
   @override String get addFirstProduct => 'Add first product';
-  // TODO: translate from HE: 'בואו נמלא את המזווה! 🎉'
-  @override String get emptyMainTitle => 'בואו נמלא את המזווה! 🎉';
-  // TODO: translate from HE: 'הוסף מוצרים כדי לדעת תמיד מה יש ומה חסר'
-  @override String get emptySubtitlePersonal => 'הוסף מוצרים כדי לדעת תמיד מה יש ומה חסר';
-  // TODO: translate from HE: 'הוסיפו מוצרים למזווה המשותף כדי לעקוב אחרי מה שיש בבית'
-  @override String get emptySubtitleGroup => 'הוסיפו מוצרים למזווה המשותף כדי לעקוב אחרי מה שיש בבית';
-  // TODO: translate from HE: 'איך להתחיל?'
-  @override String get howToStartTitle => 'איך להתחיל?';
-  // TODO: translate from HE: 'לחץ על ״הוסף מוצר״ למטה'
-  @override String get howToStartStep1 => 'לחץ על ״הוסף מוצר״ למטה';
-  // TODO: translate from HE: 'חפש מוצר מתוך 30,000+ מוצרים'
-  @override String get howToStartStep2 => 'חפש מוצר מתוך 30,000+ מוצרים';
-  // TODO: translate from HE: 'הגדר כמות — וזהו! 🎯'
-  @override String get howToStartStep3 => 'הגדר כמות — וזהו! 🎯';
-  // TODO: translate from HE: '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות'
-  @override String get howToStartHint => '✨ כשמוצר ייגמר, תקבל התראה ברשימת הקניות';
-  // TODO: translate from HE: 'רוצה להתחיל עם מוצרי יסוד?'
-  @override String get starterItemsTitle => 'רוצה להתחיל עם מוצרי יסוד?';
-  // TODO: translate from HE: 'קמח, סוכר, שמן, אורז ועוד — סמן מה שצריך'
-  @override String get starterItemsSubtitle => 'קמח, סוכר, שמן, אורז ועוד — סמן מה שצריך';
-  // TODO: translate from HE: 'מזווה הבית — $name'
-  @override String pantryBadgeGroup(String name) => 'מזווה הבית — $name';
-  // TODO: translate from HE: 'המזווה שלך ✨'
-  @override String get pantryBadgePersonal => 'המזווה שלך ✨';
+  @override String get emptyMainTitle => "Let's fill the pantry! 🎉";
+  @override String get emptySubtitlePersonal => "Add products so you always know what you have and what's missing";
+  @override String get emptySubtitleGroup => "Add products to the shared pantry to keep track of what's at home";
+  @override String get howToStartTitle => 'How to get started?';
+  @override String get howToStartStep1 => 'Tap "Add Product" below';
+  @override String get howToStartStep2 => 'Search from 30,000+ products';
+  @override String get howToStartStep3 => "Set the quantity — that's it! 🎯";
+  @override String get howToStartHint => "✨ When a product runs out, you'll get an alert in your shopping list";
+  @override String get starterItemsTitle => 'Want to start with basic items?';
+  @override String get starterItemsSubtitle => 'Flour, sugar, oil, rice and more — mark what you need';
+  @override String pantryBadgeGroup(String name) => 'Home Pantry — $name';
+  @override String get pantryBadgePersonal => 'Your Pantry ✨';
 
   @override String get similarProductFound => 'Similar product found in pantry';
   @override String get existingInPantry => 'Existing in pantry';
