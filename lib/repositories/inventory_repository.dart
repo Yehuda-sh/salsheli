@@ -2,23 +2,6 @@
 
 import '../models/inventory_item.dart';
 
-/// סוג מיקום המזווה - קובע את נתיב ה-Firestore לקריאה/כתיבה
-///
-/// המערכת בוחרת אוטומטית לפי הקשר המשתמש:
-/// - משתמש ללא household → [user] (מזווה אישי)
-/// - משתמש עם household → [household] (מזווה משותף, legacy)
-enum InventoryLocation {
-  /// מזווה אישי: `/users/{userId}/inventory`
-  ///
-  /// נתיב ברירת מחדל - כל משתמש מנהל מזווה עצמאי
-  user,
-
-  /// מזווה משק בית (legacy): `/households/{householdId}/inventory`
-  ///
-  /// נתיב ישן - משותף לכל חברי משק הבית
-  household,
-}
-
 /// Interface לניהול מלאי - מגדיר methods חובה לכל Repository
 ///
 /// כל מקור נתונים (Firebase, Mock, SQLite) חייב לממש את הממשק הזה.
