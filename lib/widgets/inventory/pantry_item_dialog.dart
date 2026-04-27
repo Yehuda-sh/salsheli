@@ -603,7 +603,24 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: AlertDialog(
+      // Hardware/Bluetooth keyboard: Enter (or numpad Enter) saves the
+      // form; Escape cancels. Phone soft-keyboards still chain via
+      // textInputAction so this only matters on tablets/desktops.
+      child: CallbackShortcuts(
+        bindings: <ShortcutActivator, VoidCallback>{
+          const SingleActivator(LogicalKeyboardKey.enter): () {
+            if (!_isLoading) _saveItem();
+          },
+          const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
+            if (!_isLoading) _saveItem();
+          },
+          const SingleActivator(LogicalKeyboardKey.escape): () {
+            if (!_isLoading) _handleCancel();
+          },
+        },
+        child: Focus(
+          autofocus: true,
+          child: AlertDialog(
         backgroundColor: cs.surface,
         title: _buildDialogTitle(cs, accent, title),
         content: SingleChildScrollView(
@@ -1012,6 +1029,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             ],
           ),
         ],
+      ),
+        ),
       ),
     );
   }
