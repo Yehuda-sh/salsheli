@@ -62,8 +62,6 @@ Object? _readLastInvitedAt(Map<dynamic, dynamic> json, String key) =>
 @immutable
 @JsonSerializable()
 class SavedContact {
-  static const _sentinel = Object();
-
   /// מזהה ייחודי של איש הקשר (userId של המשתמש המוזמן)
   /// 🔄 readValue: תמיכה ב-user_id וגם userId (תאימות לאחור)
   @JsonKey(name: 'user_id', readValue: _readUserId, defaultValue: '')
@@ -175,27 +173,6 @@ class SavedContact {
     if (s.isEmpty) return '';
     // runes מחזיר Unicode code points - בטוח יותר מ-[0]
     return String.fromCharCode(s.runes.first);
-  }
-
-  /// Copy with
-  SavedContact copyWith({
-    String? userId,
-    Object? userName = _sentinel,
-    String? userEmail,
-    Object? userPhone = _sentinel,
-    Object? userAvatar = _sentinel,
-    DateTime? addedAt,
-    Object? lastInvitedAt = _sentinel,
-  }) {
-    return SavedContact(
-      userId: userId ?? this.userId,
-      userName: userName == _sentinel ? this.userName : userName as String?,
-      userEmail: userEmail ?? this.userEmail,
-      userPhone: userPhone == _sentinel ? this.userPhone : userPhone as String?,
-      userAvatar: userAvatar == _sentinel ? this.userAvatar : userAvatar as String?,
-      addedAt: addedAt ?? this.addedAt,
-      lastInvitedAt: lastInvitedAt == _sentinel ? this.lastInvitedAt : lastInvitedAt as DateTime?,
-    );
   }
 
   @override

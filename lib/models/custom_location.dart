@@ -1,11 +1,7 @@
 // lib/models/custom_location.dart — Custom location model — user-defined pantry storage locations
 
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
-
-import '../core/ui_constants.dart';
 
 part 'custom_location.g.dart';
 
@@ -22,23 +18,12 @@ Object? _readEmoji(Map<dynamic, dynamic> json, String key) {
 
 /// מודל למיקום אחסון מותאם אישית
 ///
-/// כולל מזהה ייחודי (key), שם בעברית, אמוג'י, וצבע מזהה אוטומטי.
+/// כולל מזהה ייחודי (key), שם בעברית, ואמוג'י.
 ///
 /// **דוגמה:**
 /// ```dart
 /// // יצירה רגילה
 /// final loc = CustomLocation(key: 'wine_fridge', name: 'מקרר יינות', emoji: '🍷');
-///
-/// // יצירה אוטומטית מ-שם (English)
-/// final loc2 = CustomLocation.fromName('Garden Shed', emoji: '🌿');
-/// // key => 'garden_shed'
-///
-/// // יצירה אוטומטית מ-שם (Hebrew — hash fallback)
-/// final loc3 = CustomLocation.fromName('מדף תבלינים', emoji: '🧂');
-/// // key => 'custom_1a2b3c'
-///
-/// // צבע מזהה עקבי
-/// loc.color; // => Color (מתוך פלטת Sticky Notes)
 /// ```
 @JsonSerializable()
 @immutable
@@ -67,52 +52,12 @@ class CustomLocation {
     this.createdBy,
   });
 
-  /// יצירה אוטומטית מ-שם — ה-key נוצר באמצעות [normalizeKey]
-  ///
-  /// ```dart
-  /// final loc = CustomLocation.fromName('Wine Fridge', emoji: '🍷');
-  /// // key => 'wine_fridge'
-  ///
-  /// final loc2 = CustomLocation.fromName('מדף תבלינים', emoji: '🧂');
-  /// // key => 'custom_1a2b3c' (Hebrew fallback with hash)
-  /// ```
-  factory CustomLocation.fromName(
-    String name, {
-    String? emoji,
-    String? createdBy,
-  }) {
-    return CustomLocation(
-      key: normalizeKey(name),
-      name: name.trim(),
-      emoji: emoji ?? '📍',
-      createdBy: createdBy,
-    );
-  }
-
   /// יצירה מ-JSON
   factory CustomLocation.fromJson(Map<String, dynamic> json) =>
       _$CustomLocationFromJson(json);
 
   /// המרה ל-JSON
   Map<String, dynamic> toJson() => _$CustomLocationToJson(this);
-
-  // ---- Visual Properties ----
-
-  /// פלטת צבעים למיקומים (מתוך Sticky Notes)
-  static const _colorPalette = [
-    kStickyYellow,
-    kStickyPink,
-    kStickyGreen,
-    kStickyCyan,
-    kStickyPurple,
-    kStickyOrange,
-  ];
-
-  /// צבע מזהה עקבי — נגזר מ-hashCode של ה-key
-  ///
-  /// מחזיר צבע קבוע מתוך פלטת Sticky Notes,
-  /// כך שלכל מיקום יש "צבע מזהה" אוטומטי ועקבי.
-  Color get color => _colorPalette[key.hashCode.abs() % _colorPalette.length];
 
   // ---- Validation Helpers ----
 
@@ -144,27 +89,6 @@ class CustomLocation {
       return 'custom_$hash';
     }
     return normalized;
-  }
-
-  /// האם ה-key תקין (לא ריק ובפורמט נורמלי)
-  bool get isValidKey => key.isNotEmpty && key == normalizeKey(key);
-
-  /// האם emoji תקין (לא ריק)
-  bool get hasValidEmoji => emoji.isNotEmpty;
-
-  /// יצירת עותק עם שינויים
-  CustomLocation copyWith({
-    String? key,
-    String? name,
-    String? emoji,
-    String? createdBy,
-  }) {
-    return CustomLocation(
-      key: key ?? this.key,
-      name: name ?? this.name,
-      emoji: emoji ?? this.emoji,
-      createdBy: createdBy ?? this.createdBy,
-    );
   }
 
   @override
