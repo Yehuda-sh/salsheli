@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
 """
-Step 4 — bigram-driven categorization:
-Based on bigram analysis of remaining 24,864 generic items.
-- Remove Rav-Kav value-reload entries (ערך צבור) — not products
-- Expand coverage via multi-word patterns (deodorant brands, cleaning tabs,
-  seasonal items, toys, pastries, meat cuts, seeds, etc.)
+Step 4 — bigram-driven categorization, based on a bigram analysis of
+the ~24,864 'כללי' items that remained after step3.
+
+- Remove Rav-Kav value-reload entries ('ערך צבור') — those are bus
+  pass top-ups, not products.
+- Expand coverage via multi-word patterns (deodorant brands, cleaning
+  tabs, seasonal items, toys, pastries, meat cuts, seeds, etc.).
+
+Pipeline: step1 → step2 → step3 → **step4** → step5 → step6. Run only
+after `fetch_new_products.py --merge`; otherwise the catalog is
+already past step4.
+
+Idempotent: rules only fire on rows still in 'כללי', and the Rav-Kav
+filter is a name-substring check (`'ערך צבור'`), so a second run on
+clean data finds nothing to do. `.bak4` is rewritten each run on
+purpose — the chain assumes a single sequential execution.
 """
 import json
 from collections import Counter
+from pathlib import Path
 
-PATH = 'assets/data/list_types/supermarket.json'
-BACKUP = PATH + '.bak4'
+PATH = Path('assets/data/list_types/supermarket.json')
+BACKUP = PATH.with_suffix('.json.bak4')
 
 
 def has_any(name, words):
