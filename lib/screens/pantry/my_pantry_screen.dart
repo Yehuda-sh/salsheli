@@ -370,13 +370,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       if (itemWords.length < 2) continue;
 
       // בדיקה: כל מילות הפריט הקיים מופיעות בשם הסרוק (או להיפך)
-      final itemInScanned = itemWords.where((w) => scannedWords.contains(w)).length;
-      final scannedInItem = scannedWords.where((w) => itemWords.contains(w)).length;
+      final itemInScanned = itemWords.where(scannedWords.contains).length;
+      final scannedInItem = scannedWords.where(itemWords.contains).length;
 
       // כל מילות הפריט הקצר חייבות להופיע בארוך
       final shorter = itemWords.length <= scannedWords.length ? itemWords : scannedWords;
       final longer = itemWords.length <= scannedWords.length ? scannedWords : itemWords;
-      final allShorterInLonger = shorter.every((w) => longer.contains(w));
+      final allShorterInLonger = shorter.every(longer.contains);
 
       if (allShorterInLonger && shorter.length >= 2) {
         final score = itemInScanned + scannedInItem;
@@ -727,7 +727,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               ),
               body: provider.isLoading
                   ? const SafeArea(
-                      child: AppLoadingSkeleton(sectionCount: 5, showHero: false),
+                      child: AppLoadingSkeleton(sectionCount: 5),
                     )
                   : allItems.isEmpty
                       ? SafeArea(
@@ -1482,7 +1482,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       vertical: kSpacingSmall,
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // 🏷️ תמונת מוצר — Hero 72px
                         _buildProductThumbnail(item, isCritical, statusColor),

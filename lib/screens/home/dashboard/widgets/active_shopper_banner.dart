@@ -65,9 +65,9 @@ class ActiveShopperBanner extends StatelessWidget {
     // 2. קנייה פעילה של אחרים
     final othersList = _findOthersActiveShopping(listsProvider, currentUserId);
     if (othersList == null) {
-      return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        child: const SizedBox.shrink(key: ValueKey('none')),
+      return const AnimatedSwitcher(
+        duration: Duration(milliseconds: 400),
+        child: SizedBox.shrink(key: ValueKey('none')),
       );
     }
 

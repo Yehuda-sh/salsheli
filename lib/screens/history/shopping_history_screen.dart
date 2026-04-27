@@ -594,12 +594,12 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     final now = DateTime.now();
     switch (_filterPeriod) {
       case 'month':
-        final firstOfMonth = DateTime(now.year, now.month, 1);
+        final firstOfMonth = DateTime(now.year, now.month);
         filtered =
             filtered.where((r) => !r.date.isBefore(firstOfMonth)).toList();
         break;
       case '3months':
-        final threeMonthsAgo = DateTime(now.year, now.month - 2, 1);
+        final threeMonthsAgo = DateTime(now.year, now.month - 2);
         filtered =
             filtered.where((r) => !r.date.isBefore(threeMonthsAgo)).toList();
         break;
@@ -643,7 +643,7 @@ class _ReceiptTile extends StatelessWidget {
 
     // סנן רק מי שיש לו שם ידוע
     return uids
-        .where((uid) => memberNames.containsKey(uid))
+        .where(memberNames.containsKey)
         .map((uid) => memberNames[uid]!)
         .where((name) => name.isNotEmpty)
         .toList();
