@@ -216,9 +216,8 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                 final rotation = (index.isEven ? 1 : -1) * 0.02;
                 return RepaintBoundary(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                      left: index == 0 ? 0 : kSpacingSmall,
-                      right: index == widget.suggestions.length - 1 ? 0 : 0,
+                    padding: EdgeInsetsDirectional.only(
+                      start: index == 0 ? 0 : kSpacingSmall,
                     ),
                     child: _StickyNoteCard(
                       suggestion: widget.suggestions[index],
@@ -698,7 +697,6 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                           ),
                         ),
                         const SizedBox(width: kSpacingTiny),
-                        // כפתור X - disabled for unknown
                       ],
                     ),
                 ],

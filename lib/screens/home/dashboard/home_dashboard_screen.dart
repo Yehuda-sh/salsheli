@@ -177,7 +177,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  // === 2. ברכה קומפקטית + אימות אימייל ===
                   // === 2. אימות אימייל (אם צריך) ===
                   const EmailVerificationBanner(),
 
