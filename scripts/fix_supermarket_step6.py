@@ -5,7 +5,6 @@ Step 6 — targeted cleanup based on sampled items.
 - Add targeted rules for specific items seen in samples
 """
 import json
-import re
 from collections import Counter
 
 PATH = 'assets/data/list_types/supermarket.json'
@@ -104,15 +103,19 @@ def main():
                                 'פלפל ממולא טרי', 'עלי חסה', 'חסה ערבית']),
          '→ פירות וירקות: טריים'),
 
-        # סיגריות — more brands
+        # סיגריות — more brands. Both lists must match (AND) to avoid
+        # picking up unrelated products that happen to use words like 'נייר'.
+        # 'נייר גליל'/'גליל נייר' were removed because those describe paper
+        # towel/butcher-paper rolls, not cigarettes (caused 6 false positives
+        # in earlier runs). 'קוטן' was removed from the second list — cotton
+        # is not a tobacco term.
         ('סיגריות וטבק',
          lambda n: has_any(n, ['קאמל ', 'קאמל,', 'מרלבורו',
                                 'ווינסטון', 'דנהיל', 'נובלס',
                                 'ROTHMANS', 'SILVER', 'GOLD ',
-                                'נקסט סטרים', 'גולף נייר',
-                                'נייר גליל', 'גליל נייר']) and
-                    has_any(n, ['סיגר', 'טבק', 'קוטן', 'CAMEL', 'MARLBORO',
-                                 'WINSTON', 'DUNHILL', 'פילטר', 'נייר']),
+                                'נקסט סטרים', 'גולף נייר']) and
+                    has_any(n, ['סיגר', 'טבק', 'CAMEL', 'MARLBORO',
+                                 'WINSTON', 'DUNHILL', 'פילטר']),
          '→ סיגריות וטבק: מותגים'),
 
         # לחם ומאפים — grissini, breadsticks
