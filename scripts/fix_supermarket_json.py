@@ -1,11 +1,17 @@
 #!/usr/bin/env python3
 """
-Fix supermarket.json:
-1. Auto-categorize 5,043 uncategorized items by keyword matching
-2. Merge duplicate category names
-3. Remove duplicate items (same name + brand)
-4. Clean brand placeholders ("---" → null)
-5. Flag suspicious prices (>₪500)
+Fix supermarket.json — first-pass cleanup of newly imported catalog data.
+
+Steps:
+1. Merge legacy category aliases ('מאפים' → 'לחם ומאפים', etc.)
+2. Auto-categorize items with empty / 'כללי' category by Hebrew keyword
+3. Assign 'כללי' to anything still unclassified
+4. Clean brand placeholders ('---' → null)
+5. Remove exact duplicates (same name + brand)
+6. Flag suspicious prices (> ₪500)
+
+Run after `fetch_new_products.py --merge`. Follow up with
+fix_supermarket_step{2..6}.py for tighter classification.
 """
 
 import json
@@ -104,15 +110,9 @@ CATEGORY_KEYWORDS = {
     ],
 }
 
-# Category merges (old → new)
-CATEGORY_MERGES = {
-    'ניקיון': 'מוצרי ניקיון',
-    'לחם ומאפים': 'מאפים',  # keep 'מאפים' (33 items) as the main
-    'חד פעמי': 'מוצרי ניקיון',
-    'פיצוחים וקטניות': 'אגוזים וגרעינים',
-    'משקאות אלכוהוליים': 'משקאות',
-}
-# Actually let's keep 'לחם ומאפים' as the canonical name
+# Category merges (old → new) — collapse legacy names into the canonical
+# set used by the rest of the app. 'לחם ומאפים' is the canonical bakery
+# name (matches CATEGORY_KEYWORDS above).
 CATEGORY_MERGES = {
     'ניקיון': 'מוצרי ניקיון',
     'מאפים': 'לחם ומאפים',
