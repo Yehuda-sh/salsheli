@@ -18,6 +18,9 @@ import 'home/dashboard/home_dashboard_screen.dart';
 import 'pantry/my_pantry_screen.dart';
 import 'settings/settings_screen.dart';
 
+/// Fade-in duration when switching tabs.
+const Duration _kFadeTransitionDuration = Duration(milliseconds: 200);
+
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -53,7 +56,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     super.initState();
     _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 200),
+      duration: _kFadeTransitionDuration,
       value: 1.0, // start fully visible
     );
     _fadeAnimation = CurvedAnimation(

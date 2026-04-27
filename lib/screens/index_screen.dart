@@ -85,6 +85,15 @@ class _IndexScreenState extends State<IndexScreen> {
     }
   }
 
+  /// Marks navigation done, removes the UserContext listener and runs the
+  /// supplied push (kept centralised so the three exit paths in
+  /// _checkAndNavigate stay in sync).
+  void _completeNavigation(UserContext userContext, void Function() push) {
+    _hasNavigated = true;
+    userContext.removeListener(_onUserContextChanged);
+    if (mounted) push();
+  }
+
   Future<void> _checkAndNavigate() async {
     // ✅ מניעת בדיקות מקבילות (race condition fix)
     if (_hasNavigated || _isChecking) return;
@@ -99,7 +108,6 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ⏳ אם UserContext עדיין טוען, נחכה
       if (userContext.isLoading) {
-        _isChecking = false;
         return; // ה-listener יקרא לנו שוב כש-isLoading ישתנה
       }
 
@@ -115,7 +123,6 @@ class _IndexScreenState extends State<IndexScreen> {
           // 🚨 Timeout! נסה לרענן את UserContext או הצג שגיאה
           _syncTimeoutTimer?.cancel();
           _syncTimeoutTimer = null;
-          _isChecking = false;
 
           // ניסיון אחד לרענן
           try {
@@ -141,7 +148,6 @@ class _IndexScreenState extends State<IndexScreen> {
               }
             },
           );
-          _isChecking = false;
           return; // ה-listener יקרא לנו שוב כשה-UserContext יתעדכן
         }
       }
@@ -153,13 +159,11 @@ class _IndexScreenState extends State<IndexScreen> {
 
       // ✅ מצב 1: משתמש מחובר → ישר לדף הבית
       if (userContext.isLoggedIn) {
-        _hasNavigated = true;
-        _isChecking = false;
-        if (mounted) {
-          // הסר את ה-listener לפני ניווט
-          userContext.removeListener(_onUserContextChanged);
-          unawaited(Navigator.of(context).pushReplacementNamed('/home'));
-        }
+        _completeNavigation(
+          userContext,
+          () => unawaited(
+              Navigator.of(context).pushReplacementNamed('/home')),
+        );
         return;
       }
 
@@ -171,39 +175,39 @@ class _IndexScreenState extends State<IndexScreen> {
       final prefs = await SharedPreferences.getInstance();
 
       // Check mounted after await
-      if (!mounted) {
-        _isChecking = false;
-        return;
-      }
+      if (!mounted) return;
 
       final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
       if (!seenOnboarding) {
         // ✅ מצב 2: לא ראה welcome → שולח לשם
-        _hasNavigated = true;
-        _isChecking = false;
-        userContext.removeListener(_onUserContextChanged);
-        unawaited(
-          navigator.pushReplacement(
-            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        _completeNavigation(
+          userContext,
+          () => unawaited(
+            navigator.pushReplacement(
+              MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+            ),
           ),
         );
         return;
       }
 
       // ✅ מצב 3: ראה welcome אבל לא מחובר → שולח ל-login
-      _hasNavigated = true;
-      _isChecking = false;
-      userContext.removeListener(_onUserContextChanged);
-      unawaited(navigator.pushReplacementNamed('/login'));
+      _completeNavigation(
+        userContext,
+        () => unawaited(navigator.pushReplacementNamed('/login')),
+      );
     } catch (e) {
-      _isChecking = false;
       // ✅ במקרה של שגיאה - הצג מסך שגיאה
       if (mounted) {
         setState(() {
           _hasError = true;
         });
       }
+    } finally {
+      // 🛡️ guarantees we never leave _isChecking stuck on (which would
+      // wedge subsequent listener-driven retries).
+      _isChecking = false;
     }
   }
 

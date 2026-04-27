@@ -12,6 +12,31 @@ import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../widgets/common/notebook_background.dart';
 
+// ───────────────────────────────────────────────────────────────────────────
+// Logo / pulse / loading-indicator dimensions used by IndexLoadingView.
+// (Local to this file — they describe specific look-and-feel, not tokens.)
+// ───────────────────────────────────────────────────────────────────────────
+const double _kLogoSize = kButtonHeight + 24; // 76
+const double _kLogoIconSize = kButtonHeight - 12; // 40
+const double _kLogoPulseScale = 1.5;
+const double _kLogoPulseAmplitude = 0.2;
+const double _kLogoShadowBlur = 20.0;
+const Offset _kLogoShadowOffset = Offset(0, 10);
+const Duration _kMessageSwitchDuration = Duration(milliseconds: 500);
+const double _kMessageBlurMax = 4.0;
+
+// Wave painter configuration
+const double _kWaveStepPx = 2.0; // sample step (1px is overkill, 2px is identical visually)
+const double _kWaveAmplitudeFront = 20.0;
+const double _kWaveAmplitudeBack = 15.0;
+const double _kWaveYOffsetFront = 0.5; // fraction of canvas height
+const double _kWaveYOffsetBack = 0.7;
+const double _kTwoPi = 2 * math.pi;
+
+// Error card shadow
+const double _kErrorCardShadowBlur = 30.0;
+const Offset _kErrorCardShadowOffset = Offset(0, 15);
+
 /// 📋 מסך טעינה מונפש
 class IndexLoadingView extends StatefulWidget {
   const IndexLoadingView({super.key});
@@ -249,12 +274,12 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
               AnimatedBuilder(
                 animation: pulseAnimation,
                 builder: (context, child) {
-                  final scale = 1.0 + (pulseAnimation.value * 0.2);
+                  final scale = 1.0 + (pulseAnimation.value * _kLogoPulseAmplitude);
                   return Transform.scale(
                     scale: scale,
                     child: Container(
-                      width: (kButtonHeight + 24) * 1.5,
-                      height: (kButtonHeight + 24) * 1.5,
+                      width: _kLogoSize * _kLogoPulseScale,
+                      height: _kLogoSize * _kLogoPulseScale,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: cs.onPrimary.withValues(alpha: 0.1),
@@ -269,8 +294,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                 animation: _shimmerController,
                 builder: (context, child) {
                   return Container(
-                    width: kButtonHeight + 24,
-                    height: kButtonHeight + 24,
+                    width: _kLogoSize,
+                    height: _kLogoSize,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
@@ -279,7 +304,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                         end: Alignment(1 + (_shimmerController.value * 2), 1),
                         colors: [
                           cs.onPrimary.withValues(alpha: 0.0),
-                          cs.onPrimary.withValues(alpha: 0.3),
+                          cs.onPrimary.withValues(alpha: kOpacityLight),
                           cs.onPrimary.withValues(alpha: 0.0),
                         ],
                       ),
@@ -292,22 +317,22 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
               Semantics(
                 label: AppStrings.index.logoLabel,
                 child: Container(
-                  width: kButtonHeight + 24,
-                  height: kButtonHeight + 24,
+                  width: _kLogoSize,
+                  height: _kLogoSize,
                   decoration: BoxDecoration(
                     color: cs.surface,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: cs.shadow.withValues(alpha: 0.2),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        blurRadius: _kLogoShadowBlur,
+                        offset: _kLogoShadowOffset,
                       ),
                     ],
                   ),
                   child: Icon(
                     Icons.shopping_basket_outlined,
-                    size: kButtonHeight - 12,
+                    size: _kLogoIconSize,
                     color: cs.primary,
                   ),
                 ),
@@ -385,12 +410,12 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
             // v4.0: הודעת טעינה מתחלפת עם blur transition
             AnimatedSwitcher(
-              duration: const Duration(milliseconds: 500),
+              duration: _kMessageSwitchDuration,
               transitionBuilder: (child, animation) {
                 return AnimatedBuilder(
                   animation: animation,
                   builder: (context, animChild) {
-                    final blurValue = (1.0 - animation.value) * 4;
+                    final blurValue = (1.0 - animation.value) * _kMessageBlurMax;
                     return ImageFiltered(
                       imageFilter: ImageFilter.blur(
                         sigmaX: blurValue,
@@ -516,9 +541,9 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: cs.shadow.withValues(alpha: 0.3),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
+                              color: cs.shadow.withValues(alpha: kOpacityLight),
+                              blurRadius: _kErrorCardShadowBlur,
+                              offset: _kErrorCardShadowOffset,
                             ),
                           ],
                         ),
@@ -614,28 +639,25 @@ class WavePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final phase = animationValue * _kTwoPi;
+    final widthInv = _kTwoPi / size.width;
+
     // גל ראשון
     final paint = Paint()
       ..color = colorScheme.onPrimary.withValues(alpha: 0.1)
       ..style = PaintingStyle.fill;
 
-    final path = Path();
-    path.moveTo(0, size.height * 0.5);
-
-    for (double i = 0; i <= size.width; i++) {
+    final yFront = size.height * _kWaveYOffsetFront;
+    final path = Path()..moveTo(0, yFront);
+    for (double i = 0; i <= size.width; i += _kWaveStepPx) {
       path.lineTo(
         i,
-        size.height * 0.5 +
-            math.sin((i / size.width * 2 * math.pi) +
-                    (animationValue * 2 * math.pi)) *
-                20,
+        yFront + math.sin(i * widthInv + phase) * _kWaveAmplitudeFront,
       );
     }
-
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.close();
-
     canvas.drawPath(path, paint);
 
     // גל שני
@@ -643,24 +665,17 @@ class WavePainter extends CustomPainter {
       ..color = colorScheme.onPrimary.withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
-    final path2 = Path();
-    path2.moveTo(0, size.height * 0.7);
-
-    for (double i = 0; i <= size.width; i++) {
+    final yBack = size.height * _kWaveYOffsetBack;
+    final path2 = Path()..moveTo(0, yBack);
+    for (double i = 0; i <= size.width; i += _kWaveStepPx) {
       path2.lineTo(
         i,
-        size.height * 0.7 +
-            math.sin((i / size.width * 2 * math.pi) +
-                    (animationValue * 2 * math.pi) +
-                    math.pi) *
-                15,
+        yBack + math.sin(i * widthInv + phase + math.pi) * _kWaveAmplitudeBack,
       );
     }
-
     path2.lineTo(size.width, size.height);
     path2.lineTo(0, size.height);
     path2.close();
-
     canvas.drawPath(path2, paint2);
   }
 
