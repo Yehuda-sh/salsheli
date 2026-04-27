@@ -18,10 +18,7 @@
 
 ## Tech Stack
 
-- **Framework:** Flutter 3.8+ / Dart 3.8.1+
-- **Backend:** Firebase (Auth, Firestore, Storage, Analytics, Crashlytics, Messaging)
-- **State:** Provider + ChangeNotifier
-- **UI:** Hebrew RTL first, Material 3, Dark Mode
+Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashlytics/Messaging) · Provider + ChangeNotifier · Hebrew RTL-first · Material 3 · Dark Mode.
 
 ---
 
@@ -109,7 +106,7 @@ flutter run          # הרצה
 | **Providers** | `lib/providers/user_context.dart`, `shopping_lists_provider.dart`, `inventory_provider.dart`, `activity_log_provider.dart` |
 | **Shared Widgets** | `lib/widgets/common/` — NotebookBackground, StickyNote, StickyButton, AppErrorState, AppLoadingSkeleton, AnimatedButton, TappableCard, OfflineBanner, SectionHeader, AppDialog, SkeletonLoader, BarcodeScannerSheet, EmailVerificationBanner, HouseholdInviteDialog (`showHouseholdInviteDialog()`) |
 | **Strings** | `lib/l10n/app_strings.dart` |
-| **Security** | `firestore.rules` (v4.4), `firestore.indexes.json` |
+| **Security** | `firestore.rules` (v4.5), `firestore.indexes.json` |
 
 ---
 
@@ -127,17 +124,8 @@ flutter run          # הרצה
 
 ## Known Issues
 
-- ~~**B3:** SavedContactsService בולע שגיאות~~ ✅ תוקן — כל 3 המתודות עושות rethrow
-- **W1:** `use_build_context_synchronously` (2) ב-settings_screen (יש `mounted` guards — ממתין לאימות analyzer)
-- ~~**W2:** `directives_ordering` infos~~ ✅ תוקן (סשן 6) — `sort imports in 31 files`
-- ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
-- **RTL1:** מופעים של `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional`. ב-סשן 7 תוקנו 8 מופעים (shopping screens, home dashboard, pantry chips). נשאר זנב כללי בקוד.
-- **DS1:** ~364 מופעים של `fontSize:` קשיח (TextStyle inline) במקום `kFontSize*` constants. בעיקר ב-auth/landing flows. (ממצא מסקירה רחבה 23/4)
-- **i18n1:** ~50 מחרוזות עברית קשיחות ב-services + providers (Hebrew error prefixes, notification titles). דורש הרחבת `AppStrings` והפניות. (ממצא סשן 7)
-- ~~**AUTH1:** Pending invites guard לא מחווט ב-`login_screen` + `register_screen`~~ ✅ תוקן — `navigateAfterAuth()` helper מחווט ל-6 הזרמים (email/Google/Apple ב-login + register), בודק לפי uid+email אחרי signIn ומנווט ל-`/pending-invites` אם יש.
-- **CAT1:** מלכודות substring ב-`category_detection_service` (`'מנגו'`/`'מנגולד'`, `'תפוז'` לפני `'מיץ '`, `'תמר'` ללא רווח). (ממצא סשן 7)
-
-See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
+הרשימה המלאה (פתוחות, מתוקנות, vintage tracking) מנוהלת ב-[CODE_REVIEW.md](CODE_REVIEW.md).
+ל-Claude AI כדאי להציץ גם ב-[AGENTS.md](AGENTS.md) שיש שם טבלה תפעולית של הבעיות הפעילות.
 
 ---
 
