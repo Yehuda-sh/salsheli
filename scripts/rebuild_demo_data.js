@@ -316,24 +316,20 @@ async function main() {
   cleaned += await deleteCollection(db.collection('custom_locations'));
   console.log(`   🧹 Top-level: ${cleaned} docs deleted`);
 
-  // User subcollections
+  // User subcollections (parallel — each user × 5 subcolls = 110 deletes)
   const allUsers = await db.collection('users').get();
-  for (const userDoc of allUsers.docs) {
-    const uid = userDoc.id;
-    for (const sub of ['private_lists', 'notifications', 'pending_invites', 'saved_contacts', 'inventory']) {
-      await deleteCollection(db.collection('users').doc(uid).collection(sub));
-    }
-  }
+  await Promise.all(allUsers.docs.flatMap(userDoc =>
+    ['private_lists', 'notifications', 'pending_invites', 'saved_contacts', 'inventory']
+      .map(sub => deleteCollection(db.collection('users').doc(userDoc.id).collection(sub)))
+  ));
   console.log(`   🧹 User subcollections cleaned (${allUsers.size} users)`);
 
-  // Household subcollections
+  // Household subcollections (parallel)
   const allHouseholds = await db.collection('households').get();
-  for (const hDoc of allHouseholds.docs) {
-    const hId = hDoc.id;
-    for (const sub of ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests', 'activity_log']) {
-      await deleteCollection(db.collection('households').doc(hId).collection(sub));
-    }
-  }
+  await Promise.all(allHouseholds.docs.flatMap(hDoc =>
+    ['shared_lists', 'members', 'inventory', 'receipts', 'invites', 'join_requests', 'activity_log']
+      .map(sub => deleteCollection(db.collection('households').doc(hDoc.id).collection(sub)))
+  ));
   console.log(`   🧹 Household subcollections cleaned (${allHouseholds.size} households)`);
 
   const uids = {}; // key → firebase UID
@@ -371,43 +367,45 @@ async function main() {
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n🏠 Creating households...');
   const hIds = {};
-  for (const [hKey, hData] of Object.entries(HOUSEHOLDS)) {
-    const hId = `household_${hKey}`;
-    hIds[hKey] = hId;
+  // Pre-populate hIds (used inline below for member writes)
+  for (const hKey of Object.keys(HOUSEHOLDS)) hIds[hKey] = `household_${hKey}`;
+
+  await Promise.all(Object.entries(HOUSEHOLDS).map(async ([hKey, hData]) => {
+    const hId = hIds[hKey];
     const creatorUid = uids[hData.members[0]];
-
-    await db.collection('households').doc(hId).set({
-      id: hId, name: hData.name,
-      created_by: creatorUid,
-      created_at: admin.firestore.FieldValue.serverTimestamp(),
-      updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      is_solo: hData.members.length === 1,
-    });
-
-    for (const memberKey of hData.members) {
-      const memberUser = USERS.find(u => u.key === memberKey);
-      await db.collection('households').doc(hId).collection('members').doc(uids[memberKey]).set({
-        user_id: uids[memberKey],
-        name: memberUser.name,
-        email: memberUser.email,
-        role: memberUser.role,
-        joined_at: admin.firestore.FieldValue.serverTimestamp(),
-      });
-    }
+    await Promise.all([
+      db.collection('households').doc(hId).set({
+        id: hId, name: hData.name,
+        created_by: creatorUid,
+        created_at: admin.firestore.FieldValue.serverTimestamp(),
+        updated_at: admin.firestore.FieldValue.serverTimestamp(),
+        is_solo: hData.members.length === 1,
+      }),
+      ...hData.members.map(memberKey => {
+        const memberUser = USERS.find(u => u.key === memberKey);
+        return db.collection('households').doc(hId).collection('members').doc(uids[memberKey]).set({
+          user_id: uids[memberKey],
+          name: memberUser.name,
+          email: memberUser.email,
+          role: memberUser.role,
+          joined_at: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      }),
+    ]);
     console.log(`   🏠 ${hData.name} (${hData.members.length} members)`);
-  }
+  }));
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 3. USER DOCUMENTS
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n📝 Creating user documents...');
-  for (const u of USERS) {
+  await Promise.all(USERS.map(u => {
     const uid = uids[u.key];
     const hId = hIds[u.household];
     const isInactive = u.key === 'lior';
     const isFresh = u.key === 'yael';
     const isSocial = u.provider === 'google' || u.provider === 'apple';
-    await db.collection('users').doc(uid).set({
+    return db.collection('users').doc(uid).set({
       id: uid, name: u.name, email: u.email, phone: u.phone || '',
       household_id: hId,
       household_name: HOUSEHOLDS[u.household].name,
@@ -423,8 +421,8 @@ async function main() {
       ...(u.provider ? { auth_provider: u.provider } : { auth_provider: 'email' }),
       ...(u.locale ? { app_locale: u.locale } : {}),
     });
-    console.log(`   📝 ${u.name}`);
-  }
+  }));
+  console.log(`   📝 ${USERS.length} user documents written`);
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 4. SHOPPING LISTS — All 9 types, all statuses
@@ -744,8 +742,7 @@ async function main() {
   console.log('\n📦 Creating inventory...');
 
   async function createInventory(hId, inventoryProducts, ownerUid, opts = {}) {
-    for (let i = 0; i < inventoryProducts.length; i++) {
-      const p = inventoryProducts[i];
+    await Promise.all(inventoryProducts.map((p, i) => {
       const qty = opts.forceQty !== undefined ? opts.forceQty(i) : randomInt(1, 6);
       const minQty = i < 3 ? 3 : randomInt(1, 2);
       // Notes for some items (every 5th item)
@@ -755,7 +752,7 @@ async function main() {
         i === 10 ? 'מארז משפחתי עדיף' :
         'לא לקנות מהמבצע'
       ) : null;
-      await db.collection('households').doc(hId).collection('inventory').doc(`inv_${hId}_${i}`).set({
+      return db.collection('households').doc(hId).collection('inventory').doc(`inv_${hId}_${i}`).set({
         id: `inv_${hId}_${i}`,
         product_name: p.name,
         category: p.category || 'כללי',
@@ -764,7 +761,7 @@ async function main() {
         unit: inventoryUnit(p),
         min_quantity: minQty,
         expiry_date: p.category === 'מוצרי חלב'
-          ? admin.firestore.Timestamp.fromDate(
+          ? ts(
               i === 0 ? daysAgo(2)         // expired 2 days ago!
               : i === 1 ? daysFromNow(1)   // expires tomorrow
               : daysFromNow(14)            // expires in 2 weeks
@@ -776,10 +773,10 @@ async function main() {
         emoji: p.icon || null,
         last_updated_by: ownerUid,
         updated_at: admin.firestore.FieldValue.serverTimestamp(),
-        last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(randomInt(1, 14))),
+        last_purchased: ts(daysAgo(randomInt(1, 14))),
         purchase_count: randomInt(0, 20),
       });
-    }
+    }));
   }
 
   // Cohen: 20 items (2 low stock, 1 out of stock)
@@ -851,6 +848,7 @@ async function main() {
   const storeNames = ['שופרסל דיל ירושלים', 'רמי לוי שורש', 'יוחננוף נוה יעקב', 'AM:PM בן יהודה', 'מחסני השוק תלפיות'];
 
   async function createReceipts(hId, shopperUids, count, storePool, linkedListId) {
+    const writes = [];
     for (let w = 1; w <= count; w++) {
       const date = daysAgo(w * randomInt(2, 5));
       const shopperUid = shopperUids[w % shopperUids.length];
@@ -859,7 +857,7 @@ async function main() {
         .map((p, i) => makeReceiptItem(p, i, shopperUid, date));
       const totalAmount = items.reduce((s, it) => s + (it.quantity || 1) * (it.unit_price || 0), 0);
 
-      await db.collection('households').doc(hId).collection('receipts').doc(`receipt_${hId}_${w}`).set({
+      writes.push(db.collection('households').doc(hId).collection('receipts').doc(`receipt_${hId}_${w}`).set({
         id: `receipt_${hId}_${w}`,
         store_name: storePool[w % storePool.length],
         date: ts(date),
@@ -870,8 +868,9 @@ async function main() {
         is_virtual: true,
         created_by: shopperUid,
         linked_shopping_list_id: linkedListId || null,
-      });
+      }));
     }
+    await Promise.all(writes);
   }
 
   await createReceipts(hIds.cohen, [uids.avi, uids.ronit, uids.ronit, uids.avi, uids.yuval], 20, storeNames.slice(0, 3), 'list_cohen_lastweek');
@@ -895,9 +894,9 @@ async function main() {
   console.log('\n📝 Creating activity log...');
 
   async function createActivityEvents(householdId, events) {
-    for (const e of events) {
-      await db.collection('households').doc(householdId).collection('activity_log').doc(e.id).set(e);
-    }
+    await Promise.all(events.map(e =>
+      db.collection('households').doc(householdId).collection('activity_log').doc(e.id).set(e)
+    ));
   }
 
   function makeActivityEvent(id, householdId, type, actorId, actorName, data, createdAt) {
@@ -1033,9 +1032,9 @@ async function main() {
   console.log('\n🔔 Creating notifications...');
 
   async function createNotifications(uid, notifs) {
-    for (const n of notifs) {
-      await db.collection('users').doc(uid).collection('notifications').doc(n.id).set(n);
-    }
+    await Promise.all(notifs.map(n =>
+      db.collection('users').doc(uid).collection('notifications').doc(n.id).set(n)
+    ));
   }
 
   // Avi notifications (10)
@@ -1200,12 +1199,13 @@ async function main() {
   console.log('\n👤 Creating saved contacts...');
 
   // Ronit saved her family
-  for (const [i, contact] of [
+  const ronitContacts = [
     { userId: uids.yuval, name: 'יובל כהן', email: 'yuval.cohen@demo.com', phone: '0503456789' },
     { userId: uids.noa, name: 'נועה כהן', email: 'noa.cohen@demo.com', phone: '0504567890' },
     { userId: uids.ori, name: 'אורי שלום', email: 'ori.shalom@demo.com', phone: '0509012345' },
-  ].entries()) {
-    await db.collection('users').doc(uids.ronit).collection('saved_contacts').doc(`contact_ronit_${i}`).set({
+  ];
+  await Promise.all(ronitContacts.map((contact, i) =>
+    db.collection('users').doc(uids.ronit).collection('saved_contacts').doc(`contact_ronit_${i}`).set({
       id: `contact_ronit_${i}`,
       user_id: contact.userId,
       user_name: contact.name,
@@ -1214,8 +1214,8 @@ async function main() {
       user_avatar: null,
       last_invited_at: ts(daysAgo(30)),
       created_at: ts(daysAgo(180)),
-    });
-  }
+    })
+  ));
   console.log('   👤 רונית: 3 saved contacts');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
