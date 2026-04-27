@@ -8,57 +8,44 @@ class FiltersConfig with ConfigValidation {
   FiltersConfig._();
   static final FiltersConfig _instance = FiltersConfig._();
 
-  /// All category info (backward compatibility)
+  /// All category info — used by dropdowns/grids that iterate every category.
   static Map<String, CategoryInfo> get kCategoryInfo => CategoriesData.data;
 
-  /// Category order for UI (backward compatibility)
-  static List<String> get kCategoryOrder => CategoriesData.order;
-
-  /// Synonyms mapping (backward compatibility)
-  static Map<String, String> get kCategorySynonyms => CategoriesData.synonyms;
-
-  /// Get category info by key - safe fallback to 'other'
+  /// Get category info by key — safe fallback to 'other' if missing.
   static CategoryInfo getCategoryInfo(String key) {
     _instance.ensureValid();
     return CategoriesData.data[key] ?? CategoriesData.data['other']!;
   }
 
-  /// Resolve synonym to canonical key
+  /// Resolve a Hebrew category label or synonym to its canonical English key.
+  /// Falls back to 'other' for unknown input.
   static String resolveCategory(String input) {
     _instance.ensureValid();
-    
+
     // Direct key match
     if (CategoriesData.data.containsKey(input)) {
       return input;
     }
-    
+
     // Synonym lookup
     final synonym = CategoriesData.synonyms[input];
     if (synonym != null && CategoriesData.data.containsKey(synonym)) {
       return synonym;
     }
-    
+
     // Fallback to 'other'
     return 'other';
   }
 
-  /// Check if category exists
-  static bool isValidCategory(String key) {
-    _instance.ensureValid();
-    return CategoriesData.data.containsKey(key);
-  }
-
-  /// Get all category keys in UI order
-  static List<String> getAllCategories() {
-    _instance.ensureValid();
-    return CategoriesData.order;
-  }
-
-  /// Backward compatibility functions
+  /// Translate a Hebrew category label to its canonical English key.
+  /// Equivalent to [resolveCategory]; kept as an alias because most
+  /// callsites pass Hebrew strings and the explicit name reads better.
   static String hebrewCategoryToEnglish(String hebrewCategory) {
     return resolveCategory(hebrewCategory);
   }
 
+  /// Get the emoji for a category by canonical key.
+  /// For Hebrew labels, wrap with [hebrewCategoryToEnglish] first.
   static String getCategoryEmoji(String key) {
     return getCategoryInfo(key).emoji;
   }
