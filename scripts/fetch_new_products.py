@@ -609,6 +609,15 @@ def main():
         all_products = parse_kaggle_csv(kaggle_folder)
 
     if not all_products:
+        # In auto-mode (--yes, used by CI), this is a legitimate no-op:
+        # the Israeli supermarket APIs are geo-blocked outside IL, so a
+        # GitHub Actions runner in the US/EU can't fetch anything. The
+        # catalog stays unchanged — that's not an error.
+        if args.yes:
+            print('\n⚠️ No product data fetched (likely geo-blocked).')
+            print('   Catalog unchanged — exiting cleanly (--yes auto-mode).')
+            sys.exit(0)
+
         print('\n❌ No product data found.')
         print('\nOptions:')
         print('  1. Run from Israel (scraper sites are geo-blocked)')
