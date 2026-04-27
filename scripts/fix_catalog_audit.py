@@ -1,22 +1,31 @@
 #!/usr/bin/env python3
 """
-Audit fixes for the small catalog files (butcher / bakery / pharmacy).
+One-shot audit pipeline for the small catalog files (butcher / bakery /
+pharmacy). Already ran once in session 7 — re-running is safe but only
+useful if the catalog is restored from a fresh scrape.
 
 butcher.json:
 - Introduce 'נקניקים ובשרים מעובדים' for sausages/salami/pastrami/kebab
   currently dumped in 'אחר'.
-- Sort remaining 'אחר' candidates by species when the name implies it.
+- Sort remaining 'אחר' candidates by species when the name implies it
+  (chicken / beef / turkey).
 
 bakery.json:
 - 'מאפים' is a kitchen-sink. Redistribute by item type:
-    challah/bread/baguette/bun/kaek -> 'לחמים ולחמניות'
-    burekas/sambousek            -> 'מאפים מזרחיים'
-    danish/croissant             -> 'מאפים מתוקים'
+    cake/cookies                  -> 'עוגות'
+    challah/bread/baguette/bun    -> 'לחמים ולחמניות'
+    burekas/sambousek             -> 'מאפים מזרחיים'
+    danish/croissant/donut        -> 'מאפים מתוקים'
+    pizza/cracker/savory          -> 'מאפים מלוחים'
   Anything left in 'מאפים' becomes the genuine fallback.
 
 pharmacy.json:
-- Items in 'מוצרי ניקיון' / 'מזון בריאות' do not belong in a pharmacy file.
+- Items in 'מוצרי ניקיון' / 'מזון בריאות' don't belong in a pharmacy file.
 - 'אביזרי שיער' merged into 'טיפוח שיער'.
+
+Backups: each catalog gets a `<name>.json.bak` next to it before
+mutation. Existing .bak files are NOT overwritten — this preserves the
+true pre-fix state across re-runs.
 """
 import json
 from collections import Counter
@@ -37,6 +46,16 @@ def save(name, data):
     print(f"   ✅ saved {out}")
 
 
+def backup(name, data):
+    """Write `<name>.json.bak` once. Subsequent runs leave it alone so
+    the very first pre-fix snapshot stays recoverable."""
+    bak = ROOT / f'{name}.json.bak'
+    if bak.exists():
+        return
+    with open(bak, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False)
+
+
 def has_any(s, words):
     return any(w in s for w in words)
 
@@ -47,13 +66,8 @@ def has_any(s, words):
 def fix_butcher():
     print("\n🥩 butcher.json")
     data = load('butcher')
-    before = Counter(it.get('category') for it in data)
-    print(f"   before: אחר={before['אחר']}")
-
-    # Backup
-    bak = ROOT / 'butcher.json.bak'
-    with open(bak, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False)
+    print(f"   before: אחר={Counter(it.get('category') for it in data)['אחר']}")
+    backup('butcher', data)
 
     PROCESSED = ['נקניק', 'נקניקיות', 'נקניקייה', 'סלמי', 'פסטרמה',
                  "צ'וריסו", 'צוריסוס', 'מורטדלה', 'מרטדלה', 'קבב',
@@ -107,12 +121,8 @@ def fix_butcher():
 def fix_bakery():
     print("\n🥐 bakery.json")
     data = load('bakery')
-    before = Counter(it.get('category') for it in data)
-    print(f"   before: מאפים={before['מאפים']}")
-
-    bak = ROOT / 'bakery.json.bak'
-    with open(bak, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False)
+    print(f"   before: מאפים={Counter(it.get('category') for it in data)['מאפים']}")
+    backup('bakery', data)
 
     BREAD = ['חלה', 'לחם', 'בגט', 'באן ', 'באגט', 'כעך', 'לחמניה',
              'לחמניית', 'לחמניות', 'פיתה', 'פיתות', 'פוקאצ',
@@ -177,10 +187,7 @@ def fix_pharmacy():
     print(f"   before: מוצרי ניקיון={before['מוצרי ניקיון']}, "
           f"מזון בריאות={before['מזון בריאות']}, "
           f"אביזרי שיער={before['אביזרי שיער']}")
-
-    bak = ROOT / 'pharmacy.json.bak'
-    with open(bak, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False)
+    backup('pharmacy', data)
 
     moved_hair = 0
     removed = 0
