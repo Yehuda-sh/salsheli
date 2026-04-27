@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Catalog cleanup driven by user-reported display issues from the pantry
-screen screenshots.
+One-shot catalog cleanup driven by user-reported display issues from
+the pantry-screen screenshots. Already ran in session 7. Re-running
+is safe (idempotent — every transform is a no-op once applied) but
+useful only if the catalog is restored from a fresh scrape.
+
+Backup: a `supermarket.json.bak-display` snapshot is written next to
+the catalog before mutation. Existing snapshots are NOT overwritten,
+so the very first pre-fix state stays recoverable.
 
 Issues found in supermarket.json:
 
@@ -24,10 +30,10 @@ CATEGORY ERRORS (substring traps in the upstream classifier)
 """
 import json
 import re
-from collections import Counter
 from pathlib import Path
 
 PATH = Path('assets/data/list_types/supermarket.json')
+BAK = PATH.with_suffix('.json.bak-display')
 
 # Promo-only rows (no real product info) → delete
 PROMO_ONLY = re.compile(r'^מבצע\s+(\d|ב-?\d|שח|₪)')
@@ -60,6 +66,11 @@ def main():
     with open(PATH, encoding='utf-8') as f:
         data = json.load(f)
     before = len(data)
+
+    # Snapshot once, never overwrite. Captures the true pre-fix state.
+    if not BAK.exists():
+        with open(BAK, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False)
 
     # 1) Drop promo-only rows
     data = [it for it in data if not PROMO_ONLY.match(it.get('name', ''))]
