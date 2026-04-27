@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
 """
-Step 5 — prefix-driven + specific-brand categorization.
-Uses frequent name prefixes (מארז, סט, בקבוק...) with context to catch
-items that previous keyword passes missed.
+Step 5 — prefix-driven + specific-brand categorization. Uses frequent
+name prefixes (מארז, סט, בקבוק...) combined with context keywords to
+catch items that the keyword-only passes (step1-4) missed.
+
+Pipeline: step1 → step2 → step3 → step4 → **step5** → step6. Run only
+after `fetch_new_products.py --merge`; otherwise the catalog is
+already past step5.
+
+Idempotent: rules only fire on rows still in 'כללי', so a second run
+on clean data finds nothing to do. `.bak5` is rewritten each run on
+purpose — the chain assumes a single sequential execution.
 """
 import json
 import re
 from collections import Counter
+from pathlib import Path
 
-PATH = 'assets/data/list_types/supermarket.json'
-BACKUP = PATH + '.bak5'
+PATH = Path('assets/data/list_types/supermarket.json')
+BACKUP = PATH.with_suffix('.json.bak5')
 
 
 def has_any(name, words):
