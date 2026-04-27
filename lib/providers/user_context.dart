@@ -96,7 +96,6 @@ class UserContext with ChangeNotifier {
   void _notifySafe() {
     if (!_isDisposed) {
       notifyListeners();
-    } else {
     }
   }
 

@@ -55,21 +55,6 @@ class SuggestionsProvider with ChangeNotifier {
     }
   }
 
-  /// 💾 שמירת מוצרים מוחרגים ב-Hive
-  Future<void> _saveExcludedProducts() async {
-    try {
-      if (!Hive.isBoxOpen(_excludedProductsBoxName)) {
-        await Hive.openBox<String>(_excludedProductsBoxName);
-      }
-
-      final box = Hive.box<String>(_excludedProductsBoxName);
-      await box.clear();
-      await box.addAll(_excludedProducts);
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בשמירת excluded products: $e');
-    }
-  }
-
   // ========== Safe Notify ==========
 
   void _notifySafe() {
@@ -84,9 +69,6 @@ class SuggestionsProvider with ChangeNotifier {
   SmartSuggestion? get currentSuggestion => _currentSuggestion;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get hasCurrentSuggestion => _currentSuggestion != null;
-  int get pendingSuggestionsCount =>
-      _suggestions.where((s) => s.isActive).length;
 
   /// 🆕 המלצות פעילות (לא כולל session skipped)
   List<SmartSuggestion> get _activeSuggestions {
@@ -94,12 +76,6 @@ class SuggestionsProvider with ChangeNotifier {
         .where((s) => !_sessionSkippedProducts.contains(s.productName))
         .toList();
   }
-
-  /// 🆕 כמה המלצות פעילות יש בקרוסלה
-  int get carouselCount => _activeSuggestions.length;
-
-  /// 🆕 אינדקס נוכחי בקרוסלה (1-based לתצוגה)
-  int get currentPosition => carouselCount > 0 ? _currentIndex + 1 : 0;
 
   // ========== Initialization ==========
 
@@ -118,22 +94,6 @@ class SuggestionsProvider with ChangeNotifier {
     // 🔄 קריאה ידנית לטעינה ראשונית (listener לא מופעל אוטומטית בפעם הראשונה)
     _onInventoryChanged();
   }
-
-  /// 🗑️ מחיקת מוצר מרשימת המוחרגים (שחזור המלצות)
-  ///
-  /// Example:
-  /// ```dart
-  /// await provider.removeFromExcluded('חלב');
-  /// ```
-  Future<void> removeFromExcluded(String productName) async {
-    if (_excludedProducts.remove(productName)) {
-      await _saveExcludedProducts();
-      await refreshSuggestions();
-    }
-  }
-
-  /// 📋 קבלת רשימת מוצרים מוחרגים
-  Set<String> get excludedProducts => Set.unmodifiable(_excludedProducts);
 
   @override
   void dispose() {
@@ -209,71 +169,6 @@ class SuggestionsProvider with ChangeNotifier {
     }
   }
 
-  /// ⏭️ דחיית המלצה נוכחית
-  Future<void> dismissCurrentSuggestion() async {
-    if (_currentSuggestion == null) {
-      return;
-    }
-
-    try {
-      // דחייה לשבוע (static method)
-      final updatedSuggestion = SuggestionsService.dismissSuggestion(
-        _currentSuggestion!,
-      );
-
-      // עדכון ברשימה המקומית
-      final index = _suggestions.indexWhere((s) => s.id == _currentSuggestion!.id);
-      if (index != -1) {
-        _suggestions[index] = updatedSuggestion;
-      }
-
-      // טעינת המלצה חדשה
-      await _loadNextSuggestion();
-
-      _notifySafe();
-    } catch (e) {
-      _error = userFriendlyError(e, context: 'dismissSuggestion');
-      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה בדחיית המלצה: $e');
-      _notifySafe();
-    }
-  }
-
-  /// ❌ מחיקת המלצה נוכחית
-  Future<void> deleteCurrentSuggestion(Duration? duration) async {
-    if (_currentSuggestion == null) {
-      return;
-    }
-
-    try {
-      // מחיקה (static method)
-      final updatedSuggestion = SuggestionsService.deleteSuggestion(
-        _currentSuggestion!,
-        duration: duration,
-      );
-
-      // אם מחיקה קבועה - הוסף לרשימת מוצרים מוחרגים + שמור
-      if (duration == null) {
-        _excludedProducts.add(_currentSuggestion!.productName);
-        await _saveExcludedProducts(); // 💾 שמירה persistent
-      }
-
-      // עדכון ברשימה המקומית
-      final index = _suggestions.indexWhere((s) => s.id == _currentSuggestion!.id);
-      if (index != -1) {
-        _suggestions[index] = updatedSuggestion;
-      }
-
-      // טעינת המלצה חדשה
-      await _loadNextSuggestion();
-
-      _notifySafe();
-    } catch (e) {
-      _error = userFriendlyError(e, context: 'deleteSuggestion');
-      if (kDebugMode) debugPrint('❌ [SuggestionsProvider] שגיאה במחיקת המלצה: $e');
-      _notifySafe();
-    }
-  }
-
   /// 📊 טעינת המלצה הבאה מהתור (קרוסלה)
   Future<void> _loadNextSuggestion() async {
     final active = _activeSuggestions;
@@ -312,22 +207,6 @@ class SuggestionsProvider with ChangeNotifier {
     _notifySafe();
   }
 
-  /// ⏮️ חזור להמלצה הקודמת (קרוסלה)
-  Future<void> moveToPrevious() async {
-    final active = _activeSuggestions;
-
-    if (active.isEmpty) {
-      _currentSuggestion = null;
-      return;
-    }
-
-    // חזור לאינדקס הקודם (עם wrap-around)
-    _currentIndex = (_currentIndex - 1 + active.length) % active.length;
-    _currentSuggestion = active[_currentIndex];
-
-    _notifySafe();
-  }
-
   /// 🚫 דלג על המלצה בסשן הזה בלבד (כפתור "לא עכשיו")
   ///
   /// לא יופיע בקנייה הנוכחית, אבל כן בקנייה הבאה
@@ -351,20 +230,6 @@ class SuggestionsProvider with ChangeNotifier {
       _currentSuggestion = active[_currentIndex];
     }
 
-    _notifySafe();
-  }
-
-  /// 🔄 נקה דילוגי סשן (קריאה כשמסיימים קנייה או יוצאים)
-  void clearSessionSkips() {
-    _sessionSkippedProducts.clear();
-    _currentIndex = 0;
-    _loadNextSuggestion();
-    _notifySafe();
-  }
-
-  /// 🔄 איפוס שגיאה
-  void clearError() {
-    _error = null;
     _notifySafe();
   }
 

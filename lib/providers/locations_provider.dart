@@ -134,41 +134,11 @@ class LocationsProvider with ChangeNotifier {
     _notifySafe();
   }
 
-  /// טוען את כל המיקומים מחדש מה-Repository
-  ///
-  /// Example:
-  /// ```dart
-  /// await locationsProvider.loadLocations();
-  /// ```
-  Future<void> loadLocations() {
-    return _loadLocations();
-  }
-
   // === בדיקות ===
-  
-  /// בדיקה אם מיקום קיים במיקומים המותאמים
-  /// 
-  /// Example:
-  /// ```dart
-  /// if (provider.locationExists('מקפיא_נוסף')) {
-  ///   print('מיקום כבר קיים');
-  /// }
-  /// ```
+
+  /// בדיקה אם מיקום קיים במיקומים המותאמים (שימוש פנימי)
   bool locationExists(String key) {
     return _customLocations.any((loc) => loc.key == key);
-  }
-
-  /// חיפוש מיקום לפי key
-  ///
-  /// Example:
-  /// ```dart
-  /// final location = provider.getLocationByKey('מקפיא_נוסף');
-  /// if (location != null) {
-  ///   print('נמצא: ${location.name}');
-  /// }
-  /// ```
-  CustomLocation? getLocationByKey(String key) {
-    return _customLocations.where((loc) => loc.key == key).firstOrNull;
   }
 
   // === יצירה/מחיקה ===

@@ -109,8 +109,7 @@ class ProductsProvider with ChangeNotifier {
   bool get hasInitialized => _hasInitialized;
   bool get hasError => _errorMessage != null;
   String? get errorMessage => _errorMessage;
-  UserContext? get userContext => _userContext;
-  
+
   // 📊 Lazy Loading Getters
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMore => !_hasLoadedAll && _hasInitialized;
@@ -153,19 +152,6 @@ class ProductsProvider with ChangeNotifier {
   String? get selectedCategory => _selectedCategory;
   String? get selectedListType => _selectedListType;
   bool get isEmpty => _products.isEmpty;
-
-  // 📊 סטטיסטיקות
-  int get totalProducts {
-    return _products.length;
-  }
-
-  int get productsWithPrice {
-    return _products.where((p) => p['price'] != null).length;
-  }
-
-  int get productsWithoutPrice {
-    return _products.where((p) => p['price'] == null).length;
-  }
 
   // === Initialization ===
   Future<void> _initialize() async {
@@ -254,34 +240,6 @@ class ProductsProvider with ChangeNotifier {
       if (kDebugMode) {
         debugPrintStack(label: '_loadAllInBackground', stackTrace: st);
       }
-    } finally {
-      _isLoadingMore = false;
-      _notifySafe();
-    }
-  }
-
-  /// 📥 טוען עוד מוצרים (למקרה שהמשתמש רוצה "טען עוד")
-  ///
-  /// שימושי אם רוצים scroll אינסופי במקום טעינה אוטומטית ברקע
-  Future<void> loadMore() async {
-    if (_isLoadingMore || _hasLoadedAll || _isLoading) return;
-
-    _isLoadingMore = true;
-    _notifySafe();
-
-    try {
-      final currentCount = _products.length;
-      final moreProducts = await _loadProductsByTypeOrAll(
-        limit: _batchSize,
-        offset: currentCount,
-      );
-
-      _products = [..._products, ...moreProducts];
-      if (moreProducts.isEmpty || moreProducts.length < _batchSize) {
-        _hasLoadedAll = true;
-      }
-    } catch (e) {
-      _errorMessage = 'שגיאה בטעינת מוצרים נוספים: ${userFriendlyError(e, context: 'loadMoreProducts')}';
     } finally {
       _isLoadingMore = false;
       _notifySafe();
@@ -513,18 +471,6 @@ class ProductsProvider with ChangeNotifier {
       _notifySafe();
       return [];
     }
-  }
-
-  // === Statistics ===
-  int get filteredProductsCount => products.length;
-
-  Map<String, int> get productsByCategory {
-    final map = <String, int>{};
-    for (final product in _products) {
-      final category = (product['category'] as String?) ?? 'כללי';
-      map[category] = (map[category] ?? 0) + 1;
-    }
-    return map;
   }
 
   // === Clear All ===

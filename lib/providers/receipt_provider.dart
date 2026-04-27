@@ -270,36 +270,6 @@ class ReceiptProvider with ChangeNotifier {
     }
   }
 
-  /// מעדכן קבלה קיימת
-  /// 
-  /// Example:
-  /// ```dart
-  /// final updatedReceipt = receipt.copyWith(storeName: 'חנות חדשה');
-  /// await receiptProvider.updateReceipt(updatedReceipt);
-  /// ```
-  Future<void> updateReceipt(Receipt receipt) async {
-    final householdId = _userContext?.user?.householdId;
-    if (householdId == null) return;
-
-    try {
-      final updated = await _repository.saveReceipt(receipt: receipt, householdId: householdId);
-
-      // אופטימיזציה: עדכון local במקום ריענון מלא
-      final index = _receipts.indexWhere((r) => r.id == updated.id);
-      if (index != -1) {
-        _receipts[index] = updated;
-        _notifySafe();
-      } else {
-        await _loadReceipts();
-      }
-    } catch (e) {
-      if (kDebugMode) debugPrint('❌ ReceiptProvider.updateReceipt: $e');
-      _errorMessage = 'update_receipt_failed';
-      _notifySafe();
-      rethrow;
-    }
-  }
-
   /// מחיק קבלה
   /// 
   /// Example:

@@ -672,28 +672,6 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
   }
 
-  /// מחזיר סטטיסטיקות על רשימה
-  /// 
-  /// Returns: Map עם total, checked, unchecked
-  /// 
-  /// Example:
-  /// ```dart
-  /// final stats = provider.getListStats(listId);
-  /// print('סומנו: ${stats['checked']}/${stats['total']}');
-  /// ```
-  Map<String, int> getListStats(String listId) {
-    final list = getById(listId);
-    if (list == null) {
-      return {'total': 0, 'checked': 0, 'unchecked': 0};
-    }
-
-    final total = list.items.length;
-    final checked = list.items.where((item) => item.isChecked).length;
-    final unchecked = total - checked;
-
-    return {'total': total, 'checked': checked, 'unchecked': unchecked};
-  }
-
   /// מעדכן סטטוס רשימה
   /// 
   /// Example:
@@ -717,48 +695,12 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
   }
 
-  /// מארכבת רשימה
-  Future<void> archiveList(String listId) async {
-    await updateListStatus(listId, ShoppingList.statusArchived);
-  }
-
-  /// מחזיר פריטים שלא נקנו מרשימה
-  /// 
-  /// Example:
-  /// ```dart
-  /// final unpurchased = provider.getUnpurchasedItems(listId);
-  /// ```
-  List<UnifiedListItem> getUnpurchasedItems(String listId) {
-    final list = getById(listId);
-    if (list == null) {
-      return [];
-    }
-
-    return list.items.where((item) => !item.isChecked).toList();
-  }
-
-  /// מסיימת רשימה כהושלמה
-  Future<void> completeList(String listId) async {
-    await updateListStatus(listId, ShoppingList.statusCompleted);
-  }
-
-  /// מפעילה רשימה
-  Future<void> activateList(String listId) async {
-    await updateListStatus(listId, ShoppingList.statusActive);
-  }
-
   /// מוסיף פריטים לרשימה הבאה (אוטומטי)
   ///
   /// ✅ לוגיקה משופרת:
   /// 1. מחפש רשימה פעילה קיימת (כולל רשימת ברירת מחדל!)
   /// 2. אם אין → יוצר רשימה חדשה עם שם ברירת מחדל
   /// 3. מוסיף פריטים עם מניעת כפילויות
-  ///
-  /// Example:
-  /// ```dart
-  /// final unpurchased = provider.getUnpurchasedItems(listId);
-  /// await provider.addToNextList(unpurchased);
-  /// ```
   Future<void> addToNextList(List<UnifiedListItem> items) async {
 
     if (items.isEmpty) {
