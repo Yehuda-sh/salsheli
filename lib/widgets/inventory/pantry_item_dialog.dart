@@ -16,6 +16,7 @@ import '../../models/custom_location.dart';
 import '../../models/inventory_item.dart';
 import '../../providers/inventory_provider.dart';
 import '../../providers/locations_provider.dart';
+import '../../providers/products_provider.dart';
 import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
 import '../common/product_thumbnail.dart';
@@ -80,6 +81,12 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   bool _isLoading = false;
   bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
 
+  // 🆕 Brand + size pulled from the product catalog (read-only — they're
+  // not stored on InventoryItem, only displayed). Looked up by barcode
+  // on initState if we're editing an item that has one.
+  String? _catalogBrand;
+  String? _catalogSize;
+
   @override
   void initState() {
     super.initState();
@@ -118,6 +125,38 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     _unitController.addListener(_markChanged);
     _minQuantityController.addListener(_markChanged);
     _notesController.addListener(_markChanged);
+
+    // 🔎 Edit-mode + barcode → fetch brand/size from catalog asynchronously.
+    // We don't store these on InventoryItem; the lookup re-runs every time
+    // the dialog opens, so a future catalog update is automatically picked
+    // up without any per-user data migration.
+    final barcode = widget.item?.barcode;
+    if (widget.mode == PantryItemDialogMode.edit &&
+        barcode != null &&
+        barcode.length >= 7) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadCatalogDetails(barcode);
+      });
+    }
+  }
+
+  Future<void> _loadCatalogDetails(String barcode) async {
+    try {
+      final products = context.read<ProductsProvider>();
+      final product = await products.getProductByBarcode(barcode);
+      if (!mounted || product == null) return;
+      final brand = (product['brand'] as String?)?.trim();
+      final size = (product['size'] as String?)?.trim();
+      if ((brand == null || brand.isEmpty) && (size == null || size.isEmpty)) {
+        return;
+      }
+      setState(() {
+        _catalogBrand = (brand != null && brand.isNotEmpty) ? brand : null;
+        _catalogSize = (size != null && size.isNotEmpty) ? size : null;
+      });
+    } catch (_) {
+      // Best-effort lookup — silently skip if catalog fetch fails.
+    }
   }
 
   void _markChanged() {
@@ -669,6 +708,32 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 ),
                 enabled: !_isLoading,
               ),
+
+              // 🏷️ Brand + size from catalog — only renders when at least
+              // one of them is available. Read-only badges; the underlying
+              // InventoryItem doesn't store these.
+              if (_catalogBrand != null || _catalogSize != null) ...[
+                const SizedBox(height: kSpacingXTiny),
+                Wrap(
+                  spacing: kSpacingSmall,
+                  runSpacing: kSpacingXTiny,
+                  children: [
+                    if (_catalogBrand != null)
+                      _CatalogBadge(
+                        icon: Icons.sell_outlined,
+                        text: _catalogBrand!,
+                        cs: cs,
+                      ),
+                    if (_catalogSize != null)
+                      _CatalogBadge(
+                        icon: Icons.scale_outlined,
+                        text: _catalogSize!,
+                        cs: cs,
+                      ),
+                  ],
+                ),
+              ],
+
               const SizedBox(height: kSpacingSmall),
 
               // כמות + מינימום עם כפתורי +/-
@@ -1042,6 +1107,48 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         ],
       ),
         ),
+      ),
+    );
+  }
+}
+
+/// Compact pill rendering a single catalog-derived attribute (brand or size).
+/// Read-only — taps don't do anything; this is informational chrome.
+class _CatalogBadge extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final ColorScheme cs;
+
+  const _CatalogBadge({
+    required this.icon,
+    required this.text,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingSmall,
+        vertical: kSpacingXTiny,
+      ),
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+          const SizedBox(width: kSpacingXTiny),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: kFontSizeSmall,
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
