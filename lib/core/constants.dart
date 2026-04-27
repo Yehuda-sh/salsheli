@@ -1,4 +1,4 @@
-// lib/core/constants.dart — App-wide constants — Firestore collection names, field names, default values
+// lib/core/constants.dart — App-wide limits, status enum, and default values
 
 const int kMaxItemsPerList = 200;
 
@@ -7,12 +7,6 @@ const int kMaxItemsPerPantry = 500;
 
 /// מקסימום רשימות פעילות למשתמש
 const int kMaxActiveListsPerUser = 30;
-
-/// מקסימום משתמשים משותפים לרשימה (מניעת עומס על Sync)
-const int kMaxSharedUsersPerList = 20;
-
-/// מקסימום מיקומי אחסון במזווה למשק בית
-const int kMaxLocationsPerHousehold = 30;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // QUERY LIMITS
@@ -24,14 +18,14 @@ const int kQueryLimitHousehold = 50;
 /// מקסימום משתמשים לטעינה בשאילתה כללית
 const int kQueryLimitAllUsers = 100;
 
-/// מקסימום דפוסי קניות אחרונים לטעינה
+/// מקסימום דפוסי קניות אחרונים לטעינה (Firestore query limit)
 const int kMaxRecentPatterns = 10;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // LIMIT STATUS (Severity Levels)
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// סטטוס ניצול מכסה — לשימוש ב-UI להצגת אזהרות מדורגות
+/// סטטוס ניצול מכסה — להצגת אזהרות מדורגות (UI ומודלים)
 enum LimitStatus {
   /// מצב תקין — אין צורך בהתראה
   safe,
@@ -50,10 +44,10 @@ enum LimitStatus {
 // WARNING THRESHOLDS
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// סף אזהרה עדינה (80%) — נועד לשימוש ב-UI
+/// סף אזהרה עדינה (80%) — נקרא מתוך getLimitStatus
 const double kLimitWarningThreshold = 0.8;
 
-/// סף אזהרה דחופה (95%) — קרוב מאוד למגבלה
+/// סף אזהרה דחופה (95%) — נקרא מתוך getLimitStatus
 const double kLimitCriticalThreshold = 0.95;
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -85,7 +79,9 @@ LimitStatus getLimitStatus(int current, int max) {
 // DEFAULT VALUES
 // ═══════════════════════════════════════════════════════════════════════════
 
-/// Default unit for products — matches AppStrings.inventory.defaultUnit
-/// ('יח\'' in HE, 'pcs' in EN).
-/// Used as fallback when unit is missing from Firestore data.
+/// Default unit for products — canonical Hebrew value persisted to Firestore.
+/// UI display uses AppStrings.inventory.defaultUnit ('יח\'' in HE, 'pcs' in EN).
+/// Used as fallback when unit is missing from Firestore data, and as the
+/// hardcoded `@JsonKey(defaultValue: 'יח\'')` in models (json_serializable
+/// requires literal — keep models in sync if this changes).
 const String kDefaultProductUnit = 'יח\'';
