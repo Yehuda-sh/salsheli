@@ -1,4 +1,4 @@
-// lib/repositories/firebase_shopping_lists_repository.dart — Firebase shopping lists repo — private + shared lists, real-time streams, migration
+// lib/repositories/firebase_shopping_lists_repository.dart — Firebase shopping lists repo — private + shared lists, real-time streams, share-to-household transfer
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

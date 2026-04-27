@@ -51,8 +51,6 @@ class FirebaseUserRepository implements UserRepository {
       // עדכון lastLoginAt
       final updatedUser = user.copyWith(lastLoginAt: DateTime.now());
 
-      // final jsonData = updatedUser.toJson();
-
       await _firestore
           .collection(FirestoreCollections.users)
           .doc(user.id)
@@ -103,10 +101,6 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<List<UserEntity>> getAllUsers({String? householdId}) async {
     try {
-      if (householdId != null) {
-      } else {
-      }
-
       Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
       
       // ✅ Apply household filter if provided
@@ -275,10 +269,6 @@ class FirebaseUserRepository implements UserRepository {
   @override
   Future<void> clearAll({String? householdId}) async {
     try {
-      if (householdId != null) {
-      } else {
-      }
-
       Query<Map<String, dynamic>> query = _firestore.collection(FirestoreCollections.users);
       
       // ✅ Apply household filter if provided

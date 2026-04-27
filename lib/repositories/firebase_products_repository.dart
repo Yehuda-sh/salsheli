@@ -341,21 +341,6 @@ class FirebaseProductsRepository implements ProductsRepository {
     return getAllProducts(limit: limit, offset: offset);
   }
 
-  /// ניקוי ה-cache המקומי
-  ///
-  /// משמש כאשר רוצים לכפות טעינה מחדש מ-Firestore
-  /// בפעם הבאה ש-getAllProducts() ייקרא
-  ///
-  /// Example:
-  /// ```dart
-  /// repo.clearCache();
-  /// final products = await repo.getAllProducts(); // טוען מחדש
-  /// ```
-  void clearCache() {
-    _cachedProducts = null;
-    _lastCacheUpdate = null;
-  }
-
   // ========================================
   // Private Helpers
   // ========================================

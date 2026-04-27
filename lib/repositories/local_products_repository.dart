@@ -247,15 +247,4 @@ class LocalProductsRepository implements ProductsRepository {
     return allProducts;
   }
 
-  /// ניקוי cache מלא
-  void clearCache() {
-    _cache.clear();
-    _loadingFutures.clear();
-  }
-
-  /// ניקוי cache של סוג רשימה ספציפי
-  void clearCacheForType(String listType) {
-    _cache.remove(listType);
-    _loadingFutures.remove(listType);
-  }
 }
