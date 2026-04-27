@@ -1,14 +1,25 @@
 #!/usr/bin/env python3
 """
 Step 6 — targeted cleanup based on sampled items.
-- Remove more transit entries (נסיעה בודדת)
-- Add targeted rules for specific items seen in samples
+- Remove more transit entries ('נסיעה בודדת').
+- Add targeted rules for specific items spotted while sampling the
+  remaining 'כללי' rows after step5.
+
+Pipeline: step1 → step2 → step3 → step4 → step5 → **step6** (final).
+Run only after `fetch_new_products.py --merge`; otherwise the catalog
+is already past step6.
+
+Idempotent: the transit filter is name-substring-based and the move
+rules only fire on rows still in 'כללי', so a second run on clean
+data finds nothing to do. `.bak6` is rewritten each run on purpose —
+the chain assumes a single sequential execution.
 """
 import json
 from collections import Counter
+from pathlib import Path
 
-PATH = 'assets/data/list_types/supermarket.json'
-BACKUP = PATH + '.bak6'
+PATH = Path('assets/data/list_types/supermarket.json')
+BACKUP = PATH.with_suffix('.json.bak6')
 
 
 def has_any(name, words):
