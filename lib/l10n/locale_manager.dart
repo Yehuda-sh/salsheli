@@ -5,12 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Supported app locales
 enum AppLocale {
-  he('he', 'עברית', TextDirection.rtl),
-  en('en', 'English', TextDirection.ltr);
+  he('he', TextDirection.rtl),
+  en('en', TextDirection.ltr);
 
-  const AppLocale(this.code, this.displayName, this.direction);
+  const AppLocale(this.code, this.direction);
   final String code;
-  final String displayName;
   final TextDirection direction;
 
   static AppLocale fromCode(String code) {
@@ -32,10 +31,8 @@ class LocaleManager extends ChangeNotifier {
 
   AppLocale _locale = AppLocale.he;
 
-  AppLocale get locale => _locale;
   String get languageCode => _locale.code;
   TextDirection get textDirection => _locale.direction;
-  bool get isRtl => _locale.direction == TextDirection.rtl;
   bool get isHebrew => _locale == AppLocale.he;
   bool get isEnglish => _locale == AppLocale.en;
 
@@ -55,16 +52,6 @@ class LocaleManager extends ChangeNotifier {
     _locale = newLocale;
     notifyListeners();
     _persist();
-  }
-
-  /// Switch by language code string.
-  void setLocaleByCode(String code) {
-    setLocale(AppLocale.fromCode(code));
-  }
-
-  /// Toggle between Hebrew and English.
-  void toggleLocale() {
-    setLocale(_locale == AppLocale.he ? AppLocale.en : AppLocale.he);
   }
 
   Future<void> _persist() async {
