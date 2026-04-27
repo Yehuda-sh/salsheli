@@ -8,10 +8,22 @@
 const admin = require('firebase-admin');
 const fs = require('fs');
 const path = require('path');
-const sa = require('./firebase-service-account.json');
 
+// Credentials: prefer the local service-account file (dev workflow).
+// Fall back to GOOGLE_APPLICATION_CREDENTIALS env var (used in CI / GitHub
+// Actions) so the script doesn't crash with "Cannot find module" there.
 if (!admin.apps.length) {
-  admin.initializeApp({ credential: admin.credential.cert(sa) });
+  const localSa = path.join(__dirname, 'firebase-service-account.json');
+  if (fs.existsSync(localSa)) {
+    admin.initializeApp({ credential: admin.credential.cert(require(localSa)) });
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    admin.initializeApp({ credential: admin.credential.applicationDefault() });
+  } else {
+    throw new Error(
+      'No credentials found. Either place firebase-service-account.json in scripts/ ' +
+      'or set GOOGLE_APPLICATION_CREDENTIALS env var.'
+    );
+  }
 }
 const db = admin.firestore();
 const auth = admin.auth();
@@ -27,7 +39,17 @@ const HOUR = 3600000;
 function daysAgo(n) { return new Date(now.getTime() - n * DAY); }
 function hoursAgo(n) { return new Date(now.getTime() - n * HOUR); }
 function daysFromNow(n) { return new Date(now.getTime() + n * DAY); }
-function pickRandom(arr, count) { return [...arr].sort(() => Math.random() - 0.5).slice(0, Math.min(count, arr.length)); }
+/// Fisher-Yates partial shuffle — uniform distribution (the previous
+/// `[...arr].sort(() => Math.random() - 0.5)` is statistically biased).
+function pickRandom(arr, count) {
+  const n = Math.min(count, arr.length);
+  const out = [...arr];
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(Math.random() * (out.length - i));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out.slice(0, n);
+}
 function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 /// Convert a JS Date to a Firestore Timestamp. Returns null for null input.
 /// Use everywhere instead of .toISOString() so where()/orderBy() work with DateTime.
@@ -238,7 +260,9 @@ function makeReceiptItem(product, idx, shopperUid, date) {
     name: product.name,
     quantity: qty,
     unit_price: product.price || 0,
-    unit: normalizeUnit(product.unit),
+    // Match makeProductItem: prefer user-friendly defaultUnit over the
+    // raw catalog measurement unit (e.g. 'יח' over 'מיליליטר').
+    unit: normalizeUnit(product.defaultUnit || product.unit),
     is_checked: true,
     category: product.category || null,
     checked_by: shopperUid,
@@ -913,14 +937,14 @@ async function main() {
 
   // Cohen household — 10 events (mixed types)
   await createActivityEvents(hIds.cohen, [
-    makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'super' }, daysAgo(7)),
+    makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'supermarket' }, daysAgo(7)),
     makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
     makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_fruits' }, daysAgo(6)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_5', hIds.cohen, 'shopping_joined', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_6', hIds.cohen, 'shopping_completed', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', item_count: 12, store_name: 'רמי לוי' }, daysAgo(3)),
     makeActivityEvent('act_cohen_7', hIds.cohen, 'stock_updated', uids.avi, 'אבי כהן', { product_name: 'חלב תנובה 3%', quantity: 2 }, daysAgo(3)),
-    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'cleaning' }, daysAgo(2)),
+    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
     makeActivityEvent('act_cohen_11', hIds.cohen, 'member_left', uids.noa, 'נועה כהן', {}, hoursAgo(3)),
@@ -929,30 +953,30 @@ async function main() {
 
   // Levi household — 5 events
   await createActivityEvents(hIds.levi, [
-    makeActivityEvent('act_levi_1', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', list_type: 'super' }, daysAgo(5)),
+    makeActivityEvent('act_levi_1', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', list_type: 'supermarket' }, daysAgo(5)),
     makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_shabbat' }, daysAgo(2)),
     makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
-    makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'cleaning' }, daysAgo(1)),
+    makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'household' }, daysAgo(1)),
   ]);
   console.log('   📝 לוי: 5 activity events');
 
   // Naama household — 8 events (power user)
   await createActivityEvents(hIds.naama, [
-    makeActivityEvent('act_naama_1', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_type: 'super' }, daysAgo(10)),
+    makeActivityEvent('act_naama_1', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_type: 'supermarket' }, daysAgo(10)),
     makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_weekly' }, daysAgo(7)),
     makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל' }, daysAgo(7)),
     makeActivityEvent('act_naama_4', hIds.naama, 'stock_updated', uids.naama, 'נעמה רוזן', { product_name: 'גבינה צהובה', quantity: 1 }, daysAgo(5)),
     makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
     makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_id: 'list_naama_pharm' }, daysAgo(3)),
     makeActivityEvent('act_naama_7', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'פארם', item_count: 5, store_name: 'סופר פארם' }, daysAgo(3)),
-    makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'super' }, hoursAgo(2)),
+    makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'supermarket' }, hoursAgo(2)),
   ]);
   console.log('   📝 נעמה: 8 activity events');
 
   // Mike household — 3 events (English)
   await createActivityEvents(hIds.mike, [
-    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'super' }, daysAgo(4)),
+    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'supermarket' }, daysAgo(4)),
     makeActivityEvent('act_mike_2', hIds.mike, 'shopping_completed', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', item_count: 10, store_name: 'Rami Levy Shoresh' }, daysAgo(2)),
     makeActivityEvent('act_mike_3', hIds.mike, 'stock_updated', uids.mike, 'Mike Johnson', { product_name: 'Milk', quantity: 2 }, daysAgo(2)),
   ]);
@@ -968,27 +992,27 @@ async function main() {
 
   // Shiran household — 2 events (solo, has "הכל נקנה" list)
   await createActivityEvents(hIds.shiran, [
-    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'supermarket' }, daysAgo(1)),
     makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל' }, hoursAgo(1)),
   ]);
   console.log('   📝 שירן: 2 activity events');
 
   // Lior household — 1 old event (inactive user, 45+ days)
   await createActivityEvents(hIds.lior, [
-    makeActivityEvent('act_lior_1', hIds.lior, 'list_created', uids.lior, 'ליאור דהן', { list_name: 'קניות', list_type: 'super' }, daysAgo(50)),
+    makeActivityEvent('act_lior_1', hIds.lior, 'list_created', uids.lior, 'ליאור דהן', { list_name: 'קניות', list_type: 'supermarket' }, daysAgo(50)),
   ]);
   console.log('   📝 ליאור: 1 activity event (old, 50 days ago)');
 
   // Google user — 2 events
   await createActivityEvents(hIds.google_user, [
-    makeActivityEvent('act_gu_1', hIds.google_user, 'list_created', uids.google_user, 'גיל גוגל', { list_name: 'רשימה ראשונה', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_gu_1', hIds.google_user, 'list_created', uids.google_user, 'גיל גוגל', { list_name: 'רשימה ראשונה', list_type: 'supermarket' }, daysAgo(1)),
     makeActivityEvent('act_gu_2', hIds.google_user, 'item_added', uids.google_user, 'גיל גוגל', { item_name: 'חלב תנובה', list_name: 'רשימה ראשונה' }, hoursAgo(2)),
   ]);
   console.log('   📝 גיל (Google): 2 activity events');
 
   // George household — 2 events (special chars in names)
   await createActivityEvents(hIds.george, [
-    makeActivityEvent('act_george_1', hIds.george, 'list_created', uids.george, "ג'ורג' חביב", { list_name: "קניות של ג'ורג'", list_type: 'super' }, daysAgo(2)),
+    makeActivityEvent('act_george_1', hIds.george, 'list_created', uids.george, "ג'ורג' חביב", { list_name: "קניות של ג'ורג'", list_type: 'supermarket' }, daysAgo(2)),
     makeActivityEvent('act_george_2', hIds.george, 'shopping_started', uids.george, "ג'ורג' חביב", { list_name: "קניות של ג'ורג'", list_id: 'list_george_1' }, hoursAgo(4)),
   ]);
   console.log("   📝 ג'ורג': 2 activity events (special chars)");
@@ -996,7 +1020,7 @@ async function main() {
   // Roommates — 6 events (multi-member, diverse actors)
   await createActivityEvents(hIds.roommates, [
     makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household' }, daysAgo(1)),
-    makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'super' }, hoursAgo(6)),
+    makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'supermarket' }, hoursAgo(6)),
     makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒' }, hoursAgo(4)),
     makeActivityEvent('act_room_4', hIds.roommates, 'shopping_started', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(3)),
     makeActivityEvent('act_room_5', hIds.roommates, 'stock_updated', uids.keren, 'קרן אביב', { product_name: 'נייר טואלט', quantity: 0 }, hoursAgo(5)),
@@ -1006,20 +1030,20 @@ async function main() {
 
   // Shlomo household — 2 events (elderly, simple)
   await createActivityEvents(hIds.shlomo, [
-    makeActivityEvent('act_shlomo_1', hIds.shlomo, 'list_created', uids.shlomo, 'שלמה ברקוביץ', { list_name: 'קניות', list_type: 'super' }, daysAgo(1)),
+    makeActivityEvent('act_shlomo_1', hIds.shlomo, 'list_created', uids.shlomo, 'שלמה ברקוביץ', { list_name: 'קניות', list_type: 'supermarket' }, daysAgo(1)),
     makeActivityEvent('act_shlomo_2', hIds.shlomo, 'shopping_completed', uids.shlomo, 'שלמה ברקוביץ', { list_name: 'קניות', item_count: 5, store_name: 'רמי לוי' }, hoursAgo(3)),
   ]);
   console.log('   📝 שלמה: 2 activity events');
 
   // Removed user household — 1 event (post-removal personal activity)
   await createActivityEvents(hIds.removed_user, [
-    makeActivityEvent('act_ilan_1', hIds.removed_user, 'list_created', uids.removed_user, 'אילן פרץ', { list_name: 'הרשימה שלי', list_type: 'super' }, daysAgo(3)),
+    makeActivityEvent('act_ilan_1', hIds.removed_user, 'list_created', uids.removed_user, 'אילן פרץ', { list_name: 'הרשימה שלי', list_type: 'supermarket' }, daysAgo(3)),
   ]);
   console.log('   📝 אילן (removed): 1 activity event');
 
   // Long name user — 2 events (overflow test in activity feed)
   await createActivityEvents(hIds.longname, [
-    makeActivityEvent('act_long_1', hIds.longname, 'list_created', uids.longname, "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", { list_name: 'קניות לבית', list_type: 'super' }, daysAgo(2)),
+    makeActivityEvent('act_long_1', hIds.longname, 'list_created', uids.longname, "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", { list_name: 'קניות לבית', list_type: 'supermarket' }, daysAgo(2)),
     makeActivityEvent('act_long_2', hIds.longname, 'shopping_completed', uids.longname, "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", { list_name: 'קניות לבית', item_count: 8, store_name: 'שופרסל' }, hoursAgo(6)),
   ]);
   console.log('   📝 Long name: 2 activity events (overflow test)');
