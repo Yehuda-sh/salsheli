@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../l10n/app_strings.dart';
 import '../models/activity_event.dart';
 import '../repositories/activity_log_repository.dart';
 import 'user_context.dart';
@@ -103,7 +104,7 @@ class ActivityLogProvider with ChangeNotifier {
         _repository.deleteOldEvents(householdId, days: _retentionDays),
       );
     } catch (e) {
-      _errorMessage = 'load_activity_failed';
+      _errorMessage = AppStrings.activityLog.defaultError;
       if (kDebugMode) debugPrint('❌ ActivityLogProvider._loadEvents: $e');
     }
 
@@ -118,13 +119,6 @@ class ActivityLogProvider with ChangeNotifier {
   Future<void> retry() {
     _errorMessage = null;
     return _loadEvents();
-  }
-
-  void clearAll() {
-    _events = [];
-    _errorMessage = null;
-    _isLoading = false;
-    _notifySafe();
   }
 
   @override
