@@ -138,7 +138,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                       child: CustomPaint(
                         painter: _ScanOverlayPainter(
                           borderColor: cs.primary,
-                          overlayColor: Colors.black.withValues(alpha: 0.4),
+                          overlayColor: cs.scrim.withValues(alpha: 0.4),
                         ),
                       ),
                     ),
