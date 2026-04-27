@@ -226,19 +226,13 @@ class CategoryStringsEn extends CategoryStrings {
   @override String get readySalads => 'Ready Salads';
   @override String get dairySubstitutes => 'Dairy Substitutes';
   @override String get hygiene => 'Hygiene';
-  @override String get oralCare => 'Oral Care';
   @override String get cosmetics => 'Cosmetics & Care';
-  @override String get feminineHygiene => 'Feminine Hygiene';
   @override String get cleaning => 'Cleaning Products';
-  @override String get homeProducts => 'Home Products';
-  @override String get disposable => 'Disposable';
-  @override String get garden => 'Garden Products';
   @override String get petFood => 'Pet Food';
   @override String get otcMedicine => 'OTC Medicine';
   @override String get vitamins => 'Vitamins & Supplements';
   @override String get firstAid => 'First Aid';
   @override String get babyProducts => 'Baby Products';
-  @override String get accessories => 'Accessories';
 }
 
 // ========================================

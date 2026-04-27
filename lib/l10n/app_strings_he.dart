@@ -225,19 +225,13 @@ class CategoryStrings {
   String get readySalads => 'סלטים מוכנים';
   String get dairySubstitutes => 'תחליפי חלב';
   String get hygiene => 'היגיינה';
-  String get oralCare => 'טיפוח הפה';
   String get cosmetics => 'קוסמטיקה וטיפוח';
-  String get feminineHygiene => 'היגיינה נשית';
   String get cleaning => 'מוצרי ניקיון';
-  String get homeProducts => 'מוצרי בית';
-  String get disposable => 'חד פעמי';
-  String get garden => 'מוצרי גינה';
   String get petFood => 'מזון לחיות מחמד';
   String get otcMedicine => 'תרופות ללא מרשם';
   String get vitamins => 'ויטמינים ותוספי תזונה';
   String get firstAid => 'עזרה ראשונה';
   String get babyProducts => 'מוצרי תינוקות';
-  String get accessories => 'מוצרים נלווים';
 }
 
 // ========================================
