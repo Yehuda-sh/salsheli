@@ -22,10 +22,9 @@ class StorageLocationsConfig with ConfigValidation {
   }
 
   /// Get location display name (convenience wrapper around getLocationInfo).
-  static String getName(String locationId) {
-    _instance.ensureValid();
-    return getLocationInfo(locationId).name;
-  }
+  /// Does not call ensureValid() directly — getLocationInfo already does.
+  static String getName(String locationId) =>
+      getLocationInfo(locationId).name;
 
   /// Check if a location key exists in the registry.
   static bool isValidLocation(String locationId) {
