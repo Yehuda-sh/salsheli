@@ -1,4 +1,4 @@
-// lib/config/filters_data.dart — Category data — 35 categories with emoji + 220 Hebrew→English synonym mappings
+// lib/config/filters_data.dart — Category data — 38 categories with emoji + 96 Hebrew→English synonym mappings
 
 import '../l10n/app_strings.dart';
 
