@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,7 +15,6 @@ import '../models/unified_list_item.dart';
 import '../repositories/inventory_repository.dart';
 import '../services/activity_log_service.dart';
 import '../services/home_widget_service.dart';
-import '../services/notifications_service.dart';
 import 'user_context.dart';
 
 
@@ -139,7 +137,7 @@ class InventoryProvider with ChangeNotifier {
   InventoryMode get currentMode => _currentMode;
 
   /// שם המזווה להצגה
-  String get inventoryTitle => 'המזווה שלי';
+  String get inventoryTitle => AppStrings.settings.myPantry;
 
   // === חיבור UserContext ===
 
@@ -877,51 +875,6 @@ class InventoryProvider with ChangeNotifier {
       _notifySafe();
       rethrow;
     }
-  }
-
-  // === Expiry Notifications ===
-
-  /// 📅 בודק פריטים עם תאריך תפוגה ושולח התראות
-  ///
-  /// נקרא פעם ביום (מ-main_navigation_screen או startup).
-  /// שולח התראה רק על פריטים שהמשתמש הזין להם תאריך תפוגה.
-  /// מחזיר מספר התראות שנשלחו.
-  Future<int> checkExpiryAndNotify({
-    int daysBeforeExpiry = 3,
-  }) async {
-    final userId = _userContext?.userId;
-    final householdId = _userContext?.user?.householdId;
-    if (userId == null) return 0;
-
-    final now = DateTime.now();
-    final threshold = now.add(Duration(days: daysBeforeExpiry));
-    int notificationsSent = 0;
-
-    // סנן רק פריטים שהמשתמש הזין תאריך תפוגה
-    final itemsWithExpiry = _items.where((item) => item.hasExpiryDate);
-
-    for (final item in itemsWithExpiry) {
-      // Convert Firestore UTC timestamp to local date-only to avoid
-      // "already expired" false-positives for users in UTC+N timezones.
-      final expiry = item.expiryDate!.toLocal();
-      final isExpired = expiry.isBefore(now);
-      final isExpiringSoon = !isExpired && expiry.isBefore(threshold);
-
-      if (isExpired || isExpiringSoon) {
-        final success = await NotificationsService(
-          FirebaseFirestore.instance,
-        ).createExpiryNotification(
-          userId: userId,
-          householdId: householdId ?? userId,
-          productName: item.productName,
-          expiryDate: expiry,
-          isExpired: isExpired,
-        );
-        if (success) notificationsSent++;
-      }
-    }
-
-    return notificationsSent;
   }
 
   // === Cleanup ===
