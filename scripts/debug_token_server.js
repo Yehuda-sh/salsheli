@@ -1,7 +1,7 @@
 // 🧪 Debug-only token server for emulator testing
 // Generates Firebase custom tokens to bypass reCAPTCHA
 // Usage: node scripts/debug_token_server.js
-// Then in app, debug login calls: http://<server-ip>:9876/token?email=avi.cohen@demo.com
+// Then in app, debug login calls: http://<server-ip>:9877/token?email=avi.cohen@demo.com
 
 const http = require('http');
 const admin = require('firebase-admin');
