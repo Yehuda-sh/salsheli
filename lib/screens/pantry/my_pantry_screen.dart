@@ -653,7 +653,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final brand = theme.extension<AppBrand>();
 
     final primaryColor = scheme.primaryContainer;
-    // final backgroundColor = scheme.surface;
 
     final strings = AppStrings.pantry;
 
@@ -1589,7 +1588,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                             transitionBuilder: (child, animation) =>
                                                 ScaleTransition(scale: animation, child: child),
                                             child: Text(
-                                              '\u200E\${item.quantity} \${item.unit}',
+                                              '\u200E${item.quantity} ${item.unit}',
                                               key: ValueKey(item.quantity),
                                               style: theme.textTheme.titleSmall?.copyWith(
                                                 fontWeight: FontWeight.bold,
