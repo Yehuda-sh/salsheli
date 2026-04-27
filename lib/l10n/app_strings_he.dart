@@ -1233,23 +1233,14 @@ class InventoryStrings {
   String get lowStockAlertGoToPantryTooltip => 'עבור למזווה לצפייה בכל הפריטים';
   String get lowStockAlertDismissTodayTooltip => 'התראה זו לא תוצג שוב היום';
   String get locationMainPantry => 'מזווה';
-  String get locationMainPantryDesc => 'מזווה ראשי - מוצרים יבשים';
   String get locationRefrigerator => 'מקרר';
-  String get locationRefrigeratorDesc => 'מקרר - מוצרים טריים';
   String get locationFreezer => 'מקפיא';
-  String get locationFreezerDesc => 'מקפיא - מוצרים קפואים';
   String get locationKitchen => 'מטבח';
-  String get locationKitchenDesc => 'ארונות מטבח - כלים ומוצרי בישול';
   String get locationBathroom => 'אמבטיה';
-  String get locationBathroomDesc => 'אמבטיה - מוצרי טיפוח וניקיון';
   String get locationStorage => 'מחסן';
-  String get locationStorageDesc => 'מחסן - מארזים גדולים ומלאי';
   String get locationServicePorch => 'מרפסת שירות';
-  String get locationServicePorchDesc => 'מרפסת שירות - כביסה וניקיון';
   String get locationOther => 'אחר';
-  String get locationOtherDesc => 'מיקום אחר';
   String get locationUnknown => 'לא ידוע';
-  String get locationUnknownDesc => 'מיקום לא מוכר';
   String maxItemsReached(int max) => 'הגעת למקסימום $max פריטים במזווה';
   String pantryHealthStatus(double healthPercent) {
     if (healthPercent >= 80) return 'המזווה מלא ומוכן! 💚';

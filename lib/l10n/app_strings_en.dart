@@ -1205,15 +1205,10 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get lowStockAlertGoToPantryTooltip => 'Go to pantry to view all items';
   @override String get lowStockAlertDismissTodayTooltip => 'This alert won\'t show again today';
   @override String get locationMainPantry => 'Pantry';
-  @override String get locationMainPantryDesc => 'Main pantry - dry goods';
   @override String get locationRefrigerator => 'Refrigerator';
-  @override String get locationRefrigeratorDesc => 'Refrigerator - fresh products';
   @override String get locationFreezer => 'Freezer';
-  @override String get locationFreezerDesc => 'Freezer - frozen products';
   @override String get locationOther => 'Other';
-  @override String get locationOtherDesc => 'Other location';
   @override String get locationUnknown => 'Unknown';
-  @override String get locationUnknownDesc => 'Unknown location';
   @override String maxItemsReached(int max) => 'You\'ve reached the maximum of $max pantry items';
   @override String pantryHealthStatus(double healthPercent) {
     if (healthPercent >= 80) return 'Pantry is fully stocked! 💚';
