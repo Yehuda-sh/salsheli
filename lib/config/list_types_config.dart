@@ -156,21 +156,14 @@ class ListTypes with ConfigValidation {
   // 🔍 Lookup API
   // ========================================
 
-  /// מצא config לפי key - תמיד מחזיר Config בטוח לשימוש ב-UI
+  /// מצא config לפי key - תמיד מחזיר Config בטוח לשימוש ב-UI.
+  /// `_byKey[other]!` — `'other'` is enforced to exist in `all` by
+  /// performValidation(); the const list itself is hardcoded above.
   static ListTypeConfig getByKeySafe(String? key) {
     _instance.ensureValid();
-    if (key == null) return _byKey[ListTypeKeys.other] ?? _fallbackConfig;
-    return _byKey[key] ?? _byKey[ListTypeKeys.other] ?? _fallbackConfig;
+    if (key == null) return _byKey[ListTypeKeys.other]!;
+    return _byKey[key] ?? _byKey[ListTypeKeys.other]!;
   }
-
-  /// Config ברירת מחדל (fallback — only if 'other' missing from data)
-  static final ListTypeConfig _fallbackConfig = ListTypeConfig(
-    key: ListTypeKeys.other,
-    fullName: AppStrings.shopping.typeOther,
-    shortName: AppStrings.shopping.typeOtherShort,
-    emoji: '📝',
-    icon: Icons.more_horiz,
-  );
 
   /// ✅ Validation implementation - replaces old ensureSanity()
   @override
