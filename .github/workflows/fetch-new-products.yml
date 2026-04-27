@@ -19,9 +19,9 @@ on:
           - review   # שומר ל-new_products.json לסקירה ידנית (בטוח)
           - merge    # מוסיף ישר ל-supermarket.json (עם גיבוי וסיווג אוטומטי)
       chains:
-        description: 'רשתות UPPERCASE מופרדות ברווחים. ריק = כל הרשתות. דוגמאות: SHUFERSAL, RAMI_LEVY, YOHANANOF, VICTORY, OSHER_AD, SUPER_PHARM, GOOD_PHARM. שם לא חוקי (כמו "Yes") יכשיל את הריצה. לרשימה מלאה הרץ `python scripts/fetch_new_products.py --list-chains`.'
+        description: 'רשתות UPPERCASE מופרדות ברווחים. ברירת מחדל = 9 רשתות שעובדות יציב מ-CI (~70 שניות). מחק את הערך כדי לנסות את כל 34 הרשתות (איטי, כולל כשלים צפויים מ-VICTORY/HAZI_HINAM/MAHSANI_ASHUK). שם לא חוקי (כמו "Yes") יכשיל את הריצה.'
         required: false
-        default: ''
+        default: 'BAREKET COFIX KESHET DOR_ALON CITY_MARKET_SHOPS RAMI_LEVY SHUFERSAL YOHANANOF OSHER_AD'
       limit:
         description: 'מקסימום קבצי PriceFull לכל רשת'
         required: false
