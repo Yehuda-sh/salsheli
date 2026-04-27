@@ -1,6 +1,6 @@
 // lib/models/notification.dart — Notification model — in-app notifications with type, action data, read status
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show immutable;
 import 'package:json_annotation/json_annotation.dart';
 
 import '../core/status_colors.dart';
@@ -41,8 +41,8 @@ class _ActionDataConverter
 ///
 /// קובעת את עוצמת הרטט ואת סדר המיון ב-UI:
 /// - [urgent] — דורש פעולה מיידית (userRemoved, voteTie)
-/// - [high] — חשוב אבל לא קריטי (invite, roleChanged, lowStock)
-/// - [normal] — אינפורמטיבי רגיל (requestApproved, newVote)
+/// - [high] — חשוב אבל לא קריטי (invite, roleChanged, lowStock, expiryExpired)
+/// - [normal] — אינפורמטיבי רגיל (requestApproved, requestRejected, whoBringsVolunteer, newVote, expirySoon)
 /// - [low] — רקע / מידע כללי (memberLeft, unknown)
 enum NotificationPriority {
   low,
@@ -215,9 +215,6 @@ class AppNotification {
   /// שם הרשימה
   String? get listName => _getData('listName', 'list_name');
 
-  /// שם המזמין
-  String? get inviterName => _getData('inviterName', 'inviter_name');
-
   /// תפקיד חדש
   String? get newRole => _getData('newRole', 'new_role');
 
@@ -288,7 +285,7 @@ class AppNotification {
   /// שם הרטט המומלץ — לשימוש ב-HapticFeedback
   ///
   /// - `'heavy'` → urgent (userRemoved, voteTie)
-  /// - `'medium'` → high (invite, roleChanged, lowStock)
+  /// - `'medium'` → high (invite, roleChanged, lowStock, expiryExpired)
   /// - `'light'` → normal (requestApproved, newVote, etc.)
   /// - `'selection'` → low (memberLeft, unknown)
   String get recommendedHaptic => switch (priority) {
@@ -417,8 +414,8 @@ extension NotificationTypeExtension on NotificationType {
 
   /// סוג הסטטוס הסמנטי — מיפוי ל-[StatusType]
   ///
-  /// - error: userRemoved, requestRejected, voteTie
-  /// - warning: lowStock, roleChanged
+  /// - error: userRemoved, requestRejected, voteTie, expiryExpired
+  /// - warning: lowStock, expirySoon, roleChanged
   /// - success: requestApproved, whoBringsVolunteer
   /// - info: invite, newVote, memberLeft, unknown
   StatusType get statusType {
@@ -443,10 +440,4 @@ extension NotificationTypeExtension on NotificationType {
         return StatusType.info;
     }
   }
-
-  /// צבע ברירת מחדל לפי סטטוס — דורש [BuildContext]
-  ///
-  /// עוטף את [StatusColors.getColor] עם [statusType]
-  Color defaultColor(BuildContext context) =>
-      StatusColors.getColor(statusType, context);
 }

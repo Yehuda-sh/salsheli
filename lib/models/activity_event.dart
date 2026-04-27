@@ -100,12 +100,9 @@ class ActivityEvent {
 
   // ── Data helpers ──
 
-  String? get listId => data['list_id'] as String?;
   String? get listName => data['list_name'] as String?;
-  String? get storeName => data['store_name'] as String?;
   String? get itemName => data['item_name'] as String?;
   String? get productName => data['product_name'] as String?;
-  int? get itemCount => data['item_count'] as int?;
   String? get targetName => data['target_name'] as String?;
   String? get newRole => data['new_role'] as String?;
 
