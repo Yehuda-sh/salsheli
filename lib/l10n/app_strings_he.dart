@@ -1170,6 +1170,9 @@ class InventoryStrings {
   String get defaultUnit => 'יח\'';
   String get statisticsLabel => 'סטטיסטיקות';
   String get popularLabel => 'פופולרי';
+  String purchaseCountLabel(int count) =>
+      count == 1 ? 'נקנה פעם אחת' : 'נקנה $count פעמים';
+  String get lastPurchaseLabel => 'קנייה אחרונה';
   String get selectExpiryDate => 'בחר תאריך תפוגה';
   String get cancelLabel => 'ביטול';
   String get confirmLabel => 'אישור';

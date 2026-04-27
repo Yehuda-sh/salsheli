@@ -1148,6 +1148,9 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get defaultUnit => 'pcs';
   @override String get statisticsLabel => 'Statistics';
   @override String get popularLabel => 'Popular';
+  @override String purchaseCountLabel(int count) =>
+      count == 1 ? 'Bought once' : 'Bought $count times';
+  @override String get lastPurchaseLabel => 'Last bought';
   @override String get selectExpiryDate => 'Select expiry date';
   @override String get cancelLabel => 'Cancel';
   @override String get confirmLabel => 'Confirm';

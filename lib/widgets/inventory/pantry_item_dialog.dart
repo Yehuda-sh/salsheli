@@ -79,7 +79,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
   bool _isLoading = false;
   bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
-  bool _moreSettingsExpanded = false; // 🆕 האם הגדרות נוספות פתוחות
 
   @override
   void initState() {
@@ -400,17 +399,18 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             runSpacing: kSpacingXTiny,
             children: [
               // כמה פעמים נקנה
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.shopping_cart_outlined, size: kFontSizeSmall, color: mutedColor),
-                  const SizedBox(width: kSpacingXTiny),
-                  Text(
-                    '${item.purchaseCount}×',
-                    style: TextStyle(fontSize: smallFont, color: mutedColor),
-                  ),
-                ],
-              ),
+              if (item.purchaseCount > 0)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.shopping_cart_outlined, size: kFontSizeSmall, color: mutedColor),
+                    const SizedBox(width: kSpacingXTiny),
+                    Text(
+                      AppStrings.inventory.purchaseCountLabel(item.purchaseCount),
+                      style: TextStyle(fontSize: smallFont, color: mutedColor),
+                    ),
+                  ],
+                ),
               // קנייה אחרונה
               if (item.lastPurchased != null)
                 Row(
@@ -419,7 +419,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
                     const SizedBox(width: kSpacingXTiny),
                     Text(
-                      dateFormat.format(item.lastPurchased!),
+                      '${AppStrings.inventory.lastPurchaseLabel}: ${dateFormat.format(item.lastPurchased!)}',
                       style: TextStyle(fontSize: smallFont, color: mutedColor),
                     ),
                   ],
@@ -784,36 +784,32 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               const SizedBox(height: kSpacingSmall),
 
               // ═══════════════════════════════════════════════════════════
-              // ⚪ שלב ביניים: הגדרות נוספות (מתקפל)
+              // ⚪ שלב ביניים: הגדרות נוספות (תמיד גלוי — אין יותר קיפול)
               // ═══════════════════════════════════════════════════════════
 
-              Theme(
-                // הסר צבע רקע מה-ExpansionTile
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                child: ExpansionTile(
-                  initiallyExpanded: _moreSettingsExpanded,
-                  onExpansionChanged: (expanded) {
-                    setState(() => _moreSettingsExpanded = expanded);
-                  },
-                  tilePadding: EdgeInsets.zero,
-                  childrenPadding: const EdgeInsets.only(top: kSpacingSmall),
-                  leading: Icon(
-                    Icons.tune,
-                    size: kIconSizeSmall,
-                    color: cs.onSurfaceVariant,
-                  ),
-                  title: Text(
+              const SizedBox(height: kSpacingMedium),
+              Row(
+                children: [
+                  Icon(Icons.tune, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                  const SizedBox(width: kSpacingXTiny),
+                  Text(
                     AppStrings.inventory.advancedSettings,
                     style: TextStyle(
                       fontSize: kFontSizeSmall,
                       color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  trailing: Icon(
-                    _moreSettingsExpanded ? Icons.expand_less : Icons.expand_more,
-                    color: cs.onSurfaceVariant,
+                  const SizedBox(width: kSpacingSmall),
+                  Expanded(
+                    child: Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
                   ),
-                  children: [
+                ],
+              ),
+              const SizedBox(height: kSpacingSmall),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                     // קטגוריה
                     DropdownButtonFormField<String>(
                       initialValue: _selectedCategory,
@@ -950,7 +946,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                   ],
                 ),
-              ),
 
               // ═══════════════════════════════════════════════════════════
               // 🔵 שלב תחתון: סטטיסטיקות (רק במצב עריכה)
@@ -964,39 +959,57 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
             ],
           ),
         ),
+        // Equal-width Cancel/Save buttons. The default AlertDialog actions
+        // OverflowBar mixes a TextButton with an ElevatedButton, which
+        // looks lopsided. We pin both to the same height + flex so the
+        // bottom row reads as a clean pair.
+        actionsPadding: const EdgeInsets.fromLTRB(
+          kSpacingMedium, 0, kSpacingMedium, kSpacingSmall,
+        ),
         actions: [
-          // Cancel button
-          Semantics(
-            label: AppStrings.common.cancel,
-            button: true,
-            child: TextButton(
-              onPressed: _isLoading ? null : _handleCancel,
-              child: Text(AppStrings.common.cancel),
-            ),
-          ),
-
-          // Save/Add button
-          Semantics(
-            label: actionLabel,
-            button: true,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: accent,
-                foregroundColor: cs.onPrimary,
-                minimumSize: const Size(kButtonHeight, kButtonHeight),
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  label: AppStrings.common.cancel,
+                  button: true,
+                  child: OutlinedButton(
+                    onPressed: _isLoading ? null : _handleCancel,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(kButtonHeight),
+                      foregroundColor: cs.onSurfaceVariant,
+                      side: BorderSide(color: cs.outlineVariant),
+                    ),
+                    child: Text(AppStrings.common.cancel),
+                  ),
+                ),
               ),
-              onPressed: _isLoading ? null : _saveItem,
-              child: _isLoading
-                  ? SizedBox(
-                      width: kIconSizeSmall,
-                      height: kIconSizeSmall,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
-                      ),
-                    )
-                  : Text(actionLabel),
-            ),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Semantics(
+                  label: actionLabel,
+                  button: true,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: accent,
+                      foregroundColor: cs.onPrimary,
+                      minimumSize: const Size.fromHeight(kButtonHeight),
+                    ),
+                    onPressed: _isLoading ? null : _saveItem,
+                    child: _isLoading
+                        ? SizedBox(
+                            width: kIconSizeSmall,
+                            height: kIconSizeSmall,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
+                            ),
+                          )
+                        : Text(actionLabel),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
