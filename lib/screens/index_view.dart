@@ -330,10 +330,15 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                       ),
                     ],
                   ),
-                  child: Icon(
-                    Icons.shopping_basket_outlined,
-                    size: _kLogoIconSize,
-                    color: cs.primary,
+                  // Real brand logo — keeps continuity with the native
+                  // splash (which already shows logo.png). The previous
+                  // generic Material icon broke that visual handoff.
+                  padding: const EdgeInsets.all(kSpacingTiny),
+                  child: Image.asset(
+                    'assets/images/logo.png',
+                    width: _kLogoIconSize,
+                    height: _kLogoIconSize,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
