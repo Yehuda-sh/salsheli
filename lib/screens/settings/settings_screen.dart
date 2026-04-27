@@ -481,10 +481,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   }
 
   /// רשימת אווטארים לבחירה
+  ///
+  /// Single-codepoint emojis only — ZWJ sequences (e.g. 👨‍👩‍👧, 🧑‍🍳)
+  /// render as empty boxes on older Android devices, so they were
+  /// replaced with reliable single-glyph alternatives.
   static const List<String> _avatarOptions = [
-    '👤', '👩', '👨', '👧', '👦', '👴', '👵',
-    '🧑‍🍳', '🛒', '🏠', '👨‍👩‍👧', '👨‍👩‍👧‍👦',
-    '🌟', '💜', '💚', '🧡', '💙', '❤️',
+    '👤', '🧑', '👩', '👨', '👧', '👦', '👴', '👵',
+    '👶', '🧒',
+    '🛒', '🏠', '🍳', '🥗',
+    '🐶', '🐱', '🌟', '🎉',
+    '❤️', '💚', '💙',
   ];
 
   /// דיאלוג לעריכת שם קבוצה

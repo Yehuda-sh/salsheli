@@ -182,12 +182,21 @@ class _AppLayoutState extends State<AppLayout> {
               child: Builder(
                 builder: (ctx) {
                   final userCtx = ctx.watch<UserContext>();
-                  final url = userCtx.profileImageUrl;
-                  if (url != null && url.isNotEmpty) {
-                    return Image.network(url, fit: BoxFit.cover,
+                  final value = userCtx.profileImageUrl;
+                  if (value == null || value.isEmpty) {
+                    return _avatarInitials(context, userCtx.displayName, cs);
+                  }
+                  // The profile_image_url field stores either an http(s)
+                  // URL (uploaded photo) or an emoji avatar — they share
+                  // a column in Firestore. Calling Image.network on an
+                  // emoji throws and the user sees only initials.
+                  if (value.startsWith('http')) {
+                    return Image.network(value, fit: BoxFit.cover,
                       errorBuilder: (_, _, _) => _avatarInitials(context, userCtx.displayName, cs));
                   }
-                  return _avatarInitials(context, userCtx.displayName, cs);
+                  return Center(
+                    child: Text(value, style: const TextStyle(fontSize: kFontSizeXLarge)),
+                  );
                 },
               ),
             ),
