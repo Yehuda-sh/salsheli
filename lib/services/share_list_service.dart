@@ -12,98 +12,6 @@ import '../services/notifications_service.dart';
 /// 🇮🇱 שירות שיתוף רשימות
 /// 🇬🇧 Share list service
 class ShareListService {
-  /// 🇮🇱 הזמנת משתמש חדש לרשימה
-  /// 🇬🇧 Invite a new user to the list
-  /// 
-  /// פרמטרים:
-  /// - list: הרשימה המשותפת
-  /// - currentUserId: מזהה המשתמש הנוכחי (חייב להיות Owner)
-  /// - invitedUserId: מזהה המשתמש המוזמן
-  /// - role: תפקיד למשתמש החדש (Admin/Editor/Viewer)
-  /// - userName: שם המשתמש (אופציונלי, לcache)
-  /// - userEmail: אימייל המשתמש (אופציונלי, לcache)
-  /// - userAvatar: תמונה של המשתמש (אופציונלי, לcache)
-  /// 
-  /// מחזיר: רשימה מעודכנת או זורק שגיאה
-  /// 
-  /// זורק:
-  /// - 'permission_denied' אם המשתמש הנוכחי לא Owner
-  /// - 'user_already_shared' אם המשתמש כבר משותף
-  /// - 'cannot_invite_owner' אם מנסים להזמין את ה-Owner
-  /// - 'invalid_role' אם מנסים ליצור Owner נוסף
-  static Future<ShoppingList> inviteUser({
-    required ShoppingList list,
-    required String currentUserId,
-    required String invitedUserId,
-    required UserRole role,
-    String? userName,
-    String? userEmail,
-    String? userAvatar,
-    required String inviterName,
-    required String householdId,
-    NotificationsService? notificationsService,
-  }) async {
-
-    // בדיקה 1: רק Owner יכול להזמין משתמשים
-    if (list.createdBy != currentUserId) {
-      throw Exception('permission_denied');
-    }
-
-    // בדיקה 2: לא ניתן להזמין את ה-Owner
-    if (invitedUserId == list.createdBy) {
-      throw Exception('cannot_invite_owner');
-    }
-
-    // בדיקה 3: לא ניתן ליצור Owner נוסף
-    if (role == UserRole.owner) {
-      throw Exception('invalid_role');
-    }
-
-    // בדיקה 4: האם המשתמש כבר משותף
-    // 🆕 Map lookup - O(1)
-    final existingUser = list.sharedUsers[invitedUserId];
-
-    if (existingUser != null) {
-      throw Exception('user_already_shared');
-    }
-
-    // יצירת משתמש משותף חדש
-    final newSharedUser = SharedUser(
-      userId: invitedUserId,
-      role: role,
-      sharedAt: DateTime.now(),
-      userName: userName,
-      userEmail: userEmail,
-      userAvatar: userAvatar,
-    );
-
-    // 🆕 עדכון המפה (Map)
-    final updatedSharedUsers = Map<String, SharedUser>.from(list.sharedUsers)
-      ..[invitedUserId] = newSharedUser;
-
-
-    // שליחת התראה למשתמש המוזמן
-    if (notificationsService != null) {
-      try {
-        await notificationsService.createInviteNotification(
-          userId: invitedUserId,
-          householdId: householdId,
-          listId: list.id,
-          listName: list.name,
-          inviterName: inviterName,
-          role: role.hebrewName,
-        );
-      } catch (_) { // Non-critical
-      }
-    }
-
-    return list.copyWith(
-      sharedUsers: updatedSharedUsers,
-      updatedDate: DateTime.now(),
-      isShared: true, // מעכשיו הרשימה משותפת
-    );
-  }
-
   /// 🇮🇱 הסרת משתמש מהרשימה
   /// 🇬🇧 Remove a user from the list
   /// 
@@ -292,19 +200,6 @@ class ShareListService {
     users.addAll(list.sharedUsers.values);
 
     return users;
-  }
-
-  /// 🇮🇱 בדיקה אם המשתמש יכול לערוך את הרשימה
-  /// 🇬🇧 Check if user can edit the list
-  /// 
-  /// פרמטרים:
-  /// - list: הרשימה
-  /// - userId: מזהה המשתמש
-  /// 
-  /// מחזיר: true אם המשתמש הוא Owner או Admin
-  static bool canUserEdit(ShoppingList list, String userId) {
-    final role = list.getUserRole(userId);
-    return role == UserRole.owner || role == UserRole.admin;
   }
 
   /// 🇮🇱 בדיקה אם המשתמש יכול לאשר בקשות

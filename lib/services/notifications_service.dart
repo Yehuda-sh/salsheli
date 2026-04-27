@@ -456,56 +456,6 @@ class NotificationsService {
     }
   }
 
-  /// 📅 Create expiry notification (only when user entered an expiry date)
-  Future<bool> createExpiryNotification({
-    required String userId,
-    required String householdId,
-    required String productName,
-    required DateTime expiryDate,
-    required bool isExpired,
-  }) async {
-    try {
-      final notifType = isExpired
-          ? NotificationType.expiryExpired
-          : NotificationType.expirySoon;
-
-      // Dedup: skip if an unread expiry notification for this product exists
-      final existing = await _notificationsCollection(userId)
-          .where('type', isEqualTo: notifType.name)
-          .where('is_read', isEqualTo: false)
-          .where('action_data.productName', isEqualTo: productName)
-          .limit(1)
-          .get();
-      if (existing.docs.isNotEmpty) return false;
-
-      final title = isExpired ? 'פג תוקף!' : 'תפוגה קרובה';
-      final message = isExpired
-          ? '$productName — פג תוקף!'
-          : '$productName — עומד לפוג בקרוב';
-
-      final notification = AppNotification(
-        id: _uuid.v4(),
-        userId: userId,
-        householdId: householdId,
-        type: notifType,
-        title: title,
-        message: message,
-        actionData: {
-          'productName': productName,
-          'expiryDate': expiryDate.toIso8601String(),
-          'isExpired': isExpired,
-        },
-        createdAt: DateTime.now(),
-      );
-
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
-      return true;
-    } catch (e, stackTrace) {
-      _logError('createExpiryNotification', e, stackTrace);
-      return false;
-    }
-  }
-
   // ============================================================
   // QUERY NOTIFICATIONS
   // ============================================================

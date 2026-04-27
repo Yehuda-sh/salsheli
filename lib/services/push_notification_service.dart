@@ -70,6 +70,13 @@ class PushNotificationService {
 
   /// ניקוי token בהתנתקות
   Future<void> clearToken() async {
+    // Cancel the refresh listener FIRST. _messaging.deleteToken() below
+    // can trigger onTokenRefresh; if the listener is still attached it
+    // would write a fresh token back into the previous user's Firestore
+    // doc, undoing the cleanup we are about to do.
+    await _tokenSub?.cancel();
+    _tokenSub = null;
+
     if (_currentUserId != null) {
       try {
         await _firestore.collection('users').doc(_currentUserId).update({
@@ -92,8 +99,6 @@ class PushNotificationService {
         if (kDebugMode) debugPrint('⚠️ deleteToken failed: $e');
       }
     }
-    unawaited(_tokenSub?.cancel());
-    _tokenSub = null;
     _currentUserId = null;
   }
 

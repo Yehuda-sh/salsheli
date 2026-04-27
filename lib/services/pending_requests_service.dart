@@ -23,10 +23,9 @@ import '../services/share_list_service.dart';
 /// 
 /// Permission Flow:
 /// 1. Editor מוסיף מוצר → createRequest()
-/// 2. Owner/Admin רואה badge → getPendingRequestsCount()
-/// 3. Owner/Admin פותח בקשות → getPendingRequests()
-/// 4. Owner/Admin מאשר → approveRequest() → מוצר נוסף לרשימה
-/// 5. Owner/Admin דוחה → rejectRequest() → בקשה נמחקת
+/// 2. Owner/Admin פותח בקשות → getPendingRequests()
+/// 3. Owner/Admin מאשר → approveRequest() → מוצר נוסף לרשימה
+/// 4. Owner/Admin דוחה → rejectRequest() → בקשה נמחקת
 class PendingRequestsService {
   final ShoppingListsRepository _repository;
   final UserContext _userContext;
@@ -123,66 +122,6 @@ class PendingRequestsService {
       log('❌ כשל ביצירת בקשה: $e [PendingRequestsService]');
       rethrow;
     }
-  }
-
-  /// 🇮🇱 יצירת בקשה להוספת מוצר (wrapper מפשט)
-  /// 🇬🇧 Create request to add item (simplified wrapper)
-  Future<void> createAddItemRequest({
-    required ShoppingList list,
-    required UnifiedListItem item,
-  }) async {
-    await createRequest(
-      list: list,
-      type: RequestType.addItem,
-      requestData: {
-        'name': item.name,
-        'quantity': item.quantity ?? 1,
-        'unitPrice': item.unitPrice ?? 0.0,
-        'barcode': item.barcode,
-        'unit': item.unit,
-        'category': item.category,
-        'notes': item.notes,
-        'brand': item.brand,
-        'imageUrl': item.imageUrl,
-      },
-    );
-  }
-
-  /// יצירת בקשה לעריכת מוצר (Editor)
-  Future<void> createEditItemRequest({
-    required ShoppingList list,
-    required UnifiedListItem item,
-  }) async {
-    await createRequest(
-      list: list,
-      type: RequestType.editItem,
-      requestData: {
-        'itemId': item.id,
-        'name': item.name,
-        'quantity': item.quantity ?? 1,
-        'unitPrice': item.unitPrice ?? 0.0,
-        'barcode': item.barcode,
-        'unit': item.unit,
-        'category': item.category,
-        'notes': item.notes,
-        'brand': item.brand,
-        'imageUrl': item.imageUrl,
-      },
-    );
-  }
-
-  /// יצירת בקשה למחיקת מוצר (Editor)
-  Future<void> createDeleteItemRequest({
-    required ShoppingList list,
-    required String itemName,
-  }) async {
-    await createRequest(
-      list: list,
-      type: RequestType.deleteItem,
-      requestData: {
-        'name': itemName,
-      },
-    );
   }
 
   // ════════════════════════════════════════════
@@ -420,48 +359,6 @@ class PendingRequestsService {
   }
 
   // ════════════════════════════════════════════
-  // Cleanup Rejected Requests (Helper)
-  // ════════════════════════════════════════════
-
-  /// 🇮🇱 מחיקת בקשות שנדחו לפני יותר מ-7 ימים
-  /// 🇬🇧 Delete resolved (rejected + approved) requests older than 7 days
-  ///
-  /// אפשר לקרוא אחת לשבוע או אוטומטית ב-background
-  Future<void> cleanupOldRejectedRequests(ShoppingList list) async {
-    final now = DateTime.now();
-    const maxAge = Duration(days: 7);
-
-    // סינון: השאר רק בקשות ממתינות, או בקשות שעדיין < 7 ימים
-    final updatedRequests = list.pendingRequests.where((request) {
-      if (request.isRejected || request.isApproved) {
-        final age = now.difference(request.reviewedAt ?? request.createdAt);
-        return age < maxAge; // השאר רק אם < 7 ימים
-      }
-      return true; // השאר בקשות ממתינות
-    }).toList();
-
-    // אם יש שינוי - עדכון Firebase
-    if (updatedRequests.length != list.pendingRequests.length) {
-      try {
-        final userId = _userContext.userId;
-        final householdId = _userContext.householdId;
-        if (userId == null || householdId == null) {
-          throw Exception('משתמש לא מחובר או לא משויך למשק בית');
-        }
-        await _repository.saveList(
-          list.copyWith(pendingRequests: updatedRequests),
-          userId,
-          householdId,
-        );
-        final removed = list.pendingRequests.length - updatedRequests.length;
-        log('✅ נמחקו $removed בקשות ישנות [PendingRequestsService]');
-      } catch (e) {
-        log('❌ כשל במחיקת בקשות: $e [PendingRequestsService]');
-      }
-    }
-  }
-
-  // ════════════════════════════════════════════
   // Query Methods
   // ════════════════════════════════════════════
 
@@ -497,27 +394,6 @@ class PendingRequestsService {
     }
   }
 
-  /// 🇮🇱 ספירת בקשות ממתינות (לבאדג')
-  /// 🇬🇧 Count pending requests (for badge)
-  int getPendingRequestsCount(ShoppingList list) {
-    return list.pendingRequests.where((r) => r.isPending).length;
-  }
-
-  /// 🇮🇱 קבלת כל הבקשות (כולל מאושרות/נדחות)
-  /// 🇬🇧 Get all requests (including approved/rejected)
-  List<PendingRequest> getAllRequests(ShoppingList list) {
-    return list.pendingRequests;
-  }
-
-  /// 🇮🇱 קבלת בקשות לפי סטטוס
-  /// 🇬🇧 Get requests by status
-  List<PendingRequest> getRequestsByStatus(
-    ShoppingList list,
-    RequestStatus status,
-  ) {
-    return list.pendingRequests.where((r) => r.status == status).toList();
-  }
-
   /// 🇮🇱 קבלת בקשות של משתמש מסוים
   /// 🇬🇧 Get requests by specific user
   List<PendingRequest> getRequestsByUser(
@@ -525,27 +401,5 @@ class PendingRequestsService {
     String userId,
   ) {
     return list.pendingRequests.where((r) => r.requesterId == userId).toList();
-  }
-
-  // ════════════════════════════════════════════
-  // Statistics
-  // ════════════════════════════════════════════
-
-  /// 🇮🇱 סטטיסטיקה של בקשות
-  /// 🇬🇧 Requests statistics
-  Map<String, int> getRequestsStats(ShoppingList list) {
-    final all = list.pendingRequests;
-    return {
-      'total': all.length,
-      'pending': all.where((r) => r.isPending).length,
-      'approved': all.where((r) => r.isApproved).length,
-      'rejected': all.where((r) => r.isRejected).length,
-    };
-  }
-
-  /// 🇮🇱 האם יש בקשות ממתינות
-  /// 🇬🇧 Has pending requests
-  bool hasPendingRequests(ShoppingList list) {
-    return getPendingRequestsCount(list) > 0;
   }
 }
