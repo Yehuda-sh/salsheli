@@ -19,7 +19,7 @@ on:
           - review   # שומר ל-new_products.json לסקירה ידנית (בטוח)
           - merge    # מוסיף ישר ל-supermarket.json (עם גיבוי וסיווג אוטומטי)
       chains:
-        description: 'רשתות (ריק = כל הרשתות, או רשימה מופרדת ברווחים: SHUFERSAL RAMI_LEVY)'
+        description: 'רשתות UPPERCASE מופרדות ברווחים. ריק = כל הרשתות. דוגמאות: SHUFERSAL, RAMI_LEVY, YOHANANOF, VICTORY, OSHER_AD, SUPER_PHARM, GOOD_PHARM. שם לא חוקי (כמו "Yes") יכשיל את הריצה. לרשימה מלאה הרץ `python scripts/fetch_new_products.py --list-chains`.'
         required: false
         default: ''
       limit:

@@ -119,9 +119,20 @@ def download_supermarket_data(chains=None, limit=3):
 
     os.makedirs(DUMPS_FOLDER, exist_ok=True)
 
-    # Show available chains
+    # Validate chain names against the factory's enum BEFORE running the
+    # scraper — otherwise an unknown name surfaces as a cryptic KeyError
+    # that looks like a network/geo problem.
     all_chains = ScraperFactory.all_scrapers_name()
     if chains:
+        unknown = [c for c in chains if c not in all_chains]
+        if unknown:
+            print(f'\n❌ Unknown chain name(s): {", ".join(unknown)}')
+            print(f'   il-supermarket-scraper expects UPPERCASE enum names')
+            print(f'   (not display names like "Yes" or "Shufersal").')
+            print(f'\n   Valid names ({len(all_chains)} chains):')
+            for c in sorted(all_chains):
+                print(f'      • {c}')
+            sys.exit(2)
         selected = chains
         print(f'\n🔄 Downloading from {len(selected)} chains: {", ".join(selected)}')
     else:
@@ -154,9 +165,13 @@ def download_supermarket_data(chains=None, limit=3):
         scraper.start(limit=limit)
         scraper.join()
         print('✅ Download complete')
+    except KeyError as e:
+        # Should be caught by the validation above, but keep as a guard.
+        print(f'⚠️ Unknown chain key: {e}. See `--list-chains` for valid names.')
     except Exception as e:
-        print(f'⚠️ Download error: {e}')
-        print('   Note: Some sites are geo-blocked outside Israel')
+        # Any other failure (timeout, geo-block, server 5xx, etc.)
+        print(f'⚠️ Download error ({type(e).__name__}): {e}')
+        print('   Some Israeli supermarket sites are geo-blocked outside Israel.')
         print('   Trying to parse any existing dumps...')
 
 
