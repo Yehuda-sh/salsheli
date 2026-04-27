@@ -14,6 +14,14 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 
+const int _kOnboardingPages = 3;
+const Duration _kAutoPlayInterval = Duration(seconds: 4);
+const Duration _kPageTransition = Duration(milliseconds: 600);
+const double _kParallaxIntensity = 30.0;
+const double _kDotRadius = 4.0;
+const double _kDotSpacing = 18.0;
+const double _kDotIndicatorHeight = 10.0;
+
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -23,8 +31,12 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   final _pageController = PageController();
+  // ValueNotifier instead of plain double + setState: scrolling fires
+  // ~60 frames/sec, and rebuilding the whole screen on every frame is
+  // wasteful when only the parallax background and the worm dots
+  // actually depend on the offset. Both widgets subscribe directly.
+  final _pageOffset = ValueNotifier<double>(0.0);
   int _currentPage = 0;
-  double _pageOffset = 0.0;
   Timer? _autoPlayTimer;
 
   @override
@@ -36,7 +48,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _onPageScroll() {
     if (_pageController.hasClients) {
-      setState(() => _pageOffset = _pageController.page ?? 0.0);
+      _pageOffset.value = _pageController.page ?? 0.0;
     }
   }
 
@@ -45,17 +57,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _autoPlayTimer?.cancel();
     _pageController.removeListener(_onPageScroll);
     _pageController.dispose();
+    _pageOffset.dispose();
     super.dispose();
   }
 
   void _startAutoPlay() {
     _autoPlayTimer?.cancel();
-    _autoPlayTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+    _autoPlayTimer = Timer.periodic(_kAutoPlayInterval, (_) {
       if (!_pageController.hasClients) return;
-      final nextPage = (_currentPage + 1) % 3;
+      final nextPage = (_currentPage + 1) % _kOnboardingPages;
       _pageController.animateToPage(
         nextPage,
-        duration: const Duration(milliseconds: 600),
+        duration: _kPageTransition,
         curve: Curves.easeInOutCubic,
       );
     });
@@ -76,9 +89,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     Navigator.pushNamed(context, '/register');
   }
 
-  void _handleLegalLink(VoidCallback showDialog) {
+  void _handleLegalLink(VoidCallback onTap) {
     unawaited(HapticFeedback.selectionClick());
-    showDialog();
+    onTap();
   }
 
   @override
@@ -93,9 +106,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
-          // Parallax: background moves at 30% of carousel speed
-          Transform.translate(
-            offset: Offset(_pageOffset * 30, 0),
+          // Parallax: background moves at 30px per page-step. Scoped
+          // ValueListenableBuilder keeps the rest of the tree static.
+          ValueListenableBuilder<double>(
+            valueListenable: _pageOffset,
+            builder: (_, offset, child) => Transform.translate(
+              offset: Offset(offset * _kParallaxIntensity, 0),
+              child: child,
+            ),
             child: const NotebookBackground.subtle(),
           ),
 
@@ -140,11 +158,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
 
                 // === Dots (worm effect) ===
-                _WormDotIndicator(
-                  count: 3,
-                  pageOffset: _pageOffset,
-                  activeColor: cs.primary,
-                  inactiveColor: cs.outlineVariant,
+                ValueListenableBuilder<double>(
+                  valueListenable: _pageOffset,
+                  builder: (_, offset, _) => _WormDotIndicator(
+                    count: _kOnboardingPages,
+                    pageOffset: offset,
+                    activeColor: cs.primary,
+                    inactiveColor: cs.outlineVariant,
+                  ),
                 ),
                 const SizedBox(height: kSpacingSmall),
 
@@ -322,14 +343,14 @@ class _WormDotIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return SizedBox(
-      height: 10,
+      height: _kDotIndicatorHeight,
       child: CustomPaint(
-        size: Size(count * 18.0, 10),
+        size: Size(count * _kDotSpacing, _kDotIndicatorHeight),
         painter: _WormPainter(
           count: count,
           pageOffset: isRtl ? (count - 1 - pageOffset) : pageOffset,
           activeColor: activeColor,
-          inactiveColor: inactiveColor.withValues(alpha: 0.35),
+          inactiveColor: inactiveColor.withValues(alpha: kOpacityLight),
         ),
       ),
     );
@@ -351,15 +372,17 @@ class _WormPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const dotRadius = 4.0;
-    const spacing = 18.0;
-    final startX = (size.width - (count - 1) * spacing) / 2;
+    final startX = (size.width - (count - 1) * _kDotSpacing) / 2;
     final y = size.height / 2;
 
     // Draw inactive dots
     final inactivePaint = Paint()..color = inactiveColor;
     for (var i = 0; i < count; i++) {
-      canvas.drawCircle(Offset(startX + i * spacing, y), dotRadius, inactivePaint);
+      canvas.drawCircle(
+        Offset(startX + i * _kDotSpacing, y),
+        _kDotRadius,
+        inactivePaint,
+      );
     }
 
     // Draw active "worm" that stretches between dots
@@ -368,26 +391,25 @@ class _WormPainter extends CustomPainter {
     final nextIndex = (currentIndex + 1).clamp(0, count - 1);
     final progress = pageOffset - currentIndex;
 
-    final fromX = startX + currentIndex * spacing;
-    final toX = startX + nextIndex * spacing;
+    final fromX = startX + currentIndex * _kDotSpacing;
+    final toX = startX + nextIndex * _kDotSpacing;
 
-    // Worm: stretches from current to next based on progress
-    final wormLeft = lerpDouble(fromX, toX, (progress * 2).clamp(0, 1))! - dotRadius;
-    final wormRight = lerpDouble(fromX, toX, ((progress - 0.5) * 2).clamp(0, 1))! + dotRadius;
+    // Worm: stretches from current to next based on progress.
+    // lerpDouble comes from dart:ui.
+    final wormLeft = lerpDouble(fromX, toX, (progress * 2).clamp(0, 1))! - _kDotRadius;
+    final wormRight = lerpDouble(fromX, toX, ((progress - 0.5) * 2).clamp(0, 1))! + _kDotRadius;
 
     canvas.drawRRect(
       RRect.fromLTRBR(
         wormLeft < wormRight ? wormLeft : wormRight,
-        y - dotRadius,
+        y - _kDotRadius,
         wormLeft < wormRight ? wormRight : wormLeft,
-        y + dotRadius,
-        const Radius.circular(dotRadius),
+        y + _kDotRadius,
+        const Radius.circular(_kDotRadius),
       ),
       activePaint,
     );
   }
-
-  double? lerpDouble(double a, double b, double t) => a + (b - a) * t;
 
   @override
   bool shouldRepaint(covariant _WormPainter old) =>
@@ -431,10 +453,13 @@ class _BottomSection extends StatelessWidget {
             bottom: bottomPadding + kSpacingSmall,
           ),
           decoration: BoxDecoration(
+            // Slightly higher than kOpacityHigh so the bottom panel
+            // reads as nearly-opaque while still letting the parallax
+            // background bleed through the BackdropFilter.
             color: bgColor.withValues(alpha: 0.92),
             border: Border(
               top: BorderSide(
-                color: cs.outlineVariant.withValues(alpha: 0.12),
+                color: cs.outlineVariant.withValues(alpha: kOpacitySubtle),
                 width: 0.5,
               ),
             ),
@@ -563,8 +588,6 @@ class _BottomSection extends StatelessWidget {
                   ),
                 ],
               ),
-
-              // Build timestamp removed — use app version from Settings instead
             ],
           ),
         ),
