@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // Storage Rules for MemoZap
-// Last Updated: 19/12/2025
+// Last Updated: 27/04/2026
 
 service firebase.storage {
   match /b/{bucket}/o {
@@ -16,6 +16,8 @@ service firebase.storage {
     }
 
     // בדיקה אם המשתמש חבר במשק בית
+    // Note: this performs a Firestore lookup per Storage operation
+    // — counts as a Firestore read against quota.
     function isHouseholdMember(householdId) {
       return isAuthenticated() &&
         firestore.exists(/databases/(default)/documents/households/$(householdId)/members/$(request.auth.uid));
@@ -34,24 +36,29 @@ service firebase.storage {
     }
 
     // === User Profile Images ===
-    // Path: /users/{userId}/profile/*
+    // Path: /users/{userId}/profile/avatar.<ext>
+    //
+    // Filename pinned to `avatar` (any image extension) to match what
+    // image_upload_service writes — prevents an authenticated user from
+    // filling their own profile/ folder with arbitrary file names.
     match /users/{userId}/profile/{fileName} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId) && isValidImage();
+      allow write: if isOwner(userId)
+                   && isValidImage()
+                   && fileName.matches('avatar\\.(jpg|jpeg|png|webp)');
     }
 
-    // === Receipt Images ===
-    // Path: /households/{householdId}/receipts/{receiptId}/*
+    // === Receipt Images (reserved — not yet wired in code) ===
+    // Path: /households/{householdId}/receipts/{receiptId}/<file>
+    //
+    // The Receipt model already carries a `fileUrl` field for the
+    // future "scan-to-cloud" flow. No upload service writes here yet,
+    // but the rule is in place so when the feature lands we don't ship
+    // an open-write window.
     match /households/{householdId}/receipts/{receiptId}/{fileName} {
       allow read: if isHouseholdMember(householdId);
-      allow write: if isHouseholdMember(householdId) && (isValidImage() || isValidPdf());
-    }
-
-    // === Group Images ===
-    // Path: /groups/{groupId}/images/*
-    match /groups/{groupId}/images/{fileName} {
-      allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && isValidImage();
+      allow write: if isHouseholdMember(householdId)
+                   && (isValidImage() || isValidPdf());
     }
 
     // === Default Deny ===
