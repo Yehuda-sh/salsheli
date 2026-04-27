@@ -131,8 +131,11 @@ flutter run          # הרצה
 - **W1:** `use_build_context_synchronously` (2) ב-settings_screen (יש `mounted` guards — ממתין לאימות analyzer)
 - ~~**W2:** `directives_ordering` infos~~ ✅ תוקן (סשן 6) — `sort imports in 31 files`
 - ~~**W3:** `deprecated_member_use` — RadioListTile~~ ✅ תוקן (סשן 4)
-- **RTL1:** ~84 מופעים של `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional` — באג RTL אמיתי כשהשפה משתנה ל-LTR. ריכוז עיקרי ב-`screens/shopping/` ו-`screens/home/`. (ממצא מסקירה רחבה 23/4)
+- **RTL1:** מופעים של `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional`. ב-סשן 7 תוקנו 8 מופעים (shopping screens, home dashboard, pantry chips). נשאר זנב כללי בקוד.
 - **DS1:** ~364 מופעים של `fontSize:` קשיח (TextStyle inline) במקום `kFontSize*` constants. בעיקר ב-auth/landing flows. (ממצא מסקירה רחבה 23/4)
+- **i18n1:** ~50 מחרוזות עברית קשיחות ב-services + providers (Hebrew error prefixes, notification titles). דורש הרחבת `AppStrings` והפניות. (ממצא סשן 7)
+- **AUTH1:** Pending invites guard לא מחווט ב-`login_screen` + `register_screen` — לפי הנחיות (Pending Invites) צריך post-auth check כולל Google/Apple. (ממצא סשן 7)
+- **CAT1:** מלכודות substring ב-`category_detection_service` (`'מנגו'`/`'מנגולד'`, `'תפוז'` לפני `'מיץ '`, `'תמר'` ללא רווח). (ממצא סשן 7)
 
 See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
@@ -140,7 +143,7 @@ See [CODE_REVIEW.md](CODE_REVIEW.md) for full status.
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 22/4/2026)
+- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 27/4/2026)
 - [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
 - [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים

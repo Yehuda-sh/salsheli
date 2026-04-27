@@ -1,7 +1,7 @@
 # דוח Code Review — MemoZap
-**תאריך:** 12 מרץ 2026 | עודכן: 22 אפריל 2026
+**תאריך:** 12 מרץ 2026 | עודכן: 27 אפריל 2026
 **סוקר:** ראפטור
-**גרסה:** 6.0
+**גרסה:** 7.0
 
 ---
 
@@ -169,6 +169,68 @@
 ---
 
 ## היסטוריה
+
+### סשן 7 (27 אפריל 2026) — סריקה רוחבית מעמיקה (15 סוכנים מקבילים)
+
+**מטרה:** סריקה צולבת של כל ספריות הקוד הראשיות (`lib/core`, `lib/l10n`, `lib/models`, `lib/providers`, `lib/repositories`, `lib/services`, `lib/screens`, `lib/widgets`, `lib/theme`, `lib/layout`) + אודיט קטלוג מוצרים, עם 5 סבבים עמוקים לכל קובץ.
+
+#### באגים אמיתיים שתוקנו
+| תיקון | חומרה | קובץ |
+|--------|--------|------|
+| `'‎\${item.quantity} \${item.unit}'` — escape sequences שגויים גרמו להצגת `${item.quantity}` כטקסט במקום הערכים | **High (UI)** | `my_pantry_screen.dart:1592` |
+| FCM token race ב-`clearToken()` — `_tokenSub` לא בוטל לפני `deleteToken()`, ה-SDK refresh callback יכל לכתוב טוקן חדש ל-Firestore doc של המשתמש הקודם | **High (privacy)** | `push_notification_service.dart` |
+| `LimitStatus get status` ב-InventoryItem — שימוש הפוך של `getLimitStatus`. פריט ריק (`quantity=0`) החזיר `SAFE` במקום critical | **High (logic)** | `inventory_item.dart` |
+| `TextEditingController` leak ב-`_askHouseholdName` (ללא dispose) | **Medium** | `register_screen.dart` |
+| 8 באגי RTL — `EdgeInsets.only(left:/right:)` במקום `EdgeInsetsDirectional` (shopping screens, home dashboard, pantry chips) | **Medium** | `active_shopping_*`, `shopping_summary_dialog`, `shopping_list_details`, `suggestions_today_card`, `pantry_product_selection_sheet` |
+| `_errorMessage = 'load_activity_failed'` (snake_case key) — מוצג ל-UI verbatim במקום מתורגם | **Medium (UX)** | `activity_log_provider.dart` |
+| `if (url != null)` — מחרוזת ריקה הייתה עוברת ונכשלת ב-Image.network | **Low** | `app_layout.dart` |
+
+#### קוד מת שנמחק
+| מודול | פירוט |
+|-------|-------|
+| `core/constants.dart` | `kMaxSharedUsersPerList`, `kMaxLocationsPerHousehold` (ללא קוראים) |
+| `l10n/app_strings.dart` | 5 namespaces ללא קוראים: `priceComparison`, `listTypeGroups`, `templates`, `selectList`, `recurring` |
+| `l10n/locale_manager.dart` | `displayName`, `locale`, `isRtl`, `setLocaleByCode`, `toggleLocale` |
+| Models (5 קבצים) | `saved_contact.copyWith`, `custom_location` (6 איברים), `user_entity` (4 factories), `shared_user` (2 factories + 6 permission getters), `active_shopper.isHelper`, `activity_event` (3 getters), `notification.inviterName + defaultColor`, `shopping_list` (5 getters), `receipt` (4 getters), `pending_request` (7 איברים) |
+| Providers (6 קבצים) | `loadMore`, getters רבים מ-products, methods מ-shopping_lists ו-suggestions, `inventory.checkExpiryAndNotify` (40 שורות), `clearAll` ב-activity_log |
+| Services | `home_widget.initialize` (אבל הסוכן זיהה שזה היה באג חבוי ל-iOS — תוקן באמצעות inline lazy init), `template.clearCache`, `notifications.createExpiryNotification`, `share_list.inviteUser/canUserEdit`, `pending_requests` (8 methods) |
+| Repositories | `firebase_inventory` (6 מתודות), `firebase_products.clearCache`, `local_products.clearCache*`, `InventoryLocation` enum, dead branches ב-`firebase_user_repository`, 5 collections + 18 fields ב-`repository_constants` |
+| Screens | `pantry_item_dialog.showAddDialog`, `social_auth_mixin.dart` (קובץ שלם), `CompactStat`/`buildDivider` ב-active_shopping_states |
+
+#### l10n + תרגומים
+| תיקון | פירוט |
+|--------|-------|
+| 25 פערי parity HE↔EN | overrides EN חסרים סומנו ונוצרו עם TODO markers |
+| 31 תרגומים אנגלית | התרגומים הזמניים מ-`c5168496` הוחלפו בטקסט אנגלי מתאים (locations, pantry empty-state, reject request, invite family, וכו') |
+| 22 `@override` שורות מיותרות | הוסרו מ-`app_strings_en.dart` |
+
+#### אודיט קטלוג מוצרים (`assets/data/list_types/`)
+| קובץ | תיקון |
+|-------|--------|
+| `butcher.json` | "אחר" ירד מ-278 ל-26. נוספה קטגוריה חדשה "נקניקים ובשרים מעובדים" (230 פריטים: נקניקיות, סלמי, פסטרמה, קבב). 22 פריטים נוספים סווגו לפי species (עוף/בקר/הודו) |
+| `bakery.json` | "מאפים" ירד מ-175 ל-7. הפריטים חולקו ל-לחמים ולחמניות (60), עוגות (82), מאפים מזרחיים (20), מתוקים (4), מלוחים (2) |
+| `pharmacy.json` | הוסרו 15 פריטים שלא שייכים (6 ניקיון, 9 מזון בריאות). אוחדה כפילות "אביזרי שיער" → "טיפוח שיער" |
+
+#### דווח (לא תוקן — דורש scope גדול)
+- **Pending invites guard לא מחווט** ב-login + register screens (CLAUDE.md דורש post-auth check כולל Google/Apple) — בעיית flow logic
+- **~50 מחרוזות עברית קשיחות** ב-services + providers (Hebrew error prefixes, notification titles) — דורש הרחבת AppStrings
+- **~30 שמות שדות Firestore קשיחים** ב-services שצריכים `FirestoreFields.*`
+- **`active_shopping_screen` + `who_brings_screen`** לא re-watching ל-provider — שינויים בו-זמנית מקונים אחרים לא מתעדכנים live (פרה-קיים, ארכיטקטוני)
+- **`category_detection_service`** — מלכודות substring: `'מנגו'`/`'מנגולד'`, `'תפוז'` לפני `'מיץ '` (מיץ תפוזים מסווג כפרי), `'תמר'` ללא רווח עוקב
+- **`product_selection_bottom_sheet._failedImageUrls`** — Set גדל ללא הגבלה (memory leak פוטנציאלי בסשנים ארוכים)
+
+#### סיכום כמותי (סשן 7)
+| מדד | ערך |
+|------|-----|
+| Commits | **~24** |
+| סוכנים מקבילים שהופעלו | **15** (3 גלים) |
+| באגים אמיתיים שתוקנו | **8** (1 UI display, 1 privacy, 1 logic, 1 leak, 4+ RTL) |
+| מתודות/מחלקות שנמחקו | **~80** (קוד מת) |
+| תרגומים אנגליים שהושלמו | **31** |
+| פערי parity HE↔EN שנסגרו | **25** |
+| פריטי קטלוג שסווגו מחדש | **~395** (butcher 252 + bakery 168 + pharmacy 25) |
+
+---
 
 ### סשן 4 (24 מרץ 2026) — תיקוני Warnings + Data Quality + Performance
 - W3: החלפת `RadioListTile` deprecated → `Radio` + `GestureDetector`
