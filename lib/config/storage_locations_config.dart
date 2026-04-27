@@ -1,8 +1,5 @@
 // lib/config/storage_locations_config.dart — Storage locations config — Hebrew labels, emoji, and sort order for pantry locations
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-
 import 'base_config.dart';
 import 'storage_locations.dart';
 
@@ -11,82 +8,53 @@ class StorageLocationsConfig with ConfigValidation {
   StorageLocationsConfig._(); // Private constructor
   static final StorageLocationsConfig _instance = StorageLocationsConfig._();
 
-  // ========================================
-  // 🔄 Backward compatibility - delegates to StorageLocations
-  // ========================================
-  
-  /// Delegate constants for backward compatibility
+  /// Default location used as a fallback when creating new pantry items.
   static const String mainPantry = StorageLocations.mainPantry;
-  static const String refrigerator = StorageLocations.refrigerator;
-  static const String freezer = StorageLocations.freezer;
-  static const String other = StorageLocations.other;
-  
-  /// Delegate list for backward compatibility
+
+  /// All location keys in UI order (used by dropdowns).
   static List<String> get allLocations => StorageLocations.all;
 
-  /// ✅ Safe resolve - fallback to 'other'
-  static String resolve(String? locationId) {
+  /// Get full location info — falls back to 'other' if the key is unknown.
+  static LocationInfo getLocationInfo(String locationId) {
     _instance.ensureValid();
-    if (locationId == null) return StorageLocations.other;
-    if (StorageLocations.data.containsKey(locationId)) return locationId;
-    
-    if (kDebugMode) {
-      debugPrint('⚠️ Unknown location "$locationId", falling back to "other"');
-    }
-    return StorageLocations.other;
+    return StorageLocations.data[locationId] ??
+        StorageLocations.data[StorageLocations.other]!;
   }
 
-  /// Get location name
+  /// Get location display name (convenience wrapper around getLocationInfo).
   static String getName(String locationId) {
     _instance.ensureValid();
     return getLocationInfo(locationId).name;
   }
 
-  /// Get location icon
-  static IconData getIcon(String locationId) {
-    _instance.ensureValid();
-    return getLocationInfo(locationId).icon;
-  }
-
-  /// Get full location info (main API)
-  static LocationInfo getLocationInfo(String locationId) {
-    _instance.ensureValid();
-    return StorageLocations.data[locationId] ?? StorageLocations.data[StorageLocations.other]!;
-  }
-
-  /// Check if location is valid
+  /// Check if a location key exists in the registry.
   static bool isValidLocation(String locationId) {
     _instance.ensureValid();
     return StorageLocations.data.containsKey(locationId);
   }
 
-  /// Get all location info
-  static List<LocationInfo> getAllLocationInfo() {
-    _instance.ensureValid();
-    return StorageLocations.all.map(getLocationInfo).toList();
-  }
-
-  /// ✅ Validation implementation - replaces old ensureSanity()
+  /// ✅ Validation implementation — runs once on first API call (debug only).
   @override
   void performValidation() {
-    // 1. Check for duplicates
+    // 1. No duplicate keys in the canonical list.
     ConfigValidation.validateNoDuplicates(
-      StorageLocations.all, 
-      'StorageLocations.all'
+      StorageLocations.all,
+      'StorageLocations.all',
     );
 
-    // 2. Check 1:1 mapping
+    // 2. Every key has a matching entry in the data map (1:1).
     ConfigValidation.validateOneToOneMapping(
       StorageLocations.all.toSet(),
       StorageLocations.data,
-      'StorageLocations'
+      'StorageLocations',
     );
 
-    // 3. Check 'other' is last
-    if (StorageLocations.all.isNotEmpty && StorageLocations.all.last != StorageLocations.other) {
+    // 3. 'other' must be the last key so dropdowns render it as the fallback option.
+    if (StorageLocations.all.isNotEmpty &&
+        StorageLocations.all.last != StorageLocations.other) {
       throw AssertionError(
         'StorageLocations: "other" must be last in all list! '
-        'Found: "${StorageLocations.all.last}"'
+        'Found: "${StorageLocations.all.last}"',
       );
     }
   }
