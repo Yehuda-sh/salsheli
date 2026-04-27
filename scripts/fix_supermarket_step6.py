@@ -76,7 +76,9 @@ def main():
                                 'שקע חכם', 'מטען אלחוטי']),
          '→ אלקטרוניקה: מוצרים חשמליים'),
 
-        # ממתקים וחטיפים — specific chocolate brands + more
+        # ממתקים וחטיפים — specific chocolate brands + more.
+        # 'גריסיני' (Italian breadsticks) intentionally moved to the bakery
+        # rule below — they're savory bread, not candy.
         ('ממתקים וחטיפים',
          lambda n: has_any(n, ['ריטר ספורט', 'RITTER', 'קינדר ',
                                 'קינדר,', 'KINDER', 'MILKA', 'מילקה',
@@ -84,14 +86,15 @@ def main():
                                 'LINDT', 'גודיבה', 'GODIVA',
                                 'קלאסיק מריר', 'חטיף חלבה',
                                 'קורנט בונ', 'סלילי טופי',
-                                'גריסיני', 'GRISSINI',
                                 'ממתק קפוצי', 'שוקולד אמרה',
                                 'קרוקנט', 'כדורי מלבי',
                                 'אלפחורס', 'ALFAJORES',
                                 'פופקורן חמאה', 'פופקורן קרמל']),
          '→ ממתקים וחטיפים: מותגי שוקולד'),
 
-        # פירות וירקות — citrus and more
+        # פירות וירקות — citrus and more. Exclude obvious drink products
+        # so things like "מיץ פז תפוזים" or "פרימור תפוזים סחוט" don't get
+        # tagged as fresh fruit.
         ('פירות וירקות',
          lambda n: has_any(n, ['קלמנטינה', 'קלמנטינות', 'תפוזים',
                                 'אשכוליו', 'פומלה', 'ליצ\'י',
@@ -100,7 +103,8 @@ def main():
                                 'תירס בקלח', 'בטטה אדומה', 'בטטה טרי',
                                 'פטריות טריות', 'בזיליקום טרי',
                                 'סלק טרי', 'שום טרי',
-                                'פלפל ממולא טרי', 'עלי חסה', 'חסה ערבית']),
+                                'פלפל ממולא טרי', 'עלי חסה', 'חסה ערבית'])
+                   and not has_any(n, ['מיץ', 'משקה', 'פחית', 'גזוז', 'נקטר', 'סחוט']),
          '→ פירות וירקות: טריים'),
 
         # סיגריות — more brands. Both lists must match (AND) to avoid
