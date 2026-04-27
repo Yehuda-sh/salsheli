@@ -65,6 +65,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   List<String> _recentProductBarcodes = [];
 
   // 📸 Track failed image URLs to avoid re-fetching
+  // ⚠️ Bounded to prevent unbounded growth in long sessions (AGENTS.md Known Issue #16)
+  static const int _kMaxFailedImageUrls = 200;
   static final Set<String> _failedImageUrls = {};
 
   @override
@@ -227,14 +229,26 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   /// ➕ הוספת מוצר חדש (לא מהקטלוג) — פותח דיאלוג
   Future<void> _handleAddCustomProduct() async {
     final provider = context.read<ShoppingListsProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
 
     await showAddEditProductDialog(
       context,
       onSave: (item) async {
-        await provider.addUnifiedItem(widget.list.id, item);
-
-        if (!mounted) return;
-        _showFeedback(AppStrings.shopping.productAddedToList(item.name));
+        try {
+          await provider.addUnifiedItem(widget.list.id, item);
+          if (!mounted) return;
+          _showFeedback(AppStrings.shopping.productAddedToList(item.name));
+        } catch (e) {
+          if (!mounted) return;
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(AppStrings.shopping.addProductError(userFriendlyError(e, context: 'addCustomProduct'))),
+              backgroundColor: theme.colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       },
     );
   }
@@ -314,7 +328,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           return Container(
             decoration: BoxDecoration(
               color: cs.surface,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
             ),
             child: Stack(
               children: [
@@ -612,7 +626,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     ShoppingList? currentList,
   ) {
     if (provider.isLoading) {
-      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+      return const AppLoadingSkeleton();
     }
 
     if (provider.hasError) {
@@ -668,6 +682,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     // Find recently added products
     final recentProducts = _getRecentProducts(provider);
 
+    // 🚀 O(1) lookup map — built once instead of O(n) scan per product row
+    final existingByName = <String, UnifiedListItem>{
+      if (currentList != null)
+        for (final item in currentList.items) item.name.toLowerCase(): item,
+    };
+
     // 🎨 Outer RepaintBoundary isolates scroll repaints from the sheet
     return RepaintBoundary(
       child: CustomScrollView(
@@ -705,7 +725,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                       final product = entry.value[index];
                       final delay = Duration(milliseconds: (index * 40).clamp(0, 300));
                       return RepaintBoundary(
-                        child: _buildProductGridCard(product, cs)
+                        child: _buildProductGridCard(product, cs, existingByName)
                             .animate()
                             .fadeIn(duration: 300.ms, delay: delay)
                             .scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), duration: 300.ms, delay: delay),
@@ -728,7 +748,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                       final product = entry.value[index];
                       final delay = Duration(milliseconds: (index * 30).clamp(0, 300));
                       return RepaintBoundary(
-                        child: _buildCleanProductRow(product, cs)
+                        child: _buildCleanProductRow(product, cs, currentList, existingByName)
                             .animate()
                             .fadeIn(duration: 300.ms, delay: delay)
                             .slideX(begin: 0.05, end: 0, duration: 300.ms, delay: delay, curve: Curves.easeOutCubic),
@@ -869,7 +889,11 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // 🎴 Product Grid Card
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildProductGridCard(Map<String, dynamic> product, ColorScheme cs) {
+  Widget _buildProductGridCard(
+    Map<String, dynamic> product,
+    ColorScheme cs,
+    Map<String, UnifiedListItem> existingByName,
+  ) {
     final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
     final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
     final brand = product['brand'] as String?;
@@ -878,13 +902,8 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     final appBrand = Theme.of(context).extension<AppBrand>();
     final showPrices = context.read<UserContext>().showPrices;
 
-    final provider = context.read<ShoppingListsProvider>();
-    final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
-
-    final existingItem = currentList?.items.cast<UnifiedListItem?>().firstWhere(
-      (item) => item?.name.toLowerCase() == name.toLowerCase(),
-      orElse: () => null,
-    );
+    // 🚀 O(1) lookup
+    final existingItem = existingByName[name.toLowerCase()];
     final isInList = existingItem != null;
     final currentQuantity = existingItem?.quantity ?? 0;
     final productId = product['id']?.toString() ?? name;
@@ -1016,6 +1035,10 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
       fit: BoxFit.contain,
       fadeInDuration: const Duration(milliseconds: 200),
       errorWidget: (_, _, _) {
+        // Reset when full — keeps memory bounded over long sessions
+        if (_failedImageUrls.length >= _kMaxFailedImageUrls) {
+          _failedImageUrls.clear();
+        }
         _failedImageUrls.add(url);
         return _buildEmojiPlaceholder(emoji);
       },
@@ -1053,7 +1076,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// שורת מוצר נקייה — על קווי המחברת (RTL optimized) + מחיר
-  Widget _buildCleanProductRow(Map<String, dynamic> product, ColorScheme cs) {
+  Widget _buildCleanProductRow(
+    Map<String, dynamic> product,
+    ColorScheme cs,
+    ShoppingList? currentList,
+    Map<String, UnifiedListItem> existingByName,
+  ) {
     final name = product['name'] as String? ?? AppStrings.shopping.productNoName;
     final category = product['category'] as String? ?? AppStrings.shopping.typeOther;
     final size = product['size'] as String?;
@@ -1062,17 +1090,12 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     final appBrand = Theme.of(context).extension<AppBrand>();
     final showPrices = context.read<UserContext>().showPrices;
 
-    final provider = context.read<ShoppingListsProvider>();
-    final currentList = provider.lists.where((l) => l.id == widget.list.id).firstOrNull;
-
     if (currentList == null) {
       return _buildDisabledProductRow(name, category, cs);
     }
 
-    final existingItem = currentList.items.cast<UnifiedListItem?>().firstWhere(
-      (item) => item?.name.toLowerCase() == name.toLowerCase(),
-      orElse: () => null,
-    );
+    // 🚀 O(1) lookup
+    final existingItem = existingByName[name.toLowerCase()];
     final currentQuantity = existingItem?.quantity ?? 0;
     final isInList = existingItem != null;
     final productId = product['id']?.toString() ?? name;

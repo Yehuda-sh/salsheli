@@ -255,7 +255,7 @@ catalog audit + post-merge polish.
 | 13 | **CAT1**: substring traps in `category_detection_service.dart` | `'מנגו'` matches `'מנגולד'`; `'תפוז'` matches before `'מיץ '` (orange juice → fruit); `'תמר'` not anchored. Found session 7. |
 | 14 | **active_shopping_screen + who_brings_screen** don't re-watch provider — concurrent edits by other shoppers don't appear live | Pre-existing architectural choice. Found session 7. |
 | 15 | **75 short Israeli barcodes (7290 prefix)** in supermarket.json | 14 auto-fixed via EAN-13 checksum (session 7). Remaining 60 didn't validate — likely not simple leading-zero strips. |
-| 16 | **`product_selection_bottom_sheet._failedImageUrls`** Set grows unbounded | Memory leak risk in long sessions. Found session 7. |
+| 16 | ~~**`product_selection_bottom_sheet._failedImageUrls`** Set grows unbounded~~ | ✅ Fixed — bounded to 200 entries with auto-clear; resets when full. |
 
 ---
 

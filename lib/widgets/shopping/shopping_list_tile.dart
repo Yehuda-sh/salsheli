@@ -195,7 +195,18 @@ class ShoppingListTile extends StatelessWidget {
                     action: SnackBarAction(
                       label: AppStrings.shopping.undoButton,
                       onPressed: () {
-                        onRestore?.call(deletedList);
+                        final restore = onRestore;
+                        if (restore == null) return;
+                        unawaited(
+                          restore(deletedList).catchError((_) {
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(AppStrings.shopping.restoreError),
+                                backgroundColor: errorColor,
+                              ),
+                            );
+                          }),
+                        );
                       },
                     ),
                     duration: const Duration(seconds: 5),
