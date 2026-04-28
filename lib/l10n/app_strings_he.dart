@@ -1843,6 +1843,8 @@ class PantryStrings {
   String get retryButton => 'נסה שוב';
   String get noItemsFound => 'לא נמצאו פריטים';
   String get clearFilters => 'נקה סינון';
+  String get filterOutOfStockLabel => 'מציג: מוצרים שנגמרו';
+  String get filterLowStockLabel => 'מציג: מלאי נמוך';
   String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';

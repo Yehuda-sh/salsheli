@@ -35,8 +35,21 @@ import '../../widgets/inventory/pantry_starter_preview_dialog.dart';
 import '../../widgets/inventory/pantry_suggestions.dart';
 
 
+/// Stock-level filter that the pantry can be opened with.
+///
+/// `outOfStock` shows only items with `quantity == 0`; `lowStock` shows
+/// items below their per-item minimum (i.e. `isLowStock`); `all` is the
+/// default no-op.
+enum PantryStockFilter { all, outOfStock, lowStock }
+
 class MyPantryScreen extends StatefulWidget {
   const MyPantryScreen({super.key});
+
+  /// Set this from another screen (e.g. the dashboard's "out of stock"
+  /// chip) BEFORE switching to the pantry tab. The pantry consumes the
+  /// value on next build and resets it back to null. Static is OK here
+  /// because the pantry tab is a singleton inside MainNavigationScreen.
+  static PantryStockFilter? pendingStockFilter;
 
   @override
   State<MyPantryScreen> createState() => _MyPantryScreenState();
@@ -46,6 +59,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
   String? _selectedLocation; // מיקום נבחר לסינון (null = הכל)
+  PantryStockFilter _stockFilter = PantryStockFilter.all;
   final Set<String> _collapsedLocations = {};
 
   // 🔍 Search-mode toggle: when true, the title bar morphs into a search field
@@ -66,6 +80,23 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         context.read<InventoryProvider>().loadItems();
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Consume any "open with this filter" intent set by another screen
+    // (e.g. the dashboard's out-of-stock chip). One-shot — clear it so
+    // the next visit to the pantry tab doesn't re-apply the filter.
+    final pending = MyPantryScreen.pendingStockFilter;
+    if (pending != null && pending != _stockFilter) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _stockFilter = pending);
+        }
+      });
+      MyPantryScreen.pendingStockFilter = null;
+    }
   }
 
   @override
@@ -179,6 +210,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         if (_normalizeLocation(item.location) != _selectedLocation) {
           return false;
         }
+      }
+
+      // סינון לפי כמות במלאי
+      switch (_stockFilter) {
+        case PantryStockFilter.outOfStock:
+          if (item.quantity > 0) return false;
+          break;
+        case PantryStockFilter.lowStock:
+          if (!item.isLowStock) return false;
+          break;
+        case PantryStockFilter.all:
+          break;
       }
 
       return true;
@@ -769,6 +812,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                   ),
 
                                   // 🔍 חיפוש וסינון
+                                  _buildStockFilterBanner(),
                                   _buildFiltersSection(allItems),
 
                                   // 📋 תוכן — pull-to-refresh wraps the list
@@ -1068,6 +1112,66 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 🔍 סעיף סינון — רק שורת מיקומים אופקית.
   /// החיפוש עבר לכותרת (toggle morph) כדי לחסוך מקום במסך.
+  /// Banner shown above the filter row when the user opened the pantry
+  /// with a stock-level filter (e.g. via the dashboard "out of stock"
+  /// chip). Surfaces the filter state explicitly and gives the user a
+  /// one-tap way to clear it — otherwise filtered results look like
+  /// "the pantry has shrunk" with no obvious cause.
+  Widget _buildStockFilterBanner() {
+    if (_stockFilter == PantryStockFilter.all) return const SizedBox.shrink();
+
+    final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    final strings = AppStrings.pantry;
+    final isOut = _stockFilter == PantryStockFilter.outOfStock;
+    final accent = isOut
+        ? cs.error
+        : (brand?.stickyOrange ?? cs.tertiary);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingXTiny),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingSmall),
+        decoration: BoxDecoration(
+          color: accent.withValues(alpha: kOpacitySubtle),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          border: Border.all(color: accent.withValues(alpha: kOpacityLight)),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isOut ? Icons.error_outline : Icons.warning_amber_rounded,
+              size: kIconSizeSmallPlus,
+              color: accent,
+            ),
+            const SizedBox(width: kSpacingSmall),
+            Expanded(
+              child: Text(
+                isOut
+                    ? strings.filterOutOfStockLabel
+                    : strings.filterLowStockLabel,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.w600,
+                  color: cs.onSurface,
+                ),
+              ),
+            ),
+            IconButton(
+              tooltip: strings.clearFilters,
+              icon: const Icon(Icons.close, size: kIconSizeSmall),
+              onPressed: () {
+                unawaited(HapticFeedback.selectionClick());
+                setState(() => _stockFilter = PantryStockFilter.all);
+              },
+              visualDensity: VisualDensity.compact,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildFiltersSection(List<InventoryItem> allItems) {
     if (allItems.isEmpty) return const SizedBox.shrink();
 

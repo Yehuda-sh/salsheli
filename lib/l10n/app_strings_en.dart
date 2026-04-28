@@ -1816,6 +1816,8 @@ class PantryStringsEn extends PantryStrings {
   @override String get retryButton => 'Try Again';
   @override String get noItemsFound => 'No items found';
   @override String get clearFilters => 'Clear filters';
+  @override String get filterOutOfStockLabel => 'Showing: out-of-stock';
+  @override String get filterLowStockLabel => 'Showing: low stock';
   @override String get noStarterItemsFound => 'No starter items found';
   @override String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   @override String get starterItemsError => 'Error adding starter items';
