@@ -311,7 +311,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         children: [
           // Plain house emoji — the previous family ZWJ sequence
           // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
-          const Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
+          // Decorative only — screen readers should jump straight to
+          // the title text, not announce "house".
+          const ExcludeSemantics(
+            child: Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
+          ),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Column(
@@ -425,34 +429,39 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
-          decoration: BoxDecoration(
-            color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                strings.activeListsTitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurfaceVariant,
+        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת.
+        // Marked as a Semantics header so screen readers announce
+        // "active lists, 5" as a section break, not just inline text.
+        Semantics(
+          header: true,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+            decoration: BoxDecoration(
+              color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: 0.85),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  strings.activeListsTitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(width: kSpacingXTiny),
-              Text(
-                '${activeLists.length}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.outline,
+                const SizedBox(width: kSpacingXTiny),
+                Text(
+                  '${activeLists.length}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.outline,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: kSpacingSmall),
@@ -531,9 +540,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final strings = AppStrings.homeDashboard;
-    final uncheckedCount = list.items.where((i) => !i.isChecked).length;
-    final checkedCount = list.items.where((i) => i.isChecked).length;
+    // Single-pass count instead of two `where().length` scans — saves
+    // an extra O(n) walk per card per rebuild. Matters once the user
+    // has multiple lists with many items each.
+    var checkedCount = 0;
     final totalCount = list.items.length;
+    for (final item in list.items) {
+      if (item.isChecked) checkedCount++;
+    }
+    final uncheckedCount = totalCount - checkedCount;
     final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
     // צבע לפי סוג הרשימה (מרכזי ב-ListTypes)
@@ -543,7 +558,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final isDone = totalCount > 0 && uncheckedCount == 0;
     final accentColor = isDone ? successColor : typeColor;
 
-    return Card(
+    // Compose a screen-reader label that matches what a sighted user
+    // takes in at a glance: list name + progress + done flag. Without
+    // this, TalkBack/VoiceOver reads the inner Text widgets piecemeal
+    // ("4", "/", "12") with no indication this is a tappable card.
+    final semanticLabel = isDone
+        ? '${list.name}, ${strings.completed}'
+        : totalCount == 0
+            ? '${list.name}, ${strings.emptyList}'
+            : '${list.name}, $checkedCount / $totalCount';
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
       color: cs.surface.withValues(alpha: 0.7),
@@ -698,10 +726,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
-                      // חץ - RTL aware
+                      // חץ - RTL aware. Dropped the alpha 0.5 dimming —
+                      // on light backgrounds it bleached the chevron to
+                      // the point of invisibility. cs.onSurfaceVariant
+                      // is already a softer-than-onSurface tone.
                       Icon(
                         isRtl ? Icons.chevron_left : Icons.chevron_right,
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                        color: cs.onSurfaceVariant,
                         size: kIconSizeSmallPlus,
                       ),
                     ],
@@ -711,6 +742,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
