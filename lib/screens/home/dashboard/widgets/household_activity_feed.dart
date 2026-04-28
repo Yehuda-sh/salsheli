@@ -162,7 +162,7 @@ class HouseholdActivityFeed extends StatelessWidget {
               'assets/images/icon_home_activity.webp',
               width: kIconSizeLarge,
               height: kIconSizeLarge,
-              errorBuilder: (_, __, ___) =>
+              errorBuilder: (_, _, _) =>
                   Icon(Icons.history, size: kIconSizeLarge, color: cs.primary),
             ),
             const SizedBox(width: kSpacingSmall),
@@ -285,7 +285,6 @@ class _FeedTile extends StatelessWidget {
   final String time;
   final String subtitle;
   final VoidCallback? onTap;
-  final String? semanticsLabel;
 
   const _FeedTile({
     required this.icon,
@@ -295,7 +294,6 @@ class _FeedTile extends StatelessWidget {
     required this.time,
     required this.subtitle,
     this.onTap,
-    this.semanticsLabel,
   });
 
   @override
@@ -380,7 +378,7 @@ class _FeedTile extends StatelessWidget {
 
     return Semantics(
       button: onTap != null,
-      label: semanticsLabel ?? '$title, $subtitle, $time',
+      label: '$title, $subtitle, $time',
       child: tappable,
     );
   }

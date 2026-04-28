@@ -849,12 +849,12 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     // Shake עדין לפתקיות critical — פעם אחת אחרי הכניסה כדי למשוך תשומת לב
     // בלי להישאר מטריד.
     if (suggestion.urgency == 'critical') {
-      animated = animated.shake(
-        delay: 800.ms,
-        duration: 600.ms,
-        hz: 3,
-        rotation: 0.008,
-      );
+      animated = animated.animate().shake(
+            delay: 800.ms,
+            duration: 600.ms,
+            hz: 3,
+            rotation: 0.008,
+          );
     }
 
     return animated;
