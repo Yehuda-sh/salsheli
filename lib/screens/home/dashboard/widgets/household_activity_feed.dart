@@ -60,8 +60,14 @@ IconData _iconForType(ActivityType type) {
       return Icons.inventory_2;
     case ActivityType.memberLeft:
       return Icons.person_remove;
+    case ActivityType.memberJoined:
+      return Icons.person_add;
     case ActivityType.roleChanged:
       return Icons.admin_panel_settings;
+    case ActivityType.listDeleted:
+      return Icons.delete_outline;
+    case ActivityType.listShared:
+      return Icons.share;
     case ActivityType.unknown:
       return Icons.info_outline;
   }
@@ -81,15 +87,18 @@ IconData _iconForType(ActivityType type) {
   switch (type) {
     case ActivityType.shoppingCompleted:
     case ActivityType.itemAdded:
+    case ActivityType.memberJoined:
       return (bg: cs.primaryContainer, fg: cs.onPrimaryContainer);
     case ActivityType.shoppingStarted:
     case ActivityType.shoppingJoined:
     case ActivityType.roleChanged:
+    case ActivityType.listShared:
       return (bg: cs.tertiaryContainer, fg: cs.onTertiaryContainer);
     case ActivityType.listCreated:
     case ActivityType.stockUpdated:
       return (bg: cs.secondaryContainer, fg: cs.onSecondaryContainer);
     case ActivityType.memberLeft:
+    case ActivityType.listDeleted:
       return (bg: cs.errorContainer, fg: cs.onErrorContainer);
     case ActivityType.unknown:
       return (bg: cs.surfaceContainerHighest, fg: cs.onSurfaceVariant);
@@ -114,8 +123,14 @@ String _descriptionForEvent(ActivityEvent event, ActivityLogStrings strings) {
       return strings.feedStockUpdated(event.productName ?? '');
     case ActivityType.memberLeft:
       return strings.feedMemberLeft;
+    case ActivityType.memberJoined:
+      return strings.feedMemberJoined;
     case ActivityType.roleChanged:
       return strings.feedRoleChanged(event.targetName ?? '', event.newRole ?? '');
+    case ActivityType.listDeleted:
+      return strings.feedListDeleted(event.listName ?? '');
+    case ActivityType.listShared:
+      return strings.feedListShared(event.listName ?? '');
     case ActivityType.unknown:
       return strings.feedUnknownActivity;
   }
@@ -392,9 +407,8 @@ class _ActivityEventTile extends StatelessWidget {
   final ActivityEvent event;
   const _ActivityEventTile({required this.event});
 
-  /// Some event types carry a `list_id` we can navigate to. Others (member
-  /// left, role changed, stock updated, unknown) have nowhere obvious to go
-  /// from the dashboard.
+  /// Some event types carry a `list_id` we can navigate to. Member/role/stock
+  /// events and listDeleted (the list is gone) have nowhere obvious to go.
   String? get _navigableListId {
     switch (event.type) {
       case ActivityType.shoppingCompleted:
@@ -402,10 +416,13 @@ class _ActivityEventTile extends StatelessWidget {
       case ActivityType.shoppingJoined:
       case ActivityType.listCreated:
       case ActivityType.itemAdded:
+      case ActivityType.listShared:
         return event.data['list_id'] as String?;
       case ActivityType.stockUpdated:
       case ActivityType.memberLeft:
+      case ActivityType.memberJoined:
       case ActivityType.roleChanged:
+      case ActivityType.listDeleted:
       case ActivityType.unknown:
         return null;
     }

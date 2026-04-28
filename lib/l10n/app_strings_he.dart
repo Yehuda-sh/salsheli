@@ -1602,8 +1602,14 @@ class ActivityLogStrings {
       '$actor עדכן/ה מלאי "$productName"';
   String memberLeft(String actor) =>
       '$actor עזב/ה את הבית';
+  String memberJoined(String actor) =>
+      '$actor הצטרף/ה לבית';
   String roleChanged(String actor, String targetName, String newRole) =>
       '$actor שינה/תה תפקיד של $targetName ל$newRole';
+  String listDeleted(String actor, String listName) =>
+      '$actor מחק/ה את הרשימה "$listName"';
+  String listShared(String actor, String listName) =>
+      '$actor שיתף/ה את הרשימה "$listName" עם הבית';
   String unknownActivity(String actor) =>
       '$actor ביצע/ה פעולה';
 
@@ -1622,8 +1628,13 @@ class ActivityLogStrings {
   String feedStockUpdated(String productName) =>
       'עדכן/ה מלאי "$productName"';
   String get feedMemberLeft => 'עזב/ה את הבית';
+  String get feedMemberJoined => 'הצטרף/ה לבית';
   String feedRoleChanged(String targetName, String newRole) =>
       'שינה/תה תפקיד של $targetName ל$newRole';
+  String feedListDeleted(String listName) =>
+      'מחק/ה את הרשימה "$listName"';
+  String feedListShared(String listName) =>
+      'שיתף/ה את הרשימה "$listName" עם הבית';
   String get feedUnknownActivity => 'ביצע/ה פעולה';
 
   // "Just now" — replaces "לפני 0 דק'" for very recent events.

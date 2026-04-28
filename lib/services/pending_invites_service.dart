@@ -1,16 +1,20 @@
 // lib/services/pending_invites_service.dart — Pending invites service — create/accept/decline list and household invitations
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../core/error_utils.dart';
+import '../models/activity_event.dart';
 import '../models/enums/request_status.dart';
 import '../models/enums/request_type.dart';
 import '../models/enums/user_role.dart';
 import '../models/pending_request.dart';
 import '../models/shared_user.dart';
 import '../models/shopping_list.dart';
+import 'activity_log_service.dart';
 
 // ========================================
 // 🆕 Typed Result for Invites
@@ -669,6 +673,14 @@ class PendingInvitesService {
       }
 
       await batch.commit();
+
+      // 📝 Activity log — let existing members see who just joined.
+      unawaited(ActivityLogService().log(
+        householdId: householdId,
+        type: ActivityType.memberJoined,
+        actorId: userId,
+        actorName: userName ?? userEmail ?? '',
+      ));
 
       // 6. בדיקה אם הבית הישן ריק → מחיקה
       if (oldHouseholdId != null && oldHouseholdId != householdId) {

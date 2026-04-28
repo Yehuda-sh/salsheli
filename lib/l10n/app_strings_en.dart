@@ -1451,8 +1451,14 @@ class ActivityLogStringsEn extends ActivityLogStrings {
       '$actor updated stock for "$productName"';
   @override String memberLeft(String actor) =>
       '$actor left the household';
+  @override String memberJoined(String actor) =>
+      '$actor joined the household';
   @override String roleChanged(String actor, String targetName, String newRole) =>
-      '$actor changed $targetName\'s role to $newRole';
+      "$actor changed $targetName's role to $newRole";
+  @override String listDeleted(String actor, String listName) =>
+      '$actor deleted list "$listName"';
+  @override String listShared(String actor, String listName) =>
+      '$actor shared list "$listName" with the household';
   @override String unknownActivity(String actor) =>
       '$actor performed an action';
 
@@ -1469,8 +1475,13 @@ class ActivityLogStringsEn extends ActivityLogStrings {
   @override String feedStockUpdated(String productName) =>
       'updated stock for "$productName"';
   @override String get feedMemberLeft => 'left the household';
+  @override String get feedMemberJoined => 'joined the household';
   @override String feedRoleChanged(String targetName, String newRole) =>
       "changed $targetName's role to $newRole";
+  @override String feedListDeleted(String listName) =>
+      'deleted list "$listName"';
+  @override String feedListShared(String listName) =>
+      'shared list "$listName" with the household';
   @override String get feedUnknownActivity => 'performed an action';
 
   @override String get justNow => 'just now';
