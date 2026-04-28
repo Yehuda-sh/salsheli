@@ -46,10 +46,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   void initState() {
     super.initState();
 
+    // The stagger animation runs from postFrame for ~600ms (5 sections
+    // × 50ms delay + 400ms duration). Showing the tutorial on top of
+    // the slide-in dance feels chaotic. Flip _hasAnimated immediately
+    // so the next build reads as "already animated" once the first
+    // pass paints, but defer the tutorial dialog until after the
+    // stagger finishes. Mount check guards against navigating away
+    // during the wait.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _hasAnimated = true);
+    });
+    Future.delayed(const Duration(milliseconds: 700), () {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
-        setState(() => _hasAnimated = true);
       }
     });
   }
@@ -57,7 +67,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Future<void> _refresh(BuildContext context) async {
     if (_isRefreshing) return;
 
-    setState(() => _isRefreshing = true);
+    // _isRefreshing isn't read in build() — only used as a re-entry
+    // guard inside this method. No setState needed; the state change
+    // shouldn't trigger a rebuild.
+    _isRefreshing = true;
 
     // Cache the messenger before the await chain — using Scaffold.of()
     // post-await is unsafe if the user navigates away mid-refresh.
@@ -103,9 +116,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       );
     }
 
-    if (mounted) {
-      setState(() => _isRefreshing = false);
-    }
+    _isRefreshing = false;
   }
 
   /// עוטף widget באנימציית כניסה מדורגת (רק בפעם הראשונה)
@@ -217,6 +228,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
+                  const SizedBox(height: kSpacingMedium),
 
                   // === 4. הצעות להיום ===
                   _staggered(
@@ -225,7 +237,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
-
                   const SizedBox(height: kSpacingMedium),
 
                   // === 5. רשימות פעילות ===
@@ -235,8 +246,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
-
-                  const SizedBox(height: kSpacingSmall),
+                  const SizedBox(height: kSpacingMedium),
 
                   // === 5.5. טיפים למשתמש חדש (נעלם אוטומטית) ===
                   OnboardingTipsCard(
@@ -245,6 +255,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         : null,
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
                   ),
+                  const SizedBox(height: kSpacingMedium),
 
                   // === 6. פיד פעילות הבית ===
                   _staggered(
@@ -254,8 +265,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  // מרווח לפני FAB
-                  const SizedBox(height: kIconSizeXLarge + kSpacingXLarge),
+                  // FAB clearance (only when FAB is showing)
+                  SizedBox(height: showFab ? kIconSizeXLarge + kSpacingXLarge : kSpacingMedium),
                 ],
               ),
             ),
@@ -270,12 +281,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   // ============================================
   Widget _buildInviteFamilyBanner(BuildContext context) {
     final userContext = context.watch<UserContext>();
-    final householdName = userContext.user?.householdName;
-    // Same solo heuristic as OnboardingTipsCard
-    final isSolo = userContext.user?.isSolo ??
-        (householdName == null ||
-         householdName.contains('של') ||
-         householdName.contains('Home'));
+    // Trust the explicit `isSolo` flag from the user document. The old
+    // fallback that sniffed Hebrew/English substrings of householdName
+    // ('של', 'Home') broke as soon as the user switched UI language and
+    // wasn't reliable across naming choices anyway. If isSolo is null
+    // (legacy users on older docs) the banner stays hidden — better to
+    // miss a one-off banner than mis-classify a real household as solo.
+    final isSolo = userContext.user?.isSolo ?? false;
 
     if (!isSolo) return const SizedBox.shrink();
 
