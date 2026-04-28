@@ -1655,6 +1655,7 @@ class ActiveShopperBannerStrings {
   String get continueButton => 'המשך';
   String othersActiveTitle(String shopperName) => '$shopperName קונה עכשיו';
   String othersActiveTitleMultiple(int count) => '$count קונים עכשיו';
+  String get someoneShopping => 'מישהו קונה עכשיו';
   String othersActiveSingle(String listName) => 'קונה מ"$listName"';
   String othersActiveMultiple(int count, String listName) => '$count אנשים קונים מ"$listName"';
   String get joinButton => 'להצטרף';

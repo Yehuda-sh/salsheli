@@ -1501,6 +1501,7 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
   @override String get continueButton => 'Continue';
   @override String othersActiveTitle(String shopperName) => '$shopperName is shopping now';
   @override String othersActiveTitleMultiple(int count) => '$count shoppers active now';
+  @override String get someoneShopping => 'Someone is shopping now';
   @override String othersActiveSingle(String listName) => 'Shopping from "$listName"';
   @override String othersActiveMultiple(int count, String listName) => '$count people shopping from "$listName"';
   @override String get joinButton => 'Join';
