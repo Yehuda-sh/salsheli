@@ -324,7 +324,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ],
         ),
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.3)),
+        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacityLight)),
       ),
       child: Row(
         children: [
@@ -383,7 +383,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: BoxDecoration(
         color: cs.errorContainer,
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: cs.error.withValues(alpha: 0.3)),
+        border: Border.all(color: cs.error.withValues(alpha: kOpacityLight)),
       ),
       child: Row(
         children: [
@@ -404,7 +404,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: kSpacingXTiny / 2),
                 Text(
                   errorMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -456,7 +456,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
             decoration: BoxDecoration(
-              color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: 0.85),
+              color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: kOpacityHigh),
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),
             ),
             child: Row(
@@ -489,7 +489,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         if (activeLists.isEmpty)
           Card(
             elevation: 0,
-            color: cs.secondaryContainer.withValues(alpha: 0.2),
+            color: cs.secondaryContainer.withValues(alpha: kOpacityLow),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               side: BorderSide(
