@@ -28,6 +28,13 @@ import 'widgets/onboarding_tips_card.dart';
 import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
 
+// Layout tokens specific to the active-list card.
+const double _kAvatarSize = 44.0;
+const double _kProgressStrokeWidth = 3.0;
+const double _kListAccentBarWidth = 5.0;
+// Empty-state illustration size — keeps a stable footprint even when
+// the asset fails to decode and the errorBuilder swaps in a fallback icon.
+const double _kEmptyStateImageHeight = 100.0;
 
 class HomeDashboardScreen extends StatefulWidget {
   final Function(int)? onTabSelected;
@@ -171,7 +178,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Navigator.pushNamed(context, '/create-list');
               },
               tooltip: AppStrings.homeDashboard.newListButton,
-              icon: Image.asset('assets/images/icon_new_list.webp', width: kIconSizeMedium, height: kIconSizeMedium),
+              icon: Image.asset(
+                'assets/images/icon_new_list.webp',
+                width: kIconSizeMedium,
+                height: kIconSizeMedium,
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.add, size: kIconSizeMedium),
+              ),
               label: Text(AppStrings.homeDashboard.newListButton),
             ).animate().scale(
                   begin: const Offset(0.8, 0.8),
@@ -253,13 +266,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   const SizedBox(height: kSpacingMedium),
 
                   // === 5.5. טיפים למשתמש חדש (נעלם אוטומטית) ===
+                  // The card supplies its own bottom padding when it has
+                  // tips to show, and a full SizedBox.shrink when it
+                  // doesn't — no trailing gap when there's nothing to see.
                   OnboardingTipsCard(
                     onNavigateToPantry: widget.onTabSelected != null
                         ? () => widget.onTabSelected!(1)
                         : null,
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
                   ),
-                  const SizedBox(height: kSpacingMedium),
 
                   // === 6. פיד פעילות הבית ===
                   _staggered(
@@ -491,11 +506,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 padding: const EdgeInsets.symmetric(vertical: kSpacingXLarge, horizontal: kSpacingLarge),
                 child: Column(
                   children: [
-                    // Illustration
+                    // Illustration — falls back to a Material icon if the
+                    // asset is missing so the empty-state still reads.
                     Image.asset(
                       'assets/images/empty_cart.webp',
-                      height: 100,
+                      height: _kEmptyStateImageHeight,
                       fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => Icon(
+                        Icons.shopping_cart_outlined,
+                        size: _kEmptyStateImageHeight,
+                        color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
+                      ),
                     ),
                     const SizedBox(height: kSpacingMedium),
                     Text(
@@ -600,7 +621,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               // פס צבע צד ימין (RTL) / שמאל (LTR)
               Container(
-                width: 5,
+                width: _kListAccentBarWidth,
                 decoration: BoxDecoration(
                   color: accentColor,
                   borderRadius: isRtl
@@ -629,8 +650,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       Hero(
                         tag: 'list_hero_${list.id}',
                         child: SizedBox(
-                          width: 44,
-                          height: 44,
+                          width: _kAvatarSize,
+                          height: _kAvatarSize,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -638,7 +659,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                 SizedBox.expand(
                                   child: CircularProgressIndicator(
                                     value: progress,
-                                    strokeWidth: 3,
+                                    strokeWidth: _kProgressStrokeWidth,
                                     backgroundColor: accentColor.withValues(alpha: 0.15),
                                     valueColor: AlwaysStoppedAnimation(accentColor),
                                   ),

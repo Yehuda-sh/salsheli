@@ -175,30 +175,35 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
 
     if (tips.isEmpty) return const SizedBox.shrink();
 
-    // Sticky Notes אנכיים — כל כרטיס שורה מלאה.
-    return Column(
-      children: [
-        for (var i = 0; i < tips.length; i++)
-          Padding(
-            key: ValueKey(tips[i].kind),
-            padding: const EdgeInsets.only(bottom: kSpacingSmall),
-            child: _StickyNoteTip(
-              tip: tips[i],
-              onDismiss: () => _dismiss(tips[i].kind),
-            )
-                .animate()
-                .fadeIn(
-                  duration: _kEnterDuration,
-                  delay: Duration(milliseconds: _kEnterStaggerMs * i),
-                )
-                .slideX(
-                  begin: _kEnterSlideOffset,
-                  end: 0,
-                  duration: _kEnterDuration,
-                  delay: Duration(milliseconds: _kEnterStaggerMs * i),
-                ),
-          ),
-      ],
+    // Sticky Notes אנכיים — כל כרטיס שורה מלאה. The bottom padding lives
+    // here (not on the parent) so when there are no tips the dashboard
+    // doesn't end up with an empty gap where this card would have been.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: kSpacingMedium),
+      child: Column(
+        children: [
+          for (var i = 0; i < tips.length; i++)
+            Padding(
+              key: ValueKey(tips[i].kind),
+              padding: const EdgeInsets.only(bottom: kSpacingSmall),
+              child: _StickyNoteTip(
+                tip: tips[i],
+                onDismiss: () => _dismiss(tips[i].kind),
+              )
+                  .animate()
+                  .fadeIn(
+                    duration: _kEnterDuration,
+                    delay: Duration(milliseconds: _kEnterStaggerMs * i),
+                  )
+                  .slideX(
+                    begin: _kEnterSlideOffset,
+                    end: 0,
+                    duration: _kEnterDuration,
+                    delay: Duration(milliseconds: _kEnterStaggerMs * i),
+                  ),
+            ),
+        ],
+      ),
     );
   }
 }
