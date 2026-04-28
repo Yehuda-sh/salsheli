@@ -25,6 +25,7 @@ import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
 import 'widgets/onboarding_tips_card.dart';
+import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
 
 
@@ -198,13 +199,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // === 0. Offline banner ===
                   const OfflineBanner(),
 
-                  // === 1. באנרים (Error / Active Shopper) ===
+                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   _staggered(
                     Column(
                       children: [
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
+                        const PendingInvitesBanner(),
                       ],
                     ),
                     sectionIndex++,
