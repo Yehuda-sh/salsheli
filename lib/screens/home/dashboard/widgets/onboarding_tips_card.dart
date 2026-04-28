@@ -21,6 +21,12 @@ const int _kPantryTipTarget = 3;
 const int _kListsTipTarget = 3;
 // Sticky-note tilt — alternates direction per index for a "pinned" feel.
 const double _kTipRotation = 0.01;
+// Sticky-note gradient depth — high enough to read as "folded paper",
+// low enough not to muddy the brand color.
+const double _kStickyGradientBlend = 0.08;
+// Reused alpha values for body text + soft icon tint.
+const double _kSubtleTextAlpha = 0.6;
+const double _kIconTintAlpha = 0.7;
 // Persisted dismiss flags — once a user closes a tip we remember it forever.
 const String _kPrefDismissedPantry = 'onboarding_dismissed_pantry_tip';
 const String _kPrefDismissedLists = 'onboarding_dismissed_lists_tip';
@@ -97,24 +103,28 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
 
   @override
   Widget build(BuildContext context) {
-    final userContext = context.watch<UserContext>();
-    final listsProvider = context.watch<ShoppingListsProvider>();
-    final inventoryProvider = context.watch<InventoryProvider>();
-    final brand = Theme.of(context).extension<AppBrand>();
+    // Targeted selectors — only rebuild on count changes, not on every
+    // list/inventory mutation.
+    final isLoggedIn = context.select<UserContext, bool>((u) => u.isLoggedIn);
+    if (!isLoggedIn) return const SizedBox.shrink();
 
-    if (!userContext.isLoggedIn) return const SizedBox.shrink();
     // Hide while we're still loading dismiss flags.
-    if (_pantryDismissed == null || _listsDismissed == null) {
+    final pantryDismissed = _pantryDismissed;
+    final listsDismissed = _listsDismissed;
+    if (pantryDismissed == null || listsDismissed == null) {
       return const SizedBox.shrink();
     }
 
-    final listCount = listsProvider.lists.length;
-    final pantryCount = inventoryProvider.items.length;
+    final pantryCount =
+        context.select<InventoryProvider, int>((p) => p.items.length);
+    final listCount =
+        context.select<ShoppingListsProvider, int>((p) => p.lists.length);
+    final brand = Theme.of(context).extension<AppBrand>();
     final strings = AppStrings.onboardingTips;
 
     final tips = <_TipData>[];
 
-    if (pantryCount < _kPantryTipTarget && _pantryDismissed == false) {
+    if (pantryCount < _kPantryTipTarget && !pantryDismissed) {
       tips.add(_TipData(
         kind: _TipKind.pantry,
         icon: Icons.inventory_2_outlined,
@@ -130,7 +140,7 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
       ));
     }
 
-    if (listCount < _kListsTipTarget && _listsDismissed == false) {
+    if (listCount < _kListsTipTarget && !listsDismissed) {
       tips.add(_TipData(
         kind: _TipKind.lists,
         icon: Icons.playlist_add,
@@ -208,6 +218,9 @@ class _StickyNoteTip extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final shadowColor = Theme.of(context).shadowColor;
 
+    final subtleText = cs.onSurface.withValues(alpha: _kSubtleTextAlpha);
+    final accentBg = cs.scrim.withValues(alpha: kOpacitySubtle);
+
     return Transform.rotate(
       angle: rotation,
       child: Material(
@@ -218,7 +231,8 @@ class _StickyNoteTip extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 tip.color,
-                Color.lerp(tip.color, shadowColor, 0.04) ?? tip.color,
+                Color.lerp(tip.color, shadowColor, _kStickyGradientBlend) ??
+                    tip.color,
               ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -233,7 +247,10 @@ class _StickyNoteTip extends StatelessWidget {
             ],
           ),
           child: Semantics(
-            // Keep the dismiss button as its own accessibility node.
+            // The card itself is the primary button (opens pantry / lists).
+            // explicitChildNodes lets the dismiss IconButton remain its own
+            // accessibility node, while the inner text is collapsed into
+            // the card's label via ExcludeSemantics below.
             explicitChildNodes: true,
             button: true,
             label: '${tip.title}, ${tip.subtitle}, ${tip.progress}',
@@ -247,84 +264,91 @@ class _StickyNoteTip extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // אייקון בעיגול
-                    Container(
-                      width: kIconSizeXLarge,
-                      height: kIconSizeXLarge,
-                      decoration: BoxDecoration(
-                        color: cs.scrim.withValues(alpha: kOpacitySubtle),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        tip.icon,
-                        size: kIconSizeMedium,
-                        color: cs.onSurface.withValues(alpha: 0.7),
+                    // Decorative content — already represented in the
+                    // card-level Semantics label, so don't read it twice.
+                    ExcludeSemantics(
+                      child: Container(
+                        width: kIconSizeXLarge,
+                        height: kIconSizeXLarge,
+                        decoration: BoxDecoration(
+                          color: accentBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          tip.icon,
+                          size: kIconSizeMedium,
+                          color: cs.onSurface.withValues(alpha: _kIconTintAlpha),
+                        ),
                       ),
                     ),
                     const SizedBox(width: kSpacingMedium),
 
-                    // טקסט
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            tip.title,
-                            style: TextStyle(
-                              fontSize: kFontSizeBody,
-                              fontWeight: FontWeight.bold,
-                              color: cs.onSurface,
+                      child: ExcludeSemantics(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              tip.title,
+                              style: TextStyle(
+                                fontSize: kFontSizeBody,
+                                fontWeight: FontWeight.bold,
+                                color: cs.onSurface,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: kSpacingXTiny),
-                          Text(
-                            tip.subtitle,
-                            style: TextStyle(
-                              fontSize: kFontSizeSmall,
-                              color: cs.onSurface.withValues(alpha: 0.6),
+                            const SizedBox(height: kSpacingXTiny),
+                            Text(
+                              tip.subtitle,
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: subtleText,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: kSpacingXTiny),
-                          // Progress label gives the user a sense of how
-                          // close they are to the tip going away.
-                          Text(
-                            tip.progress,
-                            style: TextStyle(
-                              fontSize: kFontSizeTiny,
-                              fontWeight: FontWeight.w600,
-                              color: cs.onSurface.withValues(alpha: 0.6),
+                            const SizedBox(height: kSpacingXTiny),
+                            // Progress label gives the user a sense of
+                            // how close they are to the tip going away.
+                            Text(
+                              tip.progress,
+                              style: TextStyle(
+                                fontSize: kFontSizeTiny,
+                                fontWeight: FontWeight.w600,
+                                color: subtleText,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: kSpacingSmall),
 
-                    // כפתור CTA
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: kSpacingMedium,
-                        vertical: kSpacingSmall,
-                      ),
-                      decoration: BoxDecoration(
-                        color: cs.scrim.withValues(alpha: kOpacitySubtle),
-                        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                      ),
-                      child: Text(
-                        tip.actionLabel,
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          fontWeight: FontWeight.bold,
-                          color: cs.onSurface,
+                    // CTA — visual only; the InkWell wrapping the whole
+                    // card is the actual tap target.
+                    ExcludeSemantics(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingMedium,
+                          vertical: kSpacingSmall,
+                        ),
+                        decoration: BoxDecoration(
+                          color: accentBg,
+                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                        ),
+                        child: Text(
+                          tip.actionLabel,
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
                         ),
                       ),
                     ),
-                    // Dismiss button — separate tap target so the X can't
-                    // be hit while reaching for the CTA. IconButton brings
-                    // its own Semantics(button) + tooltip semantics.
+                    // Dismiss — separate tap target. IconButton brings its
+                    // own Semantics(button) + tooltip; explicitChildNodes
+                    // on the parent keeps it as its own a11y node.
                     IconButton(
                       icon: Icon(
                         Icons.close,
@@ -341,7 +365,6 @@ class _StickyNoteTip extends StatelessWidget {
                         minHeight: kIconSizeLarge,
                       ),
                       tooltip: AppStrings.onboardingTips.dismissTooltip,
-                      splashRadius: kIconSizeMedium,
                     ),
                   ],
                 ),
