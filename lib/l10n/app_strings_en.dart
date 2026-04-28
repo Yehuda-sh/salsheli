@@ -1501,6 +1501,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String get urgencyLow => 'Recommended';
   @override String inStock(int stock, String unit) => 'In stock: $stock $unit';
   @override String get addButton => 'Add';
+  @override String get dismissTooltip => 'Hide for a week';
   @override String get noActiveLists => 'No active lists - create a new list';
   @override String get chooseListTitle => 'Add to which list?';
   @override String get addedToList => 'Added to list';

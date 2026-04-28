@@ -20,6 +20,13 @@ import '../../../../providers/suggestions_provider.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../widgets/common/product_thumbnail.dart';
 
+// Carousel layout — keep page-index math and ListView in sync.
+const double _kCarouselHeight = 200.0;
+const double _kCardWidth = 170.0;
+const double _kCardGap = kSpacingSmall;
+const double _kCardItemExtent = _kCardWidth + _kCardGap; // 178
+const double _kTapeHeight = 18.0;
+const double _kTapeHorizontalMargin = 30.0;
 
 /// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
@@ -140,7 +147,15 @@ class _SuggestionsCarousel extends StatefulWidget {
 }
 
 class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
-  int _currentPage = 0;
+  // ValueNotifier so dot updates don't rebuild the whole carousel on every
+  // scroll frame.
+  final ValueNotifier<int> _currentPage = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    _currentPage.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,53 +166,48 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // כותרת: ממורכזת עם הוסף הכל בשורה מתחת
+        // כותרת: ממורכזת, עם רקע paper לקריאות על קווי מחברת
         Padding(
           padding: const EdgeInsets.only(bottom: kSpacingSmall),
-          child: Column(
-            children: [
-              // שורה ראשית — ממורכזת, עם רקע paper לקריאות על קווי מחברת
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
-                decoration: BoxDecoration(
-                  color: brand?.paperBackground.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-                    const SizedBox(width: kSpacingSmall),
-                    Text(
-                      AppStrings.suggestionsToday.title,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: kSpacingXTiny),
-                    Text(
-                      '${widget.suggestions.length}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
-                    ),
-                    const SizedBox(width: kSpacingSmallPlus),
-                    _AddAllButton(suggestions: widget.suggestions),
-                  ],
-                ),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+              decoration: BoxDecoration(
+                color: brand?.paperBackground.withValues(alpha: kOpacityHigh),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.inventory_2_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                  const SizedBox(width: kSpacingSmall),
+                  Text(
+                    AppStrings.suggestionsToday.title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingXTiny),
+                  Text(
+                    '${widget.suggestions.length}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.outline),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
 
         // קרוסלה אופקית
         SizedBox(
-          height: 200,
+          height: _kCarouselHeight,
           child: NotificationListener<ScrollNotification>(
             onNotification: (notification) {
               if (notification is ScrollUpdateNotification) {
-                final page = (notification.metrics.pixels / 178).round();
-                if (page != _currentPage && page >= 0 && page < widget.suggestions.length) {
-                  setState(() => _currentPage = page);
+                final page = (notification.metrics.pixels / _kCardItemExtent).round();
+                if (page != _currentPage.value && page >= 0 && page < widget.suggestions.length) {
+                  _currentPage.value = page;
                 }
               }
               return false;
@@ -207,9 +217,9 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
               clipBehavior: Clip.none,
               physics: const BouncingScrollPhysics(),
               // Fixed width per card — lets Flutter skip per-child layout
-              // measurement on scroll. Must match the value used for the
-              // page index calculation in the ScrollNotification above.
-              itemExtent: 178,
+              // measurement on scroll. Must match _kCardItemExtent used for
+              // the page index calculation above.
+              itemExtent: _kCardItemExtent,
               itemCount: widget.suggestions.length,
               itemBuilder: (context, index) {
                 // סיבוב אקראי קטן לכל כרטיס
@@ -217,7 +227,7 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                 return RepaintBoundary(
                   child: Padding(
                     padding: EdgeInsetsDirectional.only(
-                      start: index == 0 ? 0 : kSpacingSmall,
+                      start: index == 0 ? 0 : _kCardGap,
                     ),
                     child: _StickyNoteCard(
                       suggestion: widget.suggestions[index],
@@ -235,24 +245,34 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
         if (widget.suggestions.length > 2)
           Padding(
             padding: const EdgeInsets.only(top: kSpacingSmall),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(widget.suggestions.length, (i) {
-                final isActive = i == _currentPage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: isActive ? 16 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: isActive
-                        ? cs.primary.withValues(alpha: 0.7)
-                        : cs.outline.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(kBorderRadiusTiny),
-                  ),
-                );
-              }),
+            child: ValueListenableBuilder<int>(
+              valueListenable: _currentPage,
+              builder: (context, page, _) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(widget.suggestions.length, (i) {
+                  final isActive = i == page;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: isActive ? 16 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? cs.primary.withValues(alpha: 0.7)
+                          : cs.outline.withValues(alpha: kOpacityLight),
+                      borderRadius: BorderRadius.circular(kBorderRadiusTiny),
+                    ),
+                  );
+                }),
+              ),
             ),
+          ),
+
+        // "הוסף הכל" — כפתור גדול, רק כשיש שתי הצעות ומעלה
+        if (widget.suggestions.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: kSpacingSmall),
+            child: _AddAllButton(suggestions: widget.suggestions),
           ),
       ],
     );
@@ -277,7 +297,15 @@ class _StickyNoteCard extends StatefulWidget {
 
 class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool _isProcessing = false;
-  bool _isPressed = false;
+  // Pressed-state isolated to AnimatedScale so tap feedback doesn't rebuild
+  // the entire card (gradient/shadows/Stack).
+  final ValueNotifier<bool> _isPressed = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    _isPressed.dispose();
+    super.dispose();
+  }
 
   /// Check if suggestion has unknown status
   bool get _isUnknownStatus =>
@@ -296,6 +324,20 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         return brand?.stickyYellow ?? kStickyYellow;
       default:
         return brand?.stickyGreen ?? kStickyGreen;
+    }
+  }
+
+  String _getUrgencyLabel(String urgency) {
+    final s = AppStrings.suggestionsToday;
+    switch (urgency) {
+      case 'critical':
+        return s.urgencyCritical;
+      case 'high':
+        return s.urgencyHigh;
+      case 'medium':
+        return s.urgencyMedium;
+      default:
+        return s.urgencyLow;
     }
   }
 
@@ -456,19 +498,14 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     final suggestion = widget.suggestion;
     final cardColor = _getCardColor(suggestion.urgency, brand);
     final shadowColor = theme.shadowColor;
+    final urgencyLabel = _getUrgencyLabel(suggestion.urgency);
 
-    final result = GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.98 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: Transform.rotate(
+    // Static visuals (gradient + shadows + content) — built once per
+    // suggestion, not per tap. Only AnimatedScale rebuilds on press.
+    final cardVisual = Transform.rotate(
       angle: widget.rotation,
       child: Container(
-        width: 170,
+        width: _kCardWidth,
         decoration: BoxDecoration(
           // טקסטורת נייר: gradient עדין לתחושת קיפול
           gradient: LinearGradient(
@@ -489,34 +526,45 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           ),
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           boxShadow: [
-            // צל ראשי - משתנה בלחיצה
             BoxShadow(
-              color: shadowColor.withValues(alpha: _isPressed ? 0.1 : 0.2),
-              blurRadius: _isPressed ? 4 : 8,
-              offset: _isPressed ? const Offset(1, 2) : const Offset(2, 4),
+              color: shadowColor.withValues(alpha: kOpacityLow),
+              blurRadius: 8,
+              offset: const Offset(2, 4),
             ),
-            // צל משני - עומק
             BoxShadow(
-              color: shadowColor.withValues(alpha: _isPressed ? 0.05 : 0.1),
-              blurRadius: _isPressed ? 2 : 4,
-              offset: _isPressed ? const Offset(0, 1) : const Offset(0, 2),
+              color: shadowColor.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Stack(
           children: [
-            // "סרט הדבקה" למעלה
+            // Urgency badge — replaces decorative tape; gives the card a
+            // semantic label ("נגמר!"/"כמעט נגמר"/"מתמעט"/"מומלץ").
             Positioned(
               top: 0,
               left: 0,
               right: 0,
-              child: Container(
-                height: 14,
-                margin: const EdgeInsets.symmetric(horizontal: 30),
-                decoration: BoxDecoration(
-                  color: cs.surface.withValues(alpha: 0.5),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(kBorderRadiusSmall),
+              child: ExcludeSemantics(
+                child: Container(
+                  height: _kTapeHeight,
+                  margin: const EdgeInsets.symmetric(horizontal: _kTapeHorizontalMargin),
+                  decoration: BoxDecoration(
+                    color: cs.surface.withValues(alpha: kOpacityMedium),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(kBorderRadiusSmall),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    urgencyLabel,
+                    style: TextStyle(
+                      fontSize: kFontSizeTiny,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -649,21 +697,29 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   else
                     Row(
                       children: [
-                        // כפתור X (dismiss) — עיגול קטן בצד
+                        // כפתור X (dismiss) — מסתיר לשבוע
                         if (!_isUnknownStatus)
-                          GestureDetector(
-                            onTap: () => _onDismiss(context),
-                            child: Container(
-                              width: kIconSizeLarge,
-                              height: kIconSizeLarge,
-                              decoration: BoxDecoration(
-                                color: cs.scrim.withValues(alpha: 0.08),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: kFontSizeMedium,
-                                color: cs.onSurface.withValues(alpha: 0.5),
+                          Tooltip(
+                            message: AppStrings.suggestionsToday.dismissTooltip,
+                            child: Semantics(
+                              button: true,
+                              label: AppStrings.suggestionsToday.dismissTooltip,
+                              child: InkWell(
+                                onTap: () => _onDismiss(context),
+                                borderRadius: BorderRadius.circular(kIconSizeLarge / 2),
+                                child: Container(
+                                  width: kIconSizeLarge,
+                                  height: kIconSizeLarge,
+                                  decoration: BoxDecoration(
+                                    color: cs.scrim.withValues(alpha: 0.08),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: kFontSizeMedium,
+                                    color: cs.onSurface.withValues(alpha: kOpacityMedium),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -705,8 +761,27 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           ],
         ),
       ),
-    ),
-    ),
+    );
+
+    // Tap feedback rebuilds only the AnimatedScale subtree.
+    final result = Semantics(
+      label: AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
+      value: '$urgencyLabel, ${_cleanProductName(suggestion.productName)}',
+      child: GestureDetector(
+        onTapDown: (_) => _isPressed.value = true,
+        onTapUp: (_) => _isPressed.value = false,
+        onTapCancel: () => _isPressed.value = false,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _isPressed,
+          builder: (context, pressed, child) => AnimatedScale(
+            scale: pressed ? 0.98 : 1.0,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOut,
+            child: child,
+          ),
+          child: cardVisual,
+        ),
+      ),
     );
 
     // אנימציות כניסה מדורגות עם Curve יוקרתי
@@ -827,24 +902,35 @@ class _AddAllButtonState extends State<_AddAllButton> {
   @override
   Widget build(BuildContext context) {
     final brand = Theme.of(context).extension<AppBrand>();
+    final cs = Theme.of(context).colorScheme;
+    final accent = brand?.stickyOrange ?? kStickyOrange;
 
     return SizedBox(
-      height: 28,
-      child: TextButton.icon(
+      width: double.infinity,
+      child: OutlinedButton.icon(
         onPressed: _isAdding ? null : _addAll,
         icon: _isAdding
-            ? const SizedBox(
-                width: 14, height: 14,
-                child: CircularProgressIndicator(strokeWidth: 2),
+            ? SizedBox(
+                width: kIconSizeSmall,
+                height: kIconSizeSmall,
+                child: CircularProgressIndicator(strokeWidth: 2, color: accent),
               )
-            : const Icon(Icons.playlist_add, size: kIconSizeSmall),
+            : Icon(Icons.playlist_add, size: kIconSizeSmallPlus, color: accent),
         label: Text(
           AppStrings.suggestionsToday.addAll,
-          style: const TextStyle(fontSize: kFontSizeTiny),
+          style: TextStyle(
+            fontSize: kFontSizeMedium,
+            fontWeight: FontWeight.w600,
+            color: accent,
+          ),
         ),
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-          foregroundColor: brand?.stickyOrange ?? kStickyOrange,
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+          side: BorderSide(color: accent.withValues(alpha: kOpacityMedium)),
+          backgroundColor: cs.surface.withValues(alpha: kOpacityHigh),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
         ),
       ),
     );

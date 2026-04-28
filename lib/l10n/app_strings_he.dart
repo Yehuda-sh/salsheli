@@ -1652,6 +1652,7 @@ class SuggestionsTodayCardStrings {
   String get urgencyLow => 'מומלץ';
   String inStock(int stock, String unit) => 'במלאי: $stock $unit';
   String get addButton => 'הוסף';
+  String get dismissTooltip => 'הסתר לשבוע';
   String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
   String get chooseListTitle => 'לאיזו רשימה להוסיף?';
   String get addedToList => 'נוסף לרשימה';
