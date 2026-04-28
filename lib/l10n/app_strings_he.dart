@@ -2169,10 +2169,14 @@ class OnboardingTipsStrings {
   String get fillPantryTitle => 'מלא את המזווה שלך';
   String get fillPantrySubtitle => 'ספר לנו מה יש לך בבית — נתריע כשמשהו נגמר';
   String get fillPantryAction => 'התחל';
+  String fillPantryProgress(int current, int target) => 'מזווה: $current/$target פריטים';
 
   String get createListsTitle => 'צור עוד רשימות';
   String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
   String get createListsAction => 'צור';
+  String createListsProgress(int current, int target) => 'רשימות: $current/$target';
+
+  String get dismissTooltip => 'הסתר טיפ';
 }
 
 // ========================================

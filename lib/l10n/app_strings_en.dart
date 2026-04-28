@@ -1966,12 +1966,16 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
   const OnboardingTipsStringsEn();
 
   @override String get fillPantryTitle => 'Set up your pantry';
-  @override String get fillPantrySubtitle => 'Tell us what you have at home — we\'ll alert when something runs out';
+  @override String get fillPantrySubtitle => "Tell us what you have at home — we'll alert when something runs out";
   @override String get fillPantryAction => 'Start';
+  @override String fillPantryProgress(int current, int target) => 'Pantry: $current/$target items';
 
   @override String get createListsTitle => 'Create more lists';
   @override String get createListsSubtitle => 'Supermarket, produce, bakery, events — a list for every need';
   @override String get createListsAction => 'Create';
+  @override String createListsProgress(int current, int target) => 'Lists: $current/$target';
+
+  @override String get dismissTooltip => 'Hide tip';
 }
 
 class ActionCenterStringsEn extends ActionCenterStrings {
