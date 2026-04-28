@@ -59,20 +59,23 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     setState(() => _isRefreshing = true);
 
-
+    // Cache the messenger before the await chain — using Scaffold.of()
+    // post-await is unsafe if the user navigates away mid-refresh.
+    final messenger = ScaffoldMessenger.of(context);
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
     final receipts = context.read<ReceiptProvider>();
 
     unawaited(HapticFeedback.mediumImpact());
 
+    var hadError = false;
     try {
       await Future.wait([
         lists.loadLists(),
         receipts.loadReceipts(),
       ]);
     } on Exception catch (_) {
-      // Silently handle - data will show cached state
+      hadError = true;
     }
 
     if (!context.mounted) return;
@@ -80,15 +83,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     try {
       await sugg.refreshSuggestions();
     } on Exception catch (_) {
-      // Silently handle - suggestions are non-critical
+      // Suggestions are non-critical — they don't bump the error flag.
     }
 
     await Future.delayed(const Duration(milliseconds: 300));
 
-    if (context.mounted) {
-      unawaited(HapticFeedback.lightImpact());
-    }
+    if (!context.mounted) return;
 
+    unawaited(HapticFeedback.lightImpact());
+
+    // Tell the user we couldn't refresh; UI is showing cached data.
+    if (hadError) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.homeDashboard.refreshOfflineMessage),
+          duration: kSnackBarDuration,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
 
     if (mounted) {
       setState(() => _isRefreshing = false);
@@ -130,24 +143,31 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     var sectionIndex = 0;
 
+    // Empty state already shows a prominent "Create first list" CTA in
+    // the active-lists card — duplicating it as a FAB clutters the
+    // screen. Hide the FAB until the user has at least one list.
+    final showFab = activeLists.isNotEmpty;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'home_fab',
-        onPressed: () {
-          unawaited(HapticFeedback.lightImpact());
-          Navigator.pushNamed(context, '/create-list');
-        },
-        tooltip: AppStrings.homeDashboard.newListButton,
-        icon: Image.asset('assets/images/icon_new_list.webp', width: kIconSizeMedium, height: kIconSizeMedium),
-        label: Text(AppStrings.homeDashboard.newListButton),
-      ).animate().scale(
-            begin: const Offset(0.8, 0.8),
-            end: const Offset(1.0, 1.0),
-            duration: 500.ms,
-            delay: 300.ms,
-            curve: Curves.elasticOut,
-          ),
+      floatingActionButton: showFab
+          ? FloatingActionButton.extended(
+              heroTag: 'home_fab',
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                Navigator.pushNamed(context, '/create-list');
+              },
+              tooltip: AppStrings.homeDashboard.newListButton,
+              icon: Image.asset('assets/images/icon_new_list.webp', width: kIconSizeMedium, height: kIconSizeMedium),
+              label: Text(AppStrings.homeDashboard.newListButton),
+            ).animate().scale(
+                  begin: const Offset(0.8, 0.8),
+                  end: const Offset(1.0, 1.0),
+                  duration: 500.ms,
+                  delay: 300.ms,
+                  curve: Curves.elasticOut,
+                )
+          : null,
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -277,7 +297,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
       child: Row(
         children: [
-          const Text('👨‍👩‍👧‍👦', style: TextStyle(fontSize: kFontSizeLarge)),
+          // Plain house emoji — the previous family ZWJ sequence
+          // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
+          const Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Column(

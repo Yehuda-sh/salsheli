@@ -1729,6 +1729,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get inviteFamilyAction => 'Invite';
   @override String get errorTitle => 'Error loading data';
   @override String get retryButton => 'Try Again';
+  @override String get refreshOfflineMessage => 'Offline — showing cached data';
   @override String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'Hello, $userName!' : 'Hello!';
   @override String timeBasedGreeting(String? userName, int hour) {
     final String greet;

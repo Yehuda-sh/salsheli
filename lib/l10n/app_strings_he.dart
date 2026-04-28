@@ -1756,6 +1756,7 @@ class HomeDashboardStrings {
   String get inviteFamilyAction => 'הזמן';
   String get errorTitle => 'שגיאה בטעינת נתונים';
   String get retryButton => 'נסה שוב';
+  String get refreshOfflineMessage => 'אין חיבור — מציג נתונים שמורים';
   String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'שלום, $userName!' : 'שלום!';
   String timeBasedGreeting(String? userName, int hour) {
     final String greet;
