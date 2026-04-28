@@ -106,7 +106,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     unawaited(HapticFeedback.lightImpact());
 
     // Tell the user we couldn't refresh; UI is showing cached data.
+    // Clear any prior SnackBar first so refresh feedback doesn't stack
+    // on top of an unrelated message.
     if (hadError) {
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.homeDashboard.refreshOfflineMessage),
@@ -143,8 +146,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-
-    final paperBg = brand?.paperBackground ?? theme.scaffoldBackgroundColor;
 
     // רשימות פעילות בלבד, ממוינות לפי עדכון אחרון (חדש קודם)
     final activeLists = listsProvider.lists
@@ -185,7 +186,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           SafeArea(
             child: RefreshIndicator(
               color: brand?.accent ?? cs.primary,
-              backgroundColor: paperBg,
+              backgroundColor:
+                  brand?.paperBackground ?? theme.scaffoldBackgroundColor,
               strokeWidth: 4.0,
               displacement: 50.0,
               onRefresh: () => _refresh(context),
@@ -672,11 +674,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             ),
                             const SizedBox(height: kSpacingTiny),
                             if (totalCount == 0)
-                              Text(
-                                strings.emptyList,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                ),
+                              // Inviting CTA instead of dead-end "Empty
+                              // list". The card itself is tappable, so
+                              // this nudges the user to use that.
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.add_circle_outline,
+                                    size: kFontSizeSmall,
+                                    color: accentColor,
+                                  ),
+                                  const SizedBox(width: kSpacingXTiny),
+                                  Text(
+                                    strings.emptyListCta,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: accentColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               )
                             else ...[
                               // Progress bar - עבה יותר עם קצוות מעוגלים

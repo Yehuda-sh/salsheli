@@ -1780,6 +1780,7 @@ class HomeDashboardStrings {
   String get createListHint => 'המחברת שלך מוכנה... מה קונים היום?';
   String get createFirstList => 'צור רשימה ראשונה';
   String get emptyList => 'רשימה ריקה';
+  String get emptyListCta => 'הקש להוספת פריטים';
   String get completed => 'הושלם! ✓';
   String remainingItems(int count) => 'נותרו $count פריטים';
   String itemsCount(int count) => '$count פריטים';

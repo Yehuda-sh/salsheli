@@ -1753,6 +1753,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get createListHint => 'Tap here to create a new list';
   @override String get createFirstList => 'Create your first list';
   @override String get emptyList => 'Empty list';
+  @override String get emptyListCta => 'Tap to add items';
   @override String get completed => 'Completed! ✓';
   @override String remainingItems(int count) => '$count items remaining';
   @override String itemsCount(int count) => '$count items';
