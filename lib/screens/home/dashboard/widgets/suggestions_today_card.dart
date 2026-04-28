@@ -25,8 +25,18 @@ const double _kCarouselHeight = 200.0;
 const double _kCardWidth = 170.0;
 const double _kCardGap = kSpacingSmall;
 const double _kCardItemExtent = _kCardWidth + _kCardGap; // 178
+const double _kCardRotation = 0.02;
 const double _kTapeHeight = 18.0;
 const double _kTapeHorizontalMargin = 30.0;
+
+// Pre-compiled regexes for product name cleanup — avoids re-parsing on
+// every card build.
+final RegExp _kReWhitespace = RegExp(r'\s+');
+final RegExp _kReSizeSuffix =
+    RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח|מיליליטר)\s*$');
+final RegExp _kReEnglishSuffix = RegExp(r'\s+[a-zA-Z]{1,15}\s*$');
+final RegExp _kReEnglishParens = RegExp(r'\s*\([a-zA-Z\s]+\)\s*$');
+final RegExp _kReNumberSuffix = RegExp(r'\s+\d+\.?\d*\s*$');
 
 /// כרטיס הצעות מהמזווה - קרוסלה אופקית בסגנון Sticky Notes
 class SuggestionsTodayCard extends StatelessWidget {
@@ -68,32 +78,36 @@ class _LoadingState extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
-    return Container(
-      height: 80,
-      decoration: BoxDecoration(
-        color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-      ),
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: kIconSizeSmallPlus,
-              height: kIconSizeSmallPlus,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: cs.primary,
+    return Semantics(
+      label: AppStrings.suggestionsToday.loading,
+      liveRegion: true,
+      child: Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kOpacityLight),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        child: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: kIconSizeSmallPlus,
+                height: kIconSizeSmallPlus,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: cs.primary,
+                ),
               ),
-            ),
-            const SizedBox(width: kSpacingSmall),
-            Text(
-              AppStrings.suggestionsToday.loading,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant,
+              const SizedBox(width: kSpacingSmall),
+              Text(
+                AppStrings.suggestionsToday.loading,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -107,19 +121,19 @@ class _LoadingState extends StatelessWidget {
 /// - מסיר מילים כפולות עוקבות (כמו "דג דג" → "דג")
 String _cleanProductName(String name) {
   // הסר רווחים מיותרים
-  var clean = name.trim().replaceAll(RegExp(r'\s+'), ' ');
+  var clean = name.trim().replaceAll(_kReWhitespace, ' ');
 
   // הסר גדלים/נפחים בסוף (כמו "1 ל", "1.33ל", "500 מל", "750 מל", "1000 גרם")
-  clean = clean.replaceAll(RegExp(r'\s*\d+\.?\d*\s*(ל|מ"ל|מל|גרם|ג|ק"ג|קג|יח|מיליליטר)\s*$'), '');
+  clean = clean.replaceAll(_kReSizeSuffix, '');
 
   // הסר מילים אנגליות בודדות בסוף (כמו "selected", "classic", "X")
-  clean = clean.replaceAll(RegExp(r'\s+[a-zA-Z]{1,15}\s*$'), '');
+  clean = clean.replaceAll(_kReEnglishSuffix, '');
 
   // הסר סוגריים עם תוכן אנגלי
-  clean = clean.replaceAll(RegExp(r'\s*\([a-zA-Z\s]+\)\s*$'), '');
+  clean = clean.replaceAll(_kReEnglishParens, '');
 
   // הסר מספרים בודדים שנשארו בסוף (כמו "1", "500")
-  clean = clean.replaceAll(RegExp(r'\s+\d+\.?\d*\s*$'), '');
+  clean = clean.replaceAll(_kReNumberSuffix, '');
 
   // הסר מילים כפולות עוקבות (כמו "דג דג" → "דג", "טבעי טבעי" → "טבעי")
   // משתמשים ב-split/dedupe במקום regex בגלל תמיכה ב-Unicode/עברית
@@ -135,6 +149,57 @@ String _cleanProductName(String name) {
 
   // לא מקצרים ידנית — maxLines+ellipsis ב-Text widget מטפל
   return fixBidiNumbers(clean.trim());
+}
+
+/// Shared "which list?" picker — used by single-add and add-all flows so
+/// they show the same UI (icon + name + item count). Returns null if the
+/// user dismisses the sheet.
+Future<ShoppingList?> _chooseTargetList(
+  BuildContext context,
+  List<ShoppingList> activeLists,
+) {
+  final cs = Theme.of(context).colorScheme;
+  final brand = Theme.of(context).extension<AppBrand>();
+  return showModalBottomSheet<ShoppingList>(
+    context: context,
+    backgroundColor: cs.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
+    ),
+    isScrollControlled: true,
+    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+    builder: (ctx) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(kSpacingMedium),
+            child: Text(
+              AppStrings.suggestionsToday.chooseListTitle,
+              style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
+              children: activeLists
+                  .map((l) => ListTile(
+                        leading: Icon(
+                          ListTypes.getByKeySafe(l.type).icon,
+                          color: ListTypes.getColor(l.type, cs, brand),
+                        ),
+                        title: Text(l.name),
+                        subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
+                        onTap: () => Navigator.pop(ctx, l),
+                      ))
+                  .toList(),
+            ),
+          ),
+          const SizedBox(height: kSpacingSmall),
+        ],
+      ),
+    ),
+  );
 }
 
 class _SuggestionsCarousel extends StatefulWidget {
@@ -222,13 +287,13 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
               itemExtent: _kCardItemExtent,
               itemCount: widget.suggestions.length,
               itemBuilder: (context, index) {
-                // סיבוב אקראי קטן לכל כרטיס
-                final rotation = (index.isEven ? 1 : -1) * 0.02;
+                // סיבוב אקראי קטן לכל כרטיס — כיוון מתחלף לחיוניות
+                final rotation = (index.isEven ? 1 : -1) * _kCardRotation;
+                // Symmetric horizontal padding so the page-index math
+                // (pixels / _kCardItemExtent) stays accurate from card 0.
                 return RepaintBoundary(
                   child: Padding(
-                    padding: EdgeInsetsDirectional.only(
-                      start: index == 0 ? 0 : _kCardGap,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: _kCardGap / 2),
                     child: _StickyNoteCard(
                       suggestion: widget.suggestions[index],
                       rotation: rotation,
@@ -372,41 +437,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (activeLists.length == 1) {
         targetList = activeLists.first;
       } else {
-        final chosen = await showModalBottomSheet<ShoppingList>(
-          context: context,
-          backgroundColor: cs.surface,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-          ),
-          isScrollControlled: true,
-          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-          builder: (ctx) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(kSpacingMedium),
-                  child: Text(
-                    AppStrings.suggestionsToday.chooseListTitle,
-                    style: Theme.of(ctx).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: activeLists.map((l) => ListTile(
-                      leading: Icon(ListTypes.getByKeySafe(l.type).icon, color: ListTypes.getColor(l.type, cs, brand)),
-                      title: Text(l.name),
-                      subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
-                      onTap: () => Navigator.pop(ctx, l),
-                    )).toList(),
-                  ),
-                ),
-                const SizedBox(height: kSpacingSmall),
-              ],
-            ),
-          ),
-        );
+        final chosen = await _chooseTargetList(context, activeLists);
         if (chosen == null || !mounted) return;
         targetList = chosen;
       }
@@ -499,6 +530,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     final cardColor = _getCardColor(suggestion.urgency, brand);
     final shadowColor = theme.shadowColor;
     final urgencyLabel = _getUrgencyLabel(suggestion.urgency);
+    // Compute once per build — used by the visible name and the card-level
+    // Semantics value below.
+    final cleanedName = _cleanProductName(suggestion.productName);
 
     // Static visuals (gradient + shadows + content) — built once per
     // suggestion, not per tap. Only AnimatedScale rebuilds on press.
@@ -522,7 +556,6 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                 cardColor,
               ),
             ],
-            stops: const [0.0, 0.5, 1.0],
           ),
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           boxShadow: [
@@ -570,9 +603,14 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               ),
             ),
 
-            // תוכן הכרטיס
+            // תוכן הכרטיס — top padding clears the urgency badge.
             Padding(
-              padding: const EdgeInsets.fromLTRB(kSpacingSmall, 20, kSpacingSmall, 10),
+              padding: const EdgeInsets.fromLTRB(
+                kSpacingSmall,
+                _kTapeHeight + kSpacingXTiny / 2,
+                kSpacingSmall,
+                kSpacingSmall + 2,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -590,7 +628,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   // שם המוצר — מנקה, פונט קטן יותר, 3 שורות
                   Expanded(
                     child: Text(
-                      _cleanProductName(suggestion.productName),
+                      cleanedName,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: cs.onSurface,
@@ -658,15 +696,22 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingTiny,
+                        vertical: kSpacingXTiny,
+                      ),
                       decoration: BoxDecoration(
-                        color: cs.tertiary.withValues(alpha: 0.3),
+                        color: cs.tertiary.withValues(alpha: kOpacityLight),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.warning_amber, size: 10, color: cs.onSurface.withValues(alpha: 0.6)),
-                          const SizedBox(width: 3),
+                          Icon(
+                            Icons.warning_amber,
+                            size: kFontSizeTiny,
+                            color: cs.onSurface.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(width: kSpacingXTiny),
                           Expanded(
                             child: Text(
                               AppStrings.inventory.unknownSuggestionUpdateApp,
@@ -726,27 +771,31 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                         const SizedBox(width: kSpacingSmall),
                         // כפתור הוסף — ממלא את השאר
                         Expanded(
-                          child: Material(
-                            color: cs.scrim.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                            child: InkWell(
-                              onTap: () => _onAdd(context),
+                          child: Semantics(
+                            button: true,
+                            label: AppStrings.suggestionsToday.addButton,
+                            child: Material(
+                              color: cs.scrim.withValues(alpha: kOpacitySubtle),
                               borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.add, size: kFontSizeMedium, color: cs.onSurface),
-                                    const SizedBox(width: kSpacingXTiny),
-                                    Text(
-                                      AppStrings.suggestionsToday.addButton,
-                                      style: theme.textTheme.labelMedium?.copyWith(
-                                        color: cs.onSurface,
-                                        fontWeight: FontWeight.bold,
+                              child: InkWell(
+                                onTap: () => _onAdd(context),
+                                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: kSpacingTiny),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add, size: kFontSizeMedium, color: cs.onSurface),
+                                      const SizedBox(width: kSpacingXTiny),
+                                      Text(
+                                        AppStrings.suggestionsToday.addButton,
+                                        style: theme.textTheme.labelMedium?.copyWith(
+                                          color: cs.onSurface,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -765,8 +814,11 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
 
     // Tap feedback rebuilds only the AnimatedScale subtree.
     final result = Semantics(
-      label: AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
-      value: '$urgencyLabel, ${_cleanProductName(suggestion.productName)}',
+      // explicitChildNodes keeps the dismiss/add buttons as their own
+      // accessible nodes instead of being merged into this label.
+      explicitChildNodes: true,
+      label: '$urgencyLabel, $cleanedName',
+      value: AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
       child: GestureDetector(
         onTapDown: (_) => _isPressed.value = true,
         onTapUp: (_) => _isPressed.value = false,
@@ -794,18 +846,15 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           duration: 350.ms,
         );
 
-    // Shake עדין לפתקיות critical — פעם ב-5 שניות
+    // Shake עדין לפתקיות critical — פעם אחת אחרי הכניסה כדי למשוך תשומת לב
+    // בלי להישאר מטריד.
     if (suggestion.urgency == 'critical') {
-      animated = animated
-          .animate(
-            onPlay: (c) => c.repeat(),
-          )
-          .shake(
-            delay: 5000.ms,
-            duration: 500.ms,
-            hz: 3,
-            rotation: 0.008,
-          );
+      animated = animated.shake(
+        delay: 800.ms,
+        duration: 600.ms,
+        hz: 3,
+        rotation: 0.008,
+      );
     }
 
     return animated;
@@ -837,39 +886,25 @@ class _AddAllButtonState extends State<_AddAllButton> {
     if (activeLists.isEmpty) {
       messenger.showSnackBar(SnackBar(
         content: Text(AppStrings.suggestionsToday.noActiveLists),
+        backgroundColor: brand?.stickyOrange ?? kStickyOrange,
       ));
       if (mounted) setState(() => _isAdding = false);
       return;
     }
 
-    // If multiple active lists — let user choose (same as single-add)
+    // If multiple active lists — same picker as single-add for consistency.
     ShoppingList targetList;
     if (activeLists.length == 1) {
       targetList = activeLists.first;
     } else {
-      final chosen = await showModalBottomSheet<ShoppingList>(
-        context: context,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-        ),
-        builder: (ctx) => SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: activeLists.map((list) => ListTile(
-              leading: Text(ListTypes.getByKeySafe(list.type).emoji),
-              title: Text(list.name),
-              onTap: () => Navigator.pop(ctx, list),
-            )).toList(),
-          ),
-        ),
-      );
+      final chosen = await _chooseTargetList(context, activeLists);
       if (chosen == null) {
         if (mounted) setState(() => _isAdding = false);
         return;
       }
       targetList = chosen;
     }
-    if (!mounted) { return; }
+    if (!mounted) return;
     int added = 0;
 
     for (final suggestion in widget.suggestions) {
@@ -886,11 +921,21 @@ class _AddAllButtonState extends State<_AddAllButton> {
     if (!mounted) return;
     setState(() => _isAdding = false);
 
+    // If every add failed, surface that as an error rather than a green
+    // "0 items added" success.
+    if (added == 0) {
+      messenger.showSnackBar(SnackBar(
+        content: Text(AppStrings.suggestionsToday.addAllFailed),
+        backgroundColor: brand?.stickyPink ?? kStickyPink,
+      ));
+      return;
+    }
+
     unawaited(HapticFeedback.mediumImpact());
     messenger.showSnackBar(SnackBar(
       content: Row(
         children: [
-          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmall + 2),
+          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmallPlus),
           const SizedBox(width: kSpacingSmall),
           Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
         ],

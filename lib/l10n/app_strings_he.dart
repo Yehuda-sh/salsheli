@@ -1661,6 +1661,7 @@ class SuggestionsTodayCardStrings {
   String suggestionError(String error) => 'שגיאה: $error';
   String get addAll => 'הוסף הכל';
   String addedAll(int count, String listName) => '$count פריטים נוספו ל"$listName"';
+  String get addAllFailed => 'לא הצלחנו להוסיף את הפריטים — נסה שוב';
 }
 
 // ========================================

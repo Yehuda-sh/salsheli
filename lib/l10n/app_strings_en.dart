@@ -1510,6 +1510,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String suggestionError(String error) => 'Error: $error';
   @override String get addAll => 'Add All';
   @override String addedAll(int count, String listName) => '$count items added to "$listName"';
+  @override String get addAllFailed => 'Could not add items — try again';
 }
 
 // ========================================
