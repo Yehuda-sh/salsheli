@@ -19,21 +19,38 @@ import '../../../../theme/app_theme.dart';
 // Trigger thresholds — tips disappear once the user passes them.
 const int _kPantryTipTarget = 3;
 const int _kListsTipTarget = 3;
-// Sticky-note tilt — alternates direction per index for a "pinned" feel.
-const double _kTipRotation = 0.01;
+// Sticky-note tilt — fixed per kind (not per row index) so the card
+// doesn't flip rotation direction when its sibling is dismissed.
+const double _kPantryRotation = 0.01;
+const double _kListsRotation = -0.01;
 // Sticky-note gradient depth — high enough to read as "folded paper",
 // low enough not to muddy the brand color.
 const double _kStickyGradientBlend = 0.08;
 // Reused alpha values for body text + soft icon tint.
 const double _kSubtleTextAlpha = 0.6;
 const double _kIconTintAlpha = 0.7;
+// Drop shadow for the sticky note. Soft and offset slightly down/right
+// so the cards feel "pinned" to the page.
+const double _kShadowBlur = 4.0;
+const Offset _kShadowOffset = Offset(1, 2);
+// Entry animation tuning. Stagger keeps the second tip from arriving
+// at exactly the same instant as the first.
+const Duration _kEnterDuration = Duration(milliseconds: 400);
+const int _kEnterStaggerMs = 100;
+const double _kEnterSlideOffset = 0.1;
 // Persisted dismiss flags — once a user closes a tip we remember it forever.
 const String _kPrefDismissedPantry = 'onboarding_dismissed_pantry_tip';
 const String _kPrefDismissedLists = 'onboarding_dismissed_lists_tip';
 
 /// Stable identifier for each tip — used as the dismiss-key and as the
 /// per-tip widget key so animations don't get confused when one disappears.
-enum _TipKind { pantry, lists }
+enum _TipKind {
+  pantry(_kPantryRotation),
+  lists(_kListsRotation);
+
+  final double rotation;
+  const _TipKind(this.rotation);
+}
 
 class OnboardingTipsCard extends StatefulWidget {
   final VoidCallback? onNavigateToPantry;
@@ -167,12 +184,19 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
             padding: const EdgeInsets.only(bottom: kSpacingSmall),
             child: _StickyNoteTip(
               tip: tips[i],
-              rotation: (i.isEven ? 1 : -1) * _kTipRotation,
               onDismiss: () => _dismiss(tips[i].kind),
             )
                 .animate()
-                .fadeIn(duration: 400.ms, delay: (100 * i).ms)
-                .slideX(begin: 0.1, end: 0, duration: 400.ms, delay: (100 * i).ms),
+                .fadeIn(
+                  duration: _kEnterDuration,
+                  delay: Duration(milliseconds: _kEnterStaggerMs * i),
+                )
+                .slideX(
+                  begin: _kEnterSlideOffset,
+                  end: 0,
+                  duration: _kEnterDuration,
+                  delay: Duration(milliseconds: _kEnterStaggerMs * i),
+                ),
           ),
       ],
     );
@@ -204,12 +228,10 @@ class _TipData {
 /// Sticky Note tip — עיצוב פתקית צבעונית עם צל וסיבוב
 class _StickyNoteTip extends StatelessWidget {
   final _TipData tip;
-  final double rotation;
   final VoidCallback onDismiss;
 
   const _StickyNoteTip({
     required this.tip,
-    required this.rotation,
     required this.onDismiss,
   });
 
@@ -220,12 +242,16 @@ class _StickyNoteTip extends StatelessWidget {
 
     final subtleText = cs.onSurface.withValues(alpha: _kSubtleTextAlpha);
     final accentBg = cs.scrim.withValues(alpha: kOpacitySubtle);
+    final radius = BorderRadius.circular(kBorderRadiusSmall);
 
     return Transform.rotate(
-      angle: rotation,
+      angle: tip.kind.rotation,
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        borderRadius: radius,
+        // Clip the InkWell ripple to the rounded corners — without this
+        // it bleeds out the edges, especially on the rotated card.
+        clipBehavior: Clip.antiAlias,
         child: Ink(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -237,12 +263,12 @@ class _StickyNoteTip extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            borderRadius: radius,
             boxShadow: [
               BoxShadow(
                 color: shadowColor.withValues(alpha: kOpacitySubtle),
-                blurRadius: 4,
-                offset: const Offset(1, 2),
+                blurRadius: _kShadowBlur,
+                offset: _kShadowOffset,
               ),
             ],
           ),
@@ -256,7 +282,7 @@ class _StickyNoteTip extends StatelessWidget {
             label: '${tip.title}, ${tip.subtitle}, ${tip.progress}',
             child: InkWell(
               onTap: tip.onAction,
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              borderRadius: radius,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: kSpacingMedium,
