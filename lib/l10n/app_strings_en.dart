@@ -1455,6 +1455,25 @@ class ActivityLogStringsEn extends ActivityLogStrings {
       '$actor changed $targetName\'s role to $newRole';
   @override String unknownActivity(String actor) =>
       '$actor performed an action';
+
+  @override String feedShoppingCompleted(String listName) =>
+      'completed shopping from "$listName"';
+  @override String feedShoppingStarted(String listName) =>
+      'started shopping from "$listName"';
+  @override String feedShoppingJoined(String listName) =>
+      'joined shopping from "$listName"';
+  @override String feedListCreated(String listName) =>
+      'created list "$listName"';
+  @override String feedItemAdded(String itemName, String listName) =>
+      'added "$itemName" to "$listName"';
+  @override String feedStockUpdated(String productName) =>
+      'updated stock for "$productName"';
+  @override String get feedMemberLeft => 'left the household';
+  @override String feedRoleChanged(String targetName, String newRole) =>
+      "changed $targetName's role to $newRole";
+  @override String get feedUnknownActivity => 'performed an action';
+
+  @override String get justNow => 'just now';
 }
 
 // ========================================

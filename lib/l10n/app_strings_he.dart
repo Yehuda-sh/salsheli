@@ -1606,6 +1606,28 @@ class ActivityLogStrings {
       '$actor שינה/תה תפקיד של $targetName ל$newRole';
   String unknownActivity(String actor) =>
       '$actor ביצע/ה פעולה';
+
+  // Feed variants — actor name shown separately, so the description
+  // omits it to avoid duplication ("יהודה • לפני 5 דק׳ / סיים/ה קנייה...").
+  String feedShoppingCompleted(String listName) =>
+      'סיים/ה קנייה מ"$listName"';
+  String feedShoppingStarted(String listName) =>
+      'התחיל/ה קנייה מ"$listName"';
+  String feedShoppingJoined(String listName) =>
+      'הצטרף/ה לקנייה מ"$listName"';
+  String feedListCreated(String listName) =>
+      'יצר/ה רשימה "$listName"';
+  String feedItemAdded(String itemName, String listName) =>
+      'הוסיף/ה "$itemName" ל"$listName"';
+  String feedStockUpdated(String productName) =>
+      'עדכן/ה מלאי "$productName"';
+  String get feedMemberLeft => 'עזב/ה את הבית';
+  String feedRoleChanged(String targetName, String newRole) =>
+      'שינה/תה תפקיד של $targetName ל$newRole';
+  String get feedUnknownActivity => 'ביצע/ה פעולה';
+
+  // "Just now" — replaces "לפני 0 דק'" for very recent events.
+  String get justNow => 'עכשיו';
 }
 
 // ========================================
