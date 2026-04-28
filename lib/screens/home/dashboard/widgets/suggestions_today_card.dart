@@ -423,12 +423,14 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           .toList();
 
       if (activeLists.isEmpty) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(AppStrings.suggestionsToday.noActiveLists),
-            backgroundColor: brand?.stickyOrange ?? kStickyOrange,
-          ),
-        );
+        messenger
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(AppStrings.suggestionsToday.noActiveLists),
+              backgroundColor: brand?.stickyOrange ?? kStickyOrange,
+            ),
+          );
         return;
       }
 
@@ -452,30 +454,34 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
 
       unawaited(HapticFeedback.mediumImpact());
-      messenger.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
-              ),
-            ],
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
+                ),
+              ],
+            ),
+            backgroundColor: brand?.stickyGreen ?? kStickyGreen,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
           ),
-          backgroundColor: brand?.stickyGreen ?? kStickyGreen,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+        );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: brand?.stickyPink ?? kStickyPink,
-        ),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(userFriendlyError(e, context: 'suggestion')),
+            backgroundColor: brand?.stickyPink ?? kStickyPink,
+          ),
+        );
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -498,22 +504,26 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       if (!mounted) return;
 
       unawaited(HapticFeedback.selectionClick());
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
-          backgroundColor: brand?.stickyCyan ?? kStickyCyan,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
+            backgroundColor: brand?.stickyCyan ?? kStickyCyan,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(userFriendlyError(e, context: 'suggestion')),
-          backgroundColor: brand?.stickyPink ?? kStickyPink,
-        ),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(userFriendlyError(e, context: 'suggestion')),
+            backgroundColor: brand?.stickyPink ?? kStickyPink,
+          ),
+        );
     } finally {
       if (mounted) {
         setState(() => _isProcessing = false);
@@ -884,10 +894,12 @@ class _AddAllButtonState extends State<_AddAllButton> {
 
     final activeLists = listsProvider.lists.where((l) => l.status == ShoppingList.statusActive).toList();
     if (activeLists.isEmpty) {
-      messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.suggestionsToday.noActiveLists),
-        backgroundColor: brand?.stickyOrange ?? kStickyOrange,
-      ));
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(AppStrings.suggestionsToday.noActiveLists),
+          backgroundColor: brand?.stickyOrange ?? kStickyOrange,
+        ));
       if (mounted) setState(() => _isAdding = false);
       return;
     }
@@ -924,24 +936,28 @@ class _AddAllButtonState extends State<_AddAllButton> {
     // If every add failed, surface that as an error rather than a green
     // "0 items added" success.
     if (added == 0) {
-      messenger.showSnackBar(SnackBar(
-        content: Text(AppStrings.suggestionsToday.addAllFailed),
-        backgroundColor: brand?.stickyPink ?? kStickyPink,
-      ));
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(AppStrings.suggestionsToday.addAllFailed),
+          backgroundColor: brand?.stickyPink ?? kStickyPink,
+        ));
       return;
     }
 
     unawaited(HapticFeedback.mediumImpact());
-    messenger.showSnackBar(SnackBar(
-      content: Row(
-        children: [
-          Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmallPlus),
-          const SizedBox(width: kSpacingSmall),
-          Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
-        ],
-      ),
-      backgroundColor: brand?.stickyGreen ?? kStickyGreen,
-    ));
+    messenger
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmallPlus),
+            const SizedBox(width: kSpacingSmall),
+            Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
+          ],
+        ),
+        backgroundColor: brand?.stickyGreen ?? kStickyGreen,
+      ));
   }
 
   @override
