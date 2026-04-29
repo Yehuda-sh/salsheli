@@ -247,7 +247,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 
 ### מבנה ניתוח קובץ
 1. קריאת הקובץ + ה-callers + תלויות חיוניות
-2. ממצאים מקובצים לפי קטגוריה (UX / Cross-File / Visual / Perf / Async / RTL / A11y)
+2. ממצאים מקובצים לפי כל 12 הקטגוריות מה-File Review Checklist
 3. הפרדה ברורה בין **"לתקן בטוח"** ל-**"שאלות לפני ביצוע"**
 4. בסוף — סיכום שינויים בטבלה
 5. הזכרה של "מוכן לקובץ הבא 📂"
@@ -279,28 +279,13 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - אם הניתוח שלי לא כולל **לפחות 3 שאלות מנקודת מבט המשתמש**, חזרה לצ'קליסט.
 
 ### 🔁 לעבור על **כל** הצ'קליסט במפורש, לא רק את "מה שבולט"
-- 7 קטגוריות: UX / Cross-File / Visual / Performance / Async / RTL / A11y.
+- 12 קטגוריות: Inclusive Language / Source-vs-Symptom / Demo & Seed / UX / Cross-File / Design Tokens / Design Polish / Performance / Async / RTL / A11y / Blind Spots.
 - אם דילגתי על אחת — לא מספיק "אין בעיה שם", צריך **לציין במפורש** "נבדק, אין ממצאים".
 
 ### 💡 לפעמים למשתמש יש פתרון יותר אלגנטי
 - בשורש vs טיפוח — אני הצעתי "snackbar עם כפתור Action", המשתמש הציע "auto-name on Skip" שזה הרבה יותר נקי.
 - כשהמשתמש מציע גישה אחרת — לבדוק אותה ברצינות לפני להגן על שלי.
 - אם הגישה שלו עוקפת בעיה במקור, היא **כמעט תמיד** עדיפה.
-
-### 🌍 לא להניח "משפחה"
-- האפליקציה לכל קבוצה שחולקת — משפחות, זוגות, שותפים, חברים, סולו.
-- שמות ברירת מחדל לא צריכים להניח יחס (`MemoZap-XXXX`, לא "המשפחה של דנה").
-- בשפת UI: "בית" / "קבוצה", לא "משפחה".
-
-### 📁 להסתכל על seed/demo data כשמתקנים flow
-- אם הסקריפט יוצר נתונים שעוקפים את ה-UI — לוודא שהוא מייצג את המקרים המתוקנים.
-- דמו צריך לכלול: זוגות, שותפים, אנגלית, ברירות מחדל אוטומטיות.
-
-### 🚫 פחות a11y wrappers (ExcludeSemantics, Semantics labels)
-- premium visual > תיוג קוראי מסך.
-- liveRegion ב-loading/error states ✓
-- ExcludeSemantics על דקורטיבי שיוצר רעש כפול ✓
-- Semantics(label:) על כל אייקון ❌
 
 ### 📝 לאחר commit — עדכון של זה הקובץ
 - אם המשתמש מציין עיקרון חדש (כמו "האפליקציה לא רק למשפחות"), להוסיף אותו ל-CLAUDE.md באותו סשן.
@@ -317,11 +302,8 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - שאלות עיצוב אמיתיות (היררכיה, קצב, premium markers, coherence) חיות ב-`🖼️ Design Polish` — קטגוריה נפרדת.
 - דוגמה: ב-`section_header.dart` עברתי על Tokens וזה היה נקי. אבל באותו ניתוח פספסתי שהוויג'ט **לא תואם את שפת ה-notebook+sticky-notes** של האפליקציה — וזו הסיבה ש-3 מימושים מקבילים נולדו במקום להשתמש בו.
 
-### 🔁 כפילות קוד = הוויג'ט המשותף לא בריא
-- אם רואים 2-3 מימושים פנימיים של אותה פונקציה (`_buildSectionHeader` ב-3 מסכים שונים) — זה לא רק "כפילות שצריך לאחד". זה **עדות** שהוויג'ט המשותף לא נותן את מה שצריך.
-- לפני "איך לאחד אותם" — לשאול **"מה הם נותנים שהמשותף לא?"**. לפעמים התיקון הוא **redesign של המשותף**, ואז האיחוד חופשי.
-- אם נאחדים בלי לתקן את הבסיס — ה-callers ימשיכו לעקוף שוב בעתיד עם דרישות חדשות.
-- דוגמה: `SectionHeader` היה generic Material card. `shopping_lists_screen` ו-2 אחרים בנו לעצמם highlighter style כי זה התאים יותר. הפתרון לא היה "שיתפסו את ה-SectionHeader" — אלא להפוך את ה-SectionHeader עצמו ל-highlighter.
+### 🔁 דוגמה: כפילות קוד = הוויג'ט המשותף לא בריא (ראה `🔗 Cross-File`)
+- `SectionHeader` היה generic Material card. `shopping_lists_screen` ו-2 אחרים בנו לעצמם highlighter style כי זה התאים יותר. הפתרון לא היה "שיתפסו את ה-SectionHeader" — אלא להפוך את ה-SectionHeader עצמו ל-highlighter.
 
 ### 📝 שני קבועים עם אותו ערך = שני שמות לשני concepts
 - `kOpacityLight = 0.3` ו-`kHighlightOpacity = 0.3` — אותו ערך, **משמעות שונה**.
@@ -338,12 +320,8 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
   2. **האם הערך עצמו נכון לקונטקסט הזה?** (design judgment)
 - אלא אם המשתמש אומר "רק לתקן naming, לא לחשוב על עיצוב" — תמיד לשאול את שתיהן.
 
-### 🔍 הצעות לפיצ'רים — לחפש קודם, להציע אחר כך
-- לפני להציע "Hero animation" — לבדוק `grep -rn "Hero("` כדי לראות אם hero כבר משמש.
-- לפני להציע "tap to enlarge" — לבדוק אם יש lightbox או image viewer קיים.
-- אם הפיצ'ר כבר קיים במקום אחר — ההצעה היא **gap** ("למה לא פה?"), לא **פיצ'ר חדש**.
-- הצעות גנריות ("אולי להוסיף analytics") מוסיפות רעש. הצעות gap-מבוססות הן insight אמיתי.
-- דוגמה לטעות: ב-`product_thumbnail.dart` הצעתי "Skeleton placeholder" בלי לבדוק שה-emoji כבר תפקיד signature design — הצעה שהייתה צריכה להיפסל לפני שהוצגה.
+### 🔍 דוגמה: הצעת פיצ'ר בלי לבדוק קודם (ראה `💡 Blind Spots`)
+- ב-`product_thumbnail.dart` הצעתי "Skeleton placeholder" בלי לבדוק שה-emoji כבר תפקיד signature design — הצעה שהייתה צריכה להיפסל לפני שהוצגה.
 
 ---
 
