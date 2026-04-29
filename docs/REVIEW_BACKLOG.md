@@ -108,6 +108,31 @@
 
 ---
 
+## Auth Screens (Login)
+
+### 📂 Components נגעו
+- `login_screen.dart` (818 שורות) — סקירה מלאה של 12 קטגוריות
+
+### ✅ Decisions Made
+- **Snackbar dedup ×2**: `_showStatus` ו-PopScope's `messenger.showSnackBar` שניהם עכשיו עם `removeCurrentSnackBar()`.
+- **Token alignment**: 3× alpha → kOpacity:
+  - DEV button bg: 0.12 → `kOpacitySubtle`
+  - DEV button border: 0.3 → `kOpacityLight`
+  - Login button shadow: 0.3 → `kOpacityLight`
+- **brand reuse**: `brand?.success` משומש מתוך scope (Builder pattern) במקום re-fetch של `Theme.of(context).extension<AppBrand>()`.
+- **5-tap dev gesture נשאר חשוף בפרודקשן** — **החלטה מודעת**: המשתמש עדיין בודק. בעצם לא עושה כלום בפרודקשן (אין `demo.com` accounts ב-Firebase production). אם יוחלט בעתיד שזה רע — לעטוף ב-`if (kDebugMode)` כמו הכפתור הוויזואלי בשורה 416.
+
+### ⏸️ Deferred
+- **`_showStatus` כפילות עם register_screen** — שני העתקים כמעט זהים של snackbar configuration. **Trigger:** סקירה ייעודית של auth shared utilities. **היקף:** קטן (extract ל-`auth_snackbar_utils.dart` או דומה).
+- **22 משתמשי דמו hardcoded ב-`_demoUsers`** — כפילות חלקית עם `scripts/rebuild_demo_data.js`. סכנת drift אם מישהו מעדכן את הסקריפט בלי לעדכן את המסך. **Trigger:** מי שמעדכן demo users. **היקף:** קטן (להפיק רשימה אחת מהקובץ של הסקריפט אם אפשר).
+- **שורה 344: `'name': 'apple_user@icloud.com'`** — ה-name הוא אימייל, לא שם בעברית כמו השאר. בפועל מציג את הכתובת עצמה ב-bottom sheet. **Trigger:** סקירה של quick_login_bottom_sheet או demo data refresh. **היקף:** מינוסקולי.
+- **Style-on-style typography** — `headlineLarge.copyWith(fontWeight: w800, fontSize: kFontSizeDisplay)`. אותו דפוס שכבר נרשם ב-Auth Screens (Register). **Trigger:** typography sweep גלובלי.
+
+### ⏳ Files of this screen — pending review
+- `quick_login_bottom_sheet.dart` (Login-specific, dev mode)
+
+---
+
 ## Auth Screens (Register)
 
 ### 📂 Components נגעו

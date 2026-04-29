@@ -96,32 +96,34 @@ class _LoginScreenState extends State<LoginScreen>
       _ => Icons.error_outline,
     };
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
-            const SizedBox(width: kSpacingSmall),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: StatusColors.getOnContainer(type, context),
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: StatusColors.getOnContainer(type, context),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          backgroundColor: StatusColors.getContainer(type, context),
+          duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
+          margin: const EdgeInsets.all(kSpacingMedium),
         ),
-        backgroundColor: StatusColors.getContainer(type, context),
-        duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-        ),
-        margin: const EdgeInsets.all(kSpacingMedium),
-      ),
-    );
+      );
   }
 
   /// ✅ פונקציית Login עם Firebase Authentication
@@ -397,12 +399,14 @@ class _LoginScreenState extends State<LoginScreen>
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop) {
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(AppStrings.auth.mustCompleteLogin),
-                duration: kSnackBarDuration,
-              ),
-            );
+            messenger
+              ..removeCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(AppStrings.auth.mustCompleteLogin),
+                  duration: kSnackBarDuration,
+                ),
+              );
           }
         },
         child: Scaffold(
@@ -423,10 +427,10 @@ class _LoginScreenState extends State<LoginScreen>
                       filter: ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: cs.tertiary.withValues(alpha: 0.12),
+                          color: cs.tertiary.withValues(alpha: kOpacitySubtle),
                           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                           border: Border.all(
-                            color: cs.tertiary.withValues(alpha: 0.3),
+                            color: cs.tertiary.withValues(alpha: kOpacityLight),
                             width: 0.5,
                           ),
                         ),
@@ -704,41 +708,44 @@ class _LoginScreenState extends State<LoginScreen>
                             const SizedBox(height: kSpacingSmall),
 
                             // 🔘 כפתור התחברות — loading indicator פנימי + colored shadow
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: (brand?.success ?? cs.primary).withValues(alpha: 0.3),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: FilledButton.icon(
-                                onPressed: _isLoading ? null : _handleLogin,
-                                icon: _isLoading
-                                    ? SizedBox(
-                                        width: kIconSizeSmallPlus,
-                                        height: kIconSizeSmallPlus,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: cs.onPrimary,
-                                        ),
-                                      )
-                                    : const Icon(Icons.login),
-                                label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
-                                style: FilledButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(kButtonHeight),
-                                  backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? cs.primary,
-                                  foregroundColor: cs.onPrimary,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                            Builder(builder: (context) {
+                              final ctaBg = brand?.success ?? cs.primary;
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ctaBg.withValues(alpha: kOpacityLight),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: FilledButton.icon(
+                                  onPressed: _isLoading ? null : _handleLogin,
+                                  icon: _isLoading
+                                      ? SizedBox(
+                                          width: kIconSizeSmallPlus,
+                                          height: kIconSizeSmallPlus,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: cs.onPrimary,
+                                          ),
+                                        )
+                                      : const Icon(Icons.login),
+                                  label: Text(_isLoading ? AppStrings.auth.loggingIn : AppStrings.auth.loginButton),
+                                  style: FilledButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(kButtonHeight),
+                                    backgroundColor: ctaBg,
+                                    foregroundColor: cs.onPrimary,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
+                              );
+                            })
                                 .animate()
                                 .fadeIn(duration: 400.ms, delay: 250.ms)
                                 .slideX(begin: -0.1, curve: Curves.easeOutCubic)
