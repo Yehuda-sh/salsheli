@@ -68,14 +68,16 @@ class _LegalContentDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Dialog(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 500,
-            maxHeight: MediaQuery.of(context).size.height * 0.8,
-          ),
+    // Inherits Directionality from MaterialApp's locale — no need to
+    // hard-pin RTL here. The legal copy itself is currently he-only,
+    // but future translations can add an English block without this
+    // wrapper fighting the system locale.
+    return Dialog(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: 500,
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+        ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -163,7 +165,6 @@ class _LegalContentDialog extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
+      ); // Dialog → ConstrainedBox → Column
   }
 }

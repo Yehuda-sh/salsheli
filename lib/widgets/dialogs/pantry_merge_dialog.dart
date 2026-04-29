@@ -16,7 +16,14 @@ Future<bool> showPantryMergeDialog({
     context: context,
     barrierDismissible: false,
     builder: (ctx) => AlertDialog(
-      icon: const Text('📦', style: TextStyle(fontSize: kFontSizeDisplay)),
+      // Was a 📦 emoji — Material icon matches the rest of the app
+      // (suggestions / last_chance / pantry rows) and won't render as
+      // a tofu box on older Android builds.
+      icon: Icon(
+        Icons.inventory_2_outlined,
+        size: kFontSizeDisplay,
+        color: cs.primary,
+      ),
       title: Text(AppStrings.inventory.pantryMergeTitle),
       content: Text(
         AppStrings.inventory.pantryMergeContent(personalItemCount),
