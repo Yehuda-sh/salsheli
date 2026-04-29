@@ -63,9 +63,8 @@ For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
 | Doc | Purpose |
 |-----|---------|
 | [CLAUDE.md](CLAUDE.md) | Project guardrails, design tokens, conventions |
-| [CODE_REVIEW.md](CODE_REVIEW.md) | Living code review — known issues + history |
+| [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) | Per-screen review memory — Decisions Made + Deferred |
 | [TEST_PLAN.md](TEST_PLAN.md) | Unit / widget / integration test plan |
-| [DESIGN_AUDIT.md](DESIGN_AUDIT.md) | UI design audit |
 | [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-step refactor roadmap |
 | [docs/spec-home-screen.md](docs/spec-home-screen.md) | Home dashboard spec (with Activity Feed) |
 
@@ -74,7 +73,7 @@ For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
 ## Status
 
 **Pre-beta** — Internal testing via Firebase App Distribution.
-See [CODE_REVIEW.md](CODE_REVIEW.md) for the latest review pass.
+See [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) for the latest review state.
 
 ---
 

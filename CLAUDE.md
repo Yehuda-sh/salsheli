@@ -386,17 +386,16 @@ flutter run          # הרצה
 
 ## Known Issues
 
-הרשימה המלאה (פתוחות, מתוקנות, vintage tracking) מנוהלת ב-[CODE_REVIEW.md](CODE_REVIEW.md).
+מעקב per-screen ב-[docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) (Decisions Made + Deferred).
 ל-Claude AI כדאי להציץ גם ב-[AGENTS.md](AGENTS.md) שיש שם טבלה תפעולית של הבעיות הפעילות.
 
 ---
 
 ## Related Docs
 
-- [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 27/4/2026)
 - [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) — זיכרון בין-סקירות: Decisions Made + Deferred per screen
 - [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
-- [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
 - [docs/store-listing.md](docs/store-listing.md) — תוכן Store listing
 - [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית (כולל Activity Feed)
+- [docs/technical/debug-guide.md](docs/technical/debug-guide.md) — Debug prints + Firebase emulators

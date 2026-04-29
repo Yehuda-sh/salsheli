@@ -205,8 +205,7 @@
 
 - [x] **396 unit tests passing** — models, services, providers, performance
 - [x] Hand-written mocks (no mockito)
-- [x] E2E test guide: `docs/E2E_TEST_GUIDE.md`
-- [x] **16 demo users** covering all edge cases (including Google/Apple/English/special chars)
+- [x] **22 demo users** covering all edge cases (including Google/Apple/English/special chars)
 - [ ] Widget tests (0) — post-launch
 - [ ] Integration tests (0) — post-launch
 

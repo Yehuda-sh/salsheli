@@ -2,8 +2,7 @@
 
 ## 📊 מצב נוכחי (עדכון 9/4/2026)
 - **396 unit tests** ב-15 קבצים ✅ (כולם עוברים)
-- **16 demo users** with edge case coverage ✅
-- **E2E test guide** — `docs/E2E_TEST_GUIDE.md` ✅ (11 flows, כולל Activity Log)
+- **22 demo users** with edge case coverage ✅
 - **0 widget tests** — post-launch
 - **0 integration tests** — post-launch
 
