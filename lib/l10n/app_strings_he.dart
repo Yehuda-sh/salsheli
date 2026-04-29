@@ -259,6 +259,7 @@ class LayoutStrings {
   String lowStockSubtitle(int count) => '$count מוצרים במלאי נמוך';
   String navSemanticLabel(String selectedTab) => 'ניווט ראשי. טאב נבחר: $selectedTab';
   String get navSemanticHint => 'החלק ימינה או שמאלה לבחירת טאב אחר';
+  String get avatarSemanticLabel => 'פרופיל — מעבר להגדרות';
   String get longPressHint => 'לחיצה ארוכה לפעולות נוספות';
 }
 

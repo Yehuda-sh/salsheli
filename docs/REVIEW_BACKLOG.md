@@ -124,6 +124,26 @@
 
 ---
 
+## App Layout (Chrome)
+
+### 📂 Components נגעו
+- `app_layout.dart` (382 שורות) — AppBar + Bottom Nav scaffold לכל המסכים תחת main_navigation
+
+### ✅ Decisions Made
+- **A11y**: Avatar GestureDetector → `Semantics(button: true, label: avatarSemanticLabel)` עם מחרוזת חדשה (he+en). הפכנו את ה-shortcut לסטטינגז למוכר ע"י קוראי מסך — קודם הוא היה decorative-only.
+- **Tab 0 dedup pattern** — תג ה-bell ב-AppBar וה-tab badge בבוטומנב מציגים את אותו unread count. מודחק במכוון בבוטומנב כדי למנוע כפילות (הערה מסבירה).
+- **`_AnimatedBadgeCount`** — counter animation מהערך הקודם לחדש (לא מ-0!). 400ms ease-out cubic.
+- **Avatar fallback chain**: URL valid → Image.network → onError → initials. Empty/null → initials. Hebrew/Latin "?" אם אין שם.
+- **`startsWith('http')` הגנה** מפני Image.network על אימוג'י (Firestore מאחסן URL וגם emoji באותו column — תועד בהערה).
+- **`safeIndex.clamp(0, length-1)`** — defensive נגד deep-links עם index לא חוקי.
+
+### ⏸️ Deferred
+- אין.
+
+**🎯 Reference**: דוגמה ל-AppBar + Bottom Nav עם premium polish (glassmorphism, animated badges, Caveat brand font, RTL-aware chevrons, RepaintBoundary).
+
+---
+
 ## Theme
 
 ### 📂 Components נגעו

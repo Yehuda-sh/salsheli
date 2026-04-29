@@ -260,6 +260,7 @@ class LayoutStringsEn extends LayoutStrings {
   @override String lowStockSubtitle(int count) => '$count items running low';
   @override String navSemanticLabel(String selectedTab) => 'Main navigation. Selected tab: $selectedTab';
   @override String get navSemanticHint => 'Swipe left or right to select another tab';
+  @override String get avatarSemanticLabel => 'Profile — open settings';
   @override String get longPressHint => 'Long press for more options';
 }
 

@@ -170,34 +170,44 @@ class _AppLayoutState extends State<AppLayout> {
         padding: const EdgeInsetsDirectional.only(start: kSpacingSmall),
         child: GestureDetector(
           onTap: () => widget.onTabSelected(3), // index 3 = Settings tab
-          child: Center(
-            child: Container(
-              width: kIconSizeLarge,
-              height: kIconSizeLarge,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: cs.primary.withValues(alpha: kOpacityLight), width: 1.5),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: Builder(
-                builder: (ctx) {
-                  final userCtx = ctx.watch<UserContext>();
-                  final value = userCtx.profileImageUrl;
-                  if (value == null || value.isEmpty) {
-                    return _avatarInitials(context, userCtx.displayName, cs);
-                  }
-                  // The profile_image_url field stores either an http(s)
-                  // URL (uploaded photo) or an emoji avatar — they share
-                  // a column in Firestore. Calling Image.network on an
-                  // emoji throws and the user sees only initials.
-                  if (value.startsWith('http')) {
-                    return Image.network(value, fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => _avatarInitials(context, userCtx.displayName, cs));
-                  }
-                  return Center(
-                    child: Text(value, style: const TextStyle(fontSize: kFontSizeXLarge)),
-                  );
-                },
+          // The tap target is a custom GestureDetector around an
+          // image/initials circle, so screen readers don't get the
+          // "button" affordance for free the way they would on an
+          // IconButton or InkWell. Wrap with Semantics so a TalkBack
+          // user discovers this as a settings shortcut instead of a
+          // decorative avatar.
+          child: Semantics(
+            button: true,
+            label: AppStrings.layout.avatarSemanticLabel,
+            child: Center(
+              child: Container(
+                width: kIconSizeLarge,
+                height: kIconSizeLarge,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: cs.primary.withValues(alpha: kOpacityLight), width: 1.5),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Builder(
+                  builder: (ctx) {
+                    final userCtx = ctx.watch<UserContext>();
+                    final value = userCtx.profileImageUrl;
+                    if (value == null || value.isEmpty) {
+                      return _avatarInitials(context, userCtx.displayName, cs);
+                    }
+                    // The profile_image_url field stores either an http(s)
+                    // URL (uploaded photo) or an emoji avatar — they share
+                    // a column in Firestore. Calling Image.network on an
+                    // emoji throws and the user sees only initials.
+                    if (value.startsWith('http')) {
+                      return Image.network(value, fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => _avatarInitials(context, userCtx.displayName, cs));
+                    }
+                    return Center(
+                      child: Text(value, style: const TextStyle(fontSize: kFontSizeXLarge)),
+                    );
+                  },
+                ),
               ),
             ),
           ),
