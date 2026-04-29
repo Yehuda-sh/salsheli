@@ -894,8 +894,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   ) {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
-    final userContext = context.watch<UserContext>();
-    final displayName = userContext.displayName ?? '';
+    // Targeted select on the only field we actually use — avoids
+    // rebuilding the whole pantry every time UserContext changes
+    // settings or household-level data.
+    final displayName = context.select<UserContext, String>(
+      (u) => u.displayName ?? '',
+    );
     final initials = displayName.isNotEmpty
         ? displayName
             .split(' ')
