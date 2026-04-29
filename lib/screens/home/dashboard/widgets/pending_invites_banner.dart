@@ -109,11 +109,14 @@ class _PendingInviteBannerContent extends StatelessWidget {
     final title = isHouseholdInvite
         ? strings.titleHouseholdInvite
         : strings.titleListInvite;
+    // Pick the right fallback string per type so that, when every
+    // requestData key is missing, we don't say "you were invited to
+    // 'list'" for a household invite (or vice versa).
     final groupName = isHouseholdInvite
         ? (firstInvite.requestData['household_name'] as String? ??
             firstInvite.requestData['group_name'] as String? ??
             firstInvite.requestData['list_name'] as String? ??
-            AppStrings.pendingInvitesScreen.listFallback)
+            AppStrings.pendingInvitesScreen.householdFallback)
         : (firstInvite.requestData['list_name'] as String? ??
             firstInvite.requestData['group_name'] as String? ??
             AppStrings.pendingInvitesScreen.listFallback);

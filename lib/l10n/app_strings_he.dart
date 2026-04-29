@@ -1736,6 +1736,7 @@ class PendingInvitesScreenStrings {
   String get emptySubtitle => 'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן';
   String get pullToRefresh => '↓ משוך לרענון';
   String get listFallback => 'רשימה';
+  String get householdFallback => 'בית';
   String get userFallback => 'משתמש';
   String inviteToList(String listName) => 'הזמנה לרשימה "$listName"';
   String inviterMessage(String inviterName) => '$inviterName מזמין אותך להצטרף';

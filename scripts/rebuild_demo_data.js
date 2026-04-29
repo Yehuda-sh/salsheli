@@ -980,24 +980,27 @@ async function main() {
 
   // Mike household — 3 events (English)
   await createActivityEvents(hIds.mike, [
-    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'supermarket' }, daysAgo(4)),
+    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'supermarket', list_id: 'list_mike_weekly' }, daysAgo(4)),
     makeActivityEvent('act_mike_2', hIds.mike, 'shopping_completed', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', item_count: 10, store_name: 'Rami Levy Shoresh' }, daysAgo(2)),
     makeActivityEvent('act_mike_3', hIds.mike, 'stock_updated', uids.mike, 'Mike Johnson', { product_name: 'Milk', quantity: 2 }, daysAgo(2)),
   ]);
   console.log('   📝 Mike: 3 activity events');
 
   // Tomer household — 3 events (solo user with chores + pharmacy)
+  // list_id values match real lists created above so the activity
+  // feed's tap-to-open behaves end-to-end on this user.
   await createActivityEvents(hIds.tomer, [
-    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy' }, daysAgo(5)),
-    makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם' }, daysAgo(4)),
-    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event' }, daysAgo(1)),
+    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy', list_id: 'list_tomer_pharm' }, daysAgo(5)),
+    makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם', list_id: 'list_tomer_pharm' }, daysAgo(4)),
+    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event', list_id: 'list_tomer_chores' }, daysAgo(1)),
   ]);
   console.log('   📝 תומר: 3 activity events');
 
   // Shiran household — 2 events (solo, has "הכל נקנה" list)
+  // list_shiran_done is created later in PATCH 4 with this exact name.
   await createActivityEvents(hIds.shiran, [
-    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'supermarket' }, daysAgo(1)),
-    makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל' }, hoursAgo(1)),
+    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'supermarket', list_id: 'list_shiran_done' }, daysAgo(1)),
+    makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל', list_id: 'list_shiran_done' }, hoursAgo(1)),
   ]);
   console.log('   📝 שירן: 2 activity events');
 

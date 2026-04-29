@@ -1582,6 +1582,7 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String get emptySubtitle => 'When someone invites you to a list,\nit\'ll show up right here';
   @override String get pullToRefresh => '↓ Pull to refresh';
   @override String get listFallback => 'List';
+  @override String get householdFallback => 'household';
   @override String get userFallback => 'User';
   @override String inviteToList(String listName) => 'Invitation to list "$listName"';
   @override String inviterMessage(String inviterName) => '$inviterName invites you to join';
