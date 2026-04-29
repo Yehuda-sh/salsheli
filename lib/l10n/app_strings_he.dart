@@ -646,7 +646,7 @@ class AuthStrings {
   String get loginButton => 'התחבר';
   String get loggingIn => 'מתחבר...';
   String get registerTitle => 'הרשמה';
-  String get registerSubtitle => 'הדרך החכמה לקניות משפחתיות ✨';
+  String get registerSubtitle => 'הדרך החכמה לניהול הקניות ✨';
   String get registerButton => 'הירשם';
   String get registering => 'נרשם...';
   String get forgotPassword => 'שכחת סיסמה?';

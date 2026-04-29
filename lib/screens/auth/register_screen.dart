@@ -183,32 +183,34 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       _ => Icons.error_outline,
     };
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
-            const SizedBox(width: kSpacingSmall),
-            Expanded(
-              child: Text(
-                message,
-                style: TextStyle(
-                  fontSize: kFontSizeSmall,
-                  color: StatusColors.getOnContainer(type, context),
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(icon, color: StatusColors.getOnContainer(type, context), size: kIconSizeMedium),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: kFontSizeSmall,
+                    color: StatusColors.getOnContainer(type, context),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+          backgroundColor: StatusColors.getContainer(type, context),
+          duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
+          margin: const EdgeInsets.all(kSpacingMedium),
         ),
-        backgroundColor: StatusColors.getContainer(type, context),
-        duration: type == StatusType.success ? const Duration(seconds: 2) : kSnackBarDurationLong,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadius),
-        ),
-        margin: const EdgeInsets.all(kSpacingMedium),
-      ),
-    );
+      );
   }
 
   /// ✅ פונקציית Register עם Firebase Authentication
@@ -724,7 +726,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: ctaBg.withValues(alpha: 0.3),
+                                      color: ctaBg.withValues(alpha: kOpacityLight),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),

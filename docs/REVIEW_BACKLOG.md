@@ -58,6 +58,30 @@
 
 ---
 
+## Auth Screens (Register)
+
+### 📂 Components נגעו
+- `register_screen.dart` (885 שורות) — סקירה מלאה של 12 קטגוריות
+
+### ✅ Decisions Made
+- **Inclusive copy**: `registerSubtitle` (Hebrew) — "קניות משפחתיות" → "ניהול הקניות". האנגלית כבר הייתה ניטרלית ("Join the smarter way to shop"), לא נגענו.
+- **Snackbar dedup**: `_showStatus` עכשיו מסיר snackbar קודם לפני שמציג חדש — אותו pattern של 5+ קבצים אחרים בסשן.
+- **Token alignment**: alpha 0.3 על shadow של register button → `kOpacityLight`.
+- **Source-vs-Symptom**: `_askHouseholdName` כבר מתקן את "ללא שם" ב-source (auto-name `MemoZap-XXXX` על Skip — בוצע בסשן קודם).
+
+### ⏸️ Deferred
+- **`_askHouseholdName` משתמש ב-raw `showDialog`** במקום `AppDialog.show`. כל שאר הדיאלוגים באפליקציה כבר עברו ל-AppDialog. **שאלה עיצובית פתוחה:** האם לאחד עם `showEditHouseholdNameDialog` (ה-shared dialog שעבדנו עליו) — הם דומים אבל ב-intent שונה (post-register עם Skip vs edit עם Cancel). **Trigger:** סקירה של edit_household_name_dialog או דיון מודע על איחוד הדיאלוגים. **היקף:** קטן-בינוני.
+- **`_phoneRegex` Israeli-only** (`^05[0-9]-?[0-9]{7}$`). בסדר ל-launch בעברית, אבל אם האפליקציה תתרחב ל-locales אחרים — צריך לוקאל-aware. **Trigger:** הוספת locale חדש או דרישות בינ"ל. **היקף:** קטן.
+- **`textDirection: TextDirection.rtl` מקובע ב-`_askHouseholdName`** (שורה 135). משתמש דובר אנגלית שמקליד "Smith family" יראה את זה RTL. **Trigger:** locale-awareness sweep. **היקף:** קטן.
+- **Style-on-style typography**: `headlineLarge.copyWith(fontSize: kFontSizeXLarge, fontWeight: w800)` — דפוס שחוזר באפליקציה (welcome, suggestions_today_card, section_header [תוקן]). **Trigger:** typography sweep גלובלי. **היקף:** בינוני (חוצה-קבצים).
+
+### ⏳ Files of this screen — pending review
+- `loading_overlay.dart` (Auth Cross-Cutting — לסקור עם login)
+- `social_login_button.dart` (Auth Cross-Cutting — לסקור עם login)
+- `post_auth_navigation.dart` (Auth Cross-Cutting — לסקור עם login)
+
+---
+
 ## Pending Invites Screen
 
 ### 📂 Components נגעו
