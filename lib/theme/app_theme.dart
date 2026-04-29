@@ -333,11 +333,12 @@ class AppTheme {
     // צבע טקסט על accent (Amber) - לפי בהירות הסכמה
     final onAccent = dark ? scheme.surface : scheme.onSurface;
 
-    // צבעי מילוי דקים לשדות טופס
-    // Light: שקוף יותר (6% opacity)
-    // Dark: קצת יותר בולט (8% opacity)
-    final fillOnLight = scheme.surfaceContainerHighest.withValues(alpha: 0.5);
-    final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    // צבעי מילוי לשדות טופס. Light משתמש ב-kOpacityMedium (50%) —
+    // surfaceContainerHighest על paperBackground הבהיר נראה מאופק עד
+    // שקוף, אז 50% נדרשים כדי שהשדה ייקרא בכלל. Dark ב-kOpacityLight
+    // (30%) — surfaceContainerHighest כבר בולט יחסית על רקע כהה.
+    final fillOnLight = scheme.surfaceContainerHighest.withValues(alpha: kOpacityMedium);
+    final fillOnDark = scheme.surfaceContainerHighest.withValues(alpha: kOpacityLight);
 
     return ThemeData(
       useMaterial3: true, // Flutter 3.16+ זה ברירת מחדל, אבל מפורש = ברור יותר

@@ -124,6 +124,36 @@
 
 ---
 
+## Theme
+
+### 📂 Components נגעו
+- `app_theme.dart` (650 שורות) — Material 3 light/dark + AppBrand extension + DynamicColors + harmonization
+
+### ✅ Decisions Made
+- **תיקון הערות שגויות** ב-`fillOnLight`/`fillOnDark` (שורות 337-340): הערות אמרו "6%/8% opacity" וש-Light "שקוף יותר", אבל הערכים האמיתיים 0.5/0.3 והכיוון הפוך. כתבנו מחדש כדי לתאר את המציאות + להסביר **למה** הערכים שונים בין light/dark (surfaceContainerHighest מתנהג שונה על paper-bg light vs dark).
+- **Token alignment**: alphas 0.5 → `kOpacityMedium`, 0.3 → `kOpacityLight`.
+- **Magic alpha שנשאר**: dialog bg 0.95 — premium tuning, single use, להשאיר inline.
+
+### ⏸️ Deferred
+- **🌱 Typography sweep גלובלי** — חוסר התאמה בין `kFontSize*` ל-M3 textTheme:
+  - `kFontSizeDisplay = 34` vs `displaySmall = 36`, `displayMedium = 45`
+  - `kFontSizeTitle = 20` vs `titleLarge = 22`
+  - `kFontSizeXLarge = 24` ≈ `headlineSmall = 24` ✅
+  - `kFontSizeBody = 14` ≈ `bodyMedium = 14` ✅
+
+  זה גורם ל-"style-on-style" anti-pattern (`titleLarge.copyWith(fontSize: kFontSizeTitle)`) שזיהיתי ב:
+  - `section_header.dart` (תוקן)
+  - `suggestions_today_card.dart`
+  - `welcome_screen.dart` (Backlog)
+  - `register_screen.dart` (Backlog)
+  - `quick_login_bottom_sheet.dart` (mild)
+
+  **Trigger:** החלטה מערכתית — או ליישר את `kFontSize*` ל-textTheme, או למחוק `kFontSize*` ולעבור לחלוטין ל-textTheme. **היקף:** גדול (חוצה-קבצים, רבים).
+
+**🎯 Reference:** ראוי לחיקוי — comments מסבירים **למה** כל החלטה (WCAG AA על amberText, AppBar nondominant, fillColor opacity rationale, harmonization formula).
+
+---
+
 ## Main Navigation Screen
 
 ### 📂 Components נגעו
