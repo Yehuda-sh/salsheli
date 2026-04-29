@@ -653,7 +653,8 @@ class AuthStrings {
   String get emailNotVerified => 'האימייל לא אומת';
   String get verifyEmailMessage => 'נא לאמת את כתובת האימייל שלך';
   String get sendVerificationEmailButton => 'שלח מייל אימות';
-  String get verificationEmailSent => 'מייל אימות נשלח!';
+  String get verificationEmailSent => 'מייל אימות נשלח! בדוק את תיבת הדואר (כולל ספאם)';
+  String get emailVerifiedSuccess => 'כתובת המייל אומתה בהצלחה ✓';
   String get checkYourEmail => 'בדוק את תיבת הדואר שלך';
   String get updateProfile => 'עדכון פרופיל';
   String get updateDisplayName => 'עדכון שם תצוגה';

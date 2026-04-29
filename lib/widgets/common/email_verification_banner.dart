@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/error_utils.dart';
 import '../../core/ui_constants.dart';
@@ -24,18 +23,14 @@ class EmailVerificationBanner extends StatefulWidget {
 class _EmailVerificationBannerState extends State<EmailVerificationBanner>
     with WidgetsBindingObserver {
   bool _isSending = false;
+  // In-memory only — banner returns on next cold start, so an accidental
+  // X tap never silently buries the prompt for hours.
   bool _isDismissed = false;
-
-  /// Per-user key — prevents user A's dismissal from hiding the banner
-  /// for user B when they log in on the same device.
-  String _keyForUser(String? userId) =>
-      'email_banner_dismissed_until_${userId ?? "anon"}';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkDismissed();
   }
 
   @override
@@ -53,39 +48,32 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   }
 
   Future<void> _checkIfVerified() async {
+    // Already verified — banner is hidden, no need to refetch.
+    if (context.read<UserContext>().isEmailVerified) return;
+
     try {
       await context.read<AuthService>().reloadUser();
       if (!mounted) return;
-      // If the user just verified, clear the stale 24h dismiss key so the
-      // banner would re-appear immediately on the rare edge case of the
-      // user becoming unverified again (e.g., email changed in settings).
-      final userContext = context.read<UserContext>();
-      if (userContext.isEmailVerified) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.remove(_keyForUser(userContext.userId));
-        if (mounted) setState(() => _isDismissed = false);
-      } else {
-        setState(() {}); // rebuild — isEmailVerified may have changed
-      }
-    } catch (_) {}
-  }
 
-  Future<void> _checkDismissed() async {
-    final userId = context.read<UserContext>().userId;
-    final prefs = await SharedPreferences.getInstance();
-    final dismissedUntil = prefs.getInt(_keyForUser(userId)) ?? 0;
-    if (DateTime.now().millisecondsSinceEpoch < dismissedUntil) {
-      if (mounted) setState(() => _isDismissed = true);
+      if (context.read<UserContext>().isEmailVerified) {
+        // Transitioned unverified → verified. Confirm to the user instead
+        // of silently hiding the banner, so they know the round-trip worked.
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(AppStrings.auth.emailVerifiedSuccess)),
+          );
+      }
+      // Force a rebuild — UserContext doesn't notifyListeners on
+      // isEmailVerified changes from reloadUser.
+      setState(() {});
+    } catch (e) {
+      debugPrint('EmailVerificationBanner: reload failed — $e');
     }
   }
 
-  Future<void> _dismiss() async {
-    final userId = context.read<UserContext>().userId;
-    final prefs = await SharedPreferences.getInstance();
-    // סגירה ל-24 שעות
-    final until = DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch;
-    await prefs.setInt(_keyForUser(userId), until);
-    if (mounted) setState(() => _isDismissed = true);
+  void _dismiss() {
+    setState(() => _isDismissed = true);
   }
 
   Future<void> _sendVerification() async {
@@ -101,7 +89,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
           ..showSnackBar(
             SnackBar(content: Text(AppStrings.auth.verificationEmailSent)),
           );
-        unawaited(_dismiss()); // סגור אחרי שליחה מוצלחת
+        _dismiss(); // סגור אחרי שליחה מוצלחת
       }
     } catch (e) {
       if (mounted) {
@@ -179,7 +167,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
                       style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.w600),
                     ),
                   ),
-            // כפתור X — סגירה ל-24 שעות
+            // כפתור X — מסתיר עד הכניסה הבאה לאפליקציה
             InkWell(
               onTap: _dismiss,
               borderRadius: BorderRadius.circular(kBorderRadiusSmall),

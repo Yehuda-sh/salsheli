@@ -637,7 +637,8 @@ class AuthStringsEn extends AuthStrings {
   @override String get emailNotVerified => 'Email not verified';
   @override String get verifyEmailMessage => 'Please verify your email address';
   @override String get sendVerificationEmailButton => 'Send Verification Email';
-  @override String get verificationEmailSent => 'Verification email sent!';
+  @override String get verificationEmailSent => 'Verification email sent! Check your inbox (including spam)';
+  @override String get emailVerifiedSuccess => 'Email verified successfully ✓';
   @override String get checkYourEmail => 'Check your inbox';
   @override String get updateProfile => 'Update Profile';
   @override String get updateDisplayName => 'Update Display Name';
