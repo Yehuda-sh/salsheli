@@ -70,8 +70,8 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                         },
                         child: Container(
                           constraints: const BoxConstraints(
-                            minWidth: 44,
-                            minHeight: 44,
+                            minWidth: kMinTapTarget,
+                            minHeight: kMinTapTarget,
                           ),
                           padding: const EdgeInsets.all(kSpacingSmall),
                           decoration: BoxDecoration(

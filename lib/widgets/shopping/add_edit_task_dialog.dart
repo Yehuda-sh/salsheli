@@ -565,7 +565,7 @@ class _AddEditTaskDialogState extends State<AddEditTaskDialog> {
                       size: kIconSizeSmall,
                       color: cs.onSurfaceVariant,
                     ),
-                    constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                    constraints: const BoxConstraints(minWidth: kMinTapTarget, minHeight: kMinTapTarget),
                     padding: EdgeInsets.zero,
                   ),
               ],

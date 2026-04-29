@@ -360,7 +360,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               backgroundColor: brand?.stickyCyan ?? kStickyCyan,
               foregroundColor: cs.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-              minimumSize: const Size(0, 44),
+              minimumSize: const Size(0, kMinTapTarget),
             ),
             child: Text(AppStrings.homeDashboard.inviteFamilyAction),
           ),

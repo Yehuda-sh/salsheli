@@ -244,7 +244,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     const chipRadius = BorderRadius.all(Radius.circular(kBorderRadiusLarge));
 
     return Container(
-      constraints: const BoxConstraints(minHeight: 44),
+      constraints: const BoxConstraints(minHeight: kMinTapTarget),
       decoration: BoxDecoration(
         color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
         borderRadius: chipRadius,

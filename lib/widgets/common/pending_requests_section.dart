@@ -204,7 +204,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
                 backgroundColor: successColor,
                 foregroundColor: cs.onPrimary,
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-                minimumSize: const Size(0, 44),
+                minimumSize: const Size(0, kMinTapTarget),
                 textStyle: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold),
               ),
             ),
@@ -220,7 +220,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-                minimumSize: const Size(0, 44),
+                minimumSize: const Size(0, kMinTapTarget),
                 textStyle: const TextStyle(fontSize: kFontSizeSmall),
               ),
             ),

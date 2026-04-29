@@ -81,7 +81,7 @@ class ShoppingListTile extends StatelessWidget {
               onTap: onPressed,
               haptic: ButtonHaptic.medium, // CTA haptic
               child: Container(
-                constraints: const BoxConstraints(minHeight: 44),
+                constraints: const BoxConstraints(minHeight: kMinTapTarget),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(
                     bottom: Radius.circular(kBorderRadius),

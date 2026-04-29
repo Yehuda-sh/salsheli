@@ -1035,7 +1035,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       backgroundColor: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: _hasUserInteracted ? 0.15 : 0.05),
                       foregroundColor: _hasUserInteracted ? (brand?.stickyGreen ?? kStickyGreen) : (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.4),
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus - 2, vertical: kSpacingXTiny),
-                      minimumSize: const Size(0, 44),
+                      minimumSize: const Size(0, kMinTapTarget),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),

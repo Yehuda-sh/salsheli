@@ -1131,7 +1131,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmallPlus),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
+              constraints: const BoxConstraints(minHeight: kMinTapTarget),
               child: Row(
                 children: [
                   isProduct

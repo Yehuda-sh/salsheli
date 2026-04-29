@@ -1709,7 +1709,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                       GestureDetector(
                                         onTap: () => _showQuickQuantityDialog(item),
                                         child: Container(
-                                          constraints: const BoxConstraints(minWidth: 44),
+                                          constraints: const BoxConstraints(minWidth: kMinTapTarget),
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: kSpacingSmall,
                                             vertical: kSpacingTiny,

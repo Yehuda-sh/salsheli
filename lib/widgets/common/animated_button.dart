@@ -1,9 +1,11 @@
-// lib/widgets/common/animated_button.dart — Animated button — scale-down press effect (0.97-0.98) for CTA buttons
+// lib/widgets/common/animated_button.dart — Animated button — scale-down press effect for CTA buttons (default scaleTarget 0.98; pass 0.97 for a slightly heavier press)
 
 import 'dart:async' show unawaited;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import '../../core/ui_constants.dart';
 
 /// Haptic feedback intensity for AnimatedButton.
 enum ButtonHaptic {
@@ -76,6 +78,18 @@ class _AnimatedButtonState extends State<AnimatedButton> {
   }
 
   @override
+  void didUpdateWidget(AnimatedButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If the parent flips `enabled` to false while the user is mid-press
+    // (and before they lift their finger), the pointer-up handler would
+    // never run for our state, leaving the button stuck at scaleTarget.
+    // Reset on the disable transition so the visuals snap back to rest.
+    if (oldWidget.enabled && !widget.enabled && _isPressed.value) {
+      _isPressed.value = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // ConstrainedBox enforces a 44x44 minimum *layout* size — it keeps
     // the button from shrinking smaller than the Material recommended
@@ -83,8 +97,8 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     // (FilledButton, IconButton, etc.); this wrapper only adds visuals.
     return ConstrainedBox(
       constraints: const BoxConstraints(
-        minWidth: 44,
-        minHeight: 44,
+        minWidth: kMinTapTarget,
+        minHeight: kMinTapTarget,
       ),
       // Listener uses HitTestBehavior.deferToChild (its default), so
       // press detection follows the child's hit-test rules — a small
