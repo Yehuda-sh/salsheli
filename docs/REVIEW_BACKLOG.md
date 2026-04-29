@@ -150,12 +150,26 @@
 
 ### ⏳ Files of this screen — pending review
 - ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — Reference quality, אין ממצאים
-- `action_center_card.dart` (302)
+- ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (chevron RTL fix + bottom sheet theme cleanup)
 - `last_chance_banner.dart` (348)
 - `onboarding_tips_card.dart` (409)
 - `active_shopper_banner.dart` (510)
 - `household_activity_feed.dart` (500)
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
+
+### 🎯 `action_center_card.dart` — Decisions
+- **chevron RTL-aware**: `Icons.chevron_left` היה hardcoded — שובר ב-English locale (chevron מצביע אחורה במקום קדימה). תוקן עם `isRtl ? chevron_left : chevron_right`.
+- **bottom sheet theme cleanup**: הוסרו `backgroundColor: cs.surface` ו-`shape` מ-`showModalBottomSheet` — היו override ל-theme שכבר מגדיר זאת (וב-`surfaceContainerHigh` יותר מתאים מ-`cs.surface`). אותו pattern שעשינו ב-`barcode_helpers.dart`, `active_shopping_screen.dart`.
+- **Single-pass loop** על lists לbucketing pending vs overdue ✅
+- **Smart fast-path**: tap על chip עם 1 פריט → ישר אליו; multi-item → bottom sheet. מונע modal מיותר.
+- **`Semantics(button: true, label: '$label, $count')`** על `_StatusChip` ✅
+
+### ⏸️ Deferred — `MyPantryScreen.pendingStockFilter` static field
+- **Static mutable field** משמש כ-intent passing בין מסכים: ActionCenter קובע → switching לטאב מזווה → המזווה צורך ומאפס.
+- **Smell**: global state, hard to test, unclear ownership, race conditions אפשריות.
+- **אלטרנטיבות**: Provider/state injection, route arguments, event bus.
+- **Trigger**: סקירה של `my_pantry_screen.dart` או refactor ארכיטקטוני של intent passing.
+- **היקף**: בינוני-גדול (refactor cross-screen).
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.

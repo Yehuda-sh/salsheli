@@ -176,14 +176,18 @@ class ActionCenterCard extends StatelessWidget {
     required IconData icon,
     required List<ShoppingList> lists,
   }) {
-    final cs = Theme.of(context).colorScheme;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: cs.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      ),
       builder: (sheetCtx) {
+        // Background colour and rounded-top shape come from the global
+        // bottomSheetTheme — passing them explicitly here would only
+        // override the theme to an inconsistent cs.surface tone.
+        final cs = Theme.of(sheetCtx).colorScheme;
+        // Trailing chevron flips with locale: chevron_left is "forward"
+        // in Hebrew RTL, but reads as "back" in English LTR.
+        final isRtl = Directionality.of(sheetCtx) == TextDirection.rtl;
+        final forwardChevron =
+            isRtl ? Icons.chevron_left : Icons.chevron_right;
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -218,7 +222,7 @@ class ActionCenterCard extends StatelessWidget {
               ...lists.map((list) => ListTile(
                     leading: Icon(Icons.shopping_bag_outlined, color: cs.primary),
                     title: Text(list.name),
-                    trailing: const Icon(Icons.chevron_left),
+                    trailing: Icon(forwardChevron),
                     onTap: () {
                       Navigator.pop(sheetCtx);
                       onNavigateToList?.call(list);
