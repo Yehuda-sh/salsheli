@@ -143,10 +143,23 @@
 ### ⏸️ Deferred
 - אין.
 
-### ⏳ Files of this screen — pending review
-- `index_view.dart` (662 שורות) — Loading + Error views (Bootstrap views)
+### `index_view.dart` (Loading + Error views)
 
-**🎯 Reference**: דוגמה לכתיבת state machine נקי ב-Flutter עם race conditions. ראוי לחיקוי בכל lifecycle מורכב.
+**📂 Used in:** `index_screen.dart` (IndexLoadingView + IndexErrorView).
+
+**✅ Decisions Made:**
+- **A11y**: `Semantics(label: loadingLabel, excludeSemantics: true)` סביב ה-Loading Indicator — מונע מקורא מסך לקרוא את ה-cycling messages כל 2 שניות. אותו pattern של `loading_overlay.dart`.
+- **Token alignment**: 2× alpha → kOpacity:
+  - Logo shadow: 0.2 → `kOpacityLow`
+  - Error card border: 0.3 → `kOpacityLight`
+- **Native splash → Flutter handoff** מטופל: ה-bg color תואם בדיוק את הקובץ של flutter_native_splash.
+- **5 layers of animation** (logo elastic + pulse + shimmer + wave + message rotation) עם RepaintBoundary לבידוד.
+- **WavePainter optimization**: `_kWaveStepPx = 2.0` עם הערה "1px is overkill, 2px is identical visually".
+
+**⏸️ Deferred:**
+- **Cross-file: cycling messages duplicates `loading_overlay.dart` pattern** — פרמטרים שונים (2000ms vs 1500ms, אנימציה שונה). לא דחוף לאיחוד. **Trigger:** sweep של auth-bootstrap loading widgets.
+
+**🎯 Reference**: דוגמה ל-bootstrap visual layer עם premium animations + careful lifecycle (4 controllers + Timer, all disposed).
 
 ---
 

@@ -304,7 +304,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: cs.shadow.withValues(alpha: 0.2),
+                        color: cs.shadow.withValues(alpha: kOpacityLow),
                         blurRadius: _kLogoShadowBlur,
                         offset: _kLogoShadowOffset,
                       ),
@@ -374,6 +374,13 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
       ),
       child: Semantics(
         label: AppStrings.index.loadingLabel,
+        // The cycling messages are theatrical — they rotate every 2s
+        // for visual users, but a screen reader doesn't need to
+        // re-read them on each swap. excludeSemantics keeps the
+        // single loadingLabel announcement and hides the inner Text
+        // changes from TalkBack/VoiceOver. Same pattern as
+        // auth/widgets/loading_overlay.
+        excludeSemantics: true,
         child: Column(
           children: [
             // עיגול טעינה — primary tint readable on cream
@@ -510,7 +517,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                           borderRadius:
                               BorderRadius.circular(kBorderRadiusLarge),
                           border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.3),
+                            color: cs.outlineVariant.withValues(alpha: kOpacityLight),
                             width: 0.5,
                           ),
                           boxShadow: [
