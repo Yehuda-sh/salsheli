@@ -1147,6 +1147,7 @@ class InventoryStrings {
   String get selectEmojiLabel => 'בחר אמוג\'י:';
   String get locationAdded => 'מיקום נוסף! 📍';
   String get locationExists => 'מיקום זה כבר קיים';
+  String get locationAddError => 'שגיאה בהוספת מיקום, נסה שוב';
   String get locationNameRequired => 'נא להזין שם מיקום';
   String get filterLabel => 'סינון מזווה';
   String get filterByCategory => 'סינון לפי קטגוריה';

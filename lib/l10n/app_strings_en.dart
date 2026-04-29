@@ -1126,6 +1126,7 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get selectEmojiLabel => 'Choose an emoji:';
   @override String get locationAdded => 'Location added! 📍';
   @override String get locationExists => 'This location already exists';
+  @override String get locationAddError => 'Failed to add location, please try again';
   @override String get locationNameRequired => 'Please enter a location name';
   @override String get filterLabel => 'Filter Pantry';
   @override String get filterByCategory => 'Filter by Category';
