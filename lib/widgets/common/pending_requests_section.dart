@@ -17,6 +17,7 @@ import '../../providers/user_context.dart';
 import '../../services/notifications_service.dart';
 import '../../services/pending_requests_service.dart';
 import '../../theme/app_theme.dart';
+import 'app_dialog.dart';
 import 'product_thumbnail.dart';
 
 
@@ -45,9 +46,11 @@ class PendingRequestsSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
+        // 0.15 sits between kOpacitySubtle (0.12) and kOpacityLow (0.2) —
+        // tuned so the warning tint reads as a backdrop, not a fill.
         color: warningColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: warningColor.withValues(alpha: 0.3)),
+        border: Border.all(color: warningColor.withValues(alpha: kOpacityLight)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -218,7 +221,7 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
                 style: TextStyle(color: cs.error),
               ),
               style: OutlinedButton.styleFrom(
-                side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+                side: BorderSide(color: cs.error.withValues(alpha: kOpacityMedium)),
                 padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
                 minimumSize: const Size(0, kMinTapTarget),
                 textStyle: const TextStyle(fontSize: kFontSizeSmall),
@@ -242,19 +245,20 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
 
   /// דיאלוג אישור לפני דחייה — מניעת טעויות
   Future<void> _confirmAndReject() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await AppDialog.show<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      child: AlertDialog(
         title: Text(AppStrings.sharing.rejectRequestTitle),
         content: Text(AppStrings.sharing.rejectRequestConfirm),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
+            onPressed: () => Navigator.pop(context, false),
             child: Text(AppStrings.common.cancel),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(AppStrings.sharing.rejectRequestButton),
           ),
         ],
@@ -293,20 +297,25 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       if (!mounted) return;
       // אנימציית יציאה
       setState(() => _isDismissed = true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isApprove ? AppStrings.sharing.requestApprovedSuccess : AppStrings.sharing.requestRejectedSuccess),
-          backgroundColor: isApprove ? null : Theme.of(context).colorScheme.error,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(isApprove
+                ? AppStrings.sharing.requestApprovedSuccess
+                : AppStrings.sharing.requestRejectedSuccess),
+            backgroundColor:
+                isApprove ? null : Theme.of(context).colorScheme.error,
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
       final errorMsg = isApprove
           ? AppStrings.pendingInvitesScreen.approveError(userFriendlyError(e, context: 'approve'))
           : AppStrings.pendingInvitesScreen.rejectError(userFriendlyError(e, context: 'reject'));
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(errorMsg)));
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
