@@ -17,10 +17,10 @@ import 'sticky_note.dart';
 ///
 /// Uses `withValues(alpha:)` for precise opacity control.
 /// baseColor (alpha: kOpacityStrong) → visible but subtle surface
-/// highlightColor (alpha: 0.3) → lighter shimmer band
+/// highlightColor (alpha: kOpacityLight) → lighter shimmer band
 LinearGradient _shimmerGradient(ColorScheme cs) {
   final base = cs.surfaceContainerHighest.withValues(alpha: kOpacityStrong);
-  final highlight = cs.surfaceContainerHighest.withValues(alpha: 0.3);
+  final highlight = cs.surfaceContainerHighest.withValues(alpha: kOpacityLight);
   return LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
