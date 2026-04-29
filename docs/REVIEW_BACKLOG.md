@@ -124,6 +124,43 @@
 
 ---
 
+## Home Dashboard Screen
+
+### 📂 Components נגעו
+- `home_dashboard_screen.dart` (788 שורות) — orchestrator של כל ה-Home: 6+ סקציות
+
+### ✅ Decisions Made
+- **Inclusive copy**: `inviteFamilyTitle` (he+en) — "הזמן את המשפחה" → "הזמן את הבית". האנגלית גם: "Invite your family" → "Invite your home". (subtitle + action כבר היו ניטרליים.) שלישי בסבב ה-inclusive sweep אחרי welcome + register.
+- **Stagger animation flag**: `_hasAnimated` נהפך ל-true ב-postFrameCallback → stagger רץ רק בטעינה ראשונה. הערה מפורטת מסבירה למה ה-tutorial dialog דחוי 700ms (כדי שהוא לא יבוא תוך כדי הסטאגר).
+- **FAB hide-when-empty**: כשאין רשימות פעילות, ה-empty state כבר מציג CTA "Create first list", אז ה-FAB מוסתר כדי לא לכפול.
+- **Single-pass count of checked items** עם הערה על perf.
+- **Pull-to-refresh** עם error handling חלק: `Future.wait([loadLists, loadReceipts])` נכשל → `hadError = true`. `refreshSuggestions` נפרד, נכשל בשקט (non-critical). `removeCurrentSnackBar` לפני show.
+- **`messenger` נלכד לפני await** — pattern עקבי.
+- **`mounted` checks** אחרי כל await.
+- **RepaintBoundary** סביב ActionCenter, Suggestions, ActiveLists, ActivityFeed.
+- **A11y חזק**: `Semantics(header: true)` על activeListsTitle, `Semantics(button: true, label: composed)` על list cards (label = name + progress + done state).
+- **RTL**: `isRtl` flips accent bar border radius + chevron direction.
+- **Hero animation** על list icons → details screen.
+- **Empty list shows CTA** (not dead-end) — `emptyListCta` "הוסף פריט" עם accent color.
+
+### ⏸️ Deferred
+- **Function name `_buildInviteFamilyBanner` + keys `inviteFamily*`** — internal naming עדיין משתמש ב-"family". refactor של naming הוא רחב (קובץ + l10n + callers). **Trigger:** sweep של naming inclusive. **היקף:** בינוני.
+- **Single-use magic alphas** (0.05 gradient, 0.8 errorMessage, 0.25 card border) ו-`size: 13` (progress icon off kIconSize* scale) — premium tuning, לא דחוף.
+- **Style-on-style typography** — דפוס פרויקט-wide (typography sweep ב-Backlog Theme).
+
+### ⏳ Files of this screen — pending review
+- `pending_invites_banner.dart` (245 שורות)
+- `action_center_card.dart` (302)
+- `last_chance_banner.dart` (348)
+- `onboarding_tips_card.dart` (409)
+- `active_shopper_banner.dart` (510)
+- `household_activity_feed.dart` (500)
+- `suggestions_today_card.dart` (999) — האחרון, הכי גדול
+
+**🎯 Reference**: דוגמה ל-orchestrator screen עם premium UX (stagger, Hero, RepaintBoundary, A11y), pull-to-refresh עם partial-fail handling.
+
+---
+
 ## Bootstrap Entry (`main.dart`)
 
 ### 📂 Components נגעו

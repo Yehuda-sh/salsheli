@@ -1784,7 +1784,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   const HomeDashboardStringsEn();
 
   @override String get newListButton => 'New List';
-  @override String get inviteFamilyTitle => 'Invite your family to shop together';
+  @override String get inviteFamilyTitle => 'Invite your home to shop together';
   @override String get inviteFamilySubtitle => 'Share lists, pantry, and notifications';
   @override String get inviteFamilyAction => 'Invite';
   @override String get errorTitle => 'Error loading data';
