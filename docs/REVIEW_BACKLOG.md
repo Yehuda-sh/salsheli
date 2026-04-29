@@ -151,6 +151,7 @@
 ### ⏳ Files of this screen — pending review
 - ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — Reference quality, אין ממצאים
 - ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (chevron RTL fix + bottom sheet theme cleanup)
+- ~~`last_chance_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — **הועבר** ל-`shopping/active/widgets/` (היה ב-`home/dashboard/widgets/` בטעות) + `kMinTapTarget` cleanup
 - `last_chance_banner.dart` (348)
 - `onboarding_tips_card.dart` (409)
 - `active_shopper_banner.dart` (510)
@@ -163,6 +164,18 @@
 - **Single-pass loop** על lists לbucketing pending vs overdue ✅
 - **Smart fast-path**: tap על chip עם 1 פריט → ישר אליו; multi-item → bottom sheet. מונע modal מיותר.
 - **`Semantics(button: true, label: '$label, $count')`** על `_StatusChip` ✅
+
+### 🎯 `last_chance_banner.dart` — Decisions
+- **File relocation**: היה ב-`home/dashboard/widgets/` למרות שמשמש רק ב-`active_shopping_screen`. הועבר ל-`shopping/active/widgets/`. מיקום פיזי תואם עכשיו לשימוש האמיתי. caller import מ-`'../../home/dashboard/widgets/last_chance_banner.dart'` ל-`'widgets/last_chance_banner.dart'` — קצר ומובן יותר.
+- **`_kAddButtonMinHeight` → `kMinTapTarget`**: הקבוע המקומי שכפל את `kMinTapTarget = 44.0` הגלובלי. השם הגלובלי גם סמנטית נכון יותר (Material spec: minimum tap target).
+- **`_kSnackBarDuration = 2s` נשאר מקומי** — ערך **שונה** מ-`kSnackBarDuration` הגלובלי (3s). קצר במכוון: toasts בתוך active shopping flow לא צריכים להישאר. הוספה הערה מסבירה.
+- **שאר הקבועים המקומיים** (`_kCriticalBgAlpha`, `_kRegularBgAlpha`, etc.) — חלקם exact matches ל-`kOpacity*` אבל נשארים מקומיים. ה-comment "Card surface — alphas tuned for 'soft inline alert'" מתעד שהם tuned set. אותו pattern של `pending_invites_banner.dart`.
+- **A11y composition**: `Semantics(explicitChildNodes: true, label: composed)` עם `ExcludeSemantics` על Icon + Column. `explicitChildNodes` שונה מ-`pending_invites_banner` (שמזרים הכל לlabel) — פה ה-buttons (Add/Next/Skip) נשארים semantic nodes נפרדים כי הם עצמאיים.
+- **3 actions עם UI hierarchy ברורה**: FilledButton.tonal Add > IconButton Next > IconButton dimmed Skip.
+- **Skip = `notifications_off_outlined`** (לא X) — semantic ברורה: "we'll stop nagging".
+- **Loading spinner מחליף את כל הכפתורים בזמן עיבוד** — מונע double-tap.
+- **`fixBidiNumbers`** על שם המוצר — RTL/LTR mixed text handling.
+- **Try/catch מעולה** בכל 3 ה-action methods: `messenger` cached, `mounted` check, `removeCurrentSnackBar` proactive.
 
 ### ⏸️ Deferred — `MyPantryScreen.pendingStockFilter` static field
 - **Static mutable field** משמש כ-intent passing בין מסכים: ActionCenter קובע → switching לטאב מזווה → המזווה צורך ומאפס.

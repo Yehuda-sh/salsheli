@@ -1,4 +1,4 @@
-// lib/screens/home/dashboard/widgets/last_chance_banner.dart — Last chance banner — restock suggestion during active shopping session
+// lib/screens/shopping/active/widgets/last_chance_banner.dart — Last chance banner — restock suggestion during active shopping session
 
 import 'dart:async';
 
@@ -28,10 +28,9 @@ const double _kAddBgAlpha = 0.2;
 // Skip icon button — slightly dimmed.
 const double _kSkipFgAlpha = 0.6;
 
-// Tap targets.
-const double _kAddButtonMinHeight = 44.0;
-
-// SnackBar duration for transient feedback.
+// SnackBar duration for transient feedback. Shorter than the global
+// kSnackBarDuration (3s) — these toasts are non-critical confirmations
+// during an active shopping flow and shouldn't linger.
 const Duration _kSnackBarDuration = Duration(seconds: 2);
 
 /// בנר אזהרה אחרונה — Compact Card
@@ -205,7 +204,7 @@ class _LastChanceCardState extends State<_LastChanceCard> {
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingSmallPlus,
                   ),
-                  minimumSize: const Size(0, _kAddButtonMinHeight),
+                  minimumSize: const Size(0, kMinTapTarget),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   ),

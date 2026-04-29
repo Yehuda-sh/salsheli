@@ -28,7 +28,7 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
-import '../../home/dashboard/widgets/last_chance_banner.dart';
+import 'widgets/last_chance_banner.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
 import 'widgets/shopping_summary_dialog.dart';
