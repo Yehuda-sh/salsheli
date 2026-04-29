@@ -52,6 +52,8 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - 3-5 שאלות הבהרה עם אפשרויות א/ב/ג
 - **בלי קטעי קוד בשאלות**
 - בכל שאלה להוסיף **"המלצת הסוכן"**
+- ניתוח לפי **File Review Checklist** למטה (לא רק היגיינת קוד)
+- תגובות לפי **Response Style** למטה
 
 ### Welcome Screen
 - מופיע **רק** עד יצירת חשבון
@@ -82,6 +84,101 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - haptic רק ל-CTA (לא לניווט)
 - scale: **0.97–0.98**
 - אנימציה מתחילה ב-**tap-down**
+
+---
+
+## File Review Checklist
+
+בכל ניתוח קובץ, לעבור על **כל** הסעיפים. לא רק היגיינת קוד.
+
+### 🚦 UX (חוויית משתמש)
+- **מסע המשתמש** — מה הוא רואה ראשון? מה אחר כך? איפה הוא נעצר?
+- **שאלת "ואז מה?"** — אחרי כל פעולה (snackbar הצלחה, סגירת דיאלוג, שמירה) — האם ברור מה הצעד הבא?
+- **משוב בזמן אמת** — האפליקציה אומרת שמשהו קורה? לא רק "נשלח" אלא גם "בדוק תיבת דואר, כולל ספאם"?
+- **מצבי קצה רגשיים** — מה הוא חושב כשהדבר נכשל / נטען לאט / ריק / לא נמצא?
+- **חיכוך** — איפה הוא נעצר? מחפש כפתור? חוזר אחורה? לוחץ פעמיים?
+- **היררכיה ויזואלית** — הדבר החשוב באמת בולט? סדר הצגה הגיוני?
+- **עומס קוגניטיבי** — טקסט ברור? יותר מדי החלטות במסך אחד?
+- **סיכון מיס-טאפ** — כפתורים מסוכנים (X, מחיקה) רחוקים מ-CTA?
+
+### 🔗 Cross-File (חוצה קבצים)
+- **מי קורא לקובץ?** — `grep` שם הפונקציה/הוויג'ט בכל ה-`lib/`
+- **מה כל caller עושה עם התוצאה?** — לקרוא את הבלוק שמשתמש, לא רק את הקריאה
+- **האם יש קוד כפול?** — callers שעוקפים את ה-API במקום להשתמש בו
+- **האם ה-UX עקבי בין callers?** — snackbar dedup, haptic, error handling — באותו אופן בכל מקום
+
+### 🎨 Visual & Design System
+- מספרי קסם → `kSpacing*` / `kFontSize*` / `kIconSize*` / `kBorderRadius*` / `kOpacity*`
+- צבעים → **רק** מ-`Theme.of(context).colorScheme` (לא `Colors.xxx`)
+- מחרוזות עברית → **רק** `AppStrings`
+- `const` איפה שאפשר (`SizedBox`, `EdgeInsets`, `Duration`)
+- חריגים מותרים: ערכי תכן ספציפיים (`alpha: 0.4` לסקרים) — אך **עם הערה**
+- כפילות עם `Theme` — לא להגדיר ערכים ש-Theme כבר קובע (`backgroundColor`, `shape` ב-bottom sheets)
+
+### ⚡ Performance & Lifecycle
+- `RepaintBoundary` סביב אנימציות / shimmer / scrolls כבדים
+- `ValueNotifier<T>` + `ValueListenableBuilder` במקום `setState` אם רק חלק קטן ב-UI צריך לבנות מחדש
+- `context.select` במקום `context.watch` אם הערך פרימיטיבי (`int`/`String`/`bool`)
+- `dispose()` — `Controllers`, `Timers`, `AnimationControllers`, `Listeners`, `Streams`
+- `if (mounted)` **רק** אחרי `await` (לא לפני שום await — קוד מת)
+
+### 🐛 Async & Errors
+- `unawaited(...)` ל-fire-and-forget (Haptic, Futures ב-callbacks סינכרוניים)
+- `removeCurrentSnackBar()` **לפני** `showSnackBar` — מונע ערימת באנרים
+- `userFriendlyError(e, context: 'flowName')` במקום `e.toString()`
+- בדיקת `mounted` אחרי **כל** `await` שיגרור פעולה על UI/`context`
+- אין race conditions: לא לקרוא ל-`context.read` אחרי await בלי לוודא שהוא עדיין בר-תוקף
+
+### 📱 RTL & Hebrew
+- **בלי** `Directionality(rtl)` מקובע — האפליקציה כבר RTL גלובלי
+- `BorderRadiusDirectional` לפינות א-סימטריות (`start`/`end`)
+- `EdgeInsetsDirectional` למרווחים א-סימטריים
+- `TextDirection.ltr` **רק** לתוכן מעורב (URLs, מספרים, IDs)
+
+### ♿ A11y — חסכוני בלבד
+**עיקרון:** premium visual > תיוג קוראי מסך. נגישות חשובה אבל לא במחיר ויזואלי.
+
+- ✅ **כן** — `liveRegion: true` במצבי טעינה ושגיאה (loading/error states שמופיעים דינמית)
+- ✅ **כן** — `ExcludeSemantics` סביב decorative elements שמייצרים רעש כפול (handle bars, pure-decoration icons)
+- ❌ **לא** — `Semantics(label: ...)` על כל אייקון/כפתור עם ייעוד ויזואלי ברור
+- ❌ **לא** — להגדיל tap targets ל-`kMinTapTarget` אם זה שובר את ה-premium visual
+- ❌ **לא** — `Tooltip` על כל IconButton
+
+---
+
+## Response Style (איך לענות)
+
+### צורת התגובה
+- **עברית בלבד** — לא לערבב אנגלית בהסברים
+- **שפה פשוטה** — בלי מונחים טכניים בלי הסבר; להניח ידע נמוך
+- **דוגמאות קוד קונקרטיות** — להראות "לפני / אחרי", לא הסברים מופשטים
+- **אימוג'ים כותרת** — לסריקה מהירה: ✅🐛⚠️📦📐🎨♿🎯🔁📣🧠⚡🚦📱🔗
+- **טבלאות** לסיכום ממצאים מרובים (סריקה קלה)
+- **קצר ותמציתי** — בלי fluff, בלי מטא-הסברים
+- **3–5 שאלות הבהרה** עם א/ב/ג + **"המלצת הסוכן"** בכל שאלה
+- **בלי קטעי קוד בתוך שאלות** — רק תיאור ויזואלי/UX
+
+### מבנה ניתוח קובץ
+1. קריאת הקובץ + ה-callers + תלויות חיוניות
+2. ממצאים מקובצים לפי קטגוריה (UX / Cross-File / Visual / Perf / Async / RTL / A11y)
+3. הפרדה ברורה בין **"לתקן בטוח"** ל-**"שאלות לפני ביצוע"**
+4. בסוף — סיכום שינויים בטבלה
+5. הזכרה של "מוכן לקובץ הבא 📂"
+
+### מה לא לעשות
+- ❌ לא להוסיף a11y wrappers טהורים בלי ערך ויזואלי
+- ❌ לא להגדיל tap targets / מרווחים אם זה שובר premium visual
+- ❌ לא לחלץ קבועים אם הערך מופיע פעם אחת ושמו לא מוסיף הסבר
+- ❌ לא להוסיף הערות שמסבירות **מה** הקוד עושה (רק **למה** ורק כשלא מובן מאליו)
+- ❌ לא לבצע שינויים מסוכנים (גודל ויזואלי, התנהגות) בלי לשאול
+- ❌ לא להציע שינויים בלי לבדוק את ה-callers קודם
+
+### מה כן לעשות
+- ✅ Cross-file analysis: לקרוא callers, לחפש כפילויות, לוודא עקביות UX
+- ✅ לחשוב בעין משתמש (לא רק מפתח)
+- ✅ לשאול לפני שינויים ויזואליים / שינויי התנהגות
+- ✅ "המלצת הסוכן" עם **נימוק קצר** (לא רק "כן/לא")
+- ✅ לאחר ביצוע — `git diff` ל-self-review לפני commit
 
 ---
 
