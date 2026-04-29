@@ -1,6 +1,7 @@
 // lib/screens/auth/register_screen.dart — Register screen — email/password signup with household name prompt
 
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -150,12 +151,19 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           ],
         ),
       );
-      if (result != null && result.isNotEmpty && mounted) {
-        try {
-          await userContext.updateHouseholdName(result);
-        } catch (_) {
-          // Non-critical — default name will be used
-        }
+      if (!mounted) return;
+      // Skipping or saving an empty name still lands on a real label —
+      // "MemoZap-1234" — so the rest of the app (invite flow,
+      // notifications, list-share copy) never has to deal with a null
+      // householdName. The user can rename later from Settings; the
+      // household_id is the actual anchor, not this string.
+      final name = (result != null && result.isNotEmpty)
+          ? result
+          : 'MemoZap-${1000 + Random().nextInt(9000)}';
+      try {
+        await userContext.updateHouseholdName(name);
+      } catch (_) {
+        // Non-fatal — they can still set a name from Settings later.
       }
     } finally {
       controller.dispose();

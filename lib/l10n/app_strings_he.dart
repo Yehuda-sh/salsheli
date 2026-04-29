@@ -856,6 +856,8 @@ class SettingsStrings {
   String get inviteToHouseholdAlreadyPending => 'כבר יש הזמנה ממתינה';
   String get inviteToHouseholdButton => 'שלח הזמנה';
   String get inviteToHouseholdNeedName => 'תחילה קבע שם לבית בהגדרות';
+  String get inviteToHouseholdSelf => 'לא ניתן להזמין את עצמך';
+  String get inviteToHouseholdDone => 'סגור';
   String get householdJoinedSuccess => '🏠 הצטרפת לבית בהצלחה!';
   String get myPantry => 'המזווה שלי';
   String get priceComparison => 'השוואת מחירים';

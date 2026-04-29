@@ -21,6 +21,7 @@ import '../../services/image_upload_service.dart';
 import '../../services/tutorial_service.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
+import '../../widgets/common/edit_household_name_dialog.dart';
 import '../../widgets/common/household_invite_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
@@ -493,76 +494,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     '❤️', '💚', '💙',
   ];
 
-  /// דיאלוג לעריכת שם קבוצה
-  Future<void> _showEditHouseholdNameDialog(UserContext userContext) async {
-    final cs = Theme.of(context).colorScheme;
-    final controller =
-        TextEditingController(text: userContext.householdName ?? '');
-    bool isSaving = false;
-    String? errorText;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (ctx, setDialogState) {
-          return AlertDialog(
-            title: Text(AppStrings.settings.householdName),
-            content: TextField(
-              controller: controller,
-              maxLength: 40,
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
-              decoration: InputDecoration(
-                hintText: AppStrings.settings.householdNameHint,
-                border: const OutlineInputBorder(),
-                errorText: errorText,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(AppStrings.common.cancel),
-              ),
-              FilledButton(
-                onPressed: isSaving
-                    ? null
-                    : () async {
-                        final trimmed = controller.text.trim();
-                        if (trimmed.isEmpty) {
-                          setDialogState(() {
-                            errorText = AppStrings.settings.householdNameEmpty;
-                          });
-                          return;
-                        }
-                        setDialogState(() => isSaving = true);
-                        try {
-                          await userContext.updateHouseholdName(trimmed);
-                          if (ctx.mounted) Navigator.pop(dialogContext);
-                        } catch (e) {
-                          setDialogState(() {
-                            isSaving = false;
-                            errorText = userFriendlyError(e, context: 'householdName');
-                          });
-                        }
-                      },
-                style: FilledButton.styleFrom(
-                  backgroundColor: cs.primary,
-                  foregroundColor: cs.onPrimary,
-                ),
-                child: isSaving
-                    ? SizedBox(
-                        width: kIconSizeSmall,
-                        height: kIconSizeSmall,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: cs.onPrimary),
-                      )
-                    : Text(AppStrings.settings.editHouseholdNameSave),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-    controller.dispose(); // ✅ dispose controller after dialog closes
-  }
 
   /// Bottom Sheet לעריכת פרופיל
   Future<void> _showEditProfileBottomSheet() async {
@@ -1248,16 +1179,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           trailing: _forwardChevron(),
                           onTap: () async {
                             unawaited(HapticFeedback.selectionClick());
-                            // Make sure household has a name before opening the dialog
-                            if (userContext.householdName == null ||
-                                userContext.householdName!.trim().isEmpty) {
-                              await _showEditHouseholdNameDialog(userContext);
-                              if (userContext.householdName == null ||
-                                  userContext.householdName!.trim().isEmpty) {
-                                return;
-                              }
-                            }
-                            if (!context.mounted) return;
+                            // The invite dialog itself prompts for a household
+                            // name when it's missing, so callers no longer
+                            // need a separate pre-check.
                             await showHouseholdInviteDialog(context);
                           },
                         ),
@@ -1277,7 +1201,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           trailing: _isHouseholdAdmin
                               ? TextButton(
                                   onPressed: () =>
-                                      _showEditHouseholdNameDialog(userContext),
+                                      showEditHouseholdNameDialog(context, userContext),
                                   child: Text(AppStrings.settings.editHouseholdNameEdit),
                                 )
                               : null,

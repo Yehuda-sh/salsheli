@@ -840,6 +840,8 @@ class SettingsStringsEn extends SettingsStrings {
   @override String get inviteToHouseholdAlreadyPending => 'There\'s already a pending invitation';
   @override String get inviteToHouseholdButton => 'Send Invitation';
   @override String get inviteToHouseholdNeedName => 'First set a name for your household in Settings';
+  @override String get inviteToHouseholdSelf => "You can't invite yourself";
+  @override String get inviteToHouseholdDone => 'Close';
   @override String get householdJoinedSuccess => '🏠 Successfully joined the household!';
   @override String get myPantry => 'My Pantry';
   @override String get priceComparison => 'Price Comparison';
