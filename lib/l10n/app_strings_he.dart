@@ -246,7 +246,8 @@ class LayoutStrings {
   String get noNotifications => 'אין התראות חדשות';
   String notificationsCount(int count) => 'יש לך $count עדכונים חדשים';
   String get welcome => 'ברוך הבא ל-${AppStringsHe.appName}';
-  String get offline => 'אין חיבור לרשת';
+  String get offline => 'אין חיבור — שינויים יישמרו כשתחזור';
+  String get connectionRestored => '✅ חיבור חזר';
   String get logoutError => 'שגיאה בהתנתקות, נסה שוב';
   String get pendingInvitesTitle => 'התראות והזמנות';
   String get groupInvites => 'הזמנות לקבוצות';

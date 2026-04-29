@@ -26,7 +26,6 @@ import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
 import '../../widgets/common/notebook_background.dart';
-import '../../widgets/common/offline_banner.dart';
 import '../../widgets/common/product_thumbnail.dart';
 import '../../widgets/inventory/pantry_empty_state.dart';
 import '../../widgets/inventory/pantry_item_dialog.dart';
@@ -806,8 +805,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                       : SafeArea(
                           child: Column(
                                 children: [
-                                  // 🔌 Offline banner
-                                  const OfflineBanner(),
+                                  // (Offline banner is mounted once at
+                                  // main_navigation_screen — adding another
+                                  // here would stack two identical bars.)
 
                                   // 🏷️ כותרת המזווה (Collaborative Immersive)
                                   // כוללת ספירה אינליין (📦 + ⚠️) וכפתור חיפוש.

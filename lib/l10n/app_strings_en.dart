@@ -247,7 +247,8 @@ class LayoutStringsEn extends LayoutStrings {
   @override String get noNotifications => 'No new notifications';
   @override String notificationsCount(int count) => 'You have $count new updates';
   @override String get welcome => 'Welcome to ${AppStringsEn.appName}';
-  @override String get offline => 'No internet connection';
+  @override String get offline => 'Offline — changes sync when reconnected';
+  @override String get connectionRestored => '✅ Connection restored';
   @override String get logoutError => 'Error logging out, try again';
   @override String get pendingInvitesTitle => 'Notifications & Invites';
   @override String get groupInvites => 'Group Invitations';

@@ -20,7 +20,6 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/household_invite_dialog.dart';
 import '../../../widgets/common/notebook_background.dart';
-import '../../../widgets/common/offline_banner.dart';
 import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
@@ -209,8 +208,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.all(kSpacingMedium),
                 children: [
-                  // === 0. Offline banner ===
-                  const OfflineBanner(),
+                  // (Offline banner is mounted once at main_navigation_screen
+                  // so it covers all four tabs without stacking copies.)
 
                   // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   _staggered(
