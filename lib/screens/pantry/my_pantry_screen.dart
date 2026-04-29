@@ -276,12 +276,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           // עדכון כמות +1, שם לא משתנה
           await inventoryProvider.addStock(similar.productName, 1);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${similar.productName} (+1) ✅'),
-                duration: kSnackBarDuration,
-              ),
-            );
+            ScaffoldMessenger.of(context)
+              ..removeCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text('${similar.productName} (+1) ✅'),
+                  duration: kSnackBarDuration,
+                ),
+              );
           }
           return;
         case _DuplicateAction.replaceProduct:
@@ -293,12 +295,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           );
           await inventoryProvider.updateItem(updatedItem);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${similar.productName} → $name'),
-                duration: kSnackBarDuration,
-              ),
-            );
+            ScaffoldMessenger.of(context)
+              ..removeCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text('${similar.productName} → $name'),
+                  duration: kSnackBarDuration,
+                ),
+              );
           }
           return;
         case _DuplicateAction.addSeparate:
@@ -340,10 +344,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     if (matchedItem == null) {
       if (mounted) {
         unawaited(HapticFeedback.heavyImpact());
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(strings.quickScanNotInPantry),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ));
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text(strings.quickScanNotInPantry),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ));
       }
       return;
     }
@@ -356,31 +362,35 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     if (updated.quantity == 0) {
       // 🔴 נגמר לגמרי
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(strings.quickScanOutOfStock(matchedItem.productName)),
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: strings.quickScanUndo,
-          onPressed: () {
-            inventoryProvider.addStock(matchedItem.productName, 1);
-          },
-        ),
-      ));
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.quickScanOutOfStock(matchedItem.productName)),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: strings.quickScanUndo,
+            onPressed: () {
+              inventoryProvider.addStock(matchedItem.productName, 1);
+            },
+          ),
+        ));
     } else {
       // ✅ הורד בהצלחה
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(strings.quickScanDecremented(
-          matchedItem.productName,
-          updated.quantity,
-        )),
-        duration: kSnackBarDuration,
-        action: SnackBarAction(
-          label: strings.quickScanUndo,
-          onPressed: () {
-            inventoryProvider.addStock(matchedItem.productName, 1);
-          },
-        ),
-      ));
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.quickScanDecremented(
+            matchedItem.productName,
+            updated.quantity,
+          )),
+          duration: kSnackBarDuration,
+          action: SnackBarAction(
+            label: strings.quickScanUndo,
+            onPressed: () {
+              inventoryProvider.addStock(matchedItem.productName, 1);
+            },
+          ),
+        ));
     }
   }
 
@@ -501,7 +511,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               Container(
                 padding: const EdgeInsets.all(kSpacingSmall),
                 decoration: BoxDecoration(
-                  color: cs.primaryContainer.withValues(alpha: 0.3),
+                  color: cs.primaryContainer.withValues(alpha: kOpacityLight),
                   borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                 ),
                 child: Row(
@@ -580,14 +590,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final count = await provider.addStarterItems(selectedItems);
 
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text(strings.starterItemsAdded(count))),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(strings.starterItemsAdded(count))),
+        );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text(strings.starterItemsError)),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(strings.starterItemsError)),
+        );
     }
   }
 
@@ -607,31 +621,37 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     try {
       await inventoryProvider.deleteItem(item.id);
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(strings.itemDeleted(item.productName)),
-            action: SnackBarAction(
-              label: AppStrings.common.cancel,
-              onPressed: () async {
-                try {
-                  await inventoryProvider.updateItem(item);
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(AppStrings.inventory.updateError)),
-                    );
+        messenger
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(strings.itemDeleted(item.productName)),
+              action: SnackBarAction(
+                label: AppStrings.common.cancel,
+                onPressed: () async {
+                  try {
+                    await inventoryProvider.updateItem(item);
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context)
+                        ..removeCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(content: Text(AppStrings.inventory.updateError)),
+                        );
+                    }
                   }
-                }
-              },
+                },
+              ),
             ),
-          ),
-        );
+          );
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.deleteItemError)),
-        );
+        messenger
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(strings.deleteItemError)),
+          );
       }
     }
   }
@@ -663,9 +683,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       }
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(
-          SnackBar(content: Text(strings.updateQuantityError)),
-        );
+        messenger
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(strings.updateQuantityError)),
+          );
       }
     }
   }
@@ -1041,7 +1063,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       style: baseStyle ?? const TextStyle(),
       child: Row(
         children: [
-          const Text('📦', style: TextStyle(fontSize: kFontSizeSmall)),
+          // Was '📦' as text — replaced with a Material icon to match the
+          // rest of the dashboard's inline counters.
+          Icon(
+            Icons.inventory_2_outlined,
+            size: kFontSizeSmall,
+            color: scheme.onSurfaceVariant,
+          ),
           const SizedBox(width: kSpacingXTiny),
           Text('$totalItems'),
           if (lowStockCount > 0) ...[
@@ -1052,7 +1080,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('⚠️', style: TextStyle(fontSize: kFontSizeSmall)),
+                // Was '⚠️' as text.
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: kFontSizeSmall,
+                  color: warnColor,
+                ),
                 const SizedBox(width: kSpacingXTiny),
                 Text(
                   '$lowStockCount',
@@ -1241,7 +1274,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               side: BorderSide(
-                color: isSelected ? scheme.outline.withValues(alpha: 0.3) : Colors.transparent,
+                color: isSelected ? scheme.outline.withValues(alpha: kOpacityLight) : Colors.transparent,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
@@ -1264,12 +1297,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         onPressed: () async {
           final newKey = await showAddLocationDialog(context);
           if (newKey != null && mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppStrings.inventory.locationAdded),
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-              ),
-            );
+            ScaffoldMessenger.of(context)
+              ..removeCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(AppStrings.inventory.locationAdded),
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                ),
+              );
           }
         },
         backgroundColor: chipBgColor,
@@ -1344,11 +1379,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             scheme.primaryContainer.withValues(alpha: 0.15),
             scheme.secondaryContainer.withValues(alpha: 0.15),
             scheme.tertiaryContainer.withValues(alpha: 0.15),
-            scheme.surfaceContainerHighest.withValues(alpha: 0.2),
+            scheme.surfaceContainerHighest.withValues(alpha: kOpacityLow),
           ]
         : [
-            scheme.secondaryContainer.withValues(alpha: 0.3),
-            scheme.tertiaryContainer.withValues(alpha: 0.3),
+            scheme.secondaryContainer.withValues(alpha: kOpacityLight),
+            scheme.tertiaryContainer.withValues(alpha: kOpacityLight),
             scheme.tertiary.withValues(alpha: 0.1),
             scheme.primary.withValues(alpha: 0.1),
           ];
@@ -1402,7 +1437,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     decoration: BoxDecoration(
                       color: highlightColor,
                       border: Border(
-                        right: BorderSide(color: scheme.outline.withValues(alpha: 0.3), width: kSpacingXTiny),
+                        right: BorderSide(color: scheme.outline.withValues(alpha: kOpacityLight), width: kSpacingXTiny),
                       ),
                     ),
                     child: Row(
@@ -1545,13 +1580,13 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       child: Card(
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         elevation: isCritical ? 2 : 0,
-        shadowColor: isCritical ? cs.error.withValues(alpha: 0.3) : null,
+        shadowColor: isCritical ? cs.error.withValues(alpha: kOpacityLight) : null,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(
             color: isWarning || isCritical
-                ? statusColor.withValues(alpha: 0.3)
-                : cs.outlineVariant.withValues(alpha: 0.12),
+                ? statusColor.withValues(alpha: kOpacityLight)
+                : cs.outlineVariant.withValues(alpha: kOpacitySubtle),
           ),
         ),
         clipBehavior: Clip.antiAlias,
@@ -1677,12 +1712,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: isWarning || isCritical
-                                                ? statusColor.withValues(alpha: 0.12)
+                                                ? statusColor.withValues(alpha: kOpacitySubtle)
                                                 : cs.primaryContainer.withValues(alpha: 0.4),
                                             borderRadius: BorderRadius.circular(kBorderRadius),
                                             border: Border.all(
                                               color: isWarning || isCritical
-                                                  ? statusColor.withValues(alpha: 0.3)
+                                                  ? statusColor.withValues(alpha: kOpacityLight)
                                                   : cs.primary.withValues(alpha: 0.15),
                                             ),
                                           ),
@@ -1750,7 +1785,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           child: Icon(
             icon,
             size: kIconSizeSmallPlus,
-            color: onTap != null ? color : color.withValues(alpha: 0.3),
+            color: onTap != null ? color : color.withValues(alpha: kOpacityLight),
           ),
         ),
       ),
@@ -1829,28 +1864,28 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     Color bgColor;
     Color textColor;
-    String icon;
+    IconData iconData;
 
     if (isExpired) {
       bgColor = cs.errorContainer;
       textColor = cs.error;
-      icon = '⚠️';
+      iconData = Icons.warning_amber_rounded;
     } else if (isExpiringSoon) {
       // ✅ Warning colors from Theme/AppBrand
       bgColor = brand?.warningContainer ?? cs.tertiaryContainer;
       textColor = brand?.warning ?? cs.tertiary;
-      icon = '⏰';
+      iconData = Icons.schedule;
     } else {
       // ✅ Success colors from Theme/AppBrand
       bgColor = brand?.successContainer ?? cs.primaryContainer;
       textColor = brand?.success ?? cs.primary;
-      icon = '✓';
+      iconData = Icons.check_circle_outline;
     }
 
     final dateStr = DateFormat('dd/MM').format(item.expiryDate!);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingTiny, vertical: kSpacingXTiny / 2),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -1858,8 +1893,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(icon, style: const TextStyle(fontSize: kFontSizeTiny)),
-          const SizedBox(width: 2),
+          // Was a text emoji (⚠️/⏰/✓) — Material icon for theme/dark-mode
+          // consistency with the rest of the inventory rows.
+          Icon(iconData, size: kFontSizeTiny, color: textColor),
+          const SizedBox(width: kSpacingXTiny / 2),
           Text(
             dateStr,
             style: TextStyle(
@@ -1882,7 +1919,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     showDialog(
       context: context,
-      barrierColor: cs.scrim.withValues(alpha: 0.3),
+      barrierColor: cs.scrim.withValues(alpha: kOpacityLight),
       builder: (dialogContext) => BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
         child: StatefulBuilder(
