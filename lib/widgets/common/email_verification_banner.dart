@@ -71,7 +71,6 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   }
 
   Future<void> _checkDismissed() async {
-    if (!mounted) return;
     final userId = context.read<UserContext>().userId;
     final prefs = await SharedPreferences.getInstance();
     final dismissedUntil = prefs.getInt(_keyForUser(userId)) ?? 0;
@@ -81,7 +80,6 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
   }
 
   Future<void> _dismiss() async {
-    if (!mounted) return;
     final userId = context.read<UserContext>().userId;
     final prefs = await SharedPreferences.getInstance();
     // סגירה ל-24 שעות
@@ -98,16 +96,20 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
     try {
       await context.read<AuthService>().sendEmailVerification();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.auth.verificationEmailSent)),
-        );
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(AppStrings.auth.verificationEmailSent)),
+          );
         unawaited(_dismiss()); // סגור אחרי שליחה מוצלחת
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'sendEmailVerification'))),
-        );
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(userFriendlyError(e, context: 'sendEmailVerification'))),
+          );
       }
     } finally {
       if (mounted) setState(() => _isSending = false);
@@ -135,7 +137,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
           color: cs.surfaceContainerHighest.withValues(alpha: kOpacityStrong),
           borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
-            color: cs.outline.withValues(alpha: 0.2),
+            color: cs.outline.withValues(alpha: kOpacityLow),
           ),
         ),
         child: Row(
