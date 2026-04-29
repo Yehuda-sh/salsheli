@@ -141,7 +141,7 @@ class QuickLoginBottomSheet extends StatelessWidget {
     return ListTile(
       onTap: () => onUserSelected(user['email']!),
       leading: CircleAvatar(
-        backgroundColor: roleColor.withValues(alpha: 0.2),
+        backgroundColor: roleColor.withValues(alpha: kOpacityLow),
         child: Text(
           firstChar,
           style: TextStyle(color: roleColor, fontWeight: FontWeight.bold),

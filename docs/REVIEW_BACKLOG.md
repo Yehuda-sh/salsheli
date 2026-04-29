@@ -56,6 +56,22 @@
 
 ---
 
+### `quick_login_bottom_sheet.dart`
+
+**📂 Used in:** `login_screen.dart:366` (DEV mode only — gated visually ב-`if (kDebugMode)`, אבל ה-5-tap gesture חשוף).
+
+**✅ Decisions Made:**
+- **Token alignment**: `roleColor.withValues(alpha: 0.2)` (avatar bg) → `kOpacityLow`.
+- **Magic alphas שנשארו inline**: `0.92` (sheet bg, premium tuning), `0.1` (role badge, custom value נמוך מ-kOpacitySubtle).
+- **Hardcoded English strings** ("Quick Login — DEV", "Select demo user") — DEV-only, **מודע**, לא דרך AppStrings.
+- **IconButton(close) ללא tooltip** — תואם CLAUDE.md A11y policy ("❌ לא — Tooltip על כל IconButton").
+
+**⏸️ Deferred:** אין.
+
+**🎯 Pattern**: `titleMedium + bold` (אותו pattern של section_header redesign) — דוגמה לטיפוגרפיה נכונה.
+
+---
+
 ### `loading_overlay.dart`
 
 **📂 Used in:** `register_screen.dart` + `login_screen.dart` — overlay טעינה במהלך auth.
@@ -129,7 +145,15 @@
 - **Style-on-style typography** — `headlineLarge.copyWith(fontWeight: w800, fontSize: kFontSizeDisplay)`. אותו דפוס שכבר נרשם ב-Auth Screens (Register). **Trigger:** typography sweep גלובלי.
 
 ### ⏳ Files of this screen — pending review
-- `quick_login_bottom_sheet.dart` (Login-specific, dev mode)
+- ~~`quick_login_bottom_sheet.dart`~~ ✅ **נסקר** ב-29/4/2026
+
+### 🔍 Second-Round Findings (29/4/2026)
+
+**✅ נסגרו בסבב השני:**
+- **fillColor יישור login ל-0.4** — login עבר מ-`alpha: 0.6` ל-`alpha: 0.4` ליישור עם register ושפת notebook+sticky ("שקיפות עמוקה – דיו על נייר"). 2 שורות (אימייל + סיסמה).
+
+**⏸️ נשאר ב-Deferred:**
+- **🔁 Shake animation duplication** — `_shakeController` + `_shakeAnimation` עם אותו TweenSequence (0→10→-8→6→-4→0) קיים ב-login (400ms) וב-register (500ms). אותו ייעוד (form validation fail), אותה לוגיקה. **Trigger:** סקירה ייעודית לחילוץ `ShakeOnError` widget משותף. **היקף:** קטן-בינוני.
 
 ---
 

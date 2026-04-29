@@ -597,7 +597,10 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderSide: BorderSide(color: cs.primary, width: 2),
                                 ),
                                 filled: true,
-                                fillColor: cs.surface.withValues(alpha: 0.6),
+                                // שקיפות עמוקה – קווי מחברת נראים בעדינות
+                                // ("דיו על נייר"). מיושר עם register_screen
+                                // לשפת notebook+sticky עקבית בין מסכי auth.
+                                fillColor: cs.surface.withValues(alpha: 0.4),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
@@ -650,7 +653,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderSide: BorderSide(color: cs.primary, width: 2),
                                 ),
                                 filled: true,
-                                fillColor: cs.surface.withValues(alpha: 0.6),
+                                fillColor: cs.surface.withValues(alpha: 0.4),
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: kSpacingMedium,
                                   vertical: kSpacingSmall,
