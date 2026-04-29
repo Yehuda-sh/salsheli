@@ -1,5 +1,7 @@
 // lib/widgets/common/painters/perforation_painter.dart — Perforation painter — dotted tear-line effect for receipt/sticky note edges
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 /// Painter שמצייר קו אופקי מקווקו (perforation / tear line)
@@ -40,17 +42,21 @@ class PerforationPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
+    final maxX = size.width;
     final y = size.height / 2;
-    var x = 0.0;
     final step = dashWidth + dashGap;
+    // Skip a trailing dash that would render as a stub of half a dash
+    // or less. With strokeCap.round even a 2px remainder reads as a
+    // floating dot — the previous implementation `clamp`d the end x
+    // and let the stub through, which broke the rhythm of the tear
+    // line. The `<=` is intentional: a stub of exactly half a dash
+    // gets dropped along with anything thinner.
+    final minVisibleDash = dashWidth / 2;
 
-    while (x < size.width) {
-      canvas.drawLine(
-        Offset(x, y),
-        Offset((x + dashWidth).clamp(0, size.width), y),
-        paint,
-      );
-      x += step;
+    for (var x = 0.0; x < maxX; x += step) {
+      final endX = math.min(x + dashWidth, maxX);
+      if (endX - x <= minVisibleDash) break;
+      canvas.drawLine(Offset(x, y), Offset(endX, y), paint);
     }
   }
 
