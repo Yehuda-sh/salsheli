@@ -149,13 +149,23 @@
 - **Style-on-style typography** — דפוס פרויקט-wide (typography sweep ב-Backlog Theme).
 
 ### ⏳ Files of this screen — pending review
-- `pending_invites_banner.dart` (245 שורות)
+- ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — Reference quality, אין ממצאים
 - `action_center_card.dart` (302)
 - `last_chance_banner.dart` (348)
 - `onboarding_tips_card.dart` (409)
 - `active_shopper_banner.dart` (510)
 - `household_activity_feed.dart` (500)
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
+
+### 🎯 `pending_invites_banner.dart` — Reference Decisions
+- **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.
+- **`context.select<UserContext, String?>((u) => u.userId)`** — minimal rebuild, רק על userId change.
+- **StreamBuilder עם initialData** + silent hide on stream error (debugPrint רק ב-kDebugMode).
+- **Type-aware UI** (list vs household): `titleListInvite` / `titleHouseholdInvite` + 3-tier groupName fallback (household_name → group_name → list_name) עם הערה מסבירה buggy histroy.
+- **Composed A11y**: `Semantics(button: true, label: composed)` סביב הבאנר + `ExcludeSemantics` על Icon + Column הפנימי. Single announcement במקום 3.
+- **Top-level alpha constants tuned כיחידה** (`_kBgAlpha`, `_kBorderAlpha`, etc.) — 3 מתוכם exact matches ל-`kOpacity*` אבל נשארים מקומיים בכוונה ("Banner appearance — alphas tuned to read as 'soft tertiary alert'").
+- **AnimatedSwitcher כש-`invites.first.id` משתנה** — חלק במקום קופץ.
+- **Shimmer animation** על אייקון המעטפה — attention-grabber מעודן.
 
 **🎯 Reference**: דוגמה ל-orchestrator screen עם premium UX (stagger, Hero, RepaintBoundary, A11y), pull-to-refresh עם partial-fail handling.
 
