@@ -398,4 +398,3 @@ flutter run          # הרצה
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
 - [docs/store-listing.md](docs/store-listing.md) — תוכן Store listing
 - [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית (כולל Activity Feed)
-- [docs/technical/debug-guide.md](docs/technical/debug-guide.md) — Debug prints + Firebase emulators
