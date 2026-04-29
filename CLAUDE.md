@@ -55,6 +55,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - ניתוח לפי **File Review Checklist** למטה (לא רק היגיינת קוד)
 - תגובות לפי **Response Style** למטה
 - **ניתוח קובץ = 2-3 סבבים, לא אחד** — סבב שני אחרי תיקונים תופס דברים שהראשון פספס. אם המשתמש אומר "סבב נוסף", לא להגיד "אין מה לתקן" אלא לקרוא שוב **לאט** עם דגש על מה שלא היה ברור בפעם הראשונה.
+- **Screen context** — לפני ניתוח, לזהות לאיזה מסך הקובץ שייך (`grep` callers) ולקרוא את הסקציה המתאימה ב-[`docs/REVIEW_BACKLOG.md`](docs/REVIEW_BACKLOG.md). שם כתוב מה כבר הוחלט ומה דחינו. אחרי הסקירה: לעדכן את ה-Backlog — פריטים שבוצעו → ✅ Decisions Made, פריטים שנדחו → ⏸️ Deferred.
 
 ### Welcome Screen
 - מופיע **רק** עד יצירת חשבון
@@ -367,6 +368,7 @@ flutter run          # הרצה
 ## Related Docs
 
 - [CODE_REVIEW.md](CODE_REVIEW.md) — דוח Code Review מלא (עודכן 27/4/2026)
+- [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) — זיכרון בין-סקירות: Decisions Made + Deferred per screen
 - [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
 - [DESIGN_AUDIT.md](DESIGN_AUDIT.md) — סקירת עיצוב UI
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
