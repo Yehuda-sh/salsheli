@@ -1206,7 +1206,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
                   style: TextStyle(
                     fontSize: kFontSizeTiny,
                     fontWeight: FontWeight.w600,
-                    color: cs.primary.withValues(alpha: 0.7),
+                    color: cs.primary.withValues(alpha: kOpacityStrong),
                     height: 1.0,
                   ),
                 ),

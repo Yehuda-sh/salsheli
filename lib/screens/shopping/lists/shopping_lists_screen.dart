@@ -604,7 +604,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
         decoration: BoxDecoration(
-          color: cs.surface.withValues(alpha: 0.7),
+          color: cs.surface.withValues(alpha: kOpacityStrong),
           borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Row(

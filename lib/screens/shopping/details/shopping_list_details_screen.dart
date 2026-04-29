@@ -516,7 +516,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     sigmaY: kGlassBlurSigma,
                   ),
                   child: Container(
-                    color: cs.surface.withValues(alpha: 0.7),
+                    color: cs.surface.withValues(alpha: kOpacityStrong),
                   ),
                 ),
               ),
@@ -1093,7 +1093,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       background: Container(
         alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsetsDirectional.only(end: kSpacingLarge),
-        color: cs.error.withValues(alpha: 0.7),
+        color: cs.error.withValues(alpha: kOpacityStrong),
         child: Row(children: [
           Icon(Icons.delete_outline, color: cs.onPrimary),
           const SizedBox(width: kSpacingSmall),
@@ -1168,7 +1168,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 1),
                                     decoration: BoxDecoration(
-                                      color: cs.primaryContainer.withValues(alpha: 0.7),
+                                      color: cs.primaryContainer.withValues(alpha: kOpacityStrong),
                                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                     ),
                                     child: Text(

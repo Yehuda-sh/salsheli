@@ -305,7 +305,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(kSpacingMedium),
                           decoration: BoxDecoration(
-                            color: cs.surfaceContainerLow.withValues(alpha: 0.7),
+                            color: cs.surfaceContainerLow.withValues(alpha: kOpacityStrong),
                             borderRadius: BorderRadius.circular(kBorderRadius),
                             border: Border.all(
                               color: cs.outline.withValues(alpha: 0.15),
@@ -585,7 +585,7 @@ class _EmptyState extends StatelessWidget {
             AppStrings.checklist.emptySubtitle,
             style: TextStyle(
               fontSize: kFontSizeSmall,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+              color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
             ),
             textAlign: TextAlign.center,
           ),

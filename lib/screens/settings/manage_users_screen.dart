@@ -344,7 +344,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
                             Icon(
                               Icons.error_outline,
                               size: kIconSizeXXLarge,
-                              color: cs.error.withValues(alpha: 0.7),
+                              color: cs.error.withValues(alpha: kOpacityStrong),
                             ),
                             const SizedBox(height: kSpacingMedium),
                             Text(
@@ -430,7 +430,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Icon(
               Icons.error_outline,
               size: kIconSizeXXLarge,
-              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.7),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: kOpacityStrong),
             ),
             const SizedBox(height: kSpacingMedium),
             Text(

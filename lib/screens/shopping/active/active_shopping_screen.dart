@@ -761,7 +761,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     sigmaY: kGlassBlurSigma,
                   ),
                   child: Container(
-                    color: cs.surface.withValues(alpha: 0.7),
+                    color: cs.surface.withValues(alpha: kOpacityStrong),
                   ),
                 ),
               ),
@@ -804,7 +804,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     sigmaY: kGlassBlurSigma,
                   ),
                   child: Container(
-                    color: cs.surface.withValues(alpha: 0.7),
+                    color: cs.surface.withValues(alpha: kOpacityStrong),
                   ),
                 ),
               ),
@@ -847,7 +847,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                     sigmaY: kGlassBlurSigma,
                   ),
                   child: Container(
-                    color: cs.surface.withValues(alpha: 0.7),
+                    color: cs.surface.withValues(alpha: kOpacityStrong),
                   ),
                 ),
               ),
@@ -942,7 +942,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   sigmaY: kGlassBlurSigma,
                 ),
                 child: Container(
-                  color: cs.surface.withValues(alpha: 0.7),
+                  color: cs.surface.withValues(alpha: kOpacityStrong),
                 ),
               ),
             ),
@@ -1084,7 +1084,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               if (outOfStock > 0)
                                 Expanded(
                                   flex: outOfStock,
-                                  child: Container(color: cs.error.withValues(alpha: 0.7)),
+                                  child: Container(color: cs.error.withValues(alpha: kOpacityStrong)),
                                 ),
                               if (notNeeded > 0)
                                 Expanded(

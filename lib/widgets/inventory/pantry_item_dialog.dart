@@ -493,7 +493,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               // פופולרי
               if (item.isPopular)
                 Builder(builder: (_) {
-                  final successColor = StatusColors.getColor(StatusType.success, context).withValues(alpha: 0.7);
+                  final successColor = StatusColors.getColor(StatusType.success, context).withValues(alpha: kOpacityStrong);
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

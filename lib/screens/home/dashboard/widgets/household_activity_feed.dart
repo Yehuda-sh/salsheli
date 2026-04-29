@@ -240,7 +240,7 @@ class HouseholdActivityFeed extends StatelessWidget {
         // כרטיסי פעילות
         Card(
           elevation: 0,
-          color: cs.surface.withValues(alpha: 0.7),
+          color: cs.surface.withValues(alpha: kOpacityStrong),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
             side: BorderSide(color: cs.outlineVariant.withValues(alpha: kOpacityLight)),

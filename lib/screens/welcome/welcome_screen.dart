@@ -233,7 +233,7 @@ class _LogoSection extends StatelessWidget {
               AppStrings.welcome.subtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: cs.onSurface.withValues(alpha: 0.7),
+                color: cs.onSurface.withValues(alpha: kOpacityStrong),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -538,7 +538,7 @@ class _BottomSection extends StatelessWidget {
               TextButton(
                 onPressed: onLogin,
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 44),
+                  minimumSize: const Size(kMinTapTarget, kMinTapTarget),
                 ),
                 child: Text(
                   AppStrings.welcome.loginLink,
@@ -558,7 +558,7 @@ class _BottomSection extends StatelessWidget {
                     onPressed: onTerms,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                      minimumSize: const Size(44, 44),
+                      minimumSize: const Size(kMinTapTarget, kMinTapTarget),
                     ),
                     child: Text(
                       AppStrings.welcome.termsOfService,
@@ -576,7 +576,7 @@ class _BottomSection extends StatelessWidget {
                     onPressed: onPrivacy,
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingXTiny),
-                      minimumSize: const Size(44, 44),
+                      minimumSize: const Size(kMinTapTarget, kMinTapTarget),
                     ),
                     child: Text(
                       AppStrings.welcome.privacyPolicy,
@@ -621,7 +621,7 @@ class _BenefitChip extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: 0.7)),
+        Icon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: kOpacityStrong)),
         const SizedBox(width: kSpacingSmall),
         Text(
           text,

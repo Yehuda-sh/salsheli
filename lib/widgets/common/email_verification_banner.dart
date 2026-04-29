@@ -132,7 +132,7 @@ class _EmailVerificationBannerState extends State<EmailVerificationBanner>
           vertical: kSpacingSmall,
         ),
         decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+          color: cs.surfaceContainerHighest.withValues(alpha: kOpacityStrong),
           borderRadius: BorderRadius.circular(kBorderRadius),
           border: Border.all(
             color: cs.outline.withValues(alpha: 0.2),

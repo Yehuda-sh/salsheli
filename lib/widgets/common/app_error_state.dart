@@ -39,41 +39,48 @@ class AppErrorState extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: kIconSizeXXLarge, color: cs.error.withValues(alpha: 0.7)),
-            const SizedBox(height: kSpacingMedium),
-            if (title != null) ...[
+    return Semantics(
+      // Announce the error automatically when this state appears, so a
+      // screen-reader user doesn't keep hearing the previous "loading"
+      // label while the screen has actually flipped to an error.
+      liveRegion: true,
+      label: title == null ? message : '$title, $message',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(kSpacingLarge),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: kIconSizeXXLarge, color: cs.error.withValues(alpha: kOpacityStrong)),
+              const SizedBox(height: kSpacingMedium),
+              if (title != null) ...[
+                Text(
+                  title!,
+                  textAlign: TextAlign.center,
+                  style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                ),
+                const SizedBox(height: kSpacingSmall),
+              ],
               Text(
-                title!,
+                message,
                 textAlign: TextAlign.center,
-                style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
               ),
-              const SizedBox(height: kSpacingSmall),
+              const SizedBox(height: kSpacingLarge),
+              FilledButton.icon(
+                onPressed: onAction,
+                icon: Icon(actionIcon),
+                label: Text(actionLabel ?? AppStrings.common.retry),
+                // Force the app's primary seed color so the button stays
+                // green even when Material You / dynamic colors shift the
+                // system primary to blue.
+                style: FilledButton.styleFrom(
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
+                ),
+              ),
             ],
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-            ),
-            const SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
-              onPressed: onAction,
-              icon: Icon(actionIcon),
-              label: Text(actionLabel ?? AppStrings.common.retry),
-              // Force the app's primary seed color so the button stays
-              // green even when Material You / dynamic colors shift the
-              // system primary to blue.
-              style: FilledButton.styleFrom(
-                backgroundColor: cs.primary,
-                foregroundColor: cs.onPrimary,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

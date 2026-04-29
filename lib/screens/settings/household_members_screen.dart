@@ -270,7 +270,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(kSpacingSmall),
                           decoration: BoxDecoration(
-                            color: cs.surface.withValues(alpha: 0.7),
+                            color: cs.surface.withValues(alpha: kOpacityStrong),
                             borderRadius: BorderRadius.circular(kBorderRadius),
                           ),
                           child: Icon(Icons.arrow_back_ios_new,

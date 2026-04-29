@@ -336,7 +336,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                   sigmaY: kGlassBlurSigma,
                 ),
                 child: Container(
-                  color: cs.surface.withValues(alpha: 0.7),
+                  color: cs.surface.withValues(alpha: kOpacityStrong),
                 ),
               ),
             ),
@@ -625,7 +625,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
                       style: TextStyle(
                         fontSize: kFontSizeSmall,
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? accentColor : cs.onSurface.withValues(alpha: 0.7),
+                        color: isSelected ? accentColor : cs.onSurface.withValues(alpha: kOpacityStrong),
                         letterSpacing: 0.3,
                       ),
                       textAlign: TextAlign.center,

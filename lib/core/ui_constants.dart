@@ -206,6 +206,7 @@ const double kOpacitySubtle = 0.12;  // Subtle opacity (indicators, tints)
 const double kOpacityLow = 0.2;     // Low opacity
 const double kOpacityLight = 0.3;   // Light opacity
 const double kOpacityMedium = 0.5;  // Medium opacity
+const double kOpacityStrong = 0.7;  // Strong opacity (cards on textured bg, dimmed primary)
 const double kOpacityHigh = 0.85;   // High opacity (glass surfaces)
 
 // ═══════════════════════════════════════════════════════════════════════════

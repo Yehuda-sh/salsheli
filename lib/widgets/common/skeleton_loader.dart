@@ -16,10 +16,10 @@ import 'sticky_note.dart';
 /// 🎨 v4.0: Shimmer gradient factory — 45° diagonal, subtle alpha
 ///
 /// Uses `withValues(alpha:)` for precise opacity control.
-/// baseColor (alpha: 0.7) → visible but subtle surface
+/// baseColor (alpha: kOpacityStrong) → visible but subtle surface
 /// highlightColor (alpha: 0.3) → lighter shimmer band
 LinearGradient _shimmerGradient(ColorScheme cs) {
-  final base = cs.surfaceContainerHighest.withValues(alpha: 0.7);
+  final base = cs.surfaceContainerHighest.withValues(alpha: kOpacityStrong);
   final highlight = cs.surfaceContainerHighest.withValues(alpha: 0.3);
   return LinearGradient(
     begin: Alignment.topLeft,

@@ -323,7 +323,7 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                     height: 6,
                     decoration: BoxDecoration(
                       color: isActive
-                          ? cs.primary.withValues(alpha: 0.7)
+                          ? cs.primary.withValues(alpha: kOpacityStrong)
                           : cs.outline.withValues(alpha: kOpacityLight),
                       borderRadius: BorderRadius.circular(kBorderRadiusTiny),
                     ),

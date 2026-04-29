@@ -383,7 +383,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
               child: CircularProgressIndicator(
                 strokeWidth: 3,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  cs.primary.withValues(alpha: 0.7),
+                  cs.primary.withValues(alpha: kOpacityStrong),
                 ),
               ),
             ),
@@ -422,7 +422,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                 key: ValueKey<int>(_currentMessageIndex),
                 style: TextStyle(
                   fontSize: kFontSizeBody,
-                  color: cs.onSurface.withValues(alpha: 0.7),
+                  color: cs.onSurface.withValues(alpha: kOpacityStrong),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -533,7 +533,7 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    cs.error.withValues(alpha: 0.7),
+                                    cs.error.withValues(alpha: kOpacityStrong),
                                     cs.error,
                                   ],
                                 ),

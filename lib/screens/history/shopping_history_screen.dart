@@ -167,7 +167,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                   sigmaY: kGlassBlurSigma,
                 ),
                 child: Container(
-                  color: cs.surface.withValues(alpha: 0.7),
+                  color: cs.surface.withValues(alpha: kOpacityStrong),
                 ),
               ),
             ),

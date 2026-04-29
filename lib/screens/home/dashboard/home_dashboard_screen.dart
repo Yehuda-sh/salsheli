@@ -599,7 +599,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       child: Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
-      color: cs.surface.withValues(alpha: 0.7),
+      color: cs.surface.withValues(alpha: kOpacityStrong),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadius),
         side: BorderSide(

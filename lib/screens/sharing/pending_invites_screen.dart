@@ -260,7 +260,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(kSpacingSmall),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
+                              color: Theme.of(context).colorScheme.surface.withValues(alpha: kOpacityStrong),
                               borderRadius: BorderRadius.circular(kBorderRadius),
                             ),
                             child: Icon(Icons.arrow_forward_ios,

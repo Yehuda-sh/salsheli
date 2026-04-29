@@ -501,7 +501,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             Text(
                               AppStrings.auth.registerSubtitle,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: cs.onSurface.withValues(alpha: 0.70),
+                                color: cs.onSurface.withValues(alpha: kOpacityStrong),
                                 fontWeight: FontWeight.w600,
                                 fontSize: kFontSizeMedium,
                               ),

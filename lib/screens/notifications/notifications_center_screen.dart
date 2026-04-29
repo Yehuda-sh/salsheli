@@ -173,7 +173,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: kGlassBlurSigma, sigmaY: kGlassBlurSigma),
                 child: Container(
-                  color: cs.surface.withValues(alpha: 0.7),
+                  color: cs.surface.withValues(alpha: kOpacityStrong),
                 ),
               ),
             ),
@@ -264,7 +264,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
             Text(
               strings.emptySubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+                color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
               ),
             ),
           ],
@@ -492,7 +492,7 @@ class _NotificationTile extends StatelessWidget {
           Text(
             timeAgo,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+              color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
             ),
           ),
         ],

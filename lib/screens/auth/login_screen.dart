@@ -685,7 +685,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: kSpacingSmall,
                                     ),
-                                    minimumSize: const Size(44, 44),
+                                    minimumSize: const Size(kMinTapTarget, kMinTapTarget),
                                   ),
                                   child: Text(
                                     AppStrings.auth.forgotPassword,

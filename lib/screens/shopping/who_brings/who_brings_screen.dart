@@ -249,7 +249,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(kSpacingSmall),
                           decoration: BoxDecoration(
-                            color: cs.surface.withValues(alpha: 0.7),
+                            color: cs.surface.withValues(alpha: kOpacityStrong),
                             borderRadius: BorderRadius.circular(kBorderRadius),
                           ),
                           child: Icon(Icons.arrow_forward_ios,
@@ -686,7 +686,7 @@ class _EmptyState extends StatelessWidget {
             AppStrings.shopping.whoBringsEmptySubtitle,
             style: TextStyle(
               fontSize: kFontSizeSmall,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.7),
+              color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
             ),
             textAlign: TextAlign.center,
           ),

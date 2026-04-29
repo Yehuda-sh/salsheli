@@ -216,7 +216,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
               TextButton(
                 onPressed: _hideAll,
                 style: TextButton.styleFrom(
-                  minimumSize: const Size(44, 44),
+                  minimumSize: const Size(kMinTapTarget, kMinTapTarget),
                 ),
                 child: Text(
                   AppStrings.pantry.hideSuggestions,
@@ -246,7 +246,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     return Container(
       constraints: const BoxConstraints(minHeight: kMinTapTarget),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.7),
+        color: cs.surfaceContainerHighest.withValues(alpha: kOpacityStrong),
         borderRadius: chipRadius,
         border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),

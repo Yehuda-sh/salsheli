@@ -917,7 +917,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       child: BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
         child: Container(
-          color: scheme.surface.withValues(alpha: 0.7),
+          color: scheme.surface.withValues(alpha: kOpacityStrong),
           padding: const EdgeInsets.only(
             right: kSpacingMedium,
             left: kSpacingMedium,

@@ -280,8 +280,8 @@ class _ScanLinePainter extends CustomPainter {
     final lineGradient = LinearGradient(
       colors: [
         lineColor.withValues(alpha: 0.0),
-        lineColor.withValues(alpha: 0.7),
-        lineColor.withValues(alpha: 0.7),
+        lineColor.withValues(alpha: kOpacityStrong),
+        lineColor.withValues(alpha: kOpacityStrong),
         lineColor.withValues(alpha: 0.0),
       ],
       stops: const [0.0, 0.2, 0.8, 1.0],
