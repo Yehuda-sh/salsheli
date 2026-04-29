@@ -34,7 +34,7 @@ class _SocialLoginButtonState extends State<SocialLoginButton> {
 
     final shadowColor = isDark
         ? cs.surfaceContainerLowest.withValues(alpha: 0.1)
-        : cs.shadow.withValues(alpha: 0.15);
+        : cs.shadow.withValues(alpha: kOpacitySoft);
 
     return Semantics(
       button: true,

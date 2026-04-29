@@ -318,7 +318,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.15),
+            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacitySoft),
             (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.05),
           ],
         ),
@@ -492,7 +492,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               side: BorderSide(
-                color: cs.secondary.withValues(alpha: 0.15),
+                color: cs.secondary.withValues(alpha: kOpacitySoft),
               ),
             ),
             child: InkWell(
@@ -659,14 +659,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   child: CircularProgressIndicator(
                                     value: progress,
                                     strokeWidth: _kProgressStrokeWidth,
-                                    backgroundColor: accentColor.withValues(alpha: 0.15),
+                                    backgroundColor: accentColor.withValues(alpha: kOpacitySoft),
                                     valueColor: AlwaysStoppedAnimation(accentColor),
                                   ),
                                 )
                               else
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: accentColor.withValues(alpha: 0.15),
+                                    color: accentColor.withValues(alpha: kOpacitySoft),
                                     shape: BoxShape.circle,
                                   ),
                                 ),

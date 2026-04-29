@@ -635,7 +635,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
                           padding: const EdgeInsets.all(kSpacingSmall),
                           margin: const EdgeInsets.only(bottom: kSpacingMedium),
                           decoration: BoxDecoration(
-                            color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15),
+                            color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: kOpacitySoft),
                             borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                             border: Border.all(
                               color: (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.3),

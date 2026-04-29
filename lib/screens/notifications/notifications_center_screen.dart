@@ -447,7 +447,7 @@ class _NotificationTile extends StatelessWidget {
       child: Container(
       decoration: BoxDecoration(
         color: isUnread
-            ? cs.primaryContainer.withValues(alpha: 0.15)
+            ? cs.primaryContainer.withValues(alpha: kOpacitySoft)
             : null,
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
       ),
@@ -461,7 +461,7 @@ class _NotificationTile extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: _getTypeColor(notification.type, cs, brand).withValues(alpha: 0.15),
+          color: _getTypeColor(notification.type, cs, brand).withValues(alpha: kOpacitySoft),
           borderRadius: BorderRadius.circular(kBorderRadius),
         ),
         child: Center(

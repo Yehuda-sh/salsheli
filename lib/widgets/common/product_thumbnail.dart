@@ -108,7 +108,7 @@ class ProductThumbnail extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: (tintColor ?? cs.primaryContainer).withValues(alpha: 0.15),
+        color: (tintColor ?? cs.primaryContainer).withValues(alpha: kOpacitySoft),
         shape: BoxShape.circle,
       ),
       child: Center(child: _emojiText),

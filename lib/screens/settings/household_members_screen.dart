@@ -457,9 +457,9 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isMemberOwner
-                          ? cs.primary.withValues(alpha: 0.15)
+                          ? cs.primary.withValues(alpha: kOpacitySoft)
                           : isMemberAdmin
-                              ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15)
+                              ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: kOpacitySoft)
                               : cs.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                     ),

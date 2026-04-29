@@ -1086,7 +1086,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               if (total - completed > 0)
                                 Expanded(
                                   flex: total - completed,
-                                  child: Container(color: cs.outline.withValues(alpha: 0.15)),
+                                  child: Container(color: cs.outline.withValues(alpha: kOpacitySoft)),
                                 ),
                             ],
                           ),

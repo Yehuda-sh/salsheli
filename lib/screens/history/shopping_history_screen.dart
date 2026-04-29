@@ -263,7 +263,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
             itemCount: provider.events.length,
             separatorBuilder: (_, _) => Divider(
               height: kSpacingMedium,
-              color: cs.outlineVariant.withValues(alpha: 0.15),
+              color: cs.outlineVariant.withValues(alpha: kOpacitySoft),
             ),
             itemBuilder: (context, index) {
               final event = provider.events[index];
@@ -341,7 +341,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                             label: Text(strings.filterThisMonth),
                             selected: _filterPeriod == 'month',
                             selectedColor:
-                                cs.primary.withValues(alpha: 0.15),
+                                cs.primary.withValues(alpha: kOpacitySoft),
                             checkmarkColor: cs.primary,
                             onSelected: (_) {
                               unawaited(HapticFeedback.lightImpact());
@@ -357,7 +357,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                             label: Text(strings.filterThreeMonths),
                             selected: _filterPeriod == '3months',
                             selectedColor:
-                                cs.primary.withValues(alpha: 0.15),
+                                cs.primary.withValues(alpha: kOpacitySoft),
                             checkmarkColor: cs.primary,
                             onSelected: (_) {
                               unawaited(HapticFeedback.lightImpact());
@@ -373,7 +373,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                             label: Text(strings.filterAll),
                             selected: _filterPeriod == 'all',
                             selectedColor:
-                                cs.primary.withValues(alpha: 0.15),
+                                cs.primary.withValues(alpha: kOpacitySoft),
                             checkmarkColor: cs.primary,
                             onSelected: (_) {
                               unawaited(HapticFeedback.lightImpact());
@@ -439,7 +439,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
                               ],
                             ),
                             Divider(
-                              color: cs.onPrimaryContainer.withValues(alpha: 0.15),
+                              color: cs.onPrimaryContainer.withValues(alpha: kOpacitySoft),
                               height: kSpacingSmall,
                             ),
                             // שורה תחתונה: סה"כ | ממוצע (גדול → ממוצע)
@@ -582,7 +582,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen>
     return Container(
       width: 1,
       height: kSpacingXLarge,
-      color: cs.onPrimaryContainer.withValues(alpha: 0.15),
+      color: cs.onPrimaryContainer.withValues(alpha: kOpacitySoft),
     );
   }
 
@@ -1142,7 +1142,7 @@ class _ActivityEventTile extends StatelessWidget {
             width: kIconSizeLarge,
             height: kIconSizeLarge,
             decoration: BoxDecoration(
-              color: _colorForType(event.type, cs).withValues(alpha: 0.15),
+              color: _colorForType(event.type, cs).withValues(alpha: kOpacitySoft),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,

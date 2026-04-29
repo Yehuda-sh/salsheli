@@ -1382,7 +1382,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
             border: Border.all(color: cs.onPrimary.withValues(alpha: 0.3)),
             boxShadow: [
               BoxShadow(
-                color: cs.shadow.withValues(alpha: 0.15),
+                color: cs.shadow.withValues(alpha: kOpacitySoft),
                 blurRadius: kSpacingSmallPlus,
                 offset: const Offset(0, kSpacingXTiny),
               ),

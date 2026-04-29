@@ -70,7 +70,7 @@ class SectionHeader extends StatelessWidget {
                 vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: cs.primary.withValues(alpha: 0.15),
+                color: cs.primary.withValues(alpha: kOpacitySoft),
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
               child: Text(

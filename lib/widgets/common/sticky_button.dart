@@ -155,7 +155,7 @@ class StickyButton extends StatelessWidget {
               child: InkWell(
                 onTap: isEnabled ? onPressed : null,
                 borderRadius: borderRadius,
-                splashColor: btnTextColor.withValues(alpha: 0.15),
+                splashColor: btnTextColor.withValues(alpha: kOpacitySoft),
                 highlightColor: btnTextColor.withValues(alpha: 0.08),
                 child: Center(
                   child: isLoading

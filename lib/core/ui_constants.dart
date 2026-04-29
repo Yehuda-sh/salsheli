@@ -206,6 +206,7 @@ const double kCardElevation = 2.0;       // Card elevation (default)
 // שימוש: color.withValues(alpha: kOpacityMedium)
 
 const double kOpacitySubtle = 0.12;  // Subtle opacity (indicators, tints)
+const double kOpacitySoft = 0.15;   // Soft opacity (count badges, warning tints, gentle backdrops)
 const double kOpacityLow = 0.2;     // Low opacity
 const double kOpacityLight = 0.3;   // Light opacity
 const double kOpacityMedium = 0.5;  // Medium opacity

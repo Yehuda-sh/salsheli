@@ -37,10 +37,10 @@ class ActiveShoppingItemTile extends StatelessWidget {
     Color? backgroundColor;
     switch (status) {
       case ShoppingItemStatus.purchased:
-        backgroundColor = (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.15);
+        backgroundColor = (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: kOpacitySoft);
         break;
       case ShoppingItemStatus.outOfStock:
-        backgroundColor = cs.error.withValues(alpha: 0.15);
+        backgroundColor = cs.error.withValues(alpha: kOpacitySoft);
         break;
       case ShoppingItemStatus.notNeeded:
         backgroundColor = cs.onSurfaceVariant.withValues(alpha: 0.2);
@@ -77,7 +77,7 @@ class ActiveShoppingItemTile extends StatelessWidget {
         alignment: AlignmentDirectional.centerStart,
         padding: const EdgeInsetsDirectional.only(start: kSpacingMedium),
         decoration: BoxDecoration(
-          color: cs.error.withValues(alpha: 0.15),
+          color: cs.error.withValues(alpha: kOpacitySoft),
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
         ),
         child: Row(

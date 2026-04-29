@@ -769,7 +769,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-              border: Border.all(color: cs.outline.withValues(alpha: 0.15)),
+              border: Border.all(color: cs.outline.withValues(alpha: kOpacitySoft)),
             ),
             child: TextField(
               controller: _searchController,

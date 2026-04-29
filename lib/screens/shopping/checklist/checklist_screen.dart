@@ -308,7 +308,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                             color: cs.surfaceContainerLow.withValues(alpha: kOpacityStrong),
                             borderRadius: BorderRadius.circular(kBorderRadius),
                             border: Border.all(
-                              color: cs.outline.withValues(alpha: 0.15),
+                              color: cs.outline.withValues(alpha: kOpacitySoft),
                             ),
                           ),
                           child: Column(
@@ -357,7 +357,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                                     borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                                     child: LinearProgressIndicator(
                                       value: value,
-                                      backgroundColor: cs.outline.withValues(alpha: 0.15),
+                                      backgroundColor: cs.outline.withValues(alpha: kOpacitySoft),
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         allChecked ? (brand?.stickyGreen ?? kStickyGreen) : cs.primary,
                                       ),
@@ -466,7 +466,7 @@ class _ChecklistItemTile extends StatelessWidget {
                 border: Border.all(
                   color: isChecked
                       ? (brand?.stickyGreen ?? kStickyGreen).withValues(alpha: 0.3)
-                      : cs.outline.withValues(alpha: 0.15),
+                      : cs.outline.withValues(alpha: kOpacitySoft),
                 ),
               ),
             child: Row(

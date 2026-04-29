@@ -46,9 +46,7 @@ class PendingRequestsSection extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       padding: const EdgeInsets.all(kSpacingSmall),
       decoration: BoxDecoration(
-        // 0.15 sits between kOpacitySubtle (0.12) and kOpacityLow (0.2) —
-        // tuned so the warning tint reads as a backdrop, not a fill.
-        color: warningColor.withValues(alpha: 0.15),
+        color: warningColor.withValues(alpha: kOpacitySoft),
         borderRadius: BorderRadius.circular(kBorderRadius),
         border: Border.all(color: warningColor.withValues(alpha: kOpacityLight)),
       ),

@@ -1326,7 +1326,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           .animate(onPlay: (controller) => controller.repeat())
           .shimmer(
             duration: 1800.ms,
-            color: scheme.primary.withValues(alpha: 0.15),
+            color: scheme.primary.withValues(alpha: kOpacitySoft),
           );
     }
 
@@ -1380,9 +1380,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     // ✅ Dark Mode-aware highlight colors
     final highlightColors = isDark
         ? [
-            scheme.primaryContainer.withValues(alpha: 0.15),
-            scheme.secondaryContainer.withValues(alpha: 0.15),
-            scheme.tertiaryContainer.withValues(alpha: 0.15),
+            scheme.primaryContainer.withValues(alpha: kOpacitySoft),
+            scheme.secondaryContainer.withValues(alpha: kOpacitySoft),
+            scheme.tertiaryContainer.withValues(alpha: kOpacitySoft),
             scheme.surfaceContainerHighest.withValues(alpha: kOpacityLow),
           ]
         : [
@@ -1722,7 +1722,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                             border: Border.all(
                                               color: isWarning || isCritical
                                                   ? statusColor.withValues(alpha: kOpacityLight)
-                                                  : cs.primary.withValues(alpha: 0.15),
+                                                  : cs.primary.withValues(alpha: kOpacitySoft),
                                             ),
                                           ),
                                           child: AnimatedSwitcher(

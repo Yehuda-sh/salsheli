@@ -604,7 +604,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: isSelected
-                ? accentColor.withValues(alpha: 0.15)
+                ? accentColor.withValues(alpha: kOpacitySoft)
                 : cs.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(kBorderRadiusLarge),
             border: Border.all(
