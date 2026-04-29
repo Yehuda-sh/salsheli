@@ -69,7 +69,7 @@ class ActiveShopperBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final listsProvider = context.watch<ShoppingListsProvider>();
-    final currentUserId = context.watch<UserContext>().userId;
+    final currentUserId = context.select<UserContext, String?>((u) => u.userId);
 
     final result = _scan(listsProvider.lists, currentUserId);
 
@@ -148,11 +148,20 @@ class _MyActiveShoppingBanner extends StatelessWidget {
     // Theme-aware accent color (replaces hardcoded blue)
     final accentColor = theme.extension<AppBrand>()?.accent ?? cs.primary;
     final uncheckedCount = list.items.where((i) => !i.isChecked).length;
+    // All items checked but session not finished — switch the CTA from
+    // "Continue" to "Finish" so the user has a clear next step instead of
+    // a stale "0 items remaining · Continue".
+    final isDone = uncheckedCount == 0;
+    final mainText = isDone
+        ? strings.myActiveCompactDone(list.name)
+        : strings.myActiveCompact(list.name, uncheckedCount);
+    final ctaText = isDone ? strings.finishButton : strings.continueButton;
+    final ctaIcon = isDone ? Icons.check_circle : Icons.play_arrow;
     final radius = BorderRadius.circular(kBorderRadiusLarge);
 
     return Semantics(
       button: true,
-      label: '${strings.myActiveCompact(list.name, uncheckedCount)}, ${strings.continueButton}',
+      label: '$mainText, $ctaText',
       child: Container(
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         decoration: BoxDecoration(
@@ -197,7 +206,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                   Expanded(
                     child: ExcludeSemantics(
                       child: Text(
-                        strings.myActiveCompact(list.name, uncheckedCount),
+                        mainText,
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: cs.onPrimary,
                           fontWeight: FontWeight.w700,
@@ -208,8 +217,8 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
-                  // Trailing "continue" affordance — visual only; the
-                  // whole banner is the actual tap target.
+                  // Trailing CTA affordance — visual only; the whole
+                  // banner is the actual tap target.
                   ExcludeSemantics(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -224,7 +233,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            strings.continueButton,
+                            ctaText,
                             style: TextStyle(
                               color: accentColor,
                               fontWeight: FontWeight.bold,
@@ -233,7 +242,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                           ),
                           const SizedBox(width: kSpacingXTiny),
                           Icon(
-                            Icons.play_arrow,
+                            ctaIcon,
                             size: kIconSizeSmall,
                             color: accentColor,
                           ),
@@ -406,7 +415,9 @@ class _OthersShoppingBanner extends StatelessWidget {
     if (userId != null) {
       final userRole = list.getUserRole(userId);
       if (userRole != null && !userRole.canShop) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        final messenger = ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar();
+        messenger.showSnackBar(
           SnackBar(
             content: Text(AppStrings.shopping.viewerCannotShop),
             backgroundColor:

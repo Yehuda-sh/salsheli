@@ -1520,11 +1520,14 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
   @override String myActiveSubtitle(String listName, int remaining) => '"$listName" - $remaining items remaining';
   // Compact single-line variant used in the home banner.
   @override String myActiveCompact(String listName, int remaining) => '$listName · $remaining items';
+  @override String myActiveCompactDone(String listName) => '$listName · all checked';
   @override String get continueButton => 'Continue';
+  @override String get finishButton => 'Finish';
   @override String othersActiveTitle(String shopperName) => '$shopperName is shopping now';
   @override String othersActiveTitleMultiple(int count) => '$count shoppers active now';
   @override String get someoneShopping => 'Someone is shopping now';
-  @override String othersActiveSingle(String listName) => 'Shopping from "$listName"';
+  // Subtitle context only — the "is shopping now" verb already lives in the title.
+  @override String othersActiveSingle(String listName) => 'From "$listName"';
   @override String othersActiveMultiple(int count, String listName) => '$count people shopping from "$listName"';
   @override String get joinButton => 'Join';
   @override String get viewListTooltip => 'Live view';

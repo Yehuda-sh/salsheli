@@ -169,11 +169,10 @@
 
 ### ⏳ Files of this screen — pending review
 - ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — Reference quality, אין ממצאים
-- ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (chevron RTL fix + bottom sheet theme cleanup)
+- ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (r1: chevron RTL + bottom sheet theme cleanup; r2: Hebrew plurals + Row→Wrap + context.select)
 - ~~`last_chance_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — **הועבר** ל-`shopping/active/widgets/` (היה ב-`home/dashboard/widgets/` בטעות) + `kMinTapTarget` cleanup
-- `last_chance_banner.dart` (348)
+- ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 (context.select + uncheckedCount==0 CTA + snackbar dedup + copywriting)
 - `onboarding_tips_card.dart` (409)
-- `active_shopper_banner.dart` (510)
 - `household_activity_feed.dart` (500)
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
 
@@ -217,6 +216,16 @@
 - **אלטרנטיבות**: Provider/state injection, route arguments, event bus.
 - **Trigger**: סקירה של `my_pantry_screen.dart` או refactor ארכיטקטוני של intent passing.
 - **היקף**: בינוני-גדול (refactor cross-screen).
+
+### 🎯 `active_shopper_banner.dart` — Decisions
+- **`context.watch<UserContext>().userId` → `context.select<UserContext, String?>((u) => u.userId)`**: רק `userId` מעניין את הוויג'ט. אותו pattern של `action_center_card.dart` ו-`pending_invites_banner.dart`.
+- **`uncheckedCount == 0` UX state**: כש-`isBeingShopped == true` אבל כל הפריטים סומנו, הבאנר היה אומר "0 פריטים · המשך" — מצב לא ברור. תיקון: copy מתחלף ל-"הכל מסומן · סיים" + icon `check_circle`. נביגציה נשארת ל-`/active-shopping` (שם נמצא ה-`finishShopping()` flow האמיתי שיוצר receipt + מעדכן inventory). 2 strings חדשים: `myActiveCompactDone`, `finishButton`.
+- **Snackbar dedup ב-`_onJoin`**: ה-defense-in-depth check (viewer לוחץ Join למרות שה-CTA מוסתר) הציג snackbar בלי `removeCurrentSnackBar()`. תוקן ל-pattern של `messenger..removeCurrentSnackBar()..showSnackBar()`.
+- **Copywriting fix — כפילות "קונה"**: title `othersActiveTitle` כבר אומר "X **קונה** עכשיו". subtitle `othersActiveSingle` אמר "**קונה** מ-Y" (כפילות באותו banner). תוקן ל-"מ-Y" בלבד. הערה ב-strings מסבירה: "the verb already lives in the title". 2 strings (he+en).
+- **IconButton view + InkWell tap-anywhere — נשאר**: ה-IconButton הוא הסיגנל היחיד שאפשר **גם לצפות** ולא רק להצטרף. בלעדיו, viewers (שלא רואים Join) יחשבו "אין מה לעשות פה". affordance שווה את הכפילות.
+
+**⏸️ Deferred:**
+- **Inline TextStyle ב-`continueButton` ו-`_ActionButton.textStyle`** — נכלל ב-typography sweep הגלובלי.
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.

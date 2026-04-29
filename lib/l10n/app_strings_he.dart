@@ -1678,11 +1678,14 @@ class ActiveShopperBannerStrings {
   String myActiveSubtitle(String listName, int remaining) => '"$listName" - נותרו $remaining פריטים';
   // Compact single-line variant used in the home banner.
   String myActiveCompact(String listName, int remaining) => '$listName · $remaining פריטים';
+  String myActiveCompactDone(String listName) => '$listName · הכל מסומן';
   String get continueButton => 'המשך';
+  String get finishButton => 'סיים';
   String othersActiveTitle(String shopperName) => '$shopperName קונה עכשיו';
   String othersActiveTitleMultiple(int count) => '$count קונים עכשיו';
   String get someoneShopping => 'מישהו קונה עכשיו';
-  String othersActiveSingle(String listName) => 'קונה מ"$listName"';
+  // Subtitle context only — the "is shopping now" verb already lives in the title.
+  String othersActiveSingle(String listName) => 'מ"$listName"';
   String othersActiveMultiple(int count, String listName) => '$count אנשים קונים מ"$listName"';
   String get joinButton => 'להצטרף';
   String get viewListTooltip => 'צפייה חיה';
