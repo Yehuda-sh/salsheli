@@ -44,6 +44,12 @@ class AppErrorState extends StatelessWidget {
       // screen-reader user doesn't keep hearing the previous "loading"
       // label while the screen has actually flipped to an error.
       liveRegion: true,
+      // explicitChildNodes keeps the retry FilledButton as its own
+      // accessibility node ("button: Retry"), while the inner icon +
+      // text — which already feed into our `label` below — get
+      // collapsed into this single live region instead of being read
+      // a second time as standalone nodes.
+      explicitChildNodes: true,
       label: title == null ? message : '$title, $message',
       child: Center(
         child: Padding(
@@ -51,20 +57,30 @@ class AppErrorState extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: kIconSizeXXLarge, color: cs.error.withValues(alpha: kOpacityStrong)),
+              ExcludeSemantics(
+                child: Icon(
+                  icon,
+                  size: kIconSizeXXLarge,
+                  color: cs.error.withValues(alpha: kOpacityStrong),
+                ),
+              ),
               const SizedBox(height: kSpacingMedium),
               if (title != null) ...[
-                Text(
-                  title!,
-                  textAlign: TextAlign.center,
-                  style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                ExcludeSemantics(
+                  child: Text(
+                    title!,
+                    textAlign: TextAlign.center,
+                    style: tt.titleMedium?.copyWith(color: cs.onSurface),
+                  ),
                 ),
                 const SizedBox(height: kSpacingSmall),
               ],
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+              ExcludeSemantics(
+                child: Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: tt.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
               ),
               const SizedBox(height: kSpacingLarge),
               FilledButton.icon(
