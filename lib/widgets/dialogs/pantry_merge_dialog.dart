@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../common/app_dialog.dart';
 
 /// מציג דיאלוג מיזוג מזווה ומחזיר `true` אם המשתמש בחר למזג
 Future<bool> showPantryMergeDialog({
@@ -12,16 +13,16 @@ Future<bool> showPantryMergeDialog({
 }) async {
   final cs = Theme.of(context).colorScheme;
 
-  final result = await showDialog<bool>(
+  final result = await AppDialog.show<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (ctx) => AlertDialog(
+    child: AlertDialog(
       // Was a 📦 emoji — Material icon matches the rest of the app
       // (suggestions / last_chance / pantry rows) and won't render as
       // a tofu box on older Android builds.
       icon: Icon(
         Icons.inventory_2_outlined,
-        size: kFontSizeDisplay,
+        size: kIconSizeLarge,
         color: cs.primary,
       ),
       title: Text(AppStrings.inventory.pantryMergeTitle),
@@ -32,11 +33,14 @@ Future<bool> showPantryMergeDialog({
       actionsAlignment: MainAxisAlignment.center,
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: Text(AppStrings.common.cancel),
+          onPressed: () => Navigator.pop(context, false),
+          // The user isn't cancelling the invite acceptance — they're
+          // choosing to keep their personal pantry separate. "ביטול"
+          // would imply rollback; "השאר אישי" names the actual choice.
+          child: Text(AppStrings.inventory.pantryMergeKeepSeparate),
         ),
         FilledButton.icon(
-          onPressed: () => Navigator.pop(ctx, true),
+          onPressed: () => Navigator.pop(context, true),
           icon: const Icon(Icons.merge_type),
           label: Text(AppStrings.inventory.pantryMergeButton),
           style: FilledButton.styleFrom(

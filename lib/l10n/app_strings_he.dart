@@ -1294,6 +1294,7 @@ class InventoryStrings {
   String pantryMergeContent(int count) =>
       'יש לך $count מוצרים במזווה האישי.\n\nתרצה להעביר אותם למזווה של הבית החדש?';
   String get pantryMergeButton => 'העבר למזווה הבית';
+  String get pantryMergeKeepSeparate => 'השאר אישי';
 
   // Quick Scan to decrement stock
   String get quickScanTooltip => 'סרוק להורדת מלאי';
