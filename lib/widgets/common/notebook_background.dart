@@ -9,60 +9,23 @@ import '../../theme/app_theme.dart';
 /// מציג רקע נייר עם קווים כמו במחברת בית ספר אמיתית.
 ///
 /// ```dart
-/// const NotebookBackground()                // קלאסי — קווים בולטים
-/// const NotebookBackground.subtle()         // עדין — למסכי Auth
+/// const NotebookBackground()         // קלאסי — קווים בולטים + קו אדום
+/// const NotebookBackground.subtle()  // עדין — למסכי Auth, בלי קו אדום, עם fade
 /// ```
+///
+/// שתי הווריאציות הן StatelessWidget, RTL-aware (הקו האדום
+/// עובר לימין במצב RTL), ועטופות ב-RepaintBoundary + ExcludeSemantics.
 class NotebookBackground extends StatelessWidget {
-  /// עוצמת הקווים האופקיים (0.0 = שקוף, 1.0 = מלא)
-  /// ברירת מחדל: kNotebookLineOpacity (0.5)
-  final double? lineOpacity;
-
-  /// צבע הקווים האופקיים (אופציונלי)
-  /// ברירת מחדל: מ-AppBrand.notebookBlue
-  final Color? lineColor;
-
-  /// האם להציג קו אדום אנכי
-  /// ברירת מחדל: true
-  final bool showRedLine;
-
-  /// עוצמת הקו האדום (0.0 = שקוף, 1.0 = מלא)
-  /// ברירת מחדל: kNotebookRedLineOpacity (0.4)
-  final double? redLineOpacity;
-
-  /// רוחב הקו האדום
-  /// ברירת מחדל: kNotebookRedLineWidth (2.0)
-  final double? redLineWidth;
-
-  /// האם להוסיף fade עדין למעלה ולמטה
-  /// ברירת מחדל: false
-  final bool fadeEdges;
-
-  /// Internal flag — true only for [NotebookBackground.subtle] constructor.
-  /// Used in [build] to pick a theme-aware soft line color.
+  /// `true` רק עבור [NotebookBackground.subtle] — בוחר צבעים רכים, מסתיר
+  /// את הקו האדום, ומוסיף fade בקצוות.
   final bool _isSubtle;
 
-  const NotebookBackground({
-    super.key,
-    this.lineOpacity,
-    this.lineColor,
-    this.showRedLine = true,
-    this.redLineOpacity,
-    this.redLineWidth,
-    this.fadeEdges = false,
-  }) : _isSubtle = false;
+  const NotebookBackground({super.key}) : _isSubtle = false;
 
   /// גרסה עדינה למסכי Auth — קווים חלשים, בלי קו אדום, עם fade.
   /// Theme-aware: uses [kNotebookBlueSoft] in light mode and
   /// [kNotebookBlueSoftDark] in dark mode.
-  const NotebookBackground.subtle({
-    super.key,
-  })  : lineOpacity = 0.10,
-        lineColor = null,
-        showRedLine = false,
-        redLineOpacity = null,
-        redLineWidth = null,
-        fadeEdges = true,
-        _isSubtle = true;
+  const NotebookBackground.subtle({super.key}) : _isSubtle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -71,19 +34,23 @@ class NotebookBackground extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     final bgColor = brand?.paperBackground ??
-        (theme.brightness == Brightness.dark ? kDarkPaperBackground : kPaperBackground);
-    final Color effectiveLineColor;
-    if (lineColor != null) {
-      effectiveLineColor = lineColor!;
-    } else if (_isSubtle) {
-      // Theme-aware soft color for subtle variant
-      effectiveLineColor = theme.brightness == Brightness.dark
+        (theme.brightness == Brightness.dark
+            ? kDarkPaperBackground
+            : kPaperBackground);
+
+    final Color lineColor;
+    final double lineOpacity;
+    if (_isSubtle) {
+      lineColor = theme.brightness == Brightness.dark
           ? kNotebookBlueSoftDark
           : kNotebookBlueSoft;
+      // Lower than kNotebookLineOpacity so auth screens don't compete
+      // with the form fields for visual attention.
+      lineOpacity = 0.10;
     } else {
-      effectiveLineColor = brand?.notebookBlue ?? kNotebookBlue;
+      lineColor = brand?.notebookBlue ?? kNotebookBlue;
+      lineOpacity = kNotebookLineOpacity;
     }
-    final effectiveLineOpacity = lineOpacity ?? kNotebookLineOpacity;
 
     // ✅ ExcludeSemantics - רקע דקורטיבי, לא רלוונטי לקוראי מסך
     // ✅ RepaintBoundary - מונע רינדור חוזר כשהתוכן מעל משתנה
@@ -93,21 +60,19 @@ class NotebookBackground extends StatelessWidget {
           child: CustomPaint(
             painter: _NotebookPainter(
               paperBackground: bgColor,
-              notebookBlue: effectiveLineColor,
-              lineOpacity: effectiveLineOpacity,
+              notebookBlue: lineColor,
+              lineOpacity: lineOpacity,
               notebookRed: brand?.notebookRed ?? kNotebookRed,
-              redLineOpacity: redLineOpacity ?? kNotebookRedLineOpacity,
-              redLineWidth: redLineWidth ?? kNotebookRedLineWidth,
               isRtl: isRtl,
-              showRedLine: showRedLine,
+              showRedLine: !_isSubtle,
             ),
           ),
         ),
       ),
     );
 
-    // Fade edges - gradient עדין למעלה ולמטה
-    if (fadeEdges) {
+    // Fade gradient בקצוות — רק לגרסה העדינה.
+    if (_isSubtle) {
       background = Stack(
         children: [
           background,
@@ -150,8 +115,6 @@ class _NotebookPainter extends CustomPainter {
   final Color notebookBlue;
   final double lineOpacity;
   final Color notebookRed;
-  final double redLineOpacity;
-  final double redLineWidth;
   final bool isRtl;
   final bool showRedLine;
 
@@ -160,8 +123,6 @@ class _NotebookPainter extends CustomPainter {
     required this.notebookBlue,
     required this.lineOpacity,
     required this.notebookRed,
-    required this.redLineOpacity,
-    required this.redLineWidth,
     required this.isRtl,
     required this.showRedLine,
   });
@@ -175,7 +136,7 @@ class _NotebookPainter extends CustomPainter {
     // קווים אופקיים
     final bluePaint = Paint()
       ..color = notebookBlue.withValues(alpha: lineOpacity)
-      ..strokeWidth = 1.0;
+      ..strokeWidth = kNotebookLineStrokeWidth;
 
     for (double y = kNotebookLineSpacing;
         y < size.height;
@@ -190,8 +151,8 @@ class _NotebookPainter extends CustomPainter {
     // קו אדום אנכי (RTL-aware)
     if (showRedLine) {
       final redLinePaint = Paint()
-        ..color = notebookRed.withValues(alpha: redLineOpacity)
-        ..strokeWidth = redLineWidth;
+        ..color = notebookRed.withValues(alpha: kNotebookRedLineOpacity)
+        ..strokeWidth = kNotebookRedLineWidth;
 
       final redLineX = isRtl
           ? size.width - kNotebookRedLineOffset
@@ -211,8 +172,6 @@ class _NotebookPainter extends CustomPainter {
         notebookBlue != oldDelegate.notebookBlue ||
         lineOpacity != oldDelegate.lineOpacity ||
         notebookRed != oldDelegate.notebookRed ||
-        redLineOpacity != oldDelegate.redLineOpacity ||
-        redLineWidth != oldDelegate.redLineWidth ||
         isRtl != oldDelegate.isRtl ||
         showRedLine != oldDelegate.showRedLine;
   }

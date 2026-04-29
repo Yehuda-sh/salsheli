@@ -74,6 +74,9 @@ const double kNotebookRedLineOpacity = 0.4;
 /// רוחב קו אדום
 const double kNotebookRedLineWidth = 2.0;
 
+/// רוחב קווים אופקיים כחולים
+const double kNotebookLineStrokeWidth = 1.0;
+
 /// מרחק קו אדום מהקצה (קרוב יותר למקסום שטח תוכן)
 const double kNotebookRedLineOffset = 48.0;
 
