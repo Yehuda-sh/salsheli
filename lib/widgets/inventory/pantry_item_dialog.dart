@@ -263,7 +263,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         opaque: false,
         barrierColor: Colors.black87,
         transitionDuration: const Duration(milliseconds: 250),
-        pageBuilder: (_, __, ___) => GestureDetector(
+        pageBuilder: (_, _, _) => GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: Stack(
             children: [

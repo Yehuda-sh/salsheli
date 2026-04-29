@@ -452,7 +452,8 @@ class AppTheme {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          borderSide: BorderSide(color: scheme.error, width: 1.0),
+          // width: 1.0 is the default — omitted.
+          borderSide: BorderSide(color: scheme.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),

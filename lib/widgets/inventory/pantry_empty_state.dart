@@ -121,7 +121,7 @@ class PantryEmptyState extends StatelessWidget {
                   color: yellowColor,
                   label: strings.addBasicsButton,
                   icon: Icons.check,
-                  haptic: ButtonHaptic.light,
+                  // haptic defaults to ButtonHaptic.light — omitted.
                   onPressed: onAddStarterItems,
                 ),
               ],

@@ -750,7 +750,8 @@ class _PantryProductSelectionSheetState
 
   Widget _buildProductsList(ColorScheme cs, AppBrand? appBrand) {
     if (_isLoading) {
-      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+      // Both args match AppLoadingSkeleton defaults — omitted.
+      return const AppLoadingSkeleton();
     }
 
     if (_errorMessage != null) {
@@ -882,7 +883,7 @@ class _PantryProductSelectionSheetState
                     barcode: product['barcode'] as String?,
                     category: category,
                     productName: product['name'] as String?,
-                    size: kIconSizeXLarge,
+                    // size defaults to kIconSizeXLarge — omitted.
                     tintColor: sourceColor,
                   ),
                   const SizedBox(width: kSpacingSmall),

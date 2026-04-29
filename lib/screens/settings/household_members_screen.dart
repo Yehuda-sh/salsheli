@@ -183,7 +183,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
             ),
             backgroundColor: cs.tertiaryContainer,
             behavior: SnackBarBehavior.floating,
-            duration: const Duration(seconds: 4),
           ),
         );
       }

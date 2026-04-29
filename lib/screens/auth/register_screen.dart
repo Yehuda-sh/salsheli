@@ -19,9 +19,9 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import 'post_auth_navigation.dart';
 import 'widgets/loading_overlay.dart';
 import 'widgets/social_login_button.dart';
-import 'post_auth_navigation.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

@@ -76,7 +76,8 @@ class _AnimatedButtonState extends State<AnimatedButton> {
       // 🔧 Listener with deferToChild - only responds on actual child area
       // The child button still receives the tap and handles the action
       child: Listener(
-        behavior: HitTestBehavior.deferToChild,
+        // behavior: HitTestBehavior.deferToChild is the default —
+        // dropped to satisfy avoid_redundant_argument_values.
         onPointerDown: _onPointerDown,
         onPointerUp: _onPointerUp,
         onPointerCancel: _onPointerCancel,

@@ -20,7 +20,7 @@ enum _ContactInputType { email, phone }
 
 /// דיאלוג לבחירת אנשי קשר לשיתוף רשימה
 ///
-/// מחזיר List<SelectedContact> עם כל אנשי הקשר שנבחרו,
+/// מחזיר `List<SelectedContact>` עם כל אנשי הקשר שנבחרו,
 /// כולל התפקיד שלהם והאם הם רשומים או לא.
 class ContactSelectorDialog extends StatefulWidget {
   /// אנשי קשר שכבר נבחרו (להצגה כ-selected)
@@ -497,7 +497,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                 // === Contacts List ===
                 Expanded(
                   child: _isLoading
-                      ? const AppLoadingSkeleton(sectionCount: 2, showHero: false)
+                      ? const AppLoadingSkeleton(sectionCount: 2)
                       : _filteredContacts.isEmpty
                           ? Center(
                               child: Column(

@@ -1041,7 +1041,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                       ),
                     ),
                     icon: const Icon(Icons.check, size: kIconSizeSmallPlus),
-                    label: Text(AppStrings.shopping.finishedButton, style: TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
+                    label: Text(AppStrings.shopping.finishedButton, style: const TextStyle(fontSize: kFontSizeSmall, fontWeight: FontWeight.bold)),
                   ),
                   ),
                 )
@@ -1173,7 +1173,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                               children: [
                                 Text(
                                   FiltersConfig.getCategoryEmoji(FiltersConfig.hebrewCategoryToEnglish(category)),
-                                  style: TextStyle(fontSize: kFontSizeLarge),
+                                  style: const TextStyle(fontSize: kFontSizeLarge),
                                 ),
                                 const SizedBox(width: kSpacingSmall),
                                 Expanded(

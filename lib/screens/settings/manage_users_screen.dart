@@ -462,7 +462,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             const SizedBox(height: kSpacingMedium),
             Text(
               strings.noSharedUsers,
-              style: TextStyle(fontSize: kFontSizeTitle),
+              style: const TextStyle(fontSize: kFontSizeTitle),
             ),
             const SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות

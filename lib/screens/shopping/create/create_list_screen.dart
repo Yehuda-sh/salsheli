@@ -537,8 +537,8 @@ class _CreateListScreenState extends State<CreateListScreen> {
       },
       textInputAction: TextInputAction.next,
       onFieldSubmitted: (_) => _budgetFocusNode.requestFocus(),
-      // autofocus disabled: keyboard hides the template picker above.
-      autofocus: false,
+      // autofocus left to default (false) — keyboard would hide the
+      // template picker above otherwise.
       enabled: !_isSubmitting,
     );
   }

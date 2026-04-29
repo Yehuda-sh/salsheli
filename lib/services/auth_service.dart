@@ -21,7 +21,7 @@ import 'image_upload_service.dart';
 /// DTO פשוט למשתמש מאומת — חוסם דליפת firebase_auth.User ל-providers
 ///
 /// מכיל רק את השדות שה-UI/Provider צריכים.
-/// UserContext מאזין ל-Stream<AuthUser?> במקום Stream<firebase_auth.User?>.
+/// UserContext מאזין ל-`Stream<AuthUser?>` במקום `Stream<firebase_auth.User?>`.
 class AuthUser {
   final String uid;
   final String? email;

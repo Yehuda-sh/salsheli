@@ -26,12 +26,10 @@ class PushNotificationService {
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
 
-    // בקשת הרשאות (iOS דורש, Android 13+ דורש)
-    final settings = await _messaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // בקשת הרשאות (iOS דורש, Android 13+ דורש).
+    // alert/badge/sound default to true — left to defaults to satisfy
+    // avoid_redundant_argument_values.
+    final settings = await _messaging.requestPermission();
 
     if (settings.authorizationStatus == AuthorizationStatus.denied) {
       if (kDebugMode) debugPrint('🔕 Push notifications denied by user');

@@ -107,7 +107,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                     child: Text(AppStrings.common.cancel),
                   ),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.add_location_alt, size: kIconSizeSmall),
+                    icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
                     label: Text(AppStrings.inventory.addLocationButton),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: cs.primaryContainer,

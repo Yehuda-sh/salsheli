@@ -371,7 +371,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
             const SizedBox(height: kSpacingLarge),
             Text(
               strings.noPendingRequests,
-              style: TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: kFontSizeTitle, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kSpacingSmall),
@@ -450,7 +450,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                 Expanded(
                   child: Text(
                     itemName,
-                    style: TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: kFontSizeBody, fontWeight: FontWeight.bold),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

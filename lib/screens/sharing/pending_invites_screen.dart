@@ -319,7 +319,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
 
     // 🔄 טעינה ראשונית - spinner במרכז
     if (_isInitialLoading) {
-      return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+      return const AppLoadingSkeleton();
     }
 
     // ❌ שגיאה - עם Pull-to-Refresh
@@ -346,7 +346,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       return RefreshIndicator(
         onRefresh: _loadInvites,
         child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height * 0.7,
             child: Center(

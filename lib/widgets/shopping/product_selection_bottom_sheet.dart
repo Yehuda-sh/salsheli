@@ -628,6 +628,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     ShoppingList? currentList,
   ) {
     if (provider.isLoading) {
+      // Both args match AppLoadingSkeleton defaults — omitted.
       return const AppLoadingSkeleton();
     }
 

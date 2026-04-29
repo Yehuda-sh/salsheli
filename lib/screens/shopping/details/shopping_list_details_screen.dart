@@ -1021,7 +1021,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ),
               child: Row(
                 children: [
-                  SizedBox(width: kNotebookRedLineOffset),
+                  const SizedBox(width: kNotebookRedLineOffset),
                   Text(
                     '$emoji $category',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -1053,7 +1053,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 duration: const Duration(milliseconds: 300),
                 opacity: item.isChecked ? 0.5 : 1.0,
                 child: Container(
-                  margin: EdgeInsetsDirectional.only(start: kNotebookRedLineOffset + kSpacingSmall, end: kSpacingMedium),
+                  margin: const EdgeInsetsDirectional.only(start: kNotebookRedLineOffset + kSpacingSmall, end: kSpacingMedium),
                   decoration: BoxDecoration(
                     border: BorderDirectional(
                       start: BorderSide(

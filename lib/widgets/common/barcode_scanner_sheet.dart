@@ -25,10 +25,9 @@ class BarcodeScannerSheet extends StatefulWidget {
 
 class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
     with SingleTickerProviderStateMixin {
-  final MobileScannerController _controller = MobileScannerController(
-    detectionSpeed: DetectionSpeed.normal,
-    facing: CameraFacing.back,
-  );
+  // Both args (detectionSpeed: normal, facing: back) match the
+  // controller defaults — omitted to satisfy avoid_redundant_argument_values.
+  final MobileScannerController _controller = MobileScannerController();
   bool _hasScanned = false;
   bool _torchOn = false;
 

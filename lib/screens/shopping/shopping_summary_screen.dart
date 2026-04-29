@@ -67,7 +67,9 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
             child: Consumer<ShoppingListsProvider>(
               builder: (context, provider, _) {
                 if (provider.isLoading) {
-                  return const AppLoadingSkeleton(sectionCount: 3, showHero: false);
+                  // Both args (sectionCount: 3, showHero: false) match
+                  // the AppLoadingSkeleton defaults — omitted.
+                  return const AppLoadingSkeleton();
                 }
 
                 if (provider.errorMessage != null) {
