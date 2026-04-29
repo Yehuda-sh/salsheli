@@ -103,6 +103,9 @@ const double kDialogBlurSigma = 8.0;
 /// שקיפות barrier אחידה לכל דיאלוגים (scrim alpha)
 const double kDialogBarrierAlpha = 0.35;
 
+/// משך אנימציית הכניסה/יציאה של דיאלוג (scale + fade).
+const Duration kDialogTransitionDuration = Duration(milliseconds: 300);
+
 // ═══════════════════════════════════════════════════════════════════════════
 // COLORS - Backgrounds
 // ═══════════════════════════════════════════════════════════════════════════

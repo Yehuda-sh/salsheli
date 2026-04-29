@@ -23,14 +23,22 @@ class AppDialog {
       barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
       barrierDismissible: barrierDismissible,
       barrierColor: cs.scrim.withValues(alpha: kDialogBarrierAlpha),
-      transitionDuration: const Duration(milliseconds: 300),
+      transitionDuration: kDialogTransitionDuration,
       pageBuilder: (context, animation, secondaryAnimation) {
-        return BackdropFilter(
-          filter: ui.ImageFilter.blur(
-            sigmaX: kDialogBlurSigma,
-            sigmaY: kDialogBlurSigma,
+        // SizedBox.expand forces the BackdropFilter to occupy the full
+        // screen. Without it, BackdropFilter sizes to the inner dialog
+        // (a small AlertDialog ~300px wide) and the blur only covers
+        // that rectangle — the rest of the screen behind the barrier
+        // stays sharp, breaking the "premium" feel the wrapper is
+        // supposed to deliver.
+        return SizedBox.expand(
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(
+              sigmaX: kDialogBlurSigma,
+              sigmaY: kDialogBlurSigma,
+            ),
+            child: child,
           ),
-          child: child,
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
