@@ -126,7 +126,13 @@ String _descriptionForEvent(ActivityEvent event, ActivityLogStrings strings) {
     case ActivityType.memberJoined:
       return strings.feedMemberJoined;
     case ActivityType.roleChanged:
-      return strings.feedRoleChanged(event.targetName ?? '', event.newRole ?? '');
+      // newRole arrives as the raw enum string ('editor', 'admin'...).
+      // Translate via roleDisplayName so the Hebrew feed reads naturally
+      // ("שינה תפקיד של נועה ל-עורך") instead of leaking the enum name.
+      return strings.feedRoleChanged(
+        event.targetName ?? '',
+        strings.roleDisplayName(event.newRole ?? ''),
+      );
     case ActivityType.listDeleted:
       return strings.feedListDeleted(event.listName ?? '');
     case ActivityType.listShared:

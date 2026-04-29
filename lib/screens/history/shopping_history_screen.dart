@@ -1104,7 +1104,14 @@ class _ActivityEventTile extends StatelessWidget {
       case ActivityType.memberJoined:
         return strings.memberJoined(actor);
       case ActivityType.roleChanged:
-        return strings.roleChanged(actor, event.targetName ?? '', event.newRole ?? '');
+        // Translate the raw enum role name into the localized display
+        // form so the history reads "Avi changed Noa's role to עורך"
+        // instead of "...to editor" in Hebrew locales.
+        return strings.roleChanged(
+          actor,
+          event.targetName ?? '',
+          strings.roleDisplayName(event.newRole ?? ''),
+        );
       case ActivityType.listDeleted:
         return strings.listDeleted(actor, event.listName ?? '');
       case ActivityType.listShared:

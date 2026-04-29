@@ -1631,6 +1631,24 @@ class ActivityLogStrings {
   String get feedMemberJoined => 'הצטרף/ה לבית';
   String feedRoleChanged(String targetName, String newRole) =>
       'שינה/תה תפקיד של $targetName ל$newRole';
+
+  /// Maps a raw `UserRole.name` value (`'editor'`, `'admin'`, ...) to a
+  /// localized display name. Returns the raw value as-is for unknown
+  /// inputs so the message still renders gracefully.
+  String roleDisplayName(String role) {
+    switch (role) {
+      case 'owner':
+        return 'בעלים';
+      case 'admin':
+        return 'מנהל';
+      case 'editor':
+        return 'עורך';
+      case 'viewer':
+        return 'צופה';
+      default:
+        return role;
+    }
+  }
   String feedListDeleted(String listName) =>
       'מחק/ה את הרשימה "$listName"';
   String feedListShared(String listName) =>
@@ -1739,6 +1757,7 @@ class PendingInvitesScreenStrings {
   String get householdFallback => 'בית';
   String get userFallback => 'משתמש';
   String inviteToList(String listName) => 'הזמנה לרשימה "$listName"';
+  String inviteToHousehold(String householdName) => 'הזמנה להצטרף ל"$householdName"';
   String inviterMessage(String inviterName) => '$inviterName מזמין אותך להצטרף';
   String get roleLabel => 'תפקיד: ';
   String get acceptButton => 'הצטרף';
@@ -1747,6 +1766,7 @@ class PendingInvitesScreenStrings {
   String acceptError(String error) => 'שגיאה באישור ההזמנה: $error';
   String get declineDialogTitle => 'דחיית הזמנה';
   String declineDialogMessage(String listName) => 'לדחות את ההזמנה לרשימה "$listName"?';
+  String declineHouseholdDialogMessage(String householdName) => 'לדחות את ההזמנה ל"$householdName"?';
   String get cancelButton => 'ביטול';
   String get declineConfirmButton => 'דחה';
   String get declineSuccess => 'ההזמנה נדחתה';

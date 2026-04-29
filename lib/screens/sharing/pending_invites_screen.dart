@@ -178,14 +178,22 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final warningBg = StatusColors.getContainer(StatusType.warning, context);
     final errorBg = StatusColors.getContainer(StatusType.error, context);
     final strings = AppStrings.pendingInvitesScreen;
-    final listName = _safeString(invite.requestData['list_name']) ?? strings.listFallback;
+    // Pick the right name + dialog phrasing per invite type so a
+    // household-decline doesn't say "decline the list invitation".
+    final isHouseholdInvite = invite.type == RequestType.inviteToHousehold;
+    final displayName = isHouseholdInvite
+        ? (_safeString(invite.requestData['household_name']) ?? strings.householdFallback)
+        : (_safeString(invite.requestData['list_name']) ?? strings.listFallback);
+    final declineMessage = isHouseholdInvite
+        ? strings.declineHouseholdDialogMessage(displayName)
+        : strings.declineDialogMessage(displayName);
 
     // שאלת אישור
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(strings.declineDialogTitle),
-        content: Text(strings.declineDialogMessage(listName)),
+        content: Text(declineMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -417,10 +425,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     final brand = Theme.of(context).extension<AppBrand>();
 
     // ✅ null safety - גישה בטוחה ל-requestData
+    // Per-type fallback: household invites that lose `household_name`
+    // shouldn't claim "you were invited to 'list'". Falls back to
+    // householdFallback ('בית' / 'household') instead.
     final strings = AppStrings.pendingInvitesScreen;
     final isHouseholdInvite = invite.type == RequestType.inviteToHousehold;
     final listName = isHouseholdInvite
-        ? (_safeString(invite.requestData['household_name']) ?? strings.listFallback)
+        ? (_safeString(invite.requestData['household_name']) ?? strings.householdFallback)
         : (_safeString(invite.requestData['list_name']) ?? strings.listFallback);
     final inviterName = invite.requesterName ?? strings.userFallback;
     final roleName = _safeString(invite.requestData['role']) ?? 'editor';
@@ -440,16 +451,23 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // כותרת
+              // כותרת — Material icons replace decorative emoji to match
+              // the rest of the app; title text now goes through AppStrings
+              // (was hardcoded Hebrew for the household variant).
               Row(
                 children: [
-                  Text(isHouseholdInvite ? '🏠' : '👥',
-                      style: const TextStyle(fontSize: kFontSizeTitle)),
+                  Icon(
+                    isHouseholdInvite
+                        ? Icons.home_outlined
+                        : Icons.people_alt_outlined,
+                    size: kFontSizeTitle,
+                    color: cs.onSurfaceVariant,
+                  ),
                   const SizedBox(width: kSpacingSmall),
                   Expanded(
                     child: Text(
                       isHouseholdInvite
-                          ? 'הזמנה להצטרף ל$listName'
+                          ? strings.inviteToHousehold(listName)
                           : strings.inviteToList(listName),
                       style: const TextStyle(
                         fontSize: kFontSizeMedium,

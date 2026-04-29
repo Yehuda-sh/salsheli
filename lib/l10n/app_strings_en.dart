@@ -1478,6 +1478,20 @@ class ActivityLogStringsEn extends ActivityLogStrings {
   @override String get feedMemberJoined => 'joined the household';
   @override String feedRoleChanged(String targetName, String newRole) =>
       "changed $targetName's role to $newRole";
+  // English role names already match the raw enum values, so the
+  // override returns them unchanged. The base he switch handles
+  // 'unknown' fall-through too.
+  @override String roleDisplayName(String role) {
+    switch (role) {
+      case 'owner':
+      case 'admin':
+      case 'editor':
+      case 'viewer':
+        return role;
+      default:
+        return role;
+    }
+  }
   @override String feedListDeleted(String listName) =>
       'deleted list "$listName"';
   @override String feedListShared(String listName) =>
@@ -1585,6 +1599,7 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String get householdFallback => 'household';
   @override String get userFallback => 'User';
   @override String inviteToList(String listName) => 'Invitation to list "$listName"';
+  @override String inviteToHousehold(String householdName) => 'Invitation to join "$householdName"';
   @override String inviterMessage(String inviterName) => '$inviterName invites you to join';
   @override String get roleLabel => 'Role: ';
   @override String get acceptButton => 'Join';
@@ -1593,6 +1608,7 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String acceptError(String error) => 'Error accepting invitation: $error';
   @override String get declineDialogTitle => 'Decline Invitation';
   @override String declineDialogMessage(String listName) => 'Decline invitation to list "$listName"?';
+  @override String declineHouseholdDialogMessage(String householdName) => 'Decline invitation to "$householdName"?';
   @override String get cancelButton => 'Cancel';
   @override String get declineConfirmButton => 'Decline';
   @override String get declineSuccess => 'Invitation declined';
