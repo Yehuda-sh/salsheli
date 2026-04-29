@@ -170,6 +170,16 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - 🎭 **Empty / Loading / Error visuals** — האם המצבים האלה **מעוצבים** או "סתם מציגים מחרוזת"? אייקון? אילוסטרציה? CTA?
 - 🧬 **Coherence עם design language** — האפליקציה היא "Notebook + Sticky Notes". האם הוויג'ט הזה מרגיש חלק מזה, או generic Material? אם screen אחר באפליקציה דווקא **כן** מקיים את שפת העיצוב (לדוגמה: highlighter style ב-`shopping_lists_screen`) — זה gap.
 - ⚠️ **Mis-tap risk** — אלמנטים הרסניים (מחיקה, ביטול) רחוקים מ-CTAs ראשיים? Reject button פחות בולט מ-Approve?
+- 📏 **האם הערכים עצמם נכונים?** — לא רק "האם זה קבוע":
+  - **גודל** — `kMinTapTarget` (44) vs `kButtonHeight` (48) vs custom — מי מתאים **לתפקיד**? CTA ראשי? פעולה משנית?
+  - **opacity** — `kOpacityLight` (0.3) vs `kOpacityMedium` (0.5) — איזה לוק רוצים בקונטקסט הזה?
+  - **duration** — 200ms (snappy) vs 300ms (default) vs 500ms (deliberate)?
+  - **spacing** — `kSpacingMedium` (16) vs `kSpacingLarge` (24) — צפיפות vs נשימה?
+- 💡 **רעיונות שיפור ויזואלי שלא תלויים בשינוי קבועים** — מעבר לקוד נקי:
+  - 3 כפתורים בשורה אחת = צפוף? אולי שורה שנייה?
+  - CTA tonal מספיק בולט? FilledButton vivid יבדל יותר?
+  - slide offset 0.1 כמעט בלתי-נראה — 0.2 יבליט?
+  - אילוסטרציה empty state? micro-interaction על hover/press? shadow על CTA?
 
 ### ⚡ Performance & Lifecycle
 - `RepaintBoundary` סביב אנימציות / shimmer / scrolls כבדים
@@ -318,6 +328,15 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - הראשון: שכבת שקיפות גנרית. השני: אפקט טוש סימון על מחברת.
 - כשבוחרים איזה להשתמש — לבחור לפי הכוונה הקונספטואלית, לא הערך המספרי. השם של הקבוע מספר סיפור.
 - דוגמה: ב-redesign של SectionHeader, הוויג'ט המקורי השתמש ב-`kOpacityLight` (ערך נכון, שם שגוי). עברתי ל-`kHighlightOpacity` כי **זה** מה שעושים — מסמנים בטוש.
+
+### 📏 קבועים סמנטיים ≠ ערכים נכונים
+- שינוי השם של קבוע (`44` → `kMinTapTarget`) הוא **תיקון naming**, לא **בדיקת design**.
+- שאלה אמיתית: "האם 44 הוא הגודל הנכון פה? אולי 48 (kButtonHeight) או 40 (custom)?"
+- דוגמה לטעות שלי: בסקירת `last_chance_banner.dart` החלפתי `_kAddButtonMinHeight = 44.0` ל-`kMinTapTarget` והרגשתי שעשיתי משהו טוב. **לא שאלתי** האם 44 הוא הגודל הנכון ל-Add button בבנר אינליין צפוף — אולי 48 (CTA חזק יותר) או 40 (יותר קומפקטי) היו מתאימים יותר.
+- מהיום: בכל קבוע / מספר ויזואלי — **2 שאלות**:
+  1. האם זה צריך להיות קבוע? (naming hygiene)
+  2. **האם הערך עצמו נכון לקונטקסט הזה?** (design judgment)
+- אלא אם המשתמש אומר "רק לתקן naming, לא לחשוב על עיצוב" — תמיד לשאול את שתיהן.
 
 ### 🔍 הצעות לפיצ'רים — לחפש קודם, להציע אחר כך
 - לפני להציע "Hero animation" — לבדוק `grep -rn "Hero("` כדי לראות אם hero כבר משמש.
