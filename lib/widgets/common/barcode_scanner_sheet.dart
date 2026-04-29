@@ -8,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
+import '../../theme/app_theme.dart';
 
 /// תוצאת סריקת ברקוד
 class BarcodeScanResult {
@@ -30,8 +31,14 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
   final MobileScannerController _controller = MobileScannerController();
   bool _hasScanned = false;
   bool _torchOn = false;
+  // Brief green-corner flash after detect, before pop — confirms the scan
+  // visually so the sheet doesn't just disappear from under the user.
+  bool _scanSuccess = false;
+  // Show a "make sure the barcode is well-lit" hint if scanning drags on.
+  bool _showTimeoutHint = false;
 
   late final AnimationController _lineAnim;
+  Timer? _hintTimer;
 
   @override
   void initState() {
@@ -40,10 +47,14 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
       vsync: this,
       duration: const Duration(milliseconds: 2200),
     )..repeat(reverse: true);
+    _hintTimer = Timer(const Duration(seconds: 8), () {
+      if (mounted && !_hasScanned) setState(() => _showTimeoutHint = true);
+    });
   }
 
   @override
   void dispose() {
+    _hintTimer?.cancel();
     _lineAnim.dispose();
     _controller.dispose();
     super.dispose();
@@ -55,26 +66,37 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
     if (barcode == null || barcode.isEmpty) return;
 
     _hasScanned = true;
+    _hintTimer?.cancel();
     unawaited(HapticFeedback.mediumImpact());
-    Navigator.pop(context, BarcodeScanResult(barcode));
+    _lineAnim.stop();
+    setState(() => _scanSuccess = true);
+
+    // Hold the green-corner flash briefly so the user registers the
+    // success before the sheet pops.
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) Navigator.pop(context, BarcodeScanResult(barcode));
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final strings = AppStrings.shopping;
     final viewportHeight = MediaQuery.of(context).size.height * 0.35;
+    // Borders flash to the brand success color on detect, then the sheet pops.
+    final borderColor = _scanSuccess ? (brand?.success ?? cs.primary) : cs.primary;
 
     return SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
+          // Handle bar — matches the rest of the app's bottom-sheet handles.
           const SizedBox(height: kSpacingSmall),
           ExcludeSemantics(
             child: Container(
-              width: 40,
-              height: 4,
+              width: kSpacingXLarge + kSpacingSmall,
+              height: kSpacingXTiny,
               decoration: BoxDecoration(
                 color: cs.outline.withValues(alpha: kOpacityLight),
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
@@ -118,17 +140,31 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                       errorBuilder: (context, _) => Container(
                         color: cs.errorContainer,
                         child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.no_photography_outlined, size: kIconSizeXLarge, color: cs.onErrorContainer),
-                              const SizedBox(height: kSpacingSmall),
-                              Text(
-                                strings.cameraError,
-                                style: TextStyle(color: cs.onErrorContainer, fontSize: kFontSizeSmall),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.all(kSpacingMedium),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.no_photography_outlined, size: kIconSizeXLarge, color: cs.onErrorContainer),
+                                const SizedBox(height: kSpacingSmall),
+                                Text(
+                                  strings.cameraError,
+                                  style: TextStyle(color: cs.onErrorContainer, fontSize: kFontSizeSmall),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: kSpacingMedium),
+                                // Lets the user out of the dead-end without
+                                // hunting for the drag-down gesture.
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: cs.onErrorContainer,
+                                    foregroundColor: cs.errorContainer,
+                                  ),
+                                  child: Text(AppStrings.common.close),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -138,7 +174,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                     Positioned.fill(
                       child: CustomPaint(
                         painter: _ScanOverlayPainter(
-                          borderColor: cs.primary,
+                          borderColor: borderColor,
                           // Scrim alpha tuned for camera contrast — between
                           // kOpacityLight (0.3) and kOpacityMedium (0.5).
                           overlayColor: cs.scrim.withValues(alpha: 0.4),
@@ -146,18 +182,21 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                       ),
                     ),
 
-                    // Animated scan line
+                    // Animated scan line — RepaintBoundary isolates the
+                    // 60fps repaints from the camera + static overlay layers.
                     Positioned.fill(
-                      child: AnimatedBuilder(
-                        animation: _lineAnim,
-                        builder: (context, _) {
-                          return CustomPaint(
-                            painter: _ScanLinePainter(
-                              progress: _lineAnim.value,
-                              lineColor: cs.primary,
-                            ),
-                          );
-                        },
+                      child: RepaintBoundary(
+                        child: AnimatedBuilder(
+                          animation: _lineAnim,
+                          builder: (context, _) {
+                            return CustomPaint(
+                              painter: _ScanLinePainter(
+                                progress: _lineAnim.value,
+                                lineColor: cs.primary,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],
@@ -165,6 +204,21 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
               ),
             ),
           ),
+          // Help nudge if scanning drags on — appears after 8s of no detect.
+          if (_showTimeoutHint) ...[
+            const SizedBox(height: kSpacingSmall),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+              child: Text(
+                strings.scanTimeoutHint,
+                style: TextStyle(
+                  fontSize: kFontSizeSmall,
+                  color: cs.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
           const SizedBox(height: kSpacingSmall),
 
           // Torch + Cancel buttons
@@ -176,7 +230,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                 // 🔦 Torch toggle
                 IconButton(
                   onPressed: () {
-                    _controller.toggleTorch();
+                    unawaited(_controller.toggleTorch());
                     setState(() => _torchOn = !_torchOn);
                   },
                   icon: Icon(

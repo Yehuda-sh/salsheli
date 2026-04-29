@@ -25,7 +25,7 @@ import '../../../providers/user_context.dart';
 import '../../../services/activity_log_service.dart';
 import '../../../services/shopping_patterns_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/common/barcode_scanner_sheet.dart';
+import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
 import '../../home/dashboard/widgets/last_chance_banner.dart';
@@ -332,15 +332,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
   /// 📷 סריקת ברקוד — חיפוש מוצר ב-DB והוספה/סימון
   Future<void> _scanBarcode() async {
     final brand = Theme.of(context).extension<AppBrand>();
-    final result = await showModalBottomSheet<BarcodeScanResult>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-      ),
-      builder: (_) => const BarcodeScannerSheet(),
-    );
+    final result = await openBarcodeScanner(context);
 
     if (result == null || !mounted) return;
 

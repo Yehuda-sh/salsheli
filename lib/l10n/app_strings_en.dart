@@ -506,6 +506,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get editQuantity => 'Edit quantity';
   @override String get scanBarcode => 'Scan barcode';
   @override String get scanHint => 'Point the barcode at the center of the frame';
+  @override String get scanTimeoutHint => '💡 Make sure the barcode is well-lit and centered';
   @override String get addNewProductTooltip => 'Add new product';
   @override String get increaseQuantityTooltip => 'Increase quantity';
   @override String get decreaseQuantityTooltip => 'Decrease quantity';
