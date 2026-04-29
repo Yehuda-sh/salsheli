@@ -112,10 +112,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           // Parallax: background moves at 30px per page-step. Scoped
           // ValueListenableBuilder keeps the rest of the tree static.
+          // Direction follows the carousel's reverse setting — without
+          // the isRtl flip, the background moves *with* the swipe in
+          // RTL instead of against it, and the parallax illusion dies.
           ValueListenableBuilder<double>(
             valueListenable: _pageOffset,
             builder: (_, offset, child) => Transform.translate(
-              offset: Offset(offset * _kParallaxIntensity, 0),
+              offset: Offset(
+                offset * _kParallaxIntensity * (isRtl ? -1 : 1),
+                0,
+              ),
               child: child,
             ),
             child: const NotebookBackground.subtle(),
@@ -529,7 +535,7 @@ class _BottomSection extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     // Use the brand's green (success) instead of cs.primary
                     // which can shift to blue/purple on Material You devices.
-                    backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? cs.primary,
+                    backgroundColor: brand?.success ?? cs.primary,
                     foregroundColor: cs.onPrimary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(kBorderRadiusLarge),
