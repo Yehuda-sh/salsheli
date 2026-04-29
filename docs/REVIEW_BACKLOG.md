@@ -56,6 +56,24 @@
 
 ---
 
+### `social_login_button.dart`
+
+**📂 Used in:** `register_screen.dart` (×2 — Google/Apple) + `login_screen.dart` (×2 — Google/Apple).
+
+**✅ Decisions Made:**
+- **Refactor: עוטף עכשיו `AnimatedButton`** במקום press-tracking ידני. הרוויח: ValueNotifier (לא setState rebuild), RepaintBoundary, didUpdateWidget reset על mid-press disable, kMinTapTarget enforcement.
+- **StatefulWidget → StatelessWidget** — אין יותר `_isPressed` state פנימי.
+- **scaleTarget: 0.97** — תואם ה-"heavier press" preset שמתועד ב-AnimatedButton.
+- **Token alignment**: 3× `alpha: 0.5` (disabled bg/icon/text) → `kOpacityMedium`.
+- **Magic alpha שנשאר**: `0.1` ב-dark mode shadow — ערך תכן ספציפי, single use.
+- **Theme-aware shadow**: dark mode משתמש ב-`surfaceContainerLowest` (לא `cs.shadow` שנעלם בכהה).
+
+**⏸️ Deferred:** אין.
+
+**🎯 Pattern**: דוגמה לאיך לעטוף widget קיים שיש לו press feedback ידני — לחלץ את ה-press logic ל-AnimatedButton ולשמור על הוויזואל הייחודי.
+
+---
+
 ### `legal_content_dialog.dart`
 
 **📂 Used in:** Welcome Screen + Settings Screen (Terms + Privacy links).
@@ -94,7 +112,7 @@
 
 ### ⏳ Files of this screen — pending review
 - `loading_overlay.dart` (Auth Cross-Cutting — לסקור עם login)
-- `social_login_button.dart` (Auth Cross-Cutting — לסקור עם login)
+- ~~`social_login_button.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets
 - ~~`post_auth_navigation.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets (אין ממצאים)
 
 ---
