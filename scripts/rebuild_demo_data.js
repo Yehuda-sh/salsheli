@@ -98,15 +98,19 @@ const USERS = [
   { key: 'longname', name: "אלכסנדר קונסטנטינוביץ' הראשון-שטיינברג", email: 'alex.longname@demo.com', phone: '0561234567', household: 'longname', role: 'admin', isAdmin: true },
 ];
 
+// Demo households intentionally span the full range of relationships
+// the app supports — nuclear family, couple, roommates, solo user, and
+// the fresh MemoZap-XXXX auto-default — so visual QA covers each shape.
+// Keep at least one English entry in the mix.
 const HOUSEHOLDS = {
   cohen:  { name: 'משפחת כהן',     members: ['avi', 'ronit', 'yuval', 'noa', 'ori'] },
-  levi:   { name: 'משפחת לוי',      members: ['dan', 'maya'] },
+  levi:   { name: 'דנה ומאיה',      members: ['dan', 'maya'] }, // couple, no "family" wording
   tomer:  { name: 'הבית של תומר',   members: ['tomer'] },
-  shiran: { name: 'הבית של שירן',   members: ['shiran'] },
+  shiran: { name: 'MemoZap-7042',   members: ['shiran'] }, // skip-flow auto-default
   naama:  { name: 'הבית של נעמה',   members: ['naama'] },
   lior:   { name: 'הבית של ליאור',  members: ['lior'] },
-  yael:        { name: 'הבית של יעל',    members: ['yael'] },
-  google_user: { name: 'הבית של גיל',    members: ['google_user'] },
+  yael:        { name: "Yael's Place",   members: ['yael'] }, // English solo
+  google_user: { name: 'SF Roommates',   members: ['google_user'] }, // English roommates
   apple_user:  { name: 'הבית שלי',       members: ['apple_user'] },
   mike:        { name: "Mike's Home",    members: ['mike'] },
   george:      { name: "הבית של ג'ורג'", members: ['george'] },

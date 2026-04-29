@@ -107,6 +107,7 @@
 | # | בעיה | מיקום | חומרה | סטטוס |
 |---|-------|-------|--------|--------|
 | W1 | `use_build_context_synchronously` (2) | `settings_screen.dart` | Warning | ⏳ deferred — יש `mounted` guards, ממתין לאימות analyzer |
+| L1 | **Inclusive language** — "משפחה"/"family" ב-44 מקומות, אבל האפליקציה לכל קבוצה (זוגות, שותפים, חברים, סולו) | `app_strings_he.dart`, `app_strings_en.dart`, מספר מסכים | UX | פתוח — sweep מתוכנן, ראה Audience & Voice ב-CLAUDE.md |
 | ~~W2~~ | ~~`directives_ordering` infos~~ | 31 files | Info | ✅ תוקן (סשן 6) — sort imports in 31 files |
 | ~~W3~~ | ~~`deprecated_member_use` — RadioListTile~~ | `contact_selector_dialog.dart` | Warning | ✅ תוקן (סשן 4) — הוחלף ב-Radio + GestureDetector |
 
