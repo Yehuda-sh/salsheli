@@ -124,6 +124,25 @@
 
 ---
 
+### `dev_banner.dart`
+
+**📂 Used in:** `main.dart:207, 210` — global mount ב-`MaterialApp.builder`. מופיע על כל מסך באפליקציה כש-`AppConfig.isProduction == false`.
+
+**✅ Decisions Made:**
+- **חריגים מודעים מ-design tokens — תועדו במפורש בדוקסטרינג:**
+  - `Positioned(right: 0)` פיזי, לא directional — DEV badges top-right ב-LTR וב-RTL כאחד (קונבנציה universal).
+  - `Colors.orange/black/white` hardcoded — DEV ribbon הוא signal של "כלי debug, לא chrome". theming יבלבל אותו עם UI elements.
+  - הסטייל glassmorphic הוא **breakdown מכוון** משפת notebook+sticky — דווקא אי-תאימות מסמלת "אני לא חלק מהמוצר".
+- **קבועים סמנטיים:** `_kRibbonSize = 88.0` (file-level) + `_kAnimationDuration = Duration(milliseconds: 2400)` — ה-duration משותף ל-pulse ו-shimmer (single source of truth, שינוי באחד דורש שינוי בשני).
+- **Performance**: RepaintBoundary סביב האנימציה האינסופית, IgnorePointer (לא אינטראקטיבי), ExcludeSemantics (debug visual, לא להכריז).
+- **Cross-file fix**: header של `app_layout.dart:1` תוקן — הסיר את הטענה השגויה "NotebookBackground + DevBanner wrapper" (שניהם לא ב-AppLayout).
+
+**⏸️ Deferred:** אין.
+
+**🎯 Pattern**: דוגמה ל-widget שמתעד **למה** הוא מפר את design tokens (orange/black/white, physical right) — לא ניסיון להסוות חריגה אלא להצדיק אותה בדוקסטרינג.
+
+---
+
 ## Home Dashboard Screen
 
 ### 📂 Components נגעו
@@ -159,11 +178,18 @@
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
 
 ### 🎯 `action_center_card.dart` — Decisions
+
+**סבב 1 (29/4/2026):**
 - **chevron RTL-aware**: `Icons.chevron_left` היה hardcoded — שובר ב-English locale (chevron מצביע אחורה במקום קדימה). תוקן עם `isRtl ? chevron_left : chevron_right`.
 - **bottom sheet theme cleanup**: הוסרו `backgroundColor: cs.surface` ו-`shape` מ-`showModalBottomSheet` — היו override ל-theme שכבר מגדיר זאת (וב-`surfaceContainerHigh` יותר מתאים מ-`cs.surface`). אותו pattern שעשינו ב-`barcode_helpers.dart`, `active_shopping_screen.dart`.
 - **Single-pass loop** על lists לbucketing pending vs overdue ✅
 - **Smart fast-path**: tap על chip עם 1 פריט → ישר אליו; multi-item → bottom sheet. מונע modal מיותר.
 - **`Semantics(button: true, label: '$label, $count')`** על `_StatusChip` ✅
+
+**סבב 2 (29/4/2026):**
+- **Hebrew plural bug תוקן**: `criticalStock` ו-`pendingRequests` החזירו תמיד plural form ("1 מוצרים נגמרו", "1 בקשות ממתינות"). היה אי-עקביות עם overdue (שכבר טיפל ב-singular). נוספו `criticalStockSingle` ו-`pendingRequest` (he+en) + ternary בקוד עבור 3 ה-chips באופן אחיד.
+- **Row → Wrap לקצוץ-טקסט במכשירים צרים**: כש-3 chips נדלקים יחד במכשיר 360dp, Flexible+ellipsis היה מקצץ את ה-label ("5 ⚠️ ..."). Wrap (עם spacing+runSpacing) נופל לשורה שנייה במקום לקצוץ. הוסרו ה-`Expanded`s — chips עכשיו sizes-to-content (אופייני יותר ל-Wrap, לא 1/3 כל אחד). RTL מטופל אוטומטית דרך Directionality.
+- **`context.watch<UserContext>` → `context.select<UserContext, bool>((u) => u.isLoggedIn)`**: רק `isLoggedIn` מעניין את הוויג'ט — שינוי ב-themeMode/displayName לא צריך לרנדר את ActionCenter. אותו pattern של `pending_invites_banner.dart`.
 
 ### 🎯 `last_chance_banner.dart` — Decisions
 - **File relocation**: היה ב-`home/dashboard/widgets/` למרות שמשמש רק ב-`active_shopping_screen`. הועבר ל-`shopping/active/widgets/`. מיקום פיזי תואם עכשיו לשימוש האמיתי. caller import מ-`'../../home/dashboard/widgets/last_chance_banner.dart'` ל-`'widgets/last_chance_banner.dart'` — קצר ומובן יותר.
@@ -176,6 +202,14 @@
 - **Loading spinner מחליף את כל הכפתורים בזמן עיבוד** — מונע double-tap.
 - **`fixBidiNumbers`** על שם המוצר — RTL/LTR mixed text handling.
 - **Try/catch מעולה** בכל 3 ה-action methods: `messenger` cached, `mounted` check, `removeCurrentSnackBar` proactive.
+
+### ⏸️ Deferred — Style-on-style typography ב-`_StatusChip`
+- **Inline TextStyle** ב-שורות 281-296 (`fontSize: kFontSizeMedium`, `kFontSizeTiny`) במקום `theme.textTheme.labelLarge/labelSmall`. נכלל ב-typography sweep הגלובלי (ראה `app_theme.dart` Deferred) — תיקון נקודתי פה ייצור אי-עקביות.
+- **Trigger:** typography sweep גלובלי. **היקף:** קטן בקובץ, גדול חוצה-קבצים.
+
+### ⏸️ Deferred — `ExcludeSemantics` על drag handle
+- ה-`Container` של drag handle (שורות 197-204) הוא pure decoration אבל אין `ExcludeSemantics`. אותו pattern חוזר ב-`app_layout.dart`, `barcode_helpers.dart`, ועוד bottom sheets. תיקון נקודתי = drift.
+- **Trigger:** sweep ייעודי של drag handles באפליקציה. **היקף:** קטן (~5-7 קבצים).
 
 ### ⏸️ Deferred — `MyPantryScreen.pendingStockFilter` static field
 - **Static mutable field** משמש כ-intent passing בין מסכים: ActionCenter קובע → switching לטאב מזווה → המזווה צורך ומאפס.

@@ -37,11 +37,11 @@ class ActionCenterCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-    final userContext = context.watch<UserContext>();
+    final isLoggedIn = context.select<UserContext, bool>((u) => u.isLoggedIn);
     final listsProvider = context.watch<ShoppingListsProvider>();
     final inventoryProvider = context.watch<InventoryProvider>();
 
-    if (!userContext.isLoggedIn) return const SizedBox.shrink();
+    if (!isLoggedIn) return const SizedBox.shrink();
 
     // Single pass over the lists to bucket pending vs overdue.
     final pendingLists = <ShoppingList>[];
@@ -79,43 +79,41 @@ class ActionCenterCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      child: Row(
+      // Wrap (not Row) so 3 chips drop to a second line on narrow screens
+      // instead of ellipsizing the labels into "5 ⚠️ ...".
+      child: Wrap(
+        spacing: kSpacingSmall,
+        runSpacing: kSpacingSmall,
         children: [
-          if (criticalItems.isNotEmpty) ...[
-            Expanded(
-              child: _StatusChip(
-                icon: Icons.warning_amber_rounded,
-                color: brand?.stickyPink ?? kStickyPink,
-                count: criticalItems.length,
-                label: strings.criticalStock(criticalItems.length),
-                onTap: () => _openCriticalStock(context, criticalItems),
-              ),
+          if (criticalItems.isNotEmpty)
+            _StatusChip(
+              icon: Icons.warning_amber_rounded,
+              color: brand?.stickyPink ?? kStickyPink,
+              count: criticalItems.length,
+              label: criticalItems.length == 1
+                  ? strings.criticalStockSingle
+                  : strings.criticalStock(criticalItems.length),
+              onTap: () => _openCriticalStock(context, criticalItems),
             ),
-            const SizedBox(width: kSpacingSmall),
-          ],
-          if (overdueLists.isNotEmpty) ...[
-            Expanded(
-              child: _StatusChip(
-                icon: Icons.schedule,
-                color: cs.error,
-                count: overdueLists.length,
-                label: overdueLists.length == 1
-                    ? strings.overdueList
-                    : strings.overdueListsCount(overdueLists.length),
-                onTap: () => _openOverdueLists(context, overdueLists),
-              ),
+          if (overdueLists.isNotEmpty)
+            _StatusChip(
+              icon: Icons.schedule,
+              color: cs.error,
+              count: overdueLists.length,
+              label: overdueLists.length == 1
+                  ? strings.overdueList
+                  : strings.overdueListsCount(overdueLists.length),
+              onTap: () => _openOverdueLists(context, overdueLists),
             ),
-            const SizedBox(width: kSpacingSmall),
-          ],
           if (pendingCount > 0)
-            Expanded(
-              child: _StatusChip(
-                icon: Icons.pending_actions,
-                color: brand?.stickyOrange ?? kStickyOrange,
-                count: pendingCount,
-                label: strings.pendingRequests(pendingCount),
-                onTap: () => _openPendingRequests(context, pendingLists),
-              ),
+            _StatusChip(
+              icon: Icons.pending_actions,
+              color: brand?.stickyOrange ?? kStickyOrange,
+              count: pendingCount,
+              label: pendingCount == 1
+                  ? strings.pendingRequest
+                  : strings.pendingRequests(pendingCount),
+              onTap: () => _openPendingRequests(context, pendingLists),
             ),
         ],
       ),

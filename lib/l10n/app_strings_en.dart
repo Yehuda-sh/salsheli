@@ -2010,11 +2010,13 @@ class ActionCenterStringsEn extends ActionCenterStrings {
   const ActionCenterStringsEn();
 
   @override String get title => 'Needs Attention';
+  @override String get pendingRequest => '1 pending request';
   @override String pendingRequests(int count) => '$count pending requests';
   @override String get review => 'View';
   @override String get overdueList => 'Overdue list!';
   @override String overdueListsCount(int count) => '$count overdue lists!';
   @override String get startShopping => 'Start';
+  @override String get criticalStockSingle => '1 item out of stock';
   @override String criticalStock(int count) => '$count items out of stock';
   @override String get goToPantry => 'Pantry';
 }

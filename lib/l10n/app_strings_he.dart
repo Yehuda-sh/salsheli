@@ -2221,11 +2221,13 @@ class ActionCenterStrings {
   const ActionCenterStrings();
 
   String get title => 'דורש טיפול';
+  String get pendingRequest => 'בקשה אחת ממתינה';
   String pendingRequests(int count) => '$count בקשות ממתינות';
   String get review => 'צפה';
   String get overdueList => 'רשימה באיחור!';
   String overdueListsCount(int count) => '$count רשימות באיחור!';
   String get startShopping => 'התחל';
+  String get criticalStockSingle => 'מוצר אחד נגמר';
   String criticalStock(int count) => '$count מוצרים נגמרו';
   String get goToPantry => 'מזווה';
 }

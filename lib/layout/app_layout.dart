@@ -1,4 +1,4 @@
-// lib/layout/app_layout.dart — App scaffold layout — NotebookBackground + DevBanner wrapper for all screens
+// lib/layout/app_layout.dart — App scaffold layout — AppBar + Bottom Nav for all screens under MainNavigation
 
 import 'dart:async';
 import 'dart:ui';

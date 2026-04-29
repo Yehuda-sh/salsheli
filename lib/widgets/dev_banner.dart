@@ -7,7 +7,20 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../config/app_config.dart';
 import '../../core/ui_constants.dart';
 
+// אורך אלכסון תיבת הריבון — 88px נותן triangle visible מספיק לטקסט בלי לכסות UI.
+const double _kRibbonSize = 88.0;
+
+// משותף ל-pulse ו-shimmer כדי שיישארו מסונכרנים. שינוי באחד דורש שינוי בשני.
+const Duration _kAnimationDuration = Duration(milliseconds: 2400);
+
 /// 🏷️ באנר DEV - Glassmorphic ribbon בפינה ימנית עליונה
+///
+/// **חריגים מודעים** מ-design tokens של האפליקציה:
+/// - `Positioned(right: 0)` פיזי, לא directional — DEV badges נשארים
+///   top-right ב-LTR וב-RTL כאחד (קונבנציה אוניברסלית של מפתחים).
+/// - `Colors.orange/black/white` hardcoded — DEV ribbon הוא signal של
+///   "כלי debug, לא chrome של האפליקציה". theming יבלבל אותו עם
+///   elements של ה-UI.
 ///
 /// שימוש:
 /// ```dart
@@ -20,9 +33,6 @@ import '../../core/ui_constants.dart';
 /// ```
 class DevBanner extends StatelessWidget {
   const DevBanner({super.key});
-
-  // גודל תיבת הריבון — ריבוע 88×88
-  static const double _size = 88.0;
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +50,14 @@ class DevBanner extends StatelessWidget {
         // 🎨 RepaintBoundary — מאזל את אנימציית הלופ מעץ הווידג'טים
         child: RepaintBoundary(
           child: SizedBox(
-            width: _size,
-            height: _size,
+            width: _kRibbonSize,
+            height: _kRibbonSize,
             child: Stack(
               children: [
                 // 🖌️ Ribbon: shadow רך + gradient fill + glass highlight
                 CustomPaint(
                   painter: _RibbonPainter(color: ribbonColor),
-                  size: const Size(_size, _size),
+                  size: const Size(_kRibbonSize, _kRibbonSize),
                 ),
 
                 // 🏷️ DEV — מרוכז על האלכסון, מסובב 45° שעון-הפוך
@@ -79,9 +89,9 @@ class DevBanner extends StatelessWidget {
           )
               // ✨ Pulse (0.78↔1.0) + shimmer עדין בזווית הריבון — controller אחד
               .animate(onPlay: (c) => c.repeat(reverse: true))
-              .fade(begin: 0.78, end: 1.0, duration: 2400.ms, curve: Curves.easeInOut)
+              .fade(begin: 0.78, end: 1.0, duration: _kAnimationDuration, curve: Curves.easeInOut)
               .shimmer(
-                duration: 2400.ms,
+                duration: _kAnimationDuration,
                 color: Colors.white.withValues(alpha: 0.18),
                 angle: math.pi / 4, // shimmer רץ לאורך אלכסון הריבון
               ),
