@@ -144,13 +144,23 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - **האם יש קוד כפול?** — callers שעוקפים את ה-API במקום להשתמש בו
 - **האם ה-UX עקבי בין callers?** — snackbar dedup, haptic, error handling — באותו אופן בכל מקום
 
-### 🎨 Visual & Design System
+### 🎨 Design Tokens (היגיינה טכנית)
 - מספרי קסם → `kSpacing*` / `kFontSize*` / `kIconSize*` / `kBorderRadius*` / `kOpacity*`
 - צבעים → **רק** מ-`Theme.of(context).colorScheme` (לא `Colors.xxx`)
 - מחרוזות עברית → **רק** `AppStrings`
 - `const` איפה שאפשר (`SizedBox`, `EdgeInsets`, `Duration`)
 - חריגים מותרים: ערכי תכן ספציפיים (`alpha: 0.4` לסקרים) — אך **עם הערה**
 - כפילות עם `Theme` — לא להגדיר ערכים ש-Theme כבר קובע (`backgroundColor`, `shape` ב-bottom sheets)
+
+### 🖼️ Design Polish (תחושה ויזואלית)
+**שאלות עיצוב אמיתיות, לא רק "האם משתמשים בקבועים".**
+- 🎯 **היררכיה ויזואלית** — מה האלמנט הראשון שהעין רואה? האם זה הדבר החשוב? אם count badge חשוב למשתמש — האם הוא בולט מספיק או נחבא ב-`kOpacitySoft`?
+- 📐 **קצב/Rhythm** — האם המרווחים והגדלים יוצרים מבנה ברור או שזה אקראי? פערים בין כותרת לתוכן עקביים בכל הסקציות?
+- 📝 **Typography hierarchy** — האם בחירת `titleSmall`/`titleMedium`/`labelLarge` היא מודעת? האם משלבים `fontWeight: FontWeight.bold` מעל variant שכבר עם משקל (סטייל-מעל-סטייל)?
+- ✨ **Premium markers** — מה הופך את הוויג'ט הזה ל-**לא גנרי**? shadow? gradient? micro-animation? custom shape? אם אין — האם היה אמור להיות?
+- 🎭 **Empty / Loading / Error visuals** — האם המצבים האלה **מעוצבים** או "סתם מציגים מחרוזת"? אייקון? אילוסטרציה? CTA?
+- 🧬 **Coherence עם design language** — האפליקציה היא "Notebook + Sticky Notes". האם הוויג'ט הזה מרגיש חלק מזה, או generic Material? אם screen אחר באפליקציה דווקא **כן** מקיים את שפת העיצוב (לדוגמה: highlighter style ב-`shopping_lists_screen`) — זה gap.
+- ⚠️ **Mis-tap risk** — אלמנטים הרסניים (מחיקה, ביטול) רחוקים מ-CTAs ראשיים? Reject button פחות בולט מ-Approve?
 
 ### ⚡ Performance & Lifecycle
 - `RepaintBoundary` סביב אנימציות / shimmer / scrolls כבדים
@@ -281,6 +291,12 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - סבב שני (אחרי תיקונים) תופס את העמוק — באגים שהיו "מתחבאים" מאחורי קוד הברוקני.
 - דוגמה: `product_thumbnail.dart` — סבב ראשון תפס 2 ממצאים. סבב שני תפס באג של "דגני בוקר" שמופיע כדג, ו-3 מיפויי emoji שגויים.
 - **כלל אצבע:** כשהמשתמש אומר "סבב נוסף", לא להגיד "אין מה לתקן" אלא לקרוא **לאט**, להתמקד באזורים שלא היו ברורים בפעם הראשונה.
+
+### 🖼️ "Visual" בצ'קליסט = Tokens, לא Design
+- ה-🎨 הראשוני בצ'קליסט בודק **היגיינה** (קבועים, Theme, AppStrings) — לא **עיצוב**.
+- אסור לבלבל בין "השתמשתי ב-`kOpacityLight`" ל-"זה נראה טוב" — שניהם נדרשים, אבל הראשון לא מעיד על השני.
+- שאלות עיצוב אמיתיות (היררכיה, קצב, premium markers, coherence) חיות ב-`🖼️ Design Polish` — קטגוריה נפרדת.
+- דוגמה: ב-`section_header.dart` עברתי על Tokens וזה היה נקי. אבל באותו ניתוח פספסתי שהוויג'ט **לא תואם את שפת ה-notebook+sticky-notes** של האפליקציה — וזו הסיבה ש-3 מימושים מקבילים נולדו במקום להשתמש בו.
 
 ### 🔍 הצעות לפיצ'רים — לחפש קודם, להציע אחר כך
 - לפני להציע "Hero animation" — לבדוק `grep -rn "Hero("` כדי לראות אם hero כבר משמש.
