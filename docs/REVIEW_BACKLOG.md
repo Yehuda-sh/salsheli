@@ -39,6 +39,23 @@
 
 **🎯 Reference:** זה אחד הקבצים הראויים-לחיקוי באפליקציה לפי הצ'קליסט (RTL, Performance, A11y).
 
+### `post_auth_navigation.dart`
+
+**📂 Used in:** `register_screen.dart` (3 mathchas — Email/Google/Apple) + `login_screen.dart` (3 קריאות).
+
+**✅ Decisions Made:**
+- אין שינויים נדרשים — הקובץ עבר 12-category review מלא ב-29/4/2026 ללא ממצאים.
+- DI-ready: `service ?? PendingInvitesService()` מאפשר טסטים.
+- `Navigator.of(context)` נלכד לפני `await` — הפטרן הנכון להימנעות מ-`use_build_context_synchronously` warning.
+- Error handling שקול: failure ב-Firestore לא חוסם, ממשיך ל-`/`. ה-banner בדאשבורד יטפל ברקע.
+- Email-less guard (phone-only auth): ישר ל-`/`, לא תקלה.
+
+**⏸️ Deferred:** אין.
+
+**🎯 Reference:** ראוי לחיקוי — pattern של post-auth navigation עם DI, error handling, ולכידת navigator.
+
+---
+
 ### `legal_content_dialog.dart`
 
 **📂 Used in:** Welcome Screen + Settings Screen (Terms + Privacy links).
@@ -78,7 +95,7 @@
 ### ⏳ Files of this screen — pending review
 - `loading_overlay.dart` (Auth Cross-Cutting — לסקור עם login)
 - `social_login_button.dart` (Auth Cross-Cutting — לסקור עם login)
-- `post_auth_navigation.dart` (Auth Cross-Cutting — לסקור עם login)
+- ~~`post_auth_navigation.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets (אין ממצאים)
 
 ---
 
