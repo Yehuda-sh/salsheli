@@ -124,6 +124,32 @@
 
 ---
 
+## Bootstrap Entry (`main.dart`)
+
+### 📂 Components נגעו
+- `main.dart` (315 שורות) — Firebase init, Provider tree, Theme, Routing, Locale, error handlers
+
+### ✅ Decisions Made
+- **אין שינויים נדרשים בקובץ הזה** — נסקר ב-12 קטגוריות מלאות ב-29/4/2026.
+- **Firebase init idempotent** — `Firebase.apps.isEmpty` check מונע double-init ב-hot restart.
+- **Provider tree עקבי** — `ChangeNotifierProxyProvider` עם `updateUserContext` בכל caller.
+- **Lazy loading של Products** — `lazy: false` + `Future.microtask(initializeAndLoad)` בעת login.
+- **Global error handlers**: `FlutterError.onError` + `PlatformDispatcher.onError`. שניהם → Crashlytics רק ב-production.
+- **Auth routes Shared Axis transition** — premium "notebook page flip" feel (400ms forward, 350ms reverse — אסימטרי בכוונה).
+- **Locale + Directionality** — מ-`LocaleManager`, supportedLocales (he-IL, en-US) + 3 standard delegates.
+
+### ⏸️ Deferred
+- **🐛 Silent Firebase init failure בפרודקשן** (שורות 86-88) — אם init נכשל, ה-catch מדפיס debugPrint רק ב-kDebugMode. בפרודקשן השגיאה נבלעת בשקט והאפליקציה ממשיכה ב-broken state. תיקון לא קל:
+  - לרשום ל-Crashlytics → chicken/egg (Crashlytics הוא Firebase)
+  - להציג error UI → שובר bootstrap flow
+  - לצאת — `SystemNavigator.pop()` קיצוני
+  
+  **Trigger:** החלטה DevOps/QA. **היקף:** קטן בקובץ אבל גדול בהשלכות UX.
+
+**🎯 Reference:** דוגמה ל-Flutter app entry עם premium polish — Material You via DynamicColorBuilder, locale-aware Directionality, idempotent Firebase init, global error handlers gated by environment.
+
+---
+
 ## App Layout (Chrome)
 
 ### 📂 Components נגעו
