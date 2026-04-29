@@ -124,6 +124,27 @@
 
 ---
 
+## Main Navigation Screen
+
+### 📂 Components נגעו
+- `main_navigation_screen.dart` (247 שורות) — סקירה מלאה של 12 קטגוריות
+
+### ✅ Decisions Made
+- **Stream `onError` handler**: `service.watchUnreadCount(...).listen(onError: debugPrint)` — בלי זה, hiccup ב-Firestore (network/permissions) משתיק את ה-stream והבאדג' קופא. אותו pattern של `debugPrint` כמו `offline_banner.dart`.
+- **OfflineBanner mounting** ב-main_nav (לא per-tab) — single source of truth.
+- **IndexedStack שומר state** של כל 4 הטאבים — גלילה, חיפוש, פילטרים, נשמרים בעת מעבר.
+- **`_subscribedUserId` guard** ב-stream subscription — מונע resubscribe מיותר ב-didChangeDependencies.
+- **Double-tap to exit** עם `kDoubleTapTimeout` (2s), `messenger.clearSnackBars()` proactive.
+- **Bounds check** ב-`_onItemTapped` — מונע RangeError מ-deep links.
+- **Fade transition** (200ms) בין tabs + haptic selectionClick.
+
+### ⏸️ Deferred:
+אין.
+
+**🎯 Reference**: דוגמה ל-navigation hub עם state preservation (IndexedStack) + stream subscription resilient ל-userId change.
+
+---
+
 ## Bootstrap / Index Screen
 
 ### 📂 Components נגעו

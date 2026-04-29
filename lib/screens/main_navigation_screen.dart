@@ -102,11 +102,21 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
     final service = context.read<NotificationsService?>();
     if (service == null) return;
 
-    _unreadSub = service.watchUnreadCount(userId: userId).listen((count) {
-      if (mounted && _unreadCount != count) {
-        setState(() => _unreadCount = count);
-      }
-    });
+    _unreadSub = service.watchUnreadCount(userId: userId).listen(
+      (count) {
+        if (mounted && _unreadCount != count) {
+          setState(() => _unreadCount = count);
+        }
+      },
+      // Without onError, a Firestore hiccup (network drop, permissions
+      // glitch on token refresh) would silently cancel the subscription
+      // and freeze the badge on whatever value it last had. Log it
+      // instead so the badge eventually catches up on the next
+      // resubscribe (didChangeDependencies / userId change).
+      onError: (Object e) {
+        debugPrint('main_navigation: watchUnreadCount stream error — $e');
+      },
+    );
 
     // ניקוי התראות ישנות (30+ יום) — פעם אחת
     unawaited(service.cleanupOldNotifications(userId: userId));
