@@ -56,6 +56,21 @@
 
 ---
 
+### `loading_overlay.dart`
+
+**📂 Used in:** `register_screen.dart` + `login_screen.dart` — overlay טעינה במהלך auth.
+
+**✅ Decisions Made:**
+- **A11y: `Semantics(liveRegion + excludeSemantics + label: AppStrings.common.loading)`** — overlay דינמי שצץ באמצע auth, צריך להכריז פעם אחת. ה-`excludeSemantics` חוסם את ה-cycling messages (theatrical) מלהיקרא **כל 1500ms** ולהפוך לרעש בקורא מסך.
+- **Cycling messages הם theatrical, לא state-driven**: הם מתחלפים בטיימר (1500ms) ולא לפי auth-state אמיתי. דקלרטיבי — עובד לויזואל, לא לקוראי מסך.
+- **Performance**: `setState` כל 1500ms rebuild את כל הוויג'ט, אבל overlay חולף — over-engineering לאופטם עם ValueNotifier.
+
+**⏸️ Deferred:** אין.
+
+**🎯 Pattern:** דוגמה ל-liveRegion עם excludeSemantics — `theatrical UI עם הכרזה אחת**. כשיש cycling/animated text שלא משקף state אמיתי, להחריג מה-semantics tree ולתת label סטטי.
+
+---
+
 ### `social_login_button.dart`
 
 **📂 Used in:** `register_screen.dart` (×2 — Google/Apple) + `login_screen.dart` (×2 — Google/Apple).
@@ -111,7 +126,7 @@
 - **Style-on-style typography**: `headlineLarge.copyWith(fontSize: kFontSizeXLarge, fontWeight: w800)` — דפוס שחוזר באפליקציה (welcome, suggestions_today_card, section_header [תוקן]). **Trigger:** typography sweep גלובלי. **היקף:** בינוני (חוצה-קבצים).
 
 ### ⏳ Files of this screen — pending review
-- `loading_overlay.dart` (Auth Cross-Cutting — לסקור עם login)
+- ~~`loading_overlay.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets
 - ~~`social_login_button.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets
 - ~~`post_auth_navigation.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets (אין ממצאים)
 

@@ -46,24 +46,34 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircularProgressIndicator(color: widget.color),
-        const SizedBox(height: kSpacingMedium),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: Text(
-            _messages[_messageIndex],
-            key: ValueKey(_messageIndex),
-            style: TextStyle(
-              color: cs.onSurface,
-              fontSize: kFontSizeMedium,
-              fontWeight: FontWeight.w500,
+    // liveRegion + excludeSemantics: announce "loading" once when the
+    // overlay first appears (canonical CLAUDE.md A11y use case — a
+    // dynamic loading state). The cycling messages below are theatrical
+    // for visual users only — letting them feed back into TalkBack
+    // would re-read every 1500ms, which is just noise.
+    return Semantics(
+      liveRegion: true,
+      excludeSemantics: true,
+      label: AppStrings.common.loading,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(color: widget.color),
+          const SizedBox(height: kSpacingMedium),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: Text(
+              _messages[_messageIndex],
+              key: ValueKey(_messageIndex),
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: kFontSizeMedium,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
