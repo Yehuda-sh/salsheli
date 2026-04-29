@@ -1602,10 +1602,61 @@ class ActivityLogStrings {
       '$actor עדכן/ה מלאי "$productName"';
   String memberLeft(String actor) =>
       '$actor עזב/ה את הבית';
+  String memberJoined(String actor) =>
+      '$actor הצטרף/ה לבית';
   String roleChanged(String actor, String targetName, String newRole) =>
       '$actor שינה/תה תפקיד של $targetName ל$newRole';
+  String listDeleted(String actor, String listName) =>
+      '$actor מחק/ה את הרשימה "$listName"';
+  String listShared(String actor, String listName) =>
+      '$actor שיתף/ה את הרשימה "$listName" עם הבית';
   String unknownActivity(String actor) =>
       '$actor ביצע/ה פעולה';
+
+  // Feed variants — actor name shown separately, so the description
+  // omits it to avoid duplication ("יהודה • לפני 5 דק׳ / סיים/ה קנייה...").
+  String feedShoppingCompleted(String listName) =>
+      'סיים/ה קנייה מ"$listName"';
+  String feedShoppingStarted(String listName) =>
+      'התחיל/ה קנייה מ"$listName"';
+  String feedShoppingJoined(String listName) =>
+      'הצטרף/ה לקנייה מ"$listName"';
+  String feedListCreated(String listName) =>
+      'יצר/ה רשימה "$listName"';
+  String feedItemAdded(String itemName, String listName) =>
+      'הוסיף/ה "$itemName" ל"$listName"';
+  String feedStockUpdated(String productName) =>
+      'עדכן/ה מלאי "$productName"';
+  String get feedMemberLeft => 'עזב/ה את הבית';
+  String get feedMemberJoined => 'הצטרף/ה לבית';
+  String feedRoleChanged(String targetName, String newRole) =>
+      'שינה/תה תפקיד של $targetName ל$newRole';
+
+  /// Maps a raw `UserRole.name` value (`'editor'`, `'admin'`, ...) to a
+  /// localized display name. Returns the raw value as-is for unknown
+  /// inputs so the message still renders gracefully.
+  String roleDisplayName(String role) {
+    switch (role) {
+      case 'owner':
+        return 'בעלים';
+      case 'admin':
+        return 'מנהל';
+      case 'editor':
+        return 'עורך';
+      case 'viewer':
+        return 'צופה';
+      default:
+        return role;
+    }
+  }
+  String feedListDeleted(String listName) =>
+      'מחק/ה את הרשימה "$listName"';
+  String feedListShared(String listName) =>
+      'שיתף/ה את הרשימה "$listName" עם הבית';
+  String get feedUnknownActivity => 'ביצע/ה פעולה';
+
+  // "Just now" — replaces "לפני 0 דק'" for very recent events.
+  String get justNow => 'עכשיו';
 }
 
 // ========================================
@@ -1622,6 +1673,7 @@ class ActiveShopperBannerStrings {
   String get continueButton => 'המשך';
   String othersActiveTitle(String shopperName) => '$shopperName קונה עכשיו';
   String othersActiveTitleMultiple(int count) => '$count קונים עכשיו';
+  String get someoneShopping => 'מישהו קונה עכשיו';
   String othersActiveSingle(String listName) => 'קונה מ"$listName"';
   String othersActiveMultiple(int count, String listName) => '$count אנשים קונים מ"$listName"';
   String get joinButton => 'להצטרף';
@@ -1652,6 +1704,7 @@ class SuggestionsTodayCardStrings {
   String get urgencyLow => 'מומלץ';
   String inStock(int stock, String unit) => 'במלאי: $stock $unit';
   String get addButton => 'הוסף';
+  String get dismissTooltip => 'הסתר לשבוע';
   String get noActiveLists => 'אין רשימות פעילות - צור רשימה חדשה';
   String get chooseListTitle => 'לאיזו רשימה להוסיף?';
   String get addedToList => 'נוסף לרשימה';
@@ -1660,6 +1713,7 @@ class SuggestionsTodayCardStrings {
   String suggestionError(String error) => 'שגיאה: $error';
   String get addAll => 'הוסף הכל';
   String addedAll(int count, String listName) => '$count פריטים נוספו ל"$listName"';
+  String get addAllFailed => 'לא הצלחנו להוסיף את הפריטים — נסה שוב';
 }
 
 // ========================================
@@ -1700,8 +1754,10 @@ class PendingInvitesScreenStrings {
   String get emptySubtitle => 'כאשר מישהו יזמין אותך לרשימה,\nההזמנה תופיע כאן';
   String get pullToRefresh => '↓ משוך לרענון';
   String get listFallback => 'רשימה';
+  String get householdFallback => 'בית';
   String get userFallback => 'משתמש';
   String inviteToList(String listName) => 'הזמנה לרשימה "$listName"';
+  String inviteToHousehold(String householdName) => 'הזמנה להצטרף ל"$householdName"';
   String inviterMessage(String inviterName) => '$inviterName מזמין אותך להצטרף';
   String get roleLabel => 'תפקיד: ';
   String get acceptButton => 'הצטרף';
@@ -1710,6 +1766,7 @@ class PendingInvitesScreenStrings {
   String acceptError(String error) => 'שגיאה באישור ההזמנה: $error';
   String get declineDialogTitle => 'דחיית הזמנה';
   String declineDialogMessage(String listName) => 'לדחות את ההזמנה לרשימה "$listName"?';
+  String declineHouseholdDialogMessage(String householdName) => 'לדחות את ההזמנה ל"$householdName"?';
   String get cancelButton => 'ביטול';
   String get declineConfirmButton => 'דחה';
   String get declineSuccess => 'ההזמנה נדחתה';
@@ -1732,7 +1789,11 @@ class PendingInvitesScreenStrings {
 class PendingInviteBannerStrings {
   const PendingInviteBannerStrings();
 
+  /// Generic title — kept for back-compat, but the banner now picks
+  /// [titleListInvite] / [titleHouseholdInvite] based on the invite type.
   String get title => 'הזמנה לקבוצה';
+  String get titleListInvite => 'הזמנה לרשימה';
+  String get titleHouseholdInvite => 'הזמנה לבית';
   String moreCount(int count) => '+$count';
   String inviteMessage(String inviterName, String groupName) => '$inviterName הזמין אותך ל"$groupName"';
   String get acceptButton => 'קבל';
@@ -1756,6 +1817,7 @@ class HomeDashboardStrings {
   String get inviteFamilyAction => 'הזמן';
   String get errorTitle => 'שגיאה בטעינת נתונים';
   String get retryButton => 'נסה שוב';
+  String get refreshOfflineMessage => 'אין חיבור — מציג נתונים שמורים';
   String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'שלום, $userName!' : 'שלום!';
   String timeBasedGreeting(String? userName, int hour) {
     final String greet;
@@ -1779,6 +1841,7 @@ class HomeDashboardStrings {
   String get createListHint => 'המחברת שלך מוכנה... מה קונים היום?';
   String get createFirstList => 'צור רשימה ראשונה';
   String get emptyList => 'רשימה ריקה';
+  String get emptyListCta => 'הקש להוספת פריטים';
   String get completed => 'הושלם! ✓';
   String remainingItems(int count) => 'נותרו $count פריטים';
   String itemsCount(int count) => '$count פריטים';
@@ -1841,6 +1904,8 @@ class PantryStrings {
   String get retryButton => 'נסה שוב';
   String get noItemsFound => 'לא נמצאו פריטים';
   String get clearFilters => 'נקה סינון';
+  String get filterOutOfStockLabel => 'מציג: מוצרים שנגמרו';
+  String get filterLowStockLabel => 'מציג: מלאי נמוך';
   String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';
@@ -2130,10 +2195,14 @@ class OnboardingTipsStrings {
   String get fillPantryTitle => 'מלא את המזווה שלך';
   String get fillPantrySubtitle => 'ספר לנו מה יש לך בבית — נתריע כשמשהו נגמר';
   String get fillPantryAction => 'התחל';
+  String fillPantryProgress(int current, int target) => 'מזווה: $current/$target פריטים';
 
   String get createListsTitle => 'צור עוד רשימות';
   String get createListsSubtitle => 'סופר, ירקן, מאפייה, אירוע — רשימה לכל סוג';
   String get createListsAction => 'צור';
+  String createListsProgress(int current, int target) => 'רשימות: $current/$target';
+
+  String get dismissTooltip => 'הסתר טיפ';
 }
 
 // ========================================

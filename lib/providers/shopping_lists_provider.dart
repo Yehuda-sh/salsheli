@@ -439,6 +439,17 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       await _repository.deleteList(id, userId, householdId, isPrivate);
       // Stream listener handles UI update
+
+      // 📝 Activity log — only on shared lists; private deletes are personal.
+      if (householdId != null && list != null && !isPrivate) {
+        unawaited(_activityLog.log(
+          householdId: householdId,
+          type: ActivityType.listDeleted,
+          actorId: userId,
+          actorName: _userContext?.displayName ?? '',
+          data: {'list_id': id, 'list_name': list.name},
+        ));
+      }
     } catch (e) {
       _errorMessage = 'שגיאה במחיקת רשימה $id: ${userFriendlyError(e, context: 'deleteList')}';
       _notifySafe();
@@ -512,6 +523,19 @@ class ShoppingListsProvider with ChangeNotifier {
     try {
       await _repository.shareListToHousehold(listId, userId, householdId);
       // Stream listener handles UI update
+
+      // 📝 Activity log
+      final list = getById(listId);
+      unawaited(_activityLog.log(
+        householdId: householdId,
+        type: ActivityType.listShared,
+        actorId: userId,
+        actorName: _userContext?.displayName ?? '',
+        data: {
+          'list_id': listId,
+          'list_name': list?.name ?? '',
+        },
+      ));
     } catch (e) {
       _errorMessage = 'שגיאה בשיתוף רשימה $listId: ${userFriendlyError(e, context: 'shareList')}';
       _notifySafe();
@@ -554,6 +578,23 @@ class ShoppingListsProvider with ChangeNotifier {
       category: category ?? 'unknown',
       isFromCatalog: false, // addItemToList is manual entry
     ));
+
+    // 📝 Activity log — only on shared lists.
+    final householdId = _userContext?.householdId;
+    final userId = _userContext?.user?.id;
+    if (householdId != null && userId != null && !list.isPrivate) {
+      unawaited(_activityLog.log(
+        householdId: householdId,
+        type: ActivityType.itemAdded,
+        actorId: userId,
+        actorName: _userContext?.displayName ?? '',
+        data: {
+          'list_id': listId,
+          'list_name': list.name,
+          'item_name': name,
+        },
+      ));
+    }
   }
 
   // === 🆕 Add UnifiedListItem (Product or Task) ===
@@ -599,6 +640,24 @@ class ShoppingListsProvider with ChangeNotifier {
       unawaited(AnalyticsService.instance.logAddItem(
         category: item.category ?? 'unknown',
         isFromCatalog: true, // addUnifiedItem typically comes from catalog
+      ));
+    }
+
+    // 📝 Activity log — only on shared lists, otherwise the feed would fill
+    // up with the user's own private items.
+    final householdId = _userContext?.householdId;
+    final userId = _userContext?.user?.id;
+    if (householdId != null && userId != null && !list.isPrivate) {
+      unawaited(_activityLog.log(
+        householdId: householdId,
+        type: ActivityType.itemAdded,
+        actorId: userId,
+        actorName: _userContext?.displayName ?? '',
+        data: {
+          'list_id': listId,
+          'list_name': list.name,
+          'item_name': item.name,
+        },
       ));
     }
   }

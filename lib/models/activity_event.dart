@@ -30,8 +30,17 @@ enum ActivityType {
   @JsonValue('member_left')
   memberLeft,
 
+  @JsonValue('member_joined')
+  memberJoined,
+
   @JsonValue('role_changed')
   roleChanged,
+
+  @JsonValue('list_deleted')
+  listDeleted,
+
+  @JsonValue('list_shared')
+  listShared,
 
   @JsonValue('unknown')
   unknown;

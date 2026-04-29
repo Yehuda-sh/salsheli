@@ -25,8 +25,16 @@ import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/household_activity_feed.dart';
 import 'widgets/onboarding_tips_card.dart';
+import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
 
+// Layout tokens specific to the active-list card.
+const double _kAvatarSize = 44.0;
+const double _kProgressStrokeWidth = 3.0;
+const double _kListAccentBarWidth = 5.0;
+// Empty-state illustration size — keeps a stable footprint even when
+// the asset fails to decode and the errorBuilder swaps in a fallback icon.
+const double _kEmptyStateImageHeight = 100.0;
 
 class HomeDashboardScreen extends StatefulWidget {
   final Function(int)? onTabSelected;
@@ -46,10 +54,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   void initState() {
     super.initState();
 
+    // The stagger animation runs from postFrame for ~600ms (5 sections
+    // × 50ms delay + 400ms duration). Showing the tutorial on top of
+    // the slide-in dance feels chaotic. Flip _hasAnimated immediately
+    // so the next build reads as "already animated" once the first
+    // pass paints, but defer the tutorial dialog until after the
+    // stagger finishes. Mount check guards against navigating away
+    // during the wait.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _hasAnimated = true);
+    });
+    Future.delayed(const Duration(milliseconds: 700), () {
       if (mounted) {
         TutorialService.showHomeTutorialIfNeeded(context);
-        setState(() => _hasAnimated = true);
       }
     });
   }
@@ -57,22 +75,28 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Future<void> _refresh(BuildContext context) async {
     if (_isRefreshing) return;
 
-    setState(() => _isRefreshing = true);
+    // _isRefreshing isn't read in build() — only used as a re-entry
+    // guard inside this method. No setState needed; the state change
+    // shouldn't trigger a rebuild.
+    _isRefreshing = true;
 
-
+    // Cache the messenger before the await chain — using Scaffold.of()
+    // post-await is unsafe if the user navigates away mid-refresh.
+    final messenger = ScaffoldMessenger.of(context);
     final lists = context.read<ShoppingListsProvider>();
     final sugg = context.read<SuggestionsProvider>();
     final receipts = context.read<ReceiptProvider>();
 
     unawaited(HapticFeedback.mediumImpact());
 
+    var hadError = false;
     try {
       await Future.wait([
         lists.loadLists(),
         receipts.loadReceipts(),
       ]);
     } on Exception catch (_) {
-      // Silently handle - data will show cached state
+      hadError = true;
     }
 
     if (!context.mounted) return;
@@ -80,19 +104,30 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     try {
       await sugg.refreshSuggestions();
     } on Exception catch (_) {
-      // Silently handle - suggestions are non-critical
+      // Suggestions are non-critical — they don't bump the error flag.
     }
 
     await Future.delayed(const Duration(milliseconds: 300));
 
-    if (context.mounted) {
-      unawaited(HapticFeedback.lightImpact());
+    if (!context.mounted) return;
+
+    unawaited(HapticFeedback.lightImpact());
+
+    // Tell the user we couldn't refresh; UI is showing cached data.
+    // Clear any prior SnackBar first so refresh feedback doesn't stack
+    // on top of an unrelated message.
+    if (hadError) {
+      messenger.removeCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.homeDashboard.refreshOfflineMessage),
+          duration: kSnackBarDuration,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
 
-
-    if (mounted) {
-      setState(() => _isRefreshing = false);
-    }
+    _isRefreshing = false;
   }
 
   /// עוטף widget באנימציית כניסה מדורגת (רק בפעם הראשונה)
@@ -120,8 +155,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
 
-    final paperBg = brand?.paperBackground ?? theme.scaffoldBackgroundColor;
-
     // רשימות פעילות בלבד, ממוינות לפי עדכון אחרון (חדש קודם)
     final activeLists = listsProvider.lists
         .where((l) => l.status == ShoppingList.statusActive)
@@ -130,31 +163,45 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     var sectionIndex = 0;
 
+    // Empty state already shows a prominent "Create first list" CTA in
+    // the active-lists card — duplicating it as a FAB clutters the
+    // screen. Hide the FAB until the user has at least one list.
+    final showFab = activeLists.isNotEmpty;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'home_fab',
-        onPressed: () {
-          unawaited(HapticFeedback.lightImpact());
-          Navigator.pushNamed(context, '/create-list');
-        },
-        tooltip: AppStrings.homeDashboard.newListButton,
-        icon: Image.asset('assets/images/icon_new_list.webp', width: kIconSizeMedium, height: kIconSizeMedium),
-        label: Text(AppStrings.homeDashboard.newListButton),
-      ).animate().scale(
-            begin: const Offset(0.8, 0.8),
-            end: const Offset(1.0, 1.0),
-            duration: 500.ms,
-            delay: 300.ms,
-            curve: Curves.elasticOut,
-          ),
+      floatingActionButton: showFab
+          ? FloatingActionButton.extended(
+              heroTag: 'home_fab',
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                Navigator.pushNamed(context, '/create-list');
+              },
+              tooltip: AppStrings.homeDashboard.newListButton,
+              icon: Image.asset(
+                'assets/images/icon_new_list.webp',
+                width: kIconSizeMedium,
+                height: kIconSizeMedium,
+                errorBuilder: (_, _, _) =>
+                    const Icon(Icons.add, size: kIconSizeMedium),
+              ),
+              label: Text(AppStrings.homeDashboard.newListButton),
+            ).animate().scale(
+                  begin: const Offset(0.8, 0.8),
+                  end: const Offset(1.0, 1.0),
+                  duration: 500.ms,
+                  delay: 300.ms,
+                  curve: Curves.elasticOut,
+                )
+          : null,
       body: Stack(
         children: [
           const NotebookBackground(),
           SafeArea(
             child: RefreshIndicator(
               color: brand?.accent ?? cs.primary,
-              backgroundColor: paperBg,
+              backgroundColor:
+                  brand?.paperBackground ?? theme.scaffoldBackgroundColor,
               strokeWidth: 4.0,
               displacement: 50.0,
               onRefresh: () => _refresh(context),
@@ -165,13 +212,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // === 0. Offline banner ===
                   const OfflineBanner(),
 
-                  // === 1. באנרים (Error / Active Shopper) ===
+                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
                   _staggered(
                     Column(
                       children: [
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
+                        const PendingInvitesBanner(),
                       ],
                     ),
                     sectionIndex++,
@@ -197,6 +245,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
+                  const SizedBox(height: kSpacingMedium),
 
                   // === 4. הצעות להיום ===
                   _staggered(
@@ -205,7 +254,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
-
                   const SizedBox(height: kSpacingMedium),
 
                   // === 5. רשימות פעילות ===
@@ -215,10 +263,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                     sectionIndex++,
                   ),
-
-                  const SizedBox(height: kSpacingSmall),
+                  const SizedBox(height: kSpacingMedium),
 
                   // === 5.5. טיפים למשתמש חדש (נעלם אוטומטית) ===
+                  // The card supplies its own bottom padding when it has
+                  // tips to show, and a full SizedBox.shrink when it
+                  // doesn't — no trailing gap when there's nothing to see.
                   OnboardingTipsCard(
                     onNavigateToPantry: widget.onTabSelected != null
                         ? () => widget.onTabSelected!(1)
@@ -234,8 +284,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     sectionIndex++,
                   ),
 
-                  // מרווח לפני FAB
-                  const SizedBox(height: kIconSizeXLarge + kSpacingXLarge),
+                  // FAB clearance (only when FAB is showing)
+                  SizedBox(height: showFab ? kIconSizeXLarge + kSpacingXLarge : kSpacingMedium),
                 ],
               ),
             ),
@@ -250,12 +300,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   // ============================================
   Widget _buildInviteFamilyBanner(BuildContext context) {
     final userContext = context.watch<UserContext>();
-    final householdName = userContext.user?.householdName;
-    // Same solo heuristic as OnboardingTipsCard
-    final isSolo = userContext.user?.isSolo ??
-        (householdName == null ||
-         householdName.contains('של') ||
-         householdName.contains('Home'));
+    // Trust the explicit `isSolo` flag from the user document. The old
+    // fallback that sniffed Hebrew/English substrings of householdName
+    // ('של', 'Home') broke as soon as the user switched UI language and
+    // wasn't reliable across naming choices anyway. If isSolo is null
+    // (legacy users on older docs) the banner stays hidden — better to
+    // miss a one-off banner than mis-classify a real household as solo.
+    final isSolo = userContext.user?.isSolo ?? false;
 
     if (!isSolo) return const SizedBox.shrink();
 
@@ -273,11 +324,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ],
         ),
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.3)),
+        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacityLight)),
       ),
       child: Row(
         children: [
-          const Text('👨‍👩‍👧‍👦', style: TextStyle(fontSize: kFontSizeLarge)),
+          // Plain house emoji — the previous family ZWJ sequence
+          // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
+          // Decorative only — screen readers should jump straight to
+          // the title text, not announce "house".
+          const ExcludeSemantics(
+            child: Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
+          ),
           const SizedBox(width: kSpacingSmallPlus),
           Expanded(
             child: Column(
@@ -326,7 +383,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: BoxDecoration(
         color: cs.errorContainer,
         borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: cs.error.withValues(alpha: 0.3)),
+        border: Border.all(color: cs.error.withValues(alpha: kOpacityLight)),
       ),
       child: Row(
         children: [
@@ -347,7 +404,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: kSpacingXTiny / 2),
                 Text(
                   errorMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -391,34 +448,39 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     return Column(
       children: [
-        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
-          decoration: BoxDecoration(
-            color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: 0.85),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
-              const SizedBox(width: kSpacingSmall),
-              Text(
-                strings.activeListsTitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: cs.onSurfaceVariant,
+        // כותרת — ממורכזת, עם רקע paper לקריאות על קווי מחברת.
+        // Marked as a Semantics header so screen readers announce
+        // "active lists, 5" as a section break, not just inline text.
+        Semantics(
+          header: true,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingXTiny),
+            decoration: BoxDecoration(
+              color: theme.extension<AppBrand>()?.paperBackground.withValues(alpha: kOpacityHigh),
+              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
+                const SizedBox(width: kSpacingSmall),
+                Text(
+                  strings.activeListsTitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: cs.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(width: kSpacingXTiny),
-              Text(
-                '${activeLists.length}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.outline,
+                const SizedBox(width: kSpacingXTiny),
+                Text(
+                  '${activeLists.length}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: cs.outline,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: kSpacingSmall),
@@ -427,7 +489,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         if (activeLists.isEmpty)
           Card(
             elevation: 0,
-            color: cs.secondaryContainer.withValues(alpha: 0.2),
+            color: cs.secondaryContainer.withValues(alpha: kOpacityLow),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
               side: BorderSide(
@@ -444,11 +506,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 padding: const EdgeInsets.symmetric(vertical: kSpacingXLarge, horizontal: kSpacingLarge),
                 child: Column(
                   children: [
-                    // Illustration
+                    // Illustration — falls back to a Material icon if the
+                    // asset is missing so the empty-state still reads.
                     Image.asset(
                       'assets/images/empty_cart.webp',
-                      height: 100,
+                      height: _kEmptyStateImageHeight,
                       fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => Icon(
+                        Icons.shopping_cart_outlined,
+                        size: _kEmptyStateImageHeight,
+                        color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
+                      ),
                     ),
                     const SizedBox(height: kSpacingMedium),
                     Text(
@@ -497,9 +565,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final theme = Theme.of(context);
     final brand = theme.extension<AppBrand>();
     final strings = AppStrings.homeDashboard;
-    final uncheckedCount = list.items.where((i) => !i.isChecked).length;
-    final checkedCount = list.items.where((i) => i.isChecked).length;
+    // Single-pass count instead of two `where().length` scans — saves
+    // an extra O(n) walk per card per rebuild. Matters once the user
+    // has multiple lists with many items each.
+    var checkedCount = 0;
     final totalCount = list.items.length;
+    for (final item in list.items) {
+      if (item.isChecked) checkedCount++;
+    }
+    final uncheckedCount = totalCount - checkedCount;
     final progress = totalCount > 0 ? checkedCount / totalCount : 0.0;
 
     // צבע לפי סוג הרשימה (מרכזי ב-ListTypes)
@@ -509,7 +583,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final isDone = totalCount > 0 && uncheckedCount == 0;
     final accentColor = isDone ? successColor : typeColor;
 
-    return Card(
+    // Compose a screen-reader label that matches what a sighted user
+    // takes in at a glance: list name + progress + done flag. Without
+    // this, TalkBack/VoiceOver reads the inner Text widgets piecemeal
+    // ("4", "/", "12") with no indication this is a tappable card.
+    final semanticLabel = isDone
+        ? '${list.name}, ${strings.completed}'
+        : totalCount == 0
+            ? '${list.name}, ${strings.emptyList}'
+            : '${list.name}, $checkedCount / $totalCount';
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
       color: cs.surface.withValues(alpha: 0.7),
@@ -534,7 +621,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               // פס צבע צד ימין (RTL) / שמאל (LTR)
               Container(
-                width: 5,
+                width: _kListAccentBarWidth,
                 decoration: BoxDecoration(
                   color: accentColor,
                   borderRadius: isRtl
@@ -563,8 +650,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       Hero(
                         tag: 'list_hero_${list.id}',
                         child: SizedBox(
-                          width: 44,
-                          height: 44,
+                          width: _kAvatarSize,
+                          height: _kAvatarSize,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -572,7 +659,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                 SizedBox.expand(
                                   child: CircularProgressIndicator(
                                     value: progress,
-                                    strokeWidth: 3,
+                                    strokeWidth: _kProgressStrokeWidth,
                                     backgroundColor: accentColor.withValues(alpha: 0.15),
                                     valueColor: AlwaysStoppedAnimation(accentColor),
                                   ),
@@ -610,11 +697,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             ),
                             const SizedBox(height: kSpacingTiny),
                             if (totalCount == 0)
-                              Text(
-                                strings.emptyList,
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: cs.onSurfaceVariant,
-                                ),
+                              // Inviting CTA instead of dead-end "Empty
+                              // list". The card itself is tappable, so
+                              // this nudges the user to use that.
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.add_circle_outline,
+                                    size: kFontSizeSmall,
+                                    color: accentColor,
+                                  ),
+                                  const SizedBox(width: kSpacingXTiny),
+                                  Text(
+                                    strings.emptyListCta,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: accentColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               )
                             else ...[
                               // Progress bar - עבה יותר עם קצוות מעוגלים
@@ -664,10 +765,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
-                      // חץ - RTL aware
+                      // חץ - RTL aware. Dropped the alpha 0.5 dimming —
+                      // on light backgrounds it bleached the chevron to
+                      // the point of invisibility. cs.onSurfaceVariant
+                      // is already a softer-than-onSurface tone.
                       Icon(
                         isRtl ? Icons.chevron_left : Icons.chevron_right,
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                        color: cs.onSurfaceVariant,
                         size: kIconSizeSmallPlus,
                       ),
                     ],
@@ -677,6 +781,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -39,6 +39,9 @@ const _$ActivityTypeEnumMap = {
   ActivityType.itemAdded: 'item_added',
   ActivityType.stockUpdated: 'stock_updated',
   ActivityType.memberLeft: 'member_left',
+  ActivityType.memberJoined: 'member_joined',
   ActivityType.roleChanged: 'role_changed',
+  ActivityType.listDeleted: 'list_deleted',
+  ActivityType.listShared: 'list_shared',
   ActivityType.unknown: 'unknown',
 };

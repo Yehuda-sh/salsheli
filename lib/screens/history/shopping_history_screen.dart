@@ -1051,7 +1051,10 @@ class _ActivityEventTile extends StatelessWidget {
       ActivityType.itemAdded => Icons.add_circle_outline,
       ActivityType.stockUpdated => Icons.inventory_2,
       ActivityType.memberLeft => Icons.person_remove,
+      ActivityType.memberJoined => Icons.person_add,
       ActivityType.roleChanged => Icons.admin_panel_settings,
+      ActivityType.listDeleted => Icons.delete_outline,
+      ActivityType.listShared => Icons.share,
       ActivityType.unknown => Icons.info_outline,
     };
   }
@@ -1065,7 +1068,10 @@ class _ActivityEventTile extends StatelessWidget {
       ActivityType.itemAdded => cs.primary,
       ActivityType.stockUpdated => cs.secondary,
       ActivityType.memberLeft => cs.error,
+      ActivityType.memberJoined => cs.primary,
       ActivityType.roleChanged => cs.tertiary,
+      ActivityType.listDeleted => cs.error,
+      ActivityType.listShared => cs.tertiary,
       ActivityType.unknown => cs.outline,
     };
   }
@@ -1095,8 +1101,21 @@ class _ActivityEventTile extends StatelessWidget {
         return strings.stockUpdated(actor, event.productName ?? '');
       case ActivityType.memberLeft:
         return strings.memberLeft(actor);
+      case ActivityType.memberJoined:
+        return strings.memberJoined(actor);
       case ActivityType.roleChanged:
-        return strings.roleChanged(actor, event.targetName ?? '', event.newRole ?? '');
+        // Translate the raw enum role name into the localized display
+        // form so the history reads "Avi changed Noa's role to עורך"
+        // instead of "...to editor" in Hebrew locales.
+        return strings.roleChanged(
+          actor,
+          event.targetName ?? '',
+          strings.roleDisplayName(event.newRole ?? ''),
+        );
+      case ActivityType.listDeleted:
+        return strings.listDeleted(actor, event.listName ?? '');
+      case ActivityType.listShared:
+        return strings.listShared(actor, event.listName ?? '');
       case ActivityType.unknown:
         return strings.unknownActivity(actor);
     }

@@ -1451,10 +1451,54 @@ class ActivityLogStringsEn extends ActivityLogStrings {
       '$actor updated stock for "$productName"';
   @override String memberLeft(String actor) =>
       '$actor left the household';
+  @override String memberJoined(String actor) =>
+      '$actor joined the household';
   @override String roleChanged(String actor, String targetName, String newRole) =>
-      '$actor changed $targetName\'s role to $newRole';
+      "$actor changed $targetName's role to $newRole";
+  @override String listDeleted(String actor, String listName) =>
+      '$actor deleted list "$listName"';
+  @override String listShared(String actor, String listName) =>
+      '$actor shared list "$listName" with the household';
   @override String unknownActivity(String actor) =>
       '$actor performed an action';
+
+  @override String feedShoppingCompleted(String listName) =>
+      'completed shopping from "$listName"';
+  @override String feedShoppingStarted(String listName) =>
+      'started shopping from "$listName"';
+  @override String feedShoppingJoined(String listName) =>
+      'joined shopping from "$listName"';
+  @override String feedListCreated(String listName) =>
+      'created list "$listName"';
+  @override String feedItemAdded(String itemName, String listName) =>
+      'added "$itemName" to "$listName"';
+  @override String feedStockUpdated(String productName) =>
+      'updated stock for "$productName"';
+  @override String get feedMemberLeft => 'left the household';
+  @override String get feedMemberJoined => 'joined the household';
+  @override String feedRoleChanged(String targetName, String newRole) =>
+      "changed $targetName's role to $newRole";
+  // English role names already match the raw enum values, so the
+  // override returns them unchanged. The base he switch handles
+  // 'unknown' fall-through too.
+  @override String roleDisplayName(String role) {
+    switch (role) {
+      case 'owner':
+      case 'admin':
+      case 'editor':
+      case 'viewer':
+        return role;
+      default:
+        return role;
+    }
+  }
+  @override String feedListDeleted(String listName) =>
+      'deleted list "$listName"';
+  @override String feedListShared(String listName) =>
+      'shared list "$listName" with the household';
+  @override String get feedUnknownActivity => 'performed an action';
+
+  @override String get justNow => 'just now';
 }
 
 // ========================================
@@ -1471,6 +1515,7 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
   @override String get continueButton => 'Continue';
   @override String othersActiveTitle(String shopperName) => '$shopperName is shopping now';
   @override String othersActiveTitleMultiple(int count) => '$count shoppers active now';
+  @override String get someoneShopping => 'Someone is shopping now';
   @override String othersActiveSingle(String listName) => 'Shopping from "$listName"';
   @override String othersActiveMultiple(int count, String listName) => '$count people shopping from "$listName"';
   @override String get joinButton => 'Join';
@@ -1501,6 +1546,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String get urgencyLow => 'Recommended';
   @override String inStock(int stock, String unit) => 'In stock: $stock $unit';
   @override String get addButton => 'Add';
+  @override String get dismissTooltip => 'Hide for a week';
   @override String get noActiveLists => 'No active lists - create a new list';
   @override String get chooseListTitle => 'Add to which list?';
   @override String get addedToList => 'Added to list';
@@ -1509,6 +1555,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String suggestionError(String error) => 'Error: $error';
   @override String get addAll => 'Add All';
   @override String addedAll(int count, String listName) => '$count items added to "$listName"';
+  @override String get addAllFailed => 'Could not add items — try again';
 }
 
 // ========================================
@@ -1549,8 +1596,10 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String get emptySubtitle => 'When someone invites you to a list,\nit\'ll show up right here';
   @override String get pullToRefresh => '↓ Pull to refresh';
   @override String get listFallback => 'List';
+  @override String get householdFallback => 'household';
   @override String get userFallback => 'User';
   @override String inviteToList(String listName) => 'Invitation to list "$listName"';
+  @override String inviteToHousehold(String householdName) => 'Invitation to join "$householdName"';
   @override String inviterMessage(String inviterName) => '$inviterName invites you to join';
   @override String get roleLabel => 'Role: ';
   @override String get acceptButton => 'Join';
@@ -1559,6 +1608,7 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String acceptError(String error) => 'Error accepting invitation: $error';
   @override String get declineDialogTitle => 'Decline Invitation';
   @override String declineDialogMessage(String listName) => 'Decline invitation to list "$listName"?';
+  @override String declineHouseholdDialogMessage(String householdName) => 'Decline invitation to "$householdName"?';
   @override String get cancelButton => 'Cancel';
   @override String get declineConfirmButton => 'Decline';
   @override String get declineSuccess => 'Invitation declined';
@@ -1581,6 +1631,8 @@ class PendingInviteBannerStringsEn extends PendingInviteBannerStrings {
   const PendingInviteBannerStringsEn();
 
   @override String get title => 'Group Invitation';
+  @override String get titleListInvite => 'List invitation';
+  @override String get titleHouseholdInvite => 'Household invitation';
   @override String moreCount(int count) => '+$count';
   @override String inviteMessage(String inviterName, String groupName) => '$inviterName invited you to "$groupName"';
   @override String get acceptButton => 'Accept';
@@ -1729,6 +1781,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get inviteFamilyAction => 'Invite';
   @override String get errorTitle => 'Error loading data';
   @override String get retryButton => 'Try Again';
+  @override String get refreshOfflineMessage => 'Offline — showing cached data';
   @override String greeting(String? userName) => (userName?.trim().isNotEmpty ?? false) ? 'Hello, $userName!' : 'Hello!';
   @override String timeBasedGreeting(String? userName, int hour) {
     final String greet;
@@ -1752,6 +1805,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get createListHint => 'Tap here to create a new list';
   @override String get createFirstList => 'Create your first list';
   @override String get emptyList => 'Empty list';
+  @override String get emptyListCta => 'Tap to add items';
   @override String get completed => 'Completed! ✓';
   @override String remainingItems(int count) => '$count items remaining';
   @override String itemsCount(int count) => '$count items';
@@ -1814,6 +1868,8 @@ class PantryStringsEn extends PantryStrings {
   @override String get retryButton => 'Try Again';
   @override String get noItemsFound => 'No items found';
   @override String get clearFilters => 'Clear filters';
+  @override String get filterOutOfStockLabel => 'Showing: out-of-stock';
+  @override String get filterLowStockLabel => 'Showing: low stock';
   @override String get noStarterItemsFound => 'No starter items found';
   @override String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   @override String get starterItemsError => 'Error adding starter items';
@@ -1930,12 +1986,16 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
   const OnboardingTipsStringsEn();
 
   @override String get fillPantryTitle => 'Set up your pantry';
-  @override String get fillPantrySubtitle => 'Tell us what you have at home — we\'ll alert when something runs out';
+  @override String get fillPantrySubtitle => "Tell us what you have at home — we'll alert when something runs out";
   @override String get fillPantryAction => 'Start';
+  @override String fillPantryProgress(int current, int target) => 'Pantry: $current/$target items';
 
   @override String get createListsTitle => 'Create more lists';
   @override String get createListsSubtitle => 'Supermarket, produce, bakery, events — a list for every need';
   @override String get createListsAction => 'Create';
+  @override String createListsProgress(int current, int target) => 'Lists: $current/$target';
+
+  @override String get dismissTooltip => 'Hide tip';
 }
 
 class ActionCenterStringsEn extends ActionCenterStrings {

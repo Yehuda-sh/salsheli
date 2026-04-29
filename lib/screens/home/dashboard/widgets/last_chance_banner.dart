@@ -13,6 +13,27 @@ import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 import '../../../../theme/app_theme.dart';
 
+// Switcher / entry animation tuning.
+const Duration _kSwitcherDuration = Duration(milliseconds: 400);
+const Offset _kSwitcherSlideBegin = Offset(0, -0.1);
+
+// Card surface — alphas tuned for "soft inline alert".
+const double _kCriticalBgAlpha = 0.3;
+const double _kRegularBgAlpha = 0.5;
+const double _kCriticalBorderAlpha = 0.4;
+const double _kRegularBorderAlpha = 0.2;
+
+// Add CTA — tonal background depth.
+const double _kAddBgAlpha = 0.2;
+// Skip icon button — slightly dimmed.
+const double _kSkipFgAlpha = 0.6;
+
+// Tap targets.
+const double _kAddButtonMinHeight = 44.0;
+
+// SnackBar duration for transient feedback.
+const Duration _kSnackBarDuration = Duration(seconds: 2);
+
 /// בנר אזהרה אחרונה — Compact Card
 class LastChanceBanner extends StatelessWidget {
   final String activeListId;
@@ -26,13 +47,16 @@ class LastChanceBanner extends StatelessWidget {
         final suggestion = provider.currentSuggestion;
 
         return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
+          duration: _kSwitcherDuration,
           switchInCurve: Curves.easeOut,
           switchOutCurve: Curves.easeIn,
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween<Offset>(begin: const Offset(0, -0.1), end: Offset.zero).animate(animation),
+              position: Tween<Offset>(
+                begin: _kSwitcherSlideBegin,
+                end: Offset.zero,
+              ).animate(animation),
               child: child,
             ),
           ),
@@ -40,11 +64,39 @@ class LastChanceBanner extends StatelessWidget {
               ? const SizedBox.shrink()
               : RepaintBoundary(
                   key: ValueKey(suggestion.id),
-                  child: _LastChanceCard(suggestion: suggestion, activeListId: activeListId),
+                  child: _LastChanceCard(
+                    suggestion: suggestion,
+                    activeListId: activeListId,
+                  ),
                 ),
         );
       },
     );
+  }
+}
+
+/// Visual coding for an urgency level — icon + tint chosen to match the
+/// rest of the dashboard (Material icons, not emoji).
+({IconData icon, Color color}) _urgencyVisual(
+  String urgency,
+  ColorScheme cs,
+  AppBrand? brand,
+) {
+  switch (urgency) {
+    case 'critical':
+      return (icon: Icons.error_rounded, color: cs.error);
+    case 'high':
+      return (
+        icon: Icons.warning_amber_rounded,
+        color: brand?.warning ?? cs.error,
+      );
+    case 'medium':
+      return (icon: Icons.bolt, color: brand?.warning ?? cs.tertiary);
+    default:
+      return (
+        icon: Icons.tips_and_updates_outlined,
+        color: brand?.accent ?? cs.primary,
+      );
   }
 }
 
@@ -62,168 +114,205 @@ class _LastChanceCard extends StatefulWidget {
 class _LastChanceCardState extends State<_LastChanceCard> {
   bool _isProcessing = false;
 
-  String _getUrgencyEmoji(String urgency) {
-    switch (urgency) {
-      case 'critical':
-        return '🚨';
-      case 'high':
-        return '⚠️';
-      case 'medium':
-        return '⚡';
-      default:
-        return '💡';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final suggestion = widget.suggestion;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
     final strings = AppStrings.lastChanceBanner;
-    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
-    final isCritical = suggestion.urgency == 'critical' || suggestion.urgency == 'high';
+    final successColor = brand?.success ?? kStickyGreen;
+    final isCritical =
+        suggestion.urgency == 'critical' || suggestion.urgency == 'high';
+    final visual = _urgencyVisual(suggestion.urgency, cs, brand);
 
-    // Urgency-based border color
-    final borderColor = isCritical ? cs.error.withValues(alpha: 0.4) : cs.outline.withValues(alpha: 0.2);
+    final borderColor = isCritical
+        ? cs.error.withValues(alpha: _kCriticalBorderAlpha)
+        : cs.outline.withValues(alpha: _kRegularBorderAlpha);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: kSpacingSmall),
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
-      decoration: BoxDecoration(
-        color: isCritical
-            ? cs.errorContainer.withValues(alpha: 0.3)
-            : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        children: [
-          // 🏷️ Urgency emoji
-          Text(
-            _getUrgencyEmoji(suggestion.urgency),
-            style: const TextStyle(fontSize: kFontSizeTitle), // הוגדל מעט
-          ),
-          const SizedBox(width: kSpacingMedium),
-
-          // שם המוצר ומצב המלאי (2 שורות)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  fixBidiNumbers(suggestion.productName),
-                  style: TextStyle(
-                    fontSize: kFontSizeBody,
-                    fontWeight: FontWeight.bold,
-                    color: isCritical ? cs.error : cs.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  strings.stockText(suggestion.currentStock),
-                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+    return Semantics(
+      // Card-level label so screen readers announce the suggestion as
+      // a single unit. explicitChildNodes keeps the action buttons
+      // (Add / Next / Skip) as their own a11y nodes underneath.
+      explicitChildNodes: true,
+      label:
+          '${suggestion.productName}, ${strings.stockText(suggestion.currentStock)}',
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: kSpacingSmall,
+          vertical: kSpacingSmall,
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: kSpacingMedium,
+          vertical: kSpacingSmall,
+        ),
+        decoration: BoxDecoration(
+          color: isCritical
+              ? cs.errorContainer.withValues(alpha: _kCriticalBgAlpha)
+              : cs.surfaceContainerHighest.withValues(alpha: _kRegularBgAlpha),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          children: [
+            // Urgency icon (replaces hardcoded emoji 🚨/⚠️/⚡/💡).
+            ExcludeSemantics(
+              child: Icon(visual.icon, size: kIconSizeMediumPlus, color: visual.color),
             ),
-          ),
+            const SizedBox(width: kSpacingMedium),
 
-          // Action buttons
-          if (!_isProcessing) ...[
-            // ✅ Add button
-            FilledButton.tonal(
-              onPressed: () => _onAddPressed(context, successColor),
-              style: FilledButton.styleFrom(
-                backgroundColor: successColor.withValues(alpha: 0.2),
-                foregroundColor: successColor,
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-                minimumSize: const Size(0, 44),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusSmall)),
+            // שם המוצר ומצב המלאי (2 שורות) — already announced by the
+            // card-level Semantics label above.
+            Expanded(
+              child: ExcludeSemantics(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      fixBidiNumbers(suggestion.productName),
+                      style: TextStyle(
+                        fontSize: kFontSizeBody,
+                        fontWeight: FontWeight.bold,
+                        color: isCritical ? cs.error : cs.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      strings.stockText(suggestion.currentStock),
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: cs.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-              child: const Icon(Icons.add, size: kIconSizeSmallPlus),
             ),
-            const SizedBox(width: 4),
-            // ⏭️ Next button
-            IconButton(
-              onPressed: () => _onNextPressed(context),
-              icon: const Icon(Icons.skip_next, size: kIconSizeSmallPlus),
-              style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant),
-              tooltip: strings.nextTooltip,
-            ),
-            // ❌ Skip session (הוחלף מאייקון סגירה לאייקון השתקה ברור יותר)
-            IconButton(
-              onPressed: () => _onSkipSessionPressed(context),
-              icon: const Icon(Icons.notifications_off_outlined, size: kIconSizeSmallPlus),
-              style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant.withValues(alpha: 0.6)),
-              tooltip: strings.skipSessionTooltip,
-            ),
-          ] else
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
-              child: SizedBox(width: kIconSizeMedium, height: kIconSizeMedium, child: CircularProgressIndicator(strokeWidth: 2)),
-            ),
-        ],
+
+            // Action buttons
+            if (!_isProcessing) ...[
+              // ✅ Add button
+              FilledButton.tonal(
+                onPressed: _onAddPressed,
+                style: FilledButton.styleFrom(
+                  backgroundColor:
+                      successColor.withValues(alpha: _kAddBgAlpha),
+                  foregroundColor: successColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: kSpacingSmallPlus,
+                  ),
+                  minimumSize: const Size(0, _kAddButtonMinHeight),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                  ),
+                ),
+                child: const Icon(Icons.add, size: kIconSizeSmallPlus),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              // ⏭️ Next button
+              IconButton(
+                onPressed: _onNextPressed,
+                icon: const Icon(Icons.skip_next, size: kIconSizeSmallPlus),
+                style: IconButton.styleFrom(foregroundColor: cs.onSurfaceVariant),
+                tooltip: strings.nextTooltip,
+              ),
+              // 🔕 Skip session — silenced bell instead of close (×)
+              // makes the "we'll stop nagging" semantics clearer.
+              IconButton(
+                onPressed: _onSkipSessionPressed,
+                icon: const Icon(
+                  Icons.notifications_off_outlined,
+                  size: kIconSizeSmallPlus,
+                ),
+                style: IconButton.styleFrom(
+                  foregroundColor:
+                      cs.onSurfaceVariant.withValues(alpha: _kSkipFgAlpha),
+                ),
+                tooltip: strings.skipSessionTooltip,
+              ),
+            ] else
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                child: SizedBox(
+                  width: kIconSizeMedium,
+                  height: kIconSizeMedium,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
 
-  Future<void> _onAddPressed(BuildContext context, Color successColor) async {
+  Future<void> _onAddPressed() async {
     if (_isProcessing) return;
 
     unawaited(HapticFeedback.mediumImpact());
     setState(() => _isProcessing = true);
 
     final strings = AppStrings.lastChanceBanner;
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
     final messenger = ScaffoldMessenger.of(context);
+    final listsProvider = context.read<ShoppingListsProvider>();
+    final suggestionsProvider = context.read<SuggestionsProvider>();
+    final suggestion = widget.suggestion;
 
     try {
-      final suggestion = widget.suggestion;
-      final listsProvider = Provider.of<ShoppingListsProvider>(context, listen: false);
-      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
-
       final item = suggestion.toUnifiedListItem();
       await listsProvider.addUnifiedItem(widget.activeListId, item);
       await suggestionsProvider.addCurrentSuggestion(widget.activeListId);
 
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(strings.addedSuccess(suggestion.productName)),
-          backgroundColor: successColor,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.addedSuccess(suggestion.productName)),
+            backgroundColor: successColor,
+            duration: _kSnackBarDuration,
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(strings.addError), backgroundColor: cs.error));
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(strings.addError), backgroundColor: cs.error),
+        );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  Future<void> _onNextPressed(BuildContext context) async {
+  Future<void> _onNextPressed() async {
     if (_isProcessing) return;
     unawaited(HapticFeedback.lightImpact());
 
     final strings = AppStrings.lastChanceBanner;
     final cs = Theme.of(context).colorScheme;
     final messenger = ScaffoldMessenger.of(context);
+    final suggestionsProvider = context.read<SuggestionsProvider>();
 
     try {
-      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
       await suggestionsProvider.moveToNext();
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(strings.genericError), backgroundColor: cs.error));
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(strings.genericError), backgroundColor: cs.error),
+        );
     }
   }
 
-  Future<void> _onSkipSessionPressed(BuildContext context) async {
+  Future<void> _onSkipSessionPressed() async {
     if (_isProcessing) return;
     unawaited(HapticFeedback.lightImpact());
 
@@ -232,22 +321,28 @@ class _LastChanceCardState extends State<_LastChanceCard> {
     final cs = theme.colorScheme;
     final accentColor = theme.extension<AppBrand>()?.accent ?? cs.tertiary;
     final messenger = ScaffoldMessenger.of(context);
+    final suggestionsProvider = context.read<SuggestionsProvider>();
 
     try {
-      final suggestionsProvider = Provider.of<SuggestionsProvider>(context, listen: false);
       await suggestionsProvider.skipForSession();
 
       if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(strings.skippedForSession),
-          backgroundColor: accentColor,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(strings.skippedForSession),
+            backgroundColor: accentColor,
+            duration: _kSnackBarDuration,
+          ),
+        );
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(strings.genericError), backgroundColor: cs.error));
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(strings.genericError), backgroundColor: cs.error),
+        );
     }
   }
 }

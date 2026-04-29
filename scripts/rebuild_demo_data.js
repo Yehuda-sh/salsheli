@@ -935,21 +935,25 @@ async function main() {
     };
   }
 
-  // Cohen household — 10 events (mixed types)
+  // Cohen household — 13 events (mixed types, includes new list_shared / list_deleted)
   await createActivityEvents(hIds.cohen, [
-    makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'supermarket' }, daysAgo(7)),
+    makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'supermarket', list_id: 'list_cohen_weekly' }, daysAgo(7)),
     makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
     makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_fruits' }, daysAgo(6)),
+    // NEW: list_shared — Ronit shared the weekly list with the household.
+    makeActivityEvent('act_cohen_share', hIds.cohen, 'list_shared', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(5)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_5', hIds.cohen, 'shopping_joined', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_6', hIds.cohen, 'shopping_completed', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', item_count: 12, store_name: 'רמי לוי' }, daysAgo(3)),
     makeActivityEvent('act_cohen_7', hIds.cohen, 'stock_updated', uids.avi, 'אבי כהן', { product_name: 'חלב תנובה 3%', quantity: 2 }, daysAgo(3)),
-    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household' }, daysAgo(2)),
+    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household', list_id: 'list_cohen_passover' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
+    // NEW: list_deleted — Avi cleaned up an old shared list.
+    makeActivityEvent('act_cohen_del', hIds.cohen, 'list_deleted', uids.avi, 'אבי כהן', { list_name: 'קניות ישנות', list_id: 'list_cohen_old' }, hoursAgo(4)),
     makeActivityEvent('act_cohen_11', hIds.cohen, 'member_left', uids.noa, 'נועה כהן', {}, hoursAgo(3)),
   ]);
-  console.log('   📝 כהן: 11 activity events');
+  console.log('   📝 כהן: 13 activity events (incl. list_shared, list_deleted)');
 
   // Levi household — 5 events
   await createActivityEvents(hIds.levi, [
@@ -976,24 +980,27 @@ async function main() {
 
   // Mike household — 3 events (English)
   await createActivityEvents(hIds.mike, [
-    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'supermarket' }, daysAgo(4)),
+    makeActivityEvent('act_mike_1', hIds.mike, 'list_created', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', list_type: 'supermarket', list_id: 'list_mike_weekly' }, daysAgo(4)),
     makeActivityEvent('act_mike_2', hIds.mike, 'shopping_completed', uids.mike, 'Mike Johnson', { list_name: 'Weekly Groceries', item_count: 10, store_name: 'Rami Levy Shoresh' }, daysAgo(2)),
     makeActivityEvent('act_mike_3', hIds.mike, 'stock_updated', uids.mike, 'Mike Johnson', { product_name: 'Milk', quantity: 2 }, daysAgo(2)),
   ]);
   console.log('   📝 Mike: 3 activity events');
 
   // Tomer household — 3 events (solo user with chores + pharmacy)
+  // list_id values match real lists created above so the activity
+  // feed's tap-to-open behaves end-to-end on this user.
   await createActivityEvents(hIds.tomer, [
-    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy' }, daysAgo(5)),
-    makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם' }, daysAgo(4)),
-    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event' }, daysAgo(1)),
+    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy', list_id: 'list_tomer_pharm' }, daysAgo(5)),
+    makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם', list_id: 'list_tomer_pharm' }, daysAgo(4)),
+    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event', list_id: 'list_tomer_chores' }, daysAgo(1)),
   ]);
   console.log('   📝 תומר: 3 activity events');
 
   // Shiran household — 2 events (solo, has "הכל נקנה" list)
+  // list_shiran_done is created later in PATCH 4 with this exact name.
   await createActivityEvents(hIds.shiran, [
-    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'supermarket' }, daysAgo(1)),
-    makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל' }, hoursAgo(1)),
+    makeActivityEvent('act_shiran_1', hIds.shiran, 'list_created', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', list_type: 'supermarket', list_id: 'list_shiran_done' }, daysAgo(1)),
+    makeActivityEvent('act_shiran_2', hIds.shiran, 'shopping_completed', uids.shiran, 'שירן גל', { list_name: 'הכל נקנה! ✅', item_count: 5, store_name: 'שופרסל', list_id: 'list_shiran_done' }, hoursAgo(1)),
   ]);
   console.log('   📝 שירן: 2 activity events');
 
@@ -1017,16 +1024,18 @@ async function main() {
   ]);
   console.log("   📝 ג'ורג': 2 activity events (special chars)");
 
-  // Roommates — 6 events (multi-member, diverse actors)
+  // Roommates — 7 events (multi-member, diverse actors, incl. member_joined)
   await createActivityEvents(hIds.roommates, [
-    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household' }, daysAgo(1)),
-    makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'supermarket' }, hoursAgo(6)),
-    makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒' }, hoursAgo(4)),
+    // NEW: member_joined — Sapir was the latest to join the apartment.
+    makeActivityEvent('act_room_join', hIds.roommates, 'member_joined', uids.sapir, 'ספיר דוד', {}, daysAgo(2)),
+    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household', list_id: 'list_room_chores' }, daysAgo(1)),
+    makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'supermarket', list_id: 'list_room_grocery' }, hoursAgo(6)),
+    makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(4)),
     makeActivityEvent('act_room_4', hIds.roommates, 'shopping_started', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(3)),
     makeActivityEvent('act_room_5', hIds.roommates, 'stock_updated', uids.keren, 'קרן אביב', { product_name: 'נייר טואלט', quantity: 0 }, hoursAgo(5)),
     makeActivityEvent('act_room_6', hIds.roommates, 'shopping_completed', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', item_count: 12, store_name: 'שופרסל דיזנגוף' }, hoursAgo(1)),
   ]);
-  console.log('   📝 שותפות: 6 activity events (3 actors)');
+  console.log('   📝 שותפות: 7 activity events (3 actors, incl. member_joined)');
 
   // Shlomo household — 2 events (elderly, simple)
   await createActivityEvents(hIds.shlomo, [
@@ -1661,7 +1670,7 @@ async function main() {
   console.log(`📋 ~57 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
   console.log(`📦 ~110 inventory items`);
   console.log(`🧾 ~76 receipts`);
-  console.log(`📝 ~51 activity log events (all households except yael/apple)`);
+  console.log(`📝 ~54 activity log events incl. list_shared / list_deleted / member_joined`);
   console.log(`🔔 ~34 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
