@@ -126,6 +126,10 @@ class _CompactRequestRowState extends State<_CompactRequestRow> {
       return ProductThumbnail(
         barcode: barcode,
         category: data['category']?.toString() ?? '',
+        // Pass the product name through so the emoji fallback is the
+        // specific one (🥑) and not the generic category one (🥬) when
+        // the CDN image fails to load.
+        productName: data['name']?.toString(),
         size: kIconSizeLarge + kSpacingXTiny,
       );
     }

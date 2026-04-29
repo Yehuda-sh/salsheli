@@ -94,7 +94,7 @@ class ProductThumbnail extends StatelessWidget {
           color: cs.surface,
           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
           border: Border.all(
-            color: cs.outlineVariant.withValues(alpha: 0.3),
+            color: cs.outlineVariant.withValues(alpha: kOpacityLight),
           ),
         ),
         clipBehavior: Clip.antiAlias,
