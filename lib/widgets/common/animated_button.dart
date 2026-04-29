@@ -63,36 +63,65 @@ class AnimatedButton extends StatefulWidget {
 }
 
 class _AnimatedButtonState extends State<AnimatedButton> {
-  bool _isPressed = false;
+  // Press state lives in a ValueNotifier rather than setState so a tap
+  // doesn't rebuild this whole subtree. Only the AnimatedScale (and
+  // optionally AnimatedOpacity) under ValueListenableBuilder rebuild
+  // when the value changes — the child button stays put.
+  final ValueNotifier<bool> _isPressed = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    _isPressed.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // 🔧 ConstrainedBox ensures minimum 44x44 hit area (accessibility standard)
+    // ConstrainedBox enforces a 44x44 minimum *layout* size — it keeps
+    // the button from shrinking smaller than the Material recommended
+    // tap target. The actual tap handling lives in the child widget
+    // (FilledButton, IconButton, etc.); this wrapper only adds visuals.
     return ConstrainedBox(
       constraints: const BoxConstraints(
         minWidth: 44,
         minHeight: 44,
       ),
-      // 🔧 Listener with deferToChild - only responds on actual child area
-      // The child button still receives the tap and handles the action
+      // Listener uses HitTestBehavior.deferToChild (its default), so
+      // press detection follows the child's hit-test rules — a small
+      // child won't get presses for the full 44x44 layout box.
       child: Listener(
-        // behavior: HitTestBehavior.deferToChild is the default —
-        // dropped to satisfy avoid_redundant_argument_values.
         onPointerDown: _onPointerDown,
         onPointerUp: _onPointerUp,
         onPointerCancel: _onPointerCancel,
-        // 🎨 RepaintBoundary isolates scale/opacity repaints from parent tree
+        // RepaintBoundary isolates scale/opacity repaints from the
+        // surrounding tree.
         child: RepaintBoundary(
-          child: AnimatedScale(
-            scale: _isPressed ? widget.scaleTarget : 1.0,
-            duration: widget.duration,
-            curve: widget.curve,
-            child: AnimatedOpacity(
-              opacity: _isPressed ? widget.opacityTarget : 1.0,
-              duration: widget.duration,
-              curve: widget.curve,
-              child: widget.child,
-            ),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _isPressed,
+            // Pass the static child once so ValueListenableBuilder can
+            // skip rebuilding it when the press flag flips.
+            child: widget.child,
+            builder: (context, isPressed, staticChild) {
+              // AnimatedOpacity is only inserted when the caller asked
+              // for opacity dimming (opacityTarget != 1.0). With the
+              // default 1.0 it would tween from 1.0→1.0 every frame —
+              // a no-op layer that still costs.
+              Widget animated = staticChild!;
+              if (widget.opacityTarget != 1.0) {
+                animated = AnimatedOpacity(
+                  opacity: isPressed ? widget.opacityTarget : 1.0,
+                  duration: widget.duration,
+                  curve: widget.curve,
+                  child: animated,
+                );
+              }
+              return AnimatedScale(
+                scale: isPressed ? widget.scaleTarget : 1.0,
+                duration: widget.duration,
+                curve: widget.curve,
+                child: animated,
+              );
+            },
           ),
         ),
       ),
@@ -103,7 +132,7 @@ class _AnimatedButtonState extends State<AnimatedButton> {
     // 🛡️ Disabled = no response at all
     if (!mounted || !widget.enabled) return;
 
-    setState(() => _isPressed = true);
+    _isPressed.value = true;
 
     // ✨ Haptic pattern based on button importance
     switch (widget.haptic) {
@@ -120,12 +149,12 @@ class _AnimatedButtonState extends State<AnimatedButton> {
 
   void _onPointerUp(PointerUpEvent event) {
     if (!mounted) return;
-    setState(() => _isPressed = false);
+    _isPressed.value = false;
     // ⚠️ No onPressed call - the child button handles the action
   }
 
   void _onPointerCancel(PointerCancelEvent event) {
     if (!mounted) return;
-    setState(() => _isPressed = false);
+    _isPressed.value = false;
   }
 }
