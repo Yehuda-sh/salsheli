@@ -155,7 +155,10 @@ class _LegalContentDialog extends StatelessWidget {
                   child: FilledButton(
                     onPressed: () => Navigator.of(context).pop(),
                     style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).extension<AppBrand>()?.success ?? scheme.primary,
+                      // theme already pulled out at the top of build —
+                      // re-reading Theme.of(context) here was a duplicate
+                      // lookup, not a different value.
+                      backgroundColor: theme.extension<AppBrand>()?.success ?? scheme.primary,
                       foregroundColor: scheme.onPrimary,
                     ),
                     child: Text(AppStrings.common.understood),

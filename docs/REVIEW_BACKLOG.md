@@ -39,6 +39,23 @@
 
 **🎯 Reference:** זה אחד הקבצים הראויים-לחיקוי באפליקציה לפי הצ'קליסט (RTL, Performance, A11y).
 
+### `legal_content_dialog.dart`
+
+**📂 Used in:** Welcome Screen + Settings Screen (Terms + Privacy links).
+
+**✅ Decisions Made:**
+- AppDialog.show wrapper (לא raw showDialog).
+- כותרת ב-`scheme.primaryContainer` — **Material formal style מכוון**, לא notebook+sticky. הקשר משפטי דורש tone רשמי, לא משחקי.
+- ShaderMask לפייד בתחתית — premium signal של "יש עוד תוכן".
+- `maxHeight: 80%` של גובה המסך, `maxWidth: 500` לטאבלט.
+- Line height 1.7 לטקסט המשפטי הארוך.
+- 3 דרכים לסגור: X icon, "הבנתי" button, tap-outside (barrierDismissible של AppDialog).
+- Theme extension reuse: `theme.extension<AppBrand>()` (לא re-fetch של `Theme.of(context).extension<AppBrand>()`).
+
+**⏸️ Deferred:** אין.
+
+**🎯 הערה עיצובית:** הדיאלוג הזה הוא **חריג מודע** משפת notebook+sticky. הקשר משפטי ⇒ tone Material formal. אם בעתיד יוחלט להחיל את שפת notebook+sticky גם פה — זה יהיה החלטה גלובלית של "כל הדיאלוגים יוצאים ל-highlighter" ולא תיקון נקודתי.
+
 ---
 
 ## Welcome Screen
