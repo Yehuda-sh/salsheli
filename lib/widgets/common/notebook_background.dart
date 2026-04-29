@@ -44,9 +44,7 @@ class NotebookBackground extends StatelessWidget {
       lineColor = theme.brightness == Brightness.dark
           ? kNotebookBlueSoftDark
           : kNotebookBlueSoft;
-      // Lower than kNotebookLineOpacity so auth screens don't compete
-      // with the form fields for visual attention.
-      lineOpacity = 0.10;
+      lineOpacity = kNotebookSubtleLineOpacity;
     } else {
       lineColor = brand?.notebookBlue ?? kNotebookBlue;
       lineOpacity = kNotebookLineOpacity;

@@ -65,6 +65,10 @@ const Color kNotebookRedDark = Color(0xFFB35B58);      // Muted red for dark pap
 /// שקיפות קווים כחולים — `color.withValues(alpha: kNotebookLineOpacity)`
 const double kNotebookLineOpacity = 0.5;
 
+/// שקיפות קווים כחולים בגרסה העדינה (מסכי Auth) — נמוכה יותר כדי
+/// שלא תתחרה עם שדות הטופס על תשומת הלב.
+const double kNotebookSubtleLineOpacity = 0.10;
+
 /// רווח בין קווים כחולים (מותאם לגובה שורת פריט)
 const double kNotebookLineSpacing = 48.0;
 
