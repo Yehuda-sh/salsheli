@@ -124,6 +124,32 @@
 
 ---
 
+## Bootstrap / Index Screen
+
+### 📂 Components נגעו
+- `index_screen.dart` (253 שורות) — סקירה מלאה של 12 קטגוריות
+
+### ✅ Decisions Made
+- **אין שינויים נדרשים** — הקובץ עבר 12-category review מלא ב-29/4/2026 ללא ממצאים.
+- **Bootstrap state machine**: 3 מסלולים (logged in→home, seenOnboarding→login, אחרת→welcome) עם defensive guards.
+- **3 race condition flags**: `_hasNavigated`, `_isChecking`, `_listenerAdded`.
+- **2 timers**: `_delayTimer` (600ms initial fallback), `_syncTimeoutTimer` (8s for Firebase↔UserContext stuck state).
+- **Single retry on timeout**: `userContext.retry()` ואז error screen אם נכשל.
+- **Mounted check אחרי כל await** — שורות 41, 130, 178.
+- **Navigator.of(context) נלכד לפני await** — אותו pattern של post_auth_navigation.
+- **`_userContext` reference נשמר** ב-initState לשימוש בטוח ב-dispose.
+- **`finally` block** מאפס `_isChecking` — מונע stuck state.
+
+### ⏸️ Deferred
+- אין.
+
+### ⏳ Files of this screen — pending review
+- `index_view.dart` (662 שורות) — Loading + Error views (Bootstrap views)
+
+**🎯 Reference**: דוגמה לכתיבת state machine נקי ב-Flutter עם race conditions. ראוי לחיקוי בכל lifecycle מורכב.
+
+---
+
 ## Auth Screens (Login)
 
 ### 📂 Components נגעו
