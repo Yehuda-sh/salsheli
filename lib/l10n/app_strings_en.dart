@@ -571,7 +571,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
   @override String get title => AppStringsEn.appName;
-  @override String get subtitle => 'Smart shopping for the whole family';
+  @override String get subtitle => 'Smart shopping for everyone at home';
   @override String get group1Emoji => '🛒';
   @override String get group1Title => 'Shop together';
   @override String get group1Question => 'One list, everyone edits in real time';
@@ -583,7 +583,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   @override String get group2Feature1 => 'Live stock 📊';
   @override String get group2Feature2 => 'Smart alerts ⏰';
   @override String get group3Emoji => '👨‍👩‍👧‍👦';
-  @override String get group3Title => 'Family in sync';
+  @override String get group3Title => 'Everyone in sync';
   @override String get group3Question => 'Everyone sees, everyone updates — no more duplicate buys';
   @override String get group3Feature1 => 'Live updates 🔄';
   @override String get group3Feature2 => 'Cloud sync ☁️';

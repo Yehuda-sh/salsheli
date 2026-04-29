@@ -101,6 +101,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final brand = theme.extension<AppBrand>();
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    // Carousel direction follows the locale: in RTL the user expects
+    // "swipe right = next page" (matches reading direction). In LTR
+    // PageView's default forward swipe is left, so we don't reverse.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
       backgroundColor: brand?.paperBackground ?? kPaperBackground,
@@ -134,7 +138,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     label: AppStrings.welcome.carouselLabel,
                     child: PageView(
                     controller: _pageController,
-                    reverse: true,
+                    reverse: isRtl,
                     onPageChanged: _onUserSwipe,
                     children: [
                       _SimpleFeatureCard(
@@ -308,7 +312,7 @@ class _SimpleFeatureCard extends StatelessWidget {
                     description,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: cs.onSurface.withValues(alpha: 0.5),
+                      color: cs.onSurface.withValues(alpha: kOpacityMedium),
                       fontSize: kFontSizeBody,
                       height: 1.4,
                     ),
@@ -413,7 +417,10 @@ class _WormPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _WormPainter old) =>
-      pageOffset != old.pageOffset || activeColor != old.activeColor;
+      pageOffset != old.pageOffset ||
+      activeColor != old.activeColor ||
+      inactiveColor != old.inactiveColor ||
+      count != old.count;
 }
 
 // ============================================================

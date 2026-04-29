@@ -587,7 +587,7 @@ class WelcomeStrings {
   const WelcomeStrings();
 
   String get title => AppStringsHe.appName;
-  String get subtitle => 'קניות חכמות לכל המשפחה';
+  String get subtitle => 'קניות חכמות לכל הבית';
   String get group1Emoji => '🛒';
   String get group1Title => 'קנו ביחד';
   String get group1Question => 'רשימה אחת, כולם עורכים בזמן אמת';
@@ -599,7 +599,7 @@ class WelcomeStrings {
   String get group2Feature1 => 'מלאי חי 📊';
   String get group2Feature2 => 'התראות חכמות ⏰';
   String get group3Emoji => '👨‍👩‍👧‍👦';
-  String get group3Title => 'המשפחה מסונכרנת';
+  String get group3Title => 'כולם מסונכרנים';
   String get group3Question => 'כולם רואים, כולם מעדכנים — בלי קניות כפולות';
   String get group3Feature1 => 'עדכונים חיים 🔄';
   String get group3Feature2 => 'סנכרון ענן ☁️';
