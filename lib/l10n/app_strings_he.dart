@@ -1768,7 +1768,11 @@ class PendingInvitesScreenStrings {
 class PendingInviteBannerStrings {
   const PendingInviteBannerStrings();
 
+  /// Generic title — kept for back-compat, but the banner now picks
+  /// [titleListInvite] / [titleHouseholdInvite] based on the invite type.
   String get title => 'הזמנה לקבוצה';
+  String get titleListInvite => 'הזמנה לרשימה';
+  String get titleHouseholdInvite => 'הזמנה לבית';
   String moreCount(int count) => '+$count';
   String inviteMessage(String inviterName, String groupName) => '$inviterName הזמין אותך ל"$groupName"';
   String get acceptButton => 'קבל';

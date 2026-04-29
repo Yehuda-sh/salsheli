@@ -1614,6 +1614,8 @@ class PendingInviteBannerStringsEn extends PendingInviteBannerStrings {
   const PendingInviteBannerStringsEn();
 
   @override String get title => 'Group Invitation';
+  @override String get titleListInvite => 'List invitation';
+  @override String get titleHouseholdInvite => 'Household invitation';
   @override String moreCount(int count) => '+$count';
   @override String inviteMessage(String inviterName, String groupName) => '$inviterName invited you to "$groupName"';
   @override String get acceptButton => 'Accept';

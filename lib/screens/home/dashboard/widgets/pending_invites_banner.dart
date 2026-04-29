@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
+import '../../../../models/enums/request_type.dart';
 import '../../../../models/pending_request.dart';
 import '../../../../providers/user_context.dart';
 import '../../../../services/pending_invites_service.dart';
@@ -97,16 +98,31 @@ class _PendingInviteBannerContent extends StatelessWidget {
 
     final inviterName = firstInvite.requesterName ?? firstInvite.requesterId;
 
-    // טיפול חכם בשם חסר (Empty State Fallbacks).
-    final groupName = firstInvite.requestData['list_name'] as String? ??
-        firstInvite.requestData['group_name'] as String? ??
-        AppStrings.pendingInvitesScreen.listFallback;
+    // Title + display-name pair adapt to the invite type:
+    //  - inviteToList     → "Invitation to list" + the list's name
+    //  - inviteToHousehold → "Invitation to household" + the household's name
+    // Falls back through the legacy `group_name` key, then a generic
+    // string. Without this the banner used to display "you were invited
+    // to 'list'" (the literal fallback) on every household invite.
+    final isHouseholdInvite =
+        firstInvite.type == RequestType.inviteToHousehold;
+    final title = isHouseholdInvite
+        ? strings.titleHouseholdInvite
+        : strings.titleListInvite;
+    final groupName = isHouseholdInvite
+        ? (firstInvite.requestData['household_name'] as String? ??
+            firstInvite.requestData['group_name'] as String? ??
+            firstInvite.requestData['list_name'] as String? ??
+            AppStrings.pendingInvitesScreen.listFallback)
+        : (firstInvite.requestData['list_name'] as String? ??
+            firstInvite.requestData['group_name'] as String? ??
+            AppStrings.pendingInvitesScreen.listFallback);
 
     final subtitle = strings.inviteMessage(inviterName, groupName);
 
     return Semantics(
       button: true,
-      label: '${strings.title}, $subtitle',
+      label: '$title, $subtitle',
       child: Container(
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         decoration: BoxDecoration(
@@ -168,7 +184,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                           Row(
                             children: [
                               Text(
-                                strings.title,
+                                title,
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   color: cs.onTertiaryContainer,
                                   fontWeight: FontWeight.bold,
