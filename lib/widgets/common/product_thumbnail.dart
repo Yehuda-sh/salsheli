@@ -121,6 +121,9 @@ class ProductThumbnail extends StatelessWidget {
   };
 
   Text get _emojiText {
+    // Emoji takes a bit under half the container so a glyph with
+    // ascenders/descenders (🍷, 🥖) doesn't crash into the circle's edge.
+    final fontSize = size * 0.45;
     final englishKey = FiltersConfig.hebrewCategoryToEnglish(category);
     // Skip keyword matching for non-food categories — Hebrew food words
     // appear as substrings in hygiene/cleaning product names (e.g.,
@@ -128,12 +131,12 @@ class ProductThumbnail extends StatelessWidget {
     if (!_nonFoodCategories.contains(englishKey)) {
       final specificEmoji = matchProductEmoji(productName);
       if (specificEmoji != null) {
-        return Text(specificEmoji, style: TextStyle(fontSize: size * 0.45));
+        return Text(specificEmoji, style: TextStyle(fontSize: fontSize));
       }
     }
     // Fall back to generic category emoji
     final emoji = FiltersConfig.getCategoryEmoji(englishKey);
-    return Text(emoji, style: TextStyle(fontSize: size * 0.45));
+    return Text(emoji, style: TextStyle(fontSize: fontSize));
   }
 
   /// Keyword → emoji mapping for common Israeli products.
@@ -152,7 +155,9 @@ class ProductThumbnail extends StatelessWidget {
       // These MUST appear before their shorter substring counterparts.
       // "חלבון" (protein) before "חלב" (milk) — protein bars aren't dairy.
       // "באגסו" (brand) before "אגס" (pear) — snack brand, not fruit.
-      'חלבון': '🍫', 'באגסו': '🍬',
+      // "דגני" (cereal grains) before "דג" (fish) — "דגני בוקר"
+      // (breakfast cereal) shouldn't render as a fish emoji.
+      'חלבון': '🍫', 'באגסו': '🍬', 'דגני': '🥣',
       // Vegetables
       'תפוח אדמה': '🥔', 'תפו"א': '🥔',
       'ברוקולי': '🥦', 'כרובית': '🥦',
@@ -254,15 +259,16 @@ class _FallbackImageState extends State<_FallbackImage> {
     }
 
     final url = widget.urls[_currentIndex];
+    // Same fallback widget for both the loading placeholder and the
+    // post-error frame — keeps the two paths visually identical.
+    final fallback = Center(child: widget.emojiBuilder());
 
     return widget.containerBuilder(
       CachedNetworkImage(
         imageUrl: url,
         fit: BoxFit.contain,
         fadeInDuration: const Duration(milliseconds: 200),
-        placeholder: (_, _) => Center(
-          child: widget.emojiBuilder(),
-        ),
+        placeholder: (_, _) => fallback,
         errorWidget: (_, _, _) {
           _cacheFailedUrl(url);
           // Try next URL
@@ -271,7 +277,7 @@ class _FallbackImageState extends State<_FallbackImage> {
               setState(() => _currentIndex++);
             }
           });
-          return Center(child: widget.emojiBuilder());
+          return fallback;
         },
       ),
     );
