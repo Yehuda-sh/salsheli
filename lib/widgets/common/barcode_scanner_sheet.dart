@@ -71,12 +71,14 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
         children: [
           // Handle bar
           const SizedBox(height: kSpacingSmall),
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: cs.outline.withValues(alpha: kOpacityLight),
-              borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+          ExcludeSemantics(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: cs.outline.withValues(alpha: kOpacityLight),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              ),
             ),
           ),
           const SizedBox(height: kSpacingSmall),
@@ -137,6 +139,8 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                       child: CustomPaint(
                         painter: _ScanOverlayPainter(
                           borderColor: cs.primary,
+                          // Scrim alpha tuned for camera contrast — between
+                          // kOpacityLight (0.3) and kOpacityMedium (0.5).
                           overlayColor: cs.scrim.withValues(alpha: 0.4),
                         ),
                       ),
@@ -173,7 +177,7 @@ class _BarcodeScannerSheetState extends State<BarcodeScannerSheet>
                 IconButton(
                   onPressed: () {
                     _controller.toggleTorch();
-                    if (mounted) setState(() => _torchOn = !_torchOn);
+                    setState(() => _torchOn = !_torchOn);
                   },
                   icon: Icon(
                     _torchOn ? Icons.flash_on : Icons.flash_off,

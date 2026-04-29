@@ -186,10 +186,13 @@ class _PantryProductSelectionSheetState
       setState(() => _searchQuery = name);
       _filterProducts();
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(AppStrings.shopping.barcodeNotFound(result.barcode)),
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ));
+      unawaited(HapticFeedback.heavyImpact());
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(AppStrings.shopping.barcodeNotFound(result.barcode)),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ));
     }
   }
 
