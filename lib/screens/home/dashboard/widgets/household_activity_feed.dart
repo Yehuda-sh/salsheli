@@ -154,16 +154,19 @@ class HouseholdActivityFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final activityProvider = context.watch<ActivityLogProvider>();
+    // Targeted selectors — only rebuild on the specific lists we read.
+    final allEvents = context.select<ActivityLogProvider, List<ActivityEvent>>(
+      (p) => p.events,
+    );
+    final allReceipts = context.select<ReceiptProvider, List<Receipt>>(
+      (p) => p.receipts,
+    );
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     // מציג עד 5 אירועים אחרונים
-    final events = activityProvider.events.take(5).toList();
-
-    // Always watch ReceiptProvider (unconditional — required by Provider rules)
-    final allReceipts = context.watch<ReceiptProvider>().receipts;
+    final events = allEvents.take(5).toList();
 
     // Fallback: אם אין אירועי activity_log, הצג קבלות אחרונות.
     // Sort returns a new list (sorted) only when the activity log is empty —
@@ -183,6 +186,7 @@ class HouseholdActivityFeed extends StatelessWidget {
               'assets/images/icon_home_activity.webp',
               width: kIconSizeLarge,
               height: kIconSizeLarge,
+              excludeFromSemantics: true,
               errorBuilder: (_, _, _) =>
                   Icon(Icons.history, size: kIconSizeLarge, color: cs.primary),
             ),
@@ -223,7 +227,7 @@ class HouseholdActivityFeed extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: kSpacingXTiny / 2),
+                      const SizedBox(width: kSpacingXTiny),
                       Icon(
                         isRtl ? Icons.chevron_left : Icons.chevron_right,
                         size: kIconSizeSmall,
@@ -366,7 +370,8 @@ class _FeedTile extends StatelessWidget {
                 ),
                 const SizedBox(height: kSpacingXTiny),
                 Text(
-                  subtitle,
+                  // fix bidi for mixed Hebrew/English (store names, item names).
+                  fixBidiNumbers(subtitle),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),

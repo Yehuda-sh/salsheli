@@ -173,7 +173,7 @@
 - ~~`last_chance_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — **הועבר** ל-`shopping/active/widgets/` (היה ב-`home/dashboard/widgets/` בטעות) + `kMinTapTarget` cleanup
 - ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 (context.select + uncheckedCount==0 CTA + snackbar dedup + copywriting)
 - ~~`onboarding_tips_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (tooltip clarity + RTL slide + opacity rationale)
-- `household_activity_feed.dart` (500)
+- ~~`household_activity_feed.dart`~~ ✅ **נסקר** ב-30/4/2026 (tab nav fix + context.select + bidi + decorative image)
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
 
 ### 🎯 `action_center_card.dart` — Decisions
@@ -243,6 +243,22 @@
 - **`_kEnterSlideOffset = 0.1` נשאר**: Lessons Learned מציין "0.1 כמעט בלתי-נראה — 0.2 יבליט", אבל sticky notes צריכים להרגיש "מודבקים" — 0.1 תואם לכוונה הסטיקית.
 
 **🎯 Pattern**: דוגמה לprefs persistence עם graceful fallback + locale-aware slide animation. `context.select` ×3 (`isLoggedIn`, `pantryCount`, `listCount`) ל-rebuild מינימלי.
+
+### 🎯 `household_activity_feed.dart` — Decisions
+
+**סבב 1 (30/4/2026):**
+- **Tab navigation fix (Source-vs-Symptom)**: ב-home dashboard, "ראה הכל" עשה `Navigator.push` במקום מעבר לטאב היסטוריה. תוקן ב-caller (home_dashboard:281) — עכשיו `onSeeAllHistory: () => widget.onTabSelected!(2)`. עקביות עם OnboardingTipsCard באותו מסך.
+- **`context.watch` → `context.select`** ×2: `events` ו-`receipts` בלבד — minimal rebuilds. אותו פטרן עקבי עם `pending_invites_banner`, `action_center_card`, `onboarding_tips_card`.
+- **Bidi handling on subtitle**: `fixBidiNumbers(subtitle)` על description (תוכן מעורב — שם חנות אנגלי + עברית). actor title נשאר ללא — לרוב מילה אחת ב-locale המשתמש. פטרן עקבי עם `last_chance_banner`.
+- **Decorative image excludeFromSemantics**: `Image.asset(icon_home_activity.webp)` קיבל `excludeFromSemantics: true` — הטקסט "פיד פעילות הבית" לידו, image הוא decorative. per CLAUDE.md A11y policy.
+- **Magic gap fix**: `kSpacingXTiny / 2` (2px) → `kSpacingXTiny` (4px). 2px צפוף מדי ל-mobile, magic number דרך חלוקה.
+
+**⏸️ Deferred:**
+- **Empty state design**: כשאין events ולא receipts → `SizedBox.shrink()`. **החלטה מודעת**: ה-OnboardingTipsCard באותו מסך כבר מטפל ב-onboarding (CTA "צור עוד רשימות"). empty state פה ייצור כפילות.
+- **Sort on every build (line 172)**: `(List<Receipt>.from(allReceipts)..sort(...))` רץ כל build כשevents.isEmpty. רק על branch זה — לא קריטי אבל ניתן למזער.
+- **Receipt fallback duplicate logic**: `_iconForType`, `_avatarColorsForType`, `_descriptionForEvent` — אם `shopping_history_screen` מימש פטרן דומה, יש מקום לבדוק duplication. **Trigger:** סקירת `shopping_history_screen.dart`.
+
+**🎯 Pattern**: דוגמה ל-feed widget עם graceful fallback (events → receipts → SizedBox.shrink) + RTL-aware chevrons + theme.textTheme nesting (לא style-on-style).
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.

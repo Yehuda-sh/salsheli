@@ -277,8 +277,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
                   // === 6. פיד פעילות הבית ===
                   _staggered(
-                    const RepaintBoundary(
-                      child: HouseholdActivityFeed(),
+                    RepaintBoundary(
+                      child: HouseholdActivityFeed(
+                        onSeeAllHistory: widget.onTabSelected != null
+                            ? () => widget.onTabSelected!(2)
+                            : null,
+                      ),
                     ),
                     sectionIndex++,
                   ),
