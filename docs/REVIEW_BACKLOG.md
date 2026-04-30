@@ -172,7 +172,7 @@
 - ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (r1: chevron RTL + bottom sheet theme cleanup; r2: Hebrew plurals + Row→Wrap + context.select)
 - ~~`last_chance_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — **הועבר** ל-`shopping/active/widgets/` (היה ב-`home/dashboard/widgets/` בטעות) + `kMinTapTarget` cleanup
 - ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 (context.select + uncheckedCount==0 CTA + snackbar dedup + copywriting)
-- `onboarding_tips_card.dart` (409)
+- ~~`onboarding_tips_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (tooltip clarity + RTL slide + opacity rationale)
 - `household_activity_feed.dart` (500)
 - `suggestions_today_card.dart` (999) — האחרון, הכי גדול
 
@@ -226,6 +226,23 @@
 
 **⏸️ Deferred:**
 - **Inline TextStyle ב-`continueButton` ו-`_ActionButton.textStyle`** — נכלל ב-typography sweep הגלובלי.
+
+### 🎯 `onboarding_tips_card.dart` — Decisions
+
+**סבב 1 (30/4/2026):**
+- **Tooltip wording — clear permanence**: `dismissTooltip` "הסתר טיפ" → "אל תציע יותר" (he), "Hide tip" → "Don't show again" (en). הdismiss הוא לתמיד (`prefs.setBool(...true)`), המילה הקודמת השתמעה לזמני. Source-vs-Symptom: המחרוזת לא תיארה את המציאות.
+- **RTL-aware slide direction**: `slideX(begin: 0.1)` היה hardcoded direction. עכשיו `0.1 * (isRtl ? -1 : 1)` תואם פטרן `welcome_screen` ("Parallax direction לפי locale").
+- **Local opacity constants documented**: `_kSubtleTextAlpha = 0.6` ו-`_kIconTintAlpha = 0.7` נשארים לוקאליים (לא ב-`kOpacity*`) עם הערה מפורשת — "tuned as a unit to read as ink on yellow paper". פטרן עקבי עם `pending_invites_banner.dart` ו-`last_chance_banner.dart`.
+- **Sticky-note design language ✓**: rotation `±0.01`, gradient (folded paper), shadow with offset (pinned). On-brand premium markers.
+- **Strong A11y composition**: `Semantics(explicitChildNodes: true, button: true, label: '$title, $subtitle, $progress')` עם `ExcludeSemantics` על icon container/text Column/CTA pill. IconButton dismiss נשאר semantic node נפרד.
+- **Graceful prefs fallback**: load fails → `dismissed = false` (user יראה את הtip), save fails → debugPrint רק. UX לא נשבר במצבי קצה.
+
+**⏸️ Deferred:**
+- **Inline TextStyle ב-`_StickyNoteTip`** (3 רצפים: title/subtitle/progress) — `TextStyle(fontSize: kFontSizeBody/Small/Tiny, ...)` במקום `theme.textTheme.bodyMedium/bodySmall/labelSmall`. נכלל ב-typography sweep הגלובלי (ראה `app_theme.dart` Deferred). תיקון נקודתי = drift.
+- **No exit animation on dismiss**: ה-card נחתך מיד ב-`setState`. הכניסה premium (fade+slide+stagger) — היציאה חתוכה. **החלטה מודעת**: "סיימתי איתך, עוף" — חיתוך מהיר תואם לכוונה. אם בעתיד יוחלט להוסיף — `AnimatedSwitcher` עם fadeOut+slide.
+- **`_kEnterSlideOffset = 0.1` נשאר**: Lessons Learned מציין "0.1 כמעט בלתי-נראה — 0.2 יבליט", אבל sticky notes צריכים להרגיש "מודבקים" — 0.1 תואם לכוונה הסטיקית.
+
+**🎯 Pattern**: דוגמה לprefs persistence עם graceful fallback + locale-aware slide animation. `context.select` ×3 (`isLoggedIn`, `pantryCount`, `listCount`) ל-rebuild מינימלי.
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.

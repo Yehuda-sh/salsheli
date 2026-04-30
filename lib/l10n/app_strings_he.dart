@@ -2213,7 +2213,7 @@ class OnboardingTipsStrings {
   String get createListsAction => 'צור';
   String createListsProgress(int current, int target) => 'רשימות: $current/$target';
 
-  String get dismissTooltip => 'הסתר טיפ';
+  String get dismissTooltip => 'אל תציע יותר';
 }
 
 // ========================================

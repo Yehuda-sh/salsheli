@@ -2006,7 +2006,7 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
   @override String get createListsAction => 'Create';
   @override String createListsProgress(int current, int target) => 'Lists: $current/$target';
 
-  @override String get dismissTooltip => 'Hide tip';
+  @override String get dismissTooltip => "Don't show again";
 }
 
 class ActionCenterStringsEn extends ActionCenterStrings {

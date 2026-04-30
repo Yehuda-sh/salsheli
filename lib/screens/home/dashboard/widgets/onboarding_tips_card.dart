@@ -26,7 +26,8 @@ const double _kListsRotation = -0.01;
 // Sticky-note gradient depth — high enough to read as "folded paper",
 // low enough not to muddy the brand color.
 const double _kStickyGradientBlend = 0.08;
-// Reused alpha values for body text + soft icon tint.
+// Sticky-note ink — alphas tuned as a unit to read as "ink on yellow paper".
+// 0.6 / 0.7 are softer than kOpacityMedium (0.5) and intentionally distinct.
 const double _kSubtleTextAlpha = 0.6;
 const double _kIconTintAlpha = 0.7;
 // Drop shadow for the sticky note. Soft and offset slightly down/right
@@ -175,6 +176,11 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
 
     if (tips.isEmpty) return const SizedBox.shrink();
 
+    // Slide-in direction follows reading direction — same precedent as
+    // welcome_screen's locale-aware parallax.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final slideBegin = _kEnterSlideOffset * (isRtl ? -1 : 1);
+
     // Sticky Notes אנכיים — כל כרטיס שורה מלאה. The bottom padding lives
     // here (not on the parent) so when there are no tips the dashboard
     // doesn't end up with an empty gap where this card would have been.
@@ -196,7 +202,7 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
                     delay: Duration(milliseconds: _kEnterStaggerMs * i),
                   )
                   .slideX(
-                    begin: _kEnterSlideOffset,
+                    begin: slideBegin,
                     end: 0,
                     duration: _kEnterDuration,
                     delay: Duration(milliseconds: _kEnterStaggerMs * i),
