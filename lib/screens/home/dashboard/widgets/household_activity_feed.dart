@@ -154,19 +154,19 @@ class HouseholdActivityFeed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Targeted selectors — only rebuild on the specific lists we read.
-    final allEvents = context.select<ActivityLogProvider, List<ActivityEvent>>(
-      (p) => p.events,
-    );
-    final allReceipts = context.select<ReceiptProvider, List<Receipt>>(
-      (p) => p.receipts,
-    );
+    // ActivityLogProvider.events returns List.unmodifiable(_events) — a fresh
+    // wrapper each call. context.select<List> would compare references and
+    // never short-circuit, so watch is the honest equivalent.
+    final activityProvider = context.watch<ActivityLogProvider>();
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     // מציג עד 5 אירועים אחרונים
-    final events = allEvents.take(5).toList();
+    final events = activityProvider.events.take(5).toList();
+
+    // Always watch ReceiptProvider (unconditional — required by Provider rules)
+    final allReceipts = context.watch<ReceiptProvider>().receipts;
 
     // Fallback: אם אין אירועי activity_log, הצג קבלות אחרונות.
     // Sort returns a new list (sorted) only when the activity log is empty —

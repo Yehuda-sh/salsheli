@@ -253,12 +253,17 @@
 - **Decorative image excludeFromSemantics**: `Image.asset(icon_home_activity.webp)` קיבל `excludeFromSemantics: true` — הטקסט "פיד פעילות הבית" לידו, image הוא decorative. per CLAUDE.md A11y policy.
 - **Magic gap fix**: `kSpacingXTiny / 2` (2px) → `kSpacingXTiny` (4px). 2px צפוף מדי ל-mobile, magic number דרך חלוקה.
 
+**סבב 2 (30/4/2026):**
+- **`select<List<T>>` ביטול — תיקון round-1 שגוי**: `ActivityLogProvider.events` מחזיר `List.unmodifiable(_events)` — wrapper חדש בכל קריאה. `context.select` השווה reference → תמיד שונה → תמיד rebuild. כלומר, התיקון של round-1 היה no-op. הוחזר ל-`context.watch` עם הערה מפורשת. **Lesson:** `context.select` עוזר רק על פרימיטיבים (int/String/bool) או על אובייקטים עם value-equality מוגדרת. List/Map צריכים `select<int>(length)` או נשארים `watch`.
+
 **⏸️ Deferred:**
+- **🚨 Cross-file duplication: `_iconForType` ב-`shopping_history_screen.dart:1045`** — switch זהה לחלוטין על `ActivityType`. גם `_colorForType` שם (שונה — Color יחיד במקום bg+fg pair). פטרן עקבי: 2 מימושים = signal לחלץ ל-`lib/core/activity_visuals.dart` עם `iconForType` ו-`avatarColorsForType`. **Trigger:** סקירת `shopping_history_screen.dart`. **היקף:** קטן-בינוני (helpers + 2 callers).
+- **🐛 Receipt tap = same bug as "see all"**: `_ReceiptFallbackTile.onTap` עושה `Navigator.push(MaterialPageRoute(builder: ShoppingHistoryScreen(initialReceiptId)))`. אותה בעיה שתיקנו ב-"ראה הכל" — bottom nav נעלם. אבל פה יותר מורכב: צריך גם להעביר receipt id לטאב היסטוריה (לא רק tab switch). דורש decision ארכיטקטוני על intent passing — אותו pattern של `MyPantryScreen.pendingStockFilter` smell. **Trigger:** sweep ייעודי של intent passing בין מסכים. **היקף:** בינוני.
 - **Empty state design**: כשאין events ולא receipts → `SizedBox.shrink()`. **החלטה מודעת**: ה-OnboardingTipsCard באותו מסך כבר מטפל ב-onboarding (CTA "צור עוד רשימות"). empty state פה ייצור כפילות.
 - **Sort on every build (line 172)**: `(List<Receipt>.from(allReceipts)..sort(...))` רץ כל build כשevents.isEmpty. רק על branch זה — לא קריטי אבל ניתן למזער.
-- **Receipt fallback duplicate logic**: `_iconForType`, `_avatarColorsForType`, `_descriptionForEvent` — אם `shopping_history_screen` מימש פטרן דומה, יש מקום לבדוק duplication. **Trigger:** סקירת `shopping_history_screen.dart`.
 
 **🎯 Pattern**: דוגמה ל-feed widget עם graceful fallback (events → receipts → SizedBox.shrink) + RTL-aware chevrons + theme.textTheme nesting (לא style-on-style).
+**🎓 Lesson learned**: `context.select<List>` הוא no-op כש-getter עוטף ב-`List.unmodifiable` — נוצר reference חדש כל קריאה. רק `select<int>(length)` או `select<primitive>` עובדים באמת.
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.
