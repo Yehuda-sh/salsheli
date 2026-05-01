@@ -29,6 +29,17 @@ const double _kCardRotation = 0.02;
 const double _kTapeHeight = 18.0;
 const double _kTapeHorizontalMargin = 30.0;
 
+// Dot indicator dimensions — active is wider to read as "current page".
+const double _kDotActiveWidth = 16.0;
+const double _kDotInactiveWidth = 6.0;
+const double _kDotHeight = 6.0;
+const double _kDotMarginH = 3.0;
+
+// Sticky-note ink — alphas tuned as a unit for "paper + ink" appearance.
+// 0.6 (subtle text), 0.08 (scrim shadow), 0.18 / 0.4 (error tints), 0.03 / 0.06
+// (gradient overlays) are intentionally distinct from kOpacity* and kept inline
+// where each appears, since they're tuned together with the gradient + shadow.
+
 // Pre-compiled regexes for product name cleanup — avoids re-parsing on
 // every card build.
 final RegExp _kReWhitespace = RegExp(r'\s+');
@@ -82,7 +93,9 @@ class _LoadingState extends StatelessWidget {
       label: AppStrings.suggestionsToday.loading,
       liveRegion: true,
       child: Container(
-        height: 80,
+        // Match the loaded carousel height so the layout doesn't jump when
+        // suggestions arrive.
+        height: _kCarouselHeight,
         decoration: BoxDecoration(
           color: (brand?.stickyYellow ?? kStickyYellow).withValues(alpha: kOpacityLight),
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -318,9 +331,9 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                   final isActive = i == page;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 3),
-                    width: isActive ? 16 : 6,
-                    height: 6,
+                    margin: const EdgeInsets.symmetric(horizontal: _kDotMarginH),
+                    width: isActive ? _kDotActiveWidth : _kDotInactiveWidth,
+                    height: _kDotHeight,
                     decoration: BoxDecoration(
                       color: isActive
                           ? cs.primary.withValues(alpha: kOpacityStrong)
@@ -617,9 +630,9 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 kSpacingSmall,
-                _kTapeHeight + kSpacingXTiny / 2,
+                _kTapeHeight + kSpacingXTiny,
                 kSpacingSmall,
-                kSpacingSmall + 2,
+                kSpacingSmallPlus,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,7 +714,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       );
                     },
                   ),
-                  const SizedBox(height: kSpacingSmall + 2),
+                  const SizedBox(height: kSpacingSmallPlus),
 
                   // ⚠️ Warning for unknown status
                   if (_isUnknownStatus) ...[
@@ -754,26 +767,23 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                       children: [
                         // כפתור X (dismiss) — מסתיר לשבוע
                         if (!_isUnknownStatus)
-                          Tooltip(
-                            message: AppStrings.suggestionsToday.dismissTooltip,
-                            child: Semantics(
-                              button: true,
-                              label: AppStrings.suggestionsToday.dismissTooltip,
-                              child: InkWell(
-                                onTap: () => _onDismiss(context),
-                                borderRadius: BorderRadius.circular(kIconSizeLarge / 2),
-                                child: Container(
-                                  width: kIconSizeLarge,
-                                  height: kIconSizeLarge,
-                                  decoration: BoxDecoration(
-                                    color: cs.scrim.withValues(alpha: 0.08),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.close,
-                                    size: kFontSizeMedium,
-                                    color: cs.onSurface.withValues(alpha: kOpacityMedium),
-                                  ),
+                          Semantics(
+                            button: true,
+                            label: AppStrings.suggestionsToday.dismissTooltip,
+                            child: InkWell(
+                              onTap: () => _onDismiss(context),
+                              borderRadius: BorderRadius.circular(kIconSizeLarge / 2),
+                              child: Container(
+                                width: kIconSizeLarge,
+                                height: kIconSizeLarge,
+                                decoration: BoxDecoration(
+                                  color: cs.scrim.withValues(alpha: 0.08),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.close,
+                                  size: kFontSizeMedium,
+                                  color: cs.onSurface.withValues(alpha: kOpacityMedium),
                                 ),
                               ),
                             ),
@@ -847,11 +857,14 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
     );
 
     // אנימציות כניסה מדורגות עם Curve יוקרתי
+    // Slide direction follows reading direction — same precedent as
+    // welcome_screen + onboarding_tips_card.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
     Widget animated = result
         .animate(delay: Duration(milliseconds: 100 * widget.index))
         .fadeIn(duration: 350.ms, curve: Curves.easeOutBack)
         .slideX(
-          begin: 0.2,
+          begin: 0.2 * (isRtl ? -1 : 1),
           curve: Curves.easeOutBack,
           duration: 350.ms,
         );

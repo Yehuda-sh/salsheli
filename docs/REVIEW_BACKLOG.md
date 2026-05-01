@@ -174,7 +174,7 @@
 - ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 (context.select + uncheckedCount==0 CTA + snackbar dedup + copywriting)
 - ~~`onboarding_tips_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (tooltip clarity + RTL slide + opacity rationale)
 - ~~`household_activity_feed.dart`~~ ✅ **נסקר** ב-30/4/2026 (tab nav fix + context.select + bidi + decorative image)
-- `suggestions_today_card.dart` (999) — האחרון, הכי גדול
+- ~~`suggestions_today_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (loading height + a11y dedup + RTL slide + dot constants + alpha rationale)
 
 ### 🎯 `action_center_card.dart` — Decisions
 
@@ -264,6 +264,23 @@
 
 **🎯 Pattern**: דוגמה ל-feed widget עם graceful fallback (events → receipts → SizedBox.shrink) + RTL-aware chevrons + theme.textTheme nesting (לא style-on-style).
 **🎓 Lesson learned**: `context.select<List>` הוא no-op כש-getter עוטף ב-`List.unmodifiable` — נוצר reference חדש כל קריאה. רק `select<int>(length)` או `select<primitive>` עובדים באמת.
+
+### 🎯 `suggestions_today_card.dart` — Decisions
+
+**סבב 1 (30/4/2026):**
+- **Loading state height match**: `_LoadingState` היה `height: 80`, ה-carousel הטעון ~280px. תיקון לקפיצת layout — עכשיו `height: _kCarouselHeight` (200) עם הערה. UX חלק יותר.
+- **A11y dedup על dismiss button**: היה `Tooltip(message) > Semantics(button + label) > InkWell` — Tooltip על button-like אסור per CLAUDE.md A11y policy ("❌ לא — Tooltip על כל IconButton"). הוסר Tooltip, נשאר Semantics(button + label) — pattern עקבי.
+- **RTL-aware slide direction**: `slideX(begin: 0.2)` היה hardcoded. עכשיו `0.2 * (isRtl ? -1 : 1)` — אותו precedent מ-`welcome_screen` ו-`onboarding_tips_card`.
+- **Dot indicator constants**: 16 / 6 / 6 / 3 קסם → `_kDotActiveWidth` / `_kDotInactiveWidth` / `_kDotHeight` / `_kDotMarginH`. השם מספר את הסיפור ("הנקודה הפעילה רחבה יותר").
+- **Magic divides fix**: `kSpacingXTiny / 2` (2px) → `kSpacingXTiny` (4px) — אותו fix כמו ב-`household_activity_feed`. גם `kSpacingSmall + 2` (10) → `kSpacingSmallPlus` (12) — ערך קרוב מהמערכת.
+- **Sticky-note alpha rationale**: 0.6 (×4 subtle text), 0.08 (×2 scrim shadow), 0.18 / 0.4 (error tints), 0.03 / 0.06 (gradient overlays) — נשארו inline עם הערת header אחת מסבירה "tuned as a unit for paper + ink appearance". פטרן עקבי עם `pending_invites_banner` ו-`onboarding_tips_card`.
+
+**⏸️ Deferred:**
+- **Inline TextStyle ב-3 מקומות**: urgency badge (line 605), AddAll label (line 982), product name `bodyMedium.copyWith(fontSize: kFontSizeSmall)` (line 642 — style-on-style). נכלל ב-typography sweep הגלובלי (אותה החלטה כמו `welcome_screen`, `register_screen`, `last_chance_banner`, `onboarding_tips_card`, `household_activity_feed`).
+- **`_cleanProductName` runs every build**: 5 regex chain + split/dedupe + fixBidiNumbers, פעם לכל card לכל build. לא קריטי אבל ניתן למזער עם memoization. **Trigger:** אם performance profiling יראה bottleneck.
+- **Consumer<SuggestionsProvider> wraps everything**: אותה בעיה כמו `household_activity_feed` — provider מחזיר `List.unmodifiable` (סביר). select<List> = no-op.
+
+**🎯 Pattern**: דוגמה לכרטיסי sticky-notes premium עם entry animations (fade + slide + shake לcritical), AnimatedScale on press עם isolated ValueNotifier (לא rebuild הכרטיס), RepaintBoundary per card, ProductThumbnail integration.
 
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.
