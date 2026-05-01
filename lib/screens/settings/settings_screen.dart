@@ -29,6 +29,12 @@ import '../../widgets/common/skeleton_loader.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
 
+// Error/warning tints used by destructive dialogs (delete data, delete account).
+// 0.1 / 0.3 are tuned together — bg subtle enough to read, border visible enough
+// to define the warning area. Not in kOpacity* because they're contextual.
+const double _kErrorBgAlpha = 0.1;
+const double _kErrorBorderAlpha = 0.3;
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -109,16 +115,24 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       bool isOwner = false;
       if (householdId != null && userId != null) {
         try {
-          final memberDoc = await FirebaseFirestore.instance
-              .collection('households')
-              .doc(householdId)
-              .collection('members')
-              .doc(userId)
-              .get();
-          final String? memberRole = memberDoc.exists ? (memberDoc.data()?['role'] as String?) : null;
-          // בדיקה אם הבעלים = created_by
-          final householdDoc = await FirebaseFirestore.instance
-              .collection('households').doc(householdId).get();
+          // Parallel reads — neither depends on the other.
+          final results = await Future.wait([
+            FirebaseFirestore.instance
+                .collection('households')
+                .doc(householdId)
+                .collection('members')
+                .doc(userId)
+                .get(),
+            FirebaseFirestore.instance
+                .collection('households')
+                .doc(householdId)
+                .get(),
+          ]);
+          final memberDoc = results[0];
+          final householdDoc = results[1];
+          final String? memberRole = memberDoc.exists
+              ? (memberDoc.data()?['role'] as String?)
+              : null;
           final createdBy = householdDoc.data()?['created_by'];
           isOwner = userId == createdBy;
           isAdmin = isOwner || memberRole == 'admin' || memberRole == 'owner';
@@ -159,6 +173,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     } catch (e) {
       debugPrint('⚠️ Failed to save notification setting $key: $e');
     }
+  }
+
+  /// Centralized snackbar with dedup. Pass an explicit [messenger] when calling
+  /// from inside a dialog (where ScaffoldMessenger.of(context) is the dialog).
+  void _showSnackBar(SnackBar snackBar, {ScaffoldMessengerState? messenger}) {
+    final m = messenger ?? (mounted ? ScaffoldMessenger.of(context) : null);
+    if (m == null) return;
+    m
+      ..removeCurrentSnackBar()
+      ..showSnackBar(snackBar);
   }
 
   /// התנתקות רגילה (שומר seenOnboarding)
@@ -218,14 +242,17 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
 
         if (!mounted) return;
+        unawaited(HapticFeedback.lightImpact());
         Navigator.of(context).pop();
         unawaited(Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false));
       } catch (e) {
         if (!mounted) return;
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'logout')), backgroundColor: cs.error, duration: kSnackBarDurationLong),
-        );
+        _showSnackBar(SnackBar(
+          content: Text(userFriendlyError(e, context: 'logout')),
+          backgroundColor: cs.error,
+          duration: kSnackBarDurationLong,
+        ));
       }
     }
   }
@@ -247,9 +274,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
             Container(
               padding: const EdgeInsets.all(kSpacingSmall),
               decoration: BoxDecoration(
-                color: cs.error.withValues(alpha: 0.1),
+                color: cs.error.withValues(alpha: _kErrorBgAlpha),
                 borderRadius: BorderRadius.circular(kBorderRadius),
-                border: Border.all(color: cs.error.withValues(alpha: 0.3)),
+                border: Border.all(color: cs.error.withValues(alpha: _kErrorBorderAlpha)),
               ),
               child: Row(
                 children: [
@@ -308,15 +335,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
 
         if (!mounted) return;
+        unawaited(HapticFeedback.mediumImpact());
         Navigator.of(context).pop();
         // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome כי seenOnboarding=false
         unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));
       } catch (e) {
         if (!mounted) return;
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'deleteData')), backgroundColor: cs.error, duration: kSnackBarDurationLong),
-        );
+        _showSnackBar(SnackBar(
+          content: Text(userFriendlyError(e, context: 'deleteData')),
+          backgroundColor: cs.error,
+          duration: kSnackBarDurationLong,
+        ));
       }
     }
   }
@@ -366,9 +396,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   Container(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     decoration: BoxDecoration(
-                      color: cs.error.withValues(alpha: 0.1),
+                      color: cs.error.withValues(alpha: _kErrorBgAlpha),
                       borderRadius: BorderRadius.circular(kBorderRadius),
-                      border: Border.all(color: cs.error.withValues(alpha: 0.3)),
+                      border: Border.all(color: cs.error.withValues(alpha: _kErrorBorderAlpha)),
                     ),
                     child: Text(
                       AppStrings.settings.deleteAccountWarning,
@@ -388,7 +418,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       border: const OutlineInputBorder(),
                     ),
                     textAlign: TextAlign.center,
-                    textDirection: TextDirection.rtl,
                     onChanged: (_) => setDialogState(() {}),
                   ),
                 ],
@@ -416,28 +445,31 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           setDialogState(() => isDeleting = false);
 
                           if (e.code == AuthErrorCode.requiresRecentLogin) {
-                            scaffoldMessenger.showSnackBar(
+                            _showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountRequiresReauth),
                                 backgroundColor: cs.tertiary,
                               ),
+                              messenger: scaffoldMessenger,
                             );
                           } else {
-                            scaffoldMessenger.showSnackBar(
+                            _showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountError(e.message)),
                                 backgroundColor: cs.error,
                               ),
+                              messenger: scaffoldMessenger,
                             );
                           }
                         } catch (e) {
                           if (!dialogCtx.mounted) return;
                           setDialogState(() => isDeleting = false);
-                          scaffoldMessenger.showSnackBar(
+                          _showSnackBar(
                             SnackBar(
                               content: Text(userFriendlyError(e, context: 'deleteAccount')),
                               backgroundColor: cs.error,
                             ),
+                            messenger: scaffoldMessenger,
                           );
                         }
                       },
@@ -469,12 +501,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.settings.deleteAccountSuccess),
-          backgroundColor: cs.primary,
-        ),
-      );
+      unawaited(HapticFeedback.mediumImpact());
+      _showSnackBar(SnackBar(
+        content: Text(AppStrings.settings.deleteAccountSuccess),
+        backgroundColor: cs.primary,
+      ));
       // ✅ ניווט ל-/ (IndexScreen) - יזרום אוטומטית ל-Welcome (חשבון נמחק = משתמש חדש)
       // ✅ GDPR: Cloud Function (onUserDeleted) מטפלת במחיקת נתונים מ-Firestore
       unawaited(Navigator.pushNamedAndRemoveUntil(context, '/', (r) => false));

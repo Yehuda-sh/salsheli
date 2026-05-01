@@ -600,6 +600,22 @@
 
 **🎯 Pattern**: דוגמה ל-list management UI עם role-based UX (owner sees menu, viewer sees label only), inline error/empty/loading states עם retry, ו-defense-in-depth permission checks.
 
+### 🎯 `settings_screen.dart` — Decisions (Round 1: lines 1-482)
+
+**Round 1 (30/4/2026) — Logic + Actions + Delete dialog:**
+- **🚨 Removed hardcoded `textDirection: TextDirection.rtl`** (delete account confirm field, line 391). אותו pattern של `manage_users_screen` ו-`edit_household_name_dialog`.
+- **`_showSnackBar(SnackBar, {messenger?})` helper**: 6 קריאות ראויות-לdedup (logout error, debug delete error, 3 delete account flows, success). תומך בהזרקת `ScaffoldMessengerState` חיצוני (לדיאלוגים שלא רואים את ה-Scaffold). pattern עקבי עם household_members + manage_users.
+- **Haptic feedback**: `lightImpact` על logout (data שמורה), `mediumImpact` על debug delete + delete account success (point-of-no-return).
+- **Magic alphas → file-level constants**: `_kErrorBgAlpha = 0.1` ו-`_kErrorBorderAlpha = 0.3` (×4 callers — debug delete + delete account warnings). 0.1 לא קיים ב-`kOpacity*`, ו-`_kError*` שמות סמנטיים מסבירים את השימוש.
+- **`_loadSettings` Firestore reads parallel**: שתי קריאות sequential (member doc + household doc) → `Future.wait([...])`. שניהם תלויים רק ב-householdId, לא אחד בשני. ~50% חיסכון בזמן.
+
+**⏸️ Deferred (Round 1):**
+- **🔗 Direct `cloud_firestore` imports + reads ב-`_loadSettings`** (lines 113-128): המסך קורא ישירות ל-`households/{id}/members/{userId}` ו-`households/{id}`. צריך לחלץ ל-`HouseholdService.getCurrentUserRole(householdId, userId)` או דומה. **Trigger:** סקירת `household_service.dart`. **היקף:** קטן-בינוני (service method + screen replacement).
+- **Loading dialog משוכפל ×3** (logout, debug delete, delete account): כמעט-זהה Card+spinner+text. ניתן להמיר ל-helper `_showLoadingDialog(message)` או widget `_LoadingDialogContent`. **Trigger:** decision על dialogs refactor. **היקף:** קטן.
+- **Inline TextStyle ×6+ ב-dialogs**: שורות 179, 261, 273, 357, 375, 381, 449. נכלל ב-typography sweep הגלובלי.
+- **Raw `showDialog` ×3** (logout, debug, delete account): שאר האפליקציה עברה ל-`AppDialog.show`. אותו pattern שתועד ב-`edit_household_name_dialog`.
+- **`_debugClearAllData` not gated by `kDebugMode`**: title אומר 🔧 DEBUG, אבל הfunction עצמה אינה נבדקת ב-`if (kDebugMode)`. צריך לוודא ב-Round 2 איפה ה-button קורא לה.
+
 ---
 
 ## Conventions
