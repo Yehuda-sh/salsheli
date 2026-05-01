@@ -559,6 +559,26 @@
 - **Highlighter color variation per section** — היום כל הכותרות צהובות. אפשר להעביר color לכל caller (notifications=yellow, household=cyan, וכו') כמו tabs במחברת. **Trigger:** סקירת `settings_screen.dart`. **היקף:** קטן.
 - **3 מימושים של section header** — `shopping_lists_screen.dart:807` ו-`product_selection_bottom_sheet.dart:890` בנו לעצמם. אחרי ה-redesign של SectionHeader, אפשר לאחד. **Trigger:** סקירת `shopping_lists_screen.dart`. **היקף:** בינוני.
 
+### 🎯 `household_members_screen.dart` — Decisions
+
+**סבב 1 (30/4/2026):**
+- **Owner-leave UX**: כפתור "עזוב בית" היה מוצג גם לבעלים → לחיצה הציגה snackbar "owner can't leave". עכשיו הכפתור מוצג כמבוטל לבעלים (`onPressed: null`, צבע מעומעם, tooltip "owner cannot leave...transfer ownership / delete household"). ה-defense-in-depth ב-`_leaveHousehold` נשאר כsafety.
+- **Snackbar dedup helper**: 5 קריאות `ScaffoldMessenger.showSnackBar` בלי `removeCurrentSnackBar()` הפכו ל-`_showSnackBar(message)` private method ש מבצע dedup ב-source אחד.
+- **Haptic feedback**: `lightImpact` על remove + toggle role, `mediumImpact` על leave (point-of-no-return). עקביות עם שאר ה-codebase.
+- **Error state → AppErrorState**: היה bare `Text(_error!, style: cs.error)`. עכשיו `AppErrorState(message, onAction: _loadMembers, actionLabel: retry, actionIcon: refresh)` — אייקון + retry button.
+- **RTL-aware slide animations** ×2: `slideX(begin: -0.1)` (header) ו-`slideX(begin: 0.05)` (member cards) → flip לפי `isRtl`. אותו precedent של welcome/onboarding/suggestions.
+- **Decorative emoji ExcludeSemantics**: '🏠' עוטף ב-`ExcludeSemantics` — household name לידו נושא משמעות.
+- **Avatar size composition fix**: `kIconSizeLarge + kSpacingXTiny` (40) → `kIconSizeXLarge` (48). הרכבת קבועים = magic via add (לפי הכלל החדש ב-CLAUDE.md). 48 תואם הקיים.
+- **Magic `vertical: 2` ×2 → `_kBadgeVerticalPadding`**: file-level const עם הערה "tight padding for badges, 4px is too airy".
+- **`context.watch<UserContext>` → `context.select<UserContext, String?>(householdName)`**: רק שם הבית רלוונטי — לא לrebuild על themeMode/displayName.
+
+**⏸️ Deferred:**
+- **Inline TextStyle ×2 (lines 442-447, 468-471)**: `TextStyle(fontSize: kFontSizeTiny, ...)` ב-"me" badge ו-role badge. נכלל ב-typography sweep הגלובלי.
+- **PopupMenuButton בלי tooltip מותאם**: ברירת מחדל היא "Show menu" (לא ב-Hebrew). **Trigger:** A11y sweep למקרה שההכרזה לא ברורה לקוראי מסך.
+- **`_loadMembers` reload אחרי כל פעולה**: יכול להיות optimistic update במקום round-trip ל-Firestore. **Trigger:** סקירה של `household_service.dart`.
+
+**🎯 Pattern**: דוגמה למסך CRUD עם role-based UI (owner-only actions), defense-in-depth permission checks (UI gating + service-level guards), ו-snackbar dedup helper מקומי.
+
 ---
 
 ## Conventions

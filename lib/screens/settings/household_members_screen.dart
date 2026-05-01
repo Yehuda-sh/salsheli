@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
@@ -12,8 +13,13 @@ import '../../l10n/app_strings.dart';
 import '../../providers/user_context.dart';
 import '../../services/household_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
+
+// Tight vertical padding inside role/me badges — they read best at 2px,
+// not at the full kSpacingXTiny (4px) which feels too airy on small chips.
+const double _kBadgeVerticalPadding = 2.0;
 
 class HouseholdMembersScreen extends StatefulWidget {
   const HouseholdMembersScreen({super.key});
@@ -78,6 +84,15 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
     }
   }
 
+  /// Single source of truth for snackbar display — every show goes through
+  /// removeCurrentSnackBar() so rapid actions don't stack banners.
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _removeMember(_MemberData member) async {
     // בעלים לא ניתן להסרה
     if (member.role == 'owner') return;
@@ -114,18 +129,12 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         memberName: member.name,
       );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppStrings.household.memberRemoved(member.name))),
-        );
-        unawaited(_loadMembers());
-      }
+      if (!mounted) return;
+      unawaited(HapticFeedback.lightImpact());
+      _showSnackBar(AppStrings.household.memberRemoved(member.name));
+      unawaited(_loadMembers());
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'removeMember'))),
-        );
-      }
+      _showSnackBar(userFriendlyError(e, context: 'removeMember'));
     }
   }
 
@@ -145,47 +154,25 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
       );
 
       final newRole = member.role == 'admin' ? 'member' : 'admin';
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppStrings.household.memberRoleChanged(member.name, newRole == 'admin' ? AppStrings.household.roleAdmin : AppStrings.household.roleMember),
-            ),
-          ),
-        );
-        unawaited(_loadMembers());
-      }
+      if (!mounted) return;
+      unawaited(HapticFeedback.lightImpact());
+      _showSnackBar(AppStrings.household.memberRoleChanged(
+        member.name,
+        newRole == 'admin'
+            ? AppStrings.household.roleAdmin
+            : AppStrings.household.roleMember,
+      ));
+      unawaited(_loadMembers());
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'household'))),
-        );
-      }
+      _showSnackBar(userFriendlyError(e, context: 'household'));
     }
   }
 
   Future<void> _leaveHousehold() async {
-    // בעלים לא יכול לעזוב — חייב למחוק את הבית או להעביר בעלות
+    // Defense-in-depth: the leave button is disabled for owners, but the
+    // guard stays in case some path bypasses the UI gating.
     if (_isOwner) {
-      if (mounted) {
-        final cs = Theme.of(context).colorScheme;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.info_outline, color: cs.onTertiaryContainer, size: kIconSizeMedium),
-                const SizedBox(width: kSpacingSmall),
-                Expanded(child: Text(
-                  AppStrings.household.ownerCannotLeave,
-                  style: TextStyle(color: cs.onTertiaryContainer),
-                )),
-              ],
-            ),
-            backgroundColor: cs.tertiaryContainer,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
+      _showSnackBar(AppStrings.household.ownerCannotLeave);
       return;
     }
 
@@ -225,21 +212,14 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
         userName: memberName,
       );
 
-      if (mounted) {
-        await context.read<UserContext>().refreshUser();
-        if (mounted) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppStrings.household.leftHousehold)),
-          );
-        }
-      }
+      if (!mounted) return;
+      await context.read<UserContext>().refreshUser();
+      if (!mounted) return;
+      unawaited(HapticFeedback.mediumImpact());
+      Navigator.of(context).pop();
+      _showSnackBar(AppStrings.household.leftHousehold);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userFriendlyError(e, context: 'household'))),
-        );
-      }
+      _showSnackBar(userFriendlyError(e, context: 'household'));
     }
   }
 
@@ -247,8 +227,12 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final userContext = context.watch<UserContext>();
-    final householdName = userContext.householdName ?? AppStrings.household.myHome;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    // Only the household name affects this screen — avoid rebuilding on
+    // unrelated UserContext changes (theme mode, displayName, etc.).
+    final householdName = context.select<UserContext, String?>(
+            (u) => u.householdName) ??
+        AppStrings.household.myHome;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -278,17 +262,20 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
-                      // House icon in colored circle
+                      // House icon in colored circle — emoji is decorative,
+                      // the household name next to it carries the meaning.
                       Container(
-                        width: kIconSizeLarge + kSpacingXTiny,
-                        height: kIconSizeLarge + kSpacingXTiny,
+                        width: kIconSizeXLarge,
+                        height: kIconSizeXLarge,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: cs.primaryContainer,
                         ),
                         child: const Center(
-                          child: Text('🏠',
-                              style: TextStyle(fontSize: kFontSizeBody)),
+                          child: ExcludeSemantics(
+                            child: Text('🏠',
+                                style: TextStyle(fontSize: kFontSizeBody)),
+                          ),
                         ),
                       ),
                       const SizedBox(width: kSpacingSmall),
@@ -314,25 +301,38 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                           ],
                         ),
                       ),
-                      // Leave button
+                      // Leave button — disabled for owners with a tooltip
+                      // explaining the only paths out (transfer ownership /
+                      // delete the household).
                       if (_members.length > 1)
                         IconButton(
-                          icon: Icon(Icons.exit_to_app, color: cs.error),
-                          tooltip: AppStrings.household.leaveHouseholdTooltip,
-                          onPressed: _leaveHousehold,
+                          icon: Icon(
+                            Icons.exit_to_app,
+                            color: _isOwner
+                                ? cs.onSurface.withValues(alpha: kOpacityMedium)
+                                : cs.error,
+                          ),
+                          tooltip: _isOwner
+                              ? AppStrings.household.ownerCannotLeave
+                              : AppStrings.household.leaveHouseholdTooltip,
+                          onPressed: _isOwner ? null : _leaveHousehold,
                         ),
                     ],
                   ),
-                ).animate().fadeIn(duration: 300.ms).slideX(begin: -0.1),
+                ).animate().fadeIn(duration: 300.ms).slideX(
+                      begin: -0.1 * (isRtl ? -1 : 1),
+                    ),
 
                 // Content
                 Expanded(
                   child: _isLoading
                       ? const AppLoadingSkeleton()
                       : _error != null
-                          ? Center(
-                              child: Text(_error!,
-                                  style: TextStyle(color: cs.error)),
+                          ? AppErrorState(
+                              message: _error!,
+                              onAction: _loadMembers,
+                              actionLabel: AppStrings.common.retry,
+                              actionIcon: Icons.refresh,
                             )
                           : RefreshIndicator(
                               onRefresh: _loadMembers,
@@ -349,7 +349,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                                       .fadeIn(
                                           duration: 400.ms,
                                           delay: (100 * index).ms)
-                                      .slideX(begin: 0.05);
+                                      .slideX(begin: 0.05 * (isRtl ? -1 : 1));
                                 },
                               ),
                             ),
@@ -430,7 +430,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: kSpacingSmall,
-                            vertical: 2,
+                            vertical: _kBadgeVerticalPadding,
                           ),
                           decoration: BoxDecoration(
                             color: cs.primaryContainer,
@@ -453,7 +453,7 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: kSpacingSmall,
-                      vertical: 2,
+                      vertical: _kBadgeVerticalPadding,
                     ),
                     decoration: BoxDecoration(
                       color: isMemberOwner
