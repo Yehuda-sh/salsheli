@@ -145,6 +145,14 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - **היררכיה ויזואלית** — הדבר החשוב באמת בולט? סדר הצגה הגיוני?
 - **עומס קוגניטיבי** — טקסט ברור? יותר מדי החלטות במסך אחד?
 - **סיכון מיס-טאפ** — כפתורים מסוכנים (X, מחיקה) רחוקים מ-CTA?
+- **🔥 פעולות הרסניות** (logout / delete data / delete account / leave / remove user):
+  - האם המשתמש מבין **מה נשמר ומה לא**? (logout שומר נתונים — האם הdialog אומר?)
+  - אם יש "requires re-auth" / "permission missing" — האם הסנקבר מציע **כפתור פעולה** או רק טקסט?
+  - **השפעה על ישויות מקושרות**: delete account → רשימות משותפות → משתתפים אחרים מאבדים גישה. האם הdialog מסביר?
+  - **Email/notification confirmation**: GDPR/security best practice — אם פעולה גדולה, האם נשלח אימייל אישור?
+  - **3rd-party auth**: משתמשי Google/Apple — אחרי logout, ההתחברות הבאה תהיה silent? המשתמש מבין?
+- **⏳ Loading timeouts** — spinner ללא הגבלה הוא bug. אחרי 8-10 שניות, להציג "לוקח יותר מהצפוי" + Cancel/Retry? אין escape = stuck UX.
+- **♻️ Account switching** — בהרבה אפליקציות יש החלפה מהירה בלי full logout. האם המשתמשים שלנו יכולים לעבוד בכמה חשבונות?
 
 ### 🔗 Cross-File (חוצה קבצים)
 - **מי קורא לקובץ?** — `grep` שם הפונקציה/הוויג'ט בכל ה-`lib/`
@@ -181,6 +189,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
   - CTA tonal מספיק בולט? FilledButton vivid יבדל יותר?
   - slide offset 0.1 כמעט בלתי-נראה — 0.2 יבליט?
   - אילוסטרציה empty state? micro-interaction על hover/press? shadow על CTA?
+- 🧮 **Animation interval math sanity** — בלולאות `start = i * 0.X` ל-N סקציות, לוודא ש-`(N-1) * 0.X + duration ≤ 1.0`. אחרת הסקציות האחרונות מבזיקות (clamping) או לא נראות. דוגמה: 9 סקציות, `start = i * 0.12`, `end = start + 0.4` → סקציה 8 עם רק 0.04 שניות אנימציה = bug ויזואלי.
 
 ### ⚡ Performance & Lifecycle
 - `RepaintBoundary` סביב אנימציות / shimmer / scrolls כבדים
