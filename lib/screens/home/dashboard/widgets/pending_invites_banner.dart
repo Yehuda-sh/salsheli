@@ -198,7 +198,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: kSpacingTiny,
-                                    vertical: kSpacingXTiny / 2,
+                                    vertical: kSpacingXTiny,
                                   ),
                                   decoration: BoxDecoration(
                                     color: cs.tertiary,
@@ -216,7 +216,7 @@ class _PendingInviteBannerContent extends StatelessWidget {
                               ],
                             ],
                           ),
-                          const SizedBox(height: kSpacingXTiny / 2),
+                          const SizedBox(height: kSpacingXTiny),
                           Text(
                             subtitle,
                             style: theme.textTheme.bodySmall?.copyWith(

@@ -160,6 +160,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - `const` איפה שאפשר (`SizedBox`, `EdgeInsets`, `Duration`)
 - חריגים מותרים: ערכי תכן ספציפיים (`alpha: 0.4` לסקרים) — אך **עם הערה**
 - כפילות עם `Theme` — לא להגדיר ערכים ש-Theme כבר קובע (`backgroundColor`, `shape` ב-bottom sheets)
+- ❌ **לא** — חלוקה של קבועים ליצירת ערכים קטנים (`kSpacingXTiny / 2`, `kIconSize / 2` וכו'). חלוקה במספר היא magic number מוסווית. או להשתמש בקבוע שלם הקרוב ביותר, או literal עם הערה מסבירה.
 
 ### 🖼️ Design Polish (תחושה ויזואלית)
 **שאלות עיצוב אמיתיות, לא רק "האם משתמשים בקבועים".**
@@ -185,6 +186,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - `RepaintBoundary` סביב אנימציות / shimmer / scrolls כבדים
 - `ValueNotifier<T>` + `ValueListenableBuilder` במקום `setState` אם רק חלק קטן ב-UI צריך לבנות מחדש
 - `context.select` במקום `context.watch` אם הערך פרימיטיבי (`int`/`String`/`bool`)
+- ⚠️ **`context.select<List>` / `<Map>` הוא no-op** אם ה-getter עוטף ב-`List.unmodifiable` (returns wrapper חדש כל קריאה → reference equality תמיד נכשל). השתמש ב-`select<int>(p.list.length)` או השאר `watch`.
 - `dispose()` — `Controllers`, `Timers`, `AnimationControllers`, `Listeners`, `Streams`
 - `if (mounted)` **רק** אחרי `await` (לא לפני שום await — קוד מת)
 
@@ -322,6 +324,21 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 
 ### 🔍 דוגמה: הצעת פיצ'ר בלי לבדוק קודם (ראה `💡 Blind Spots`)
 - ב-`product_thumbnail.dart` הצעתי "Skeleton placeholder" בלי לבדוק שה-emoji כבר תפקיד signature design — הצעה שהייתה צריכה להיפסל לפני שהוצגה.
+
+### 🔍 Cross-file scan בסבב 2 — לא לסמוך על "Reference quality"
+- קבצים שסומנו "Reference quality" בסקירה קודמת עדיין יכולים להכיל magic numbers או anti-patterns שהסקירה הראשונה פספסה.
+- דוגמה: `pending_invites_banner.dart` ו-`active_shopper_banner.dart` סומנו reference ב-29/4. סבב 2 גילה 3 magic divides (`kSpacingXTiny / 2`) שלא נתפסו.
+- **כלל אחרי כל פטרן שתופסים בקובץ אחד:** `grep` מיידי בכל ה-`lib/` — לא להסתפק בתיקון נקודתי. אם 1 מקום היה — סביר ש-2-3 נוספים.
+
+### 🚦 Loading state height parity — UX gotcha
+- כש-`_LoadingState` הוא widget נפרד, לוודא שהגובה שלו תואם לגובה ה-loaded state — אחרת ה-layout קופץ כשנתונים מגיעים.
+- דוגמה: `suggestions_today_card._LoadingState` היה `height: 80`, ה-carousel הטעון ~280px. כל טעינה גרמה לקפיצת מסך. תוקן ל-`height: _kCarouselHeight`.
+- **כלל:** loading state height ≥ minimum loaded state height. עדיף עם הערה "Match loaded state height to prevent jump".
+
+### 🔗 Tab navigation — `Navigator.push(SomeTabScreen())` הוא code smell
+- אם `SomeTabScreen` הוא גם טאב ב-main_navigation, `Navigator.push(MaterialPageRoute(builder: SomeTabScreen()))` יוצר instance כפול ומסתיר את ה-bottom nav.
+- הפטרן הנכון: callback מסוג `onTabSelected(int)` שעובר את ה-tab index הרצוי.
+- דוגמה: `household_activity_feed` "ראה הכל" → `onTabSelected!(2)` במקום push חדש של `ShoppingHistoryScreen`.
 
 ---
 

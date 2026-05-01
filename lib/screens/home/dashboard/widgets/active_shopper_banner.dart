@@ -359,7 +359,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: kSpacingXTiny / 2),
+                          const SizedBox(height: kSpacingXTiny),
                           Text(
                             subtitle,
                             style: theme.textTheme.bodySmall?.copyWith(
