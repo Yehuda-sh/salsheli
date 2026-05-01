@@ -1,6 +1,10 @@
 // lib/screens/settings/manage_users_screen.dart — Manage users — shared list user management: roles, remove, invite
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/error_utils.dart';
@@ -154,18 +158,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       // שמירה ב-Firebase
       await provider.updateList(updatedList);
 
-      if (mounted) {
-        // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
-        _currentList = updatedList;
-        _loadUsers();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.userRemovedSuccess)),
-        );
-      }
+      if (!mounted) return;
+      // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
+      _currentList = updatedList;
+      _loadUsers();
+      unawaited(HapticFeedback.mediumImpact());
+      _showSnackBar(strings.userRemovedSuccess);
     } catch (e) {
-      if (mounted) {
-        _showError(userFriendlyError(e, context: 'removeUser'));
-      }
+      _showError(userFriendlyError(e, context: 'removeUser'));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -246,18 +246,14 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       // שמירה ב-Firebase
       await provider.updateList(updatedList);
 
-      if (mounted) {
-        // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
-        _currentList = updatedList;
-        _loadUsers();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(strings.roleUpdatedSuccess(newRole.hebrewName))),
-        );
-      }
+      if (!mounted) return;
+      // 🔧 עדכון הרשימה המקומית לפני רענון המשתמשים
+      _currentList = updatedList;
+      _loadUsers();
+      unawaited(HapticFeedback.lightImpact());
+      _showSnackBar(strings.roleUpdatedSuccess(newRole.hebrewName));
     } catch (e) {
-      if (mounted) {
-        _showError(userFriendlyError(e, context: 'updateRole'));
-      }
+      _showError(userFriendlyError(e, context: 'updateRole'));
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -265,19 +261,24 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
     }
   }
 
-  void _showError(String message) {
+  /// Single source for snack display — all callers go through
+  /// removeCurrentSnackBar() so rapid actions don't stack banners.
+  /// `isError: true` paints with cs.error background.
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
     final cs = Theme.of(context).colorScheme;
-    // SnackBar בלבד - לשגיאות פעולה (remove/editRole).
-    // _errorMessage משמש רק לשגיאות טעינה ראשוניות.
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
         content: Text(message),
-        backgroundColor: cs.error,
-      ),
-    );
+        backgroundColor: isError ? cs.error : null,
+      ));
   }
 
+  void _showError(String message) => _showSnackBar(message, isError: true);
+
   Future<void> _inviteUser() async {
+    unawaited(HapticFeedback.lightImpact());
     await Navigator.of(context).push<bool>(
       MaterialPageRoute(
         builder: (context) => InviteUsersScreen(list: _currentList),
@@ -300,123 +301,120 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   @override
   Widget build(BuildContext context) {
     final strings = AppStrings.manageUsers;
-    final userContext = context.watch<UserContext>();
-    final currentUserId = userContext.userId;
+    // Only userId affects this screen — avoid rebuilds on theme/displayName changes.
+    final currentUserId =
+        context.select<UserContext, String?>((u) => u.userId);
 
     final cs = Theme.of(context).colorScheme;
 
     // אם המשתמש לא מחובר - הצג שגיאה
     if (currentUserId == null) {
-      return Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          body: Stack(
-            children: [
-              const NotebookBackground(),
-              SafeArea(
-                child: Column(
-                  children: [
-                    // 🏷️ כותרת inline
-                    Padding(
-                      padding: const EdgeInsets.all(kSpacingMedium),
-                      child: Row(
-                        children: [
-                          Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
-                          const SizedBox(width: kSpacingSmall),
-                          Expanded(
-                            child: Text(
-                              strings.title,
-                              style: TextStyle(
-                                fontSize: kFontSizeLarge,
-                                fontWeight: FontWeight.bold,
-                                color: cs.onSurface,
-                              ),
+      return Scaffold(
+        body: Stack(
+          children: [
+            const NotebookBackground(),
+            SafeArea(
+              child: Column(
+                children: [
+                  // 🏷️ כותרת inline
+                  Padding(
+                    padding: const EdgeInsets.all(kSpacingMedium),
+                    child: Row(
+                      children: [
+                        Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
+                        const SizedBox(width: kSpacingSmall),
+                        Expanded(
+                          child: Text(
+                            strings.title,
+                            style: TextStyle(
+                              fontSize: kFontSizeLarge,
+                              fontWeight: FontWeight.bold,
+                              color: cs.onSurface,
                             ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: kIconSizeXXLarge,
+                            color: cs.error.withValues(alpha: kOpacityStrong),
+                          ),
+                          const SizedBox(height: kSpacingMedium),
+                          Text(
+                            strings.errorUserNotLoggedIn,
+                            style: const TextStyle(fontSize: kFontSizeTitle),
                           ),
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.error_outline,
-                              size: kIconSizeXXLarge,
-                              color: cs.error.withValues(alpha: kOpacityStrong),
-                            ),
-                            const SizedBox(height: kSpacingMedium),
-                            Text(
-                              strings.errorUserNotLoggedIn,
-                              style: const TextStyle(fontSize: kFontSizeTitle),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
 
-    final isOwner = ShareListService.canUserManage(_currentList, currentUserId);
+    // Owner OR admin can manage (rename, edit roles, remove, invite).
+    final canManage = ShareListService.canUserManage(_currentList, currentUserId);
 
     return Stack(
       children: [
         const NotebookBackground(),
-        Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // 🏷️ כותרת inline
-              Padding(
-                padding: const EdgeInsets.all(kSpacingMedium),
-                child: Row(
-                  children: [
-                    Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
-                    const SizedBox(width: kSpacingSmall),
-                    Expanded(
-                      child: Text(
-                        strings.title,
-                        style: TextStyle(
-                          fontSize: kFontSizeLarge,
-                          fontWeight: FontWeight.bold,
-                          color: cs.onSurface,
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // 🏷️ כותרת inline
+                Padding(
+                  padding: const EdgeInsets.all(kSpacingMedium),
+                  child: Row(
+                    children: [
+                      Icon(Icons.group, size: kIconSizeMedium, color: cs.primary),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Text(
+                          strings.title,
+                          style: TextStyle(
+                            fontSize: kFontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(child: _buildBody(isOwner)),
-            ],
+                Expanded(child: _buildBody(canManage)),
+              ],
+            ),
           ),
+          floatingActionButton: canManage
+              ? FloatingActionButton.extended(
+                  heroTag: 'manage_users_fab',
+                  onPressed: _inviteUser,
+                  icon: const Icon(Icons.person_add),
+                  label: Text(strings.inviteUser),
+                )
+              : null,
         ),
-        floatingActionButton: isOwner
-            ? FloatingActionButton.extended(
-                heroTag: 'manage_users_fab',
-                onPressed: _inviteUser,
-                icon: const Icon(Icons.person_add),
-                label: Text(strings.inviteUser),
-              )
-            : null,
-      ),
-    ),
       ],
     );
   }
 
-  Widget _buildBody(bool isOwner) {
+  Widget _buildBody(bool canManage) {
     final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.manageUsers;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     if (_isLoading) {
       return const AppLoadingSkeleton();
@@ -457,7 +455,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             Icon(
               Icons.people_outline,
               size: kIconSizeXXLarge,
-              color: cs.outline.withValues(alpha: 0.5),
+              color: cs.outline.withValues(alpha: kOpacityMedium),
             ),
             const SizedBox(height: kSpacingMedium),
             Text(
@@ -467,7 +465,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
             const SizedBox(height: kSpacingSmall),
             // 🔧 טקסט שונה לפי הרשאות
             Text(
-              isOwner ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,
+              canManage ? strings.inviteUsersHint : strings.onlyOwnerCanInvite,
               style: TextStyle(color: cs.outline),
             ),
           ],
@@ -481,12 +479,15 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       separatorBuilder: (_, _) => const SizedBox(height: kSpacingSmall),
       itemBuilder: (context, index) {
         final user = _users[index];
-        return _buildUserCard(user, isOwner);
+        return _buildUserCard(user, canManage)
+            .animate()
+            .fadeIn(duration: 400.ms, delay: (100 * index).ms)
+            .slideX(begin: 0.05 * (isRtl ? -1 : 1));
       },
     );
   }
 
-  Widget _buildUserCard(SharedUser user, bool isOwner) {
+  Widget _buildUserCard(SharedUser user, bool canManage) {
     final cs = Theme.of(context).colorScheme;
     final strings = AppStrings.manageUsers;
     final userContext = context.read<UserContext>();
@@ -501,7 +502,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getRoleColor(user.role).withValues(alpha: 0.3),
+          backgroundColor: _getRoleColor(user.role).withValues(alpha: kOpacityLight),
           child: Text(
             user.role.emoji,
             style: const TextStyle(fontSize: kFontSizeTitle),
@@ -553,7 +554,7 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
               ),
           ],
         ),
-        trailing: isOwner && !isUserOwner
+        trailing: canManage && !isUserOwner
             ? PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 itemBuilder: (context) => [

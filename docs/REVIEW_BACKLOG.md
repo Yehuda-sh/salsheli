@@ -579,6 +579,27 @@
 
 **🎯 Pattern**: דוגמה למסך CRUD עם role-based UI (owner-only actions), defense-in-depth permission checks (UI gating + service-level guards), ו-snackbar dedup helper מקומי.
 
+### 🎯 `manage_users_screen.dart` — Decisions
+
+**סבב 1 (30/4/2026):**
+- **🚨 Removed hardcoded `Directionality(rtl)` ×2**: שתי פעמים הקובץ עטף את כל הScaffold ב-`Directionality(rtl)` — הפרה מפורשת של CLAUDE.md ("בלי Directionality(rtl) מקובע — האפליקציה כבר RTL גלובלי"). משתמש דובר אנגלית קיבל מסך הפוך. הוסר.
+- **`isOwner` → `canManage`**: שם משתנה היה מטעה — `ShareListService.canUserManage` מחזיר true גם ל-admin, לא רק owner. הצמדה בין שם ללוגיקה. גם פתר בלבול עם `isUserOwner` באותו scope.
+- **Snackbar dedup helper unified**: 3 קריאות `ScaffoldMessenger.showSnackBar` + `_showError` הפכו ל-`_showSnackBar(message, isError: false)` יחיד עם opt-in לצבע אדום. `_showError` נשאר כ-thin wrapper.
+- **Haptic feedback**: `mediumImpact` על remove (point-of-no-return בקונטקסט list משותף), `lightImpact` על role edit + invite navigation.
+- **Card animations** ×N: `fadeIn(400ms) + slideX(begin: 0.05 * isRtl)` per card — עקביות עם `household_members_screen` (אותה תיקייה). RTL-aware.
+- **Magic alphas → kOpacity***: `alpha: 0.5` (empty state icon) → `kOpacityMedium`. `alpha: 0.3` (avatar bg) → `kOpacityLight`. matches מדויקים לקבועים.
+- **`context.watch<UserContext>` → `context.select<UserContext, String?>(userId)`**: רק userId רלוונטי — minimal rebuilds.
+
+**⏸️ Deferred:**
+- **Inline TextStyle ×6+**: הקובץ לא משתמש ב-`theme.textTheme.*` בשום מקום — כל Text עם `TextStyle(fontSize: kFontSize*, ...)` ידני. שורות 329, 352, 389, 439, 465, 515, 530, 543, 552. נכלל ב-typography sweep הגלובלי.
+- **`Card(elevation: 2)`**: ערך magic, ושאר ה-cards באפליקציה (`household_members_screen`) עם elevation 0 + border. **שאלה ויזואלית**: לעבור לסגנון אחיד? לא תוקן ללא אישור מפורש (visual change). **Trigger:** sweep ויזואלי של cards.
+- **Header Padding/Row repeated ×2**: אותו header בלוק מופיע פעם ב-`if (currentUserId == null)` ופעם ב-build הרגיל — extract ל-`_buildHeader()` private method.
+- **`_getDisplayName` קורא `context.read<UserContext>()` לכל user**: אפשר לקבל userContext פעם אחת ב-`_buildBody` ולהעביר. micro-optimization.
+- **PopupMenuButton בלי tooltip מותאם**: ברירת מחדל "Show menu". A11y minor.
+- **Raw `showDialog` ×2** (remove + edit role): שאר האפליקציה משתמשת ב-`AppDialog.show`. אותו refactor שתועד ב-`edit_household_name_dialog`.
+
+**🎯 Pattern**: דוגמה ל-list management UI עם role-based UX (owner sees menu, viewer sees label only), inline error/empty/loading states עם retry, ו-defense-in-depth permission checks.
+
 ---
 
 ## Conventions
