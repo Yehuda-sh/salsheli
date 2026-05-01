@@ -122,6 +122,22 @@
 
 **🎯 הערה עיצובית:** הדיאלוג הזה הוא **חריג מודע** משפת notebook+sticky. הקשר משפטי ⇒ tone Material formal. אם בעתיד יוחלט להחיל את שפת notebook+sticky גם פה — זה יהיה החלטה גלובלית של "כל הדיאלוגים יוצאים ל-highlighter" ולא תיקון נקודתי.
 
+### `edit_household_name_dialog.dart`
+
+**📂 Used in:** `settings_screen.dart:1204` (admin edit) + `household_invite_dialog.dart:40` (guard לפני שליחת הזמנה כשאין שם בית).
+
+**✅ Decisions Made (30/4/2026):**
+- **Removed hardcoded `textDirection: TextDirection.rtl` + `textAlign: TextAlign.right`**: שמות באנגלית ("Smith family") הוצגו הפוך. ה-app RTL גלובלית — TextField בוחר אוטומטית. אותו pattern flagged ב-`register_screen._askHouseholdName` Backlog deferred.
+- **Added `HapticFeedback.lightImpact()` on save success**: עקביות עם שאר ה-CRUD באפליקציה (suggestions/onboarding/social_login).
+- **Added `onSubmitted` + `textInputAction: TextInputAction.done`**: מקלדת "Done" שומרת. צמצום חיכוך mobile.
+- **Extracted local `trySave()` function**: shared בין `onSubmitted` ל-`onPressed` של FilledButton — DRY.
+- **Magic `40` → `_kMaxHouseholdNameLength`**: file-level const עם הערה "Firestore field size + UI readability".
+
+**⏸️ Deferred:**
+- **AlertDialog בתוך AppDialog — possible double-chrome**: AppDialog.show כבר מספק wrapper (barrier + animation). AlertDialog בפנים מוסיף card שלו. שאר הדיאלוגים באפליקציה (`pantry_merge_dialog`, `household_invite_dialog`) משתמשים בcontent מותאם בתוך AppDialog. **Trigger:** refactor כללי של הדיאלוגים. **היקף:** קטן בקובץ, אבל החלטה ארכיטקטונית רחבה.
+
+**🎯 Pattern**: דוגמה ל-dialog פשוט עם state local (StatefulBuilder), shared submit (button + keyboard Done), graceful error handling, ו-Source-vs-Symptom עם caller שני שמטפל ב-"no name" ב-source במקום dead-end.
+
 ---
 
 ### `dev_banner.dart`
