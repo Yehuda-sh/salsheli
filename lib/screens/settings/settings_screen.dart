@@ -238,7 +238,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         // Cache provider before await — context may be invalid after signOut
         // triggers auth state change that disposes this screen.
         final userContext = context.read<UserContext>();
-        await userContext.signOut();
+        await userContext.signOut().timeout(
+              const Duration(seconds: 30),
+              onTimeout: () => throw TimeoutException(
+                  AppStrings.settings.takingTooLong),
+            );
 
 
         if (!mounted) return;
@@ -331,7 +335,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         ));
 
         final userCtx = context.read<UserContext>();
-        await userCtx.signOutAndClearAllData();
+        await userCtx.signOutAndClearAllData().timeout(
+              const Duration(seconds: 30),
+              onTimeout: () => throw TimeoutException(
+                  AppStrings.settings.takingTooLong),
+            );
 
 
         if (!mounted) return;
@@ -436,7 +444,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         final navigator = Navigator.of(dialogCtx);
 
                         try {
-                          await authService.deleteAccount();
+                          await authService.deleteAccount().timeout(
+                                const Duration(seconds: 30),
+                                onTimeout: () => throw TimeoutException(
+                                    AppStrings.settings.takingTooLong),
+                              );
 
                           if (!dialogCtx.mounted) return;
                           navigator.pop(true);
@@ -449,6 +461,23 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               SnackBar(
                                 content: Text(AppStrings.settings.deleteAccountRequiresReauth),
                                 backgroundColor: cs.tertiary,
+                                duration: kSnackBarDurationLong,
+                                action: SnackBarAction(
+                                  label: AppStrings.settings.reauthNow,
+                                  textColor: cs.onTertiary,
+                                  onPressed: () async {
+                                    if (!mounted) return;
+                                    final uc = context.read<UserContext>();
+                                    try {
+                                      await uc.signOut();
+                                    } catch (_) {
+                                      // best-effort — push to login regardless
+                                    }
+                                    if (!mounted) return;
+                                    unawaited(Navigator.pushNamedAndRemoveUntil(
+                                        context, '/login', (r) => false));
+                                  },
+                                ),
                               ),
                               messenger: scaffoldMessenger,
                             );

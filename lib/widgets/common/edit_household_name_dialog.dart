@@ -55,19 +55,33 @@ Future<bool> showEditHouseholdNameDialog(
             }
           }
 
+          final theme = Theme.of(ctx);
           return AlertDialog(
             title: Text(AppStrings.settings.householdName),
-            content: TextField(
-              controller: controller,
-              maxLength: _kMaxHouseholdNameLength,
-              autofocus: true,
-              textInputAction: TextInputAction.done,
-              onSubmitted: isSaving ? null : (_) => trySave(),
-              decoration: InputDecoration(
-                hintText: AppStrings.settings.householdNameHint,
-                border: const OutlineInputBorder(),
-                errorText: errorText,
-              ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppStrings.settings.householdNameDialogSubtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: kSpacingSmall),
+                TextField(
+                  controller: controller,
+                  maxLength: _kMaxHouseholdNameLength,
+                  autofocus: true,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: isSaving ? null : (_) => trySave(),
+                  decoration: InputDecoration(
+                    hintText: AppStrings.settings.householdNameHint,
+                    border: const OutlineInputBorder(),
+                    errorText: errorText,
+                  ),
+                ),
+              ],
             ),
             actions: [
               TextButton(

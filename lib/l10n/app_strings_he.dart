@@ -869,20 +869,26 @@ class SettingsStrings {
   String pricesUpdated(int withPrice, int total) => '✅ התעדכנו $withPrice מחירים מתוך $total מוצרים!';
   String pricesUpdateError(String error) => '❌ שגיאה בעדכון מחירים: $error';
   String get logoutTitle => 'התנתקות';
-  String get logoutMessage => 'האם אתה בטוח שברצונך להתנתק?';
+  String get logoutMessage =>
+      'הנתונים שלך (רשימות, מזווה, היסטוריה) יישארו. תוכל להתחבר שוב עם אותו חשבון.';
   String get logoutCancel => 'ביטול';
   String get logoutConfirm => 'התנתק';
   String get logoutSubtitle => 'יציאה מהחשבון';
   String get deleteAccountTitle => 'מחיקת חשבון';
   String get deleteAccountSubtitle => 'מחיקת כל הנתונים לצמיתות';
   String get deleteAccountWarning =>
-      'פעולה זו תמחק לצמיתות את:\n• כל הרשימות שיצרת\n• היסטוריית הקניות\n• המזווה שלך\n• כל הנתונים האישיים\n\nלא ניתן לשחזר את הנתונים!';
+      'פעולה זו תמחק לצמיתות את:\n• כל הרשימות שיצרת\n• היסטוריית הקניות\n• המזווה שלך\n• כל הנתונים האישיים\n• רשימות בבעלותך — משתתפים אחרים יאבדו גישה\n\nלא ניתן לשחזר את הנתונים!';
   String get deleteAccountConfirmLabel => 'הקלד "מחק את החשבון" לאישור:';
   String get deleteAccountConfirmText => 'מחק את החשבון';
   String get deleteAccountButton => 'מחק חשבון לצמיתות';
   String get deleteAccountSuccess => 'החשבון נמחק בהצלחה';
   String deleteAccountError(String error) => 'שגיאה במחיקת החשבון: $error';
   String get deleteAccountRequiresReauth => 'נדרשת התחברות מחדש לפני מחיקת החשבון';
+  String get reauthNow => 'התחבר עכשיו';
+  String get takingTooLong =>
+      'הפעולה לוקחת יותר מהצפוי. בדוק חיבור ונסה שוב.';
+  String get householdNameDialogSubtitle =>
+      'השם נראה לכל החברים בבית, מתעדכן מיד';
   String get loading => 'טוען...';
   String loadError(String error) => 'Error loading settings: $error';
   String saveError(String error) => 'Error saving settings: $error';
@@ -944,7 +950,8 @@ class HouseholdStrings {
 
   // Members management
   String get removeMemberTitle => 'הסרת חבר';
-  String removeMemberConfirm(String name) => 'להסיר את $name מהבית?';
+  String removeMemberConfirm(String name) =>
+      'להסיר את $name מהבית?\n$name לא יוכל יותר לראות רשימות משותפות. רשימות שיצר ימשיכו להיות זמינות.';
   String get removeMemberButton => 'הסר';
   String removeMemberError(String error) => 'שגיאה בהסרה: $error';
   String genericError(String error) => 'שגיאה: $error';
@@ -952,7 +959,9 @@ class HouseholdStrings {
   String get leaveHouseholdButton => 'עזוב';
   String get leftHousehold => 'עזבת את הבית';
   String get makeAdmin => 'הפוך למנהל';
+  String get makeAdminSubtitle => 'יוכל להוסיף ולהסיר חברים, לערוך שמות';
   String get makeMember => 'הפוך לחבר';
+  String get makeMemberSubtitle => 'יוכל לערוך רשימות, לא לנהל חברים';
   String get removeFromHousehold => 'הסר מהבית';
   String roleChangeError(String error) => 'שגיאה בשינוי תפקיד: $error';
   String get ownerCannotLeave => 'בעלים לא יכול לעזוב את הבית. ניתן למחוק את הבית או להעביר בעלות';
@@ -1125,6 +1134,12 @@ class ManageUsersStrings {
   String get noSharedUsers => 'אין משתמשים משותפים';
   String get inviteUsersHint => 'לחץ על + להזמנת משתמשים';
   String get onlyOwnerCanInvite => 'רק בעל הרשימה יכול להזמין משתמשים';
+  String get viewerOnlyBanner => 'אתה צופה בלבד — לעריכה, פנה לבעל הרשימה';
+  String get filterAll => 'הכל';
+  String get filterOwners => 'בעלים';
+  String get filterAdmins => 'מנהלים';
+  String get filterEditors => 'עורכים';
+  String get filterViewers => 'צופים';
 }
 
 // ========================================

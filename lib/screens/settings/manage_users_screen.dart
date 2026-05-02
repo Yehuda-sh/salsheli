@@ -42,6 +42,8 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
   late ShoppingList _currentList; // 🔧 רשימה עדכנית (לא widget.list הישן)
   bool _isLoading = false;
   String? _errorMessage;
+  // null = "All" (no filter); otherwise show only users with this role.
+  UserRole? _roleFilter;
 
   @override
   void initState() {
@@ -473,17 +475,82 @@ class _ManageUsersScreenState extends State<ManageUsersScreen> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      itemCount: _users.length,
-      separatorBuilder: (_, _) => const SizedBox(height: kSpacingSmall),
-      itemBuilder: (context, index) {
-        final user = _users[index];
-        return _buildUserCard(user, canManage)
-            .animate()
-            .fadeIn(duration: 400.ms, delay: (100 * index).ms)
-            .slideX(begin: 0.05 * (isRtl ? -1 : 1));
-      },
+    final filteredUsers = _roleFilter == null
+        ? _users
+        : _users.where((u) => u.role == _roleFilter).toList();
+
+    return Column(
+      children: [
+        // Viewer-only banner: explain why no actions menu is visible.
+        if (!canManage)
+          Container(
+            margin: const EdgeInsets.fromLTRB(
+                kSpacingMedium, kSpacingSmall, kSpacingMedium, 0),
+            padding: const EdgeInsets.all(kSpacingSmall),
+            decoration: BoxDecoration(
+              color: cs.tertiaryContainer.withValues(alpha: kOpacityMedium),
+              borderRadius: BorderRadius.circular(kBorderRadius),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.visibility_outlined,
+                    size: kIconSizeSmall, color: cs.onTertiaryContainer),
+                const SizedBox(width: kSpacingSmall),
+                Expanded(
+                  child: Text(
+                    strings.viewerOnlyBanner,
+                    style: TextStyle(
+                      fontSize: kFontSizeSmall,
+                      color: cs.onTertiaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        // Role filter chips — let the user narrow large lists.
+        SizedBox(
+          height: kButtonHeightSmall + kSpacingSmall,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+            children: [
+              _buildFilterChip(null, strings.filterAll),
+              const SizedBox(width: kSpacingSmall),
+              _buildFilterChip(UserRole.owner, strings.filterOwners),
+              const SizedBox(width: kSpacingSmall),
+              _buildFilterChip(UserRole.admin, strings.filterAdmins),
+              const SizedBox(width: kSpacingSmall),
+              _buildFilterChip(UserRole.editor, strings.filterEditors),
+              const SizedBox(width: kSpacingSmall),
+              _buildFilterChip(UserRole.viewer, strings.filterViewers),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.all(kSpacingMedium),
+            itemCount: filteredUsers.length,
+            separatorBuilder: (_, _) =>
+                const SizedBox(height: kSpacingSmall),
+            itemBuilder: (context, index) {
+              final user = filteredUsers[index];
+              return _buildUserCard(user, canManage)
+                  .animate()
+                  .fadeIn(duration: 400.ms, delay: (100 * index).ms)
+                  .slideX(begin: 0.05 * (isRtl ? -1 : 1));
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterChip(UserRole? role, String label) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: _roleFilter == role,
+      onSelected: (_) => setState(() => _roleFilter = role),
     );
   }
 

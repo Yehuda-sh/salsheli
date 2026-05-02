@@ -853,20 +853,26 @@ class SettingsStringsEn extends SettingsStrings {
   @override String pricesUpdated(int withPrice, int total) => '✅ Updated $withPrice prices out of $total products!';
   @override String pricesUpdateError(String error) => '❌ Error updating prices: $error';
   @override String get logoutTitle => 'Log Out';
-  @override String get logoutMessage => 'Are you sure you want to log out?';
+  @override String get logoutMessage =>
+      'Your data (lists, pantry, history) stays. You can log in again with the same account.';
   @override String get logoutCancel => 'Cancel';
   @override String get logoutConfirm => 'Log Out';
   @override String get logoutSubtitle => 'Sign out of account';
   @override String get deleteAccountTitle => 'Delete Account';
   @override String get deleteAccountSubtitle => 'Permanently delete all data';
   @override String get deleteAccountWarning =>
-      'This action will permanently delete:\n• All lists you created\n• Shopping history\n• Your pantry\n• All personal data\n\nData cannot be recovered!';
+      'This action will permanently delete:\n• All lists you created\n• Shopping history\n• Your pantry\n• All personal data\n• Lists you own — other members will lose access\n\nData cannot be recovered!';
   @override String get deleteAccountConfirmLabel => 'Type "delete my account" to confirm:';
   @override String get deleteAccountConfirmText => 'delete my account';
   @override String get deleteAccountButton => 'Delete Account Permanently';
   @override String get deleteAccountSuccess => 'Account deleted successfully';
   @override String deleteAccountError(String error) => 'Error deleting account: $error';
   @override String get deleteAccountRequiresReauth => 'Re-login required before deleting account';
+  @override String get reauthNow => 'Log in now';
+  @override String get takingTooLong =>
+      'This is taking longer than expected. Check your connection and try again.';
+  @override String get householdNameDialogSubtitle =>
+      'The name is visible to everyone in your home, updates instantly';
   @override String get loading => 'Loading...';
   @override String loadError(String error) => 'Error loading settings: $error';
   @override String saveError(String error) => 'Error saving settings: $error';
@@ -923,7 +929,8 @@ class HouseholdStringsEn extends HouseholdStrings {
   @override String get descExtendedFamily => 'Plan shopping and events for the extended family';
 
   @override String get removeMemberTitle => 'Remove Member';
-  @override String removeMemberConfirm(String name) => 'Remove $name from the household?';
+  @override String removeMemberConfirm(String name) =>
+      'Remove $name from the household?\n$name will no longer see shared lists. Lists they created will remain available.';
   @override String get removeMemberButton => 'Remove';
   @override String removeMemberError(String error) => 'Error removing: $error';
   @override String genericError(String error) => 'Error: $error';
@@ -931,7 +938,9 @@ class HouseholdStringsEn extends HouseholdStrings {
   @override String get leaveHouseholdButton => 'Leave';
   @override String get leftHousehold => 'You left the household';
   @override String get makeAdmin => 'Make Admin';
+  @override String get makeAdminSubtitle => 'Can add/remove members and rename';
   @override String get makeMember => 'Make Member';
+  @override String get makeMemberSubtitle => 'Can edit lists, not manage members';
   @override String get removeFromHousehold => 'Remove from Household';
   @override String roleChangeError(String error) => 'Error changing role: $error';
   @override String get ownerCannotLeave => 'Owner cannot leave the household. You can delete or transfer ownership';
@@ -1104,6 +1113,12 @@ class ManageUsersStringsEn extends ManageUsersStrings {
   @override String get noSharedUsers => 'No shared users';
   @override String get inviteUsersHint => 'Tap + to invite users';
   @override String get onlyOwnerCanInvite => 'Only the list owner can invite users';
+  @override String get viewerOnlyBanner => 'You have view-only access — contact the owner to edit';
+  @override String get filterAll => 'All';
+  @override String get filterOwners => 'Owners';
+  @override String get filterAdmins => 'Admins';
+  @override String get filterEditors => 'Editors';
+  @override String get filterViewers => 'Viewers';
 }
 
 // ========================================

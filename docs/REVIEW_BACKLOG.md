@@ -609,6 +609,19 @@
 - **Magic alphas → file-level constants**: `_kErrorBgAlpha = 0.1` ו-`_kErrorBorderAlpha = 0.3` (×4 callers — debug delete + delete account warnings). 0.1 לא קיים ב-`kOpacity*`, ו-`_kError*` שמות סמנטיים מסבירים את השימוש.
 - **`_loadSettings` Firestore reads parallel**: שתי קריאות sequential (member doc + household doc) → `Future.wait([...])`. שניהם תלויים רק ב-householdId, לא אחד בשני. ~50% חיסכון בזמן.
 
+**🧠 UX Pass (30/4/2026) — 9 of 10 user-perspective findings applied:**
+- **Q1: Logout reassurance copy** — `logoutMessage` now explicitly says "Your data (lists, pantry, history) stays. You can log in again with the same account" instead of just "Are you sure?". משתמשים שמהססים עכשיו יודעים שלא יאבדו דבר.
+- **Q3: Delete account shared lists impact** — `deleteAccountWarning` got a new bullet: "Lists you own — other members will lose access". משתמשים מבינים שהמחיקה משפיעה גם על אחרים.
+- **Q4: SnackBarAction "התחבר עכשיו"** ב-`requiresRecentLogin` — היה רק טקסט שנעלם. עכשיו כפתור פעולה ש logout + redirect ל-login.
+- **Q5: Timeout 30s** על 3 ה-awaits הקריטיים (signOut, signOutAndClearAllData, deleteAccount). אם הרשת תקועה — ההמתנה נכשלת אחרי 30 שנייה עם הודעה ברורה ("הפעולה לוקחת יותר מהצפוי") במקום spinner ללא הגבלה.
+- **Q6: Edit household name dialog subtitle** — "השם נראה לכל החברים בבית, מתעדכן מיד". הסבר על השפעה.
+- **Q7: Remove member explanation** — `removeMemberConfirm` עכשיו מסביר: "X לא יוכל יותר לראות רשימות משותפות. הרשימות שיצר ימשיכו להיות זמינות". פחות פחד, יותר vמידע.
+- **Q8: PopupMenu role subtitles** — "הפוך למנהל" קיבל subtitle "יוכל להוסיף ולהסיר חברים". "הפוך לחבר" עם הסבר על המגבלות.
+- **Q9: Role filter chips** ב-manage_users — `ChoiceChip` row (All / Owners / Admins / Editors / Viewers) למסכי רשימות עם הרבה משתתפים.
+- **Q10: Viewer-only banner** ב-manage_users — viewer רואה כעת "אתה צופה בלבד — לעריכה, פנה לבעל הרשימה" במקום להתבלבל מחוסר ה-actions menu.
+
+**⏸️ Deferred — Q2: Login screen Google-hint after Settings logout** — משתמשי Google לא יודעים שההתחברות הבאה תהיה silent. דורש שינוי ב-`login_screen` (כבר reviewed Apr-29). **Trigger:** סקירה עתידית של `login_screen` או החלטה על account-switching feature. **היקף:** קטן-בינוני.
+
 **⏸️ Deferred (Round 1):**
 - **🔗 Direct `cloud_firestore` imports + reads ב-`_loadSettings`** (lines 113-128): המסך קורא ישירות ל-`households/{id}/members/{userId}` ו-`households/{id}`. צריך לחלץ ל-`HouseholdService.getCurrentUserRole(householdId, userId)` או דומה. **Trigger:** סקירת `household_service.dart`. **היקף:** קטן-בינוני (service method + screen replacement).
 - **Loading dialog משוכפל ×3** (logout, debug delete, delete account): כמעט-זהה Card+spinner+text. ניתן להמיר ל-helper `_showLoadingDialog(message)` או widget `_LoadingDialogContent`. **Trigger:** decision על dialogs refactor. **היקף:** קטן.

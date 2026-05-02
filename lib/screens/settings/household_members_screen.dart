@@ -490,15 +490,36 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                   PopupMenuItem(
                     value: 'toggle_role',
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          member.role == 'admin'
-                              ? Icons.person_outline
-                              : Icons.admin_panel_settings,
-                          size: kIconSizeSmall,
+                        Padding(
+                          padding: const EdgeInsets.only(top: kSpacingTiny),
+                          child: Icon(
+                            member.role == 'admin'
+                                ? Icons.person_outline
+                                : Icons.admin_panel_settings,
+                            size: kIconSizeSmall,
+                          ),
                         ),
                         const SizedBox(width: kSpacingSmall),
-                        Text(member.role == 'admin' ? AppStrings.household.makeMember : AppStrings.household.makeAdmin),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(member.role == 'admin'
+                                  ? AppStrings.household.makeMember
+                                  : AppStrings.household.makeAdmin),
+                              Text(
+                                member.role == 'admin'
+                                    ? AppStrings.household.makeMemberSubtitle
+                                    : AppStrings.household.makeAdminSubtitle,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
