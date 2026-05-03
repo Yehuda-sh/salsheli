@@ -1731,19 +1731,25 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                             duration: const Duration(milliseconds: 150),
                                             transitionBuilder: (child, animation) =>
                                                 ScaleTransition(scale: animation, child: child),
-                                            // Render in the surrounding locale's direction so the
-                                            // number always reads BEFORE the unit (Hebrew: "3 \u05D9\u05D7'",
-                                            // not "\u05D9\u05D7' 3"). Forcing LTR here flipped the visual
-                                            // order in RTL and pushed the geresh in '\u05D9\u05D7'' to the
-                                            // wrong side of the unit.
-                                            child: Text(
-                                              '${item.quantity} ${item.unit}',
-                                              key: ValueKey(item.quantity),
-                                              style: theme.textTheme.titleSmall?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: isWarning || isCritical ? statusColor : cs.primary,
+                                            // The parent Directionality forces LTR for the
+                                            // -/+ button layout, but that flips the chip's
+                                            // text into "unit number" instead of "number unit"
+                                            // and pushes the geresh in '\u05D9\u05D7'' to the wrong side.
+                                            // Re-anchor to the locale's natural direction here
+                                            // so Hebrew reads "3 \u05D9\u05D7'" and English reads "3 pcs".
+                                            child: Directionality(
+                                              textDirection: isRtl
+                                                  ? TextDirection.rtl
+                                                  : TextDirection.ltr,
+                                              child: Text(
+                                                '${item.quantity} ${item.unit}',
+                                                key: ValueKey(item.quantity),
+                                                style: theme.textTheme.titleSmall?.copyWith(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: isWarning || isCritical ? statusColor : cs.primary,
+                                                ),
+                                                textAlign: TextAlign.center,
                                               ),
-                                              textAlign: TextAlign.center,
                                             ),
                                           ),
                                         ),
