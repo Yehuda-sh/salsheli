@@ -389,20 +389,30 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   bool get _isUnknownStatus =>
       widget.suggestion.status == SuggestionStatus.unknown;
 
+  /// Card color — a subtle wash of the urgency hue blended onto the
+  /// neutral surface tier. Earlier this returned the full sticky-note
+  /// color (kStickyPink etc.) which made every "out-of-stock" card scream
+  /// like an emergency, even though the user action is just "add to
+  /// list". Blending at ~25% with the surface keeps the urgency cue
+  /// recognizable while letting the cards read as friendly suggestions.
   Color _getCardColor(String urgency, AppBrand? brand) {
-    // ⚠️ Grey for unknown status
-    if (_isUnknownStatus) return Theme.of(context).colorScheme.outline;
-
-    switch (urgency) {
-      case 'critical':
-        return brand?.stickyPink ?? kStickyPink;
-      case 'high':
-        return brand?.stickyOrange ?? kStickyOrange;
-      case 'medium':
-        return brand?.stickyYellow ?? kStickyYellow;
-      default:
-        return brand?.stickyGreen ?? kStickyGreen;
+    final cs = Theme.of(context).colorScheme;
+    if (_isUnknownStatus) {
+      return Color.alphaBlend(
+        cs.outline.withValues(alpha: 0.18),
+        cs.surfaceContainer,
+      );
     }
+    final accent = switch (urgency) {
+      'critical' => brand?.stickyPink ?? kStickyPink,
+      'high' => brand?.stickyOrange ?? kStickyOrange,
+      'medium' => brand?.stickyYellow ?? kStickyYellow,
+      _ => brand?.stickyGreen ?? kStickyGreen,
+    };
+    return Color.alphaBlend(
+      accent.withValues(alpha: 0.25),
+      cs.surfaceContainer,
+    );
   }
 
   String _getUrgencyLabel(String urgency) {
@@ -664,52 +674,34 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
                     ),
                   ),
 
-                  // כמות במלאי — אדום בולט אם אזל / קריטי
+                  // כמות במלאי — only when there's actual stock to report.
+                  // When the urgency banner already says "נגמר!" the chip
+                  // duplicated the same fact in red ("במלאי 0 יח' ⚠️");
+                  // dropping it for stock=0 keeps the card calmer while
+                  // still showing a useful number for low-but-not-empty.
                   Builder(
                     builder: (context) {
-                      final isOutOfStock = suggestion.currentStock == 0;
-                      final isCritical = suggestion.urgency == 'critical' || isOutOfStock;
-                      final stockBgColor = isCritical
-                          ? cs.error.withValues(alpha: 0.18)
-                          : cs.scrim.withValues(alpha: 0.08);
-                      final stockTextColor = isCritical
-                          ? cs.error
-                          : cs.onSurface.withValues(alpha: 0.6);
-
+                      if (suggestion.currentStock <= 0) {
+                        // No remaining stock — the urgency banner
+                        // ("נגמר!") already conveys this, no chip.
+                        return const SizedBox.shrink();
+                      }
                       return Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: kSpacingSmall,
                           vertical: kSpacingXTiny,
                         ),
                         decoration: BoxDecoration(
-                          color: stockBgColor,
+                          color: cs.scrim.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          border: isCritical
-                              ? Border.all(color: cs.error.withValues(alpha: 0.4))
-                              : null,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (isCritical) ...[
-                              Icon(
-                                Icons.warning_amber_rounded,
-                                size: kFontSizeSmall,
-                                color: cs.error,
-                              ),
-                              const SizedBox(width: kSpacingXTiny),
-                            ],
-                            Flexible(
-                              child: Text(
-                                AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: stockTextColor,
-                                  fontWeight: isCritical ? FontWeight.bold : FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: cs.onSurface.withValues(alpha: 0.6),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       );
                     },
@@ -975,33 +967,38 @@ class _AddAllButtonState extends State<_AddAllButton> {
 
   @override
   Widget build(BuildContext context) {
-    final brand = Theme.of(context).extension<AppBrand>();
     final cs = Theme.of(context).colorScheme;
-    final accent = brand?.stickyOrange ?? kStickyOrange;
 
+    // Filled primary button — "+ הוסף הכל" is the positive action that
+    // commits the whole carousel into a list, so the visual treatment
+    // matches its intent. The earlier OutlinedButton with orange border
+    // on a light surface read as a destructive/cancel button instead of
+    // a constructive CTA.
     return SizedBox(
       width: double.infinity,
-      child: OutlinedButton.icon(
+      child: FilledButton.icon(
         onPressed: _isAdding ? null : _addAll,
         icon: _isAdding
             ? SizedBox(
                 width: kIconSizeSmall,
                 height: kIconSizeSmall,
-                child: CircularProgressIndicator(strokeWidth: 2, color: accent),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: cs.onPrimary,
+                ),
               )
-            : Icon(Icons.playlist_add, size: kIconSizeSmallPlus, color: accent),
+            : const Icon(Icons.playlist_add, size: kIconSizeSmallPlus),
         label: Text(
           AppStrings.suggestionsToday.addAll,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: kFontSizeMedium,
             fontWeight: FontWeight.w600,
-            color: accent,
           ),
         ),
-        style: OutlinedButton.styleFrom(
+        style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
-          side: BorderSide(color: accent.withValues(alpha: kOpacityMedium)),
-          backgroundColor: cs.surface.withValues(alpha: kOpacityHigh),
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),

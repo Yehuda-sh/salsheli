@@ -206,6 +206,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - `ValueNotifier<T>` + `ValueListenableBuilder` במקום `setState` אם רק חלק קטן ב-UI צריך לבנות מחדש
 - `context.select` במקום `context.watch` אם הערך פרימיטיבי (`int`/`String`/`bool`)
 - ⚠️ **`context.select<List>` / `<Map>` הוא no-op** אם ה-getter עוטף ב-`List.unmodifiable` (returns wrapper חדש כל קריאה → reference equality תמיד נכשל). השתמש ב-`select<int>(p.list.length)` או השאר `watch`.
+- ⚠️ **`context.select` ב-method על State שנקרא מתוך `Consumer`/`Selector` builder יקרוס** ב-rebuild. ה-method משתמש ב-`this.context` (= ה-State element), אבל כש-Consumer לבד בונה מחדש, ה-State לא ב-`debugDoingBuild` → `'Tried to use context.select outside of build'`. ברנדר ראשון זה עובד (State באמת בונה), בכל rebuild הבא קורס. **תיקון:** להעביר את ה-`context` של ה-builder כפרמטר ל-method (יסתיר את `this.context`), או להפוך את ה-method לוויג'ט אמיתי / לעטוף ב-`Builder`.
 - `dispose()` — `Controllers`, `Timers`, `AnimationControllers`, `Listeners`, `Streams`
 - `if (mounted)` **רק** אחרי `await` (לא לפני שום await — קוד מת)
 
@@ -311,6 +312,12 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 ### 📝 לאחר commit — עדכון של זה הקובץ
 - אם המשתמש מציין עיקרון חדש (כמו "האפליקציה לא רק למשפחות"), להוסיף אותו ל-CLAUDE.md באותו סשן.
 
+### 🎯 דוגמה: `context.select` קורס מ-method של State (3/5)
+- מסך המזווה קרס ב-rebuild: `_buildInlineTitle` (method על State) קרא ל-`context.select<UserContext, String>` כדי למשוך `displayName`. `context` בתוך method של State הוא תמיד `this.context` — האלמנט של המסך עצמו.
+- כש-`InventoryProvider` משתנה, ה-`Consumer<InventoryProvider>` בונה את ה-subtree, אבל ה-State **לא** באמצע build → `this.context.debugDoingBuild = false` → assertion.
+- ברנדר ראשון זה עבד (כי `MyPantryScreen.build` באמת רץ), בכל rebuild הבא קרס.
+- **כלל אצבע:** אם method על State משתמש ב-`context.select` ונקרא מתוך builder של `Consumer`/`Selector`/`ValueListenableBuilder` — להעביר את ה-`context` של ה-builder כפרמטר. שאר ה-API של context (`Theme.of`, `context.read`) לא נפגע מזה, רק `select`.
+
 ### 🔁 ניתוח קובץ זה תהליך, לא צילום מסך
 - סבב ראשון תופס את הברור: snackbar dedup, magic numbers, מובנה מתעלף.
 - סבב שני (אחרי תיקונים) תופס את העמוק — באגים שהיו "מתחבאים" מאחורי קוד הברוקני.
@@ -397,6 +404,33 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 ### 🧹 ניקוי קטלוג — תמיד יש עוד
 - כל סבב סורק חושף קטגוריה חדשה של בעיות: trailing dots → backticks → invalid categories → store-section names ("מעדניה") → truncated brand names ("רמי" → "רמי לוי") → orphan list refs → duplicate barcodes.
 - אחרי שמשתמש אומר "תעבור עוד סריקה" — לא להגיד "הכל נקי, אין מה למצוא". כל סבב שונה: regex אחר, cross-reference שונה, schema אחר. תמיד למצוא משהו (לפחות 3 דברים) או להודות "סרקתי X זוויות, לא תפסתי משהו חדש".
+
+### 📋 Edit dialogs — להפריד "יומיומי" מ-"set-once"
+- לפני שמעצבים layout של edit dialog, **לזהות את ה-flow הדומיננטי**:
+  - יומיומי (90% מהשימוש) — אילו שדות משתנים בתדירות גבוהה? (כמות מזווה אחרי קנייה, תאריך פגישה אחרי דחייה, status אחרי שינוי)
+  - Set-once — אילו שדות מגדירים את הישות פעם אחת ובקושי משתנים? (קטגוריה, יחידה, recurring flag, location עתיק)
+- **Default**: יומיומי above-the-fold, set-once מקופלים תחת "▼ הגדרות נוספות".
+- **התנהגות התלויה במצב**:
+  - **Add mode** — פתוח כברירת מחדל (חייב להגדיר כל שדה)
+  - **Edit mode** — מקופל כברירת מחדל (יומיומי = רק לעדכן 1-2 שדות)
+- דוגמה: `pantry_item_dialog` היה ארוך — 13 שדות תמיד גלויים. אחרי הניתוח — הכמות, המינימום, המיקום, השם והתמונה הם daily; קטגוריה/יחידה/תפוגה/הערות/recurring הם set-once. הקיפול חתך את המסך ב-~50%.
+- **כלל אצבע**: אם dialog דורש scroll במצב המבוקש ביותר → progressive disclosure.
+
+### 📐 היררכיה ויזואלית = הפרשי-magnitudes, לא ניואנסים
+- צבע + 4pt גודל פונט = לא מספיק להפריד "primary" מ-"secondary". המשתמש קורא אותם כ-"אותו סוג של דבר".
+- דוגמה: ב-pantry_item_dialog התקלעתי ב-counter של "כמות" מול "מינימום" — `cs.primary` vs `cs.onSurfaceVariant` ו-`kFontSizeLarge` vs `kFontSizeBody`. במסך נראה זהה. המשתמש העיר.
+- **הפרש אמיתי דורש magnitude**: container עם רקע מותג מול אין-container, פונט 28pt vs 16pt (2×), או layout שונה לחלוטין (hero counter עם container תכלת + מספר ענק vs row אופקי קומפקטי לצידו).
+- **כלל אצבע**: בשיתופי `Row` של 2 פעולות אם הכוונה היא "אחת hero אחרי משנית" — ה-hero חייב container/border/רקע/font ≥ 1.5× שונה. אחרת המשתמש לא יראה את ההבדל.
+
+### 🪞 Title-elevation יוצר triplicate-trap
+- כשמקדמים value (כגון שם המוצר) להיות ה-title של dialog במקום action label ("עריכת פריט") — חובה לבדוק מה עוד מציג את אותו string מתחת.
+- ב-edit dialog טיפוסי הערך מופיע ב-3 מקומות צמודים: title (שהפכתי) + label של השדה (`labelText: "שם הפריט"`) + value בתוך השדה. = 3 פעמים אותו טקסט.
+- דוגמה: ב-`pantry_item_dialog` הפכתי את הכותרת ל-"ג'ינג'ר מסוכר" (במקום "עריכת פריט"). מתחת היה שדה עריכה עם label "שם הפריט" וערך "ג'ינג'ר מסוכר". 3 שורות צמודות, אותו תוכן.
+- **3 פתרונות לפי חומרה**:
+  1. להסתיר את שדה העריכה מאחורי toggle "✏️ שינוי שם" (רינום הוא פעולה מודעת, לא ברירת מחדל) — **המומלץ ב-edit mode**
+  2. לבטל את title-elevation, להחזיר action label
+  3. להסיר את ה-`labelText` של השדה (יישאר 2× במקום 3×)
+- **כלל אצבע**: לפני שמקדם משהו ל-title — `grep` או scan ויזואלי במסך לוודא שהוא לא מופיע גם below.
 
 ---
 

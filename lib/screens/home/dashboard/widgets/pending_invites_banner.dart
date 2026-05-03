@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/status_colors.dart';
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
 import '../../../../models/enums/request_type.dart';
@@ -82,19 +83,82 @@ class PendingInvitesBanner extends StatelessWidget {
   }
 }
 
-class _PendingInviteBannerContent extends StatelessWidget {
+class _PendingInviteBannerContent extends StatefulWidget {
   final List<PendingRequest> invites;
 
   const _PendingInviteBannerContent({super.key, required this.invites});
 
   @override
+  State<_PendingInviteBannerContent> createState() =>
+      _PendingInviteBannerContentState();
+}
+
+class _PendingInviteBannerContentState
+    extends State<_PendingInviteBannerContent> {
+  bool _isProcessing = false;
+
+  static final _service = PendingInvitesService();
+
+  /// Accept = navigate to the dedicated screen so the household-merge
+  /// flow (pantry merge dialog, etc.) runs in its proper UX context.
+  /// Doing the full accept inline would mean re-implementing that flow
+  /// here — a maintenance trap.
+  void _onAccept() {
+    unawaited(HapticFeedback.lightImpact());
+    Navigator.pushNamed(context, '/pending-invites');
+  }
+
+  /// Decline = a one-shot Firestore update with no side-effect dialogs,
+  /// safe to do inline. The stream auto-refreshes the banner once the
+  /// invite's status flips to declined.
+  Future<void> _onDecline(PendingRequest invite) async {
+    if (_isProcessing) return;
+    final userId = context.read<UserContext>().userId;
+    final messenger = ScaffoldMessenger.of(context);
+    final strings = AppStrings.pendingInvitesScreen;
+    if (userId == null) return;
+
+    setState(() => _isProcessing = true);
+    unawaited(HapticFeedback.selectionClick());
+
+    final result = await _service.declineInviteResult(
+      inviteId: invite.id,
+      decliningUserId: userId,
+    );
+
+    if (!mounted) return;
+    setState(() => _isProcessing = false);
+
+    if (result.isSuccess) {
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.declineSuccess),
+          backgroundColor: StatusColors.getContainer(StatusType.success, context),
+        ));
+    } else {
+      messenger
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.declineError(result.errorMessage ?? '')),
+          backgroundColor: StatusColors.getContainer(StatusType.error, context),
+        ));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final invites = widget.invites;
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.pendingInviteBanner;
+    // Tooltips for the inline action buttons live on
+    // PendingInvitesScreenStrings (acceptLabel / declineLabel) — same
+    // strings the destination screen uses, so the affordance reads
+    // consistently when the user taps through.
+    final inviteScreenStrings = AppStrings.pendingInvitesScreen;
     final firstInvite = invites.first;
     final radius = BorderRadius.circular(kBorderRadius);
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     final inviterName = firstInvite.requesterName ?? firstInvite.requesterId;
 
@@ -230,13 +294,75 @@ class _PendingInviteBannerContent extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Icon(
-                    isRtl ? Icons.chevron_left : Icons.chevron_right,
-                    color: cs.onTertiaryContainer,
+                  // Explicit Accept / Decline buttons. Earlier the
+                  // banner only showed a chevron — a "tap somewhere"
+                  // affordance that left users guessing how to act.
+                  // ✓ Accept (filled, primary) opens the dedicated
+                  // screen so the household-merge flow runs in its
+                  // proper context. ✕ Decline runs inline because
+                  // it's a one-shot Firestore update, no side dialogs.
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _CircleActionButton(
+                        icon: Icons.close,
+                        color: cs.onSurfaceVariant,
+                        background: Colors.transparent,
+                        border: cs.outlineVariant,
+                        tooltip: inviteScreenStrings.declineLabel,
+                        onTap: _isProcessing ? null : () => _onDecline(firstInvite),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      _CircleActionButton(
+                        icon: Icons.check,
+                        color: cs.onPrimary,
+                        background: cs.primary,
+                        border: cs.primary,
+                        tooltip: inviteScreenStrings.acceptLabel,
+                        onTap: _isProcessing ? null : _onAccept,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleActionButton extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final Color border;
+  final String tooltip;
+  final VoidCallback? onTap;
+
+  const _CircleActionButton({
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.border,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: background,
+        shape: CircleBorder(side: BorderSide(color: border)),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(kSpacingSmall),
+            child: Icon(icon, color: color, size: kIconSizeSmallPlus),
           ),
         ),
       ),

@@ -1157,6 +1157,11 @@ class InventoryStrings {
   String get productNameLabel => 'שם הפריט';
   String get productNameHint => 'לדוגמה: חלב';
   String get productNameRequired => 'נא להזין שם פריט';
+  String get renameProduct => 'שינוי שם';
+  String get deleteItemButton => 'מחק פריט';
+  String get deleteConfirmTitle => 'מחיקת פריט';
+  String deleteConfirmMessage(String name) => 'למחוק את "$name" מהמזווה?';
+  String get deleteError => 'שגיאה במחיקה';
   String barcodeRow(String code) => 'ברקוד: $code';
   String get categoryLabel => 'קטגוריה';
   String get quantityLabel => 'כמות';
@@ -1793,6 +1798,8 @@ class PendingInvitesScreenStrings {
   String get declineButton => 'דחה';
   String acceptSuccess(String listName) => 'הצטרפת לרשימה "$listName"';
   String acceptError(String error) => 'שגיאה באישור ההזמנה: $error';
+  String get acceptLabel => 'אישור';
+  String get declineLabel => 'דחייה';
   String get declineDialogTitle => 'דחיית הזמנה';
   String declineDialogMessage(String listName) => 'לדחות את ההזמנה לרשימה "$listName"?';
   String declineHouseholdDialogMessage(String householdName) => 'לדחות את ההזמנה ל"$householdName"?';
@@ -1935,6 +1942,9 @@ class PantryStrings {
   String get clearFilters => 'נקה סינון';
   String get filterOutOfStockLabel => 'מציג: מוצרים שנגמרו';
   String get filterLowStockLabel => 'מציג: מלאי נמוך';
+  String filterLowStockChip(int count) => 'נמוך מהמינימום ($count)';
+  String get switchToGridView => 'תצוגת תמונות';
+  String get switchToListView => 'תצוגת רשימה';
   String get noStarterItemsFound => 'לא נמצאו מוצרי יסוד';
   String starterItemsAdded(int count) => 'נוספו $count מוצרי יסוד למזווה';
   String get starterItemsError => 'שגיאה בהוספת מוצרי יסוד';

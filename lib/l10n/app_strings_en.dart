@@ -1136,6 +1136,11 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get productNameLabel => 'Item Name';
   @override String get productNameHint => 'e.g., Milk';
   @override String get productNameRequired => 'Please enter an item name';
+  @override String get renameProduct => 'Rename';
+  @override String get deleteItemButton => 'Delete item';
+  @override String get deleteConfirmTitle => 'Delete item';
+  @override String deleteConfirmMessage(String name) => 'Delete "$name" from the pantry?';
+  @override String get deleteError => 'Failed to delete';
   @override String barcodeRow(String code) => 'Barcode: $code';
   @override String get categoryLabel => 'Category';
   @override String get quantityLabel => 'Quantity';
@@ -1635,6 +1640,8 @@ class PendingInvitesScreenStringsEn extends PendingInvitesScreenStrings {
   @override String get declineButton => 'Decline';
   @override String acceptSuccess(String listName) => 'Joined list "$listName"';
   @override String acceptError(String error) => 'Error accepting invitation: $error';
+  @override String get acceptLabel => 'Accept';
+  @override String get declineLabel => 'Decline';
   @override String get declineDialogTitle => 'Decline Invitation';
   @override String declineDialogMessage(String listName) => 'Decline invitation to list "$listName"?';
   @override String declineHouseholdDialogMessage(String householdName) => 'Decline invitation to "$householdName"?';
@@ -1899,6 +1906,9 @@ class PantryStringsEn extends PantryStrings {
   @override String get clearFilters => 'Clear filters';
   @override String get filterOutOfStockLabel => 'Showing: out-of-stock';
   @override String get filterLowStockLabel => 'Showing: low stock';
+  @override String filterLowStockChip(int count) => 'Low stock ($count)';
+  @override String get switchToGridView => 'Grid view';
+  @override String get switchToListView => 'List view';
   @override String get noStarterItemsFound => 'No starter items found';
   @override String starterItemsAdded(int count) => 'Added $count starter items to pantry';
   @override String get starterItemsError => 'Error adding starter items';

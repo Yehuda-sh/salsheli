@@ -80,6 +80,19 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
   bool _isLoading = false;
   bool _hasChanges = false; // 🛡️ מעקב אחר שינויים לאישור יציאה
+  // In edit mode the name field is hidden by default — the dialog title
+  // already shows the product name, so duplicating it as an editable field
+  // immediately below was redundant. Rename is a deliberate action: tap
+  // the small "✏️ שינוי שם" button to reveal the editable field.
+  // In add mode the field is required, so it's always visible.
+  bool _renameMode = false;
+  // Advanced settings (category / unit / expiry / notes / recurring)
+  // collapse-by-default in edit mode — the daily flow is "I bought 3
+  // more, update the count" and shouldn't ask users to scroll past
+  // 5 read-only fields. In add mode they're all needed up front, so
+  // start expanded. The user can still toggle either way.
+  late bool _advancedExpanded =
+      widget.mode == PantryItemDialogMode.add;
 
   // 🆕 Brand + size pulled from the product catalog (read-only — they're
   // not stored on InventoryItem, only displayed). Looked up by barcode
@@ -188,10 +201,33 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
   }
 
-  /// Dialog title row — title text + product thumbnail (or category emoji
-  /// fallback when no barcode is available). Tapping the thumbnail opens
-  /// the full-screen image viewer.
-  Widget _buildDialogTitle(ColorScheme cs, Color accent, String title) {
+  /// Categories where products typically don't have a meaningful expiry
+  /// date (or one a household actually tracks). For these, the "add expiry
+  /// date" CTA shrinks to a low-emphasis TextButton — still reachable, but
+  /// not competing for attention with quantity/category. Comparison is
+  /// against the canonical English keys from FiltersConfig.
+  static const _nonPerishableCategoryKeys = <String>{
+    'other',
+    'spices',
+    'cleaning',
+    'cosmetics',
+    'hygiene',
+    'pet_food',
+    'first_aid',
+  };
+
+  bool _isNonPerishableCategory(String key) =>
+      _nonPerishableCategoryKeys.contains(key);
+
+  /// Dialog title row — product thumbnail + the thing the user is here to
+  /// edit/add.
+  ///
+  /// In **edit** mode the dialog's "title" is the *product name itself* —
+  /// the user came to the dialog because of this product, so its name is
+  /// the primary identifier; the editable name field below is for renaming.
+  /// In **add** mode the title is the action label ("הוסף פריט") because
+  /// there's no product name yet.
+  Widget _buildDialogTitle(ColorScheme cs, Color accent, String addTitle) {
     final isEdit = widget.mode == PantryItemDialogMode.edit;
     final hasImage = isEdit &&
         widget.item?.barcode != null &&
@@ -201,11 +237,21 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         : _selectedCategory;
     final categoryEmoji = FiltersConfig.getCategoryInfo(categoryKey).emoji;
 
+    // In edit mode prefer the product's actual name. Use the controller
+    // text (rather than widget.item!.productName) so a rename in-progress
+    // is reflected in the title — but keep the original name as a sane
+    // fallback if the field was cleared mid-edit.
+    final titleString = isEdit
+        ? (_nameController.text.trim().isNotEmpty
+            ? _nameController.text.trim()
+            : widget.item!.productName)
+        : addTitle;
+
     final titleText = Expanded(
       child: Text(
-        title,
-        // cs.onSurface keeps the title from glaring green; accent is still
-        // used elsewhere (action button, etc.) so the brand colour shows up.
+        titleString,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: cs.onSurface,
           fontWeight: FontWeight.w700,
@@ -213,42 +259,45 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       ),
     );
 
-    if (hasImage) {
-      return Row(
-        children: [
-          titleText,
-          const SizedBox(width: kSpacingSmall),
-          GestureDetector(
+    // Hero thumbnail: deliberately larger than a label-row badge — the
+    // product image (or fallback emoji) is the primary visual anchor
+    // for "which item am I editing", so it earns ~2× the previous size.
+    const thumbnailSize = kIconSizeXXLarge + kSpacingXLarge; // 64 + 32 = 96
+    final thumbnail = hasImage
+        ? GestureDetector(
             onTap: () => _showFullImage(cs),
             child: Hero(
               tag: 'pantry-thumb-${widget.item!.barcode}',
               child: ProductThumbnail(
                 barcode: widget.item!.barcode,
                 category: widget.item!.category,
-                size: kIconSizeXLarge + kSpacingSmall,
+                productName: isEdit ? widget.item!.productName : null,
+                size: thumbnailSize,
               ),
             ),
-          ),
-        ],
-      );
-    }
+          )
+        : Container(
+            width: thumbnailSize,
+            height: thumbnailSize,
+            decoration: BoxDecoration(
+              color: cs.surfaceContainerHighest,
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              ProductThumbnail.matchProductEmoji(
+                    isEdit ? widget.item?.productName : _nameController.text,
+                  ) ??
+                  categoryEmoji,
+              style: const TextStyle(fontSize: kFontSizeHeroEmoji),
+            ),
+          );
 
-    // Fallback: small circle with the category emoji so the title row never
-    // looks empty for items added without a barcode.
     return Row(
       children: [
         titleText,
-        const SizedBox(width: kSpacingSmall),
-        Container(
-          width: kIconSizeXLarge + kSpacingSmall,
-          height: kIconSizeXLarge + kSpacingSmall,
-          decoration: BoxDecoration(
-            color: cs.surfaceContainerHighest,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(categoryEmoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
-        ),
+        const SizedBox(width: kSpacingMedium),
+        thumbnail,
       ],
     );
   }
@@ -258,6 +307,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   void _showFullImage(ColorScheme cs) {
     final barcode = widget.item!.barcode;
     final category = widget.item!.category;
+    final productName = widget.item!.productName;
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
@@ -276,6 +326,12 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     child: ProductThumbnail(
                       barcode: barcode,
                       category: category,
+                      // Pass productName so the emoji fallback runs through
+                      // matchProductEmoji (🫚 for "ג'ינג'ר") instead of
+                      // dropping to the generic category emoji (🧂 for
+                      // "תבלינים"). Without this the title shows ginger but
+                      // the zoomed view falls back to a salt shaker.
+                      productName: productName,
                       // Generous size — InteractiveViewer scales it further.
                       size: 360,
                     ),
@@ -414,6 +470,60 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     }
   }
 
+  /// Permanently deletes the item. Confirms first, then calls the
+  /// provider, closes the dialog, and lets the host screen show its own
+  /// "deleted" snackbar (with undo) on the result. Returns early if the
+  /// user cancels at the confirmation step.
+  Future<void> _handleDelete() async {
+    final item = widget.item;
+    if (item == null || _isLoading) return;
+
+    final strings = AppStrings.inventory;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(strings.deleteConfirmTitle),
+        content: Text(strings.deleteConfirmMessage(item.productName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(AppStrings.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(AppStrings.common.delete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isLoading = true);
+    unawaited(HapticFeedback.heavyImpact());
+
+    try {
+      await context.read<InventoryProvider>().deleteItem(item.id);
+      if (!mounted) return;
+      // Pop with `null` so the host screen distinguishes "deleted" from
+      // "saved" (true) or "cancelled" (false) and can show its own
+      // delete-with-undo snackbar.
+      Navigator.of(context).pop();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(strings.deleteError),
+          backgroundColor: StatusColors.getColor(StatusType.error, context),
+          duration: kSnackBarDuration,
+        ));
+    }
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -425,15 +535,19 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   }
 
   /// 🆕 בונה widget סטטיסטיקות - עיצוב מינימלי ומעומעם
+  /// Statistics card. Sized so each line is comfortably readable on a phone:
+  /// labels at kFontSizeSmall (12pt) instead of kFontSizeTiny (10pt) which
+  /// was hard to read in cramped phone width. Wrap can spill to a second
+  /// row when needed rather than fighting for horizontal space.
   Widget _buildStatistics(InventoryItem item, ColorScheme cs) {
     final dateFormat = DateFormat('dd/MM/yyyy');
-    final mutedColor = cs.onSurfaceVariant.withValues(alpha: 0.6);
-    const smallFont = kFontSizeTiny;
+    final mutedColor = cs.onSurfaceVariant;
+    const valueFont = kFontSizeSmall;
 
     return Container(
-      padding: const EdgeInsets.all(kSpacingSmall),
+      padding: const EdgeInsets.all(kSpacingSmallPlus),
       decoration: BoxDecoration(
-        color: cs.surfaceContainerHighest.withValues(alpha: 0.3),
+        color: cs.surfaceContainerHighest.withValues(alpha: kOpacityLight),
         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
       ),
       child: Column(
@@ -442,34 +556,34 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           // כותרת קטנה
           Row(
             children: [
-              Icon(Icons.bar_chart, size: kFontSizeMedium, color: mutedColor),
+              Icon(Icons.bar_chart, size: kIconSizeSmall, color: mutedColor),
               const SizedBox(width: kSpacingXTiny),
               Text(
                 AppStrings.inventory.statisticsLabel,
                 style: TextStyle(
-                  fontSize: smallFont,
-                  fontWeight: FontWeight.w500,
+                  fontSize: kFontSizeSmall,
+                  fontWeight: FontWeight.w600,
                   color: mutedColor,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: kSpacingTiny),
+          const SizedBox(height: kSpacingSmall),
           // שורת נתונים אופקית
           Wrap(
-            spacing: kSpacingSmallPlus,
-            runSpacing: kSpacingXTiny,
+            spacing: kSpacingMedium,
+            runSpacing: kSpacingSmall,
             children: [
               // כמה פעמים נקנה
               if (item.purchaseCount > 0)
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.shopping_cart_outlined, size: kFontSizeSmall, color: mutedColor),
+                    Icon(Icons.shopping_cart_outlined, size: kIconSizeSmall, color: mutedColor),
                     const SizedBox(width: kSpacingXTiny),
                     Text(
                       AppStrings.inventory.purchaseCountLabel(item.purchaseCount),
-                      style: TextStyle(fontSize: smallFont, color: mutedColor),
+                      style: TextStyle(fontSize: valueFont, color: mutedColor),
                     ),
                   ],
                 ),
@@ -481,11 +595,11 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.history, size: kFontSizeSmall, color: mutedColor),
+                      Icon(Icons.history, size: kIconSizeSmall, color: mutedColor),
                       const SizedBox(width: kSpacingXTiny),
                       Text(
                         AppStrings.inventory.relativePurchaseLabel(item.lastPurchased!),
-                        style: TextStyle(fontSize: smallFont, color: mutedColor),
+                        style: TextStyle(fontSize: valueFont, color: mutedColor),
                       ),
                     ],
                   ),
@@ -497,13 +611,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.trending_up, size: kFontSizeSmall, color: successColor),
+                      Icon(Icons.trending_up, size: kIconSizeSmall, color: successColor),
                       const SizedBox(width: kSpacingXTiny),
                       Text(
                         AppStrings.inventory.popularLabel,
                         style: TextStyle(
-                          fontSize: smallFont,
+                          fontSize: valueFont,
                           color: successColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -699,38 +814,71 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               // ═══════════════════════════════════════════════════════════
 
               // שם המוצר — 2 שורות, ללא prefixIcon שאוכל רוחב.
-              // textDirection RTL keeps the visible portion at the
-              // Hebrew string start (right edge).
-              TextField(
-                controller: _nameController,
-                style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
-                textDirection: TextDirection.rtl,
-                maxLength: 80,
-                maxLines: 2,
-                minLines: 1,
-                textInputAction: TextInputAction.next,
-                // Counter only appears once the user gets close to the
-                // limit — quietly hides for short names where it's clutter.
-                buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                    currentLength >= 70
-                        ? Text(
-                            '$currentLength/$maxLength',
-                            style: TextStyle(
-                              fontSize: kFontSizeTiny,
-                              color: cs.onSurfaceVariant,
-                            ),
-                          )
-                        : null,
-                decoration: InputDecoration(
-                  labelText: AppStrings.inventory.productNameLabel,
-                  labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                  hintText: AppStrings.inventory.productNameHint,
-                  hintStyle: TextStyle(
-                    color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+              // In edit mode the field is hidden behind a "✏️ שינוי שם"
+              // button so the title (which already shows the name) doesn't
+              // visually duplicate the same string twice. In add mode the
+              // field is always visible (we need a name to create the item).
+              if (widget.mode == PantryItemDialogMode.add || _renameMode)
+                TextField(
+                  controller: _nameController,
+                  style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
+                  textDirection: TextDirection.rtl,
+                  maxLength: 80,
+                  maxLines: 2,
+                  minLines: 1,
+                  textInputAction: TextInputAction.next,
+                  autofocus: _renameMode,
+                  // Counter only appears once the user gets close to the
+                  // limit — quietly hides for short names where it's clutter.
+                  buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
+                      currentLength >= 70
+                          ? Text(
+                              '$currentLength/$maxLength',
+                              style: TextStyle(
+                                fontSize: kFontSizeTiny,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            )
+                          : null,
+                  decoration: InputDecoration(
+                    labelText: AppStrings.inventory.productNameLabel,
+                    labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                    hintText: AppStrings.inventory.productNameHint,
+                    hintStyle: TextStyle(
+                      color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  enabled: !_isLoading,
+                )
+              else
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: _isLoading
+                        ? null
+                        : () => setState(() => _renameMode = true),
+                    icon: Icon(
+                      Icons.edit_outlined,
+                      size: kIconSizeSmall,
+                      color: cs.onSurfaceVariant,
+                    ),
+                    label: Text(
+                      AppStrings.inventory.renameProduct,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingSmall,
+                        vertical: kSpacingXTiny,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
                 ),
-                enabled: !_isLoading,
-              ),
 
               // 🏷️ Brand + size from catalog — only renders when at least
               // one of them is available. Read-only badges; the underlying
@@ -774,67 +922,90 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
               const SizedBox(height: kSpacingSmall),
 
-              // כמות + מינימום עם כפתורי +/-
-              // Quantity uses primary color + larger font → "the main thing".
-              // Minimum uses muted outline-variant → "alert threshold".
+              // כמות + מינימום
+              // Hierarchy: quantity is the primary edit (the user came here
+              // to update stock). Minimum is a one-time alert threshold.
+              // Quantity gets a tinted container + display-size number;
+              // minimum sits next to it as a compact inline row.
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // כמות נוכחית — prominent
-                  Column(
-                    children: [
-                      Text(
-                        AppStrings.inventory.quantityLabelShort,
-                        style: TextStyle(
-                          fontSize: kFontSizeSmall,
-                          color: cs.primary,
-                          fontWeight: FontWeight.bold,
+                  // כמות נוכחית — hero counter
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingSmall,
+                        vertical: kSpacingTiny,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withValues(alpha: kOpacityLight),
+                        borderRadius: BorderRadius.circular(kBorderRadius),
+                        border: Border.all(
+                          color: cs.primary.withValues(alpha: kOpacityMedium),
                         ),
                       ),
-                      const SizedBox(height: kSpacingXTiny),
-                      _buildQuantityField(
-                        controller: _quantityController,
-                        label: '',
-                        cs: cs,
-                        accentColor: cs.primary,
-                        fontSize: kFontSizeLarge,
-                        minValue: widget.mode == PantryItemDialogMode.add ? 1 : 0,
-                      ),
-                    ],
-                  ),
-                  // קו מפריד
-                  Container(
-                    height: kIconSizeXLarge,
-                    width: 1,
-                    color: cs.outlineVariant,
-                  ),
-                  // מינימום (התראה) — muted, secondary
-                  Column(
-                    children: [
-                      Row(
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.notifications_outlined, size: kFontSizeMedium, color: cs.onSurfaceVariant),
-                          const SizedBox(width: 2),
                           Text(
-                            AppStrings.inventory.minimumLabel,
+                            AppStrings.inventory.quantityLabelShort,
                             style: TextStyle(
                               fontSize: kFontSizeSmall,
-                              color: cs.onSurfaceVariant,
-                              fontWeight: FontWeight.w500,
+                              color: cs.primary,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
                             ),
+                          ),
+                          const SizedBox(height: kSpacingTiny),
+                          _buildQuantityField(
+                            controller: _quantityController,
+                            label: '',
+                            cs: cs,
+                            accentColor: cs.primary,
+                            fontSize: kFontSizeXLarge,
+                            iconSize: kIconSizeMediumPlus,
+                            minValue: widget.mode == PantryItemDialogMode.add ? 1 : 0,
                           ),
                         ],
                       ),
-                      const SizedBox(height: kSpacingXTiny),
-                      _buildQuantityField(
-                        controller: _minQuantityController,
-                        label: '',
-                        cs: cs,
-                        accentColor: cs.onSurfaceVariant,
-                        iconSize: kIconSizeSmallPlus,
-                      ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: kSpacingSmall),
+                  // מינימום (התראה) — compact, muted
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.notifications_outlined,
+                              size: kFontSizeMedium,
+                              color: cs.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: kSpacingXTiny),
+                            Text(
+                              AppStrings.inventory.minimumLabel,
+                              style: TextStyle(
+                                fontSize: kFontSizeSmall,
+                                color: cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: kSpacingXTiny),
+                        _buildQuantityField(
+                          controller: _minQuantityController,
+                          label: '',
+                          cs: cs,
+                          accentColor: cs.onSurfaceVariant,
+                          iconSize: kIconSizeSmall,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -853,6 +1024,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     allLocations.add(_selectedLocation);
                   }
 
+                  // No prefixIcon — each dropdown item already shows its
+                  // location emoji (🍳 / 🥛 / 🧊 / etc.), so a generic
+                  // place-pin alongside it was duplicating the visual cue.
                   return DropdownButtonFormField<String>(
                     initialValue: _selectedLocation,
                     dropdownColor: cs.surface,
@@ -860,7 +1034,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     decoration: InputDecoration(
                       labelText: AppStrings.inventory.locationLabel,
                       labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                      prefixIcon: Icon(Icons.place_outlined, color: cs.primary),
                     ),
                     items: allLocations.map((locationId) {
                       final customLoc = customLocations.cast<CustomLocation?>().firstWhere(
@@ -908,33 +1081,58 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               const SizedBox(height: kSpacingSmall),
 
               // ═══════════════════════════════════════════════════════════
-              // ⚪ שלב ביניים: הגדרות נוספות (תמיד גלוי — אין יותר קיפול)
+              // ⚪ שלב ביניים: הגדרות נוספות (collapsible)
+              // Daily flow is "I bought N more" — keep this folded so the
+              // user doesn't scroll past 5 fields they rarely change.
+              // Tap the row to expand. Add-mode opens it by default.
               // ═══════════════════════════════════════════════════════════
 
               const SizedBox(height: kSpacingMedium),
-              Row(
-                children: [
-                  Icon(Icons.tune, size: kIconSizeSmall, color: cs.onSurfaceVariant),
-                  const SizedBox(width: kSpacingXTiny),
-                  Text(
-                    AppStrings.inventory.advancedSettings,
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      color: cs.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
+              InkWell(
+                onTap: _isLoading
+                    ? null
+                    : () => setState(() => _advancedExpanded = !_advancedExpanded),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
+                  child: Row(
+                    children: [
+                      Icon(Icons.tune, size: kIconSizeSmall, color: cs.onSurfaceVariant),
+                      const SizedBox(width: kSpacingXTiny),
+                      Text(
+                        AppStrings.inventory.advancedSettings,
+                        style: TextStyle(
+                          fontSize: kFontSizeSmall,
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Expanded(
+                        child: Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      AnimatedRotation(
+                        turns: _advancedExpanded ? 0.5 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          Icons.expand_more,
+                          size: kIconSizeSmallPlus,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: kSpacingSmall),
-                  Expanded(
-                    child: Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
-                  ),
-                ],
+                ),
               ),
+              if (_advancedExpanded) ...[
               const SizedBox(height: kSpacingSmall),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                    // קטגוריה
+                    // קטגוריה — same rationale as the location dropdown:
+                    // each item carries its own emoji, so a generic
+                    // category icon would just duplicate the cue.
                     DropdownButtonFormField<String>(
                       initialValue: _selectedCategory,
                       dropdownColor: cs.surface,
@@ -942,7 +1140,6 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.categoryLabel,
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
-                        prefixIcon: Icon(Icons.category_outlined, color: cs.primary),
                       ),
                       items: FiltersConfig.kCategoryInfo.entries
                           .where((e) => e.key != 'all')
@@ -971,7 +1168,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                     const SizedBox(height: kSpacingSmall),
 
-                    // יחידה
+                    // יחידה — no prefixIcon: the ruler glyph rendered as
+                    // visual noise at the field height, and the label
+                    // already says what this field is for.
                     TextField(
                       controller: _unitController,
                       textInputAction: TextInputAction.next,
@@ -983,14 +1182,17 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         hintStyle: TextStyle(
                           color: cs.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
-                        prefixIcon: Icon(Icons.straighten_outlined, color: cs.primary),
                       ),
                       enabled: !_isLoading,
                     ),
                     const SizedBox(height: kSpacingSmall),
 
-                    // תאריך תפוגה — empty state is a real CTA, not a
-                    // half-filled InputDecorator with grey "not set" text.
+                    // תאריך תפוגה — for perishable categories the "add date"
+                    // CTA is a full bordered button (it's actionable signal).
+                    // For non-perishable groups (spices, cleaning, hygiene…)
+                    // expiry rarely matters, so the empty-state CTA shrinks
+                    // to a quiet TextButton — present but not competing
+                    // with quantity/category for the user's eye.
                     if (_expiryDate != null)
                       InkWell(
                         onTap: _isLoading ? null : _selectExpiryDate,
@@ -1014,6 +1216,33 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                           child: Text(
                             DateFormat('dd/MM/yyyy').format(_expiryDate!),
                             style: TextStyle(color: cs.onSurface),
+                          ),
+                        ),
+                      )
+                    else if (_isNonPerishableCategory(_selectedCategory))
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          onPressed: _isLoading ? null : _selectExpiryDate,
+                          icon: Icon(
+                            Icons.event_outlined,
+                            color: cs.onSurfaceVariant,
+                            size: kIconSizeSmall,
+                          ),
+                          label: Text(
+                            AppStrings.inventory.expiryNotSetCta,
+                            style: TextStyle(
+                              fontSize: kFontSizeSmall,
+                              color: cs.onSurfaceVariant,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingSmall,
+                              vertical: kSpacingXTiny,
+                            ),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
                         ),
                       )
@@ -1051,32 +1280,61 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                     const SizedBox(height: kSpacingSmall),
 
-                    // מוצר קבוע
-                    CheckboxListTile(
-                      value: _isRecurring,
-                      onChanged: _isLoading
+                    // מוצר קבוע — star is the toggle (filled = on, outlined =
+                    // off). Single indicator instead of star + checkbox; the
+                    // star carries more meaning ("special / recurring") than
+                    // a generic checkbox, so we let it stand on its own.
+                    InkWell(
+                      onTap: _isLoading
                           ? null
-                          : (val) {
+                          : () {
                               unawaited(HapticFeedback.selectionClick());
                               setState(() {
-                                _isRecurring = val ?? false;
+                                _isRecurring = !_isRecurring;
                                 _hasChanges = true;
                               });
                             },
-                      title: Text(AppStrings.inventory.permanentProduct),
-                      subtitle: Text(
-                        AppStrings.inventory.autoAddToLists,
-                        style: const TextStyle(fontSize: kFontSizeTiny),
+                      borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: kSpacingXTiny),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _isRecurring ? Icons.star : Icons.star_border,
+                              color: _isRecurring ? accent : cs.onSurfaceVariant,
+                              size: kIconSizeMedium,
+                            ),
+                            const SizedBox(width: kSpacingSmall),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppStrings.inventory.permanentProduct,
+                                    style: TextStyle(
+                                      color: cs.onSurface,
+                                      fontWeight: _isRecurring
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text(
+                                    AppStrings.inventory.autoAddToLists,
+                                    style: TextStyle(
+                                      fontSize: kFontSizeTiny,
+                                      color: cs.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      secondary: Icon(
-                        _isRecurring ? Icons.star : Icons.star_border,
-                        color: _isRecurring ? accent : cs.onSurfaceVariant,
-                      ),
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
                     ),
                   ],
                 ),
+              ],
 
               // ═══════════════════════════════════════════════════════════
               // 🔵 שלב תחתון: סטטיסטיקות (רק במצב עריכה)
@@ -1086,6 +1344,38 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   widget.item != null) ...[
                 const SizedBox(height: kSpacingSmall),
                 _buildStatistics(widget.item!, cs),
+                // 🗑️ Delete CTA — small destructive text button so it's
+                // discoverable from the dialog (the swipe-to-delete on the
+                // list row is a hidden affordance most users miss). Tinted
+                // error palette + low emphasis so it doesn't compete with
+                // the primary Save action.
+                const SizedBox(height: kSpacingSmall),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: _isLoading ? null : _handleDelete,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: kIconSizeSmall,
+                      color: cs.error,
+                    ),
+                    label: Text(
+                      AppStrings.inventory.deleteItemButton,
+                      style: TextStyle(
+                        fontSize: kFontSizeSmall,
+                        color: cs.error,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: kSpacingSmall,
+                        vertical: kSpacingXTiny,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ),
               ],
             ],
           ),

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/filters_config.dart';
 import '../../config/storage_locations_config.dart';
@@ -65,6 +66,18 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   bool _isSearchMode = false;
   final _searchFocusNode = FocusNode();
 
+  // 🖼️ View mode — list (rich rows) vs grid (large image, less detail).
+  // Persisted per-user via SharedPreferences so the choice is sticky
+  // across launches.
+  static const _kViewModePrefKey = 'pantry_view_mode_grid';
+  bool _gridMode = false;
+
+  // 💨 Speed-dial FAB — one main button that expands into the 3 quick
+  // actions (manual add, scan-to-add, scan-to-decrement). Replaces the
+  // older always-visible 3-FAB column which crowded the bottom-left of
+  // the screen and overlapped list/grid content during scroll.
+  bool _fabExpanded = false;
+
   // ⏱️ Debounce לחיפוש
   Timer? _searchDebounce;
   final _searchController = TextEditingController();
@@ -73,12 +86,28 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
   @override
   void initState() {
     super.initState();
+    _loadViewModePref();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<InventoryProvider>().loadItems();
       }
     });
+  }
+
+  Future<void> _loadViewModePref() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getBool(_kViewModePrefKey) ?? false;
+    if (mounted && saved != _gridMode) {
+      setState(() => _gridMode = saved);
+    }
+  }
+
+  Future<void> _toggleViewMode() async {
+    unawaited(HapticFeedback.selectionClick());
+    setState(() => _gridMode = !_gridMode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kViewModePrefKey, _gridMode);
   }
 
   @override
@@ -604,9 +633,53 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
   }
 
-  /// מציג דיאלוג לעריכת פרטי פריט קיים
-  void _editItemDialog(InventoryItem item) {
-    PantryItemDialog.showEditDialog(context, item);
+  /// מציג דיאלוג לעריכת פרטי פריט קיים.
+  ///
+  /// Dialog return values:
+  ///   `true`  → item saved, no further action needed (provider stream
+  ///             refreshes the list).
+  ///   `false` → user cancelled.
+  ///   `null`  → user deleted from inside the dialog. The provider call
+  ///             already happened there; we surface the same toast +
+  ///             undo affordance the swipe-delete gives, so users can
+  ///             still recover from a misclick.
+  Future<void> _editItemDialog(InventoryItem item) async {
+    final result = await PantryItemDialog.showEditDialog(context, item);
+    if (!mounted) return;
+    if (result == null) {
+      _showDeletedSnackBar(item);
+    }
+  }
+
+  /// Shared "deleted with undo" toast used by both swipe-to-delete and
+  /// the dialog's delete button.
+  void _showDeletedSnackBar(InventoryItem deletedItem) {
+    final strings = AppStrings.pantry;
+    final messenger = ScaffoldMessenger.of(context);
+    final inventoryProvider = context.read<InventoryProvider>();
+    messenger
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(strings.itemDeleted(deletedItem.productName)),
+          action: SnackBarAction(
+            label: AppStrings.common.cancel,
+            onPressed: () async {
+              try {
+                await inventoryProvider.updateItem(deletedItem);
+              } catch (_) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context)
+                    ..removeCurrentSnackBar()
+                    ..showSnackBar(SnackBar(
+                      content: Text(AppStrings.inventory.updateError),
+                    ));
+                }
+              }
+            },
+          ),
+        ),
+      );
   }
 
   /// מוחק פריט מהמזווה
@@ -749,47 +822,12 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             return Scaffold(
               backgroundColor: Colors.transparent,
               floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-              floatingActionButton: Padding(
-                padding: const EdgeInsetsDirectional.only(start: kSpacingMedium, bottom: kSpacingMedium),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 📷⬇️ סריקה מהירה להורדת מלאי — only when there's stock to remove
-                    if (allItems.isNotEmpty) ...[
-                      FloatingActionButton.small(
-                        heroTag: 'pantry_quick_scan_btn',
-                        onPressed: _quickScanToDecrement,
-                        backgroundColor: brand?.stickyOrange ?? kStickyOrange,
-                        tooltip: AppStrings.inventory.quickScanTooltip,
-                        child: Icon(Icons.remove_shopping_cart, color: scheme.onSurface, size: kIconSizeSmallPlus),
-                      ),
-                      const SizedBox(height: kSpacingSmallPlus),
-                    ],
-                    // 📷⬆️ סריקת ברקוד להוספה
-                    FloatingActionButton.small(
-                      heroTag: 'pantry_scan_btn',
-                      onPressed: _scanBarcodeAndAddToPantry,
-                      backgroundColor: scheme.secondaryContainer,
-                      // Symmetric phrasing with the orange "scan-to-decrement"
-                      // FAB above so the two scan buttons read as a pair.
-                      tooltip: AppStrings.inventory.scanToAddTooltip,
-                      child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer, size: kIconSizeSmallPlus),
-                    ),
-                    const SizedBox(height: kSpacingSmallPlus),
-                    // הוספה ידנית
-                    Semantics(
-                      button: true,
-                      label: strings.addItemLabel,
-                      child: FloatingActionButton(
-                        heroTag: 'pantry_add_btn',
-                        onPressed: _addItemDialog,
-                        backgroundColor: primaryColor,
-                        tooltip: strings.addItemTooltip,
-                        child: Icon(Icons.add, color: scheme.onPrimaryContainer),
-                      ),
-                    ),
-                  ],
-                ),
+              floatingActionButton: _buildSpeedDialFab(
+                brand: brand,
+                scheme: scheme,
+                primaryColor: primaryColor,
+                hasItems: allItems.isNotEmpty,
+                strings: strings,
               ),
               body: provider.isLoading
                   ? const SafeArea(
@@ -813,7 +851,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
                                   // 🏷️ כותרת המזווה (Collaborative Immersive)
                                   // כוללת ספירה אינליין (📦 + ⚠️) וכפתור חיפוש.
-                                  _buildInlineTitle(provider, scheme, allItems),
+                                  _buildInlineTitle(context, provider, scheme, allItems),
 
                                   // 💡 הצעות חכמות
                                   PantrySuggestions(
@@ -868,9 +906,11 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                               ),
                                             ],
                                           )
-                                        : filteredItems.length >= 5
-                                            ? _buildGroupedList(filteredItems)
-                                            : _buildFlatList(filteredItems),
+                                        : _gridMode
+                                            ? _buildGridList(filteredItems)
+                                            : filteredItems.length >= 5
+                                                ? _buildGroupedList(filteredItems)
+                                                : _buildFlatList(filteredItems),
                                     ),
                                   ),
                                 ],
@@ -884,36 +924,152 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
+  /// Speed-dial FAB. The main "+" button toggles `_fabExpanded`; the
+  /// 3 quick actions (manual add, scan-to-add, scan-to-decrement) only
+  /// render when expanded so they stop crowding the screen during scroll.
+  /// Each sub-action collapses the dial after firing.
+  Widget _buildSpeedDialFab({
+    required AppBrand? brand,
+    required ColorScheme scheme,
+    required Color primaryColor,
+    required bool hasItems,
+    required PantryStrings strings,
+  }) {
+    void closeAndRun(VoidCallback action) {
+      setState(() => _fabExpanded = false);
+      action();
+    }
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(
+        start: kSpacingMedium,
+        bottom: kSpacingMedium,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutQuart,
+            child: _fabExpanded
+                ? Padding(
+                    padding: const EdgeInsets.only(bottom: kSpacingSmallPlus),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Manual add — appears first so it lines up
+                        // closest to the main FAB (most-likely action).
+                        _buildSubFab(
+                          tag: 'pantry_add_sub',
+                          icon: Icons.edit_outlined,
+                          backgroundColor: primaryColor,
+                          foregroundColor: scheme.onPrimaryContainer,
+                          tooltip: strings.addItemTooltip,
+                          onPressed: () => closeAndRun(_addItemDialog),
+                        ),
+                        const SizedBox(height: kSpacingSmallPlus),
+                        // Scan-to-add (always available)
+                        _buildSubFab(
+                          tag: 'pantry_scan_sub',
+                          icon: Icons.qr_code_scanner,
+                          backgroundColor: scheme.secondaryContainer,
+                          foregroundColor: scheme.onSecondaryContainer,
+                          tooltip: AppStrings.inventory.scanToAddTooltip,
+                          onPressed: () => closeAndRun(_scanBarcodeAndAddToPantry),
+                        ),
+                        // Scan-to-decrement only when there is stock to
+                        // remove — same gating logic the old fixed FAB
+                        // column used.
+                        if (hasItems) ...[
+                          const SizedBox(height: kSpacingSmallPlus),
+                          _buildSubFab(
+                            tag: 'pantry_quick_scan_sub',
+                            icon: Icons.remove_shopping_cart,
+                            backgroundColor: brand?.stickyOrange ?? kStickyOrange,
+                            foregroundColor: scheme.onSurface,
+                            tooltip: AppStrings.inventory.quickScanTooltip,
+                            onPressed: () => closeAndRun(_quickScanToDecrement),
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ),
+          // Main FAB — toggles expand/collapse. + rotates to × when open.
+          Semantics(
+            button: true,
+            label: _fabExpanded
+                ? AppStrings.common.cancel
+                : strings.addItemLabel,
+            child: FloatingActionButton(
+              heroTag: 'pantry_speed_dial',
+              onPressed: () {
+                unawaited(HapticFeedback.selectionClick());
+                setState(() => _fabExpanded = !_fabExpanded);
+              },
+              backgroundColor: _fabExpanded
+                  ? scheme.surfaceContainerHigh
+                  : primaryColor,
+              tooltip: _fabExpanded
+                  ? AppStrings.common.cancel
+                  : strings.addItemTooltip,
+              child: AnimatedRotation(
+                turns: _fabExpanded ? 0.125 : 0, // 45° → looks like ×
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.add,
+                  color: _fabExpanded
+                      ? scheme.onSurface
+                      : scheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// One row in the speed-dial column. Wraps a small FAB in a fade+scale
+  /// animation so it pops in nicely when the dial expands.
+  Widget _buildSubFab({
+    required String tag,
+    required IconData icon,
+    required Color backgroundColor,
+    required Color foregroundColor,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return FloatingActionButton.small(
+      heroTag: tag,
+      onPressed: onPressed,
+      backgroundColor: backgroundColor,
+      tooltip: tooltip,
+      child: Icon(icon, color: foregroundColor, size: kIconSizeSmallPlus),
+    )
+        .animate()
+        .scaleXY(begin: 0.7, end: 1.0, duration: 150.ms, curve: Curves.easeOutBack)
+        .fadeIn(duration: 150.ms);
+  }
+
   /// 🏷️ כותרת המזווה - Collaborative Immersive (Glassmorphic + Avatars)
   ///
   /// שני מצבים:
   /// 1) מצב רגיל: אייקון + שם המזווה + ספירה אינליין (📦 / ⚠️) + חיפוש + אווטר
   /// 2) מצב חיפוש: אייקון חזרה + TextField + כפתור ניקוי
+  // The `context` parameter is the Consumer<InventoryProvider>'s build
+  // context — needed because `context.select` requires a context that is
+  // actively building. Using `this.context` (State's context) would only
+  // work on the very first render; subsequent Consumer-driven rebuilds
+  // would assert "context.select outside of build".
   Widget _buildInlineTitle(
+    BuildContext context,
     InventoryProvider provider,
     ColorScheme scheme,
     List<InventoryItem> allItems,
   ) {
     final theme = Theme.of(context);
-    final brand = theme.extension<AppBrand>();
-    // Targeted select on the only field we actually use — avoids
-    // rebuilding the whole pantry every time UserContext changes
-    // settings or household-level data.
-    final displayName = context.select<UserContext, String>(
-      (u) => u.displayName ?? '',
-    );
-    final initials = displayName.isNotEmpty
-        ? displayName
-            .split(' ')
-            .where((p) => p.isNotEmpty)
-            .map((p) => p[0])
-            .take(2)
-            .join()
-        : '?';
-
-    final totalItems = allItems.length;
-    final lowStockCount = allItems.where((i) => i.isLowStock).length;
-    final warnColor = brand?.warning ?? scheme.error;
 
     return ClipRRect(
       child: BackdropFilter(
@@ -942,11 +1098,6 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                     theme: theme,
                     scheme: scheme,
                     provider: provider,
-                    displayName: displayName,
-                    initials: initials,
-                    totalItems: totalItems,
-                    lowStockCount: lowStockCount,
-                    warnColor: warnColor,
                   ),
           ),
         ),
@@ -959,12 +1110,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     required ThemeData theme,
     required ColorScheme scheme,
     required InventoryProvider provider,
-    required String displayName,
-    required String initials,
-    required int totalItems,
-    required int lowStockCount,
-    required Color warnColor,
   }) {
+    // Local "אב" gradient avatar removed — the global avatar already lives
+    // in the top app bar, so showing a second tiny copy here just doubled
+    // the same identity without adding meaning.
     return Row(
       key: const ValueKey('pantry_title_content'),
       children: [
@@ -982,28 +1131,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         ),
         const SizedBox(width: kSpacingSmall),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                provider.inventoryTitle,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: scheme.onSurface,
-                ),
-              ),
-              if (totalItems > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: _buildInlineStats(
-                    theme: theme,
-                    scheme: scheme,
-                    totalItems: totalItems,
-                    lowStockCount: lowStockCount,
-                    warnColor: warnColor,
-                  ),
-                ),
-            ],
+          // Inline stats ("📦 21 · ⚠️ 2") removed — the low-stock count is
+          // already surfaced as the bottom-nav badge on the מזווה tab and
+          // showing it twice (header + nav) was duplicate. The total count
+          // (21) was just informational noise; users who want a count can
+          // read the section headers ("מטבח 2", "מזווה 15").
+          child: Text(
+            provider.inventoryTitle,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: scheme.onSurface,
+            ),
           ),
         ),
 
@@ -1014,98 +1152,22 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
           icon: Icon(Icons.search, color: scheme.onSurfaceVariant),
           visualDensity: VisualDensity.compact,
         ),
-
-        // 👤 Avatar with gradient ring (like Dashboard)
-        if (displayName.isNotEmpty)
-          Tooltip(
-            message: displayName,
-            child: Container(
-              width: kIconSizeLarge,
-              height: kIconSizeLarge,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [scheme.primary, scheme.tertiary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Container(
-                margin: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: scheme.primaryContainer,
-                ),
-                child: Center(
-                  child: Text(
-                    initials,
-                    style: TextStyle(
-                      fontSize: kFontSizeTiny,
-                      fontWeight: FontWeight.bold,
-                      color: scheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  /// שורת משנה אינליין: "📦 21 · ⚠️ 2" עם צבע אזהרה לחסרים.
-  /// הופכת את הסיכום לתת-כותרת במקום Card נפרד.
-  Widget _buildInlineStats({
-    required ThemeData theme,
-    required ColorScheme scheme,
-    required int totalItems,
-    required int lowStockCount,
-    required Color warnColor,
-  }) {
-    final baseStyle = theme.textTheme.bodySmall?.copyWith(
-      color: scheme.onSurfaceVariant,
-    );
-    return DefaultTextStyle.merge(
-      style: baseStyle ?? const TextStyle(),
-      child: Row(
-        children: [
-          // Was '📦' as text — replaced with a Material icon to match the
-          // rest of the dashboard's inline counters.
-          Icon(
-            Icons.inventory_2_outlined,
-            size: kFontSizeSmall,
+        // ⊞↔☰ View-mode toggle. Single icon swaps based on mode — the
+        // shown icon represents what tap will activate (list when in
+        // grid, grid when in list), matching how iOS / Material toggles
+        // typically read.
+        IconButton(
+          tooltip: _gridMode
+              ? AppStrings.pantry.switchToListView
+              : AppStrings.pantry.switchToGridView,
+          onPressed: _toggleViewMode,
+          icon: Icon(
+            _gridMode ? Icons.view_list_outlined : Icons.grid_view_outlined,
             color: scheme.onSurfaceVariant,
           ),
-          const SizedBox(width: kSpacingXTiny),
-          Text('$totalItems'),
-          if (lowStockCount > 0) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-              child: Text('·', style: TextStyle(color: scheme.outlineVariant)),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Was '⚠️' as text.
-                Icon(
-                  Icons.warning_amber_rounded,
-                  size: kFontSizeSmall,
-                  color: warnColor,
-                ),
-                const SizedBox(width: kSpacingXTiny),
-                Text(
-                  '$lowStockCount',
-                  style: baseStyle?.copyWith(
-                    color: warnColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ).animate(onPlay: (c) => c.repeat(reverse: true))
-             .scaleXY(begin: 1.0, end: 1.08, duration: 1200.ms, curve: Curves.easeInOut),
-          ],
-        ],
-      ),
+          visualDensity: VisualDensity.compact,
+        ),
+      ],
     );
   }
 
@@ -1217,33 +1279,122 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     final availableLocations = _getAvailableLocations(allItems);
     if (availableLocations.isEmpty) return const SizedBox.shrink();
 
+    // Low-stock count drives a standalone status banner above the location
+    // chips. Status (⚠️ low stock) and location are two different filter
+    // axes — separating them visually communicates that and frees the
+    // location row from a chip that doesn't fit there semantically.
+    final lowStockCount = allItems.where((i) => i.isLowStock).length;
+
     return Padding(
-      padding: const EdgeInsets.only(top: kSpacingSmall, bottom: kSpacingSmall),
-      child: SizedBox(
-        height: kButtonHeightSmall + kSpacingXTiny,
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-          children: _buildLocationChips(availableLocations),
+      padding: const EdgeInsets.fromLTRB(
+        kSpacingMedium, kSpacingSmall, kSpacingMedium, kSpacingSmall,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (lowStockCount > 0) ...[
+            _buildLowStockBanner(lowStockCount),
+            const SizedBox(height: kSpacingSmall),
+          ],
+          // Wrap (multi-line) instead of horizontal ListView — long
+          // location names (e.g. "מרפסת שירות") used to clip mid-word at
+          // the edge of the scroll viewport. Wrap lets a chip overflow to
+          // a second row, so every chip stays fully readable regardless
+          // of available width.
+          Wrap(
+            spacing: kSpacingSmall,
+            runSpacing: kSpacingXTiny,
+            children: _buildLocationChips(availableLocations),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Full-width status banner showing "⚠️ N פריטים נמוכים מהמינימום" with
+  /// tap-to-toggle the low-stock filter. Lives above the location chips
+  /// — status and location filter on different axes, so separating
+  /// visually keeps each row's purpose clear (D pattern). Selected state
+  /// fills with the warning palette; unselected is outlined-only so the
+  /// banner doesn't shout when the user isn't filtering.
+  Widget _buildLowStockBanner(int count) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final isActive = _stockFilter == PantryStockFilter.lowStock;
+    final accent = brand?.warning ?? scheme.error;
+
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(kBorderRadius),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(kBorderRadius),
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          setState(() {
+            _stockFilter = isActive
+                ? PantryStockFilter.all
+                : PantryStockFilter.lowStock;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingSmallPlus,
+            vertical: kSpacingSmall,
+          ),
+          decoration: BoxDecoration(
+            color: isActive
+                ? accent.withValues(alpha: kOpacityLight)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(kBorderRadius),
+            border: Border.all(
+              color: accent.withValues(
+                alpha: isActive ? kOpacityMedium : kOpacityLight,
+              ),
+              width: isActive ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                size: kIconSizeSmallPlus,
+                color: accent,
+              ),
+              const SizedBox(width: kSpacingSmall),
+              Expanded(
+                child: Text(
+                  AppStrings.pantry.filterLowStockChip(count),
+                  style: TextStyle(
+                    fontSize: kFontSizeMedium,
+                    color: scheme.onSurface,
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (isActive)
+                Icon(
+                  Icons.close,
+                  size: kIconSizeSmall,
+                  color: scheme.onSurfaceVariant,
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   /// 🏷️ יצירת צ'יפים של מיקומים
+  /// A-style chips: selected = solid primary fill with bold text + 1.5px
+  /// border. Default = transparent with outlined-only border. The
+  /// difference is intentional and large — earlier the two states were
+  /// almost identical and users couldn't tell which filter was active.
   List<Widget> _buildLocationChips(List<String> locations) {
     final allLocations = [null, ...locations]; // null = "הכל"
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    // ✅ Dark Mode colors - theme-aware
-    final chipBgColor = isDark
-        ? scheme.surfaceContainerHighest.withValues(alpha: 0.8)
-        : scheme.surface.withValues(alpha: 0.8);
-    final chipSelectedColor = scheme.primaryContainer;
-    final textColor = scheme.onSurface;
     final textColorMuted = scheme.onSurfaceVariant;
 
     final chips = allLocations.map<Widget>((location) {
@@ -1252,19 +1403,17 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
       final emoji = isAll ? '🏪' : _getLocationEmoji(location);
       final name = isAll ? AppStrings.pantry.allLocations : _getLocationName(location);
 
-      return Padding(
-        padding: const EdgeInsets.only(left: kSpacingSmall),
-        child: AnimatedScale(
-          scale: isSelected ? 1.05 : 1.0,
-          duration: const Duration(milliseconds: 150),
-          child: FilterChip(
+      return AnimatedScale(
+        scale: isSelected ? 1.05 : 1.0,
+        duration: const Duration(milliseconds: 150),
+        child: FilterChip(
             showCheckmark: false,
             label: Text(
               '$emoji $name',
               style: TextStyle(
                 fontSize: kFontSizeMedium,
-                color: isSelected ? textColor : textColorMuted,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? scheme.onPrimaryContainer : scheme.onSurface,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
             selected: isSelected,
@@ -1275,52 +1424,55 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                 _selectedLocation = isAll ? null : location;
               });
             },
-            backgroundColor: chipBgColor,
-            selectedColor: chipSelectedColor,
+            // Transparent default fill so the chip reads as "outlined
+            // only" when not selected. Selected gets the brand container.
+            backgroundColor: Colors.transparent,
+            selectedColor: scheme.primaryContainer,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(kBorderRadiusLarge),
               side: BorderSide(
-                color: isSelected ? scheme.outline.withValues(alpha: kOpacityLight) : Colors.transparent,
+                color: isSelected
+                    ? scheme.primary
+                    : scheme.outlineVariant.withValues(alpha: kOpacityMedium),
+                width: isSelected ? 1.5 : 1,
               ),
             ),
             padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
             visualDensity: VisualDensity.compact,
           ),
-        ),
-      );
+        );
     }).toList();
 
     // ➕ כפתור הוספת מיקום חדש (Shimmer כשיש מעט מיקומים)
     final showShimmer = locations.length <= 1;
-    Widget addChip = Padding(
-      padding: const EdgeInsets.only(left: kSpacingSmall),
-      child: ActionChip(
-        avatar: Icon(Icons.add_location_alt, size: kIconSizeSmallPlus, color: scheme.primary),
-        label: Text(
-          AppStrings.inventory.addLocationButton,
-          style: TextStyle(fontSize: kFontSizeMedium, color: textColorMuted),
-        ),
-        onPressed: () async {
-          final newKey = await showAddLocationDialog(context);
-          if (newKey != null && mounted) {
-            ScaffoldMessenger.of(context)
-              ..removeCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(AppStrings.inventory.locationAdded),
-                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                ),
-              );
-          }
-        },
-        backgroundColor: chipBgColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          side: BorderSide(color: scheme.primary, width: 1.5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
-        visualDensity: VisualDensity.compact,
+    Widget addChip = ActionChip(
+      avatar: Icon(Icons.add_location_alt, size: kIconSizeSmallPlus, color: scheme.primary),
+      label: Text(
+        AppStrings.inventory.addLocationButton,
+        style: TextStyle(fontSize: kFontSizeMedium, color: textColorMuted),
       ),
+      onPressed: () async {
+        final newKey = await showAddLocationDialog(context);
+        if (newKey != null && mounted) {
+          ScaffoldMessenger.of(context)
+            ..removeCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(AppStrings.inventory.locationAdded),
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              ),
+            );
+        }
+      },
+      backgroundColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+        // Dashed-feeling border via stronger, primary-tinted outline so
+        // "הוסף" reads as a CTA distinct from the regular filter chips.
+        side: BorderSide(color: scheme.primary, width: 1.5),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
+      visualDensity: VisualDensity.compact,
     );
 
     if (showShimmer) {
@@ -1520,6 +1672,291 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     );
   }
 
+  /// 🖼️ Grid view — sections preserved (header still groups by location),
+  /// but items render as 2-column tiles with a large product image and
+  /// minimal text. Trades quick +/- access for visual scan-ability;
+  /// users who want to update quantity tap a tile to open the dialog.
+  Widget _buildGridList(List<InventoryItem> items) {
+    final grouped = _groupItemsByLocation(items);
+    final locations = grouped.keys.toList()..sort();
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return RepaintBoundary(
+      child: ListView.builder(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.only(
+          top: kSpacingSmall,
+          left: kSpacingMedium,
+          right: kSpacingMedium,
+          bottom: 100, // FAB clearance
+        ),
+        itemCount: locations.length,
+        itemBuilder: (context, locIndex) {
+          final location = locations[locIndex];
+          final locationItems = grouped[location]!;
+          final isCollapsed = _collapsedLocations.contains(location);
+          final isFirstSection = locIndex == 0;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Section header — same shape as list mode for consistency.
+              Padding(
+                padding: EdgeInsets.only(
+                  top: isFirstSection ? 0 : kSpacingSmallPlus,
+                  bottom: kSpacingSmall,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    unawaited(HapticFeedback.selectionClick());
+                    setState(() {
+                      if (isCollapsed) {
+                        _collapsedLocations.remove(location);
+                      } else {
+                        _collapsedLocations.add(location);
+                      }
+                    });
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        '${_getLocationEmoji(location)} ${_getLocationName(location)}',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: scheme.onSurface,
+                          fontSize: kFontSizeBody,
+                        ),
+                      ),
+                      const SizedBox(width: kSpacingSmall),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest.withValues(alpha: kOpacityLight),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Text(
+                          '${locationItems.length}',
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            fontWeight: FontWeight.bold,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      AnimatedRotation(
+                        turns: isCollapsed ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(Icons.expand_more, size: kIconSizeSmallPlus, color: scheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Grid of items — collapses to nothing when section closed.
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                child: isCollapsed
+                    ? const SizedBox.shrink()
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: kSpacingSmall,
+                          mainAxisSpacing: kSpacingSmall,
+                          // Tile a touch taller than wide so the image
+                          // stays generous and the name has 2 lines.
+                          childAspectRatio: 0.78,
+                        ),
+                        itemCount: locationItems.length,
+                        itemBuilder: (_, i) =>
+                            _buildGridCell(locationItems[i]),
+                      ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Single tile in the grid view. Tap = open edit dialog (we deliberately
+  /// don't ship inline ± buttons here — the grid is for visual scan, not
+  /// fast quantity edits; that's what list mode is for).
+  Widget _buildGridCell(InventoryItem item) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
+    final isCritical = item.needsUrgentAttention;
+    final isWarning = item.isLowStock;
+    final Color statusColor = isCritical
+        ? cs.error
+        : isWarning
+            ? (brand?.warning ?? cs.error)
+            : _getCategoryColor(item.category);
+
+    // surfaceContainer (Material 3 surface tier) is fully opaque, unlike
+    // `cs.surface` which can render slightly translucent with dynamic
+    // color schemes — that's why the notebook background's red margin
+    // line was visibly cutting through cells. Using a higher tier hides
+    // the lines under each cell and keeps the notebook texture in the
+    // gutters between cells (where it actually belongs visually).
+    return Material(
+      color: cs.surfaceContainer,
+      borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _editItemDialog(item),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            border: Border.all(
+              color: isWarning || isCritical
+                  ? statusColor.withValues(alpha: kOpacityLight)
+                  : cs.outlineVariant.withValues(alpha: kOpacitySubtle),
+            ),
+          ),
+          padding: const EdgeInsets.all(kSpacingSmall),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Hero image — fills most of the tile. Stack lets us add a
+              // top-right warning badge for low-stock items so the user
+              // can spot them without reading every quantity.
+              Expanded(
+                child: Stack(
+                  children: [
+                    Center(
+                      child: ProductThumbnail(
+                        barcode: item.barcode,
+                        category: item.category,
+                        productName: item.productName,
+                        size: kIconSizeXLarge + kSpacingXLarge, // 80px
+                        tintColor: statusColor,
+                      ),
+                    ),
+                    if (isWarning || isCritical)
+                      PositionedDirectional(
+                        top: 0,
+                        end: 0,
+                        child: Container(
+                          width: kIconSizeSmallPlus,
+                          height: kIconSizeSmallPlus,
+                          decoration: BoxDecoration(
+                            color: statusColor,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: cs.surfaceContainer,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(
+                            isCritical
+                                ? Icons.priority_high
+                                : Icons.warning_amber_rounded,
+                            color: cs.onError,
+                            size: kIconSizeSmall - 2,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: kSpacingTiny),
+              // Recurring star + product name.
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (item.isRecurring)
+                    Padding(
+                      padding: const EdgeInsets.only(left: kSpacingXTiny, top: 2),
+                      child: Icon(
+                        Icons.star,
+                        color: brand?.warning ?? cs.tertiary,
+                        size: kIconSizeSmall,
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      item.productName,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: kSpacingXTiny),
+              // Inline ± stepper — same direct manipulation as list mode.
+              // LTR forced so − stays left, + stays right regardless of
+              // surrounding RTL paragraph direction.
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildQuantityButton(
+                      icon: Icons.remove,
+                      color: item.quantity <= 1 ? cs.error : cs.onSurfaceVariant,
+                      onTap: item.quantity > 0
+                          ? () => _updateQuantity(item, item.quantity - 1)
+                          : null,
+                    ),
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingSmall,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isWarning || isCritical
+                              ? statusColor.withValues(alpha: kOpacitySubtle)
+                              : cs.primaryContainer.withValues(alpha: kOpacityLight),
+                          borderRadius: BorderRadius.circular(kBorderRadius),
+                        ),
+                        child: Directionality(
+                          // Re-anchor to the locale direction so Hebrew
+                          // unit suffixes ("יח'", "ק"ג") read correctly.
+                          textDirection: Directionality.of(context),
+                          child: Text(
+                            '${item.quantity} ${item.unit}',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: isWarning || isCritical ? statusColor : cs.primary,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildQuantityButton(
+                      icon: Icons.add,
+                      color: cs.primary,
+                      onTap: item.quantity < kMaxPantryQuantity
+                          ? () => _updateQuantity(item, item.quantity + 1)
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// 🎴 שורת פריט — Card מקצועי עם Swipe, Tap, וחיווי סטטוס
   Widget _buildItemRow(InventoryItem item) {
     final theme = Theme.of(context);
@@ -1587,6 +2024,10 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         elevation: isCritical ? 2 : 0,
         shadowColor: isCritical ? cs.error.withValues(alpha: kOpacityLight) : null,
+        // Opaque surface tier so the notebook background's red margin
+        // line doesn't appear to cut through rows — the notebook texture
+        // stays visible in the gutters between cards instead.
+        color: cs.surfaceContainer,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
           side: BorderSide(
@@ -1599,26 +2040,14 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         child: InkWell(
           onTap: () => _editItemDialog(item),
           borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          // Per-row colored side stripe removed — too many colors competing
+          // for attention with no legend explaining what each one means.
+          // The card's outlined border (cs.error / statusColor when warning
+          // or critical, neutral otherwise) is now the only stock-status
+          // signal — single, consistent cue.
           child: IntrinsicHeight(
             child: Row(
               children: [
-                // 🎨 פס צד צבעוני (הורחב מ-4→6 כדי להיות קריא יותר)
-                Container(
-                  width: kSpacingTiny,
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    borderRadius: isRtl
-                        ? const BorderRadius.only(
-                            topRight: Radius.circular(kBorderRadiusLarge),
-                            bottomRight: Radius.circular(kBorderRadiusLarge),
-                          )
-                        : const BorderRadius.only(
-                            topLeft: Radius.circular(kBorderRadiusLarge),
-                            bottomLeft: Radius.circular(kBorderRadiusLarge),
-                          ),
-                  ),
-                ),
-
                 // 📦 תוכן — padding הוגדל לתמונה 72px ולטיפוגרפיה חדשה
                 Expanded(
                   child: Padding(
@@ -1643,12 +2072,19 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                               // Tier 1: name (+ recurring icon + notes icon)
                               Row(
                                 children: [
+                                  // Star = "recurring product" — same glyph
+                                  // the edit dialog uses, so the row's mark
+                                  // and the dialog's toggle stay in sync.
+                                  // Uses the brand warning/orange so it
+                                  // visually separates from the muted notes
+                                  // icon — at a glance the user can tell
+                                  // "marked-as-staple" from "has notes".
                                   if (item.isRecurring)
                                     Padding(
                                       padding: const EdgeInsets.only(left: kSpacingXTiny),
                                       child: Icon(
-                                        Icons.autorenew,
-                                        color: theme.colorScheme.tertiary,
+                                        Icons.star,
+                                        color: brand?.warning ?? theme.colorScheme.tertiary,
                                         size: kIconSizeSmallPlus,
                                       ),
                                     ),
@@ -1659,7 +2095,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                                         message: item.notes!,
                                         child: Icon(
                                           Icons.sticky_note_2_outlined,
-                                          color: cs.outline,
+                                          color: cs.onSurfaceVariant,
                                           size: kIconSizeSmall,
                                         ),
                                       ),
