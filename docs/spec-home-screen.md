@@ -4,10 +4,19 @@
 
 מסך הבית הוא הדף הראשון שהמשתמש רואה אחרי התחברות. הוא מציג תמונת מצב של הקניות, המזווה וההוצאות — הכל בעמוד אחד.
 
-**קבצים:**
-- `lib/screens/home/dashboard/home_dashboard_screen.dart` (849 שורות)
-- 6 widgets משניים ב-`widgets/` (כולל `household_activity_feed.dart`)
-- **סה"כ: ~3,200 שורות**
+**קבצים (עדכון 30/4/2026):**
+- `lib/screens/home/dashboard/home_dashboard_screen.dart` (~792 שורות)
+- 7 widgets משניים ב-`widgets/`:
+  - `pending_invites_banner.dart` (245)
+  - `action_center_card.dart` (304)
+  - `onboarding_tips_card.dart` (415)
+  - `active_shopper_banner.dart` (521)
+  - `household_activity_feed.dart` (505)
+  - `suggestions_today_card.dart` (1012)
+  - `last_chance_banner.dart` (Apr-29: הועבר ל-`shopping/active/widgets/` — ה-caller האמיתי)
+- **סה"כ Home Dashboard: ~3,000 שורות**
+
+> **Review status (Apr 30, 2026):** כל 7 ה-widgets והמסך עברו 12-category review. ראה `docs/REVIEW_BACKLOG.md` לפרטי החלטות + פריטים deferred per widget.
 
 ---
 

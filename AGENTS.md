@@ -69,7 +69,58 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Last Session (April 27, 2026) — Multi-agent Sweep + Pantry Edit-Dialog UX
+### Latest Session (April 30, 2026) — Settings Folder Review + UX Deep-Dive
+
+**4 settings files reviewed end-to-end:**
+- `edit_household_name_dialog.dart`: dropped hardcoded RTL on the input, added haptic on save, added `onSubmitted` so the keyboard "Done" key saves, hoisted `maxLength: 40` into `_kMaxHouseholdNameLength` with rationale, and added a subtitle line explaining the change is multiplayer.
+- `household_members_screen.dart`: leave-button now disabled-with-tooltip for owners (instead of letting them tap and getting a "you can't" snackbar after the fact), added `_showSnackBar` dedup helper for 5 snack callsites, haptic feedback on remove/role-change/leave (calibrated by destructiveness), bare error text replaced with `AppErrorState` + retry, slide animations now flip with locale, decorative house emoji wrapped in `ExcludeSemantics`, avatar size composition `kIconSizeLarge + kSpacingXTiny` simplified to `kIconSizeXLarge`, magic `vertical: 2` on badges hoisted to `_kBadgeVerticalPadding`. Watch → select on UserContext for just `householdName`.
+- `manage_users_screen.dart`: removed two hardcoded `Directionality(rtl)` wrappers (CLAUDE.md violation), renamed `isOwner` → `canManage` (the gate also lets admins through), added the same `_showSnackBar` helper + viewer-only banner + role filter chips (All/Owners/Admins/Editors/Viewers), card entry animations matching `household_members`, magic alphas mapped to `kOpacityLight/Medium`, and `context.watch<UserContext>` → `context.select(userId)`.
+- `settings_screen.dart` rounds 1+2 (lines 1-1480; round 3 = `_NotificationToggle` + `_ThemeCard` still pending): removed hardcoded RTL on delete-account confirm + display-name TextField, added `_showSnackBar(SnackBar, {messenger?})` helper used in 11 places, 30s timeouts on signOut/signOutAndClearAllData/deleteAccount with localized error copy, haptic on logout (light) and delete actions (medium), `_kErrorBgAlpha`/`_kErrorBorderAlpha`/`_kCardBgAlpha`/`_kCardBorderAlpha`/`_kProfileAvatarSize`/`_kHandleBarWidth`/`_kDisplayNameMaxLength` hoisted, parallel `Future.wait` for the two role/household reads in `_loadSettings`, and the **animation interval bug** fixed (`_sectionCount` was 9 with stagger 0.12 + duration 0.4 = 1.36 → last sections clamped to 1.0 with only 0.04s of animation; now 8 sections × 0.08 + 0.3 = 0.86 ≤ 1.0 — every section fully animates). Camera badge in the main settings card switched from `Positioned(right: 0)` to `PositionedDirectional.end` so it stays start-side in RTL, matching the profile bottom sheet's badge. The hardcoded English `'v$version copied'` snackbar string is now `AppStrings.settings.versionCopied(version)`, properly localized.
+
+**UX deep-dive on the settings folder (9 of 10 user-perspective improvements applied; Q2 deferred to login_screen):**
+- Logout dialog now reassures: "Your data (lists, pantry, history) stays. You can log in again with the same account." Replaces the bare "Are you sure?".
+- Delete-account warning lists shared-list impact: "Lists you own — other members will lose access."
+- "Re-auth required" snackbar gained a `SnackBarAction("Log in now")` that signs out and routes to `/login`.
+- Edit-household-name dialog gained a subtitle: "The name is visible to everyone in your home, updates instantly."
+- `removeMemberConfirm` explains the consequence: "X will no longer see shared lists. Lists they created will remain available."
+- Role-toggle popup menu now shows subtitles ("Can add/remove members" vs "Can edit lists, not manage members").
+- `manage_users_screen` got role filter chips for large lists, plus a viewer-only banner explaining why no actions menu is visible.
+- 30-second timeouts on the destructive awaits — `takingTooLong` snackbar instead of an infinite spinner.
+
+**Home Dashboard fully reviewed (7 child widgets):**
+`pending_invites_banner`, `action_center_card` (rounds 1+2), `last_chance_banner`, `active_shopper_banner`, `onboarding_tips_card`, `household_activity_feed`, `suggestions_today_card`. Two cross-file dups still deferred: `_iconForType` exists in both `household_activity_feed` and `shopping_history_screen:1045` (extract to `lib/core/activity_visuals.dart` next time we touch history); `_ReceiptFallbackTile.onTap` reproduces the "see all" tab-nav bug but needs an intent-passing mechanism for the receipt id (same family as `MyPantryScreen.pendingStockFilter`).
+
+**Round-2 cross-file sweep caught 3 more `kSpacingXTiny / 2` magic divides** (in `pending_invites_banner` and `active_shopper_banner` — both Apr-29 "reference quality" reviews missed them). All fixed to `kSpacingXTiny`.
+
+**CLAUDE.md additions from this session's lessons:**
+- 🎨 Design Tokens: forbid `kSpacing*/2` (magic via divide).
+- ⚡ Performance: warn that `select<List>` is a no-op when getter wraps in `List.unmodifiable`.
+- 🔥 UX: dedicated destructive-actions sub-checklist (data preservation copy, action buttons in error snacks, cross-entity impact, email confirmations, third-party auth implications).
+- ⏳ UX: loading-timeout escape hatches and account-switching as alternative.
+- 🧮 Design Polish: animation interval math sanity check.
+- 🔍 Lessons: cross-file grep after catching a pattern; `Navigator.push` of a tab screen is a code smell.
+
+**Branch sync recovery:**
+Discovered the local `claude/dev` had 50 unpushed commits (Apr 21-23) with NO common ancestor with `origin/claude/dev`. The local stream was orphaned by a force-push that happened in another session. Resolution: `git tag local-dev-apr21-23` + pushed as branch `claude/dev-archive-apr21-23` for safekeeping, then `reset --hard origin/claude/dev` and cherry-picked the CLAUDE.md fix on top. Catalog content was already in origin (different history, same end-state).
+
+### Previous Session (April 29, 2026) — Apr-29 Review Cycle
+
+**Cross-Cutting Widgets reviewed (5 files):**
+- `notebook_background.dart`, `post_auth_navigation.dart`, `quick_login_bottom_sheet.dart`, `loading_overlay.dart`, `social_login_button.dart`, `legal_content_dialog.dart`, `dev_banner.dart` — all logged in REVIEW_BACKLOG.md as reference quality with full decisions captured.
+
+**Auth screens (Login + Register) reviewed:**
+- `login_screen.dart` (818 lines) and `register_screen.dart` (885 lines) — full 12-category review with snackbar dedup, token alignment, inclusive copy ("קניות משפחתיות" → "ניהול הקניות"), `fillColor` alignment between login and register.
+- `loading_overlay.dart`, `social_login_button.dart` (now wraps `AnimatedButton`), and `post_auth_navigation.dart` (the new pending-invites guard).
+
+**Misc:**
+- `index_screen.dart` (state machine), `index_view.dart` (loading/error views), `main_navigation_screen.dart`, `app_layout.dart`, `app_theme.dart`, `main.dart`, `pantry_merge_dialog.dart`, `welcome_screen.dart` — all reviewed with decisions logged.
+- `kOpacitySoft` (0.15) constant introduced + 36 call sites swept across 17 files.
+- `SectionHeader` redesigned to highlighter style (color only behind text, not full-width container), and `kHighlightOpacity` (0.3) constant added — distinct intent from `kOpacityLight` despite the same numeric value.
+- `last_chance_banner.dart` relocated from `home/dashboard/widgets/` to `shopping/active/widgets/` to match its actual usage.
+- 3 docs added to `docs/`: `REVIEW_BACKLOG.md` is now the cross-session memory of decisions and deferred items per screen.
+- CLAUDE.md restructured: 12-category File Review Checklist, Response Style, Lessons Learned (consolidated and de-duped on Apr 30).
+
+### April 27, 2026 — Multi-agent Sweep + Pantry Edit-Dialog UX
 
 **15 parallel agents** swept every directory under lib/ (core, l10n, models,
 providers, repositories, services, screens, widgets, theme, layout) plus
@@ -219,16 +270,15 @@ catalog audit + post-merge polish.
 - March 24, 2026: Code review session 3 — 4 security fixes, 5 logic bugs, ~50 design system fixes
 
 ### Next Priorities
-1. **Fix `firestore.rules` privilege-escalation holes** (see Known Issues #11
-   below — found in session 7, not yet patched)
-2. **Phase 3** of pantry catalog dialog — add "אחרונים" tab + "+" new-product
-   button + barcode-not-found flow
-3. **Enable Google Sign-In** in Firebase Console (user action)
-4. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes`
-5. **Deploy Cloud Functions**: `firebase deploy --only functions` (Blaze)
-6. **Implement pantry merge logic** (dialog result ignored — `pending_invites_screen.dart:164`)
-7. **Verify W1** (`use_build_context_synchronously` in settings_screen) —
-   analyzer run pending
+1. **Continue Settings folder review** — `settings_screen.dart` Round 3 covers `_NotificationToggle` + `_ThemeCard` (lines 1483-end, ~100 lines).
+2. **Verify `firestore.rules`** — current file is v4.5 (audit fixes from Apr-27 deployed), but the in-app docs still flag the spam vector on `users/X/notifications/*`. Re-audit before public release.
+3. **Implement pantry merge logic** — dialog result still ignored at `pending_invites_screen.dart:164` (TODO from Apr-27).
+4. **`shopping_history_screen` review** — would unblock the deferred `_iconForType` extraction (`household_activity_feed` and the screen each have their own copy) and the receipt-tile tab-nav fix (intent-passing mechanism, same family as `MyPantryScreen.pendingStockFilter`).
+5. **Login-screen Q2 follow-up** — Google/Apple users don't realize the next sign-in will be silent after a Settings-driven logout. Logged in REVIEW_BACKLOG.md under `settings_screen` UX deferred.
+6. **Phase 3 of pantry catalog dialog** — "אחרונים" tab + "+" new-product button + barcode-not-found flow (carry-over from Apr-27).
+7. **Enable Google Sign-In** in Firebase Console (user action; not code).
+8. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes` (carry-over).
+9. **Deploy Cloud Functions**: `firebase deploy --only functions` (requires Blaze plan; carry-over).
 
 ### Currently Blocking
 - Google/Apple Sign-In requires Firebase Console configuration (not code)
@@ -340,7 +390,7 @@ The following must NOT be changed without **explicit user confirmation**:
 
 | Item | Reason |
 |------|--------|
-| `firestore.rules` | Security rules v4.4 — affects all data access. ⚠️ Session-7 audit found 3 critical holes (see Known Issue #11). Touch only with explicit task to fix the audit findings. |
+| `firestore.rules` | Security rules v4.5 (Apr-27 audit fixes deployed). Affects all data access. Touch only with an explicit task; re-audit before public release. |
 | `firebase_options.dart` | Generated by FlutterFire CLI — auto-generated |
 | `pubspec.yaml` dependency versions | May break builds — upgrade only when asked |
 | `android/app/google-services.json` | Firebase config — user manages manually |

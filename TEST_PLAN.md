@@ -1,8 +1,8 @@
 # 📋 TEST_PLAN.md — MemoZap Testing Strategy
 
-## 📊 מצב נוכחי (עדכון 9/4/2026)
-- **396 unit tests** ב-15 קבצים ✅ (כולם עוברים)
-- **22 demo users** with edge case coverage ✅
+## 📊 מצב נוכחי (עדכון 30/4/2026)
+- **413 unit tests** ב-15 קבצים ✅ (כולם עוברים)
+- **22 demo users** with edge case coverage (כולל Google/Apple sign-in, English locale, special chars) ✅
 - **0 widget tests** — post-launch
 - **0 integration tests** — post-launch
 
@@ -26,7 +26,9 @@
 | MainNavigation (screen logic) | `main_navigation_screen_test.dart` | ✅ |
 | Large List Performance | `large_list_test.dart` | ✅ |
 
-### ✅ Demo Users — Edge Cases (16 users)
+### ✅ Demo Users — Edge Cases (22 users)
+מקור הסקריפט: `scripts/rebuild_demo_data.js` (15 בתים, ~57 רשימות, ~110 פריטי מזווה, ~76 קבלות, ~51 events).
+
 | משתמש | תרחיש |
 |--------|--------|
 | אבי כהן | Owner, התראות, הזמנה נכנסת |
@@ -45,6 +47,7 @@
 | apple_user | Apple Sign-In, no phone, no display name |
 | Mike Johnson | English locale, international phone (+972) |
 | ג'ורג' חביב | Hebrew name with geresh character |
+| (6 נוספים) | Roommates, elderly user, removed-user states, long names — ראה הסקריפט |
 
 ### Post-launch
 | Area | Priority |
@@ -56,13 +59,13 @@
 ## 📈 KPIs
 | Metric | Current | Target (post-launch) |
 |--------|---------|--------|
-| Unit tests (passing) | 396 | 400+ |
+| Unit tests (passing) | 413 | 420+ |
 | Unit tests (failing) | 0 | 0 |
 | Test files | 15 | 25+ |
 | Widget tests | 0 | 30+ |
-| Demo users | 16 | 16 |
+| Demo users | 22 | 22 |
 | Analyze errors | 0 | 0 |
 | Analyze warnings | 2 (W1) | 0 |
 
 ---
-*Updated: 2026-04-09*
+*Updated: 2026-04-30*

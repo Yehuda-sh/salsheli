@@ -10,7 +10,7 @@
 
 ## About
 
-MemoZap is a smart family shopping list manager designed for Israeli households. It features real-time collaboration, a digital pantry with low-stock alerts, and a unique **Notebook + Sticky Notes** design language.
+MemoZap is a smart shopping list manager for any group that shares groceries — families, couples, roommates, partners, or solo users. It features real-time collaboration, a digital pantry with low-stock alerts, and a unique **Notebook + Sticky Notes** design language.
 
 ### Key Features
 
@@ -62,11 +62,14 @@ For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
 
 | Doc | Purpose |
 |-----|---------|
-| [CLAUDE.md](CLAUDE.md) | Project guardrails, design tokens, conventions |
+| [CLAUDE.md](CLAUDE.md) | File-review checklist, design tokens, response style, lessons learned |
+| [AGENTS.md](AGENTS.md) | Operational guide for Claude instances — current state, known issues, architecture |
 | [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) | Per-screen review memory — Decisions Made + Deferred |
-| [TEST_PLAN.md](TEST_PLAN.md) | Unit / widget / integration test plan |
-| [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-step refactor roadmap |
+| [TEST_PLAN.md](TEST_PLAN.md) | Unit / widget / integration test plan + KPIs |
+| [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-phase refactor roadmap (status per phase) |
 | [docs/spec-home-screen.md](docs/spec-home-screen.md) | Home dashboard spec (with Activity Feed) |
+| [docs/store-listing.md](docs/store-listing.md) | App store listing copy |
+| [scripts/README.md](scripts/README.md) | Demo data + catalog maintenance scripts |
 
 ---
 

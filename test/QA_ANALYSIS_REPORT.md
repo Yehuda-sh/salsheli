@@ -1,26 +1,33 @@
 # MemoZap — QA Analysis Report
 
-**Date:** March 9, 2026 (Updated)  
-**Project:** MemoZap — Family Shopping List Manager  
-**Version:** 1.0.0  
-**Analyst:** ראפטור 🦖
+**Original Date:** March 9, 2026
+**Last Refresh:** April 30, 2026
+**Project:** MemoZap — Smart Household Shopping List Manager
+**Version:** 1.0.0 (pre-beta)
+
+> **⚠️ Historical context:** This report was originally written in March 2026 and reflects the state at that time. For the current per-screen review state (Apr 27-30 cycle), see [`docs/REVIEW_BACKLOG.md`](../docs/REVIEW_BACKLOG.md). For session history, see [`AGENTS.md`](../AGENTS.md). The sections below have been refreshed to reflect what's still relevant.
 
 ---
 
-## Executive Summary
+## Executive Summary (Apr 30, 2026)
 
-MemoZap is a well-structured Flutter app with a unified **Notebook + Sticky Notes** design system, clean architecture (Repository → Provider → UI), and comprehensive Firestore security rules. Recent refactoring eliminated all hardcoded colors, unified typography and border radius, and removed ~8,000 lines of dead code.
+MemoZap is a Flutter app with a unified **Notebook + Sticky Notes** design system, clean architecture (Repository → Provider → UI), and Firestore security rules at v4.5. Most of the original March-9 issues have been resolved; what remains is on the per-screen review backlog and the items below.
 
-**dart analyze:** 0 errors, 0 warnings (825 info-level hints)
+**Tests:** 413 unit tests across 15 files, all passing.
+**Catalog:** ~116,000 products, ~78% categorized, 6 list types.
+**Demo data:** 22 users covering Google/Apple sign-in, English locale, special chars.
+**Reviewed end-to-end:** Cross-cutting widgets, Auth, Bootstrap chain, Home Dashboard (7 child widgets), Welcome, Settings folder partial.
 
 ---
 
 ## 1. Test Coverage
 
-### Current State
-- **Test Files:** 10
-- **Test Count:** ~100
-- **Coverage:** Low — models and 1 service only
+### Current State (Apr 30, 2026)
+- **Test Files:** 15
+- **Test Count:** 413
+- **Coverage:** Models + providers + services + screen logic + performance
+
+> Original report: 10 files, ~100 tests. The gap closed during March-April 2026.
 
 ### Existing Tests
 | File | Area | Tests |
@@ -123,12 +130,12 @@ MemoZap is a well-structured Flutter app with a unified **Notebook + Sticky Note
 
 | Area | Status |
 |------|--------|
-| Firestore Rules | ✅ v4.1 — schema validation, audit trail |
+| Firestore Rules | ✅ v4.5 — Apr-27 audit closed 3 privilege-escalation holes |
 | Role-based Access | ✅ Owner/Admin/Editor/Viewer |
-| Input Sanitization | ✅ Household names |
+| Input Sanitization | ✅ Household names (trim, max 40, strip HTML) |
 | Anti-spam | ✅ Notification type enum, 500 char limit |
-| Rate Limiting (server) | ⚠️ Needs Cloud Functions |
-| Rate Limiting (client) | ⚠️ kDoubleTapTimeout exists, not applied everywhere |
+| Rate Limiting (server) | ⚠️ Needs Cloud Functions (Blaze plan required) |
+| Rate Limiting (client) | ⚠️ kDoubleTapTimeout exists, applied selectively |
 
 ---
 
@@ -161,4 +168,5 @@ MemoZap is a well-structured Flutter app with a unified **Notebook + Sticky Note
 
 ---
 
-*🦖 ראפטור — QA Report | Updated March 8, 2026*
+*🦖 Original QA Report (Mar 8, 2026) — refreshed Apr 30, 2026*
+*For current state, see [`AGENTS.md`](../AGENTS.md) and [`docs/REVIEW_BACKLOG.md`](../docs/REVIEW_BACKLOG.md).*

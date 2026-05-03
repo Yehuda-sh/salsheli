@@ -1,7 +1,7 @@
 # 📋 תוכנית מלאה — MemoZap: מקוד לחנות
 
 > נוצר: 8 מרץ 2026
-> עודכן: 22 אפריל 2026
+> עודכן: 30 אפריל 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
 
 ---
@@ -97,9 +97,9 @@
 - [x] Package name: `com.memozap.app`
 - [x] Firebase config + SHA keys
 - [x] Privacy policy + Terms (Hebrew)
-- [x] Demo data — **16 users** in production Firebase (all edge cases)
+- [x] Demo data — **22 users** in production Firebase (all edge cases)
 - [x] Store listing draft
-- [x] Firestore security rules v4.4 — security fixes deployed
+- [x] Firestore security rules v4.5 — privilege-escalation holes patched (Apr-27 audit)
 
 ### נשאר
 - [ ] 🔑 Release keystore (needs Windows — יהודה)
@@ -176,6 +176,25 @@
 
 ---
 
+# 📍 Phase 6.8 — Screen-by-screen Review (Apr 27-30, 2026) ✅
+> Continuous quality cycle — every file goes through a 12-category checklist (CLAUDE.md).
+
+**What's been reviewed end-to-end:**
+- **Cross-cutting widgets**: notebook_background, post_auth_navigation, quick_login_bottom_sheet, loading_overlay, social_login_button, legal_content_dialog, dev_banner.
+- **Auth screens**: login_screen + register_screen + the new social_auth flow.
+- **Bootstrap chain**: main.dart, index_screen, index_view, main_navigation_screen, app_layout, app_theme.
+- **Home Dashboard (all 7 child widgets)**: pending_invites_banner, action_center_card, last_chance_banner, active_shopper_banner, onboarding_tips_card, household_activity_feed, suggestions_today_card.
+- **Welcome screen** + **pantry_merge_dialog** (deferred merge logic still TODO).
+- **Settings folder (Apr 30)**: edit_household_name_dialog, household_members_screen, manage_users_screen, settings_screen rounds 1-2 (round 3 = `_NotificationToggle`/`_ThemeCard` pending).
+
+**Cross-cutting wins from this cycle:**
+- New `kOpacitySoft` constant + 36 call-site sweep across 17 files.
+- `SectionHeader` redesigned to highlighter style + `kHighlightOpacity` constant added.
+- `last_chance_banner` relocated to its actual usage screen (`shopping/active/widgets/`).
+- 9 user-perspective UX improvements applied across 4 settings screens (logout reassurance copy, delete-account shared-list impact, snackbar action button, edit-household-name subtitle, removeMemberConfirm explanation, role-toggle subtitles, role filter chips, viewer-only banner, 30s timeout on destructive awaits).
+- Animation interval bug fixed in `settings_screen` — last sections were clamping to 1.0 with only 0.04s of animation; corrected math + section count.
+- `docs/REVIEW_BACKLOG.md` is the cross-session memory of decisions and deferred items per screen.
+
 # 📍 Phase 6.7 — UX Polish + A11y Sweep ✅
 > הושלם 22 אפריל 2026 (סשן 6)
 
@@ -201,9 +220,9 @@
 ---
 
 # 📍 Phase 8 — בדיקות ✅
-> הושלם 15 מרץ 2026
+> הושלם 15 מרץ 2026, מתעדכן בכל סשן
 
-- [x] **396 unit tests passing** — models, services, providers, performance
+- [x] **413 unit tests passing** — models, services, providers, performance
 - [x] Hand-written mocks (no mockito)
 - [x] **22 demo users** covering all edge cases (including Google/Apple/English/special chars)
 - [ ] Widget tests (0) — post-launch
@@ -257,7 +276,7 @@
 - **`@JsonKey(defaultValue: '')` over nullable** — non-nullable models
 - **Hand-written mocks** — mockito removed from dev_dependencies
 - **supermarket.json cleaned** — 7,250 items, 29 categories, no duplicates
-- **Firestore rules v4.4** — security fixes deployed
+- **Firestore rules v4.5** — Apr-27 audit fixes deployed (closed 3 privilege-escalation holes)
 - **Single-class large files deferred** — post-launch
 - **FCM push not required for launch** — in-app notifications work
 - **16 demo users** — including Google/Apple sign-in, English user, special chars

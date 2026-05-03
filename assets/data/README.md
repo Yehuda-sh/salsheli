@@ -10,12 +10,12 @@
 assets/
 ├── data/
 │   ├── list_types/          קבצי מוצרים לפי סוג רשימה
-│   │   ├── supermarket.json   (23,362 מוצרים, 7.5MB)
-│   │   ├── pharmacy.json      (1,059 מוצרים)
+│   │   ├── supermarket.json   (~112,000 מוצרים, 24MB — מנופה ומסווג)
+│   │   ├── pharmacy.json      (1,026 מוצרים)
 │   │   ├── market.json        (996 מוצרים)
-│   │   ├── butcher.json       (835 מוצרים)
+│   │   ├── butcher.json       (834 מוצרים)
 │   │   ├── greengrocer.json   (592 מוצרים)
-│   │   └── bakery.json        (477 מוצרים)
+│   │   └── bakery.json        (472 מוצרים)
 │   ├── IMAGE_URLS.md        רשימת קישורי תמונות (Unsplash/Pexels)
 │   └── README.md            תיעוד זה
 │
@@ -96,27 +96,34 @@ assets/
 
 ## סטטיסטיקה
 
-| קובץ | מוצרים |
-|------|--------|
-| supermarket.json | 23,362 |
-| pharmacy.json | 1,059 |
-| market.json | 996 |
-| butcher.json | 835 |
-| greengrocer.json | 592 |
-| bakery.json | 477 |
-| **סה"כ** | **27,321** |
+| קובץ | מוצרים | קטגוריות |
+|------|--------|----------|
+| supermarket.json | ~112,000 | 27 (מנופה ומסווג, ~22% עדיין "כללי" — fallback) |
+| pharmacy.json | 1,026 | 12 |
+| market.json | 996 | 5 |
+| butcher.json | 834 | 8 (כולל "נקניקים ובשרים מעובדים" אחרי אודיט Apr-27) |
+| greengrocer.json | 592 | 4 |
+| bakery.json | 472 | 6 (לחמים, עוגות, מאפים מזרחיים, מאפים מתוקים, מלוחים, fallback) |
+| **סה"כ** | **~116,000** | |
+
+> הקטלוג מתעדכן אוטומטית מ-API של רשתות הסופר הישראליות (`scripts/fetch_new_products.py`) דרך GitHub Action `fetch-new-products.yml`. שינויים ידניים (סיווג, ניקוי) — דרך הסקריפטים ב-`scripts/`.
 
 ---
 
 ## עדכון מוצרים
 
 ```bash
-dart run scripts/update_products.dart
+# אוטומטי (CI / GitHub Actions)
+.github/workflows/fetch-new-products.yml   # workflow_dispatch — Run from browser
+
+# ידני (Python)
+python scripts/fetch_new_products.py --merge --yes
 ```
 
-הסקריפט מעדכן מחירים ומוסיף מוצרים חדשים מ-Shufersal (קבצי XML.gz פומביים).
-מזהה מוצרים לפי barcode ויוצר גיבוי אוטומטי לפני שינויים.
+הסקריפט משווה מוצרים חדשים מול הקטלוג הקיים, מסיר כפילויות לפי `barcode`, ויוצר גיבוי ב-`scripts/backups/` לפני שינויים. מזהה מוצרים לפי `barcode` (מפתח ייחודי).
+
+ראה [`scripts/README.md`](../../scripts/README.md) לפירוט מלא.
 
 ---
 
-**תאריך עדכון:** 29.03.2026
+**תאריך עדכון:** 30.04.2026
