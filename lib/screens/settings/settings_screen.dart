@@ -1537,7 +1537,7 @@ class _NotificationToggle extends StatelessWidget {
         onChanged(val);
       },
       activeThumbColor: cs.primary,
-      activeTrackColor: cs.primary.withValues(alpha: 0.3),
+      activeTrackColor: cs.primary.withValues(alpha: kOpacityLight),
       dense: true,
       contentPadding: EdgeInsets.zero,
     );
@@ -1578,11 +1578,15 @@ class _ThemeCard extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus, horizontal: kSpacingSmall),
           decoration: BoxDecoration(
-            color: isSelected ? cs.primary.withValues(alpha: 0.12) : cs.surfaceContainerHighest.withValues(alpha: 0.5),
+            color: isSelected
+                ? cs.primary.withValues(alpha: kOpacitySubtle)
+                : cs.surfaceContainerHighest.withValues(alpha: kOpacityMedium),
             borderRadius: BorderRadius.circular(kBorderRadius),
             border: Border.all(
-              color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.2),
-              width: isSelected ? 2 : 1,
+              color: isSelected ? cs.primary : cs.outline.withValues(alpha: kOpacityLow),
+              // Selected state uses kBorderWidthFocused (2px) for emphasis;
+              // unselected uses 1 (Material default).
+              width: isSelected ? kBorderWidthFocused : 1.0,
             ),
           ),
           child: Column(

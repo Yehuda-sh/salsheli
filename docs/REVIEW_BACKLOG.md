@@ -600,7 +600,7 @@
 
 **🎯 Pattern**: דוגמה ל-list management UI עם role-based UX (owner sees menu, viewer sees label only), inline error/empty/loading states עם retry, ו-defense-in-depth permission checks.
 
-### 🎯 `settings_screen.dart` — Decisions (Round 1: lines 1-482)
+### 🎯 `settings_screen.dart` — Decisions (Rounds 1-3 complete, 30/4/2026)
 
 **Round 1 (30/4/2026) — Logic + Actions + Delete dialog:**
 - **🚨 Removed hardcoded `textDirection: TextDirection.rtl`** (delete account confirm field, line 391). אותו pattern של `manage_users_screen` ו-`edit_household_name_dialog`.
@@ -622,8 +622,27 @@
 
 **⏸️ Deferred — Q2: Login screen Google-hint after Settings logout** — משתמשי Google לא יודעים שההתחברות הבאה תהיה silent. דורש שינוי ב-`login_screen` (כבר reviewed Apr-29). **Trigger:** סקירה עתידית של `login_screen` או החלטה על account-switching feature. **היקף:** קטן-בינוני.
 
-**⏸️ Deferred (Round 1):**
+**Round 2 (30/4/2026) — Profile bottom sheet + 5 sections + main scaffold:**
+- **🐛 Animation interval bug fixed**: היה `_sectionCount = 9` עם stagger 0.12 + duration 0.4 = 1.36 → סקציה 8 קלמפ ל-1.0 עם רק 0.04 שניות אנימציה (חוקי לפי הכלל החדש שהוספתי ל-CLAUDE.md). תוקן ל-8 sections × 0.08 + 0.3 = 0.86 ≤ 1.0. כל הסקציות מקבלות אנימציה מלאה.
+- **🐛 `_sectionCount` off-by-one**: היו 9 controllers אבל רק 8 indices השתמשו (delete-account היה ב-`_sectionCount-1` = 8, ו-7 לא היה בשימוש). הורד ל-8.
+- **🚨 Hardcoded RTL on display name field** (Profile bottom sheet) הוסר.
+- **🚨 Hardcoded English snackbar** "v$version copied" → `AppStrings.settings.versionCopied(version)` (he+en).
+- **Camera badge RTL fix** במסך ההגדרות הראשי: `Positioned(right: 0)` → `PositionedDirectional.end`. תאם ל-profile sheet שכבר השתמש ב-`PositionedDirectional`.
+- **Snackbar dedup helper** מורחב ל-6 callers נוספים (profile bottom sheet ×5 + version copy).
+- **Profile save haptic**: `lightImpact` אחרי הצלחה.
+- **`_kCardBgAlpha = 0.85`/`_kCardBorderAlpha = 0.2`** קבועים ראש קובץ — 6 ה-section cards.
+- **Composition-via-add fixes**: `kIconSizeXLarge + kSpacingXLarge` (80) → `_kProfileAvatarSize`. `kSpacingXLarge + kSpacingSmall` (40) → `_kHandleBarWidth`. magic `30` → `_kDisplayNameMaxLength`. **לפי הכלל החדש ב-CLAUDE.md** שאוסר חיבור קבועים.
+- **Handle bar wrapped in `ExcludeSemantics`** (decorative drag affordance). Alpha 0.3 → `kOpacityLight`. Border width 2 → `kBorderWidthFocused`.
+- **🌍 Comment**: "ניהול משפחה" → "ניהול בית".
+
+**Round 3 (30/4/2026) — `_NotificationToggle` + `_ThemeCard` (~110 שורות):**
+- **`_NotificationToggle`**: `activeTrackColor` alpha 0.3 → `kOpacityLight`. הקובץ עצמו תקין — SwitchListTile a11y מובנה, haptic מובדל (lightImpact ל-on, selectionClick ל-off).
+- **`_ThemeCard`**: 3 magic alphas → `kOpacitySubtle` (0.12, selected bg) + `kOpacityMedium` (0.5, unselected bg) + `kOpacityLow` (0.2, unselected border). Border width 2 → `kBorderWidthFocused` (selected). 1 → literal עם הערה (Material default). AnimatedScale + AnimatedContainer premium feel ✅. Semantics(button + label + selected) ✅.
+
+**⏸️ Deferred (Rounds 1-3):**
 - **🔗 Direct `cloud_firestore` imports + reads ב-`_loadSettings`** (lines 113-128): המסך קורא ישירות ל-`households/{id}/members/{userId}` ו-`households/{id}`. צריך לחלץ ל-`HouseholdService.getCurrentUserRole(householdId, userId)` או דומה. **Trigger:** סקירת `household_service.dart`. **היקף:** קטן-בינוני (service method + screen replacement).
+- **Inline TextStyle ×6+ ב-`_NotificationToggle`, `_ThemeCard`, ב-dialogs ובהדר**: כל המקומות נכללים ב-typography sweep הגלובלי.
+- **`elevation: 2` ב-debug delete card** — visual decision, נשאר.
 - **Loading dialog משוכפל ×3** (logout, debug delete, delete account): כמעט-זהה Card+spinner+text. ניתן להמיר ל-helper `_showLoadingDialog(message)` או widget `_LoadingDialogContent`. **Trigger:** decision על dialogs refactor. **היקף:** קטן.
 - **Inline TextStyle ×6+ ב-dialogs**: שורות 179, 261, 273, 357, 375, 381, 449. נכלל ב-typography sweep הגלובלי.
 - **Raw `showDialog` ×3** (logout, debug, delete account): שאר האפליקציה עברה ל-`AppDialog.show`. אותו pattern שתועד ב-`edit_household_name_dialog`.
