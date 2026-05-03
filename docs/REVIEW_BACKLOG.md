@@ -673,16 +673,23 @@
 - **`barcode: ""` → `barcode: null`** — 114 butcher items + 59 bakery items normalized for consistency. Now: 0 empty-string barcodes anywhere; either real barcode or `null`.
 - **`price: 0` → `price: null`** — 181 supermarket items + 18 bakery items. The app's pricing UI needs to treat `0` and `null` as "unknown"; `null` is the cleaner representation.
 
+**✅ Phase 5+6 — Schema repair + extended cleanup:**
+- **3 corrupted barcodes fixed**: `'800050024715.0'` (Excel `.0` artifact) → stripped, `'7290016299359.'` (trailing dot) → stripped, `'-869063785873'` (leading minus) → stripped. After fix, the cleaned barcodes were validated as digit-only ≥6 chars; remaining 3 still-invalid barcodes set to `null`.
+- **204 + 8 names ending with weird punctuation** (`-`, `,`, `/`, `\`, `:`, `;`, mixed) — first pass caught contiguous trailing punct; second pass extended to interleaved patterns like `" - - - "` and `"//////"` (e.g., `'איקרה לבנה - -'` → `'איקרה לבנה'`, `'שניצל תירס//////'` → `'שניצל תירס'`).
+- **145 brand values nulled** in supermarket — included literal `','`, single non-letter chars, `'null'`/`'undefined'`/`'-'` strings.
+- **264 unit values nulled** — values like `'0'`, `'1'`, `'0   0'`, `'100 0'` (no letters at all = not a real unit name).
+- **311 same-name+category+price triplets in supermarket + 1 in butcher** deduped — kept the row with the most complete metadata + longest name per group.
+
 **📊 Final state:**
 | File | Items | Duplicates | Null barcodes | Null prices |
 |------|------:|-----------:|--------------:|------------:|
-| supermarket | 111,031 | 0 | 0 | 181 |
+| supermarket | 110,720 | 0 | 3 | 181 |
 | pharmacy    |   1,026 | 0 | 0 | 0   |
 | market      |     994 | 0 | 0 | 0   |
-| butcher     |     834 | 0 | 114 | 0 |
+| butcher     |     833 | 0 | 114 | 0 |
 | greengrocer |     592 | 0 | 113 | 0 |
 | bakery      |     472 | 0 | 77  | 18 |
-| **Total**   | **114,949** | **0** | | |
+| **Total**   | **114,637** | **0** | | |
 
 **✅ Phase 4 — Deeper text cleanup:**
 - **36 supermarket items** had RLE/RLM bidi formatting marks (invisible Unicode chars `‪‫`) that broke rendering — stripped.

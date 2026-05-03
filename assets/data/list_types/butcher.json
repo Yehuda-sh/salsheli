@@ -1553,7 +1553,7 @@
     "defaultQty": 1
   },
   {
-    "name": "סטייק אנטריקוט טרי יבוא מוכשר צרפתי /",
+    "name": "סטייק אנטריקוט טרי יבוא מוכשר צרפתי",
     "category": "בקר",
     "price": 189.0,
     "barcode": "2129769",
@@ -1793,7 +1793,7 @@
     "defaultQty": 1
   },
   {
-    "name": "צלי כתף טרי יבוא מוכשר צרפתי / פולני /",
+    "name": "צלי כתף טרי יבוא מוכשר צרפתי / פולני",
     "category": "בקר",
     "price": 99.0,
     "barcode": "2129806",
@@ -8092,18 +8092,6 @@
     "barcode": "2206033",
     "brand": null,
     "unit": "קילוגרם",
-    "size": null,
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "שוקיים עוף טרי ארוז",
-    "category": "עוף",
-    "price": 35.9,
-    "barcode": "7290000877339",
-    "brand": null,
-    "unit": "קילוגרמים",
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
