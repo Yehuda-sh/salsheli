@@ -918,6 +918,10 @@ async function main() {
   console.log('\n🧾 Creating receipts...');
   const storeNames = ['שופרסל דיל ירושלים', 'רמי לוי שורש', 'יוחננוף נוה יעקב', 'AM:PM בן יהודה', 'מחסני השוק תלפיות'];
 
+  // linkedListId is attached only to the MOST RECENT receipt (w=1) so that
+  // the activity feed's shopping_completed event has exactly one matching
+  // receipt to open. Older receipts remain unlinked — they're earlier
+  // shopping trips, not the recent completion.
   async function createReceipts(hId, shopperUids, count, storePool, linkedListId) {
     const writes = [];
     for (let w = 1; w <= count; w++) {
@@ -938,7 +942,7 @@ async function main() {
         total_amount: Math.round(totalAmount * 100) / 100,
         is_virtual: true,
         created_by: shopperUid,
-        linked_shopping_list_id: linkedListId || null,
+        linked_shopping_list_id: w === 1 ? (linkedListId || null) : null,
       }));
     }
     await Promise.all(writes);
@@ -947,17 +951,24 @@ async function main() {
   await createReceipts(hIds.cohen, [uids.avi, uids.ronit, uids.ronit, uids.avi, uids.yuval], 20, storeNames.slice(0, 3), 'list_cohen_lastweek');
   console.log('   🧾 כהן: 20 receipts');
 
-  await createReceipts(hIds.levi, [uids.dan, uids.maya], 12, ['רמי לוי שורש', 'שופרסל']);
-  console.log('   🧾 לוי: 12 receipts');
+  // Link Levi's first receipt to list_levi_weekly so the activity feed's
+  // shopping_completed event has a tappable receipt to open.
+  await createReceipts(hIds.levi, [uids.dan, uids.maya], 12, ['רמי לוי שורש', 'שופרסל'], 'list_levi_weekly');
+  console.log('   🧾 לוי: 12 receipts (linked to list_levi_weekly)');
 
-  await createReceipts(hIds.tomer, [uids.tomer], 8, ['AM:PM בן יהודה', 'שופרסל דיל']);
-  console.log('   🧾 תומר: 8 receipts');
+  await createReceipts(hIds.tomer, [uids.tomer], 8, ['AM:PM בן יהודה', 'שופרסל דיל'], 'list_tomer_pharm');
+  console.log('   🧾 תומר: 8 receipts (linked to list_tomer_pharm)');
 
-  await createReceipts(hIds.naama, [uids.naama], 25, storeNames);
+  await createReceipts(hIds.naama, [uids.naama], 25, storeNames, 'list_naama_big');
   console.log('   🧾 נעמה: 25 receipts');
 
-  await createReceipts(hIds.mike, [uids.mike], 5, ['Rami Levy Shoresh', 'Shufersal Deal']);
-  console.log('   🧾 Mike: 5 receipts (English store names)');
+  await createReceipts(hIds.mike, [uids.mike], 5, ['Rami Levy Shoresh', 'Shufersal Deal'], 'list_mike_weekly');
+  console.log('   🧾 Mike: 5 receipts (English store names, linked to list_mike_weekly)');
+
+  // Shiran's "הכל נקנה" list has a shopping_completed event — give her one
+  // matching receipt so the activity feed's tap-to-open works.
+  await createReceipts(hIds.shiran, [uids.shiran], 1, ['שופרסל'], 'list_shiran_done');
+  console.log('   🧾 שירן: 1 receipt (linked to list_shiran_done)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 6b. ACTIVITY LOG — under households/{hId}/activity_log
@@ -1401,8 +1412,8 @@ async function main() {
     created_date: ts(daysAgo(3)), updated_date: ts(daysAgo(1)),
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
-      makeProductItem({ name: 'Sunscreen SPF 50', category: 'היגיינה ויופי', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
-      makeProductItem({ name: 'Vitamin D3 1000IU', category: 'היגיינה ויופי', price: 35 }, 1, { id: 'item_mike_ph2' }),
+      makeProductItem({ name: 'Sunscreen SPF 50', category: 'היגיינה אישית', price: 49.9 }, 0, { id: 'item_mike_ph1' }),
+      makeProductItem({ name: 'Vitamin D3 1000IU', category: 'תוספי תזונה', price: 35 }, 1, { id: 'item_mike_ph2' }),
       makeTaskItem('item_mike_ph3', 'Ask about allergy medicine', { priority: 'medium' }),
     ],
   });
@@ -1421,7 +1432,7 @@ async function main() {
       // Item with very long name (overflow test)
       makeProductItem({ name: 'שמנת מתוקה תנובה 38% שומן למטבח - מארז חיסכון משפחתי 3 יחידות במחיר מיוחד', category: 'מוצרי חלב', price: 15.9 }, 10, { id: 'item_geo_long' }),
       // Item with price 0 (free/unknown price)
-      makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'היגיינה ויופי', price: 0 }, 11, { id: 'item_geo_free' }),
+      makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'היגיינה אישית', price: 0 }, 11, { id: 'item_geo_free' }),
     ],
   });
   console.log("   🔤 George: קניות של ג'ורג' (special chars + long item name + free item)");
@@ -1737,7 +1748,7 @@ async function main() {
   console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households (all with is_solo field)`);
   console.log(`📋 ~62 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
   console.log(`📦 ~116 inventory items`);
-  console.log(`🧾 76 receipts`);
+  console.log(`🧾 77 receipts`);
   console.log(`📝 51 activity log events incl. list_shared / list_deleted / member_joined`);
   console.log(`🔔 45 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
