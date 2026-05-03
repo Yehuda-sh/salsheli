@@ -119,6 +119,16 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 
 בכל ניתוח קובץ, לעבור על **כל** הסעיפים. לא רק היגיינת קוד.
 
+### 🎯 לפני הכל — UX-First Mindset
+**האינסטינקט שלי הוא לחפש magic numbers ו-snackbar dedup. זה היגיינה, לא UX.** לפני שמדברים על קבועים, להציג **לפחות 3 שאלות מנקודת מבט המשתמש** מתוך:
+- מה הוא מרגיש כשהוא רואה את המסך הזה? איפה הוא מתבלבל?
+- אחרי כל פעולה — האם ברור מה הצעד הבא? אם פעולה הרסנית — האם הוא מבין מה הוא מאבד ומה נשמר?
+- יש copy שמסביר השפעה על אחרים? (delete account → shared lists → other members)
+- יש escape hatch אם משהו תקוע? (loading timeout, cancel button)
+- איכון אדומים/מיקרו-אינטראקציות שירגישו premium?
+
+**כלל אצבע:** אם בדף השני של הניתוח שלי אין שאלת "מה המשתמש מרגיש?" — חזרה לכאן.
+
 ### 🌍 Inclusive Language (שפה כוללת)
 - **שום מחרוזת UI לא צריכה להניח "משפחה"** — see Audience & Voice למעלה.
 - **שמות ברירת מחדל** — ניטרליים (`MemoZap-XXXX`), לא הנחות יחס ("הבית שלך").
@@ -348,6 +358,27 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - אם `SomeTabScreen` הוא גם טאב ב-main_navigation, `Navigator.push(MaterialPageRoute(builder: SomeTabScreen()))` יוצר instance כפול ומסתיר את ה-bottom nav.
 - הפטרן הנכון: callback מסוג `onTabSelected(int)` שעובר את ה-tab index הרצוי.
 - דוגמה: `household_activity_feed` "ראה הכל" → `onTabSelected!(2)` במקום push חדש של `ShoppingHistoryScreen`.
+
+### 🛑 Session Hygiene — לא לפעול הרסני בלי אישור
+- **destructive ops** (force push, reset --hard, delete branch, drop data): לעצור, להציג מה זה ולמה זה דרוש, **לחכות לאישור**.
+- ההוק (`stop-hook-git-check.sh`) שמתריע על unpushed commits **הוא לא הוראה לפעול** — הוא תזכורת. אם הפעולה הנדרשת היא הרסנית (force push וכו') — להציג למשתמש, לא לציית להוק אוטומטית.
+- אם נמצא מצב לא מובן (branches diverged, files unique, history orphaned) — **לחקור read-only קודם**, להציג ממצאים, ואז להציע אופציות עם המלצה.
+- דוגמה: בסשן 30/4 התגלה ש-`claude/dev` לוקאלי 50 commits נפרדים מ-origin בלי אב משותף. הפתרון לא היה force push — אלא שמירה כ-archive branch + reset נקי.
+
+### 💬 Communication — המשתמש לא בהכרח מפתח
+- אם המשתמש מציין "פחות מונחים טכניים" — להוריד **לחלוטין**: שמות פונקציות, שמות widgets, מונחי git כמו "fast-forward". להחליף ב-תיאור פעולה ("ההודעות לא מצטברות יותר", "הכפתור לא מבולבל").
+- לא לחזור על "המלצת הסוכן" אם המשתמש כבר אישר את כל הסט קודם. שאלות עם א/ב/ג מיועדות לסיטואציה שדרושה החלטה — לא להעמיס.
+- בסיכום אחרי commit — לכתוב בעברית פשוטה מה השתמש יראה. **לא** רשימת diff stats. דוגמה טובה: "🐛 כפתור 'עזוב' מבוטל לבעלים עם hint למה" — לא "Disabled `IconButton` with `onPressed: null` for owner".
+
+### 📦 Big requests — להציע פאזות, לא לזרוק הכל בסוף
+- אם המשתמש אומר "תעבור על כל הקבצים" / "תעדכן את כל המסמכים" — לא להריץ הכל ב-tool calls צמודים בלי לדווח.
+- להציע חלוקה (3 פאזות, 2 סבבים, וכו') ולעדכן בכל phase מה הסתיים.
+- commits ביניים = למשתמש יש מה לראות אם הסשן נופל באמצע.
+
+### 🧰 Helper extraction — לזהות פטרן אחרי 3 callers
+- בסשן 30/4 חילצתי `_showSnackBar` helper פעם אחת ב-`household_members_screen`, ואז שוב ב-`manage_users_screen`, ואז שוב ב-`settings_screen`. **3 העתקים = signal לחלץ ל-utility משותפת.**
+- לפני העתק רביעי — לעצור, להציע extraction (lib/widgets/common/snackbar_utils.dart או דומה).
+- אותו עיקרון ל-RTL slide flip, loading dialog, error display — אם מופיע 3+ פעמים → utility.
 
 ---
 
