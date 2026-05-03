@@ -158,24 +158,48 @@ function inventoryUnit(product) {
 }
 
 // מיקומי אחסון — חייבים להתאים ל-StorageLocations IDs באפליקציה
-// (lib/config/storage_locations.dart)
+// (lib/config/storage_locations.dart) ולקטגוריות בקטלוג בפועל
+// (assets/data/list_types/*.json).
 function locationForCategory(cat) {
   const map = {
+    // ── Refrigerator ──
     'מוצרי חלב': 'refrigerator',
     'פירות וירקות': 'refrigerator',
-    'בשר ועוף': 'freezer',
-    'דגים': 'freezer',
+    'תחליפי חלב': 'refrigerator',
+    'סלטים מוכנים': 'refrigerator',
+    // ── Freezer ──
+    'בשר ודגים': 'freezer',           // ← הקטגוריה האמיתית בקטלוג (לא 'בשר ועוף'/'דגים')
+    'קפואים': 'freezer',
+    'תחליפי בשר': 'freezer',
+    // ── Kitchen counter ──
     'לחם ומאפים': 'kitchen',
     'תבלינים ואפייה': 'kitchen',
     'שמנים ורטבים': 'kitchen',
+    'קפה ותה': 'kitchen',
+    // ── Main pantry ──
     'משקאות': 'main_pantry',
     'שימורים': 'main_pantry',
     'אורז ופסטה': 'main_pantry',
     'ממתקים וחטיפים': 'main_pantry',
-    'מוצרי ניקיון': 'service_porch',
-    'מוצרי בית': 'storage',
-    'היגיינה ויופי': 'bathroom',
+    'אגוזים וגרעינים': 'main_pantry',
+    'פירות יבשים': 'main_pantry',
+    'דגנים': 'main_pantry',
+    'קטניות ודגנים': 'main_pantry',
+    'ממרחים מתוקים': 'main_pantry',
+    'תוספי תזונה': 'main_pantry',
+    'אלכוהול': 'main_pantry',
+    // ── Bathroom ──
     'היגיינה אישית': 'bathroom',
+    'קוסמטיקה וטיפוח': 'bathroom',
+    'מוצרי תינוקות': 'bathroom',
+    // ── Service porch (laundry/cleaning) ──
+    'מוצרי ניקיון': 'service_porch',
+    // ── Storage (everything else) ──
+    'מוצרי בית': 'storage',
+    'אלקטרוניקה': 'storage',
+    'צעצועים ומתנות': 'storage',
+    'סיגריות וטבק': 'storage',
+    'מזון לחיות מחמד': 'storage',
   };
   return map[cat] || 'main_pantry';
 }
@@ -256,6 +280,8 @@ function makeWhoBringsItem(id, name, neededCount, volunteers = [], opts = {}) {
 
 /**
  * Receipt item — snake_case (matches Receipt model with FieldRename.snake)
+ * Includes barcode/brand when available so receipts and list items round-trip
+ * the same product identity through the app.
  */
 function makeReceiptItem(product, idx, shopperUid, date) {
   const qty = randomInt(1, 4);
@@ -271,6 +297,8 @@ function makeReceiptItem(product, idx, shopperUid, date) {
     category: product.category || null,
     checked_by: shopperUid,
     checked_at: ts(date),
+    ...(product.barcode ? { barcode: product.barcode } : {}),
+    ...(product.brand ? { brand: product.brand } : {}),
   };
 }
 
@@ -780,6 +808,25 @@ async function main() {
         i === 10 ? 'מארז משפחתי עדיף' :
         'לא לקנות מהמבצע'
       ) : null;
+      // Realistic expiry per category (perishable items only).
+      // First two items in each batch are tuned to surface the expired/
+      // expires-soon notification flows.
+      const SHORT_EXPIRY_CATS = ['מוצרי חלב', 'תחליפי חלב', 'סלטים מוכנים'];     // 1-3 weeks
+      const MEDIUM_EXPIRY_CATS = ['בשר ודגים', 'קפואים', 'תחליפי בשר'];           // 1-3 months
+      const BAKERY_EXPIRY_CATS = ['לחם ומאפים', 'פירות וירקות'];                  // few days
+      let expiryDate = null;
+      if (SHORT_EXPIRY_CATS.includes(p.category)) {
+        expiryDate = i === 0 ? daysAgo(2)             // expired 2 days ago
+                   : i === 1 ? daysFromNow(1)         // expires tomorrow
+                   : daysFromNow(randomInt(7, 21));   // 1-3 weeks ahead
+      } else if (BAKERY_EXPIRY_CATS.includes(p.category)) {
+        expiryDate = i === 0 ? daysAgo(1)             // expired yesterday
+                   : daysFromNow(randomInt(2, 7));    // 2-7 days ahead
+      } else if (MEDIUM_EXPIRY_CATS.includes(p.category)) {
+        expiryDate = daysFromNow(randomInt(30, 90));  // 1-3 months
+      }
+      // Other categories (pantry staples, cleaning, etc.) → no expiry tracked.
+
       return db.collection('households').doc(hId).collection('inventory').doc(`inv_${hId}_${i}`).set({
         id: `inv_${hId}_${i}`,
         product_name: p.name,
@@ -788,13 +835,7 @@ async function main() {
         quantity: qty,
         unit: inventoryUnit(p),
         min_quantity: minQty,
-        expiry_date: p.category === 'מוצרי חלב'
-          ? ts(
-              i === 0 ? daysAgo(2)         // expired 2 days ago!
-              : i === 1 ? daysFromNow(1)   // expires tomorrow
-              : daysFromNow(14)            // expires in 2 weeks
-            )
-          : null,
+        expiry_date: ts(expiryDate),
         notes: itemNotes,
         is_recurring: Math.random() > 0.3,
         barcode: p.barcode || null,
@@ -1671,11 +1712,11 @@ async function main() {
   console.log('═'.repeat(55));
   console.log(`\n👥 ${USERS.length} users`);
   console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households (all with is_solo field)`);
-  console.log(`📋 ~57 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
-  console.log(`📦 ~110 inventory items`);
-  console.log(`🧾 ~76 receipts`);
-  console.log(`📝 ~54 activity log events incl. list_shared / list_deleted / member_joined`);
-  console.log(`🔔 ~34 notifications`);
+  console.log(`📋 ~62 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
+  console.log(`📦 ~116 inventory items`);
+  console.log(`🧾 76 receipts`);
+  console.log(`📝 51 activity log events incl. list_shared / list_deleted / member_joined`);
+  console.log(`🔔 46 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');
