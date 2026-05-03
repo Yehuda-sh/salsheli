@@ -889,6 +889,7 @@ class SettingsStrings {
       'הפעולה לוקחת יותר מהצפוי. בדוק חיבור ונסה שוב.';
   String get householdNameDialogSubtitle =>
       'השם נראה לכל החברים בבית, מתעדכן מיד';
+  String versionCopied(String version) => 'הועתק: v$version';
   String get loading => 'טוען...';
   String loadError(String error) => 'Error loading settings: $error';
   String saveError(String error) => 'Error saving settings: $error';

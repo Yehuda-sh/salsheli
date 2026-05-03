@@ -873,6 +873,7 @@ class SettingsStringsEn extends SettingsStrings {
       'This is taking longer than expected. Check your connection and try again.';
   @override String get householdNameDialogSubtitle =>
       'The name is visible to everyone in your home, updates instantly';
+  @override String versionCopied(String version) => 'Copied: v$version';
   @override String get loading => 'Loading...';
   @override String loadError(String error) => 'Error loading settings: $error';
   @override String saveError(String error) => 'Error saving settings: $error';

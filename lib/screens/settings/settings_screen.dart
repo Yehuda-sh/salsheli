@@ -35,6 +35,18 @@ import 'household_members_screen.dart';
 const double _kErrorBgAlpha = 0.1;
 const double _kErrorBorderAlpha = 0.3;
 
+// Section card chrome — repeated across 6 settings sections.
+// Tuned together for "paper card on notebook" appearance.
+const double _kCardBgAlpha = 0.85;
+const double _kCardBorderAlpha = 0.2;
+
+// Profile bottom sheet visual sizes — composed-but-named so the math is documented.
+// Avatar = kIconSizeXLarge (48) + kSpacingXLarge (32) = 80 — large hero.
+// Handle = kSpacingXLarge (32) + kSpacingSmall (8) = 40 — wide-enough drag affordance.
+const double _kProfileAvatarSize = 80.0;
+const double _kHandleBarWidth = 40.0;
+const int _kDisplayNameMaxLength = 30;
+
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -47,7 +59,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   late final AnimationController _animController;
   late final List<Animation<double>> _fadeAnims;
   late final List<Animation<Offset>> _slideAnims;
-  static const int _sectionCount = 9;
+  // 8 sections animate via _animatedSection: 0=profile, 1=notifications,
+  // 2=general/theme, 3=household, 4=quick links, 5=info, 6=logout, 7=delete account.
+  static const int _sectionCount = 8;
   // Keys לשמירה מקומית - התראות
   // TODO(fcm): הכפתורים נשמרים ב-SharedPreferences אבל עדיין לא מחוברים ל-FCM.
   //   כשנחבר FCM — צריך לקרוא את הערכים האלה ב-NotificationsService ולסנן לפיהם.
@@ -78,16 +92,21 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+    // Stagger 0.08 + 0.3 duration per section. Last section (index 7):
+    // start = 7 * 0.08 = 0.56, end = 0.56 + 0.3 = 0.86 — well within [0, 1].
+    // No clamping = every section gets its full animation window.
+    const double sectionStagger = 0.08;
+    const double sectionDuration = 0.3;
     _fadeAnims = List.generate(_sectionCount, (i) {
-      final start = i * 0.12;
-      final end = (start + 0.4).clamp(0.0, 1.0);
+      final start = i * sectionStagger;
+      final end = start + sectionDuration;
       return Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(parent: _animController, curve: Interval(start, end, curve: Curves.easeOut)),
       );
     });
     _slideAnims = List.generate(_sectionCount, (i) {
-      final start = i * 0.12;
-      final end = (start + 0.4).clamp(0.0, 1.0);
+      final start = i * sectionStagger;
+      final end = start + sectionDuration;
       return Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero).animate(
         CurvedAnimation(parent: _animController, curve: Interval(start, end, curve: Curves.easeOut)),
       );
@@ -593,14 +612,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Handle bar
+                  // Handle bar — decorative drag affordance.
                   Center(
-                    child: Container(
-                      width: kSpacingXLarge + kSpacingSmall,
-                      height: kSpacingXTiny,
-                      decoration: BoxDecoration(
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    child: ExcludeSemantics(
+                      child: Container(
+                        width: _kHandleBarWidth,
+                        height: kSpacingXTiny,
+                        decoration: BoxDecoration(
+                          color: cs.onSurfaceVariant.withValues(alpha: kOpacityLight),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        ),
                       ),
                     ),
                   ),
@@ -628,10 +649,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         final uid = context.read<UserContext>().userId ?? '';
                         final cooldown = await imageService.getCooldownRemaining(uid);
                         if (cooldown != null) {
-                          scaffoldMessenger.showSnackBar(
+                          _showSnackBar(
                             SnackBar(content: Text(AppStrings.settings.imageUploadCooldown(
                               AppStrings.common.durationText(cooldown.inHours, cooldown.inMinutes % 60),
                             ))),
+                            messenger: scaffoldMessenger,
                           );
                           return;
                         }
@@ -652,8 +674,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           });
                         } catch (e) {
                           setBottomSheetState(() => isUploading = false);
-                          scaffoldMessenger.showSnackBar(
+                          _showSnackBar(
                             SnackBar(content: Text(userFriendlyError(e, context: 'uploadImage'))),
+                            messenger: scaffoldMessenger,
                           );
                         }
                       },
@@ -661,8 +684,8 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         children: [
                           // Avatar circle
                           Container(
-                            width: kIconSizeXLarge + kSpacingXLarge,
-                            height: kIconSizeXLarge + kSpacingXLarge,
+                            width: _kProfileAvatarSize,
+                            height: _kProfileAvatarSize,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: cs.surfaceContainerHighest,
@@ -772,9 +795,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       ),
                       prefixIcon: const Icon(Icons.person_outline),
                     ),
-                    maxLength: 30,
-                    textAlign: TextAlign.right,
-                    textDirection: TextDirection.rtl,
+                    maxLength: _kDisplayNameMaxLength,
                   ),
                   const SizedBox(height: kSpacingLarge),
 
@@ -794,8 +815,9 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                           onPressed: isSaving ? null : () async {
                             final newName = nameController.text.trim();
                             if (newName.isEmpty) {
-                              scaffoldMessenger.showSnackBar(
+                              _showSnackBar(
                                 SnackBar(content: Text(AppStrings.settings.enterNameError)),
+                                messenger: scaffoldMessenger,
                               );
                               return;
                             }
@@ -811,22 +833,25 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                               );
 
                               if (mounted) {
+                                unawaited(HapticFeedback.lightImpact());
                                 navigator.pop();
-                                scaffoldMessenger.showSnackBar(
+                                _showSnackBar(
                                   SnackBar(
                                     content: Text(AppStrings.settings.profileUpdated),
                                     backgroundColor: cs.primary,
                                   ),
+                                  messenger: scaffoldMessenger,
                                 );
                               }
                             } catch (e) {
                               setBottomSheetState(() => isSaving = false);
                               if (mounted) {
-                                scaffoldMessenger.showSnackBar(
+                                _showSnackBar(
                                   SnackBar(
                                     content: Text(userFriendlyError(e, context: 'profileUpdate')),
                                     backgroundColor: cs.error,
                                   ),
+                                  messenger: scaffoldMessenger,
                                 );
                               }
                             }
@@ -965,10 +990,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 פרופיל אישי — Premium gradient ring
                 _animatedSection(0, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingLarge),
@@ -1016,16 +1041,16 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                                       ),
                           ),
                         ),
-                              // Camera badge
-                              Positioned(
+                              // Camera badge — RTL-aware (start = right in LTR, left in RTL).
+                              PositionedDirectional(
                                 bottom: 0,
-                                right: 0,
+                                end: 0,
                                 child: Container(
                                   padding: const EdgeInsets.all(kSpacingXTiny),
                                   decoration: BoxDecoration(
                                     color: cs.primary,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: cs.surface, width: 2),
+                                    border: Border.all(color: cs.surface, width: kBorderWidthFocused),
                                   ),
                                   child: Icon(Icons.camera_alt, size: kIconSizeSmall, color: cs.onPrimary),
                                 ),
@@ -1066,10 +1091,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 התראות
                 _animatedSection(1, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
@@ -1127,10 +1152,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 הגדרות כלליות — Theme cards
                 _animatedSection(2, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
@@ -1195,13 +1220,13 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 ניהול משפחה
+                // 🔹 ניהול בית
                 _animatedSection(3, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
@@ -1276,10 +1301,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 קישורים מהירים
                 _animatedSection(4, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: kSpacingMedium),
@@ -1327,10 +1352,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 // 🔹 מידע
                 _animatedSection(5, Card(
                   elevation: 0,
-                  color: cs.surface.withValues(alpha: 0.85),
+                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.2)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: kSpacingMedium),
@@ -1352,12 +1377,10 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                         onLongPress: () {
                           unawaited(HapticFeedback.mediumImpact());
                           Clipboard.setData(ClipboardData(text: 'MemoZap v$_appVersion'));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('v$_appVersion copied'),
-                              duration: const Duration(seconds: 1),
-                            ),
-                          );
+                          _showSnackBar(SnackBar(
+                            content: Text(AppStrings.settings.versionCopied(_appVersion)),
+                            duration: const Duration(seconds: 1),
+                          ));
                         },
                         onTap: () {
                           unawaited(HapticFeedback.selectionClick());
