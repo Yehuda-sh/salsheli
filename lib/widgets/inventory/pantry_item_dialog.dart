@@ -757,6 +757,21 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                 ),
               ],
 
+              // 🔢 Barcode row — read-only. Helps the user confirm the right
+              // product was scanned, disambiguates similar items (1L vs 1.5L
+              // milk both show as "תנובה"), and exposes the code for sharing.
+              if (widget.item?.barcode != null && widget.item!.barcode!.isNotEmpty) ...[
+                const SizedBox(height: kSpacingXTiny),
+                Text(
+                  AppStrings.inventory.barcodeRow(widget.item!.barcode!),
+                  style: TextStyle(
+                    fontSize: kFontSizeTiny,
+                    color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
+                  ),
+                  textDirection: TextDirection.ltr,
+                ),
+              ],
+
               const SizedBox(height: kSpacingSmall),
 
               // כמות + מינימום עם כפתורי +/-

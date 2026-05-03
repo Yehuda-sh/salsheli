@@ -1157,6 +1157,7 @@ class InventoryStrings {
   String get productNameLabel => 'שם הפריט';
   String get productNameHint => 'לדוגמה: חלב';
   String get productNameRequired => 'נא להזין שם פריט';
+  String barcodeRow(String code) => 'ברקוד: $code';
   String get categoryLabel => 'קטגוריה';
   String get quantityLabel => 'כמות';
   String get unitLabel => 'יחידה';

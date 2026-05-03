@@ -1136,6 +1136,7 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get productNameLabel => 'Item Name';
   @override String get productNameHint => 'e.g., Milk';
   @override String get productNameRequired => 'Please enter an item name';
+  @override String barcodeRow(String code) => 'Barcode: $code';
   @override String get categoryLabel => 'Category';
   @override String get quantityLabel => 'Quantity';
   @override String get unitLabel => 'Unit';
