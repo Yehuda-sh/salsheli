@@ -299,30 +299,6 @@
     "size": null
   },
   {
-    "name": "קורנד ביף",
-    "category": "אחר",
-    "price": 79.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רולדה",
-    "category": "אחר",
-    "price": 74.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שיפודי אנטריקוט-קורקבדוס",
     "barcode": "7290001849217",
     "price": 165.9,
@@ -393,18 +369,6 @@
     "size": "",
     "isWeighted": false,
     "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "אנטריקוט דק (מינוט סטייק)",
-    "category": "בקר",
-    "price": 129,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
     "defaultQty": 1
   },
   {
@@ -696,18 +660,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בריסקט",
-    "category": "בקר",
-    "price": 79,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "בשר בקר טחון מובחר קפוא",
     "category": "בקר",
     "price": 29.9,
@@ -925,18 +877,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בשר לחמין",
-    "category": "בקר",
-    "price": 69,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "בשר לחמין 800 גר קפוא מחפוד עוף ירושלים",
     "category": "בקר",
     "price": 44.9,
@@ -956,18 +896,6 @@
     "brand": null,
     "unit": "קילוגרם",
     "size": null,
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בשר לשווארמה",
-    "category": "בקר",
-    "price": 79,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
@@ -1105,18 +1033,6 @@
     "defaultQty": 1
   },
   {
-    "name": "בשר שרירים",
-    "category": "בקר",
-    "price": 74.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "גולש בקר 800 גר מחפוד עוף ירושלים",
     "category": "בקר",
     "price": 49.9,
@@ -1150,18 +1066,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "המבורגר",
-    "category": "בקר",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1565,18 +1469,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סטייק אנטריקוט",
-    "category": "בקר",
-    "price": 149.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סטייק אנטריקוט דק דק 300 גר עוף ירושלים",
     "category": "בקר",
     "price": 27.9,
@@ -1733,18 +1625,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סטייק דנבר",
-    "category": "בקר",
-    "price": 109.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סטייק דנוור טרי מוכשר",
     "category": "בקר",
     "price": 119.9,
@@ -1757,18 +1637,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סטייק טי-בון",
-    "category": "בקר",
-    "price": 159.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סטייק מן הצומח",
     "category": "בקר",
     "price": 29.9,
@@ -1778,18 +1646,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "סטייק סינטה",
-    "category": "בקר",
-    "price": 129.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -1877,30 +1733,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פילה מניון",
-    "category": "בקר",
-    "price": 189,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פלנק סטייק",
-    "category": "בקר",
-    "price": 99,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "פרוסות צלי כתף טרי ״חוות הבוקרים״, 500 גרם",
     "category": "בקר",
     "price": 154.16,
@@ -1908,18 +1740,6 @@
     "brand": "קבוצת תדמיר",
     "unit": "גרם",
     "size": null,
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "צלי כתף",
-    "category": "בקר",
-    "price": 69,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
@@ -2009,18 +1829,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צלעות בקר",
-    "category": "בקר",
-    "price": 89.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "צלעות בקר (אסאדו)",
     "category": "בקר",
     "price": 89,
@@ -2066,18 +1874,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "קבב",
-    "category": "בקר",
-    "price": 59.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2309,30 +2105,6 @@
     "defaultQty": 1
   },
   {
-    "name": "ראמפ סטייק",
-    "category": "בקר",
-    "price": 89,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "שישליק בקר",
-    "category": "בקר",
-    "price": 89,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "שני סטייקים מן הצומח",
     "category": "בקר",
     "price": 39.9,
@@ -2453,18 +2225,6 @@
     "defaultQty": 1
   },
   {
-    "name": "אמנון פילה",
-    "category": "דגים",
-    "price": 44.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "אמנון פילה טרי, 650 גרם",
     "category": "דגים",
     "price": 97.33,
@@ -2486,30 +2246,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "בורי פילה",
-    "category": "דגים",
-    "price": 54.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "בקלה פילה",
-    "category": "דגים",
-    "price": 64.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2741,18 +2477,6 @@
     "defaultQty": 1
   },
   {
-    "name": "דניס שלם",
-    "category": "דגים",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "חתיכות פילה דג הרינג מומלח עם בצל בשמן מצונן",
     "category": "דגים",
     "price": 10.0,
@@ -2801,42 +2525,6 @@
     "defaultQty": 1
   },
   {
-    "name": "טונה סטייק",
-    "category": "דגים",
-    "price": 119.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "טילפיה פילה",
-    "category": "דגים",
-    "price": 44,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "לברק פילה",
-    "category": "דגים",
-    "price": 74.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "לברק פילה טרי, 550 גרם",
     "category": "דגים",
     "price": 147.33,
@@ -2846,18 +2534,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "מוסר פילה",
-    "category": "דגים",
-    "price": 79.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -2933,30 +2609,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סי-בס שלם",
-    "category": "דגים",
-    "price": 79,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלמון פילה",
-    "category": "דגים",
-    "price": 89.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלמון פילה נתחים טרי, 650 גרם",
     "category": "דגים",
     "price": 152.3,
@@ -2966,18 +2618,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פורל שלם",
-    "category": "דגים",
-    "price": 69.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3557,18 +3197,6 @@
     "defaultQty": 1
   },
   {
-    "name": "קרפיון פרוסות",
-    "category": "דגים",
-    "price": 39.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "רולדה קרפיון טחון (100% דג) - עד\"ח",
     "category": "דגים",
     "price": 32.8,
@@ -3614,30 +3242,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "הודו טחון",
-    "category": "הודו",
-    "price": 44.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חזה הודו",
-    "category": "הודו",
-    "price": 64.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3725,18 +3329,6 @@
     "defaultQty": 1
   },
   {
-    "name": "כנפיים הודו",
-    "category": "הודו",
-    "price": 29.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "כנפיים הודו טרי כשל\"פ",
     "category": "הודו",
     "price": 14.9,
@@ -3746,18 +3338,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כרעיים הודו",
-    "category": "הודו",
-    "price": 34.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3818,18 +3398,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "נקניקיות הודו",
-    "category": "הודו",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -3953,18 +3521,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שוקיים הודו",
-    "category": "הודו",
-    "price": 39.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שוקיים הודו טרי כשל\"פ",
     "category": "הודו",
     "price": 24.9,
@@ -3974,18 +3530,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "שניצל הודו",
-    "category": "הודו",
-    "price": 59.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4001,18 +3545,6 @@
     "defaultQty": 1
   },
   {
-    "name": "המבורגר טלה",
-    "category": "טלה וכבש",
-    "price": 69,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "הקבב של עזרא 600 גר מעדני הטלה והעגל",
     "category": "טלה וכבש",
     "price": 39.9,
@@ -4022,18 +3554,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "חזה טלה",
-    "category": "טלה וכבש",
-    "price": 79.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4061,42 +3581,6 @@
     "defaultQty": 1
   },
   {
-    "name": "כבדי טלה",
-    "category": "טלה וכבש",
-    "price": 44.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "כבש טחון",
-    "category": "טלה וכבש",
-    "price": 54.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "כתף טלה",
-    "category": "טלה וכבש",
-    "price": 89.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "כתף טלה טרי - לבחירה פרוס או גוש כשל\"פ",
     "category": "טלה וכבש",
     "price": 99.0,
@@ -4104,18 +3588,6 @@
     "brand": null,
     "unit": "קילוגרם",
     "size": null,
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כתף טלה ללא עצם",
-    "category": "טלה וכבש",
-    "price": 99,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
     "defaultQty": 1
@@ -4130,18 +3602,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "לשון טלה",
-    "category": "טלה וכבש",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4217,18 +3677,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סטייק כבש",
-    "category": "טלה וכבש",
-    "price": 139.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלסה פלפל אדום וצ'יפוטלה טרז פזוס",
     "category": "טלה וכבש",
     "price": 21.9,
@@ -4253,18 +3701,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צוואר טלה",
-    "category": "טלה וכבש",
-    "price": 69.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "צוואר כבש טרי כשל\"פ",
     "category": "טלה וכבש",
     "price": 89.9,
@@ -4274,18 +3710,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "צלעות טלה",
-    "category": "טלה וכבש",
-    "price": 99.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -4517,30 +3941,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שוק טלה",
-    "category": "טלה וכבש",
-    "price": 84.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שישליק טלה",
-    "category": "טלה וכבש",
-    "price": 99,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "תומר תומס קבב טלה 50",
     "category": "טלה וכבש",
     "price": 31.9,
@@ -4559,354 +3959,6 @@
     "barcode": "7290000150239",
     "brand": null,
     "unit": "מארז 12 יחידות",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "בצל יבש",
-    "category": "מוצרים נלווים",
-    "price": 3.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חומוס קצביה",
-    "category": "מוצרים נלווים",
-    "price": 20,
-    "barcode": "",
-    "brand": null,
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חומץ",
-    "category": "מוצרים נלווים",
-    "price": 6.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חרדל",
-    "category": "מוצרים נלווים",
-    "price": 7.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "כוסות חד פעמי",
-    "category": "מוצרים נלווים",
-    "price": 9.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "חבילה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "לימונים",
-    "category": "מוצרים נלווים",
-    "price": 4.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מיונז",
-    "category": "מוצרים נלווים",
-    "price": 9.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מלח ים גס",
-    "category": "מוצרים נלווים",
-    "price": 5.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "מנגל חד פעמי",
-    "category": "מוצרים נלווים",
-    "price": 19,
-    "barcode": "",
-    "brand": null,
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "נייר אפייה",
-    "category": "מוצרים נלווים",
-    "price": 8.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "גליל",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "נייר כסף",
-    "category": "מוצרים נלווים",
-    "price": 12.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "גליל",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט קצביה חריף",
-    "category": "מוצרים נלווים",
-    "price": 25,
-    "barcode": "",
-    "brand": null,
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "סלט קצביה טחינה",
-    "category": "מוצרים נלווים",
-    "price": 22,
-    "barcode": "",
-    "brand": null,
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פחמים לגריל",
-    "category": "מוצרים נלווים",
-    "price": 12.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "שק 3 ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פירורי לחם",
-    "category": "מוצרים נלווים",
-    "price": 9.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "אריזה 500 גרם",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פלטת על האש מעורבת",
-    "category": "מוצרים נלווים",
-    "price": 149,
-    "barcode": "",
-    "brand": null,
-    "unit": "יח'",
-    "size": "1.00 יחידה",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פלפל שחור טחון",
-    "category": "מוצרים נלווים",
-    "price": 6.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "צלחות חד פעמי",
-    "category": "מוצרים נלווים",
-    "price": 12.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "חבילה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קטשופ",
-    "category": "מוצרים נלווים",
-    "price": 8.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "קמח מצה",
-    "category": "מוצרים נלווים",
-    "price": 12.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "אריזה 500 גרם",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רטב ברביקיו",
-    "category": "מוצרים נלווים",
-    "price": 12.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רטב חרדל דבש",
-    "category": "מוצרים נלווים",
-    "price": 11.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רטב טריאקי",
-    "category": "מוצרים נלווים",
-    "price": 16.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רטב סויה",
-    "category": "מוצרים נלווים",
-    "price": 9.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רטב צ'ימיצ'ורי",
-    "category": "מוצרים נלווים",
-    "price": 14.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שום",
-    "category": "מוצרים נלווים",
-    "price": 15.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שיפודים עץ",
-    "category": "מוצרים נלווים",
-    "price": 6.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "חבילה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שמן זית לגריל",
-    "category": "מוצרים נלווים",
-    "price": 24.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שמן צמחי",
-    "category": "מוצרים נלווים",
-    "price": 14.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "בקבוק ליטר",
     "size": "",
     "isWeighted": false,
     "defaultUnit": "יח'",
@@ -5432,18 +4484,6 @@
     "defaultQty": 1
   },
   {
-    "name": "נקניקיות ווינה",
-    "category": "נקניקים ובשרים מעובדים",
-    "price": 39.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "נקניקיות וינר 1 ק\"ג",
     "category": "נקניקים ובשרים מעובדים",
     "price": 29.9,
@@ -5600,18 +4640,6 @@
     "defaultUnit": "יח'",
     "defaultQty": 1,
     "size": null
-  },
-  {
-    "name": "נקניקיות מרגז",
-    "category": "נקניקים ובשרים מעובדים",
-    "price": 69.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
   },
   {
     "name": "נקניקיות מרגז (קפוא)",
@@ -6216,18 +5244,6 @@
     "defaultQty": 1
   },
   {
-    "name": "סלמי",
-    "category": "נקניקים ובשרים מעובדים",
-    "price": 84.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "סלמי איטלקי מעושן דק דק דק זוגלובק",
     "category": "נקניקים ובשרים מעובדים",
     "price": 18.9,
@@ -6587,18 +5603,6 @@
     "brand": null,
     "unit": "גרם",
     "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פסטרמה",
-    "category": "נקניקים ובשרים מעובדים",
-    "price": 89.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -7090,18 +6094,6 @@
     "brand": null,
     "unit": "גרם",
     "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "צ'וריסוס",
-    "category": "נקניקים ובשרים מעובדים",
-    "price": 64.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -7774,30 +6766,6 @@
     "defaultQty": 1
   },
   {
-    "name": "חזה עוף",
-    "category": "עוף",
-    "price": 44.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "חזה עוף ביס",
-    "category": "עוף",
-    "price": 49,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "חזה עוף חצוי ארוז",
     "barcode": "7290005877322",
     "price": 43.9,
@@ -8116,30 +7084,6 @@
     "size": null
   },
   {
-    "name": "ירכיים עוף ללא עצם",
-    "category": "עוף",
-    "price": 39,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כבד עוף",
-    "category": "עוף",
-    "price": 24.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "כבד עוף טרי כשל\"פ",
     "category": "עוף",
     "price": 19.9,
@@ -8161,30 +7105,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כנפיות באפלו",
-    "category": "עוף",
-    "price": 39,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כנפיים עוף",
-    "category": "עוף",
-    "price": 14.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -8281,18 +7201,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "כרעיים עוף",
-    "category": "עוף",
-    "price": 19.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -8467,18 +7375,6 @@
     "defaultUnit": "יח'",
     "defaultQty": 1,
     "size": null
-  },
-  {
-    "name": "לבבות עוף",
-    "category": "עוף",
-    "price": 29.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
   },
   {
     "name": "לבבות עוף טרי ארוז",
@@ -8770,18 +7666,6 @@
     "defaultQty": 1
   },
   {
-    "name": "עוף טחון",
-    "category": "עוף",
-    "price": 34.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "עוף טחון קפוא",
     "category": "עוף",
     "price": 19.9,
@@ -8803,18 +7687,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "עוף שלם",
-    "category": "עוף",
-    "price": 17.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -8851,30 +7723,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "עוף שלם מתובל",
-    "category": "עוף",
-    "price": 29,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פילה עוף",
-    "category": "עוף",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -9010,30 +7858,6 @@
     "defaultQty": 1
   },
   {
-    "name": "פרגיות על השיפוד",
-    "category": "עוף",
-    "price": 55,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "פרגית",
-    "category": "עוף",
-    "price": 45,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "פרגית עוף קפוא",
     "category": "עוף",
     "price": 59.9,
@@ -9118,30 +7942,6 @@
     "defaultQty": 1
   },
   {
-    "name": "צוואר עוף",
-    "category": "עוף",
-    "price": 19,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "ציפס עוף",
-    "category": "עוף",
-    "price": 44.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "קוביות חזה עוף טרי (לא ניתן לספק טחון) כשל\"פ",
     "category": "עוף",
     "price": 44.9,
@@ -9163,18 +7963,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "קורקבנים",
-    "category": "עוף",
-    "price": 19.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -9298,18 +8086,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שוקיים עוף",
-    "category": "עוף",
-    "price": 24.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שוקיים עוף טרי ארוז",
     "category": "עוף",
     "price": 35.9,
@@ -9418,18 +8194,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שיפודי פרגית",
-    "category": "עוף",
-    "price": 49.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שיפודי פרגית (קפוא)",
     "category": "עוף",
     "price": 59.9,
@@ -9475,30 +8239,6 @@
     "size": null,
     "isWeighted": true,
     "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "שישליק עוף",
-    "category": "עוף",
-    "price": 55,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
-    "name": "שניצל עוף",
-    "category": "עוף",
-    "price": 54.9,
-    "barcode": "",
-    "brand": "טרי",
-    "unit": "ק\"ג",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
     "defaultQty": 1
   },
   {
@@ -9795,18 +8535,6 @@
     "defaultQty": 1
   },
   {
-    "name": "שניצל פרגית",
-    "category": "עוף",
-    "price": 54,
-    "barcode": "",
-    "brand": null,
-    "unit": "ק\"ג",
-    "size": "1.00 ק\"ג",
-    "isWeighted": true,
-    "defaultUnit": "ק\"ג",
-    "defaultQty": 1
-  },
-  {
     "name": "תיבול לפרגיות 100 גרם",
     "category": "עוף",
     "price": 12.9,
@@ -9939,18 +8667,6 @@
     "defaultQty": 1
   },
   {
-    "name": "כמון שלם",
-    "category": "תבלינים",
-    "price": 6.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "מוסקט טחון 40 גרם",
     "category": "תבלינים",
     "price": 16.9,
@@ -9958,18 +8674,6 @@
     "brand": "תבליני טעם וריח",
     "unit": "גרם",
     "size": "40.00 גרמים",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "פפריקה מעושנת",
-    "category": "תבלינים",
-    "price": 9.5,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
     "isWeighted": false,
     "defaultUnit": "יח'",
     "defaultQty": 1
@@ -10035,30 +8739,6 @@
     "defaultQty": 1
   },
   {
-    "name": "רוזמרין מיובש",
-    "category": "תבלינים",
-    "price": 8.9,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "שום גרנולות",
-    "category": "תבלינים",
-    "price": 7.5,
-    "barcode": "",
-    "brand": null,
-    "unit": "יחידה",
-    "size": "",
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "שקד טבעי טחון 100ג-'שקדיה",
     "category": "תבלינים",
     "price": 14.9,
@@ -10095,10 +8775,1330 @@
     "defaultQty": 1
   },
   {
+    "name": "קורנד ביף",
+    "category": "אחר",
+    "price": 79.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רולדה",
+    "category": "אחר",
+    "price": 74.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "אנטריקוט דק (מינוט סטייק)",
+    "category": "בקר",
+    "price": 129,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "בריסקט",
+    "category": "בקר",
+    "price": 79,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "בשר לחמין",
+    "category": "בקר",
+    "price": 69,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "בשר לשווארמה",
+    "category": "בקר",
+    "price": 79,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "בשר שרירים",
+    "category": "בקר",
+    "price": 74.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "המבורגר",
+    "category": "בקר",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סטייק אנטריקוט",
+    "category": "בקר",
+    "price": 149.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סטייק דנבר",
+    "category": "בקר",
+    "price": 109.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סטייק טי-בון",
+    "category": "בקר",
+    "price": 159.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סטייק סינטה",
+    "category": "בקר",
+    "price": 129.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פילה מניון",
+    "category": "בקר",
+    "price": 189,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "פלנק סטייק",
+    "category": "בקר",
+    "price": 99,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "צלי כתף",
+    "category": "בקר",
+    "price": 69,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "צלעות בקר",
+    "category": "בקר",
+    "price": 89.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "קבב",
+    "category": "בקר",
+    "price": 59.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "ראמפ סטייק",
+    "category": "בקר",
+    "price": 89,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "שישליק בקר",
+    "category": "בקר",
+    "price": 89,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "אמנון פילה",
+    "category": "דגים",
+    "price": 44.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "בורי פילה",
+    "category": "דגים",
+    "price": 54.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "בקלה פילה",
+    "category": "דגים",
+    "price": 64.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "דניס שלם",
+    "category": "דגים",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "טונה סטייק",
+    "category": "דגים",
+    "price": 119.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "טילפיה פילה",
+    "category": "דגים",
+    "price": 44,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "לברק פילה",
+    "category": "דגים",
+    "price": 74.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "מוסר פילה",
+    "category": "דגים",
+    "price": 79.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סי-בס שלם",
+    "category": "דגים",
+    "price": 79,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "סלמון פילה",
+    "category": "דגים",
+    "price": 89.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פורל שלם",
+    "category": "דגים",
+    "price": 69.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "קרפיון פרוסות",
+    "category": "דגים",
+    "price": 39.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "הודו טחון",
+    "category": "הודו",
+    "price": 44.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חזה הודו",
+    "category": "הודו",
+    "price": 64.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כנפיים הודו",
+    "category": "הודו",
+    "price": 29.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כרעיים הודו",
+    "category": "הודו",
+    "price": 34.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "נקניקיות הודו",
+    "category": "הודו",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שוקיים הודו",
+    "category": "הודו",
+    "price": 39.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שניצל הודו",
+    "category": "הודו",
+    "price": 59.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "המבורגר טלה",
+    "category": "טלה וכבש",
+    "price": 69,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "חזה טלה",
+    "category": "טלה וכבש",
+    "price": 79.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כבדי טלה",
+    "category": "טלה וכבש",
+    "price": 44.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כבש טחון",
+    "category": "טלה וכבש",
+    "price": 54.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כתף טלה",
+    "category": "טלה וכבש",
+    "price": 89.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כתף טלה ללא עצם",
+    "category": "טלה וכבש",
+    "price": 99,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "לשון טלה",
+    "category": "טלה וכבש",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סטייק כבש",
+    "category": "טלה וכבש",
+    "price": 139.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "צוואר טלה",
+    "category": "טלה וכבש",
+    "price": 69.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "צלעות טלה",
+    "category": "טלה וכבש",
+    "price": 99.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שוק טלה",
+    "category": "טלה וכבש",
+    "price": 84.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שישליק טלה",
+    "category": "טלה וכבש",
+    "price": 99,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "בצל יבש",
+    "category": "מוצרים נלווים",
+    "price": 3.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חומוס קצביה",
+    "category": "מוצרים נלווים",
+    "price": 20,
+    "barcode": null,
+    "brand": null,
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חומץ",
+    "category": "מוצרים נלווים",
+    "price": 6.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חרדל",
+    "category": "מוצרים נלווים",
+    "price": 7.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כוסות חד פעמי",
+    "category": "מוצרים נלווים",
+    "price": 9.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "חבילה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "לימונים",
+    "category": "מוצרים נלווים",
+    "price": 4.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "מיונז",
+    "category": "מוצרים נלווים",
+    "price": 9.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "מלח ים גס",
+    "category": "מוצרים נלווים",
+    "price": 5.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "מנגל חד פעמי",
+    "category": "מוצרים נלווים",
+    "price": 19,
+    "barcode": null,
+    "brand": null,
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "נייר אפייה",
+    "category": "מוצרים נלווים",
+    "price": 8.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "גליל",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "נייר כסף",
+    "category": "מוצרים נלווים",
+    "price": 12.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "גליל",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סלט קצביה חריף",
+    "category": "מוצרים נלווים",
+    "price": 25,
+    "barcode": null,
+    "brand": null,
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סלט קצביה טחינה",
+    "category": "מוצרים נלווים",
+    "price": 22,
+    "barcode": null,
+    "brand": null,
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פחמים לגריל",
+    "category": "מוצרים נלווים",
+    "price": 12.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "שק 3 ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פירורי לחם",
+    "category": "מוצרים נלווים",
+    "price": 9.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "אריזה 500 גרם",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פלטת על האש מעורבת",
+    "category": "מוצרים נלווים",
+    "price": 149,
+    "barcode": null,
+    "brand": null,
+    "unit": "יח'",
+    "size": "1.00 יחידה",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פלפל שחור טחון",
+    "category": "מוצרים נלווים",
+    "price": 6.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "צלחות חד פעמי",
+    "category": "מוצרים נלווים",
+    "price": 12.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "חבילה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "קטשופ",
+    "category": "מוצרים נלווים",
+    "price": 8.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "קמח מצה",
+    "category": "מוצרים נלווים",
+    "price": 12.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "אריזה 500 גרם",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רטב ברביקיו",
+    "category": "מוצרים נלווים",
+    "price": 12.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רטב חרדל דבש",
+    "category": "מוצרים נלווים",
+    "price": 11.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רטב טריאקי",
+    "category": "מוצרים נלווים",
+    "price": 16.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רטב סויה",
+    "category": "מוצרים נלווים",
+    "price": 9.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רטב צ'ימיצ'ורי",
+    "category": "מוצרים נלווים",
+    "price": 14.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שום",
+    "category": "מוצרים נלווים",
+    "price": 15.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שיפודים עץ",
+    "category": "מוצרים נלווים",
+    "price": 6.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "חבילה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שמן זית לגריל",
+    "category": "מוצרים נלווים",
+    "price": 24.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שמן צמחי",
+    "category": "מוצרים נלווים",
+    "price": 14.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "בקבוק ליטר",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "נקניקיות ווינה",
+    "category": "נקניקים ובשרים מעובדים",
+    "price": 39.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "נקניקיות מרגז",
+    "category": "נקניקים ובשרים מעובדים",
+    "price": 69.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "סלמי",
+    "category": "נקניקים ובשרים מעובדים",
+    "price": 84.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פסטרמה",
+    "category": "נקניקים ובשרים מעובדים",
+    "price": 89.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "צ'וריסוס",
+    "category": "נקניקים ובשרים מעובדים",
+    "price": 64.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חזה עוף",
+    "category": "עוף",
+    "price": 44.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "חזה עוף ביס",
+    "category": "עוף",
+    "price": 49,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "ירכיים עוף ללא עצם",
+    "category": "עוף",
+    "price": 39,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "כבד עוף",
+    "category": "עוף",
+    "price": 24.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כנפיות באפלו",
+    "category": "עוף",
+    "price": 39,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "כנפיים עוף",
+    "category": "עוף",
+    "price": 14.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "כרעיים עוף",
+    "category": "עוף",
+    "price": 19.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "לבבות עוף",
+    "category": "עוף",
+    "price": 29.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "עוף טחון",
+    "category": "עוף",
+    "price": 34.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "עוף שלם",
+    "category": "עוף",
+    "price": 17.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "עוף שלם מתובל",
+    "category": "עוף",
+    "price": 29,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "פילה עוף",
+    "category": "עוף",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פרגיות על השיפוד",
+    "category": "עוף",
+    "price": 55,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "פרגית",
+    "category": "עוף",
+    "price": 45,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "צוואר עוף",
+    "category": "עוף",
+    "price": 19,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "ציפס עוף",
+    "category": "עוף",
+    "price": 44.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "קורקבנים",
+    "category": "עוף",
+    "price": 19.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שוקיים עוף",
+    "category": "עוף",
+    "price": 24.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שיפודי פרגית",
+    "category": "עוף",
+    "price": 49.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שישליק עוף",
+    "category": "עוף",
+    "price": 55,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "שניצל עוף",
+    "category": "עוף",
+    "price": 54.9,
+    "barcode": null,
+    "brand": "טרי",
+    "unit": "ק\"ג",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שניצל פרגית",
+    "category": "עוף",
+    "price": 54,
+    "barcode": null,
+    "brand": null,
+    "unit": "ק\"ג",
+    "size": "1.00 ק\"ג",
+    "isWeighted": true,
+    "defaultUnit": "ק\"ג",
+    "defaultQty": 1
+  },
+  {
+    "name": "כמון שלם",
+    "category": "תבלינים",
+    "price": 6.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "פפריקה מעושנת",
+    "category": "תבלינים",
+    "price": 9.5,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "רוזמרין מיובש",
+    "category": "תבלינים",
+    "price": 8.9,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
+    "name": "שום גרנולות",
+    "category": "תבלינים",
+    "price": 7.5,
+    "barcode": null,
+    "brand": null,
+    "unit": "יחידה",
+    "size": "",
+    "isWeighted": false,
+    "defaultUnit": "יח'",
+    "defaultQty": 1
+  },
+  {
     "name": "תבלין לבשר",
     "category": "תבלינים",
     "price": 8.9,
-    "barcode": "",
+    "barcode": null,
     "brand": null,
     "unit": "יחידה",
     "size": "",
@@ -10110,7 +10110,7 @@
     "name": "תבלין לדגים",
     "category": "תבלינים",
     "price": 9.9,
-    "barcode": "",
+    "barcode": null,
     "brand": null,
     "unit": "יחידה",
     "size": "",
@@ -10122,7 +10122,7 @@
     "name": "תבלין לעוף",
     "category": "תבלינים",
     "price": 7.9,
-    "barcode": "",
+    "barcode": null,
     "brand": null,
     "unit": "יחידה",
     "size": "",
@@ -10134,7 +10134,7 @@
     "name": "תבלין קבב",
     "category": "תבלינים",
     "price": 8.5,
-    "barcode": "",
+    "barcode": null,
     "brand": null,
     "unit": "יחידה",
     "size": "",

@@ -8950,18 +8950,6 @@
     "defaultQty": 1
   },
   {
-    "name": "רוטב סויה בהיר LEE KUM KEE",
-    "category": "רטבים ותבלינים",
-    "price": 11.0,
-    "barcode": "078895153453",
-    "brand": null,
-    "unit": "מיליליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
     "name": "רוטב סויה בהיר פרימיום לי קום קי - 250 מ״ל",
     "category": "רטבים ותבלינים",
     "price": 12.9,
@@ -8990,18 +8978,6 @@
     "category": "רטבים ותבלינים",
     "price": 12.9,
     "barcode": "8850206011124",
-    "brand": null,
-    "unit": "מיליליטר",
-    "size": null,
-    "isWeighted": false,
-    "defaultUnit": "יח'",
-    "defaultQty": 1
-  },
-  {
-    "name": "רוטב סויה כהה LEE KUM KEE",
-    "category": "רטבים ותבלינים",
-    "price": 11.0,
-    "barcode": "078895153460",
     "brand": null,
     "unit": "מיליליטר",
     "size": null,

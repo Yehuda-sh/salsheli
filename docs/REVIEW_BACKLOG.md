@@ -652,28 +652,42 @@
 
 ## Catalog (assets/data/list_types/)
 
-### 🛒 Catalog Cleanup — 30/4/2026
+### 🛒 Catalog Full Cleanup — 30/4/2026 (Phases 1-3)
 
-**📊 Scope:** ~116,000 products across 6 list types (supermarket / pharmacy / market / butcher / greengrocer / bakery).
+**📊 Scope:** ~116,000 products across 6 list types (supermarket / pharmacy / market / butcher / greengrocer / bakery). User confirmed only demo users on the system, so aggressive cleanup was approved.
 
-**✅ Cleaned automatically:**
-- **Trailing dots/asterisks stripped** — 681 product names total: supermarket 646, butcher 18, bakery 8, pharmacy 5, greengrocer 4. Examples: "פסטה.." → "פסטה", "אגוז מלך טבעי 150 ג." → "אגוז מלך טבעי 150 ג", "קרם גוף........." → "קרם גוף". The trailing punctuation didn't add information; in supermarket data 597 of 646 fixes were single-dot strips (often from the source export's abbreviation marker on units like "ג." / "מ"ל.").
-- **Leading punctuation stripped** — 12 names in supermarket. Examples: ".AMERICAN KETCHUP." → "AMERICAN KETCHUP", "\סלט חזרת משני" → "סלט חזרת משני", "/ברמן/מעל למצופה" → "ברמן/מעל למצופה" (only the leading slash removed; mid-name slashes preserved).
-- **Garbage names removed** — 30 items in supermarket dropped. All were entirely numeric ("20", "29", "5"), single/double letters ("FA", "OB", "O2", "אץ", "גז"), or punctuation-only ("`"). None had a meaningful product behind them — all were in `'כללי'` category with no brand and no useful data.
+**✅ Phase 1 — Text cleanups:**
+- **Trailing dots/asterisks stripped** — 681 product names: supermarket 646, butcher 18, bakery 8, pharmacy 5, greengrocer 4. Most were single-dot strips left over from the source export's abbreviation marker on units ("ג.", "מ"ל.").
+- **Leading punctuation stripped** — 12 names in supermarket. Examples: ".AMERICAN KETCHUP." → "AMERICAN KETCHUP".
+- **Garbage names removed** — 30 supermarket items dropped (numeric-only, 1-2 letter codes, punctuation-only — none had a real product behind them).
 
-**⏸️ Deferred — needs user decision:**
-- **64 duplicate barcodes in `supermarket.json`** — mixed cases:
-  - Same product, slightly different name (Hebrew vs different transliteration): "פנסי פיסט דג אוקיאנוס" + "פנסי פיסט דג אוקיינוס" — should merge.
-  - Different products sharing a barcode (source data corruption): "מנות סלמון קפוא" vs "פילה סלמון 650 גרם" on barcode `7290000644783` — needs case-by-case review.
-  - **Trigger:** dedicated catalog-dedup pass; needs a heuristic for "same product, different transcription" vs "different products, bad source data".
-- **50 duplicate barcodes in `greengrocer.json`** — almost all are placeholder barcodes reused for weight-sold items (e.g., `7290000000114` is used for both "ביצי בקר" and "חציל"). Right fix: set barcode to `null` for weight-sold items, or generate synthetic per-item barcodes.
-  - **Trigger:** decision on barcode policy for weight-sold items.
-- **193 supermarket items + 18 bakery items with `price = 0`** — could be intentional (price unknown) or bad data. **Trigger:** check whether the app handles `0` differently from `null` in price displays.
-- **35,971 supermarket items still in `'כללי'` (~32% of catalog)** — was 21,186 before the latest auto-merge bot run added ~14,000 new uncategorized products. Need to re-run `scripts/fix_supermarket_step{2..6}.py` (the keyword/prefix/bigram-driven categorizers).
-  - **Trigger:** dedicated session for catalog re-categorization, or wire it into the auto-merge bot so new products get categorized on import.
-- **114 butcher items + 77 bakery items with empty barcodes** — legitimate (fresh items don't have barcodes), but the empty-string vs null vs missing-field representation should be consistent. **Trigger:** model audit — confirm `Product.barcode` accepts and renders all three.
+**✅ Phase 2 — Re-categorization** (reran `scripts/fix_supermarket_step{2..6}.py`):
+- Categorized ~5,800 supermarket items out of `'כללי'` into proper buckets (קפואים, אלכוהול, צעצועים ומתנות, etc.).
+- Step 2 also removed ~1,375 non-product entries (e.g., "חופשי שנתי", "מנוי תקופתי").
+- `'כללי'` count: 35,971 → 30,170 (~27% of catalog). Remaining items either don't match the keyword/prefix/bigram rules or are genuinely miscellaneous — would need a new categorization rule batch to go further.
 
-**🎯 Pattern:** safe text cleanups (stripping trailing/leading punctuation, removing entirely-garbage names) are reversible via git revert; barcode/price/category changes can affect users with active lists referencing those items, so they need explicit review.
+**✅ Phase 3 — Dedup + barcode/price normalization:**
+- **Supermarket: 64 duplicate barcodes** dropped — for each duplicate group, kept the row with the longest name + most complete metadata, dropped the rest.
+- **Market: 2 duplicate barcodes** dropped (same strategy).
+- **Greengrocer: 113 placeholder barcodes nulled** — barcodes shared by 2+ different items (e.g., `7290000000114` was used for both "ביצי בקר" and "חציל") set to `null`. Weight-sold items don't have real barcodes; null is the honest representation.
+- **`barcode: ""` → `barcode: null`** — 114 butcher items + 59 bakery items normalized for consistency. Now: 0 empty-string barcodes anywhere; either real barcode or `null`.
+- **`price: 0` → `price: null`** — 181 supermarket items + 18 bakery items. The app's pricing UI needs to treat `0` and `null` as "unknown"; `null` is the cleaner representation.
+
+**📊 Final state:**
+| File | Items | Duplicates | Null barcodes | Null prices |
+|------|------:|-----------:|--------------:|------------:|
+| supermarket | 110,958 | 0 | 0 | 181 |
+| pharmacy    |   1,026 | 0 | 0 | 0   |
+| market      |     994 | 0 | 0 | 0   |
+| butcher     |     834 | 0 | 114 | 0 |
+| greengrocer |     592 | 0 | 113 | 0 |
+| bakery      |     472 | 0 | 77  | 18 |
+| **Total**   | **114,876** | **0** | | |
+
+**⏸️ Deferred (rule-based limit):**
+- **30,170 supermarket items still in `'כללי'` (~27%)** — the categorization scripts have hit their rule-based ceiling. Going further would need either a new keyword batch (manual) or an embedding-based classifier (model). Auto-merge bot adds new uncategorized products on each run; consider gating the bot on running `step{2..6}` automatically post-merge.
+
+**🎯 Pattern:** with no real users on the system, aggressive cleanup is safe — reversible via git revert. Once real users land, dedup decisions need explicit review (some "duplicates" are different products with bad source-data barcodes; merging the wrong way deletes legitimate products from someone's list).
 
 ---
 
