@@ -380,6 +380,24 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - לפני העתק רביעי — לעצור, להציע extraction (lib/widgets/common/snackbar_utils.dart או דומה).
 - אותו עיקרון ל-RTL slide flip, loading dialog, error display — אם מופיע 3+ פעמים → utility.
 
+### 🛒 Demo data — להשתמש רק במוצרים מהקטלוג
+- **לא לייצר מוצרים מומצאים** ב-`scripts/rebuild_demo_data.js`. שום `makeProductItem({ name: 'חטיף חלבון - תפוגה קרובה', ... })` עם שם שלא קיים ב-`assets/data/list_types/*.json`.
+- שמות מומצאים נראים מזוייפים על המסך, מבלבלים את המשתמש, ושוברים את ההתאמה ל-barcode/brand/category.
+- **חריגים מותרים:** מוצרים באנגלית (לבדיקת locale), 1-2 דוגמאות free-item / emoji-in-name — אלו תרחישים שבמכוון בודקים את ה-fallback של "המשתמש הקליד שם שאינו בקטלוג".
+- **כלל המנעות:** מצב דינמי (תפוגה, מלאי נמוך וכו') חייב להיגזר משדה ייעודי (`expiry_date`, `quantity < min_quantity`) — **לא** להיכתב לתוך השם של המוצר.
+
+### 🚦 כפתורי "Quick action" — features, לא bugs
+- כפתור הסריקה הכתום ב-pantry (`_quickScanToDecrement`) הוא feature ייחודי — "זרק אריזה? סרוק והמלאי יתעדכן". לא להציע למזג אותו לתוך action אחר רק כי "3 FABs זה הרבה".
+- לפני המלצה לפישוט UX, לבדוק האם ה-action הוא power feature שמשתמשים מסתמכים עליו (חיפוש בקוד אחר usage, callbacks, telemetry hint). אם כן — שפר tooltip/spacing במקום להעלים.
+
+### 📅 תאריכים בעברית — חודש או יום?
+- פורמט "DD/MM" (5/5, 11/05) דו-משמעי בלי הקשר — דובר אנגלית עלול לקרוא MM/DD. בעברית RTL זה גם לא תמיד ברור.
+- העדפת פורמטים: "5/5/26" (עם שנה) או "5 במאי" (חודש מילולי). שני הפורמטים נראים בבירור כתאריך מלא.
+
+### 🧹 ניקוי קטלוג — תמיד יש עוד
+- כל סבב סורק חושף קטגוריה חדשה של בעיות: trailing dots → backticks → invalid categories → store-section names ("מעדניה") → truncated brand names ("רמי" → "רמי לוי") → orphan list refs → duplicate barcodes.
+- אחרי שמשתמש אומר "תעבור עוד סריקה" — לא להגיד "הכל נקי, אין מה למצוא". כל סבב שונה: regex אחר, cross-reference שונה, schema אחר. תמיד למצוא משהו (לפחות 3 דברים) או להודות "סרקתי X זוויות, לא תפסתי משהו חדש".
+
 ---
 
 ## Key Commands

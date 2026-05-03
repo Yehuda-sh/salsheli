@@ -69,7 +69,92 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Latest Session (April 30, 2026) — Settings Folder Review + UX Deep-Dive
+### Latest Session (May 3, 2026) — Catalog Cleanup + Pantry UX Bugs
+
+**Catalog quality pass (assets/data/list_types/*.json):**
+Multiple cleanup phases on the catalog after the user surfaced data quality
+issues directly from screenshots ("the cheese name has 'מעדנייה' appended").
+- **Trailing/leading punctuation** stripped from 705+ product names
+  (`.`, `..`, `...`, `*`, leading `,/\\`).
+- **30 garbage names dropped** — entirely numeric ("20", "29"), single
+  letters ("OB", "FA"), or punctuation-only.
+- **Re-categorization** ran `fix_supermarket_step{2..6}.py` on the new
+  bot-merged products, then **5 rounds of manual keyword classification**
+  moving 6,700+ items out of `'כללי'` (35,971 → ~24,000, ~22%).
+- **Bidi marks stripped** — 36 RLE/RLM characters that broke rendering.
+- **Backticks** (\`) replaced with apostrophe (') across 976 names.
+- **87 non-product entries** removed (POS-leaked items: deposits, coupons,
+  department names, transit subscriptions).
+- **Schema repair** — duplicate barcodes deduped (64 + 50 + 2),
+  empty-string barcodes nulled (114 butcher + 77 bakery), zero prices
+  nulled (181 + 18), corrupt barcodes fixed (Excel `.0` artifact, leading
+  minus, trailing dot).
+- **Store-section pollution** — 11 names ending with "מעדניה" /
+  "המעדניה" / "במעדניה" / "למעדניה" cleaned. Plus 2 non-product
+  fragments removed ("הבהרה בנוגע לתוקף", "ממלואים גורמת").
+- **Truncated brand names** — 97 catalog items ending with " רמי"
+  restored to " רמי לוי" (the real brand name was cut off in the
+  source export).
+- Final: 114,637 items, 0 dups, 0 invalid categories, 0 orphan refs.
+
+**Pantry screen UX bugs caught from a single screenshot:**
+- Quantity chip rendered "ליטר 3" / "יח' 3" (unit-then-number) and the
+  geresh in 'יח'' landed on the wrong side — caused by the parent
+  Directionality(LTR) wrapper (which exists to keep -/+ buttons stable)
+  bleeding into the chip's text. Re-anchored the chip Text in a fresh
+  Directionality node tied to `isRtl` from up the tree. Now reads
+  "3 יח'" in Hebrew, "3 pcs" in English; -/+ buttons still LTR.
+- The pantry edit-dialog was missing a barcode display row. Brand+size
+  badges already loaded async from the catalog, but the barcode itself
+  was hidden, leaving four UX gaps (verify scan, disambiguate similar
+  items, show "barcode attached" for non-catalog items, share code).
+  Added a thin read-only line `inventory.barcodeRow(code)` (HE: "ברקוד: X",
+  EN: "Barcode: X") under the brand/size badges.
+- 3 floating action buttons (orange remove-from-pantry, blue
+  scan-to-add, blue + manual) sat too tightly stacked and the QR
+  tooltip was the generic "סרוק ברקוד" — same as orange's, so users
+  couldn't tell them apart. Added new symmetric tooltip
+  `inventory.scanToAddTooltip` ("סרוק להוספה למלאי") and bumped the
+  inter-FAB gap to `kSpacingSmallPlus`.
+
+**Demo data hygiene (scripts/rebuild_demo_data.js):**
+- Replaced hand-crafted product names with real catalog products. The
+  worst offender was 'חטיף חלבון - תפוגה קרובה' — the "expires soon"
+  warning was BAKED INTO the product name instead of being derived from
+  the dynamic `expiry_date` field. Now uses the real catalog
+  'חטיף חלבון בטעם שוקולד' (barcode 7290110327798) and the matching
+  notification was updated to reference the real name.
+- Fixed `locationForCategory()` map — used to reference categories
+  ('בשר ועוף', 'דגים', 'היגיינה ויופי') that don't exist in the actual
+  catalog, so meat/fish always fell through to default `main_pantry`.
+  Now matches the real catalog categories and adds 13 more (קפואים,
+  אלכוהול, מוצרי תינוקות, etc.).
+- Made `makeReceiptItem` carry barcode + brand (was missing — receipts
+  and list items couldn't be matched by the same product identity).
+- Inventory `expiry_date` now varies by category (short for dairy/
+  salads, medium for meat/frozen, days for bakery/produce, none for
+  pantry staples) instead of being dairy-only.
+- Three sequential await-in-loops parallelised via `Promise.all`
+  (8 past lists, 3 English custom items, 25 extra naama lists).
+- Receipt `linked_shopping_list_id` only on the most recent receipt
+  per batch (was on every receipt, conflating unrelated past trips).
+- 7 orphan list IDs in activity events fixed (some were simple wrong
+  IDs, some had no matching list and dropped the list_id field).
+- The deliberately-invalid 'future_feature_xyz' notification removed —
+  `firestore.rules > isValidNotificationType()` rejects it at write
+  time, so the test could never run.
+
+**CLAUDE.md additions from this session's lessons:**
+- 🛒 Demo data must use catalog products only — no hand-crafted names;
+  dynamic state belongs in dedicated fields, not in the name.
+- 🚦 Quick-action FABs (like quick-scan-to-decrement) are power features
+  — verify usage before suggesting "let's combine into one".
+- 📅 Hebrew dates — "DD/MM" is ambiguous; prefer "DD/MM/YY" or "DD בחודש".
+- 🧹 Catalog cleanup is open-ended — every round catches a new category
+  of bug. After "תעבור עוד סריקה" don't say "all clean"; find ≥3 things
+  or document what was scanned and why nothing turned up.
+
+### April 30, 2026 — Settings Folder Review + UX Deep-Dive
 
 **4 settings files reviewed end-to-end:**
 - `edit_household_name_dialog.dart`: dropped hardcoded RTL on the input, added haptic on save, added `onSubmitted` so the keyboard "Done" key saves, hoisted `maxLength: 40` into `_kMaxHouseholdNameLength` with rationale, and added a subtitle line explaining the change is multiplayer.
