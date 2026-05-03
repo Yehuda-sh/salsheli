@@ -1158,7 +1158,7 @@ async function main() {
     // script error out. App-side handling of unknown types should be tested
     // with a unit test that bypasses the security rules.
     // Expiry notifications — tests expiry_soon and expiry_expired types
-    makeNotification('notif_avi_13', uids.avi, hIds.cohen, 'expiry_soon', 'תפוגה קרובה', '"חטיף חלבון" פג תוקף בעוד יומיים', { createdAt: hoursAgo(4), actionData: { productName: 'חטיף חלבון - תפוגה קרובה', productId: 'inv_cohen_expiry' } }),
+    makeNotification('notif_avi_13', uids.avi, hIds.cohen, 'expiry_soon', 'תפוגה קרובה', '"חטיף חלבון בטעם שוקולד" פג תוקף בעוד יומיים', { createdAt: hoursAgo(4), actionData: { productName: 'חטיף חלבון בטעם שוקולד', productId: 'inv_cohen_expiry' } }),
     makeNotification('notif_avi_14', uids.avi, hIds.cohen, 'expiry_expired', 'פג תוקף!', 'פג התוקף של "חלב תנובה 3%" — יש להשליך', { createdAt: hoursAgo(2), actionData: { productName: 'חלב תנובה 3%' } }),
   ]);
   console.log('   🔔 אבי: 13 notifications (8 unread, includes expiry edge cases)');
@@ -1429,8 +1429,10 @@ async function main() {
     shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: [
       ...georgeProducts.map((p, i) => makeProductItem(p, i, { id: `item_geo_${i}` })),
-      // Item with very long name (overflow test)
-      makeProductItem({ name: 'שמנת מתוקה תנובה 38% שומן למטבח - מארז חיסכון משפחתי 3 יחידות במחיר מיוחד', category: 'מוצרי חלב', price: 15.9 }, 10, { id: 'item_geo_long' }),
+      // Item with very long name — uses a real catalog product whose name
+      // happens to be long, so the overflow test stays representative of
+      // names users actually see (not synthetic).
+      makeProductItem({ name: 'ריזאלטס תמיסה - משמיד כינים ומסלק ביצי כינים ללא חומרי הדברה כימיים 200 מ״ל', category: 'היגיינה אישית', price: 49.9, barcode: '7290017510521' }, 10, { id: 'item_geo_long' }),
       // Item with price 0 (free/unknown price)
       makeProductItem({ name: 'דוגמיות חינם מהפארם', category: 'היגיינה אישית', price: 0 }, 11, { id: 'item_geo_free' }),
     ],
@@ -1687,10 +1689,12 @@ async function main() {
   });
   console.log('   🔢 Naama pantry: quantity=99 item (max boundary test)');
 
-  // PATCH 5c: Pantry item with expiry date on non-dairy (snack bar with expiry)
+  // PATCH 5c: Pantry item with expiry date on non-dairy (snack bar with expiry).
+  // Uses a REAL catalog product — name carries no synthetic warning text;
+  // the "expires soon" status is derived from the expiry_date field below.
   await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_cohen_expiry').set({
     id: 'inv_cohen_expiry',
-    product_name: 'חטיף חלבון - תפוגה קרובה',
+    product_name: 'חטיף חלבון בטעם שוקולד',
     category: 'ממתקים וחטיפים',
     location: 'main_pantry',
     quantity: 3,
@@ -1699,13 +1703,14 @@ async function main() {
     expiry_date: admin.firestore.Timestamp.fromDate(daysFromNow(2)),
     notes: 'לאכול לפני שנגמר התוקף!',
     is_recurring: false,
+    barcode: '7290110327798',
     emoji: null,
     last_updated_by: uids.avi,
     updated_at: admin.firestore.FieldValue.serverTimestamp(),
     last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(10)),
     purchase_count: 1,
   });
-  console.log('   ⏰ Cohen pantry: non-dairy item with expiry date (2 days from now)');
+  console.log('   ⏰ Cohen pantry: real catalog snack bar (חטיף חלבון בטעם שוקולד), expires in 2 days');
 
   // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
   await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_chores').set({
