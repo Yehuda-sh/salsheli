@@ -767,9 +767,11 @@ async function main() {
   console.log('   📋 נעמה: קניות חודשיות (50 items! performance test, 20/50 checked)');
 
   // ── NAAMA: 8 completed past lists (history) ──
-  for (let w = 1; w <= 8; w++) {
+  // Parallel writes — 8 independent docs.
+  await Promise.all(Array.from({ length: 8 }, (_, idx) => {
+    const w = idx + 1;
     const pastProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), randomInt(8, 15));
-    await db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_past_${w}`).set({
+    return db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_past_${w}`).set({
       id: `list_naama_past_${w}`, name: `קניות שבוע ${w}`, status: 'completed', type: 'supermarket',
       budget: null, is_shared: false, is_private: true, created_by: uids.naama,
       format: 'personal', created_from_template: false,
@@ -777,7 +779,7 @@ async function main() {
       shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
       items: pastProducts.map((p, i) => makeProductItem(p, i, { id: `item_np${w}_${i}`, isChecked: true })),
     });
-  }
+  }));
   console.log('   📋 נעמה: 8 completed past lists (history)');
 
   // ── NAAMA: Budget list ──
@@ -884,13 +886,13 @@ async function main() {
   // Mike: 8 items (English product names test in pantry)
   const mikePantry = pickRandom(byCategory(products, 'מוצרי חלב', 'אורז ופסטה', 'משקאות'), 5);
   await createInventory(hIds.mike, mikePantry, uids.mike);
-  // Add English-named items manually to inventory
-  for (const [i, item] of [
+  // Add English-named items manually to inventory (parallel writes).
+  await Promise.all([
     { name: 'Organic Almond Milk', category: 'מוצרי חלב', unit: 'ליטר' },
     { name: 'Quinoa (Red)', category: 'אורז ופסטה', unit: "יח'" },
     { name: 'Extra Virgin Olive Oil 750ml', category: 'שמנים ורטבים', unit: "יח'" },
-  ].entries()) {
-    await db.collection('households').doc(hIds.mike).collection('inventory').doc(`inv_mike_en_${i}`).set({
+  ].map((item, i) =>
+    db.collection('households').doc(hIds.mike).collection('inventory').doc(`inv_mike_en_${i}`).set({
       id: `inv_mike_en_${i}`,
       product_name: item.name,
       category: item.category,
@@ -904,10 +906,10 @@ async function main() {
       emoji: null,
       last_updated_by: uids.mike,
       updated_at: admin.firestore.FieldValue.serverTimestamp(),
-      last_purchased: admin.firestore.Timestamp.fromDate(daysAgo(randomInt(1, 7))),
+      last_purchased: ts(daysAgo(randomInt(1, 7))),
       purchase_count: randomInt(1, 10),
-    });
-  }
+    })
+  ));
   console.log('   📦 Mike: 8 items (5 Hebrew catalog + 3 English custom)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1541,16 +1543,24 @@ async function main() {
   // ── NAAMA: Add 25 more lists to reach 30+ (power user performance test) ──
   console.log('\n⚡ Creating 25 extra lists for naama (power user)...');
   const listTypes = ['supermarket', 'bakery', 'butcher', 'greengrocer', 'pharmacy', 'market', 'household', 'event', 'other'];
-  for (let n = 1; n <= 25; n++) {
+  // Hebrew label per list type — keeps the loop body free of nested ternaries.
+  const listTypeLabels = {
+    supermarket: 'סופר', bakery: 'מאפייה', butcher: 'קצבייה',
+    greengrocer: 'ירקן', pharmacy: 'פארם', market: 'שוק',
+    household: 'בית', event: 'אירוע', other: 'אחר',
+  };
+  // Parallel writes — 25 independent docs with no inter-dependency.
+  await Promise.all(Array.from({ length: 25 }, (_, idx) => {
+    const n = idx + 1;
     const listType = listTypes[n % listTypes.length];
     const isCompleted = n <= 10;
     const isArchived = n > 10 && n <= 15;
     const status = isArchived ? 'archived' : isCompleted ? 'completed' : 'active';
     const itemCount = randomInt(3, 15);
     const listProducts = pickRandom(products.filter(p => p.sourceFile === (listType === 'pharmacy' ? 'pharmacy' : 'supermarket')), itemCount);
-    await db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_extra_${n}`).set({
+    return db.collection('users').doc(uids.naama).collection('private_lists').doc(`list_naama_extra_${n}`).set({
       id: `list_naama_extra_${n}`,
-      name: `רשימה #${n} - ${listType === 'supermarket' ? 'סופר' : listType === 'bakery' ? 'מאפייה' : listType === 'butcher' ? 'קצבייה' : listType === 'greengrocer' ? 'ירקן' : listType === 'pharmacy' ? 'פארם' : listType === 'market' ? 'שוק' : listType === 'household' ? 'בית' : listType === 'event' ? 'אירוע' : 'אחר'}`,
+      name: `רשימה #${n} - ${listTypeLabels[listType] || 'אחר'}`,
       status,
       type: listType,
       budget: n % 3 === 0 ? randomInt(100, 500) : null,
@@ -1564,11 +1574,11 @@ async function main() {
         isChecked: isCompleted || (isArchived && i < itemCount - 1),
       })),
     });
-  }
+  }));
   console.log('   ⚡ נעמה: +25 extra lists (total ~35 lists — performance test)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  // 14. EDGE CASE PATCHES — fix missing scenarios found in audit
+  // 13. EDGE CASE PATCHES — fix missing scenarios found in audit
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   console.log('\n🔬 Applying edge case patches...');
 
