@@ -705,7 +705,10 @@
   - And misc generic items ("פריט כללי", "הנחות שניתנו").
 
 **⏸️ Deferred (rule-based limit):**
-- **30,170 supermarket items still in `'כללי'` (~27%)** — the categorization scripts have hit their rule-based ceiling. Going further would need either a new keyword batch (manual) or an embedding-based classifier (model). Auto-merge bot adds new uncategorized products on each run; consider gating the bot on running `step{2..6}` automatically post-merge.
+- ~~30,170 supermarket items in `'כללי'`~~ → **24,669 (22.3%)** after Phases 7-10 manual rules.
+  - **Phases 7-10 added ~5,500 manual keyword rules** based on word-frequency analysis of the remaining `'כללי'` items: candy/snack patterns, beverage brands (Pepsi, Cola, Sprite, Fanta), alcohol (סמבוקה, שיראז, ויסקי, ביפיטר, אברפלדי), electronics (USB, Type C, סוללה), supplements (כמוסות ויטמין, מגנזיום, פרובי), pet food, eggs vs chocolate-eggs, hygiene brands (Colgate, Oral-B, Pampers, טמפקס), specific salads, vegetables (כרישה, לבבות חסה), and ~50 more.
+  - **5,594 items moved out of 'כללי'** in manual classification rounds. Top categories assigned: ממתקים וחטיפים (3,162), מוצרי בית (613), אלכוהול (201), משקאות (287), תבלינים ואפייה (257), קפה ותה (183), מוצרי חלב (189), בשר ודגים (129), אורז ופסטה (59), תוספי תזונה (126), קפואים (39).
+  - **Remaining 22.3%** are truly diverse — single-product entries with no shared keyword across the rest of `'כללי'`. Going further needs an embedding-based classifier or a per-brand lookup table (likely 100s of distinct Israeli/global brand names).
 - **2,107 supermarket names with weird capitalization** (mostly legit English brand names like "AROY-D", "M&M HIPROTEIN") — left as-is.
 - **806 same-name+category pairs in supermarket** — could be different sizes/variants of the same product, or true dupes. Needs heuristic to tell them apart.
 - **303 supermarket items with brand prefix in name** (e.g., name="תנובה חלב", brand="תנובה") — could strip the brand, but might over-clean if some names legitimately start with the brand for clarity. Needs review.
