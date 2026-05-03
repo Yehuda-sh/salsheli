@@ -1293,6 +1293,7 @@ class InventoryStringsEn extends InventoryStrings {
 
   // Quick Scan to decrement stock
   @override String get quickScanTooltip => 'Scan to use item';
+  @override String get scanToAddTooltip => 'Scan to add to pantry';
   @override String get quickScanTitle => 'Quick Scan';
   @override String quickScanDecremented(String name, int remaining) =>
       '$name — $remaining left';

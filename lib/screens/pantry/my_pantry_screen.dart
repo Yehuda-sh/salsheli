@@ -763,17 +763,19 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
                         tooltip: AppStrings.inventory.quickScanTooltip,
                         child: Icon(Icons.remove_shopping_cart, color: scheme.onSurface, size: kIconSizeSmallPlus),
                       ),
-                      const SizedBox(height: kSpacingSmall),
+                      const SizedBox(height: kSpacingSmallPlus),
                     ],
                     // 📷⬆️ סריקת ברקוד להוספה
                     FloatingActionButton.small(
                       heroTag: 'pantry_scan_btn',
                       onPressed: _scanBarcodeAndAddToPantry,
                       backgroundColor: scheme.secondaryContainer,
-                      tooltip: AppStrings.shopping.scanBarcode,
+                      // Symmetric phrasing with the orange "scan-to-decrement"
+                      // FAB above so the two scan buttons read as a pair.
+                      tooltip: AppStrings.inventory.scanToAddTooltip,
                       child: Icon(Icons.qr_code_scanner, color: scheme.onSecondaryContainer, size: kIconSizeSmallPlus),
                     ),
-                    const SizedBox(height: kSpacingSmall),
+                    const SizedBox(height: kSpacingSmallPlus),
                     // הוספה ידנית
                     Semantics(
                       button: true,

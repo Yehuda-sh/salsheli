@@ -1316,6 +1316,7 @@ class InventoryStrings {
 
   // Quick Scan to decrement stock
   String get quickScanTooltip => 'סרוק להורדת מלאי';
+  String get scanToAddTooltip => 'סרוק להוספה למלאי';
   String get quickScanTitle => 'סריקה מהירה';
   String quickScanDecremented(String name, int remaining) =>
       '$name — נשארו $remaining';
