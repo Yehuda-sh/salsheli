@@ -676,16 +676,33 @@
 **📊 Final state:**
 | File | Items | Duplicates | Null barcodes | Null prices |
 |------|------:|-----------:|--------------:|------------:|
-| supermarket | 110,958 | 0 | 0 | 181 |
+| supermarket | 111,031 | 0 | 0 | 181 |
 | pharmacy    |   1,026 | 0 | 0 | 0   |
 | market      |     994 | 0 | 0 | 0   |
 | butcher     |     834 | 0 | 114 | 0 |
 | greengrocer |     592 | 0 | 113 | 0 |
 | bakery      |     472 | 0 | 77  | 18 |
-| **Total**   | **114,876** | **0** | | |
+| **Total**   | **114,949** | **0** | | |
+
+**✅ Phase 4 — Deeper text cleanup:**
+- **36 supermarket items** had RLE/RLM bidi formatting marks (invisible Unicode chars `‪‫`) that broke rendering — stripped.
+- **976 backticks (\`)** across all files normalized to apostrophe `'`. The backtick was a substitute for the Hebrew geresh (`׳`); apostrophe is more portable. Distribution: supermarket 896, bakery 40, butcher 22, pharmacy 14, market 4.
+- **114 supermarket names** had multiple consecutive spaces — collapsed to single space (e.g., `'ביסקוויט "מינואט"  ע'` → `'ביסקוויט "מינואט" ע'`).
+- **87 non-products removed from supermarket** by pattern-matching:
+  - 10 "מחלקת אפיה/בשר/מעדניה" (department names mistakenly catalogued).
+  - 22 coupons ("קופון פסטה ספגטי אסם", etc. — discounts, not products).
+  - 20 deposits ("פיקדון", "פקדון", "דמי פיקדון", "זיכוי פקדון") — bottle-deposit fees.
+  - 8 transit subscriptions remaining ("מנוי חופשי", "נסיעה חופשית").
+  - 2 delivery fees ("דמי משלוח").
+  - 2 packaging recycling fees ("מיחזור אריזה").
+  - And misc generic items ("פריט כללי", "הנחות שניתנו").
 
 **⏸️ Deferred (rule-based limit):**
 - **30,170 supermarket items still in `'כללי'` (~27%)** — the categorization scripts have hit their rule-based ceiling. Going further would need either a new keyword batch (manual) or an embedding-based classifier (model). Auto-merge bot adds new uncategorized products on each run; consider gating the bot on running `step{2..6}` automatically post-merge.
+- **2,107 supermarket names with weird capitalization** (mostly legit English brand names like "AROY-D", "M&M HIPROTEIN") — left as-is.
+- **806 same-name+category pairs in supermarket** — could be different sizes/variants of the same product, or true dupes. Needs heuristic to tell them apart.
+- **303 supermarket items with brand prefix in name** (e.g., name="תנובה חלב", brand="תנובה") — could strip the brand, but might over-clean if some names legitimately start with the brand for clarity. Needs review.
+- **2,465 barcodes appearing in multiple list-type files** (e.g., supermarket + market both carry "אורז בסמטי DAAWAT") — by design (supermarket is the superset), not a bug.
 
 **🎯 Pattern:** with no real users on the system, aggressive cleanup is safe — reversible via git revert. Once real users land, dedup decisions need explicit review (some "duplicates" are different products with bad source-data barcodes; merging the wrong way deletes legitimate products from someone's list).
 
