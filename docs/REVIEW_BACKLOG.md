@@ -650,6 +650,49 @@
 
 ---
 
+## Pantry Screen
+
+### 📂 Components נגעו
+- `lib/screens/pantry/my_pantry_screen.dart` (~1,477 שורות) — נגענו נקודתית, **לא נסקר end-to-end ב-12 קטגוריות**.
+- `lib/widgets/inventory/pantry_item_dialog.dart` (~1,178 שורות) — נסקר חלקית (תוספת barcode row + brand/size badges מסשן קודם).
+
+### ✅ Decisions Made (3/5/2026)
+
+**Quantity chip — locale-aware direction:**
+- הצ'יפ של הכמות (`'${quantity} ${unit}'`) הציג "ליטר 3" / "יח' 3" — היחידה ראשונה והגרש בצד שגוי. הסיבה: ה-`Row` סביב הצ'יפ עטוף ב-`Directionality(LTR)` כדי לשמר את -/+ במקום קבוע, וה-LTR החיצוני דלף לטקסט בפנים.
+- **תיקון:** הצ'יפ Text עוטף ב-`Directionality` משלו, מבוסס על `isRtl` מהסקופ העליון. ה-LTR לכפתורים נשאר. עכשיו: עברית "3 יח'", אנגלית "3 pcs".
+
+**Edit dialog — barcode row:**
+- הדיאלוג היה מציג brand+size מהקטלוג (read-only) אבל לא את הברקוד עצמו. 4 פערי UX (אימות סריקה, הבחנה בין מוצרים דומים, indicator לפריטים לא בקטלוג, share). הוספה שורה קטנה ומעומעמת מתחת לcatalog badges: `inventory.barcodeRow(code)` (he+en, LTR-locked).
+
+**FAB tooltips — pair-symmetric:**
+- 3 FABs (כתום: סריקה להורדה, כחול QR: סריקה להוספה, כחול +: ידני). ה-tooltip של ה-QR היה `'סרוק ברקוד'` — לא הבחין מהכתום.
+- הוסף `inventory.scanToAddTooltip` = "סרוק להוספה למלאי" — קורא כצמד עם הכתום ("סרוק להורדת מלאי").
+- מרווח בין FABs בילט מ-`kSpacingSmall` (8) ל-`kSpacingSmallPlus` (12) — לא יושבים אחד על השני.
+
+**Demo data — real catalog products:**
+- `'חטיף חלבון - תפוגה קרובה'` ב-PATCH 5c של `rebuild_demo_data.js` החליף ל-`'חטיף חלבון בטעם שוקולד'` (ברקוד אמיתי 7290110327798). הסטטוס "תפוגה קרובה" נגזר מ-`expiry_date` במקום להיכתב לתוך השם.
+- שם ארוך ל-overflow test: 'שמנת מתוקה תנובה ... מארז חיסכון משפחתי 3 יחידות במחיר מיוחד' המומצא → 'ריזאלטס תמיסה - משמיד כינים ומסלק ביצי כינים ללא חומרי הדברה כימיים 200 מ״ל' (75 תווים, מהקטלוג).
+
+### ⏸️ Deferred
+
+- **🐛 3 FABs → Speed Dial** (option א מסשן 3/5): המשתמש בחר באיחוד ל-FAB יחיד שפותח תפריט. **Trigger:** session ייעודי לפני launch. **היקף:** בינוני (Stateful FAB עם expand/collapse).
+- **🐛 Top-of-screen UX** (4 שיפורים שזוהו, לא יושמו):
+  1. היררכיה הפוכה — "21 פריטים" בולט יותר מ-"2 התראות" (צריך הפוך).
+  2. הצ'יפ "אכ"/"רכ" העגול הסגול לא ברור (avatar? filter?). צריך אייקון ברור או label מלא.
+  3. כפתור הארכיון בצד ימין גדול מדי ל-AppBar action — אולי ב-overflow menu ⋮.
+  4. אייקון החיפוש לא נראה כ-button (אין background/container) — tap target קטן.
+- **🐛 Out-of-stock viz** — פריט עם `quantity == 0` מקבל רקע אדום מלא על כל הפריט (loud). אופציה עדינה: border אדום בלבד / icon ⚠️ קטן ליד השם / רק הצ'יפ של הכמות באדום.
+- **📅 Date format** — `DD/MM` ("5/5", "11/05") דו-משמעי בעברית/אנגלית. עדיפות: `DD/MM/YY` או `DD בחודש`. **Trigger:** sweep רוחבי של תאריכים בכל האפליקציה (גם ב-history, receipts, וכו').
+- **🐛 `MyPantryScreen.pendingStockFilter` static field** — pattern smell ל-intent passing בין מסכים. (תועד מסשן Apr-29, עדיין פתוח).
+
+### ⏳ Pending — full 12-category review
+- `my_pantry_screen.dart` (1,477 שורות) — נסקר נקודתית בסשן 3/5 (chip direction, FABs) אבל לא end-to-end בצ'קליסט מלא.
+- `pantry_item_dialog.dart` (1,178 שורות) — נסקר חלקית.
+- `pantry_starter_preview_dialog.dart`, `pantry_product_selection_sheet.dart`, `pantry_empty_state.dart`, `pantry_suggestions.dart` — לא נסקרו.
+
+---
+
 ## Catalog (assets/data/list_types/)
 
 ### 🛒 Catalog Full Cleanup — 30/4/2026 (Phases 1-3)
