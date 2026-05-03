@@ -986,14 +986,17 @@ async function main() {
   await createActivityEvents(hIds.cohen, [
     makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'supermarket', list_id: 'list_cohen_weekly' }, daysAgo(7)),
     makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
-    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_fruits' }, daysAgo(6)),
+    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_green' }, daysAgo(6)),
     // NEW: list_shared — Ronit shared the weekly list with the household.
     makeActivityEvent('act_cohen_share', hIds.cohen, 'list_shared', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(5)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_5', hIds.cohen, 'shopping_joined', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
     makeActivityEvent('act_cohen_6', hIds.cohen, 'shopping_completed', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', item_count: 12, store_name: 'רמי לוי' }, daysAgo(3)),
     makeActivityEvent('act_cohen_7', hIds.cohen, 'stock_updated', uids.avi, 'אבי כהן', { product_name: 'חלב תנובה 3%', quantity: 2 }, daysAgo(3)),
-    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household', list_id: 'list_cohen_passover' }, daysAgo(2)),
+    // 'list_cohen_passover' is a historical event — the underlying list isn't
+    // in the demo (we don't keep cleaning-day lists around), so the activity
+    // entry omits list_id; the feed will render it without a tap target.
+    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
     // NEW: list_deleted — Avi cleaned up an old shared list.
@@ -1005,8 +1008,10 @@ async function main() {
   // Levi household — 5 events
   await createActivityEvents(hIds.levi, [
     makeActivityEvent('act_levi_1', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'קניות לשבת', list_type: 'supermarket' }, daysAgo(5)),
-    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_shabbat' }, daysAgo(2)),
-    makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש' }, daysAgo(2)),
+    // 'קניות לשבת' is a Friday-shopping label for the Levi household's weekly
+    // list, which is the actual created doc.
+    makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_weekly' }, daysAgo(2)),
+    makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש', list_id: 'list_levi_weekly' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
     makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'household' }, daysAgo(1)),
   ]);
@@ -1015,11 +1020,15 @@ async function main() {
   // Naama household — 8 events (power user)
   await createActivityEvents(hIds.naama, [
     makeActivityEvent('act_naama_1', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_type: 'supermarket' }, daysAgo(10)),
-    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_weekly' }, daysAgo(7)),
-    makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל' }, daysAgo(7)),
+    // The "weekly" event maps to the big monthly shopping list (naama's main).
+    makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_big' }, daysAgo(7)),
+    makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל', list_id: 'list_naama_big' }, daysAgo(7)),
     makeActivityEvent('act_naama_4', hIds.naama, 'stock_updated', uids.naama, 'נעמה רוזן', { product_name: 'גבינה צהובה', quantity: 1 }, daysAgo(5)),
     makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
-    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_id: 'list_naama_pharm' }, daysAgo(3)),
+    // 'פארם' was an old single-purpose list — kept here without list_id since
+    // naama's current data doesn't include a pharmacy list (omitting list_id
+    // makes the activity feed render the row without a tap target).
+    makeActivityEvent('act_naama_6', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'פארם' }, daysAgo(3)),
     makeActivityEvent('act_naama_7', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'פארם', item_count: 5, store_name: 'סופר פארם' }, daysAgo(3)),
     makeActivityEvent('act_naama_8', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'חג פסח', list_type: 'supermarket' }, hoursAgo(2)),
   ]);
@@ -1075,7 +1084,7 @@ async function main() {
   await createActivityEvents(hIds.roommates, [
     // NEW: member_joined — Sapir was the latest to join the apartment.
     makeActivityEvent('act_room_join', hIds.roommates, 'member_joined', uids.sapir, 'ספיר דוד', {}, daysAgo(2)),
-    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household', list_id: 'list_room_chores' }, daysAgo(1)),
+    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household', list_id: 'list_room_clean' }, daysAgo(1)),
     makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'supermarket', list_id: 'list_room_grocery' }, hoursAgo(6)),
     makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(4)),
     makeActivityEvent('act_room_4', hIds.roommates, 'shopping_started', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(3)),
@@ -1131,13 +1140,17 @@ async function main() {
     makeNotification('notif_avi_10', uids.avi, hIds.cohen, 'invite', 'הזמנה לבית', 'נעמה רוזן הזמינה אותך להצטרף לבית שלה', { createdAt: hoursAgo(3), senderId: uids.naama, senderName: 'נעמה רוזן', actionData: { householdId: hIds.naama } }),
     // Edge case: user_removed notification
     makeNotification('notif_avi_11', uids.avi, hIds.cohen, 'user_removed', 'הוסרת מרשימה', 'הוסרת מרשימת "קניות ישנה"', { createdAt: daysAgo(90), isRead: true, readAt: daysAgo(89), actionData: { listId: 'old_list_123' } }),
-    // Edge case: unknown notification type — app should not crash
-    makeNotification('notif_avi_12', uids.avi, hIds.cohen, 'future_feature_xyz', 'עדכון מערכת', 'סוג התראה ממאפיין עתידי שטרם קיים באפליקציה', { createdAt: hoursAgo(1), actionData: {} }),
+    // Note: previously had a 'future_feature_xyz' edge case here to test the
+    // app's handling of unknown notification types. Removed because
+    // firestore.rules > isValidNotificationType() rejects anything not in the
+    // enum at write time, so the test could never write — it just made the
+    // script error out. App-side handling of unknown types should be tested
+    // with a unit test that bypasses the security rules.
     // Expiry notifications — tests expiry_soon and expiry_expired types
     makeNotification('notif_avi_13', uids.avi, hIds.cohen, 'expiry_soon', 'תפוגה קרובה', '"חטיף חלבון" פג תוקף בעוד יומיים', { createdAt: hoursAgo(4), actionData: { productName: 'חטיף חלבון - תפוגה קרובה', productId: 'inv_cohen_expiry' } }),
     makeNotification('notif_avi_14', uids.avi, hIds.cohen, 'expiry_expired', 'פג תוקף!', 'פג התוקף של "חלב תנובה 3%" — יש להשליך', { createdAt: hoursAgo(2), actionData: { productName: 'חלב תנובה 3%' } }),
   ]);
-  console.log('   🔔 אבי: 14 notifications (8 unread, includes unknown type + expiry edge cases)');
+  console.log('   🔔 אבי: 13 notifications (8 unread, includes expiry edge cases)');
 
   // Ronit notifications (5)
   await createNotifications(uids.ronit, [
@@ -1726,7 +1739,7 @@ async function main() {
   console.log(`📦 ~116 inventory items`);
   console.log(`🧾 76 receipts`);
   console.log(`📝 51 activity log events incl. list_shared / list_deleted / member_joined`);
-  console.log(`🔔 46 notifications`);
+  console.log(`🔔 45 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');
