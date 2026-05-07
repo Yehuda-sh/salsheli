@@ -432,8 +432,8 @@
 
 **📂 Used in:** `index_screen.dart` (IndexLoadingView + IndexErrorView).
 
-**✅ Decisions Made:**
-- **A11y**: `Semantics(label: loadingLabel, excludeSemantics: true)` סביב ה-Loading Indicator — מונע מקורא מסך לקרוא את ה-cycling messages כל 2 שניות. אותו pattern של `loading_overlay.dart`.
+**✅ Decisions Made (Round 1, 29/4/2026):**
+- **A11y loading**: `Semantics(label: loadingLabel, excludeSemantics: true)` סביב ה-Loading Indicator — מונע מקורא מסך לקרוא את ה-cycling messages כל 2 שניות. אותו pattern של `loading_overlay.dart`.
 - **Token alignment**: 2× alpha → kOpacity:
   - Logo shadow: 0.2 → `kOpacityLow`
   - Error card border: 0.3 → `kOpacityLight`
@@ -441,8 +441,20 @@
 - **5 layers of animation** (logo elastic + pulse + shimmer + wave + message rotation) עם RepaintBoundary לבידוד.
 - **WavePainter optimization**: `_kWaveStepPx = 2.0` עם הערה "1px is overkill, 2px is identical visually".
 
+**✅ Decisions Made (Round 2, 7/5/2026 — post premium-icon work):**
+- **Logo size in loading circle**: `_kLogoIconSize` מ-36 ל-56 (יחס ~78% icon-to-circle). הקודם היה רך מדי בגלל הקרופ העדין יותר של ה-logo.png (95% fill).
+- **Native splash icon_background_color**: revert ללבן→קרם (`#FFF8F0`). הסשן ה-בריך אותו ללבן בתחילת עבודת האייקון, מה ששבר את ההנחה של handoff invisible. **Lesson**: שינוי `icon_background_color` בלי לעדכן `kSplashBackground` או להפך = flash.
+- **IndexErrorView redesign — same visual world as IndexLoadingView**: היה blue/purple/pink gradient + glassmorphism card; עכשיו cream bg + NotebookBackground.subtle + אותו logo container + Caveat header + softer cloud_off icon. זה מחליק את הקפיצה הוויזואלית כשטעינה נכשלת.
+- **A11y error**: `Semantics(liveRegion: true)` סביב error column — TalkBack/VoiceOver יקריא title+message כשה-view מחליף את loading.
+- **Token sweep**: `0.08` (×3 — pulse halo + 2 גלים) → `_kDecorativeTintAlpha` local; `0.04` → `_kDecorativeTintAlphaHalf`; `0.85` → `kOpacityHigh`; `150` → `_kWaveHeight`.
+- **Rename**: `_buildGradientBackground` → `_buildSplashBackground` (החזיר `Container(color:)` בלבד, לא gradient — שאריות מגרסה קודמת).
+- **Defensive**: `_startMessageRotation` skip אם `loadingMessages.isEmpty` (% 0 crash latent).
+- **Removed unused constants** מ-`ui_constants.dart`: `kSplashGradientStart/Middle/End` + Dark variants. ה-error view היה הצרכן היחיד.
+
 **⏸️ Deferred:**
 - **Cross-file: cycling messages duplicates `loading_overlay.dart` pattern** — פרמטרים שונים (2000ms vs 1500ms, אנימציה שונה). לא דחוף לאיחוד. **Trigger:** sweep של auth-bootstrap loading widgets.
+- **Loading timeout signal** — אין UI ל"לוקח יותר מהצפוי / Cancel" אחרי 5-10s. ה-8s timeout ב-`index_screen` קיים אבל invisible. **החלטה (7/5):** לא לטפל עכשיו, לחכות לדיווח משתמשים על stuck UI.
+- **4 simultaneous logo animations** (elastic + rotation + pulse + shimmer) — possibly overproduced אבל בחירת עיצוב מודעת. לא לשנות בלי בקשה.
 
 **🎯 Reference**: דוגמה ל-bootstrap visual layer עם premium animations + careful lifecycle (4 controllers + Timer, all disposed).
 
