@@ -16,8 +16,8 @@ import '../widgets/common/notebook_background.dart';
 // Logo / pulse / loading-indicator dimensions used by IndexLoadingView.
 // (Local to this file — they describe specific look-and-feel, not tokens.)
 // ───────────────────────────────────────────────────────────────────────────
-const double _kLogoSize = kButtonHeight + 24; // 76
-const double _kLogoIconSize = kButtonHeight - 12; // 40
+const double _kLogoSize = kButtonHeight + 24; // 72
+const double _kLogoIconSize = kButtonHeight + 8; // 56 — ~78% icon-to-circle ratio
 const double _kLogoPulseScale = 1.5;
 const double _kLogoPulseAmplitude = 0.2;
 const double _kLogoShadowBlur = 20.0;
