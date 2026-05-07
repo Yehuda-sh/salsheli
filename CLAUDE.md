@@ -96,6 +96,56 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 
 ---
 
+## Session Workflow (סנכרון בין סשנים)
+
+המשתמש עובד **גם לוקאלית מהמחשב, גם דרך מובייל מול הריפו**. כדי שלא יווצרו diverged branches בין סשנים — לפעול לפי התהליך הבא בכל סשן:
+
+### 🌿 ברנצ'ים
+- **`claude/dev`** — ברנץ' העבודה השוטפת. **כל הסשנים** (לוקאלי + ענן/מובייל) עובדים עליו.
+- **`main`** — snapshot יציב. נוגעים בו רק כשמודעים ("עכשיו ממזגים פיצ'ר ל-main").
+- **ברנצ'ים `claude/<session-id>`** — אם המערכת יוצרת ברנץ' ייעודי לסשן, לבצע merge ל-`claude/dev` בסוף הסשן (לא להשאיר תלוי).
+
+### 🟢 בתחילת כל סשן — pull תמיד
+```bash
+git checkout claude/dev
+git pull origin claude/dev
+```
+ככה הסשן הנוכחי רואה כל מה שקרה בסשן הקודם (גם אם הוא היה במכשיר אחר).
+
+### 🟢 בסוף כל סשן — commit + push חובה
+```bash
+git add <files>
+git commit -m "..."
+git push origin claude/dev
+```
+**בלי `push` — הסשן הבא במכשיר אחר לא יראה את העבודה.** זה הכלל הכי חשוב.
+
+### 🟢 כשפיצ'ר מוכן ויציב — מיזוג ל-main
+```bash
+git checkout main
+git pull origin main
+git merge claude/dev
+git push origin main
+git checkout claude/dev
+```
+
+### ⚠️ כללי הימנעות
+- ❌ **לא** לעבוד בו-זמנית בלוקאלי ובמובייל — לפני שעוברים מכשיר, לוודא ש-push בוצע.
+- ❌ **לא** ליצור commit לוקאלי בלי push בסוף סשן — אפילו "אסיים מחר" יוצר diverged branch.
+- ❌ **לא** לעקוף קונפליקט עם `--force` — לפתור rebase/merge רגיל.
+
+### 🆘 אם נוצר diverged branch
+זה קורה כשעובדים במכשיר אחד בלי push, ואז ממשיכים במכשיר אחר. הפתרון:
+```bash
+git status                    # לזהות אילו קבצים staged / modified
+git commit -m "wip: ..."      # אם יש שינויים לא-committed
+git pull --rebase origin claude/dev
+# פתרון קונפליקטים אם יש, ואז:
+git push origin claude/dev
+```
+
+---
+
 ## Audience & Voice
 
 **MemoZap הוא לא רק לאפליקציה למשפחות.** הוא לכל קבוצה שחולקת קניות:
