@@ -110,7 +110,9 @@ flutter_native_splash:
   image_dark: "assets/images/logo.png"
   android_12:
     color: "#FFF8F0"
-    icon_background_color: "#FFFFFF"
+    # icon_background_color matches kSplashBackground (lib/core/ui_constants.dart)
+    # so the native-splash → IndexLoadingView handoff is invisible — no flash.
+    icon_background_color: "#FFF8F0"
     image: "assets/images/splash_logo.png"
     color_dark: "#1A1A2E"
     icon_background_color_dark: "#1A1A2E"

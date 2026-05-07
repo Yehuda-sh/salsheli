@@ -233,17 +233,6 @@ const double kProgressIndicatorHeight = 6.0;  // Linear progress indicator heigh
 const Color kSplashBackground = Color(0xFFFFF8F0);     // Cream (matches native splash)
 const Color kSplashBackgroundDark = Color(0xFF1A1A2E); // Dark navy (matches dark splash)
 
-// Legacy gradient — kept for compatibility but no longer used by
-// IndexLoadingView. Safe to remove once nothing else imports it.
-const Color kSplashGradientStart = Color(0xFF4A90E2);   // Blue
-const Color kSplashGradientMiddle = Color(0xFF9B59B6);  // Purple
-const Color kSplashGradientEnd = Color(0xFFE91E63);     // Pink
-
-// Dark mode gradient (legacy, see above)
-const Color kSplashGradientStartDark = Color(0xFF1E3A8A);  // Dark blue
-const Color kSplashGradientMiddleDark = Color(0xFF6B21A8); // Dark purple
-const Color kSplashGradientEndDark = Color(0xFF9F1239);    // Dark pink
-
 // ═══════════════════════════════════════════════════════════════════════════
 // TYPOGRAPHY
 // ═══════════════════════════════════════════════════════════════════════════

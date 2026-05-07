@@ -31,11 +31,13 @@ const double _kWaveAmplitudeFront = 20.0;
 const double _kWaveAmplitudeBack = 15.0;
 const double _kWaveYOffsetFront = 0.5; // fraction of canvas height
 const double _kWaveYOffsetBack = 0.7;
+const double _kWaveHeight = 150.0;
 const double _kTwoPi = 2 * math.pi;
 
-// Error card shadow
-const double _kErrorCardShadowBlur = 30.0;
-const Offset _kErrorCardShadowOffset = Offset(0, 15);
+// Decorative tint alpha — intentionally below kOpacitySubtle (0.12) for ambient
+// elements (pulse halo, wave fills) that should be barely perceptible.
+const double _kDecorativeTintAlpha = 0.08;
+const double _kDecorativeTintAlphaHalf = 0.04; // back wave is half-strength
 
 /// 📋 מסך טעינה מונפש
 class IndexLoadingView extends StatefulWidget {
@@ -108,6 +110,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
   /// מחליף הודעות טעינה (AnimatedSwitcher מטפל באנימציה)
   void _startMessageRotation() {
     final messages = AppStrings.index.loadingMessages;
+    if (messages.isEmpty) return; // defensive: avoid % 0 crash if list ever empties
     _messageTimer = Timer.periodic(_messageRotationDelay, (timer) {
       if (!mounted) {
         timer.cancel();
@@ -135,8 +138,8 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
     return Scaffold(
       body: Stack(
         children: [
-          // 🎨 Gradient Background
-          _buildGradientBackground(context),
+          // 🎨 Splash background — matches native splash for invisible handoff
+          _buildSplashBackground(context),
 
           // v4.0: 📓 NotebookBackground hint — רקע מחברת עדין מאוד
           const Opacity(
@@ -168,14 +171,9 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
 
   /// 🎨 Solid splash-coloured background.
   ///
-  /// The native Android splash (configured in pubspec.yaml under
-  /// flutter_native_splash) paints `#FFF8F0` (light) / `#1A1A2E` (dark)
-  /// behind the logo. To make the splash → Flutter handoff invisible,
-  /// IndexLoadingView paints the same colour. The TweenAnimationBuilder
-  /// fades from transparent over the user's first 1.5s — so even if the
-  /// background colour is identical, the rest of the UI (logo, name,
-  /// spinner) eases in instead of popping.
-  Widget _buildGradientBackground(BuildContext context) {
+  /// Matches the native splash (pubspec.yaml flutter_native_splash) so the
+  /// native → Flutter handoff is invisible — no flash.
+  Widget _buildSplashBackground(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? kSplashBackgroundDark : kSplashBackground;
     return Container(color: bg);
@@ -189,7 +187,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
         final cs = Theme.of(context).colorScheme;
         return CustomPaint(
           painter: WavePainter(_waveController.value, cs),
-          size: Size(MediaQuery.of(context).size.width, 150),
+          size: Size(MediaQuery.of(context).size.width, _kWaveHeight),
         );
       },
     );
@@ -262,7 +260,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
                       height: _kLogoSize * _kLogoPulseScale,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: cs.primary.withValues(alpha: 0.08),
+                        color: cs.primary.withValues(alpha: _kDecorativeTintAlpha),
                       ),
                     ),
                   );
@@ -467,24 +465,19 @@ class _IndexErrorViewState extends State<IndexErrorView> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg = isDark ? kSplashBackgroundDark : kSplashBackground;
 
     return Scaffold(
       body: Stack(
         children: [
-          // v4.0: Gradient background (same as loading screen)
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  isDark ? kSplashGradientStartDark : kSplashGradientStart,
-                  isDark ? kSplashGradientMiddleDark : kSplashGradientMiddle,
-                  isDark ? kSplashGradientEndDark : kSplashGradientEnd,
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
+          // Same cream/dark bg as IndexLoadingView — no jarring color jump
+          // when load fails and the view swaps in.
+          Container(color: bg),
+
+          // Subtle notebook hint, matches loading view.
+          const Opacity(
+            opacity: 0.05,
+            child: NotebookBackground.subtle(),
           ),
 
           // Content
@@ -500,105 +493,107 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                     child: child,
                   );
                 },
-                // v4.0: Glassmorphism error card
                 child: Padding(
                   padding: const EdgeInsets.all(kSpacingXLarge),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                        sigmaX: kGlassBlurLow,
-                        sigmaY: kGlassBlurLow,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.all(kSpacingXLarge),
-                        decoration: BoxDecoration(
-                          color: cs.surface.withValues(alpha: 0.85),
-                          borderRadius:
-                              BorderRadius.circular(kBorderRadiusLarge),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: kOpacityLight),
-                            width: 0.5,
+                  // liveRegion announces title+message to screen readers
+                  // when this view replaces the loading view.
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Same logo container as loading — no animations,
+                        // calm presence, preserves brand identity.
+                        Container(
+                          width: _kLogoSize,
+                          height: _kLogoSize,
+                          decoration: BoxDecoration(
+                            color: cs.surface,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: cs.shadow.withValues(alpha: kOpacityLow),
+                                blurRadius: _kLogoShadowBlur,
+                                offset: _kLogoShadowOffset,
+                              ),
+                            ],
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: cs.shadow.withValues(alpha: kOpacityLight),
-                              blurRadius: _kErrorCardShadowBlur,
-                              offset: _kErrorCardShadowOffset,
-                            ),
-                          ],
+                          padding: const EdgeInsets.all(kSpacingTiny),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            width: _kLogoIconSize,
+                            height: _kLogoIconSize,
+                            fit: BoxFit.contain,
+                          ),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // אייקון שגיאה
-                            Container(
-                              padding: const EdgeInsets.all(kSpacingLarge),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    cs.error.withValues(alpha: kOpacityStrong),
-                                    cs.error,
-                                  ],
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.error_outline,
-                                size: kIconSizeXXLarge,
-                                color: cs.onError,
-                              ),
-                            ),
-                            const SizedBox(height: kSpacingLarge),
+                        const SizedBox(height: kSpacingXLarge),
 
-                            // טקסט
-                            Text(
-                              AppStrings.index.errorTitle,
-                              style: TextStyle(
-                                fontSize: kFontSizeLarge,
-                                fontWeight: FontWeight.bold,
-                                color: cs.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: kSpacingSmall),
-                            Text(
-                              AppStrings.index.errorMessage,
-                              style: TextStyle(
-                                fontSize: kFontSizeBody,
-                                color: cs.onSurfaceVariant,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-
-                            const SizedBox(height: kSpacingXLarge),
-
-                            // v4.0: כפתור retry עם haptic lightImpact
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                unawaited(HapticFeedback.lightImpact());
-                                widget.onRetry();
-                              },
-                              icon: const Icon(Icons.refresh),
-                              label: Text(AppStrings.index.retryButton),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: cs.primary,
-                                foregroundColor: cs.onPrimary,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: kSpacingXLarge,
-                                  vertical: kSpacingMedium,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(kBorderRadiusLarge),
-                                ),
-                                elevation: 5,
-                              ),
-                            ),
-                          ],
+                        // App name (same Caveat header as loading)
+                        Text(
+                          AppStrings.index.appName,
+                          style: TextStyle(
+                            fontFamily: 'Caveat',
+                            fontSize: kFontSizeDisplay,
+                            fontWeight: FontWeight.w700,
+                            color: cs.primary,
+                            letterSpacing: 0.5,
+                            height: 1.0,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: kSpacingLarge),
+
+                        // Softer connectivity icon — error_outline with
+                        // a red gradient circle felt alarming for what is
+                        // usually just a transient sync hiccup.
+                        Icon(
+                          Icons.cloud_off_outlined,
+                          size: kIconSizeXLarge,
+                          color: cs.error,
+                        ),
+                        const SizedBox(height: kSpacingMedium),
+
+                        Text(
+                          AppStrings.index.errorTitle,
+                          style: TextStyle(
+                            fontSize: kFontSizeLarge,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: kSpacingSmall),
+                        Text(
+                          AppStrings.index.errorMessage,
+                          style: TextStyle(
+                            fontSize: kFontSizeBody,
+                            color: cs.onSurfaceVariant,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: kSpacingXLarge),
+
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            unawaited(HapticFeedback.lightImpact());
+                            widget.onRetry();
+                          },
+                          icon: const Icon(Icons.refresh),
+                          label: Text(AppStrings.index.retryButton),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: cs.onPrimary,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: kSpacingXLarge,
+                              vertical: kSpacingMedium,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(kBorderRadiusLarge),
+                            ),
+                            elevation: 5,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -625,7 +620,7 @@ class WavePainter extends CustomPainter {
 
     // גל ראשון
     final paint = Paint()
-      ..color = colorScheme.primary.withValues(alpha: 0.08)
+      ..color = colorScheme.primary.withValues(alpha: _kDecorativeTintAlpha)
       ..style = PaintingStyle.fill;
 
     final yFront = size.height * _kWaveYOffsetFront;
@@ -643,7 +638,7 @@ class WavePainter extends CustomPainter {
 
     // גל שני
     final paint2 = Paint()
-      ..color = colorScheme.primary.withValues(alpha: 0.04)
+      ..color = colorScheme.primary.withValues(alpha: _kDecorativeTintAlphaHalf)
       ..style = PaintingStyle.fill;
 
     final yBack = size.height * _kWaveYOffsetBack;
