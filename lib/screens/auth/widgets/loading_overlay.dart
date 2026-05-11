@@ -5,10 +5,23 @@ import 'package:flutter/material.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 
+/// כשנמשיך לחכות מעבר ל-window הזה, ה-overlay מחליף את הטקסט
+/// ל-"לוקח יותר מהצפוי" וחושף כפתור Cancel — אם ה-caller מספק
+/// `onCancel`. Firebase Auth מתחזק עד ל-120s על reCAPTCHA retries,
+/// ובלי escape hatch המסך נראה תקוע.
+const Duration _kShowCancelAfter = Duration(seconds: 8);
+
 class LoadingOverlay extends StatefulWidget {
   final Color color;
 
-  const LoadingOverlay({super.key, required this.color});
+  /// אם null — לא נציג כפתור Cancel גם אחרי 8s (התנהגות תאימה לאחור).
+  final VoidCallback? onCancel;
+
+  const LoadingOverlay({
+    super.key,
+    required this.color,
+    this.onCancel,
+  });
 
   @override
   State<LoadingOverlay> createState() => _LoadingOverlayState();
@@ -22,23 +35,35 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
   ];
 
   int _messageIndex = 0;
-  Timer? _timer;
+  bool _showCancel = false;
+  Timer? _cycleTimer;
+  Timer? _cancelTimer;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
+    _cycleTimer = Timer.periodic(const Duration(milliseconds: 1500), (_) {
       if (mounted) {
         setState(() {
           _messageIndex = (_messageIndex + 1) % _messages.length;
         });
       }
     });
+    // Reveal the "taking longer" copy + Cancel button once we've blown
+    // past the typical signup happy-path window. We don't tear down the
+    // cycle timer — the long-loading copy replaces the cycling text in
+    // the build method.
+    _cancelTimer = Timer(_kShowCancelAfter, () {
+      if (mounted) {
+        setState(() => _showCancel = true);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _cycleTimer?.cancel();
+    _cancelTimer?.cancel();
     super.dispose();
   }
 
@@ -63,8 +88,11 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             child: Text(
-              _messages[_messageIndex],
-              key: ValueKey(_messageIndex),
+              _showCancel
+                  ? AppStrings.auth.loadingTakingLonger
+                  : _messages[_messageIndex],
+              key: ValueKey(_showCancel ? -1 : _messageIndex),
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: cs.onSurface,
                 fontSize: kFontSizeMedium,
@@ -72,6 +100,13 @@ class _LoadingOverlayState extends State<LoadingOverlay> {
               ),
             ),
           ),
+          if (_showCancel && widget.onCancel != null) ...[
+            const SizedBox(height: kSpacingMedium),
+            TextButton(
+              onPressed: widget.onCancel,
+              child: Text(AppStrings.auth.loadingCancelButton),
+            ),
+          ],
         ],
       ),
     );

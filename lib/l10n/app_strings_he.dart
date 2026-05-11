@@ -752,6 +752,9 @@ class AuthStrings {
   String get loadingCheckingDetails => 'בודק פרטים...';
   String get loadingConnecting => 'מתחבר לשרת...';
   String get loadingAlmostThere => 'כמעט שם...';
+  String get loadingTakingLonger => 'לוקח יותר מהצפוי — בדוק את החיבור';
+  String get loadingCancelButton => 'בטל';
+  String get loadingCancelledMessage => 'ההרשמה ממשיכה ברקע — אם הצליחה, תועבר אוטומטית';
 }
 
 // ========================================

@@ -736,6 +736,9 @@ class AuthStringsEn extends AuthStrings {
   @override String get loadingCheckingDetails => 'Checking details...';
   @override String get loadingConnecting => 'Connecting to server...';
   @override String get loadingAlmostThere => 'Almost there...';
+  @override String get loadingTakingLonger => 'Taking longer than expected — check your connection';
+  @override String get loadingCancelButton => 'Cancel';
+  @override String get loadingCancelledMessage => 'Signup is still finishing in the background — you\'ll be redirected if it succeeds';
 }
 
 // ========================================

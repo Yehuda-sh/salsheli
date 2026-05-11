@@ -43,6 +43,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  // Tracks whether the user tapped Cancel on the LoadingOverlay after
+  // the 8s reveal. Firebase Auth has no real cancel API, so the in-
+  // flight signUp may still complete — but if it does, we must bail
+  // out before navigating, otherwise the user lands on home after
+  // they explicitly asked out.
+  bool _userCancelledLoading = false;
 
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
@@ -100,6 +106,31 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     unawaited(HapticFeedback.heavyImpact());
     await Future.delayed(const Duration(milliseconds: 100));
     unawaited(HapticFeedback.heavyImpact());
+  }
+
+  /// Called by LoadingOverlay when the user taps Cancel after 8s. We
+  /// close the overlay and flag the flow as cancelled — the in-flight
+  /// auth Future may still complete in the background, so the per-await
+  /// `_userCancelledLoading` checks below silently abort any UI work.
+  void _onLoadingCancel() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      _userCancelledLoading = true;
+    });
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.auth.loadingCancelledMessage),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(kSpacingMedium),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(kBorderRadius),
+          ),
+        ),
+      );
   }
 
   @override
@@ -230,6 +261,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       return;
     }
 
+    _userCancelledLoading = false;
     setState(() => _isLoading = true);
 
     try {
@@ -243,6 +275,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final userContext = context.read<UserContext>();
       await userContext.signUp(email: email, password: password, name: name, phone: phone);
 
+      if (_userCancelledLoading || !mounted) return;
+
       // ✅ הרישום הצליח!
       if (kDebugMode) debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
 
@@ -251,40 +285,40 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       await prefs.setBool('seenOnboarding', true);
       if (kDebugMode) debugPrint('✅ _handleRegister() | Onboarding flag saved');
 
+      if (_userCancelledLoading || !mounted) return;
+
       // 🎉 הצגת feedback ויזואלי + שם בית + ניווט
-      if (mounted) {
-        setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
 
-        // 🏠 שאלה על שם הבית (אופציונלי — המשתמש יכול לדלג)
-        await _askHouseholdName(userContext);
+      // 🏠 שאלה על שם הבית (אופציונלי — המשתמש יכול לדלג)
+      await _askHouseholdName(userContext);
 
-        // 🎉 הודעת הצלחה
-        if (mounted) {
-          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
-        }
+      if (_userCancelledLoading || !mounted) return;
 
-        // ⏱️ המתנה קצרה לפני ניווט
-        await Future.delayed(const Duration(milliseconds: 1200));
+      // 🎉 הודעת הצלחה
+      _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
 
-        if (mounted) {
-          // ✅ Pending invites guard: בדיקה לפני ניווט לבית
-          if (kDebugMode) debugPrint('🔄 _handleRegister() | Post-auth navigation');
-          await navigateAfterAuth(context, userContext);
-        }
-      }
+      // ⏱️ המתנה קצרה לפני ניווט
+      await Future.delayed(const Duration(milliseconds: 1200));
+
+      if (_userCancelledLoading || !mounted) return;
+
+      // ✅ Pending invites guard: בדיקה לפני ניווט לבית
+      if (kDebugMode) debugPrint('🔄 _handleRegister() | Post-auth navigation');
+      await navigateAfterAuth(context, userContext);
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleRegister() | Registration failed: $e');
 
+      if (_userCancelledLoading || !mounted) return;
+
       final errorMsg = userFriendlyError(e, context: 'register');
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
-        unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
+      setState(() => _isLoading = false);
+      unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
+      unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
 
-        // 🎨 הודעת שגיאה משופרת
-        _showStatus(errorMsg, type: StatusType.error);
-      }
+      // 🎨 הודעת שגיאה משופרת
+      _showStatus(errorMsg, type: StatusType.error);
     }
 
     if (kDebugMode) debugPrint('🏁 _handleRegister() | Completed');
@@ -307,6 +341,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (_isLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
+    _userCancelledLoading = false;
     setState(() => _isLoading = true);
 
     try {
@@ -314,37 +349,39 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       await userContext.signInWithGoogle();
 
+      if (_userCancelledLoading || !mounted) return;
+
       // 🔹 שמירת seenOnboarding
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // 🏠 Ask for household name (same as email registration)
-        await _askHouseholdName(userContext);
+      if (_userCancelledLoading || !mounted) return;
 
-        if (mounted) {
-          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
-        }
+      setState(() => _isLoading = false);
+      // 🏠 Ask for household name (same as email registration)
+      await _askHouseholdName(userContext);
 
-        // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
-        await Future.delayed(const Duration(milliseconds: 1200));
+      if (_userCancelledLoading || !mounted) return;
 
-        if (mounted) {
-          // ✅ Pending invites guard
-          await navigateAfterAuth(context, userContext);
-        }
-      }
+      _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+
+      // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
+      await Future.delayed(const Duration(milliseconds: 1200));
+
+      if (_userCancelledLoading || !mounted) return;
+
+      // ✅ Pending invites guard
+      await navigateAfterAuth(context, userContext);
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // ✅ בדיקת ביטול לפי error code (לא string matching)
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
-        }
+      if (_userCancelledLoading || !mounted) return;
+
+      setState(() => _isLoading = false);
+      // ✅ בדיקת ביטול לפי error code (לא string matching)
+      final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+      if (!isCancelled) {
+        unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
+        _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
       }
     }
   }
@@ -354,6 +391,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (_isLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
+    _userCancelledLoading = false;
     setState(() => _isLoading = true);
 
     try {
@@ -361,37 +399,39 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       await userContext.signInWithApple();
 
+      if (_userCancelledLoading || !mounted) return;
+
       // 🔹 שמירת seenOnboarding
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // 🏠 Ask for household name (same as email registration)
-        await _askHouseholdName(userContext);
+      if (_userCancelledLoading || !mounted) return;
 
-        if (mounted) {
-          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
-        }
+      setState(() => _isLoading = false);
+      // 🏠 Ask for household name (same as email registration)
+      await _askHouseholdName(userContext);
 
-        // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
-        await Future.delayed(const Duration(milliseconds: 1200));
+      if (_userCancelledLoading || !mounted) return;
 
-        if (mounted) {
-          // ✅ Pending invites guard
-          await navigateAfterAuth(context, userContext);
-        }
-      }
+      _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+
+      // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
+      await Future.delayed(const Duration(milliseconds: 1200));
+
+      if (_userCancelledLoading || !mounted) return;
+
+      // ✅ Pending invites guard
+      await navigateAfterAuth(context, userContext);
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
-        // ✅ בדיקת ביטול לפי error code (לא string matching)
-        final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
-        if (!isCancelled) {
-          unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
-          _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
-        }
+      if (_userCancelledLoading || !mounted) return;
+
+      setState(() => _isLoading = false);
+      // ✅ בדיקת ביטול לפי error code (לא string matching)
+      final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
+      if (!isCancelled) {
+        unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
+        _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
       }
     }
   }
@@ -845,7 +885,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
                   child: Container(
                     color: cs.scrim.withValues(alpha: 0.25),
-                    child: Center(child: LoadingOverlay(color: accent)),
+                    child: Center(
+                      child: LoadingOverlay(
+                        color: accent,
+                        onCancel: _onLoadingCancel,
+                      ),
+                    ),
                   ),
                 ),
               ),
