@@ -654,8 +654,8 @@ class AuthStrings {
   String get sendResetEmailButton => 'שלח קישור';
   String get resetEmailSent => 'מייל לאיפוס סיסמה נשלח בהצלחה!';
   String get emailNotVerified => 'האימייל לא אומת';
-  String get verifyEmailMessage => 'נא לאמת את כתובת האימייל שלך';
-  String get sendVerificationEmailButton => 'שלח מייל אימות';
+  String get verifyEmailMessage => 'שלחנו אימייל אימות — בדוק תיבת דואר (כולל ספאם)';
+  String get sendVerificationEmailButton => 'שלח שוב';
   String get verificationEmailSent => 'מייל אימות נשלח! בדוק את תיבת הדואר (כולל ספאם)';
   String get emailVerifiedSuccess => 'כתובת המייל אומתה בהצלחה ✓';
   String get checkYourEmail => 'בדוק את תיבת הדואר שלך';

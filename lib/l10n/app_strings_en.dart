@@ -638,8 +638,8 @@ class AuthStringsEn extends AuthStrings {
   @override String get sendResetEmailButton => 'Send Link';
   @override String get resetEmailSent => 'Password reset email sent successfully!';
   @override String get emailNotVerified => 'Email not verified';
-  @override String get verifyEmailMessage => 'Please verify your email address';
-  @override String get sendVerificationEmailButton => 'Send Verification Email';
+  @override String get verifyEmailMessage => 'We sent a verification email — check your inbox (including spam)';
+  @override String get sendVerificationEmailButton => 'Resend';
   @override String get verificationEmailSent => 'Verification email sent! Check your inbox (including spam)';
   @override String get emailVerifiedSuccess => 'Email verified successfully ✓';
   @override String get checkYourEmail => 'Check your inbox';

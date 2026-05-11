@@ -68,12 +68,22 @@ class SocialLoginResult {
   });
 
   /// יוצר SocialLoginResult מ-firebase_auth.UserCredential
-  factory SocialLoginResult.fromCredential(UserCredential credential) {
+  ///
+  /// [nameOverride] משמש למקרים בהם הספק מספק שם רק פעם אחת (Apple's
+  /// givenName + familyName בכניסה הראשונה) — Firebase Auth לא מאחסן
+  /// אותם, אז אנחנו מעבירים אותם דרך הDTO ישירות.
+  factory SocialLoginResult.fromCredential(
+    UserCredential credential, {
+    String? nameOverride,
+  }) {
     final user = credential.user!;
+    final override = nameOverride?.trim();
     return SocialLoginResult(
       uid: user.uid,
       email: user.email,
-      displayName: user.displayName,
+      displayName: (override != null && override.isNotEmpty)
+          ? override
+          : user.displayName,
       phoneNumber: user.phoneNumber,
       photoUrl: user.photoURL,
       isNewUser: credential.additionalUserInfo?.isNewUser ?? false,
@@ -311,6 +321,16 @@ class AuthService {
       await credential.user?.updateDisplayName(name);
       await credential.user?.reload();
 
+      // Trigger the verification email immediately so it's waiting in
+      // the inbox by the time the user lands on the dashboard. Failure
+      // here is non-fatal — auth already succeeded and the in-app banner
+      // can resend on demand.
+      try {
+        await credential.user?.sendEmailVerification();
+      } catch (_) {
+        // Non-critical
+      }
+
       return credential;
     } on AuthException {
       rethrow;
@@ -468,6 +488,15 @@ class AuthService {
         nonce: nonce,
       );
 
+      // Apple supplies the user's name ONLY on the first sign-in. If
+      // we don't capture it here, it's gone forever — Firebase Auth
+      // does not persist it from the credential, and subsequent sign-ins
+      // return null for both givenName and familyName.
+      final appleFullName = _composeName(
+        appleCredential.givenName,
+        appleCredential.familyName,
+      );
+
       final oauthCredential = OAuthProvider('apple.com').credential(
         idToken: appleCredential.identityToken,
         rawNonce: rawNonce,
@@ -475,7 +504,23 @@ class AuthService {
 
       final userCredential = await _auth.signInWithCredential(oauthCredential);
 
-      return SocialLoginResult.fromCredential(userCredential);
+      // Persist the Apple-supplied name on the Firebase user so that
+      // every future code path (currentUserDisplayName, reloadUser,
+      // SocialLoginResult.fromCredential) sees the same value.
+      if (appleFullName != null &&
+          (userCredential.user?.displayName?.isEmpty ?? true)) {
+        try {
+          await userCredential.user?.updateDisplayName(appleFullName);
+          await userCredential.user?.reload();
+        } catch (_) {
+          // Non-critical — name is still returned via SocialLoginResult
+        }
+      }
+
+      return SocialLoginResult.fromCredential(
+        userCredential,
+        nameOverride: appleFullName,
+      );
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthException(
@@ -500,6 +545,16 @@ class AuthService {
         originalError: e,
       );
     }
+  }
+
+  /// מצרף given+family name → "Given Family", null אם שניהם ריקים.
+  String? _composeName(String? given, String? family) {
+    final g = given?.trim() ?? '';
+    final f = family?.trim() ?? '';
+    if (g.isEmpty && f.isEmpty) return null;
+    if (g.isEmpty) return f;
+    if (f.isEmpty) return g;
+    return '$g $f';
   }
 
   /// יוצר nonce אקראי לאבטחת Apple Sign-In
