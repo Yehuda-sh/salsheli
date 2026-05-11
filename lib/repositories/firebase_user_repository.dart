@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/constants.dart';
+import '../core/household_naming.dart';
 import '../models/user_entity.dart';
 import 'constants/repository_constants.dart';
 import 'user_repository.dart';
@@ -250,7 +251,7 @@ class FirebaseUserRepository implements UserRepository {
             .collection(FirestoreCollections.households)
             .doc(householdId)
             .update({
-          'name': sanitized ?? 'הבית שלנו',
+          'name': sanitized ?? generateDefaultHouseholdName(),
           'updated_at': FieldValue.serverTimestamp(),
         });
       }
@@ -367,9 +368,13 @@ class FirebaseUserRepository implements UserRepository {
       if (householdDoc.exists) return; // כבר קיים
 
       // יצירת household document
+      // Neutral default — register_screen overrides with the user's pick
+      // (or a fresh generated name on Skip). If the register flow is
+      // interrupted before the override fires, this fallback keeps the
+      // household labelled without assuming a family relationship.
       await householdRef.set({
         'id': householdId,
-        'name': user.householdName ?? 'הבית של ${user.name}',
+        'name': user.householdName ?? generateDefaultHouseholdName(),
         'created_by': user.id,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),

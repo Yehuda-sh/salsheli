@@ -1731,7 +1731,7 @@ class SharingStringsEn extends SharingStrings {
   @override String inviteSentPending(String name) => 'Invitation sent to $name - pending approval';
   @override String inviteSentUnregistered(String name) => 'Invitation sent to $name - they\'ll see it when they register';
   @override String get householdNameDialogTitle => 'What should we call your group?';
-  @override String get householdNameDialogHint => 'e.g., The Smith House';
+  @override String get householdNameDialogHint => 'e.g., Roommates / Smith Family';
   @override String get householdNameDialogSkip => 'Skip';
   @override String get cannotChangeOwnRole => 'You cannot change your own role';
   @override String get noPermissionInvite => 'Only the owner can invite users';

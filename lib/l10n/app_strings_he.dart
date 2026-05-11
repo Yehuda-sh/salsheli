@@ -1441,7 +1441,7 @@ class SharingStrings {
   String inviteSentPending(String name) => 'הזמנה נשלחה ל$name - ממתינה לאישור';
   String inviteSentUnregistered(String name) => 'הזמנה נשלחה ל$name - יראה אותה כשיירשם לאפליקציה';
   String get householdNameDialogTitle => 'איך לקרוא לקבוצה שלכם?';
-  String get householdNameDialogHint => 'לדוגמה: הבית של כהן';
+  String get householdNameDialogHint => 'לדוגמה: דירת השותפים / משפחת כהן';
   String get householdNameDialogSkip => 'דלג';
   String get cannotChangeOwnRole => 'לא ניתן לשנות את התפקיד שלך';
   String get noPermissionInvite => 'רק הבעלים יכול להזמין משתמשים';
