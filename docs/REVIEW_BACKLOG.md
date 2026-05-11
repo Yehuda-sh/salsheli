@@ -81,7 +81,13 @@
 - **Cycling messages הם theatrical, לא state-driven**: הם מתחלפים בטיימר (1500ms) ולא לפי auth-state אמיתי. דקלרטיבי — עובד לויזואל, לא לקוראי מסך.
 - **Performance**: `setState` כל 1500ms rebuild את כל הוויג'ט, אבל overlay חולף — over-engineering לאופטם עם ValueNotifier.
 
-**⏸️ Deferred:** אין.
+**✅ Decisions Made — Round 2 (11/5/2026, registration review):**
+- **🚨 Escape hatch אחרי 8s**: הוספת `_kShowCancelAfter = Duration(seconds: 8)` + `_cancelTimer`. אחרי 8s הטקסט מוחלף ל-"לוקח יותר מהצפוי — בדוק את החיבור" וכפתור Cancel נחשף. לפני — Firebase Auth 120s timeout (תועד שצריך לאפשר ל-reCAPTCHA Enterprise להתיש את ה-retries) השאיר את המשתמש תקוע ב-spinner ללא יציאה. הפר את הכלל של CLAUDE.md "spinner with no limit is a bug".
+- **`onCancel` שמרני (optional named param)**: ברירת מחדל null → כפתור Cancel לא מופיע. תאימות אחורה — `login_screen.dart` ממשיך לעבוד ללא שינוי (יקבל את הטקסט המעודכן אבל לא את הכפתור).
+- **Cancel-aware caller**: ב-`register_screen.dart` נוסף flag `_userCancelledLoading`, כל await בודק אותו ובאוט silent. Firebase Auth אין cancel API אמיתי — הקריאה ממשיכה ברקע, אבל ה-UI לא יקפוץ ל-home אם המשתמש לחץ Cancel.
+
+**⏸️ Deferred:**
+- **`login_screen.dart` לא מעביר `onCancel`** — login עדיין יקבל את ה-"taking longer" text אחרי 8s אבל אין escape hatch. מחוץ ל-scope של סקירת ההרשמה. **Trigger:** סקירה ייעודית של login auth flow. **היקף:** קטן (אותו pattern של flag + checks).
 
 **🎯 Pattern:** דוגמה ל-liveRegion עם excludeSemantics — `theatrical UI עם הכרזה אחת**. כשיש cycling/animated text שלא משקף state אמיתי, להחריג מה-semantics tree ולתת label סטטי.
 
@@ -497,6 +503,7 @@
 
 ### 📂 Components נגעו
 - `register_screen.dart` (885 שורות) — סקירה מלאה של 12 קטגוריות
+- **סבב 2 (11/5/2026):** בדיקה חוזרת end-to-end של זרימת המשתמש החדש — חשף 4 בעיות UX שלא נתפסו ב-29/4
 
 ### ✅ Decisions Made
 - **Inclusive copy**: `registerSubtitle` (Hebrew) — "קניות משפחתיות" → "ניהול הקניות". האנגלית כבר הייתה ניטרלית ("Join the smarter way to shop"), לא נגענו.
@@ -504,11 +511,20 @@
 - **Token alignment**: alpha 0.3 על shadow של register button → `kOpacityLight`.
 - **Source-vs-Symptom**: `_askHouseholdName` כבר מתקן את "ללא שם" ב-source (auto-name `MemoZap-XXXX` על Skip — בוצע בסשן קודם).
 
+### ✅ Decisions Made — Round 2 (11/5/2026)
+- **🚨 Email verification auto-send**: `auth_service.signUp` קורא ל-`sendEmailVerification` אחרי `updateDisplayName` (try/catch non-fatal). קודם — האימייל נשלח רק כשהמשתמש לחץ "שלח" בבאנר ב-Home Dashboard. רבים דחו את הבאנר ונשארו unverified לתמיד. ה-banner copy עודכן ל-"שלחנו לך מייל" + כפתור "שלח שוב".
+- **🚨 Apple givenName + familyName נתפסים**: `auth_service.signInWithApple` קורא את `appleCredential.givenName + familyName` לפני `signInWithCredential`, מבצע `updateDisplayName` על ה-Firebase user, ומעביר דרך `SocialLoginResult.nameOverride` (named param חדש). קודם — לפנייה ראשונה של Apple, `displayName` היה null, וה-fallback ב-`_createUserFromSocialLogin` החזיר `email.split('@').first` (= "abc123" למשתמשי private-relay).
+- **🌍 Inclusive household auto-name**: הוצא helper `generateDefaultHouseholdName()` ב-`lib/core/household_naming.dart` (3rd caller — extract per CLAUDE.md). מחליף 2 fallbacks possessive ב-`firebase_user_repository.dart` (`'הבית של ${name}'` ב-`_ensureHouseholdExists` + `'הבית שלנו'` ב-`updateHouseholdName`). ה-`householdNameDialogHint` עודכן ל-"לדוגמה: דירת השותפים / משפחת כהן" (he) + "Roommates / Smith Family" (en).
+- **📱 Phone field optional**: השדה אופציונלי בכל 3 המסלולים. ה-validator הישראלי הוסר (`^05[0-9]-?[0-9]{7}$` → `^\+?\d{6,15}$` רק כשהוזן ערך). Strings: `phoneHelperText` + `phoneFieldSemanticLabel` עודכנו ל-"אופציונלי", `phoneInvalid` הוסר את הדוגמה הישראלית.
+- **🔙 Back מ-Register → Welcome**: `PopScope.canPop` מבוסס על `Navigator.canPop(context)`. אם יש משהו ב-stack — system pop נורמלי. אם לא — push WelcomeScreen explicitly. קודם — תמיד `pushReplacementNamed('/login')`, מה שגרם לאיבוד הקרוסלה למשתמש שבא דרך Welcome.
+- **🎬 UX Consistency**: Google/Apple paths עכשיו עם snackbar הצלחה + 1200ms delay לפני navigation — אחיד עם מסלול האימייל. קודם — Email היה היחיד עם feedback ויזואלי.
+
 ### ⏸️ Deferred
 - **`_askHouseholdName` משתמש ב-raw `showDialog`** במקום `AppDialog.show`. כל שאר הדיאלוגים באפליקציה כבר עברו ל-AppDialog. **שאלה עיצובית פתוחה:** האם לאחד עם `showEditHouseholdNameDialog` (ה-shared dialog שעבדנו עליו) — הם דומים אבל ב-intent שונה (post-register עם Skip vs edit עם Cancel). **Trigger:** סקירה של edit_household_name_dialog או דיון מודע על איחוד הדיאלוגים. **היקף:** קטן-בינוני.
-- **`_phoneRegex` Israeli-only** (`^05[0-9]-?[0-9]{7}$`). בסדר ל-launch בעברית, אבל אם האפליקציה תתרחב ל-locales אחרים — צריך לוקאל-aware. **Trigger:** הוספת locale חדש או דרישות בינ"ל. **היקף:** קטן.
 - **`textDirection: TextDirection.rtl` מקובע ב-`_askHouseholdName`** (שורה 135). משתמש דובר אנגלית שמקליד "Smith family" יראה את זה RTL. **Trigger:** locale-awareness sweep. **היקף:** קטן.
 - **Style-on-style typography**: `headlineLarge.copyWith(fontSize: kFontSizeXLarge, fontWeight: w800)` — דפוס שחוזר באפליקציה (welcome, suggestions_today_card, section_header [תוקן]). **Trigger:** typography sweep גלובלי. **היקף:** בינוני (חוצה-קבצים).
+- **🐛 `_askHouseholdName` רץ unconditionally במסלולי Google/Apple** — גם למשתמשים קיימים (`!result.isNewUser`). מי שקיים עם householdName כבר מוגדר → `updateHouseholdName(newName)` ידרוס אותו. **Trigger:** הוספת `result.isNewUser` ל-`UserContext` כ-getter ובדיקה לפני קריאה ל-`_askHouseholdName`. **היקף:** קטן.
+- **`phoneRequired` string לא בשימוש** — ב-`app_strings_he/en.dart`, dead reference. ה-`@override` באנגלית רומז על base class declaration. לא הוסרתי כדי לא לשבור build. **Trigger:** strings cleanup sweep. **היקף:** טריוויאלי.
 
 ### ⏳ Files of this screen — pending review
 - ~~`loading_overlay.dart`~~ ✅ **נסקר** ב-29/4/2026 — Cross-Cutting Widgets
