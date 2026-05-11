@@ -20,6 +20,7 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
+import '../welcome/welcome_screen.dart';
 import 'post_auth_navigation.dart';
 import 'widgets/loading_overlay.dart';
 import 'widgets/social_login_button.dart';
@@ -54,8 +55,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _confirmPasswordFocusNode = FocusNode();
 
-  // 📱 ולידציית טלפון ישראלי
-  static final _phoneRegex = RegExp(r'^05[0-9]-?[0-9]{7}$');
+  // Permissive phone validation — accepts E.164-ish input (6-15 digits,
+  // optional leading +, dashes/spaces stripped). The field is optional;
+  // we only run this check when the user actually typed something.
+  static final _phoneRegex = RegExp(r'^\+?\d{6,15}$');
 
   // 🎯 מעקב ולידציה למשוב תחושתי
   final Map<String, bool> _fieldWasValid = {};
@@ -319,6 +322,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         setState(() => _isLoading = false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
+
+        if (mounted) {
+          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+        }
+
+        // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
+        await Future.delayed(const Duration(milliseconds: 1200));
+
         if (mounted) {
           // ✅ Pending invites guard
           await navigateAfterAuth(context, userContext);
@@ -358,6 +369,14 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         setState(() => _isLoading = false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
+
+        if (mounted) {
+          _showStatus(AppStrings.auth.registerSuccessRedirect, type: StatusType.success);
+        }
+
+        // ⏱️ המתנה קצרה לפני ניווט — אחיד עם מסלול האימייל
+        await Future.delayed(const Duration(milliseconds: 1200));
+
         if (mounted) {
           // ✅ Pending invites guard
           await navigateAfterAuth(context, userContext);
@@ -452,13 +471,19 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
-    // 🔒 חסימת Back - המשתמש יכול לחזור ל-login
+    // Back returns the user to Welcome (where they conceptually came
+    // from). If the navigator stack has Welcome below, system pop
+    // handles it; if not (e.g. arrived via a /login replacement chain),
+    // we surface Welcome explicitly rather than dead-end on Login.
+    final canPopBack = Navigator.of(context).canPop();
     return PopScope(
-      canPop: false,
+      canPop: canPopBack,
       onPopInvokedWithResult: (didPop, result) {
-        if (!didPop) {
-          Navigator.pushReplacementNamed(context, '/login');
-        }
+        if (didPop) return;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        );
       },
       child: Scaffold(
         backgroundColor: brand?.paperBackground ?? kPaperBackground,
@@ -619,7 +644,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 .slideY(begin: 0.2, curve: Curves.easeOutCubic),
                             const SizedBox(height: kSpacingSmallPlus),
 
-                            // 📱 שדה טלפון (לפני סיסמה - שדות זיהוי קודם)
+                            // 📱 שדה טלפון (אופציונלי, לאחר אימייל - שדות זיהוי קודם)
                             _buildFormField(
                               controller: _phoneController,
                               focusNode: _phoneFocusNode,
@@ -631,8 +656,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
                               helperText: AppStrings.auth.phoneHelperText,
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return AppStrings.auth.phoneRequired;
+                                // Optional field — empty is valid.
+                                if (value == null || value.trim().isEmpty) {
+                                  return null;
                                 }
                                 final normalized = value.replaceAll('-', '').replaceAll(' ', '');
                                 if (!_phoneRegex.hasMatch(normalized)) {

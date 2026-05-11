@@ -694,7 +694,7 @@ class AuthStrings {
   String get nameRequired => 'שדה חובה';
   String get nameTooShort => 'שם חייב להכיל לפחות 2 תווים';
   String get phoneRequired => 'שדה חובה';
-  String get phoneInvalid => 'מספר טלפון לא תקין (05X-XXXXXXX)';
+  String get phoneInvalid => 'מספר טלפון לא תקין';
   String get errorWeakPassword => 'הסיסמה חלשה מדי';
   String get errorEmailInUse => 'האימייל כבר בשימוש';
   String get errorInvalidEmail => 'פורמט אימייל לא תקין';
@@ -739,12 +739,12 @@ class AuthStrings {
       'יש לך $count הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?';
   String get pendingInvitesLater => 'אחר כך';
   String get pendingInvitesView => 'צפה בהזמנות';
-  String get phoneHelperText => 'מספר נייד ישראלי - לקבלת עדכונים מהקבוצות';
+  String get phoneHelperText => 'אופציונלי — לעדכוני SMS מהקבוצות';
   String get nameFieldSemanticLabel => 'שדה שם מלא, חובה';
   String get emailFieldSemanticLabel => 'שדה כתובת אימייל, חובה';
   String get passwordFieldSemanticLabel => 'שדה סיסמה, לפחות 6 תווים';
   String get confirmPasswordFieldSemanticLabel => 'שדה אימות סיסמה, חייב להתאים לסיסמה';
-  String get phoneFieldSemanticLabel => 'שדה טלפון נייד ישראלי, חובה';
+  String get phoneFieldSemanticLabel => 'שדה טלפון, אופציונלי';
   String get loginLinkSemanticLabel => 'יש לך חשבון? לחץ לעבור למסך התחברות';
   String socialRegisterSemanticLabel(String provider) => 'הירשם או התחבר באמצעות $provider';
 

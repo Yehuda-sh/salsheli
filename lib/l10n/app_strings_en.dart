@@ -678,7 +678,7 @@ class AuthStringsEn extends AuthStrings {
   @override String get nameRequired => 'Required field';
   @override String get nameTooShort => 'Name must be at least 2 characters';
   @override String get phoneRequired => 'Required field';
-  @override String get phoneInvalid => 'Invalid phone number (05X-XXXXXXX)';
+  @override String get phoneInvalid => 'Invalid phone number';
   @override String get errorWeakPassword => 'Password is too weak';
   @override String get errorEmailInUse => 'Email is already in use';
   @override String get errorInvalidEmail => 'Invalid email format';
@@ -723,12 +723,12 @@ class AuthStringsEn extends AuthStrings {
       'You have $count pending group invitations.\n\nWould you like to go to the invitations screen?';
   @override String get pendingInvitesLater => 'Later';
   @override String get pendingInvitesView => 'View Invitations';
-  @override String get phoneHelperText => 'Israeli mobile number - for group updates';
+  @override String get phoneHelperText => 'Optional — for group SMS updates';
   @override String get nameFieldSemanticLabel => 'Full name field, required';
   @override String get emailFieldSemanticLabel => 'Email address field, required';
   @override String get passwordFieldSemanticLabel => 'Password field, at least 6 characters';
   @override String get confirmPasswordFieldSemanticLabel => 'Confirm password field, must match password';
-  @override String get phoneFieldSemanticLabel => 'Israeli mobile phone field, required';
+  @override String get phoneFieldSemanticLabel => 'Phone field, optional';
   @override String get loginLinkSemanticLabel => 'Have an account? Tap to go to login screen';
   @override String socialRegisterSemanticLabel(String provider) => 'Sign up or log in with $provider';
 
