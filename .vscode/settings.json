@@ -1,49 +1,60 @@
 {
-  // 🌍 Disable spell check for Hebrew text
+  // 🌍 Spell check (Disabled for Hebrew)
   "cSpell.enabled": false,
 
-  // 🎨 Flutter/Dart specific settings
+  // 🎨 General Editor UI & Formatting
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+
+  // 🎨 Flutter/Dart Specific Settings
   "dart.lineLength": 80,
   "dart.closingLabels": true,
   "dart.previewFlutterUiGuides": true,
   "editor.rulers": [80],
-  "editor.bracketPairColorization.enabled": true,
-  "editor.guides.bracketPairs": true,
 
-  // 📝 Auto format on save
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
+  // ⚙️ Dart Specific Configurations
+  "[dart]": {
+    "editor.formatOnType": true,
+    "editor.selectionHighlight": false,
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggestSelection": "first",
+    "editor.tabCompletion": "onlySnippets",
+    "editor.wordBasedSuggestions": "off",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
 
-  // 🔍 Exclude folders from search
+  // 🔍 Exclude folders from Search (Optimized for Flutter, Node, Python)
   "search.exclude": {
     "**/.dart_tool": true,
     "**/build": true,
     "**/.flutter-plugins": true,
     "**/.flutter-plugins-dependencies": true,
     "**/*.g.dart": true,
-    "**/*.freezed.dart": true
+    "**/*.freezed.dart": true,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**/.venv": true,
+    "**/venv": true
   },
 
-  // 📂 Exclude folders from file explorer
+  // 📂 Exclude folders from File Explorer
   "files.exclude": {
     "**/.dart_tool": true,
     "**/.flutter-plugins": true,
     "**/.flutter-plugins-dependencies": true,
     "**/.packages": true,
-    "**/pubspec.lock": false
+    "**/pubspec.lock": false,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**/.venv": true
   },
 
-  // ⚙️ Dart specific
-  "[dart]": {
-    "editor.formatOnSave": true,
-    "editor.formatOnType": true,
-    "editor.rulers": [80],
-    "editor.selectionHighlight": false,
-    "editor.suggest.snippetsPreventQuickSuggestions": false,
-    "editor.suggestSelection": "first",
-    "editor.tabCompletion": "onlySnippets",
-    "editor.wordBasedSuggestions": "off"
-  },
+  // 🔧 System & Tooling
   "git.ignoreLimitWarning": true,
   "java.configuration.updateBuildConfiguration": "automatic"
 }

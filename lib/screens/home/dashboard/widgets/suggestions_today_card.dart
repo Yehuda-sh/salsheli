@@ -40,6 +40,15 @@ const double _kDotMarginH = 3.0;
 // (gradient overlays) are intentionally distinct from kOpacity* and kept inline
 // where each appears, since they're tuned together with the gradient + shadow.
 
+// Two-layer card shadow — outer gives the "lifted off the page" depth,
+// inner sharpens the contact point. Tuned as a unit; changing one without
+// the other breaks the sticky-note "pressed into paper" feel.
+const double _kCardShadowOuterBlur = 8.0;
+const Offset _kCardShadowOuterOffset = Offset(2, 4);
+const double _kCardShadowInnerBlur = 4.0;
+const Offset _kCardShadowInnerOffset = Offset(0, 2);
+const double _kCardShadowInnerAlpha = 0.1;
+
 // Pre-compiled regexes for product name cleanup — avoids re-parsing on
 // every card build.
 final RegExp _kReWhitespace = RegExp(r'\s+');
@@ -307,7 +316,13 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                 return RepaintBoundary(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: _kCardGap / 2),
+                    // Suggestion id keys the card identity — when the
+                    // provider reorders or filters suggestions, the
+                    // existing State (and its entry/shake animations)
+                    // travels with the right item instead of getting
+                    // reused for a different one.
                     child: _StickyNoteCard(
+                      key: ValueKey(widget.suggestions[index].id),
                       suggestion: widget.suggestions[index],
                       rotation: rotation,
                       index: index,
@@ -335,8 +350,12 @@ class _SuggestionsCarouselState extends State<_SuggestionsCarousel> {
                     width: isActive ? _kDotActiveWidth : _kDotInactiveWidth,
                     height: _kDotHeight,
                     decoration: BoxDecoration(
+                      // Active dot at full primary — used to be 0.7 which
+                      // softened the "you are here" cue. Inactive stays at
+                      // kOpacityLight so the contrast between current and
+                      // peripheral pages is the clear, dominant signal.
                       color: isActive
-                          ? cs.primary.withValues(alpha: kOpacityStrong)
+                          ? cs.primary
                           : cs.outline.withValues(alpha: kOpacityLight),
                       borderRadius: BorderRadius.circular(kBorderRadiusTiny),
                     ),
@@ -364,6 +383,7 @@ class _StickyNoteCard extends StatefulWidget {
   final int index;
 
   const _StickyNoteCard({
+    super.key,
     required this.suggestion,
     required this.rotation,
     required this.index,
@@ -450,7 +470,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           ..removeCurrentSnackBar()
           ..showSnackBar(
             SnackBar(
-              content: Text(AppStrings.suggestionsToday.noActiveLists),
+              // Pastel sticky backgrounds need explicit dark text — the
+              // SnackBar theme defaults to white which washes out against
+              // light pastels (WCAG contrast failure).
+              content: Text(
+                AppStrings.suggestionsToday.noActiveLists,
+                style: TextStyle(color: cs.onSurface),
+              ),
               backgroundColor: brand?.stickyOrange ?? kStickyOrange,
             ),
           );
@@ -483,10 +509,15 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           SnackBar(
             content: Row(
               children: [
-                Icon(Icons.check_circle, color: cs.onPrimary, size: kIconSizeSmallPlus),
+                // Icon + text use onSurface so they're legible against
+                // the pastel stickyGreen background.
+                Icon(Icons.check_circle, color: cs.onSurface, size: kIconSizeSmallPlus),
                 const SizedBox(width: kSpacingSmall),
                 Expanded(
-                  child: Text(AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName)),
+                  child: Text(
+                    AppStrings.suggestionsToday.addedToListName(widget.suggestion.productName),
+                    style: TextStyle(color: cs.onSurface),
+                  ),
                 ),
               ],
             ),
@@ -501,7 +532,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         ..removeCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(userFriendlyError(e, context: 'suggestion')),
+            content: Text(
+              userFriendlyError(e, context: 'suggestion'),
+              style: TextStyle(color: cs.onSurface),
+            ),
             backgroundColor: brand?.stickyPink ?? kStickyPink,
           ),
         );
@@ -513,6 +547,7 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
   }
 
   Future<void> _onDismiss(BuildContext context) async {
+    final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
     if (_isProcessing) return;
 
@@ -531,7 +566,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         ..removeCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName)),
+            content: Text(
+              AppStrings.suggestionsToday.dismissedForWeek(widget.suggestion.productName),
+              style: TextStyle(color: cs.onSurface),
+            ),
             backgroundColor: brand?.stickyCyan ?? kStickyCyan,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
@@ -543,7 +581,10 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
         ..removeCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(userFriendlyError(e, context: 'suggestion')),
+            content: Text(
+              userFriendlyError(e, context: 'suggestion'),
+              style: TextStyle(color: cs.onSurface),
+            ),
             backgroundColor: brand?.stickyPink ?? kStickyPink,
           ),
         );
@@ -574,10 +615,12 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       child: Container(
         width: _kCardWidth,
         decoration: BoxDecoration(
-          // טקסטורת נייר: gradient עדין לתחושת קיפול
+          // טקסטורת נייר: gradient עדין לתחושת קיפול.
+          // AlignmentDirectional flips for RTL — gradient now runs from
+          // the reading start to the reading end regardless of locale.
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
             colors: [
               cardColor,
               Color.alphaBlend(
@@ -594,13 +637,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
           boxShadow: [
             BoxShadow(
               color: shadowColor.withValues(alpha: kOpacityLow),
-              blurRadius: 8,
-              offset: const Offset(2, 4),
+              blurRadius: _kCardShadowOuterBlur,
+              offset: _kCardShadowOuterOffset,
             ),
             BoxShadow(
-              color: shadowColor.withValues(alpha: 0.1),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              color: shadowColor.withValues(alpha: _kCardShadowInnerAlpha),
+              blurRadius: _kCardShadowInnerBlur,
+              offset: _kCardShadowInnerOffset,
             ),
           ],
         ),
@@ -830,7 +873,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
       // accessible nodes instead of being merged into this label.
       explicitChildNodes: true,
       label: '$urgencyLabel, $cleanedName',
-      value: AppStrings.suggestionsToday.inStock(suggestion.currentStock, suggestion.unit),
+      // Value flips to "processing" while an add/dismiss is mid-flight —
+      // the visual spinner replaces the buttons silently, so screen-reader
+      // users would otherwise hear nothing happen after their tap.
+      value: _isProcessing
+          ? AppStrings.suggestionsToday.processing
+          : AppStrings.suggestionsToday.inStock(
+              suggestion.currentStock, suggestion.unit),
       child: GestureDetector(
         onTapDown: (_) => _isPressed.value = true,
         onTapUp: (_) => _isPressed.value = false,
@@ -895,6 +944,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
     final listsProvider = context.read<ShoppingListsProvider>();
     final suggestionsProvider = context.read<SuggestionsProvider>();
     final messenger = ScaffoldMessenger.of(context);
+    final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
 
     final activeLists = listsProvider.lists.where((l) => l.status == ShoppingList.statusActive).toList();
@@ -902,7 +952,10 @@ class _AddAllButtonState extends State<_AddAllButton> {
       messenger
         ..removeCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: Text(AppStrings.suggestionsToday.noActiveLists),
+          content: Text(
+            AppStrings.suggestionsToday.noActiveLists,
+            style: TextStyle(color: cs.onSurface),
+          ),
           backgroundColor: brand?.stickyOrange ?? kStickyOrange,
         ));
       if (mounted) setState(() => _isAdding = false);
@@ -944,7 +997,10 @@ class _AddAllButtonState extends State<_AddAllButton> {
       messenger
         ..removeCurrentSnackBar()
         ..showSnackBar(SnackBar(
-          content: Text(AppStrings.suggestionsToday.addAllFailed),
+          content: Text(
+            AppStrings.suggestionsToday.addAllFailed,
+            style: TextStyle(color: cs.onSurface),
+          ),
           backgroundColor: brand?.stickyPink ?? kStickyPink,
         ));
       return;
@@ -956,9 +1012,15 @@ class _AddAllButtonState extends State<_AddAllButton> {
       ..showSnackBar(SnackBar(
         content: Row(
           children: [
-            Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onPrimary, size: kIconSizeSmallPlus),
+            // Icon + text use onSurface — readable against the pastel
+            // stickyGreen background (SnackBar theme defaults to white,
+            // which fails contrast on light pastels).
+            Icon(Icons.check_circle, color: cs.onSurface, size: kIconSizeSmallPlus),
             const SizedBox(width: kSpacingSmall),
-            Text(AppStrings.suggestionsToday.addedAll(added, targetList.name)),
+            Text(
+              AppStrings.suggestionsToday.addedAll(added, targetList.name),
+              style: TextStyle(color: cs.onSurface),
+            ),
           ],
         ),
         backgroundColor: brand?.stickyGreen ?? kStickyGreen,

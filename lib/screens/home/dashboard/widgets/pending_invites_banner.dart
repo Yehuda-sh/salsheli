@@ -95,67 +95,91 @@ class _PendingInviteBannerContent extends StatefulWidget {
 
 class _PendingInviteBannerContentState
     extends State<_PendingInviteBannerContent> {
-  bool _isProcessing = false;
+  // Reuse the parent's singleton — keeping a second `static final` here
+  // would create a separate instance of the same service for no benefit.
+  PendingInvitesService get _service => PendingInvitesBanner._service;
 
-  static final _service = PendingInvitesService();
+  /// Gmail-style undo: when the user taps ×, we hide the invite *locally*
+  /// for 5 seconds and show a snackbar with "Undo". The actual decline
+  /// API call only fires after the snackbar's duration elapses. This way
+  /// an accidental decline is fully recoverable inside the undo window,
+  /// without needing a service-level "undecline" operation.
+  String? _pendingDeclineId;
+  Timer? _declineTimer;
 
-  /// Accept = navigate to the dedicated screen so the household-merge
-  /// flow (pantry merge dialog, etc.) runs in its proper UX context.
-  /// Doing the full accept inline would mean re-implementing that flow
-  /// here — a maintenance trap.
-  void _onAccept() {
-    unawaited(HapticFeedback.lightImpact());
-    Navigator.pushNamed(context, '/pending-invites');
+  @override
+  void dispose() {
+    _declineTimer?.cancel();
+    super.dispose();
   }
 
-  /// Decline = a one-shot Firestore update with no side-effect dialogs,
-  /// safe to do inline. The stream auto-refreshes the banner once the
-  /// invite's status flips to declined.
-  Future<void> _onDecline(PendingRequest invite) async {
-    if (_isProcessing) return;
-    final userId = context.read<UserContext>().userId;
+  /// Hide the invite, schedule the decline, and show the undo snackbar.
+  /// If the user taps "Undo" within the snackbar's 5-second window, the
+  /// timer is cancelled and no API call is made.
+  void _onDecline(PendingRequest invite) {
+    if (_pendingDeclineId != null) return;
+
     final messenger = ScaffoldMessenger.of(context);
-    final strings = AppStrings.pendingInvitesScreen;
+    final bannerStrings = AppStrings.pendingInviteBanner;
+    final declineStrings = AppStrings.pendingInvitesScreen;
+    final userId = context.read<UserContext>().userId;
     if (userId == null) return;
 
-    setState(() => _isProcessing = true);
     unawaited(HapticFeedback.selectionClick());
+    setState(() => _pendingDeclineId = invite.id);
 
-    final result = await _service.declineInviteResult(
-      inviteId: invite.id,
-      decliningUserId: userId,
-    );
+    messenger
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(bannerStrings.declinePending),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: bannerStrings.undoLabel,
+          onPressed: () {
+            _declineTimer?.cancel();
+            if (mounted) setState(() => _pendingDeclineId = null);
+          },
+        ),
+      ));
 
-    if (!mounted) return;
-    setState(() => _isProcessing = false);
+    _declineTimer = Timer(const Duration(seconds: 5), () async {
+      if (!mounted || _pendingDeclineId != invite.id) return;
 
-    if (result.isSuccess) {
-      messenger
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(strings.declineSuccess),
-          backgroundColor: StatusColors.getContainer(StatusType.success, context),
-        ));
-    } else {
-      messenger
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(strings.declineError(result.errorMessage ?? '')),
-          backgroundColor: StatusColors.getContainer(StatusType.error, context),
-        ));
-    }
+      final result = await _service.declineInviteResult(
+        inviteId: invite.id,
+        decliningUserId: userId,
+      );
+
+      if (!mounted) return;
+      setState(() => _pendingDeclineId = null);
+
+      if (!result.isSuccess) {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text(declineStrings.declineError(result.errorMessage ?? '')),
+            backgroundColor:
+                StatusColors.getContainer(StatusType.error, context),
+          ));
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final invites = widget.invites;
+    // Filter out any invite currently in its 5-second undo window so the
+    // banner visually disappears the instant × is tapped. If every invite
+    // is in that window, hide the whole banner.
+    final invites = widget.invites
+        .where((i) => i.id != _pendingDeclineId)
+        .toList(growable: false);
+    if (invites.isEmpty) return const SizedBox.shrink();
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final strings = AppStrings.pendingInviteBanner;
-    // Tooltips for the inline action buttons live on
-    // PendingInvitesScreenStrings (acceptLabel / declineLabel) — same
-    // strings the destination screen uses, so the affordance reads
-    // consistently when the user taps through.
+    // Accessibility label for the decline button — same string the
+    // destination screen uses, so the affordance reads consistently.
     final inviteScreenStrings = AppStrings.pendingInvitesScreen;
     final firstInvite = invites.first;
     final radius = BorderRadius.circular(kBorderRadius);
@@ -220,7 +244,6 @@ class _PendingInviteBannerContentState
               padding: const EdgeInsets.all(kSpacingMedium),
               child: Row(
                 children: [
-                  // אייקון מעטפה עם shimmer עדין למשוך תשומת לב
                   ExcludeSemantics(
                     child: Container(
                       width: _kIconBoxSize,
@@ -229,17 +252,7 @@ class _PendingInviteBannerContentState
                         color: cs.tertiary.withValues(alpha: _kIconBgAlpha),
                         borderRadius: BorderRadius.circular(kBorderRadius),
                       ),
-                      child: Icon(
-                        Icons.mail_outline,
-                        color: cs.tertiary,
-                        size: kIconSizeSmallPlus,
-                      )
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .shimmer(
-                            delay: _kShimmerDelay,
-                            duration: _kShimmerDuration,
-                            color: cs.tertiary.withValues(alpha: _kShimmerAlpha),
-                          ),
+                      child: _MailShimmerIcon(color: cs.tertiary),
                     ),
                   ),
                   const SizedBox(width: kSpacingMedium),
@@ -259,23 +272,9 @@ class _PendingInviteBannerContentState
                               ),
                               if (invites.length > 1) ...[
                                 const SizedBox(width: kSpacingTiny),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: kSpacingTiny,
-                                    vertical: kSpacingXTiny,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: cs.tertiary,
-                                    borderRadius:
-                                        BorderRadius.circular(kBorderRadiusSmall),
-                                  ),
-                                  child: Text(
-                                    strings.moreCount(invites.length - 1),
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: cs.onTertiary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                _MoreInvitesBadge(
+                                  remaining: invites.length - 1,
+                                  label: strings.moreCount(invites.length - 1),
                                 ),
                               ],
                             ],
@@ -294,34 +293,14 @@ class _PendingInviteBannerContentState
                       ),
                     ),
                   ),
-                  // Explicit Accept / Decline buttons. Earlier the
-                  // banner only showed a chevron — a "tap somewhere"
-                  // affordance that left users guessing how to act.
-                  // ✓ Accept (filled, primary) opens the dedicated
-                  // screen so the household-merge flow runs in its
-                  // proper context. ✕ Decline runs inline because
-                  // it's a one-shot Firestore update, no side dialogs.
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _CircleActionButton(
-                        icon: Icons.close,
-                        color: cs.onSurfaceVariant,
-                        background: Colors.transparent,
-                        border: cs.outlineVariant,
-                        tooltip: inviteScreenStrings.declineLabel,
-                        onTap: _isProcessing ? null : () => _onDecline(firstInvite),
-                      ),
-                      const SizedBox(width: kSpacingSmall),
-                      _CircleActionButton(
-                        icon: Icons.check,
-                        color: cs.onPrimary,
-                        background: cs.primary,
-                        border: cs.primary,
-                        tooltip: inviteScreenStrings.acceptLabel,
-                        onTap: _isProcessing ? null : _onAccept,
-                      ),
-                    ],
+                  // Single inline action: decline. The banner itself is
+                  // the "open & manage" target (its InkWell navigates to
+                  // the dedicated screen) — a separate ✓ button used to
+                  // duplicate that exact navigation, confusing users into
+                  // thinking ✓ would accept inline. Now removed.
+                  _DeclineButton(
+                    label: inviteScreenStrings.declineLabel,
+                    onTap: () => _onDecline(firstInvite),
                   ),
                 ],
               ),
@@ -333,38 +312,113 @@ class _PendingInviteBannerContentState
   }
 }
 
-class _CircleActionButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final Color background;
-  final Color border;
-  final String tooltip;
-  final VoidCallback? onTap;
+/// Decline-only inline action. Tooltip was previously used as the visual
+/// label, but per CLAUDE.md A11y policy "❌ לא — Tooltip על כל IconButton"
+/// — Tooltip on mobile is invisible (no hover) and screen readers prefer
+/// an explicit Semantics label. Same pattern fix applied earlier to
+/// `household_activity_feed.dart`'s dismiss button.
+class _DeclineButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
 
-  const _CircleActionButton({
-    required this.icon,
-    required this.color,
-    required this.background,
-    required this.border,
-    required this.tooltip,
-    required this.onTap,
-  });
+  const _DeclineButton({required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
+    final cs = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      label: label,
       child: Material(
-        color: background,
-        shape: CircleBorder(side: BorderSide(color: border)),
+        color: Colors.transparent,
+        shape: CircleBorder(side: BorderSide(color: cs.outlineVariant)),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(kSpacingSmall),
-            child: Icon(icon, color: color, size: kIconSizeSmallPlus),
+            child: Icon(
+              Icons.close,
+              color: cs.onSurfaceVariant,
+              size: kIconSizeSmallPlus,
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Mail icon with a looping shimmer effect, extracted from the banner
+/// build so its `Animate` widget keeps a stable element identity across
+/// parent rebuilds. The previous inline version recreated the animation
+/// chain on every rebuild — every Firestore stream event could leak a
+/// fresh AnimationController.
+class _MailShimmerIcon extends StatelessWidget {
+  final Color color;
+
+  const _MailShimmerIcon({required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.mail_outline,
+      color: color,
+      size: kIconSizeSmallPlus,
+    )
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .shimmer(
+          delay: _kShimmerDelay,
+          duration: _kShimmerDuration,
+          color: color.withValues(alpha: _kShimmerAlpha),
+        );
+  }
+}
+
+/// "+N" badge next to the title when there are extra invites. The badge
+/// trails a small chevron so it visibly reads as "tap to see all" rather
+/// than mere metadata. The whole banner is the actual tap target — this
+/// widget is decoration that lives inside ExcludeSemantics.
+class _MoreInvitesBadge extends StatelessWidget {
+  final int remaining;
+  final String label;
+
+  const _MoreInvitesBadge({required this.remaining, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    // Chevron flips with locale: chevron_left is the "forward" arrow in
+    // Hebrew RTL, chevron_right in English LTR.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final forwardChevron =
+        isRtl ? Icons.chevron_left : Icons.chevron_right;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: kSpacingTiny,
+        vertical: kSpacingXTiny,
+      ),
+      decoration: BoxDecoration(
+        color: cs.tertiary,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onTertiary,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Icon(
+            forwardChevron,
+            size: kFontSizeMedium,
+            color: cs.onTertiary,
+          ),
+        ],
       ),
     );
   }

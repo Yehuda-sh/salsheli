@@ -16,12 +16,21 @@ import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/user_context.dart';
 import '../../../history/shopping_history_screen.dart';
 
-// Avatar circle width matches the small button height (36) — keep using
-// the existing token but name the intent locally.
-const double _kAvatarSize = kButtonHeightSmall;
+// Avatar circle diameter — semantically an avatar, not a button. Equals
+// kButtonHeightSmall (36) in value but locally named so the intent is
+// clear; if avatar sizes ever drift from button sizes, this constant
+// won't get accidentally pulled along.
+const double _kAvatarSize = 36.0;
 // Divider indent equals avatar width + leading gap so the line aligns
 // under the text column.
 const double _kDividerIndent = _kAvatarSize + kSpacingMedium;
+
+// Feed length caps — feed shows the most recent N events; when there
+// are no events, the fallback shows the most recent M receipts.
+// Fewer fallback items so the "no activity, here are old receipts"
+// state visually differs from the "fresh activity" state.
+const int _kMaxFeedEvents = 5;
+const int _kMaxFallbackReceipts = 3;
 
 // ---------------------------------------------------------------------------
 // Top-level helpers — used by both activity tiles and receipt fallback.
@@ -41,7 +50,12 @@ String _formatRelativeDate(DateTime date) {
   }
   if (diff.inDays == 1) return strings.yesterday;
   if (diff.inDays < 7) return strings.daysAgo(diff.inDays);
-  return '${date.day}/${date.month}';
+  // 2-digit year disambiguates DD/MM under locale ambiguity ("5/5" alone
+  // could be parsed as MM/DD by English readers). padLeft handles years
+  // < 2010 (e.g. "5/5/06" instead of "5/5/6"); not relevant today but
+  // future-proof and cheap.
+  final yy = (date.year % 100).toString().padLeft(2, '0');
+  return '${date.day}/${date.month}/$yy';
 }
 
 IconData _iconForType(ActivityType type) {
@@ -162,8 +176,8 @@ class HouseholdActivityFeed extends StatelessWidget {
     final cs = theme.colorScheme;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    // מציג עד 5 אירועים אחרונים
-    final events = activityProvider.events.take(5).toList();
+    // מציג עד _kMaxFeedEvents אירועים אחרונים
+    final events = activityProvider.events.take(_kMaxFeedEvents).toList();
 
     // Always watch ReceiptProvider (unconditional — required by Provider rules)
     final allReceipts = context.watch<ReceiptProvider>().receipts;
@@ -172,7 +186,7 @@ class HouseholdActivityFeed extends StatelessWidget {
     // Sort returns a new list (sorted) only when the activity log is empty —
     // so the cost is paid once per build only on that branch.
     final fallbackReceipts = events.isEmpty && allReceipts.isNotEmpty
-        ? (List<Receipt>.from(allReceipts)..sort((a, b) => b.date.compareTo(a.date))).take(3).toList()
+        ? (List<Receipt>.from(allReceipts)..sort((a, b) => b.date.compareTo(a.date))).take(_kMaxFallbackReceipts).toList()
         : const <Receipt>[];
 
     if (events.isEmpty && fallbackReceipts.isEmpty) return const SizedBox.shrink();
@@ -187,8 +201,11 @@ class HouseholdActivityFeed extends StatelessWidget {
               width: kIconSizeLarge,
               height: kIconSizeLarge,
               excludeFromSemantics: true,
+              // Icons.timeline matches "activity feed" semantically better
+              // than Icons.history; both look similar but "timeline" reads
+              // as live/ongoing rather than past-only.
               errorBuilder: (_, _, _) =>
-                  Icon(Icons.history, size: kIconSizeLarge, color: cs.primary),
+                  Icon(Icons.timeline, size: kIconSizeLarge, color: cs.primary),
             ),
             const SizedBox(width: kSpacingSmall),
             Text(
@@ -196,45 +213,44 @@ class HouseholdActivityFeed extends StatelessWidget {
               style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const Spacer(),
+            // TextButton provides its own Semantics(button + label-from-
+            // child-Text) — wrapping it in another Semantics(button, label)
+            // caused screen readers to announce the label twice.
             if (showSeeAll)
-              Semantics(
-                button: true,
-                label: AppStrings.homeDashboard.seeAll,
-                child: TextButton(
-                  onPressed: () {
-                    unawaited(HapticFeedback.lightImpact());
-                    if (onSeeAllHistory != null) {
-                      onSeeAllHistory!();
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ShoppingHistoryScreen()),
-                      );
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        AppStrings.homeDashboard.seeAll,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: kSpacingXTiny),
-                      Icon(
-                        isRtl ? Icons.chevron_left : Icons.chevron_right,
-                        size: kIconSizeSmall,
+              TextButton(
+                onPressed: () {
+                  unawaited(HapticFeedback.lightImpact());
+                  if (onSeeAllHistory != null) {
+                    onSeeAllHistory!();
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ShoppingHistoryScreen()),
+                    );
+                  }
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppStrings.homeDashboard.seeAll,
+                      style: theme.textTheme.bodySmall?.copyWith(
                         color: cs.primary,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: kSpacingXTiny),
+                    Icon(
+                      isRtl ? Icons.chevron_left : Icons.chevron_right,
+                      size: kIconSizeSmall,
+                      color: cs.primary,
+                    ),
+                  ],
                 ),
               ),
           ],
@@ -490,7 +506,9 @@ class _ReceiptFallbackTile extends StatelessWidget {
       avatarFg: cs.onPrimaryContainer,
       title: receipt.storeName,
       time: _formatRelativeDate(receipt.date),
-      subtitle: AppStrings.homeDashboard.completedShoppingAt(receipt.storeName),
+      // Store name is already the tile title — using the no-arg variant
+      // here avoids "Supersal • Completed shopping at Supersal" duplication.
+      subtitle: AppStrings.homeDashboard.completedShopping,
       onTap: () {
         unawaited(HapticFeedback.lightImpact());
         Navigator.push(

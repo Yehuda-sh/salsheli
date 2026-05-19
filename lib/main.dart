@@ -44,6 +44,7 @@ import 'package:memozap/screens/shopping/details/shopping_list_details_screen.da
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 import 'package:memozap/services/auth_service.dart';
 import 'package:memozap/services/notifications_service.dart';
+import 'package:memozap/services/prefs_cache.dart';
 import 'package:memozap/theme/app_theme.dart';
 import 'package:memozap/widgets/dev_banner.dart';
 import 'package:provider/provider.dart';
@@ -107,6 +108,11 @@ void main() async {
 
   // 🌐 Load saved locale
   await LocaleManager.instance.load();
+
+  // 💾 Pre-warm SharedPreferences so widgets that read dismiss flags /
+  // onboarding state can do so synchronously in initState — eliminates
+  // the "flash empty → populate" layout jump on first build.
+  await PrefsCache.init();
 
   // Repositories
   final productsRepo = LocalProductsRepository();

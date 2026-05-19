@@ -1,7 +1,6 @@
 // lib/widgets/shopping/add_edit_product_dialog.dart — Add/edit product dialog — product form with name, brand, quantity, price, category
 
 import 'dart:async';
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,9 +14,31 @@ import '../../l10n/app_strings.dart';
 import '../../models/unified_list_item.dart';
 import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
+import '../common/product_photo_uploader.dart';
 import '../common/product_thumbnail.dart';
 import '../common/sticky_button.dart';
 import '../common/sticky_note.dart';
+
+// Layout & validation tokens local to the dialog.
+// Named so future maintainers see the intent, not bare numbers.
+const int _kMaxNameLength = 80;
+const int _kMaxBrandLength = 50;
+const int _kMaxQuantity = 9999;
+const int _kMaxQuantityDigits = 4;   // 9999 = 4 digits
+const int _kMaxPriceChars = 10;       // e.g. "12345.67"
+const double _kHeroImageSize = 140.0; // edit-mode product thumbnail
+const double _kStickyRotation = 0.01;
+// Focus shadow tuning — kept inline because it's a single-purpose
+// "subtle lift on focus" effect, not a reusable design token.
+const double _kFocusShadowBlur = 8.0;
+const Offset _kFocusShadowOffset = Offset(0, 2);
+// Entry animation stagger — each field appears 40ms after the previous.
+const int _kStaggerStepMs = 40;
+// Glassmorphic input fill — slightly translucent so the sticky-note
+// background tint shows through.
+const double _kInputFillAlpha = 0.55;
+const double _kInputBorderAlpha = 0.5;
+const double _kFocusedBorderWidth = 1.5;
 
 class AddEditProductDialog extends StatefulWidget {
   final UnifiedListItem? item;
@@ -78,11 +99,14 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         ? itemCategory
         : null;
 
-    // FocusNodes — selectionClick כשמשתמש מעביר מיקוד
-    _nameFocus = FocusNode()..addListener(_onFocusChange);
-    _brandFocus = FocusNode()..addListener(_onFocusChange);
-    _quantityFocus = FocusNode()..addListener(_onFocusChange);
-    _priceFocus = FocusNode()..addListener(_onFocusChange);
+    // FocusNodes — each listener fires haptic only when ITS OWN node
+    // gains focus. Previously a shared `_onFocusChange` listened on all
+    // four, so a single Tab between two fields fired the haptic twice
+    // (once for the lost-focus node, once for the gained-focus node).
+    _nameFocus = FocusNode()..addListener(() => _onFocusGained(_nameFocus));
+    _brandFocus = FocusNode()..addListener(() => _onFocusGained(_brandFocus));
+    _quantityFocus = FocusNode()..addListener(() => _onFocusGained(_quantityFocus));
+    _priceFocus = FocusNode()..addListener(() => _onFocusGained(_priceFocus));
 
     // Track changes for exit confirmation
     _nameController.addListener(_markChanged);
@@ -91,14 +115,10 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     _priceController.addListener(_markChanged);
   }
 
-  /// 📳 Haptic: selectionClick במעבר בין שדות
-  void _onFocusChange() {
-    // מפעיל רק כשהשדה מקבל focus (לא כשמאבד)
-    final anyHasFocus = _nameFocus.hasFocus ||
-        _brandFocus.hasFocus ||
-        _quantityFocus.hasFocus ||
-        _priceFocus.hasFocus;
-    if (anyHasFocus) {
+  /// 📳 Haptic: fires only when the given node *gains* focus (not loses).
+  /// This makes a Tab transition produce a single click, not two.
+  void _onFocusGained(FocusNode node) {
+    if (node.hasFocus) {
       unawaited(HapticFeedback.selectionClick());
     }
   }
@@ -140,9 +160,9 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                   boxShadow: [
                     BoxShadow(
-                      color: cs.primary.withValues(alpha: 0.12),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: cs.primary.withValues(alpha: kOpacitySubtle),
+                      blurRadius: _kFocusShadowBlur,
+                      offset: _kFocusShadowOffset,
                     ),
                   ],
                 )
@@ -161,19 +181,24 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     // 📳 Haptic: heavyImpact לשגיאה
     unawaited(HapticFeedback.heavyImpact());
     final cs = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(Icons.error_outline, color: cs.onError),
-            const Gap(kSpacingSmall),
-            Expanded(child: Text(message)),
-          ],
+    // removeCurrentSnackBar prevents stacking when the user retries
+    // multiple times in a row (e.g. empty name → fix → invalid qty →
+    // each error stacks visually otherwise).
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: cs.onError),
+              const Gap(kSpacingSmall),
+              Expanded(child: Text(message)),
+            ],
+          ),
+          backgroundColor: cs.error,
+          behavior: SnackBarBehavior.floating,
         ),
-        backgroundColor: cs.error,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+      );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -231,7 +256,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     }
 
     final qty = int.tryParse(qtyText);
-    if (qty == null || qty <= 0 || qty > 9999) {
+    if (qty == null || qty <= 0 || qty > _kMaxQuantity) {
       setState(() => _isSaving = false);
       _showErrorSnackBar(AppStrings.listDetails.quantityInvalid);
       return;
@@ -290,14 +315,16 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
     final stickyColor = brand?.stickyYellow ?? kStickyYellow;
 
     // Glassmorphic fill — שקיפות עדינה להשתקפות רקע הפתק
-    final inputFillColor = cs.surfaceContainerHighest.withValues(alpha: 0.55);
+    final inputFillColor =
+        cs.surfaceContainerHighest.withValues(alpha: _kInputFillAlpha);
     final focusedBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-      borderSide: BorderSide(color: cs.primary, width: 1.5),
+      borderSide: BorderSide(color: cs.primary, width: _kFocusedBorderWidth),
     );
     final defaultBorder = OutlineInputBorder(
       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-      borderSide: BorderSide(color: cs.outline.withValues(alpha: 0.5)),
+      borderSide:
+          BorderSide(color: cs.outline.withValues(alpha: _kInputBorderAlpha)),
     );
 
     InputDecoration fieldDecoration({
@@ -312,6 +339,9 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         focusedBorder: focusedBorder,
         filled: true,
         fillColor: inputFillColor,
+        // Hide the "0/80" maxLength counter — it's visual clutter on a
+        // dialog where users rarely hit the cap. The cap still enforces.
+        counterText: '',
         contentPadding: const EdgeInsets.symmetric(
           horizontal: kSpacingSmall,
           vertical: kSpacingSmallPlus,
@@ -332,7 +362,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
         insetPadding: const EdgeInsets.all(kSpacingMedium),
         child: StickyNote(
         color: stickyColor,
-        rotation: 0.01,
+        rotation: _kStickyRotation,
         padding: 0,
         // 🎨 RepaintBoundary — בידוד אנימציות שדות ממקלדת עולה
         child: RepaintBoundary(
@@ -370,33 +400,47 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                   if (isEditMode && widget.item?.barcode != null && widget.item!.barcode!.length >= 7)
                     Padding(
                       padding: const EdgeInsets.only(bottom: kSpacingMedium),
-                      child: Center(
-                        child: ProductThumbnail(
-                          barcode: widget.item!.barcode,
-                          category: widget.item!.category ?? '',
-                          productName: widget.item!.name,
-                          size: 140,
-                        ),
+                      child: Column(
+                        children: [
+                          Center(
+                            child: ProductThumbnail(
+                              barcode: widget.item!.barcode,
+                              category: widget.item!.category ?? '',
+                              productName: widget.item!.name,
+                              size: _kHeroImageSize,
+                            ),
+                          ),
+                          // 📷 Personal photo CTA — keyed by barcode so the
+                          // same photo surfaces in the matching pantry item.
+                          ProductPhotoUploader(
+                            barcode: widget.item!.barcode!,
+                            onChanged: (_) => setState(() {}),
+                          ),
+                        ],
                       ),
                     ),
 
                   const Divider(),
                   const Gap(kSpacingSmall),
 
-                  // 📝 שם המוצר
+                  // 📝 שם המוצר. `textDirection` removed — Flutter auto-
+                  // detects Hebrew vs Latin per content; the previous
+                  // hardcoded RTL broke English users typing "Milk".
+                  // `onSubmitted` chains focus so the keyboard's "next"
+                  // arrow actually advances the user through the form.
                   _withFocusShadow(
                     focusNode: _nameFocus,
                     child: TextField(
                       controller: _nameController,
                       focusNode: _nameFocus,
                       autofocus: true,
-                      maxLength: 80,
+                      maxLength: _kMaxNameLength,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.productNameLabel,
                         icon: Icons.shopping_bag_outlined,
                       ),
-                      textDirection: ui.TextDirection.rtl,
                       textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _brandFocus.requestFocus(),
                     ),
                   ).animate().fadeIn(duration: 300.ms).slideX(begin: 0.05, end: 0),
 
@@ -408,15 +452,15 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                     child: TextField(
                       controller: _brandController,
                       focusNode: _brandFocus,
-                      maxLength: 50,
+                      maxLength: _kMaxBrandLength,
                       decoration: fieldDecoration(
                         label: AppStrings.listDetails.brandLabel,
                         icon: Icons.business_outlined,
                       ),
-                      textDirection: ui.TextDirection.rtl,
                       textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _quantityFocus.requestFocus(),
                     ),
-                  ).animate().fadeIn(duration: 300.ms, delay: 40.ms).slideX(begin: 0.05, end: 0, delay: 40.ms),
+                  ).animate().fadeIn(duration: 300.ms, delay: const Duration(milliseconds: _kStaggerStepMs)).slideX(begin: 0.05, end: 0, delay: const Duration(milliseconds: _kStaggerStepMs)),
 
                   const Gap(kSpacingSmall),
 
@@ -432,7 +476,7 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                       icon: Icon(
                         Icons.expand_more,
                         size: kIconSizeMedium,
-                        color: cs.onSurface.withValues(alpha: 0.6),
+                        color: cs.onSurface.withValues(alpha: kOpacityStrong),
                       ),
                       hint: Text(AppStrings.listDetails.selectCategory),
                       isExpanded: true,
@@ -440,12 +484,13 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                       borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       dropdownColor: cs.surfaceContainer,
                       items: widget.categories.map((category) {
+                        // textDirection removed — Hebrew categories will
+                        // render RTL automatically from the surrounding
+                        // app-wide Directionality; English categories
+                        // would have rendered backwards otherwise.
                         return DropdownMenuItem<String>(
                           value: category,
-                          child: Text(
-                            category,
-                            textDirection: ui.TextDirection.rtl,
-                          ),
+                          child: Text(category),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -456,12 +501,14 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                           _hasChanges = true;
                         });
                       },
-                    ).animate().fadeIn(duration: 300.ms, delay: 80.ms).slideX(begin: 0.05, end: 0, delay: 80.ms),
+                    ).animate().fadeIn(duration: 300.ms, delay: const Duration(milliseconds: _kStaggerStepMs * 2)).slideX(begin: 0.05, end: 0, delay: const Duration(milliseconds: _kStaggerStepMs * 2)),
 
                     const Gap(kSpacingSmall),
                   ],
 
-                  // 🔢 כמות ומחיר — בשורה אחת
+                  // 🔢 כמות ומחיר — בשורה אחת. Numeric fields keep LTR
+                  // intent (digits read left-to-right) via TextAlign.center
+                  // — hardcoded `textDirection: ltr` was redundant.
                   Row(
                     children: [
                       Expanded(
@@ -475,12 +522,12 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                               icon: Icons.numbers,
                             ),
                             keyboardType: TextInputType.number,
-                            textDirection: ui.TextDirection.ltr,
                             textAlign: TextAlign.center,
                             textInputAction: TextInputAction.next,
+                            onSubmitted: (_) => _priceFocus.requestFocus(),
                             inputFormatters: [
                               FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(4),
+                              LengthLimitingTextInputFormatter(_kMaxQuantityDigits),
                             ],
                           ),
                         ),
@@ -497,54 +544,48 @@ class _AddEditProductDialogState extends State<AddEditProductDialog> {
                               icon: Icons.attach_money,
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            textDirection: ui.TextDirection.ltr,
                             textAlign: TextAlign.center,
                             textInputAction: TextInputAction.done,
                             onSubmitted: (_) => _handleSave(),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
-                              LengthLimitingTextInputFormatter(10),
+                              LengthLimitingTextInputFormatter(_kMaxPriceChars),
                             ],
                           ),
                         ),
                       ),
                     ],
-                  ).animate().fadeIn(duration: 300.ms, delay: 120.ms).slideX(begin: 0.05, end: 0, delay: 120.ms),
+                  ).animate().fadeIn(duration: 300.ms, delay: const Duration(milliseconds: _kStaggerStepMs * 3)).slideX(begin: 0.05, end: 0, delay: const Duration(milliseconds: _kStaggerStepMs * 3)),
 
                   const Gap(kSpacingMedium),
 
-                  // 🔘 כפתורי פעולה
+                  // 🔘 כפתורי פעולה. StickyButton supplies its own
+                  // Semantics(button + label) — the outer wrapper used
+                  // to double-announce. Fallback green color from the
+                  // shared theme constant, not a raw hex literal.
                   Row(
                     children: [
                       Expanded(
-                        child: Semantics(
+                        child: StickyButton(
                           label: AppStrings.common.cancel,
-                          button: true,
-                          child: StickyButton(
-                            label: AppStrings.common.cancel,
-                            icon: Icons.close,
-                            color: cs.surfaceContainerHighest,
-                            onPressed: _handleCancel,
-                          ),
+                          icon: Icons.close,
+                          color: cs.surfaceContainerHighest,
+                          onPressed: _handleCancel,
                         ),
                       ),
                       const Gap(kSpacingSmall),
                       Expanded(
-                        child: Semantics(
-                          label: AppStrings.common.save,
-                          button: true,
-                          child: StickyButton(
-                            label: _isSaving
-                                ? AppStrings.common.loading
-                                : AppStrings.common.save,
-                            icon: _isSaving ? Icons.hourglass_empty : Icons.check,
-                            color: brand?.success ?? const Color(0xFF388E3C),
-                            onPressed: _isSaving ? null : _handleSave,
-                          ),
+                        child: StickyButton(
+                          label: _isSaving
+                              ? AppStrings.common.loading
+                              : AppStrings.common.save,
+                          icon: _isSaving ? Icons.hourglass_empty : Icons.check,
+                          color: brand?.success ?? kStickyGreen,
+                          onPressed: _isSaving ? null : _handleSave,
                         ),
                       ),
                     ],
-                  ).animate().fadeIn(duration: 300.ms, delay: 160.ms).slideX(begin: 0.05, end: 0, delay: 160.ms),
+                  ).animate().fadeIn(duration: 300.ms, delay: const Duration(milliseconds: _kStaggerStepMs * 4)).slideX(begin: 0.05, end: 0, delay: const Duration(milliseconds: _kStaggerStepMs * 4)),
 
                   // ✅ Keyboard padding
                   SizedBox(

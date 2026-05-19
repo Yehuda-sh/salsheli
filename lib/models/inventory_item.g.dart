@@ -23,6 +23,7 @@ InventoryItem _$InventoryItemFromJson(Map<String, dynamic> json) =>
           const NullableTimestampConverter().fromJson(json['last_purchased']),
       purchaseCount: (json['purchase_count'] as num?)?.toInt() ?? 0,
       barcode: json['barcode'] as String?,
+      brand: json['brand'] as String?,
       emoji: _readEmoji(json, 'emoji') as String?,
       updatedAt:
           const NullableTimestampConverter().fromJson(json['updated_at']),
@@ -46,6 +47,7 @@ Map<String, dynamic> _$InventoryItemToJson(InventoryItem instance) =>
           const NullableTimestampConverter().toJson(instance.lastPurchased),
       'purchase_count': instance.purchaseCount,
       'barcode': instance.barcode,
+      'brand': instance.brand,
       'emoji': instance.emoji,
       'updated_at':
           const NullableTimestampConverter().toJson(instance.updatedAt),

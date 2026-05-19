@@ -183,14 +183,150 @@
 - **Single-use magic alphas** (0.05 gradient, 0.8 errorMessage, 0.25 card border) ו-`size: 13` (progress icon off kIconSize* scale) — premium tuning, לא דחוף.
 - **Style-on-style typography** — דפוס פרויקט-wide (typography sweep ב-Backlog Theme).
 
+### סבב 2 (17/5/2026) — Decisions
+סבב 1 לא תפס בעיית a11y קריטית ב-`_buildInviteFamilyBanner` ושני פטרני magic-number מוסווים. הסבב הזה מתקן אותם.
+
+- **♿ White-on-cyan button (CRITICAL fix)**: `_buildInviteFamilyBanner` בנה `FilledButton` עם `backgroundColor: stickyCyan` (`#80DEEA` — פסטל בהיר) ו-`foregroundColor: cs.onPrimary` (לבן ב-default theme). לבן על ציאן בהיר = WCAG AA fail. תוקן ל-`cs.onSurface` (שחור) — עומד בקונטרסט. אותו תיקון שבוצע ב-SnackBars של `suggestions_today_card`. הערה מסבירה למה ה-onPrimary לא מתאים פה.
+- **📐 `kSpacingXTiny / 2` → `_kErrorTitleGap = 2.0`**: error banner gap בין title ל-message. אנטי-פטרן של "magic via division of a token" שתועד ב-CLAUDE.md. שינוי לקבוע מקומי עם הערה ("title/subtitle pair, not paragraph break").
+- **📐 `kSpacingSmallPlus + 2` → `_kListCardVerticalPadding = 14.0`**: אנטי-פטרן של "magic via addition". 14px = tuned (12 too tight, 16 too loose); קבוע מקומי עם הערה.
+- **📐 `Duration(milliseconds: 300)` → `_kRefreshAnimationGrace`**: refresh delay לא מתועד. עכשיו constant עם הערה למה (UX perception of "deliberate refresh").
+
+**🎯 Pattern**: דוגמה לעקביות פטרן cross-file. ה-SnackBar contrast fix שבוצע ב-`suggestions_today_card` חזר על עצמו פה ב-FilledButton. **כלל אצבע:** בכל מקום עם sticky color כרקע + foreground צבע "default theme" — לבדוק קונטרסט ידנית.
+
+### סבב 4 (19/5/2026) — Architectural pruning + WhatsForDinnerCard
+המשתמש שאל בכנות "האם בכלל צריך את הפיד הזה?". סקירה מקיפה גילתה שה-`household_activity_feed.dart` (במסך הבית) משכפל מידע שכבר זמין ב-3 מקומות: היסטוריה, פעמון התראות, ו-Action Center. נדרשה החלטה ארכיטקטונית.
+
+**מחקר API מתכונים (פרי-decision):** בוצעו 7 חיפושי web יסודיים על קיום API חופשי למתכונים בעברית. תוצאות:
+- אין API חופשי בעברית — Spoonacular/Edamam/TheMealDB כולם English-only עם מתכונים מערביים
+- אין dataset ב-Kaggle/HF — NNLP-IL/Hebrew-Resources לא מכיל recipes corpus
+- Mako/Walla/Ynet/Hashulchan — אין API ציבורי
+- OpenCulinary/RecipeRadar — FOSS אבל אנגלית
+- Spoonacular בעצמם מתעדים: *"the API only recognizes English names for ingredients, which requires an extra translation step"*
+
+**ההחלטה:** במקום לבנות feature recipe-matching עם content engineering (~50+ שעות תוכן ראשוני + תחזוקה), להחליף ב-**External Google search** — חינמי, מקסימום ערך, אפס תחזוקה.
+
+#### שינויים בקובץ `home_dashboard_screen.dart`
+- **🗑️ הסרת `HouseholdActivityFeed`** ממסך הבית. הקובץ עצמו (`household_activity_feed.dart`) נשמר כי משמש ב-`shopping_history_screen`.
+- **🆕 `WhatsForDinnerCard` חדש** — sticky-orange card שמציג: כותרת "🍲 מה לבשל הערב?" + preview של 5 פריטים מהמזווה + כפתור "חפש מתכונים" עם אייקון external. לחיצה → `launchUrl(Uri.https('www.google.com', '/search', {'q': 'מתכון עם X Y Z'}))` ב-LaunchMode.externalApplication.
+
+#### תלות חדשה
+- **`url_launcher: ^6.3.1`** נוסף ל-`pubspec.yaml`. שימוש ראשון בפרויקט (יוצר תקדים ל-external link patterns).
+
+#### Strings חדשים (HE+EN)
+- `whatsForDinner.title` / `preview(items)` / `searchButton` / `searchPrefix` / `errorFallback`
+- רשום ב-`AppStrings` (`whatsForDinner` getter)
+
+#### Sticky-note design language consistency
+- Transform.rotate(-0.005°)
+- stickyOrange gradient (kOpacitySoft → 0.05 alpha)
+- BoxShadow קל
+- Border עדין
+- אותו pattern של `_buildInviteFamilyBanner`
+
+#### Defensive UX
+- מסתתר כשפחות מ-3 פריטים במזווה (הchild שאילתת recipe על 1-2 מצרכים = רעש)
+- `fixBidiNumbers` על preview (שמות מוצרים מעורבים)
+- launchUrl עטוף ב-try/catch + fallback snackbar
+- `mode: LaunchMode.externalApplication` — נפתח בדפדפן הברירת-מחדל, לא ב-in-app webview
+
+**🎯 Pattern**: דוגמה ל-"smart link" widget — מספק ערך לוקאלי (preview מותאם אישית מהמזווה) + לוקח action אל מחוץ לאפליקציה. אפס תחזוקת תוכן.
+
+#### Hotfix מיידי (אותו יום, 19/5)
+המשתמש צילם screenshot עם demo data של naama — ה-preview הציג: "יש לך: אולטאסול ספריי שקוף · בגד ים חליפה בנות · בדין מרכך כיבסה מרוכז · בצל מטוגן במשקל · דגני בוקר אורינגל לי". 3 מתוך 5 לא היו אוכל. ה-pantry במזווה (סופרסל catalog) כולל ניקיון/ביגוד/כביסה.
+
+- **🆕 `CategoriesData.foodCategoryKeys` + `isFoodCategory()`**: Set של 28 קטגוריות אכילות ב-`filters_data.dart`. **לא כולל בכוונה** את `other` (uncategorized = high non-food risk), `vitamins`/`otc_medicine`/`first_aid` (consumed, לא cooked), `pet_food`, `baby_products` (mixed), `hygiene`/`cosmetics`/`cleaning`.
+- **🔧 Filter ב-WhatsForDinnerCard**: `.where((i) => CategoriesData.isFoodCategory(i.category))` לפני ה-`.take(5)`. תופס פריטים שאינם אוכל לפני שמגיעים ל-Google.
+- **תחת `_kMinPantryItemsForSearch = 3` אחרי הסינון**: אם מזווה מלא בניקיון בלבד → הכרטיס מסתתר.
+
+**🎯 Lesson**: pantry במזווה ≠ "what's in the kitchen". משתמש שמשתמש ב-MemoZap כ-household inventory מנהל גם kits-של-ניקיון. כל feature שמתבסס על pantry items כ-"food" חייב לסנן לפי category.
+
+#### Catalog deep audit (19/5/2026) — 4 parallel agents
+המשתמש ביקש "תריץ עוד הרבה סוכנים על הקטלוג". הופעלו 4 סוכנים במקביל ל-`supermarket.json` (111,654 פריטים, 1MB).
+
+**Agent 1 — Miscategorization patterns**:
+- 3 קטגוריות הכי "רועשות": **"מוצרי חלב"** (7-10% noise — keyword "לבן" מושך LED bulbs, swimsuits, USB cables), **"תבלינים ואפייה"** (5-8% — "אבקה" מושך powders של ויטמינים/שיער), **"ממתקים וחטיפים"** (3-5%, נפח גבוה)
+- 15 מונחי לא-אוכל חדשים זוהו: בלון, אוזניות, בובה, טבק, אסלה, לרצפה, נייר אפיה, ועוד
+- Highlights: iPhone Pro Max ב-₪6,539 בקטגוריה כלשהי, טבק לנרגילה ב-"פירות וירקות", מברשת אסלה ב-"מוצרי חלב"
+
+**Agent 2 — Duplicate detection**:
+- 100% unique by raw barcode ✓
+- 195 collisions אחרי normalization של leading zeros (data integrity bug)
+- 1,143 קבוצות "same name+brand+cat, different barcode" — כנראה pack-size variants legit
+- Quality: 98% unique by name, 100% by barcode
+- **Recommendation**: light dedup (~195 rows), not rebuild
+
+**Agent 3 — Data quality (62% overall)**:
+- 🔴 87% null `brand` — שדה כמעט בלתי שמיש
+- 🔴 70 distinct unit values (יח'/יחידה/יחידות/יח/י"ח — כולם "unit") — צריך normalization map
+- 🔴 iPhones/TVs/Vacuums מסתננים ב-₪1000-6500
+- 🟡 25 שמות שבורים (<3 chars: "5", "FA", "אץ", "OB")
+- ✅ Encoding clean, no mojibake
+- ✅ Names not stuffed (max 75 chars)
+
+**Agent 4 — "כללי" bucket (22% of catalog)**:
+- 24,494 פריטים uncategorized — 22% מהקטלוג!
+- **60-70% recoverable** דרך keyword classification
+- 30-40% junk אמיתי (coupons, English brand stubs, store SKUs)
+- **Recommendation**: build-time classifier להעביר recoverable items לקטגוריות נכונות
+
+**Action taken**:
+- ✅ Blocklist הורחב מ-37 ל-55 מילים, כולל additions של Agent 1 (בלון, אוזניות, בובה, טבק, אסלה, לרצפה, אייפון, מסך טלוויזיה, וכו')
+- ✅ Coverage עלה מ-703 hits ל-963 hits (1.10% → 1.50% של food categories)
+- ✅ Audit scripts זמניים נוקו
+
+**⏸️ Deferred (catalog-level fixes, לא קריטי ל-WhatsForDinnerCard)**:
+- 🔄 Unit normalization (70 variants → ~7 canonical) — biggest impact, mechanical
+- 🔄 "כללי" build-time classifier — recover 14-16K items
+- 🔄 Filter non-grocery price outliers (iPhones, TVs)
+- 🔄 Strip address-strings from brand field
+- 🔄 Barcode leading-zero dedup (~195 rows)
+
+**🎯 Lesson (cross-catalog)**: open-israeli-supermarkets feed הוא תוצר scraping אוטומטי עם איכות נמוכה. **כל פיצ'ר שמסתמך על הקטלוג כ-ground truth** חייב שכבת sanity check. ה-`CategoriesData.isFoodCategory` + `looksLikeNonFood` הוא pattern reference לעתיד.
+
+---
+
+### סבב 3 (17/5/2026) — Visual design polish (post-screenshot review)
+המשתמש שיתף screenshot של מצב fresh user וביקש "מה אפשר לעצב יותר טוב". בעיניים חדשות נמצאו 4 ממצאי polish שלא נתפסו בסבב 2.
+
+- **🎨 "הזמן" button blending into banner** (CRITICAL CTA fix): הציאן+ציאן יצר button שלא בולט. שונה ל-`brand.accent` (Amber #FFC107) — צבע ה-CTA הראשי באפליקציה. גם FilledButton → ElevatedButton כדי להוסיף elevation שמרים את הכפתור מהבאנר. `cs.onSurface` כצבע טקסט נשאר (amber + dark ink = ה-onAccent convention של ה-theme).
+- **📝 Sticky-note language for invite banner**: היה Container פלאט עם gradient. נוסף `Transform.rotate(-0.005)` (כ-0.3°) + `boxShadow` (offset 1,2 blur 4). הבאנר עכשיו מרגיש "מודבק לעמוד" במקום "embedded into the page" — תואם את שפת המחברת של שאר המסך.
+- **🎨 Type-tinted list card**: ה-list card היה `cs.surface` נטראלי, ניגוד צורם לפתקיות הצבעוניות מסביב. עכשיו `Color.alphaBlend(accentColor * 0.05, cs.surface)` — רמז עדין לסוג הרשימה (סופר=ירוק, מאפייה=חום) בלי להפוך לצעקני.
+- **📊 Progress ring visibility at 0%**: `accentColor.withValues(alpha: kOpacitySoft)` (0.15) → `kOpacityLight` (0.3) — ב-0/N הטבעת הייתה כמעט בלתי-נראית, מה שגרם לרשימה טריה להראות "חסרת ring" במקום "מוכנה להתחיל".
+
+**Cross-file**:
+- `onboarding_tips_card.dart`: → arrow button → background מ-`accentBg` (cs.scrim subtle) ל-`tip.color` מלא. ה-× נשאר אפור עדין. עכשיו ה-→ (פעולה ראשית) בולט חזותית מה-× (פעולה משנית) — היררכיה ברורה. הצבע של ה-→ "מהדהד" את ה-card color בסטורציה גבוהה יותר, יוצר קוהרנטיות.
+
+**🎯 Pattern lesson**: כאשר 2 כפתורי פעולה צמודים (primary + secondary), צבע זהה = "אותו משקל ויזואלי" = משתמש לא יודע מה ראשי. שונות-צבע פותרת מיד.
+
+---
+
+## Notifications Center Screen
+
+### 📂 Components נגעו
+- `notifications_center_screen.dart` (542 שורות) — מסך מרכז ההתראות, גישה דרך 🔔 ב-AppBar
+
+### 🎯 Decisions (סקירה ראשונה, 17/5/2026)
+- **🔄 Split load vs refresh**: `_loadNotifications` שימש גם את ה-RefreshIndicator → ב-pull-to-refresh הרשימה הוחלפה ב-skeleton flash. עכשיו: `_loadNotifications` (initial — flips `_isLoading`) + `_refreshNotifications` (delegate ל-`_fetchNotifications` בלי לגעת ב-skeleton). הרשימה נשארת על המסך בזמן הרענון, רק spinner של RefreshIndicator עצמו נע.
+- **✨ Shimmer one-shot במקום infinite repeat**: `.animate(onPlay: c.repeat()).shimmer(...)` יצר N controllers infinite ל-N התראות לא-נקראות. עם 10 unread = 10 אנימציות במקביל לנצח. תוקן ל-`.animate().shimmer(...)` חד-פעמי — pass של 1.2s אחרי delay 3s, ואז שקט. הנקודה הכחולה ממשיכה לאותת "unread" סטטית.
+- **🖼️ Empty state image errorBuilder**: `Image.asset('empty_notifications.webp')` חסר fallback. נוסף fallback ל-`Icons.notifications_none_outlined`. תואם פטרן של `home_dashboard_screen`.
+- **⏬ Pull-to-refresh ב-empty state**: היה רק כשיש items. משתמש עם 0 התראות לא יכל לרענן. עכשיו עוטף את ה-empty state ב-RefreshIndicator + ListView + AlwaysScrollableScrollPhysics. ה-Center נשמר בתוך `SizedBox(height: 70% of screen)`.
+- **⏱️ Future.delayed → Map<String, Timer> + dispose**: ה-6-second commit window של ה-undo היה fire-and-forget. עכשיו Timer-per-id ב-state Map, נקנסל ב-dispose ובunsubscribe. גם undo מקנסל מיד.
+- **📐 `kSpacingXLarge + kSpacingLarge` → `_kListBottomClearance = 56.0`**: anti-pattern של "magic via addition".
+- **📐 Magic numbers → local constants**: 44/10/120/2000ms/1.05/3000ms/1200ms/40 → `_kLeadingIconSize`, `_kUnreadDotSize`, `_kEmptyImageSize`, `_kEmptyPulseDuration/Scale`, `_kShimmerDelay/Duration`, `_kStaggerStepMs`, `_kUndoSnackBarDuration`, `_kUndoCommitDelay`. ה-alphas (0.2/0.3/0.5) הוחלפו ב-`kOpacityLow/Light/Medium`. ה-0.08 הוחלף ב-`kOpacitySubtle` (0.12) — הקרוב ביותר עם שם semantic.
+
+### ⏸️ Deferred
+- **`_getTypeColor` cross-file dedup** — דומה ל-`_iconForType` של `household_activity_feed`. **Trigger:** sweep גלובלי של "type → visual" mapping. **היקף:** קטן-בינוני.
+
+**🎯 Pattern**: דוגמה ל-Gmail-style undo עם Timer cancellable + cache providers לפני async gap. ה-Timer-Map pattern מאפשר multiple-undo במקביל (משתמש מוחק 3 → 3 snackbars → יכול לבטל בכל סדר).
+
 ### ⏳ Files of this screen — pending review
-- ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — Reference quality, אין ממצאים
-- ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 (r1: chevron RTL + bottom sheet theme cleanup; r2: Hebrew plurals + Row→Wrap + context.select)
+- ~~`pending_invites_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 + סבב 2 ב-17/5/2026 (r2: ✓ button כפול הוסר + Tooltip→Semantics + Gmail-undo pattern + service dedup + animation extract + chevron על +N badge)
+- ~~`action_center_card.dart`~~ ✅ **נסקר** ב-29/4/2026 + סבב 3 ב-17/5/2026 (r3: Hebrew "אחד"/"אחת" bug + urgency-coded colors + sticky-note chip style + dead param + method dedup + single-pass count)
 - ~~`last_chance_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 — **הועבר** ל-`shopping/active/widgets/` (היה ב-`home/dashboard/widgets/` בטעות) + `kMinTapTarget` cleanup
-- ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 (context.select + uncheckedCount==0 CTA + snackbar dedup + copywriting)
-- ~~`onboarding_tips_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (tooltip clarity + RTL slide + opacity rationale)
-- ~~`household_activity_feed.dart`~~ ✅ **נסקר** ב-30/4/2026 (tab nav fix + context.select + bidi + decorative image)
-- ~~`suggestions_today_card.dart`~~ ✅ **נסקר** ב-30/4/2026 (loading height + a11y dedup + RTL slide + dot constants + alpha rationale)
+- ~~`active_shopper_banner.dart`~~ ✅ **נסקר** ב-29/4/2026 + סבב 2 ב-17/5/2026 (r2: header doc fix + fixBidiNumbers + AlignmentDirectional gradient + isWaitingAtCheckout substate + _PulsingIcon Stateful + rename backgroundColor→tintColor)
+- ~~`onboarding_tips_card.dart`~~ ✅ **נסקר** ב-30/4/2026 + סבב 2 ב-17/5/2026 (r2: Gmail-undo dismiss + sync PrefsCache + arrow icon CTA + 🎉 celebration on threshold crossing)
+- ~~`household_activity_feed.dart`~~ ✅ **נסקר** ב-30/4/2026 + סבב 3 ב-17/5/2026 (r3: DD/MM/YY date format + receipt subtitle dedup + remove double Semantics + magic-number constants + _kAvatarSize naming + Icons.history→timeline)
+- ~~`suggestions_today_card.dart`~~ ✅ **נסקר** ב-30/4/2026 + סבב 2 ב-17/5/2026 (r2: RTL gradient + SnackBar contrast + processing semantic state + ValueKey for card identity + shadow constants + active dot full opacity)
 
 ### 🎯 `action_center_card.dart` — Decisions
 
@@ -205,6 +341,16 @@
 - **Hebrew plural bug תוקן**: `criticalStock` ו-`pendingRequests` החזירו תמיד plural form ("1 מוצרים נגמרו", "1 בקשות ממתינות"). היה אי-עקביות עם overdue (שכבר טיפל ב-singular). נוספו `criticalStockSingle` ו-`pendingRequest` (he+en) + ternary בקוד עבור 3 ה-chips באופן אחיד.
 - **Row → Wrap לקצוץ-טקסט במכשירים צרים**: כש-3 chips נדלקים יחד במכשיר 360dp, Flexible+ellipsis היה מקצץ את ה-label ("5 ⚠️ ..."). Wrap (עם spacing+runSpacing) נופל לשורה שנייה במקום לקצוץ. הוסרו ה-`Expanded`s — chips עכשיו sizes-to-content (אופייני יותר ל-Wrap, לא 1/3 כל אחד). RTL מטופל אוטומטית דרך Directionality.
 - **`context.watch<UserContext>` → `context.select<UserContext, bool>((u) => u.isLoggedIn)`**: רק `isLoggedIn` מעניין את הוויג'ט — שינוי ב-themeMode/displayName לא צריך לרנדר את ActionCenter. אותו pattern של `pending_invites_banner.dart`.
+
+**סבב 3 (17/5/2026)** — נחשף ב-screenshot: סבב 2 פספס את הבאג של "1 מוצר אחד נגמר" + היררכיית צבעים הפוכה + הקובץ לא מדבר את שפת sticky-notes של המסך.
+- **Hebrew "אחד"/"אחת" duplication bug** (חשוף בעין): chip מציג `count` + `label`, אבל singular strings כללו את "אחד"/"אחת" — יוצא "1 מוצר אחד נגמר", "1 בקשה אחת ממתינה". תיקון ב-strings: הסרת המילים מהסינגולר (`'מוצר אחד נגמר'` → `'מוצר נגמר'`, `'בקשה אחת ממתינה'` → `'בקשה ממתינה'`). אותו pattern באנגלית: `'1 item out of stock'` → `'item out of stock'`. עכשיו chip מציג "1 מוצר נגמר" / "1 pending request" נקי. הערה במקור מסבירה למה.
+- **Urgency-coded colors (vs sticky aesthetics)**: היה critical=stickyPink, overdue=cs.error, pending=stickyOrange — היררכיה חזותית הפוכה ל-urgency האמיתי. ה-critical (אזל לגמרי, צריך לקנות עכשיו) היה הכי "שקט" ויזואלית. תוקן ל: critical=`cs.error` (אדום), overdue=`brand.stickyOrange` (כתום סטיקי), pending=`brand.stickyYellow` (צהוב רך). **הערה לעתיד:** ניסיון ראשון השתמש ב-`brand.warning` (Material Orange 700) לכתום אבל ב-`kOpacityLight` (0.3) שני הצבעים (cs.error + warning) נשטפים לוורוד דומה — `stickyOrange` נבדל יותר ב-alpha נמוך. דחיפות נראית עכשיו = דחיפות בפועל.
+- **Sticky-note styling ל-`_StatusChip`**: היה generic Material chip — לא תאם את שפת ה-notebook+sticky-notes של המסך (suggestions cards למטה כן sticky). תיקון: `kOpacitySubtle` (0.12) → `kOpacityLight` (0.3, צבע נראה יותר), `kBorderRadius` (12) → `kBorderRadiusLarge` (16, יותר sticky), `elevation: 1` + `shadowColor` tinted (lift עדין).
+- **`Icons.schedule` → `Icons.event_busy`**: שעון רגיל היה ambiguous ("scheduled"/"overdue"). `event_busy` (לוח שנה עם X) semantic clearer לרשימה באיחור.
+- **`Wrap.alignment: center`**: כש-3 chips הופכים ל-2+1 (chip בודד בשורה השנייה), הוא היה תלוי לבד בצד start. עכשיו ממורכז — נראה מאוזן.
+- **Dead param `items` ב-`_openCriticalStock`**: הפונקציה קיבלה `List<InventoryItem>` שלא בשימוש. הוסר + הוסר import `InventoryItem`. הספירה עברה ל-`.length` ישיר במקום `.toList()` (חוסך allocation).
+- **Method dedup**: `_openOverdueLists` + `_openPendingRequests` היו כמעט זהים (haptic → fast-path 1 → sheet). אוחדו ל-`_openListsAction({lists, title, icon})`. חסכון של ~15 שורות.
+- **Single-pass count**: `_countPendingRequests` עברה על `pendingLists` שוב. ספירה משולבת ב-loop הראשי, חוסכת pass.
 
 ### 🎯 `last_chance_banner.dart` — Decisions
 - **File relocation**: היה ב-`home/dashboard/widgets/` למרות שמשמש רק ב-`active_shopping_screen`. הועבר ל-`shopping/active/widgets/`. מיקום פיזי תואם עכשיו לשימוש האמיתי. caller import מ-`'../../home/dashboard/widgets/last_chance_banner.dart'` ל-`'widgets/last_chance_banner.dart'` — קצר ומובן יותר.
@@ -243,6 +389,18 @@
 **⏸️ Deferred:**
 - **Inline TextStyle ב-`continueButton` ו-`_ActionButton.textStyle`** — נכלל ב-typography sweep הגלובלי.
 
+**סבב 2 (17/5/2026)** — סבב 1 התמקד ב-context.select + copywriting. סבב 2 חשף 7 ממצאים שלא נתפסו אז.
+
+- **🐛 Header comment שגוי**: שורה 1 אמרה "green bar showing current shopping session" — בפועל ה-Mine banner צבעו amber (`brand.accent` = `#FFC107`) וה-Others banner ירוק. תוקן ל-"amber pill for my own session, green card for someone else's (with done-waiting-at-checkout substate)".
+- **🐛 `isWaitingAtCheckout` substate**: כשרונית מסמנת את כל הפריטים אבל לא לוחצת "סיים קנייה" — לפני התיקון אצלך הבאנר אמר "רונית קונה עכשיו" כאילו היא עדיין באמצע. עכשיו: title מתחלף ל-"רונית ממתינה בקופה", אייקון `shopping_cart` → `receipt_long`. 3 strings חדשים: `othersWaitingTitle`, `othersWaitingTitleMultiple`, `someoneWaiting`. ה-isDone state אצל "Mine" כבר היה מטופל מסבב 1 — סבב 2 השלים את הפער ב-Others.
+- **📱 `fixBidiNumbers` חסר**: השכנים (`household_activity_feed`, `last_chance_banner`) משתמשים. פה לא. רשימה בשם "Walmart 2025" תרנדר את "2025" הפוך ב-RTL. הוסף לכל ה-Text של mainText/title/subtitle.
+- **🌍 `Alignment.topLeft/bottomRight` → `AlignmentDirectional.topStart/bottomEnd`**: ה-gradient זרם תמיד שמאל-לימין פיזית, לא לפי כיוון הקריאה. ב-RTL — היה רץ בכיוון שגוי ביחס לטקסט. תוקן ב-2 ה-gradients.
+- **⚡ `_PulsingIcon` → StatefulWidget**: היה `.animate(onPlay: c.repeat)` שיוצר controller חדש בכל rebuild של ההורה (Provider notify / AnimatedSwitcher swap). עכשיו `SingleTickerProviderStateMixin` + `AnimationController` + `ScaleTransition` — controller יחיד, dispose בטוח. אותו pattern fix כמו `_MailShimmerIcon` ב-`pending_invites_banner`.
+- **🎯 `backgroundColor` → `tintColor`**: הפרמטר היה bg + foreground icon color יחד — השם "background" היה מטעה. שונה ל-`tintColor` שמשקף את המהות (גוון יחיד שמשמש בשני המקומות).
+- **🎯 `icon` parameter ל-`_PulsingIcon`**: היה hardcoded `Icons.shopping_cart`. עכשיו ניתן להעביר `icon` (default = shopping_cart) כדי לתמוך ב-isWaitingAtCheckout phase. ערך ברירת מחדל מסוגנן כך שה-call sites הקיימים שאינם מעבירים icon משאירים את ה-cart.
+
+**🎯 Pattern**: דוגמה ל-pulsing icon עם vanilla AnimationController (לא flutter_animate). יציב יותר ל-rebuild patterns של provider-heavy widgets.
+
 ### 🎯 `onboarding_tips_card.dart` — Decisions
 
 **סבב 1 (30/4/2026):**
@@ -259,6 +417,27 @@
 - **`_kEnterSlideOffset = 0.1` נשאר**: Lessons Learned מציין "0.1 כמעט בלתי-נראה — 0.2 יבליט", אבל sticky notes צריכים להרגיש "מודבקים" — 0.1 תואם לכוונה הסטיקית.
 
 **🎯 Pattern**: דוגמה לprefs persistence עם graceful fallback + locale-aware slide animation. `context.select` ×3 (`isLoggedIn`, `pantryCount`, `listCount`) ל-rebuild מינימלי.
+
+### 🎯 `tutorial_service.dart` — Decisions
+
+**סבב 1 (17/5/2026)** — הטיוטוריאל המודאל של 8 שקופיות שמופיע ל-fresh users (`seenTutorial: false`). זוהה מ-screenshots של המשתמש.
+
+- **Title emojis הוסרו — בעיית bidi wrap**: כותרות כללו אמוג'י בסוף ("ברוכים הבאים ל-MemoZap! 🎉"). כשיש Latin sub-run ("MemoZap!") בתוך מחרוזת RTL, ה-bidi seam לפני האמוג'י גרם לו לפעמים להישבר לשורה נפרדת. ה-icon container הגדול מעל הכותרת (Icons.waving_hand וכו') כבר נושא את הזהות הוויזואלית — האמוג'י היה כפילות. כל 8 הכותרות (welcome/shopping/activeShopping/pantry/household/history/navigation/ready) ניקו מאמוג'י סופי, גם `letsStart` בכפתור הסיום.
+- **Description trimming**: כל ה-`*Desc` strings קוצרו ב-15-30% — סגנון conversational נשמר, מילים מיותרות הוסרו. עיקרון: tutorial של 8 שלבים = הרבה קריאה — חיתוך וורבליות מקצר את הזמן לעצמאות.
+- **Magic numbers → constants**: `24/8/8/4` של dots → `_kDotActiveWidth/_kDotInactiveWidth/_kDotHeight/kSpacingXTiny`. `80×80` icon box → `_kIconBoxSize`. `340` maxWidth → `_kDialogMaxWidth`. `20/Offset(0,10)` shadow → `_kShadowBlur/_kShadowOffset`. כולם documented inline.
+- **`kBorderRadiusSmall / 2` magic divide fix**: dot border radius `8/2 = 4` → `_kDotBorderRadius = 4.0` עם הערה "half of dot height → fully rounded". פטרן עקבי עם CLAUDE.md anti-pattern.
+- **`Directionality(rtl)` hardcoded הוסר**: הקובץ עטף את ה-Dialog ב-`Directionality(textDirection: TextDirection.rtl)`. ה-app גלובלי-RTL — wrapper מקובע היה שובר English locale. הוסר.
+- **`0.3` alphas → `kOpacityLight`**: dot inactive color + shadow alpha.
+- **Back button נוסף**: היה רק "הבא" + "דלג". משתמש שדילג על שלב לא יכל לחזור. נוסף IconButton עם `arrow_forward_rounded` (RTL) / `arrow_back_rounded` (LTR), מוסתר בשלב 1. 1 string חדש: `back => 'חזור'`.
+- **`ExcludeSemantics` על dots row**: קוראי מסך היו מקריאים "8 separate elements". עכשיו ה-step עצמו מקרא דרך title/description text. dots = decorative.
+- **`AnimatedSwitcher.transitionBuilder`**: ברירת המחדל היא fade דרך FadeTransition — קוד היה משתמש בברירת המחדל implicitly. הפכתי ל-explicit + cached `kDialogTransitionDuration` במקום `Duration(300ms)` hardcoded.
+- **Cached `theme` + `strings` references**: היו 4× `Theme.of(context)` ו-3× `AppStrings.tutorial.X` בתוך build. caching מפחית allocations.
+
+**⏸️ Deferred:**
+- **Description verbosity**: עדיין דחוס (3-4 שורות × 8 שלבים). הצעה ארוכת-טווח: להחליף ב-2-3 שלבים + interactive tooltips על כפתורי המסך הראשי. **Trigger:** שאיפת UX ל-tutorial activity-based. **היקף:** גדול.
+- **Step `historyDesc` references "טאב היסטוריה"** — לא מדבר על "📜 היסטוריה" כמו ב-`navigationDesc`. בלי emoji זה פחות חזק חזותית. **Trigger:** sweep גלובלי על navigation icon vocabulary.
+
+**🎯 Pattern**: דוגמה ל-modal multi-step tutorial עם ProgressDots + back/skip/next, RTL-aware navigation arrows, fade-cross-transition דרך AnimatedSwitcher עם ValueKey לכל step.
 
 ### 🎯 `household_activity_feed.dart` — Decisions
 
@@ -281,6 +460,14 @@
 **🎯 Pattern**: דוגמה ל-feed widget עם graceful fallback (events → receipts → SizedBox.shrink) + RTL-aware chevrons + theme.textTheme nesting (לא style-on-style).
 **🎓 Lesson learned**: `context.select<List>` הוא no-op כש-getter עוטף ב-`List.unmodifiable` — נוצר reference חדש כל קריאה. רק `select<int>(length)` או `select<primitive>` עובדים באמת.
 
+**סבב 3 (17/5/2026)** — סבב 1 ו-2 פספסו 6 ממצאים שעלו רק בקריאה זהירה. הסבב הזה ממחיש את העיקרון "כל סבב = lens אחר": סבב 1 התמקד בנביגציה, סבב 2 ב-provider semantics, סבב 3 ב-copywriting + a11y.
+- **📅 DD/MM → DD/MM/YY**: `'${date.day}/${date.month}'` היה דו-משמעי. עברית RTL יכולה לקרוא "5/5" אבל דובר English עלול לקרוא MM/DD. הוספת `_year % 100` עם `padLeft(2,'0')` נותן "5/5/26" — חד-משמעי, שורה אחת בלבד, צפוף אפילו ל-feed. תואם ל-CLAUDE.md lesson "📅 תאריכים בעברית — חודש או יום?".
+- **🏷️ Receipt subtitle dedup**: `title = receipt.storeName` ו-`subtitle = completedShoppingAt(receipt.storeName)` → "סופרסל • סיים קנייה ב-סופרסל". שם החנות הופיע פעמיים באותו tile. נוסף `homeDashboard.completedShopping` (no-arg) — subtitle עכשיו "סיימת קנייה" בלבד. הערה inline מסבירה למה.
+- **♿ Double semantics על "ראה הכל"**: היה `Semantics(button: true, label: seeAll) > TextButton(child: Text(seeAll))`. TextButton כבר מוסיף Semantics(button) עם label-from-child. ה-wrapper גרם ל-screen readers להקריא פעמיים. נסיר. הערה ב-callsite מבהירה.
+- **⚙️ Magic numbers 5 ו-3 → קבועים**: `events.take(5)` ו-`receipts.take(3)` → `_kMaxFeedEvents = 5` ו-`_kMaxFallbackReceipts = 3` עם הערה מסבירה למה fewer בfallback (visual differentiation מ-active mode).
+- **📏 `_kAvatarSize` semantic naming**: היה `= kButtonHeightSmall` — סמנטית מטעה (avatar אינו button). שונה ל-`= 36.0` עם הערה מפורשת "Avatar circle diameter — semantically an avatar, not a button". אם button sizes ידריפו בעתיד, avatar לא יזחל איתם.
+- **🎨 `Icons.history` → `Icons.timeline`**: ה-fallback של `icon_home_activity.webp` היה history. הוויג'ט הוא "activity feed" — timeline הולם יותר ("live/ongoing" vs "past-only"). מינורי אבל semantic.
+
 ### 🎯 `suggestions_today_card.dart` — Decisions
 
 **סבב 1 (30/4/2026):**
@@ -298,12 +485,35 @@
 
 **🎯 Pattern**: דוגמה לכרטיסי sticky-notes premium עם entry animations (fade + slide + shake לcritical), AnimatedScale on press עם isolated ValueNotifier (לא rebuild הכרטיס), RepaintBoundary per card, ProductThumbnail integration.
 
+**סבב 2 (17/5/2026)** — סבב 1 התמקד ב-layout + a11y dedup + RTL slide. סבב 2 חשף 6 ממצאים חדשים בקריאה זהירה.
+
+- **🌍 RTL gradient direction**: `Alignment.topLeft/bottomRight` → `AlignmentDirectional.topStart/bottomEnd` על gradient של הכרטיס. אותו תיקון שעשינו ב-active_shopper_banner. ה-gradient עכשיו זורם לפי כיוון הקריאה (RTL: מימין-עליון לשמאל-תחתון).
+- **♿ SnackBar contrast** (WCAG fix): 8 SnackBars השתמשו ב-sticky pastel backgrounds (`stickyOrange`, `stickyGreen`, `stickyPink`, `stickyCyan`) עם default white text מה-theme. לבן על פסטל בהיר = קונטרסט גבולי, לא עומד ב-WCAG AA. תיקון: כל ה-Text + Icons ב-content מקבלים `style: TextStyle(color: cs.onSurface)` — שחור על פסטל = ברור. `contentTextStyle` ב-SnackBar **לא קיים** ב-Flutter — הסטיילינג חייב להיות על ה-Text ישירות.
+- **♿ Processing semantic state**: ה-`Semantics(value:)` תמיד אמר "במלאי: X". כשהמשתמש לחץ "+ הוסף", buttons נחבאים תחת spinner — קוראי מסך לא ידעו שמשהו קורה. עכשיו `_isProcessing == true` → value מתחלף ל-"מתבצעת פעולה". 1 string חדש: `suggestionsToday.processing`.
+- **🎯 ValueKey לזהות הכרטיס**: `_StickyNoteCard` לא היה לו key מפורש ב-ListView.builder. אם ה-provider מסנן/מסדר מחדש, Flutter היה ממחזר state ל-suggestion אחר (entry animations + shake נדלקות לפריט הלא נכון). נוסף `key: ValueKey(suggestion.id)` — State + animations נעים יחד עם ה-suggestion הנכון. גם פותר את concern ה-shake animation rebuild מ-flutter_animate.
+- **📐 Magic shadow numbers → constants**: 6 ערכי קסם של 2-layer shadow (8/2/4, 4/0/2, alpha 0.1) → `_kCardShadowOuterBlur/Offset`, `_kCardShadowInnerBlur/Offset`, `_kCardShadowInnerAlpha` עם הערה "tuned as a unit for sticky-note pressed-into-paper feel".
+- **🎨 Active dot opacity 0.7 → 1.0**: `cs.primary.withValues(alpha: kOpacityStrong)` הוריד את ה-active dot ל-70%. inactive כבר ב-0.3 — הניגוד מ-0.7 ל-0.3 חלש. עכשיו active = `cs.primary` מלא, inactive = `cs.outline.withValues(alpha: kOpacityLight)`. "you are here" cue ברור יותר.
+
 ### 🎯 `pending_invites_banner.dart` — Reference Decisions
 - **`static final _service = PendingInvitesService()`** — instance singleton, לא נוצר מחדש כל build.
 - **`context.select<UserContext, String?>((u) => u.userId)`** — minimal rebuild, רק על userId change.
 - **StreamBuilder עם initialData** + silent hide on stream error (debugPrint רק ב-kDebugMode).
 - **Type-aware UI** (list vs household): `titleListInvite` / `titleHouseholdInvite` + 3-tier groupName fallback (household_name → group_name → list_name) עם הערה מסבירה buggy histroy.
 - **Composed A11y**: `Semantics(button: true, label: composed)` סביב הבאנר + `ExcludeSemantics` על Icon + Column הפנימי. Single announcement במקום 3.
+
+**סבב 2 (17/5/2026)** — סבב 1 סימן "Reference quality, אין ממצאים" אבל קריאה בעין חדשה חשפה 7 ממצאים אמיתיים. **לקח עצמי**: גם קובץ שנכתב כ-reference quality יכול להחביא חוסר-עקביות UX אחרי משך זמן שמחנו לב.
+
+- **✓ button כפול הוסר**: ה-✓ ירוק עשה `Navigator.pushNamed('/pending-invites')` — בדיוק כמו ה-InkWell של הבאנר. שני tap targets עם אותה התנהגות = "שקר ויזואלי" (✓ נראה כמו 1-tap accept, בפועל 2-tap). נשאר רק × inline + tap על הבאנר → פתיחת מסך. ה-`_onAccept` method הוסר לחלוטין.
+- **Tooltip → Semantics**: `_CircleActionButton` השתמש ב-Tooltip — לא עובד במובייל (אין hover) ולא נחשב label רשמי לקוראי מסך. הוחלף ל-`Semantics(button: true, label: ...)`. אותו pattern fix שבוצע ב-`household_activity_feed`. הוויג'ט שמיש כעת לכפתור decline בלבד — שמו שונה ל-`_DeclineButton`.
+- **Gmail-style undo for decline**: `_isProcessing` הוחלף ב-`_pendingDeclineId` + `_declineTimer`. תאפ × → invite מסונן locally + snackbar עם "בטל" ל-5sec + Timer ל-actual API call. אם המשתמש לוחץ "בטל" — timer נמחק, ההזמנה חוזרת. אם 5sec עוברים — `declineInviteResult` נקרא לראשונה. **לא צריך service-level "undecline"**.
+- **Service singleton dedup**: 2 instances של `PendingInvitesService` (אחת על `PendingInvitesBanner`, אחת על `_PendingInviteBannerContentState`). אוחדה לאחת ב-`PendingInvitesBanner._service`, המחלקה הפנימית ניגשת דרך `PendingInvitesBanner._service` (private access אפשרי באותה library).
+- **`_MailShimmerIcon` extraction**: `Icons.mail_outline.animate().shimmer()` היה inline ב-`build`. בכל rebuild (Firestore stream events) ה-Animate widget נוצר מחדש → controller leak פוטנציאלי. ה-icon הוצא ל-`_MailShimmerIcon` StatelessWidget נפרד — stable widget identity, ה-State של Animate נשמר בין rebuilds.
+- **`_MoreInvitesBadge` עם chevron**: ה-badge "+3 עוד" היה Container פשוט עם Text — נראה כמו metadata, לא כמו clickable. נוסף chevron RTL-aware (`chevron_left` ב-RTL, `chevron_right` ב-LTR) שמבטא "tap to see all". 3 strings חדשים: `declinePending`, `undoLabel`, `viewAllMore`.
+- **`!result.isSuccess` במקום `result.isFailure`**: ה-InviteResult class חשף רק `isSuccess` getter — `isFailure` לא קיים. ניטרלי לטעות מי שמוודא לא נכון.
+
+**⏸️ Deferred:**
+- **Service-level undo**: undo דרך deferred-call עובד כי ה-API לא נקרא עד אחרי 5sec. **אבל** — אם המשתמש סוגר את האפליקציה תוך 5sec, ה-decline לא יקרה (Timer נמחק ב-dispose). זה בעצם feature לא בעיה — אבל אם רוצים to commit at-app-close, ייצור method `commitPendingDecline()` ב-service.
+- **Magic alphas inline** (`_kBgAlpha=0.9`, `_kSubtitleAlpha=0.8`, etc.) — documented as "tuned as a unit". ✓ נשמרו.
 - **Top-level alpha constants tuned כיחידה** (`_kBgAlpha`, `_kBorderAlpha`, etc.) — 3 מתוכם exact matches ל-`kOpacity*` אבל נשארים מקומיים בכוונה ("Banner appearance — alphas tuned to read as 'soft tertiary alert'").
 - **AnimatedSwitcher כש-`invites.first.id` משתנה** — חלק במקום קופץ.
 - **Shimmer animation** על אייקון המעטפה — attention-grabber מעודן.
@@ -651,6 +861,34 @@
 - **`_NotificationToggle`**: `activeTrackColor` alpha 0.3 → `kOpacityLight`. הקובץ עצמו תקין — SwitchListTile a11y מובנה, haptic מובדל (lightImpact ל-on, selectionClick ל-off).
 - **`_ThemeCard`**: 3 magic alphas → `kOpacitySubtle` (0.12, selected bg) + `kOpacityMedium` (0.5, unselected bg) + `kOpacityLow` (0.2, unselected border). Border width 2 → `kBorderWidthFocused` (selected). 1 → literal עם הערה (Material default). AnimatedScale + AnimatedContainer premium feel ✅. Semantics(button + label + selected) ✅.
 
+**Round 4 (19/5/2026) — FCM wiring + sticky-note visual unification + Logout/Delete hierarchy:**
+- **🔔 FCM toggles now actually filter push** (was: TODO comment said toggles "save to SharedPreferences but not connected to FCM"):
+  - 4 new fields on `users/{userId}` Firestore doc: `notify_shopping`, `notify_group`, `notify_reminders`, `notify_list_updates`.
+  - `_saveNotificationSetting` writes BOTH SharedPreferences (UI cache) AND Firestore (server-truth) on every toggle change.
+  - `_loadSettings` reads Firestore first, falls back to SharedPreferences for existing users.
+  - **One-time auto-migration**: on first open after this change, missing Firestore fields are seeded from SharedPreferences values so existing users keep their preferences.
+  - **Cloud Function `onNotificationCreated`** (functions/index.js) reads the user doc, maps `notification.type` to the matching `notify_*` field, and skips `getMessaging().send()` if the field is `false`. Missing fields default to `true` (fail-open — never silently drop an invite because of a missing toggle).
+  - **Type → toggle mapping** (mirrors `NotificationType` enum):
+    - `who_brings_volunteer` → `notify_shopping`
+    - `invite` / `request_approved` / `request_rejected` / `role_changed` / `user_removed` / `member_left` → `notify_group`
+    - `low_stock` / `expiry_expired` / `expiry_soon` → `notify_reminders`
+    - `new_vote` / `vote_tie` → `notify_list_updates`
+- **🎨 6 sections migrated from Material Card → StickyNote** (matching the app's "Notebook + Sticky Notes" design language). Color palette per section, slight rotation each:
+  - Section 0 (Profile): `stickyYellow` (-0.005°) — warm hero identity
+  - Section 1 (Notifications): `stickyOrange` (+0.005°) — attention/alerts
+  - Section 2 (General/Theme): `stickyCyan` (-0.008°) — cool configuration
+  - Section 3 (Household): `stickyPink` (+0.008°) — warmth/people
+  - Section 4 (Quick Links): `stickyPurple` (-0.005°) — secondary actions
+  - Section 5 (Info): `stickyGreen` (+0.005°) — info/safe
+  - StickyNote uses `padding: 0` + `animate: false` so the existing inner Padding and `_animatedSection` entrance animation are preserved.
+  - Sections 6 (Logout) and 7 (Delete) stay as `Card` — see hierarchy fix below.
+  - `_kCardBgAlpha` / `_kCardBorderAlpha` constants removed (no longer used after migration).
+- **🚨 Logout / Delete-account visual hierarchy fixed** (mis-tap risk):
+  - Logout was `errorContainer` red + red text + heavyImpact haptic — visually identical magnitude to Delete-Account.
+  - Logout now: neutral `surfaceContainerHighest` background, `onSurfaceVariant` icon/chevron, regular `onSurface` text, **lightImpact** haptic (reversible action). Communicates "boring safe sign-out" rather than "danger".
+  - Delete-Account now: deeper `errorContainer.withValues(alpha: 0.9)` + **bold title** + `kBorderWidthFocused` (2px) red border for emphasis. Distinct "danger zone" feel.
+  - Spacing between them: `kSpacingMedium` (16) → `kSpacingXLarge` (32). Tells the eye "this is a separate zone".
+
 **⏸️ Deferred (Rounds 1-3):**
 - **🔗 Direct `cloud_firestore` imports + reads ב-`_loadSettings`** (lines 113-128): המסך קורא ישירות ל-`households/{id}/members/{userId}` ו-`households/{id}`. צריך לחלץ ל-`HouseholdService.getCurrentUserRole(householdId, userId)` או דומה. **Trigger:** סקירת `household_service.dart`. **היקף:** קטן-בינוני (service method + screen replacement).
 - **Inline TextStyle ×6+ ב-`_NotificationToggle`, `_ThemeCard`, ב-dialogs ובהדר**: כל המקומות נכללים ב-typography sweep הגלובלי.
@@ -659,6 +897,13 @@
 - **Inline TextStyle ×6+ ב-dialogs**: שורות 179, 261, 273, 357, 375, 381, 449. נכלל ב-typography sweep הגלובלי.
 - **Raw `showDialog` ×3** (logout, debug, delete account): שאר האפליקציה עברה ל-`AppDialog.show`. אותו pattern שתועד ב-`edit_household_name_dialog`.
 - **`_debugClearAllData` not gated by `kDebugMode`**: title אומר 🔧 DEBUG, אבל הfunction עצמה אינה נבדקת ב-`if (kDebugMode)`. צריך לוודא ב-Round 2 איפה ה-button קורא לה.
+
+**⏸️ Deferred (Round 4, 19/5/2026) — Large security/GDPR/UX gaps:**
+- **🔐 Biometric lock on destructive actions** — "Delete account" and (debug-only) "Clear all data" are protected by a typed-confirmation dialog, but an unlocked phone can still trigger them. Modern apps gate destructive ops behind Face ID / Touch ID. **What's needed**: `local_auth` package, iOS `NSFaceIDUsageDescription`, Android `USE_BIOMETRIC` permission, fallback to passcode, test on real devices (not emulator). **Trigger**: when a user reports an "accidental delete" or for an App Store review polish pass. **Size**: medium (single dialog wrap, but cross-platform permission boilerplate).
+- **📦 GDPR data export** — "מחק חשבון" exists (`onUserDeleted` Cloud Function does cascading delete) but GDPR Article 20 also requires **portability**: the user must be able to download their data in a machine-readable format. **What's needed**: new Cloud Function that walks every collection touching the user (private_lists, inventory, notifications, household membership, shopping_patterns, saved_contacts), serializes to JSON, uploads to Storage with a signed link, emails the user. Settings UI = one button "📦 הורד את הנתונים שלי" → triggers the function → snackbar "התחלנו לאסוף, נשלח אליך מייל". **Trigger**: pre-launch in EU, or when a user requests it. **Size**: large (server-side feature, separate session).
+- **✉️ Edit email / password from settings** — currently the user can edit name + avatar only. Email/password require Firebase Auth `reauthenticate*` before update (security). **What's needed**: new section "🔐 אבטחה" with two flows. (1) Edit email: re-auth → `updateEmail()` → send verification → snackbar. (2) Edit password: re-auth → `updatePassword()`. Both need careful handling of social-login users (Google/Apple — no password to change; show explanation instead). **Trigger**: user request, or 3rd-party auth onboarding pass. **Size**: medium (1 screen + 2 dialogs, plus error mapping for re-auth failures).
+- **🔗 Linked accounts info** — if user signed up with Google/Apple, settings shows nothing about it. Should display "מחובר עם 🔵 Google" / "🍎 Apple" + an "unlink" affordance (with warning that the user will need a password). **Size**: small once edit-password flow exists.
+- **🔕 Permission UX hint** — if user denied push permission at the OS level, the 4 toggles look functional but nothing arrives. Should show a hint banner above the toggles section: "התראות כבויות במכשיר → הפעל בהגדרות". Requires `Permission.notification.status` check (permission_handler package) + `openAppSettings()` deep link. **Size**: small.
 
 ---
 
@@ -770,6 +1015,36 @@
 - **2,465 barcodes appearing in multiple list-type files** (e.g., supermarket + market both carry "אורז בסמטי DAAWAT") — by design (supermarket is the superset), not a bug.
 
 **🎯 Pattern:** with no real users on the system, aggressive cleanup is safe — reversible via git revert. Once real users land, dedup decisions need explicit review (some "duplicates" are different products with bad source-data barcodes; merging the wrong way deletes legitimate products from someone's list).
+
+---
+
+## Shopping List Details — Task Dialog
+
+### 📂 Components נגעו
+- `lib/widgets/shopping/add_edit_task_dialog.dart`
+- `lib/l10n/app_strings_he.dart` / `app_strings_en.dart`
+
+### ✅ Decisions Made (19/5/2026)
+- **Priority labels: ordinal → semantic** — `low/medium/high` ("נמוכה/בינונית/גבוהה") was ambiguous; "בינונית" doesn't translate to an action. Renamed to **רגיל / חשוב / דחוף** (he) and **Normal / Important / Urgent** (en). Emoji prefix preserved (🟢/🟡/🔴).
+- **Removed double visual indicator** — dropdown previously showed both a colored `Container(shape: circle)` and an emoji-prefixed label = the same signal twice. Container removed; emoji-in-string is the sole indicator.
+- **Quick-pick chips for due date** — 4 `ChoiceChip`s (היום / מחר / סוף השבוע / השבוע הבא) above the calendar tile. Friday = end-of-week, Monday = next-week; if today is already past Friday, the chip rolls to next Friday.
+- **Smart date display** — when the picked date is today or tomorrow, the tile renders "היום"/"מחר" instead of "10/05/2026" (digits-only kept the user doing mental math).
+- **Date format trimmed** — `dd/MM/yyyy` → `d/M/yy` (matches the CLAUDE.md "5/5/26 over 5/5" lesson — shorter and the year disambiguates ordering).
+- **Hygiene fixes applied (parity with `add_edit_product_dialog.dart`)**:
+  - Hardcoded `import 'dart:ui'` + `textDirection: rtl` removed (broke English input).
+  - Shared `_onFocusChange` split into per-node `_onFocusGained(node)` — Tab between fields fired haptic twice; now fires once.
+  - `_showErrorSnackBar` added `..removeCurrentSnackBar()`.
+  - Magic numbers → local constants (`_kMaxNameLength`, `_kFocusShadowBlur`, `_kFocusShadowOffset`, `_kInputFillAlpha`, `_kInputBorderAlpha`, `_kFocusedBorderWidth`, `_kStaggerStepMs`, `_kEntryAnimDuration`).
+  - `Color(0xFF388E3C)` raw hex → `kStickyGreen`.
+  - `withValues(alpha: 0.5/0.55/0.6/0.12)` → `kOpacity*` constants.
+  - Double `Semantics(button: true)` on StickyButtons removed (StickyButton announces its own role).
+  - `onSubmitted` chains name → notes for keyboard "next" arrow.
+  - `maxLength: 80` + counter at ≥70 chars (matches product dialog).
+  - Animation timing aligned with product dialog (300ms duration, 40ms stagger).
+
+### ⏸️ Deferred (large items)
+- **🔔 Reminders / Push Notifications for tasks** — biggest UX gap on the dialog. A task created today for 5/6 won't surface unless the user opens the list. Wiring `NotificationsService` (already exists, used for invites/low-stock/expiry) to also schedule a local notification for `dueDate - X hours` is the right move, but full feature includes: timezone math, snooze, dismiss, notification settings per task, deletion when the task completes. Touches `shopping_list_details_screen.dart`, `notifications_service.dart`, AndroidManifest permissions, iOS notification entitlements. **Trigger:** when a user complains about forgotten tasks, or when notification settings UI gets built. **Size:** large (multi-file feature, separate session).
+- **Task duplication** — `isRecurring`-style toggle for "every week tidy the kitchen". Not in the current dialog; would be a new field on `UnifiedListItem` (task case). **Trigger:** user request, or pattern detection in shopping_patterns_service. **Size:** medium.
 
 ---
 

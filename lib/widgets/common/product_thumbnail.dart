@@ -1,4 +1,6 @@
-// lib/widgets/common/product_thumbnail.dart — Product thumbnail — CDN image with emoji fallback, keyword matching, non-food gate
+// lib/widgets/common/product_thumbnail.dart — Product thumbnail — user photo → CDN image → emoji fallback
+
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../config/filters_config.dart';
 import '../../config/product_images_config.dart';
 import '../../core/ui_constants.dart';
+import '../../services/user_product_photos_service.dart';
 
 /// Cached map of URLs → failure time (shared across all instances).
 /// Entries expire after [_kFailedUrlTtl] so a transient network failure
@@ -72,9 +75,41 @@ class ProductThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final imageUrls = ProductImagesConfig.getImageUrls(barcode);
 
-    // Filter out known-failed URLs (honoring TTL — stale failures expire)
+    // 1️⃣ User-uploaded photo wins — the user explicitly chose this image
+    // for this product, so respect it even if the catalog has a CDN entry.
+    // Lookup is O(1) (in-memory map); the actual disk read happens in
+    // Image.file's frame builder.
+    final userPhotoPath = UserProductPhotosService.getPhotoPath(barcode);
+    if (userPhotoPath != null) {
+      final file = File(userPhotoPath);
+      if (file.existsSync()) {
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: cs.surface,
+            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+            border: Border.all(
+              color: cs.outlineVariant.withValues(alpha: kOpacityLight),
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Image.file(
+            file,
+            fit: BoxFit.cover,
+            // cacheWidth lets Flutter decode at a smaller resolution —
+            // user photos are typically 3-12MP from the device camera,
+            // way more pixels than a 64-140px thumbnail needs.
+            cacheWidth: (size * MediaQuery.devicePixelRatioOf(context)).round(),
+            errorBuilder: (_, _, _) => _buildEmojiCircle(cs),
+          ),
+        );
+      }
+    }
+
+    // 2️⃣ Catalog CDN image (barcode-based) — existing behavior.
+    final imageUrls = ProductImagesConfig.getImageUrls(barcode);
     final validUrls =
         imageUrls.where((url) => !_isFailedRecent(url)).toList();
 

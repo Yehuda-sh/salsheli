@@ -2,6 +2,19 @@
   "recommendations": [
     "Dart-Code.dart-code",
     "Dart-Code.flutter",
-    "anthropic.claude-code"
+    "anthropic.claude-code",
+
+    // --- Data & API Tools ---
+    "meznaric.vscode-firestore-rules",
+    "humao.rest-client",
+
+    // --- Code Quality & Utility ---
+    "christian-kohler.path-intellisense",
+    "usernamehw.errorlens",
+    "eamodio.gitlens",
+
+    // --- Language Support for Scripts ---
+    "ms-python.python",
+    "dbaeumer.vscode-eslint"
   ]
 }

@@ -31,6 +31,7 @@ dependencies:
   # Network
   connectivity_plus: ^6.0.3
   cached_network_image: ^3.4.1
+  url_launcher: ^6.3.1  # External Google recipe search (WhatsForDinnerCard)
 
   # Utils
   package_info_plus: ^9.0.0
@@ -43,6 +44,7 @@ dependencies:
   # Media
   mobile_scanner: ^7.2.0
   image_picker: ^1.1.0
+  path_provider: ^2.1.0  # Local file paths for user-uploaded product photos
 
   # Firebase
   firebase_core: ^4.2.0

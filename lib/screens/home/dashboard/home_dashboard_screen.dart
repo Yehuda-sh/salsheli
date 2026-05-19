@@ -22,10 +22,10 @@ import '../../../widgets/common/household_invite_dialog.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
-import 'widgets/household_activity_feed.dart';
 import 'widgets/onboarding_tips_card.dart';
 import 'widgets/pending_invites_banner.dart';
 import 'widgets/suggestions_today_card.dart';
+import 'widgets/whats_for_dinner_card.dart';
 
 // Layout tokens specific to the active-list card.
 const double _kAvatarSize = 44.0;
@@ -34,6 +34,21 @@ const double _kListAccentBarWidth = 5.0;
 // Empty-state illustration size — keeps a stable footprint even when
 // the asset fails to decode and the errorBuilder swaps in a fallback icon.
 const double _kEmptyStateImageHeight = 100.0;
+// List card vertical padding — kSpacingSmallPlus (12) leaves the card
+// feeling tight against the icon row, kSpacingMedium (16) over-spaces
+// it. 14 is the in-between that reads as "comfortable but compact"; the
+// previous `kSpacingSmallPlus + 2` hid the magic value behind addition.
+const double _kListCardVerticalPadding = 14.0;
+// Refresh indicator grace period: after the data load future resolves,
+// we wait this long before dismissing the pull-to-refresh animation so
+// the user perceives the refresh as a deliberate operation rather than
+// an instantaneous flash. Felt-too-fast UX was the original complaint.
+const Duration _kRefreshAnimationGrace = Duration(milliseconds: 300);
+// Tight gap between the error banner's title and message — full
+// kSpacingXTiny (4) reads as a paragraph break, this stays as a
+// title/subtitle pair. Literal instead of `kSpacingXTiny / 2` since
+// dividing a token by 2 hides the intent.
+const double _kErrorTitleGap = 2.0;
 
 class HomeDashboardScreen extends StatefulWidget {
   final Function(int)? onTabSelected;
@@ -106,7 +121,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       // Suggestions are non-critical — they don't bump the error flag.
     }
 
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future.delayed(_kRefreshAnimationGrace);
 
     if (!context.mounted) return;
 
@@ -275,15 +290,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
                   ),
 
-                  // === 6. פיד פעילות הבית ===
+                  // === 6. מה לבשל הערב? (Google recipe search) ===
+                  // Replaced the household activity feed — see REVIEW_BACKLOG
+                  // (17/5/2026): the feed duplicated info already available
+                  // in the History tab and the notification center, and was
+                  // showing receipt fallback weeks-old labelled "מה חדש".
+                  // This card surfaces a forward-looking action instead.
                   _staggered(
-                    RepaintBoundary(
-                      child: HouseholdActivityFeed(
-                        onSeeAllHistory: widget.onTabSelected != null
-                            ? () => widget.onTabSelected!(2)
-                            : null,
-                      ),
-                    ),
+                    const RepaintBoundary(child: WhatsForDinnerCard()),
                     sectionIndex++,
                   ),
 
@@ -313,61 +327,81 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     if (!isSolo) return const SizedBox.shrink();
 
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final brand = theme.extension<AppBrand>();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacitySoft),
-            (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.05),
+    // Slight rotation + drop shadow brings this banner into the same
+    // sticky-note language as the tip cards below. Without it, the
+    // banner read as a generic Material rectangle disconnected from
+    // the rest of the notebook+sticky home screen.
+    return Transform.rotate(
+      angle: -0.005,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacitySoft),
+              (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.05),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacityLight)),
+          boxShadow: [
+            BoxShadow(
+              color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
+              blurRadius: 4.0,
+              offset: const Offset(1, 2),
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacityLight)),
-      ),
-      child: Row(
-        children: [
-          // Plain house emoji — the previous family ZWJ sequence
-          // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
-          // Decorative only — screen readers should jump straight to
-          // the title text, not announce "house".
-          const ExcludeSemantics(
-            child: Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
-          ),
-          const SizedBox(width: kSpacingSmallPlus),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppStrings.homeDashboard.inviteFamilyTitle,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
-                ),
-                Text(
-                  AppStrings.homeDashboard.inviteFamilySubtitle,
-                  style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                ),
-              ],
+        child: Row(
+          children: [
+            // Plain house emoji — the previous family ZWJ sequence
+            // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
+            // Decorative only — screen readers should jump straight to
+            // the title text, not announce "house".
+            const ExcludeSemantics(
+              child: Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
             ),
-          ),
-          FilledButton(
-            onPressed: () {
-              unawaited(HapticFeedback.lightImpact());
-              showHouseholdInviteDialog(context);
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: brand?.stickyCyan ?? kStickyCyan,
-              foregroundColor: cs.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-              minimumSize: const Size(0, kMinTapTarget),
+            const SizedBox(width: kSpacingSmallPlus),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppStrings.homeDashboard.inviteFamilyTitle,
+                    style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
+                  ),
+                  Text(
+                    AppStrings.homeDashboard.inviteFamilySubtitle,
+                    style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
             ),
-            child: Text(AppStrings.homeDashboard.inviteFamilyAction),
-          ),
-        ],
+            // ElevatedButton (with default elevation) instead of FilledButton —
+            // the cyan-on-cyan FilledButton blended into the banner. The
+            // amber brand accent pops as a clear CTA against the cyan
+            // backdrop; cs.onSurface (dark) is the legible ink color for
+            // amber per the theme's onAccent convention.
+            ElevatedButton(
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                showHouseholdInviteDialog(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: brand?.accent ?? cs.primary,
+                foregroundColor: cs.onSurface,
+                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
+                minimumSize: const Size(0, kMinTapTarget),
+              ),
+              child: Text(AppStrings.homeDashboard.inviteFamilyAction),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -407,7 +441,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: kSpacingXTiny / 2),
+                const SizedBox(height: _kErrorTitleGap),
                 Text(
                   errorMessage,
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -602,7 +636,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       child: Card(
       margin: const EdgeInsets.only(bottom: kSpacingSmall),
       clipBehavior: Clip.antiAlias,
-      color: cs.surface.withValues(alpha: kOpacityStrong),
+      // Subtle type-tinted surface — 5% of the list-type color blended
+      // over the translucent surface gives the card a quiet "this is
+      // a green/orange/etc. list" personality without becoming loud.
+      // Previously the card was pure surface, which read as a neutral
+      // table row next to the colorful sticky notes elsewhere on screen.
+      color: Color.alphaBlend(
+        accentColor.withValues(alpha: 0.05),
+        cs.surface.withValues(alpha: kOpacityStrong),
+      ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadius),
         side: BorderSide(
@@ -643,7 +685,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: kSpacingMedium,
-                    vertical: kSpacingSmallPlus + 2,
+                    vertical: _kListCardVerticalPadding,
                   ),
                   child: Row(
                     children: [
@@ -660,10 +702,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             children: [
                               if (totalCount > 0)
                                 SizedBox.expand(
+                                  // Background ring bumped from kOpacitySoft
+                                  // (0.15) to kOpacityLight (0.3) — at 0%
+                                  // progress the ring was nearly invisible,
+                                  // making fresh lists look "ringless"
+                                  // rather than "ready to start".
                                   child: CircularProgressIndicator(
                                     value: progress,
                                     strokeWidth: _kProgressStrokeWidth,
-                                    backgroundColor: accentColor.withValues(alpha: kOpacitySoft),
+                                    backgroundColor: accentColor.withValues(alpha: kOpacityLight),
                                     valueColor: AlwaysStoppedAnimation(accentColor),
                                   ),
                                 )

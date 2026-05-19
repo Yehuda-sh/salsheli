@@ -50,4 +50,5 @@ class AppStrings {
   static LegalStrings get legal => _isEnglish ? AppStringsEn.legal : AppStringsHe.legal;
   static ActionCenterStrings get actionCenter => _isEnglish ? AppStringsEn.actionCenter : AppStringsHe.actionCenter;
   static OnboardingTipsStrings get onboardingTips => _isEnglish ? AppStringsEn.onboardingTips : AppStringsHe.onboardingTips;
+  static WhatsForDinnerStrings get whatsForDinner => _isEnglish ? AppStringsEn.whatsForDinner : AppStringsHe.whatsForDinner;
 }

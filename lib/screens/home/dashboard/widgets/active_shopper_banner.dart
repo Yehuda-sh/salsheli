@@ -1,4 +1,4 @@
-// lib/screens/home/dashboard/widgets/active_shopper_banner.dart — Active shopper banner — green bar showing current shopping session with continue button
+// lib/screens/home/dashboard/widgets/active_shopper_banner.dart — Active shopping banners — amber pill for my own session, green card for someone else's (with done-waiting-at-checkout substate)
 
 import 'dart:async';
 
@@ -112,6 +112,13 @@ class ActiveShopperBanner extends StatelessWidget {
         ? false
         : (othersList.getUserRole(currentUserId)?.canShop ?? false);
 
+    // Done-but-not-finalized substate: every item checked, session still
+    // open. Tells the viewer "they're at the cashier" rather than letting
+    // the banner read as if shopping is still in progress.
+    final isWaitingAtCheckout =
+        othersList.items.isNotEmpty &&
+        othersList.items.every((i) => i.isChecked);
+
     return AnimatedSwitcher(
       duration: _kSwitcherDuration,
       child: _OthersShoppingBanner(
@@ -120,6 +127,7 @@ class ActiveShopperBanner extends StatelessWidget {
         shopperCount: shopperCount,
         firstShopperName: firstShopperName,
         canJoin: canJoin,
+        isWaitingAtCheckout: isWaitingAtCheckout,
       )
           .animate()
           .fadeIn(duration: _kEnterDuration)
@@ -165,13 +173,15 @@ class _MyActiveShoppingBanner extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         decoration: BoxDecoration(
+          // AlignmentDirectional flips for RTL — gradient now runs from
+          // the reading start to the reading end regardless of locale.
           gradient: LinearGradient(
             colors: [
               accentColor,
               accentColor.withValues(alpha: _kGradientEndAlpha),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: radius,
           boxShadow: [
@@ -198,7 +208,7 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                 children: [
                   ExcludeSemantics(
                     child: _PulsingIcon(
-                      backgroundColor: cs.onPrimary,
+                      tintColor: cs.onPrimary,
                       variant: _PulsingIconSize.compact,
                     ),
                   ),
@@ -206,7 +216,10 @@ class _MyActiveShoppingBanner extends StatelessWidget {
                   Expanded(
                     child: ExcludeSemantics(
                       child: Text(
-                        mainText,
+                        // fixBidiNumbers prevents the "5 פריטים" digit
+                        // group from rendering as "פריטים 5" in mixed
+                        // Hebrew/Latin list names.
+                        fixBidiNumbers(mainText),
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: cs.onPrimary,
                           fontWeight: FontWeight.w700,
@@ -271,12 +284,14 @@ class _OthersShoppingBanner extends StatelessWidget {
   final int shopperCount;
   final String? firstShopperName;
   final bool canJoin;
+  final bool isWaitingAtCheckout;
 
   const _OthersShoppingBanner({
     super.key,
     required this.list,
     required this.shopperCount,
     required this.canJoin,
+    required this.isWaitingAtCheckout,
     this.firstShopperName,
   });
 
@@ -288,14 +303,26 @@ class _OthersShoppingBanner extends StatelessWidget {
     final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
     final radius = BorderRadius.circular(kBorderRadius);
 
-    // Title: prefer the resolved shopper name; fall back to a generic
-    // "מישהו" rather than accidentally displaying the list name as a
-    // person's name (the previous `firstShopperName ?? list.name` bug).
-    final title = shopperCount == 1
-        ? (firstShopperName != null
-            ? strings.othersActiveTitle(firstShopperName!)
-            : strings.someoneShopping)
-        : strings.othersActiveTitleMultiple(shopperCount);
+    // Title varies by phase:
+    //  - isWaitingAtCheckout=true  → "X ממתין/ה בקופה" (or count variant)
+    //  - shopping in progress      → "X קונה עכשיו" (or count variant)
+    // In both cases, fall back to a generic "someone" placeholder rather
+    // than leaking the list name as a person name when sharedUsers cache
+    // is still warming up.
+    final String title;
+    if (isWaitingAtCheckout) {
+      title = shopperCount == 1
+          ? (firstShopperName != null
+              ? strings.othersWaitingTitle(firstShopperName!)
+              : strings.someoneWaiting)
+          : strings.othersWaitingTitleMultiple(shopperCount);
+    } else {
+      title = shopperCount == 1
+          ? (firstShopperName != null
+              ? strings.othersActiveTitle(firstShopperName!)
+              : strings.someoneShopping)
+          : strings.othersActiveTitleMultiple(shopperCount);
+    }
     final subtitle = shopperCount == 1
         ? strings.othersActiveSingle(list.name)
         : strings.othersActiveMultiple(shopperCount, list.name);
@@ -308,13 +335,15 @@ class _OthersShoppingBanner extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: kSpacingSmall),
         decoration: BoxDecoration(
+          // AlignmentDirectional flips for RTL — gradient now runs from
+          // the reading start to the reading end regardless of locale.
           gradient: LinearGradient(
             colors: [
               successColor.withValues(alpha: _kSubtleOnPrimaryAlpha),
               successColor,
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: radius,
           boxShadow: [
@@ -340,8 +369,12 @@ class _OthersShoppingBanner extends StatelessWidget {
                 children: [
                   ExcludeSemantics(
                     child: _PulsingIcon(
-                      backgroundColor: cs.onPrimary,
-                      variant: _PulsingIconSize.regular,
+                      tintColor: cs.onPrimary,
+                      // Different icon at the cashier phase so the visual
+                      // matches the text — receipt-long instead of cart.
+                      icon: isWaitingAtCheckout
+                          ? Icons.receipt_long
+                          : Icons.shopping_cart,
                     ),
                   ),
                   const SizedBox(width: kSpacingMedium),
@@ -351,7 +384,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            title,
+                            fixBidiNumbers(title),
                             style: theme.textTheme.titleSmall?.copyWith(
                               color: cs.onPrimary,
                               fontWeight: FontWeight.bold,
@@ -361,7 +394,7 @@ class _OthersShoppingBanner extends StatelessWidget {
                           ),
                           const SizedBox(height: kSpacingXTiny),
                           Text(
-                            subtitle,
+                            fixBidiNumbers(subtitle),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: cs.onPrimary
                                   .withValues(alpha: _kSubtleOnPrimaryAlpha),
@@ -481,41 +514,73 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-/// אייקון פועם - מבוסס flutter_animate.
-class _PulsingIcon extends StatelessWidget {
-  final Color backgroundColor;
+/// Pulsing icon with its own AnimationController. StatefulWidget instead
+/// of `.animate(onPlay: c.repeat)` so the controller has a stable identity
+/// across parent rebuilds (Provider notifications, AnimatedSwitcher swaps)
+/// — same pattern fix as `_MailShimmerIcon` in pending_invites_banner.
+///
+/// `tintColor` is used both as a 20%-opacity background fill and as the
+/// foreground icon color — keeps the rename intent visible at call sites.
+class _PulsingIcon extends StatefulWidget {
+  final Color tintColor;
+  final IconData icon;
   final _PulsingIconSize variant;
 
   const _PulsingIcon({
-    required this.backgroundColor,
+    required this.tintColor,
+    this.icon = Icons.shopping_cart,
     this.variant = _PulsingIconSize.regular,
   });
 
   @override
+  State<_PulsingIcon> createState() => _PulsingIconState();
+}
+
+class _PulsingIconState extends State<_PulsingIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: _kPulsingDuration,
+    )..repeat(reverse: true);
+    _scale = Tween<double>(
+      begin: _kPulsingMinScale,
+      end: _kPulsingMaxScale,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isCompact = variant == _PulsingIconSize.compact;
+    final isCompact = widget.variant == _PulsingIconSize.compact;
     final boxSize = isCompact ? kSpacingXLarge : _kPulsingIconRegularSize;
     final iconSize = isCompact ? kIconSizeSmallPlus : kIconSizeMedium;
 
-    return Container(
-          width: boxSize,
-          height: boxSize,
-          decoration: BoxDecoration(
-            color: backgroundColor.withValues(alpha: _kPulsingIconBgAlpha),
-            borderRadius: BorderRadius.circular(kBorderRadius),
-          ),
-          child: Icon(
-            Icons.shopping_cart,
-            color: backgroundColor,
-            size: iconSize,
-          ),
-        )
-        .animate(onPlay: (c) => c.repeat(reverse: true))
-        .scaleXY(
-          begin: _kPulsingMinScale,
-          end: _kPulsingMaxScale,
-          duration: _kPulsingDuration,
-          curve: Curves.easeInOut,
-        );
+    return ScaleTransition(
+      scale: _scale,
+      child: Container(
+        width: boxSize,
+        height: boxSize,
+        decoration: BoxDecoration(
+          color: widget.tintColor.withValues(alpha: _kPulsingIconBgAlpha),
+          borderRadius: BorderRadius.circular(kBorderRadius),
+        ),
+        child: Icon(
+          widget.icon,
+          color: widget.tintColor,
+          size: iconSize,
+        ),
+      ),
+    );
   }
 }

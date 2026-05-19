@@ -16,6 +16,156 @@ class CategoryInfo {
 class CategoriesData {
   CategoriesData._();
 
+  /// Edible categories — used to filter pantry items when surfacing
+  /// recipe-related features (e.g. the "What's for dinner" card).
+  ///
+  /// Deliberately EXCLUDES `other` because uncategorized items are the
+  /// most likely to be non-food (swimsuits, fabric softener, batteries
+  /// — yes, all observed in real demo data). Better to miss a few
+  /// genuinely edible items than to ship a recipe search with "swimsuit"
+  /// in the query. Also excludes `vitamins`, `otc_medicine`, `first_aid`
+  /// (consumed but not cooked), `pet_food`, `baby_products` (mixed —
+  /// formula edible, diapers not), `hygiene`, `cosmetics`, `cleaning`.
+  static const Set<String> foodCategoryKeys = {
+    'dairy',
+    'dairy_substitutes',
+    'vegetables',
+    'fruits',
+    'meat_fish',
+    'beef',
+    'chicken',
+    'turkey',
+    'lamb',
+    'fish',
+    'meat_substitutes',
+    'rice_pasta',
+    'legumes_grains',
+    'cereals',
+    'bread_bakery',
+    'cakes',
+    'cookies_sweets',
+    'sweets_snacks',
+    'canned',
+    'frozen',
+    'ready_salads',
+    'spices',
+    'oils_sauces',
+    'sweet_spreads',
+    'coffee_tea',
+    'beverages',
+    'nuts_seeds',
+    'dried_fruits',
+  };
+
+  /// Returns true if [categoryKey] represents an edible ingredient that
+  /// can plausibly feature in a recipe.
+  ///
+  /// The pantry stores category strings exactly as they arrive from the
+  /// supermarket catalog — typically Hebrew labels like "מוצרי חלב",
+  /// "ניקיון", "אורז ופסטה". This helper resolves Hebrew → English key
+  /// via [synonyms] before checking [foodCategoryKeys], so demo data
+  /// (and real Shufersal/RamiLevi imports) match correctly. A direct
+  /// English key (e.g. already-normalized data) also works.
+  static bool isFoodCategory(String categoryKey) {
+    if (categoryKey.isEmpty) return false;
+    // Direct English-key match (e.g. 'dairy', 'vegetables').
+    if (foodCategoryKeys.contains(categoryKey)) return true;
+    // Hebrew label → translate via synonyms, then check the resolved key.
+    final normalized = synonyms[categoryKey];
+    return normalized != null && foodCategoryKeys.contains(normalized);
+  }
+
+  /// Hebrew substrings that almost certainly mean "this is not food",
+  /// regardless of what category the catalog data assigned. The blocklist
+  /// is the safety net against bad catalog labels.
+  ///
+  /// Observed catalog miscategorizations (assets/data/list_types/
+  /// supermarket.json):
+  ///  - "בגד ים חליפה בנות" → "מוצרי חלב" (clothing tagged as dairy)
+  ///  - "תחבושת ..."         → "מוצרי חלב" (bandages tagged as dairy)
+  ///  - "מטען ..."           → "שימורים"   (charger tagged as canned)
+  ///  - "מברשת ..."          → "מוצרי חלב" (brush tagged as dairy)
+  ///  - "צעצוע ..."          → "ממתקים"    (toy tagged as sweets)
+  ///  - "ויטמין ..."         → "משקאות"   (vitamin tagged as beverage)
+  ///
+  /// Conclusion: category alone is not a trustworthy signal. The hints
+  /// below are substring-matched against the product name as a second
+  /// layer. Erring on the side of over-filtering — a missed edible item
+  /// is a minor inconvenience; a "recipe with swimsuit" search is a
+  /// trust-eroding bug.
+  /// IMPORTANT: substring-matched against product names — so each entry
+  /// must be specific enough not to occur inside real food names.
+  /// Verified false positives that were REMOVED after sampling:
+  ///   - 'כדורי' caught "כדורי בשר" (meatballs), "כדורי שוקולד" (chocolate
+  ///     balls), "כדורי ג'לי" (jelly balls). 268 catalog matches, mostly food.
+  ///   - 'ספריי' caught "ספרייט" (Sprite), "ממתק ספריי" (candy spray).
+  ///   - 'גרב' caught "בוגרב" (a brand of cookies), "גרבלקס סלמון"
+  ///     (gravlax), "זנגרביל" (ginger).
+  /// Tightened: 'נעל' → 'נעלי' (avoids accidental matches), 'מברשת
+  /// שיניים' → 'מברשת' (broader; brushes are reliably non-food).
+  /// Curated through multiple catalog-audit rounds (19/5/2026) — see
+  /// REVIEW_BACKLOG. Each entry was sampled against the live catalog
+  /// to confirm it doesn't catch real food. Words known to create
+  /// false positives have been deliberately omitted or refined:
+  ///   - 'סיגרי' removed (caught "סיגרים בשר" = meat-stuffed pastries)
+  ///   - 'בלון' removed (caught "אובלון"/"הובלון" beer brands)
+  ///   - 'בובה' removed (caught "Hubba Bubba" gum, "קינדר בובה" candy)
+  ///   - 'נייר אפיה'/'נייר אפייה' removed (legitimate kitchen item)
+  ///   - 'אייפון' removed (only catalog hit was "אייפון שוקולד" candy)
+  ///   - 'סיגרי' → 'סיגריה' (full-word form catches the electronics
+  ///     without snagging the pastries)
+  static const Set<String> nonFoodNameHints = {
+    // ביגוד
+    'בגד', 'חולצה', 'מכנס', 'גופיה', 'כובע', 'נעלי', 'סנדל',
+    // ניקיון וכביסה
+    'תרסיס', 'מנקה', 'מטליות', 'סמרטוט', 'דלי', 'מטאטא',
+    'אקונומיקה', 'מרכך כביסה', 'אבקת כביסה', 'נוזל כלים',
+    'לרצפה', 'לכביסה', 'לניקוי',
+    // היגיינה וטיפוח
+    'סבון', 'שמפו', 'מרכך שיער', 'משחת שיניים', 'מברשת',
+    'דאודורנט', 'קרם פנים', 'קרם גוף', 'איפור', 'תחבושת',
+    'חיתול',
+    // פארם וויטמינים (קטגוריה כבר חוסמת, blocklist הוא backup)
+    'ויטמין', 'תוסף', 'תרופה',
+    // בית, אלקטרוניקה, צעצועים, אביזרים
+    'סוללה', 'סוללות', 'נורה', 'מטען', 'מקלות גפן',
+    'צעצוע', 'מגבת', 'סדין', 'אוזניות', 'אסלה',
+    // טבק
+    'טבק', 'סיגריה', 'סיגריות',
+    // מכשירים גדולים שמסתננים
+    'מסך טלוויזיה', 'שואב אבק', 'מכונת קפה',
+    // 7% leakage still in food cats per Agent 9 sample — verified safe:
+    'ויטמינצ',          // branded "Vitaminchik" drinks (final-nun escape)
+    'חולץ',             // corkscrews (6 catalog items, all utensils)
+    'שקיות אשפה',       // trash bags (21 in food cats, all bags)
+    'מפיות',            // napkins (21 in food cats, all napkins)
+    'אבקת חלבון',       // protein powder supplements (45 items)
+    // Demo-data observed leakage in מוצרי חלב (Agent 11):
+    'פנס',              // lanterns mis-tagged as dairy
+    'מפות',             // tablecloths
+    'קערת קרטון',       // cardboard bowl
+    'קופסת שיש',        // marble box
+    // English-side tech leakage (Agent 8 audit) — `.contains` is
+    // case-sensitive in Dart, so we keep both common cases. Catalog
+    // catches: "Ultra Slim 4-Port USB 3.0" in meat/fish, "Brita
+    // קנקן Marella" in dairy, etc.
+    'USB', 'usb', 'HDMI', 'hdmi', 'Bluetooth', 'bluetooth',
+    'Type-C', 'type-c', 'Lightning', 'lightning',
+    'PHILIPS', 'Philips', 'Airfry', 'airfryer',
+    'Brita', 'MAXTRA', 'Marella',
+  };
+
+  /// Returns true if [productName] contains any [nonFoodNameHints]
+  /// substring. Used together with [isFoodCategory] as a two-layer
+  /// filter: category → name → only then treat as a recipe ingredient.
+  static bool looksLikeNonFood(String productName) {
+    if (productName.isEmpty) return false;
+    for (final hint in nonFoodNameHints) {
+      if (productName.contains(hint)) return true;
+    }
+    return false;
+  }
+
   /// All categories data (key → info)
   static final Map<String, CategoryInfo> data = {
     'all': CategoryInfo(() => AppStrings.categories.all, '📋'),
@@ -157,6 +307,16 @@ class CategoriesData {
     'קוסמטיקה וטיפוח': 'cosmetics',
     'איפור': 'cosmetics',
     'טיפוח': 'cosmetics',
+    // נקניקים ובשרים מעובדים (butcher.json — 230 פריטי דלי/מעובדים שהיו unmapped)
+    'נקניקים ובשרים מעובדים': 'meat_fish',
+    // קטגוריות שהיו במלכודת "כללי/other" (Agent 12 — 4,118 פריטים):
+    'צעצועים ומתנות': 'other',
+    'אלקטרוניקה': 'other',
+    'סיגריות וטבק': 'other',
+    'תוספי תזונה': 'vitamins',
+    // 'אלכוהול' שמרתי unmapped → routes to 'other' → excluded from
+    // recipe search. אלכוהול בקטגוריה הזאת ב-supermarket.json
+    // מזוהם מאוד (70% serums/lights/cosmetics) — לא שווה את הסיכון.
     // פארם ורפואה
     'פארם': 'otc_medicine',
     'תרופות ללא מרשם': 'otc_medicine',

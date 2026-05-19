@@ -19,7 +19,18 @@ import '../../providers/locations_provider.dart';
 import '../../providers/products_provider.dart';
 import '../../theme/app_theme.dart';
 import '../common/app_dialog.dart';
+import '../common/product_photo_uploader.dart';
 import '../common/product_thumbnail.dart';
+
+// Layout & validation tokens local to the dialog. Same intent as the
+// matching set in add_edit_product_dialog.dart — keep the two dialogs
+// visually identical so they feel like one product surface.
+const int _kMaxNameLength = 80;
+// Show the "x/80" counter only once the user is close to the limit —
+// quietly hides for short names where it's just visual noise.
+const int _kCounterVisibleThreshold = 70;
+// 2-digit quantity input — pantry quantities are capped at 99.
+const double _kQuantityFieldWidth = 28.0;
 
 enum PantryItemDialogMode {
   add,
@@ -67,10 +78,20 @@ class PantryItemDialog extends StatefulWidget {
 
 class _PantryItemDialogState extends State<PantryItemDialog> {
   late final TextEditingController _nameController;
+  late final TextEditingController _brandController;
   late final TextEditingController _quantityController;
   late final TextEditingController _unitController;
   late final TextEditingController _minQuantityController;
   late final TextEditingController _notesController;
+
+  // FocusNodes — each listener fires a single haptic when ITS OWN node
+  // gains focus. Mirrors the per-node pattern in add_edit_product_dialog
+  // so a Tab between fields produces one click, not two.
+  late final FocusNode _nameFocus;
+  late final FocusNode _brandFocus;
+  late final FocusNode _unitFocus;
+  late final FocusNode _notesFocus;
+
   late String _selectedCategory;
   late String _selectedLocation;
 
@@ -108,6 +129,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     if (widget.mode == PantryItemDialogMode.edit && widget.item != null) {
       final item = widget.item!;
       _nameController = TextEditingController(text: item.productName);
+      _brandController = TextEditingController(text: item.brand ?? '');
       _quantityController =
           TextEditingController(text: item.quantity.toString());
       _unitController = TextEditingController(text: item.unit);
@@ -122,6 +144,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _isRecurring = item.isRecurring;
     } else {
       _nameController = TextEditingController(text: widget.initialName ?? '');
+      _brandController = TextEditingController();
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: AppStrings.inventory.defaultUnit);
       _minQuantityController = TextEditingController(text: '2');
@@ -132,8 +155,15 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _selectedLocation = StorageLocationsConfig.mainPantry;
     }
 
+    // FocusNodes — single-haptic-per-focus pattern shared with shopping dialog.
+    _nameFocus = FocusNode()..addListener(() => _onFocusGained(_nameFocus));
+    _brandFocus = FocusNode()..addListener(() => _onFocusGained(_brandFocus));
+    _unitFocus = FocusNode()..addListener(() => _onFocusGained(_unitFocus));
+    _notesFocus = FocusNode()..addListener(() => _onFocusGained(_notesFocus));
+
     // 🛡️ Track changes for exit confirmation
     _nameController.addListener(_markChanged);
+    _brandController.addListener(_markChanged);
     _quantityController.addListener(_markChanged);
     _unitController.addListener(_markChanged);
     _minQuantityController.addListener(_markChanged);
@@ -198,6 +228,14 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   void _markChanged() {
     if (!_hasChanges) {
       setState(() => _hasChanges = true);
+    }
+  }
+
+  /// 📳 Haptic fires only when the given node *gains* focus (not loses).
+  /// A Tab transition produces a single click, not two.
+  void _onFocusGained(FocusNode node) {
+    if (node.hasFocus) {
+      unawaited(HapticFeedback.selectionClick());
     }
   }
 
@@ -395,9 +433,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               child: Icon(Icons.remove_circle_outline, color: color, size: iconSize),
             ),
           ),
-          // ערך — 28px wide, enough for 2 digits (max pantry qty is 99)
+          // Value cell — width tuned to 2 digits (max pantry qty is 99).
           SizedBox(
-            width: 28,
+            width: _kQuantityFieldWidth,
             child: TextField(
               controller: controller,
               keyboardType: TextInputType.number,
@@ -527,10 +565,15 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   @override
   void dispose() {
     _nameController.dispose();
+    _brandController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
     _minQuantityController.dispose();
     _notesController.dispose();
+    _nameFocus.dispose();
+    _brandFocus.dispose();
+    _unitFocus.dispose();
+    _notesFocus.dispose();
     super.dispose();
   }
 
@@ -666,13 +709,15 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     // Validation - שם
     if (_nameController.text.trim().isEmpty) {
       unawaited(HapticFeedback.heavyImpact());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.inventory.productNameRequired),
-          backgroundColor: StatusColors.getColor(StatusType.error, context),
-          duration: kSnackBarDuration,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.inventory.productNameRequired),
+            backgroundColor: StatusColors.getColor(StatusType.error, context),
+            duration: kSnackBarDuration,
+          ),
+        );
       return;
     }
 
@@ -680,18 +725,21 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
     final quantity = int.tryParse(_quantityController.text) ?? 0;
     if (widget.mode == PantryItemDialogMode.add && quantity <= 0) {
       unawaited(HapticFeedback.heavyImpact());
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppStrings.inventory.quantityMustBePositive),
-          backgroundColor: StatusColors.getColor(StatusType.error, context),
-          duration: kSnackBarDuration,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(AppStrings.inventory.quantityMustBePositive),
+            backgroundColor: StatusColors.getColor(StatusType.error, context),
+            duration: kSnackBarDuration,
+          ),
+        );
       return;
     }
 
     final minQuantity = int.tryParse(_minQuantityController.text) ?? 2;
     final productName = _nameController.text.trim();
+    final brand = _brandController.text.trim();
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)
     final category = FiltersConfig.getCategoryInfo(_selectedCategory).label;
     final unit = _unitController.text.trim();
@@ -716,6 +764,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           expiryDate: _expiryDate,
           notes: notes,
           isRecurring: _isRecurring,
+          brand: brand.isEmpty ? null : brand,
         );
       } else {
         final updatedItem = widget.item!.copyWith(
@@ -730,21 +779,25 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           notes: notes,
           clearNotes: notes == null && widget.item!.notes != null,
           isRecurring: _isRecurring,
+          brand: brand.isEmpty ? null : brand,
+          clearBrand: brand.isEmpty && widget.item!.brand != null,
         );
         await provider.updateItem(updatedItem);
       }
 
       if (!mounted) return;
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.mode == PantryItemDialogMode.add
-              ? AppStrings.inventory.itemAdded
-              : AppStrings.inventory.itemUpdated),
-          duration: kSnackBarDuration,
-        ),
-      );
+      // Show success message — dedup so rapid saves don't stack toasts.
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(widget.mode == PantryItemDialogMode.add
+                ? AppStrings.inventory.itemAdded
+                : AppStrings.inventory.itemUpdated),
+            duration: kSnackBarDuration,
+          ),
+        );
 
       // Call success callback if provided
       widget.onSuccess?.call();
@@ -756,15 +809,17 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
 
       setState(() => _isLoading = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.mode == PantryItemDialogMode.add
-              ? AppStrings.inventory.addError
-              : AppStrings.inventory.updateError),
-          backgroundColor: StatusColors.getColor(StatusType.error, context),
-          duration: kSnackBarDuration,
-        ),
-      );
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(widget.mode == PantryItemDialogMode.add
+                ? AppStrings.inventory.addError
+                : AppStrings.inventory.updateError),
+            backgroundColor: StatusColors.getColor(StatusType.error, context),
+            duration: kSnackBarDuration,
+          ),
+        );
     }
   }
 
@@ -782,26 +837,25 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
         ? AppStrings.inventory.addButton
         : AppStrings.inventory.saveButton;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      // Hardware/Bluetooth keyboard: Enter (or numpad Enter) saves the
-      // form; Escape cancels. Phone soft-keyboards still chain via
-      // textInputAction so this only matters on tablets/desktops.
-      child: CallbackShortcuts(
-        bindings: <ShortcutActivator, VoidCallback>{
-          const SingleActivator(LogicalKeyboardKey.enter): () {
-            if (!_isLoading) _saveItem();
-          },
-          const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
-            if (!_isLoading) _saveItem();
-          },
-          const SingleActivator(LogicalKeyboardKey.escape): () {
-            if (!_isLoading) _handleCancel();
-          },
+    // No hardcoded Directionality(rtl) — the app is already RTL globally.
+    // Hardware/Bluetooth keyboard: Enter (or numpad Enter) saves the form;
+    // Escape cancels. Phone soft-keyboards still chain via textInputAction
+    // so this mainly matters on tablets/desktops.
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.enter): () {
+          if (!_isLoading) _saveItem();
         },
-        child: Focus(
-          autofocus: true,
-          child: AlertDialog(
+        const SingleActivator(LogicalKeyboardKey.numpadEnter): () {
+          if (!_isLoading) _saveItem();
+        },
+        const SingleActivator(LogicalKeyboardKey.escape): () {
+          if (!_isLoading) _handleCancel();
+        },
+      },
+      child: Focus(
+        autofocus: true,
+        child: AlertDialog(
         backgroundColor: cs.surface,
         title: _buildDialogTitle(cs, accent, title),
         content: SingleChildScrollView(
@@ -821,17 +875,17 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               if (widget.mode == PantryItemDialogMode.add || _renameMode)
                 TextField(
                   controller: _nameController,
+                  focusNode: _nameFocus,
                   style: TextStyle(color: cs.onSurface, fontSize: kFontSizeBody),
-                  textDirection: TextDirection.rtl,
-                  maxLength: 80,
+                  // textDirection removed — Flutter auto-detects Hebrew vs
+                  // Latin per content; hardcoding RTL broke English entries.
+                  maxLength: _kMaxNameLength,
                   maxLines: 2,
                   minLines: 1,
                   textInputAction: TextInputAction.next,
                   autofocus: _renameMode,
-                  // Counter only appears once the user gets close to the
-                  // limit — quietly hides for short names where it's clutter.
                   buildCounter: (_, {required currentLength, required isFocused, maxLength}) =>
-                      currentLength >= 70
+                      currentLength >= _kCounterVisibleThreshold
                           ? Text(
                               '$currentLength/$maxLength',
                               style: TextStyle(
@@ -845,7 +899,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     labelStyle: TextStyle(color: cs.onSurfaceVariant),
                     hintText: AppStrings.inventory.productNameHint,
                     hintStyle: TextStyle(
-                      color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                      color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
                     ),
                   ),
                   enabled: !_isLoading,
@@ -918,6 +972,20 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                   ),
                   textDirection: TextDirection.ltr,
                 ),
+                // 📷 Personal photo CTA — only when there's a barcode (which
+                // is what keys the photo). Hidden during loading so a save
+                // in flight doesn't compete with file IO for state.
+                if (!_isLoading)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: ProductPhotoUploader(
+                      barcode: widget.item!.barcode!,
+                      // Force a thumbnail rebuild: ProductThumbnail reads
+                      // the path on every build via the sync service, so a
+                      // plain setState is enough.
+                      onChanged: (_) => setState(() {}),
+                    ),
+                  ),
               ],
 
               const SizedBox(height: kSpacingSmall),
@@ -1109,7 +1177,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                       ),
                       const SizedBox(width: kSpacingSmall),
                       Expanded(
-                        child: Divider(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                        child: Divider(color: cs.outlineVariant.withValues(alpha: kOpacityMedium)),
                       ),
                       const SizedBox(width: kSpacingSmall),
                       AnimatedRotation(
@@ -1168,19 +1236,44 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     ),
                     const SizedBox(height: kSpacingSmall),
 
+                    // 🏢 מותג (אופציונלי) — user-editable companion to the
+                    // catalog-derived _catalogBrand badge above. The badge
+                    // shows what the catalog *thinks* the brand is; this
+                    // field lets the user override it (e.g. private-label
+                    // store brands the catalog tagged generically).
+                    TextField(
+                      controller: _brandController,
+                      focusNode: _brandFocus,
+                      textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _unitFocus.requestFocus(),
+                      style: TextStyle(color: cs.onSurface),
+                      decoration: InputDecoration(
+                        labelText: AppStrings.inventory.brandLabel,
+                        labelStyle: TextStyle(color: cs.onSurfaceVariant),
+                        hintText: AppStrings.inventory.brandHint,
+                        hintStyle: TextStyle(
+                          color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
+                        ),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+
                     // יחידה — no prefixIcon: the ruler glyph rendered as
                     // visual noise at the field height, and the label
                     // already says what this field is for.
                     TextField(
                       controller: _unitController,
+                      focusNode: _unitFocus,
                       textInputAction: TextInputAction.next,
+                      onSubmitted: (_) => _notesFocus.requestFocus(),
                       style: TextStyle(color: cs.onSurface),
                       decoration: InputDecoration(
                         labelText: AppStrings.inventory.unitLabel,
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
                         hintText: AppStrings.inventory.unitHint,
                         hintStyle: TextStyle(
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                          color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
                         ),
                       ),
                       enabled: !_isLoading,
@@ -1264,6 +1357,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                     // הערות
                     TextField(
                       controller: _notesController,
+                      focusNode: _notesFocus,
                       style: TextStyle(color: cs.onSurface),
                       maxLines: 2,
                       textInputAction: TextInputAction.done,
@@ -1272,7 +1366,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
                         labelStyle: TextStyle(color: cs.onSurfaceVariant),
                         hintText: AppStrings.inventory.notesHint,
                         hintStyle: TextStyle(
-                          color: cs.onSurfaceVariant.withValues(alpha: 0.5),
+                          color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
                         ),
                         prefixIcon: Icon(Icons.notes_outlined, color: cs.primary),
                       ),
@@ -1388,53 +1482,47 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           kSpacingMedium, 0, kSpacingMedium, kSpacingSmall,
         ),
         actions: [
+          // OutlinedButton / ElevatedButton already announce their role to
+          // a screen reader. The previous Semantics(button: true) wrappers
+          // caused a double-announce ("button cancel, button"); removed.
           Row(
             children: [
               Expanded(
-                child: Semantics(
-                  label: AppStrings.common.cancel,
-                  button: true,
-                  child: OutlinedButton(
-                    onPressed: _isLoading ? null : _handleCancel,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(kButtonHeight),
-                      foregroundColor: cs.onSurfaceVariant,
-                      side: BorderSide(color: cs.outlineVariant),
-                    ),
-                    child: Text(AppStrings.common.cancel),
+                child: OutlinedButton(
+                  onPressed: _isLoading ? null : _handleCancel,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(kButtonHeight),
+                    foregroundColor: cs.onSurfaceVariant,
+                    side: BorderSide(color: cs.outlineVariant),
                   ),
+                  child: Text(AppStrings.common.cancel),
                 ),
               ),
               const SizedBox(width: kSpacingSmall),
               Expanded(
-                child: Semantics(
-                  label: actionLabel,
-                  button: true,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accent,
-                      foregroundColor: cs.onPrimary,
-                      minimumSize: const Size.fromHeight(kButtonHeight),
-                    ),
-                    onPressed: _isLoading ? null : _saveItem,
-                    child: _isLoading
-                        ? SizedBox(
-                            width: kIconSizeSmall,
-                            height: kIconSizeSmall,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
-                            ),
-                          )
-                        : Text(actionLabel),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accent,
+                    foregroundColor: cs.onPrimary,
+                    minimumSize: const Size.fromHeight(kButtonHeight),
                   ),
+                  onPressed: _isLoading ? null : _saveItem,
+                  child: _isLoading
+                      ? SizedBox(
+                          width: kIconSizeSmall,
+                          height: kIconSizeSmall,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(cs.onPrimary),
+                          ),
+                        )
+                      : Text(actionLabel),
                 ),
               ),
             ],
           ),
         ],
       ),
-        ),
       ),
     );
   }

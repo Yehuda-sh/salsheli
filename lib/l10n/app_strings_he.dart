@@ -185,6 +185,7 @@ class AppStringsHe {
   static const legal = LegalStrings();
   static const actionCenter = ActionCenterStrings();
   static const onboardingTips = OnboardingTipsStrings();
+  static const whatsForDinner = WhatsForDinnerStrings();
 }
 
 // ========================================
@@ -1225,6 +1226,21 @@ class InventoryStrings {
   String get autoAddToLists => 'יתווסף אוטומטית לרשימות חדשות';
   String get defaultCategory => 'כללי';
 
+  // 📷 User-uploaded product photos (local-only)
+  String get photoAddCta => 'הוסף תמונה';
+  String get photoChangeCta => 'החלף תמונה';
+  String get photoSheetTitle => 'תמונה אישית';
+  String get photoSheetHint => 'התמונה נשמרת רק במכשיר שלך';
+  String get photoOptionCamera => 'צלם תמונה';
+  String get photoOptionGallery => 'בחר מהגלריה';
+  String get photoOptionRemove => 'הסר תמונה';
+  String get photoSavedToast => 'התמונה נשמרה ✓';
+  String get photoRemovedToast => 'התמונה הוסרה';
+  String get photoErrorToast => 'שגיאה בשמירת התמונה';
+  // 🏷️ Brand field (editable, in advanced settings)
+  String get brandLabel => 'מותג (אופציונלי)';
+  String get brandHint => 'לדוגמה: תנובה';
+
   String get expiryAlertTitleExpired => 'פג תוקף!';
   String get expiryAlertTitleExpiringSoon => 'תפוגה קרובה';
   String expiryAlertSubtitle(int expiredCount, int expiringSoonCount) {
@@ -1354,9 +1370,23 @@ class ShoppingListDetailsStrings {
   String get dueDateLabel => 'בחר תאריך יעד (אופציונלי)';
   String dueDateSelected(String date) => 'תאריך יעד: $date';
   String get priorityLabel => 'עדיפות';
-  String get priorityLow => '🟢 נמוכה';
-  String get priorityMedium => '🟡 בינונית';
-  String get priorityHigh => '🔴 גבוהה';
+  // Priority labels — semantic ("urgent/important/regular") rather than
+  // ordinal ("low/medium/high"). The ordinal form leaves "בינונית" feeling
+  // ambiguous — "medium importance" doesn't translate to a clear action.
+  String get priorityLow => '🟢 רגיל';
+  String get priorityMedium => '🟡 חשוב';
+  String get priorityHigh => '🔴 דחוף';
+
+  // 📅 Quick-pick chips on the task dialog due-date row.
+  String get dueChipToday => 'היום';
+  String get dueChipTomorrow => 'מחר';
+  String get dueChipEndOfWeek => 'סוף השבוע';
+  String get dueChipNextWeek => 'השבוע הבא';
+
+  // Smart date display — when the chosen date is today/tomorrow, render the
+  // word instead of the digits so the user sees "היום" not "10/05/26".
+  String get dueDateToday => 'היום';
+  String get dueDateTomorrow => 'מחר';
   String get productNameEmpty => 'שם המוצר לא יכול להיות ריק';
   String get quantityInvalid => 'כמות לא תקינה (1-9999)';
   String get priceInvalid => 'מחיר לא תקין (חייב להיות מספר חיובי)';
@@ -1710,6 +1740,12 @@ class ActiveShopperBannerStrings {
   // Subtitle context only — the "is shopping now" verb already lives in the title.
   String othersActiveSingle(String listName) => 'מ"$listName"';
   String othersActiveMultiple(int count, String listName) => '$count אנשים קונים מ"$listName"';
+  // "Done shopping, waiting at checkout" — shown when others' active session
+  // has every item checked but hasn't been finalized yet. Lets the viewer
+  // know the shopper is at the cashier, not still walking the aisles.
+  String othersWaitingTitle(String shopperName) => '$shopperName ממתין/ה בקופה';
+  String othersWaitingTitleMultiple(int count) => '$count ממתינים בקופה';
+  String get someoneWaiting => 'ממתינים בקופה';
   String get joinButton => 'להצטרף';
   String get viewListTooltip => 'צפייה חיה';
   String shopperJoined(String name) => '$name הצטרף/ה לקנייה';
@@ -1748,6 +1784,10 @@ class SuggestionsTodayCardStrings {
   String get addAll => 'הוסף הכל';
   String addedAll(int count, String listName) => '$count פריטים נוספו ל"$listName"';
   String get addAllFailed => 'לא הצלחנו להוסיף את הפריטים — נסה שוב';
+  // Screen-reader hint while a card is mid-add / mid-dismiss. The visual
+  // spinner is silent for assistive tech, so the Semantics(value:) flips
+  // to this while _isProcessing is true.
+  String get processing => 'מתבצעת פעולה';
 }
 
 // ========================================
@@ -1838,6 +1878,12 @@ class PendingInviteBannerStrings {
   String get cancelButton => 'ביטול';
   String acceptSuccess(String groupName) => 'הצטרפת לקבוצה "$groupName"';
   String get acceptError => 'שגיאה בקבלת ההזמנה';
+  // Gmail-style undo: tapping × hides the invite immediately and shows a
+  // snackbar; the actual decline API call is deferred for the snackbar's
+  // duration so the user can revert.
+  String get declinePending => 'ההזמנה תידחה';
+  String get undoLabel => 'בטל';
+  String get viewAllMore => 'הצג הכל';
 }
 
 // ========================================
@@ -1893,6 +1939,9 @@ class HomeDashboardStrings {
   String get youLabel => 'את/ה';
   String get householdMember => 'חבר/ת בית';
   String completedShoppingAt(String store) => '✅ סיים/ה קנייה ב$store';
+  // No-arg variant — used where the store name already appears as the
+  // tile title, so repeating it in the subtitle was redundant.
+  String get completedShopping => '✅ סיימת קנייה';
   String plusItems(int count) => '+$count פריטים';
   String minutesAgo(int minutes) => 'לפני $minutes דק\'';
   String hoursAgo(int hours) => 'לפני $hours שע\'';
@@ -2077,35 +2126,45 @@ class TutorialStrings {
 
   String get skip => 'דלג';
   String get next => 'הבא';
-  String get letsStart => 'בואו נתחיל! 🚀';
+  String get back => 'חזור';
+  String get letsStart => 'בואו נתחיל!';
 
-  // Step titles
-  String get welcomeTitle => 'ברוכים הבאים ל-MemoZap! 🎉';
-  String get shoppingTitle => 'יצירת רשימת קניות 🛒';
-  String get activeShoppingTitle => 'מצב קנייה פעיל 🏃';
-  String get pantryTitle => 'המזווה הביתי 📦';
-  String get householdTitle => 'ניהול הבית 🏠';
-  String get historyTitle => 'היסטוריה וסטטיסטיקות 📊';
-  String get navigationTitle => 'הניווט שלכם 🧭';
-  String get readyTitle => 'מוכנים! 🚀';
+  // Step titles — emojis intentionally removed.
+  // 1) The icon container above the title already carries the visual
+  //    identity for each step (Icons.waving_hand, shopping_cart, etc.).
+  //    A second emoji in the title was visual redundancy.
+  // 2) Inline emojis at the end of an RTL string that contains a Latin
+  //    sub-run (e.g. "ל-MemoZap!") create a bidi seam where the emoji
+  //    may wrap to its own line — the welcome slide was rendering with
+  //    🎉 on a separate line below the title text.
+  String get welcomeTitle => 'ברוכים הבאים ל-MemoZap!';
+  String get shoppingTitle => 'יצירת רשימת קניות';
+  String get activeShoppingTitle => 'מצב קנייה פעיל';
+  String get pantryTitle => 'המזווה הביתי';
+  String get householdTitle => 'ניהול הבית';
+  String get historyTitle => 'היסטוריה וסטטיסטיקות';
+  String get navigationTitle => 'הניווט שלכם';
+  String get readyTitle => 'מוכנים!';
 
-  // Step descriptions
+  // Step descriptions — inline emojis inside paragraphs are fine
+  // (they read as part of the prose), unlike trailing emojis after a
+  // mixed-script title.
   String get welcomeDesc =>
       'האפליקציה שתנהל לכם את הקניות, המזווה והבית — במקום אחד.\n\nבואו נכיר בקצרה!';
   String get shoppingDesc =>
-      'לחצו על כפתור ➕ רשימה חדשה בדף הבית.\n\nבחרו סוג חנות (סופר, ירקן, מאפייה...) והוסיפו מוצרים מהקטלוג או ידנית.\n\nאפשר לבחור כמות, קטגוריה ועדיפות לכל פריט.';
+      'לחצו על כפתור ➕ "רשימה חדשה" בדף הבית.\n\nבחרו סוג חנות (סופר, ירקן, מאפייה...) והוסיפו מוצרים מהקטלוג או ידנית — עם כמות, קטגוריה ועדיפות.';
   String get activeShoppingDesc =>
-      'כשמגיעים לחנות — לחצו "התחל קנייה".\n\nהמסך עובר למצב קנייה: סמנו פריטים ✓ תוך כדי הליכה, ראו את ההתקדמות, והוסיפו מוצרים שמצאתם בדרך.\n\nבסיום — תקבלו סיכום עם סכום כולל.';
+      'בחנות — לחצו "התחל קנייה".\n\nסמנו פריטים ✓ תוך כדי הליכה, וראו את ההתקדמות בזמן אמת. בסיום מתקבל סיכום עם סכום כולל.';
   String get pantryDesc =>
-      'המזווה עוקב אחרי מה שיש בבית.\n\n🔄 אוטומטי: כשמסיימים קנייה — המוצרים עולים למזווה.\n✏️ ידני: לחצו ➕ במזווה להוסיף מוצרים בעצמכם.\n\nכשמשהו אוזל — תופיע הצעה חכמה בדף הבית להוסיף אותו לרשימה הבאה.';
+      'המזווה עוקב אחרי מה שיש בבית.\n\n🔄 אוטומטי — בסיום קנייה, מוצרים עולים למזווה.\n✏️ ידני — אפשר להוסיף בעצמכם בכל רגע.\n\nכשמשהו אוזל — דף הבית מציע להוסיף לרשימה הבאה.';
   String get householdDesc =>
-      'כך מצרפים חברי בית:\n\n1️⃣ הגדרות → ניהול הבית → הזמן לבית\n2️⃣ שלחו הזמנה באימייל\n3️⃣ המוזמן מאשר ומצטרף\n\nמרגע ההצטרפות — כולם רואים את אותן רשימות ומזווה בזמן אמת. בלי להתקשר לשאול "מה לקנות?" 😄';
+      'כך מצרפים חברי בית:\n\n1️⃣ הגדרות ← ניהול הבית ← הזמן לבית\n2️⃣ שלחו הזמנה באימייל\n3️⃣ המוזמן מאשר ומצטרף\n\nמכאן — כולם רואים את אותן רשימות ומזווה בזמן אמת.';
   String get historyDesc =>
-      'כל קנייה נשמרת כקבלה עם תאריך, חנות וסכום.\n\nבטאב 📜 היסטוריה תראו:\n• כמה הוצאתם החודש\n• ממוצע לקנייה\n• פירוט לפי חנות\n\nאפשר לסנן לפי תקופה ולמיין לפי תאריך, חנות או סכום.';
+      'כל קנייה נשמרת כקבלה עם תאריך, חנות וסכום.\n\nבטאב היסטוריה תראו כמה הוצאתם החודש, ממוצע לקנייה ופירוט לפי חנות. ניתן לסנן ולמיין לפי הצורך.';
   String get navigationDesc =>
-      '🏠 בית — סיכום יומי, הצעות חכמות ורשימות פעילות\n\n📦 מזווה — כל המוצרים בבית + הוספה ידנית\n\n📜 היסטוריה — קבלות, הוצאות וסטטיסטיקות\n\n⚙️ הגדרות — פרופיל, הבית, התראות, ערכת נושא';
+      'בית — סיכום יומי והרשימות הפעילות\nמזווה — מה יש בבית\nהיסטוריה — קבלות והוצאות\nהגדרות — פרופיל, בית, התראות וערכת נושא';
   String get readyDesc =>
-      'התחילו ביצירת רשימת הקניות הראשונה שלכם.\n\n💡 טיפ: הוסיפו מוצרים מהקטלוג — הם יזכרו אותם לפעם הבאה!\n\nאפשר תמיד לחזור להדרכה דרך ⚙️ הגדרות → הצג הדרכה מחדש.';
+      'התחילו ביצירת רשימת הקניות הראשונה שלכם.\n\n💡 טיפ: הוסיפו מוצרים מהקטלוג — הם יישמרו לפעמים הבאות.\n\nאפשר לחזור להדרכה דרך הגדרות ← הצג הדרכה מחדש.';
 }
 
 class LegalStrings {
@@ -2242,6 +2301,36 @@ class OnboardingTipsStrings {
   String createListsProgress(int current, int target) => 'רשימות: $current/$target';
 
   String get dismissTooltip => 'אל תציע יותר';
+
+  // Gmail-style undo: tapping × hides the tip immediately and shows a
+  // snackbar; the actual prefs save is deferred so the user can revert.
+  String get dismissedSnackbar => 'הטיפ הוסתר';
+  String get undoLabel => 'בטל';
+
+  // Celebration content shown briefly when the user crosses the threshold,
+  // before the tip naturally disappears.
+  String get celebrationPantryTitle => 'כל הכבוד!';
+  String get celebrationPantrySubtitle => 'המזווה שלך מוכן';
+  String get celebrationListsTitle => 'מצוין!';
+  String get celebrationListsSubtitle => 'יש לך 3 רשימות פעילות';
+}
+
+// ========================================
+// What's For Dinner Card
+// ========================================
+
+class WhatsForDinnerStrings {
+  const WhatsForDinnerStrings();
+
+  String get title => 'מה לבשל הערב?';
+  // The "preview" shows a few pantry items the recipe search will use.
+  String preview(String items) => 'יש לך בבית: $items';
+  String get searchButton => 'חפש מתכונים';
+  // Prefix prepended to the Google search query — gets the search to
+  // surface "recipes with X Y Z" results in Hebrew rather than literal
+  // ingredient lists.
+  String get searchPrefix => 'מתכון עם';
+  String get errorFallback => 'לא הצלחנו לפתוח את הדפדפן';
 }
 
 // ========================================
@@ -2252,13 +2341,21 @@ class ActionCenterStrings {
   const ActionCenterStrings();
 
   String get title => 'דורש טיפול';
-  String get pendingRequest => 'בקשה אחת ממתינה';
+  // Long-form strings — used in the bottom sheet titles. The compact
+  // status row uses the *Short variants below.
+  String get pendingRequest => 'בקשה ממתינה';
   String pendingRequests(int count) => '$count בקשות ממתינות';
   String get review => 'צפה';
   String get overdueList => 'רשימה באיחור!';
   String overdueListsCount(int count) => '$count רשימות באיחור!';
   String get startShopping => 'התחל';
-  String get criticalStockSingle => 'מוצר אחד נגמר';
+  String get criticalStockSingle => 'מוצר נגמר';
   String criticalStock(int count) => '$count מוצרים נגמרו';
   String get goToPantry => 'מזווה';
+
+  // Short labels for the compact inline status row. The numeric count
+  // is rendered by the widget; these supply just the trailing word.
+  String criticalShort(int count) => count == 1 ? 'נגמר' : 'נגמרו';
+  String get overdueShort => 'באיחור';
+  String pendingShort(int count) => count == 1 ? 'ממתינה' : 'ממתינות';
 }

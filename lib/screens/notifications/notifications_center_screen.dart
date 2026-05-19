@@ -21,6 +21,41 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 
+// Layout tokens local to this screen.
+//
+// _kLeadingIconSize / _kUnreadDotSize / _kEmptyImageSize: hardcoded
+// dimensions extracted into named constants so future readers see the
+// intent, not bare numbers.
+const double _kLeadingIconSize = 44.0;
+const double _kUnreadDotSize = 10.0;
+const double _kEmptyImageSize = 120.0;
+
+// Bottom list padding clears the floating action bar / system insets.
+// Replaces `kSpacingXLarge + kSpacingLarge` — token-via-addition reads
+// as a magic value mid-line (the CLAUDE.md anti-pattern).
+const double _kListBottomClearance = 56.0;
+
+// Per-tile entry stagger — multiplied by index for cascade effect.
+const int _kStaggerStepMs = 40;
+
+// Empty-state image pulse — 1.05× scale, slow breath. The asset is
+// decorative ("nothing here yet"), so the gentle motion keeps the
+// screen from feeling dead without distracting.
+const Duration _kEmptyPulseDuration = Duration(milliseconds: 2000);
+const double _kEmptyPulseScale = 1.05;
+
+// Unread shimmer — one-shot 1.2s pass after a 3s delay. Previously this
+// repeated forever, which meant N unread items meant N infinite
+// animations running in parallel. The pass is now a single "look at me,
+// new!" cue that fades into stillness.
+const Duration _kShimmerDelay = Duration(milliseconds: 3000);
+const Duration _kShimmerDuration = Duration(milliseconds: 1200);
+
+// Undo window for swipe-to-delete — snackbar lasts 5s, the delete
+// commits 1s after to leave a safety buffer.
+const Duration _kUndoSnackBarDuration = Duration(seconds: 5);
+const Duration _kUndoCommitDelay = Duration(seconds: 6);
+
 class NotificationsCenterScreen extends StatefulWidget {
   const NotificationsCenterScreen({super.key});
 
@@ -33,6 +68,12 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
   bool _isLoading = true;
   String? _error;
 
+  // Pending swipe-to-delete commits, keyed by notification id. The undo
+  // SnackBar runs for 5s; we commit after 6s unless the user taps Undo.
+  // Holding refs lets us cancel on dispose — losing a "will-delete in 1s"
+  // when the user navigates away is fine; ghost network calls aren't.
+  final Map<String, Timer> _pendingDeleteTimers = {};
+
   @override
   void initState() {
     super.initState();
@@ -41,13 +82,35 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     _loadNotifications();
   }
 
-  Future<void> _loadNotifications() async {
-    final strings = AppStrings.notificationsCenter;
+  @override
+  void dispose() {
+    for (final timer in _pendingDeleteTimers.values) {
+      timer.cancel();
+    }
+    _pendingDeleteTimers.clear();
+    super.dispose();
+  }
 
+  /// Initial load — flips `_isLoading` so the skeleton shows. Used only
+  /// from `initState`; pull-to-refresh uses [_refreshNotifications]
+  /// instead so the existing list stays on screen during refresh.
+  Future<void> _loadNotifications() async {
     setState(() {
       _isLoading = true;
       _error = null;
     });
+    await _fetchNotifications();
+  }
+
+  /// Pull-to-refresh — same data path as [_loadNotifications] but never
+  /// flips the skeleton. The user sees their existing list throughout
+  /// the refresh, with the indicator's own spinner as feedback.
+  Future<void> _refreshNotifications() => _fetchNotifications();
+
+  /// Shared fetch + state update. Caller controls whether the skeleton
+  /// is shown by flipping `_isLoading` before calling.
+  Future<void> _fetchNotifications() async {
+    final strings = AppStrings.notificationsCenter;
 
     try {
       final userContext = context.read<UserContext>();
@@ -65,13 +128,13 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
       final service = context.read<NotificationsService>();
       final result = await service.getUserNotificationsResult(userId: userId);
 
-      // ✅ FIX: mounted guard after async
       if (!mounted) return;
 
       if (result.isSuccess) {
         setState(() {
           _notifications = result.notifications ?? [];
           _isLoading = false;
+          _error = null;
         });
       } else {
         setState(() {
@@ -80,7 +143,6 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
         });
       }
     } catch (e) {
-      // ✅ FIX: mounted guard after async
       if (!mounted) return;
       setState(() {
         _error = strings.loadingError;
@@ -216,7 +278,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.notifications_off_outlined, size: kIconSizeXXLarge, color: cs.onSurfaceVariant.withValues(alpha: 0.5)),
+                  Icon(Icons.notifications_off_outlined, size: kIconSizeXXLarge, color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium)),
                   const SizedBox(height: kSpacingMedium),
                   Text(_error!, style: theme.textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant), textAlign: TextAlign.center),
                   const SizedBox(height: kSpacingMedium),
@@ -234,54 +296,85 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
     }
 
     if (_notifications.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      // Wrap empty state in RefreshIndicator + scrollable list so the
+      // user can pull-to-refresh even when there's "nothing" — fixes
+      // the gap where a user with 0 notifications had no way to check
+      // for new ones short of leaving the screen.
+      return RefreshIndicator(
+        onRefresh: _refreshNotifications,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           children: [
-            ClipOval(
-              child: Image.asset(
-                'assets/images/empty_notifications.webp',
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
-            )
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .scaleXY(
-                  begin: 1.0,
-                  end: 1.05,
-                  duration: 2000.ms,
-                  curve: Curves.easeInOut,
+            // Vertical centering inside a sized box keeps the content
+            // pinned mid-screen even though the parent is a scrollable
+            // ListView (which has unbounded height by default).
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.7,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        'assets/images/empty_notifications.webp',
+                        width: _kEmptyImageSize,
+                        height: _kEmptyImageSize,
+                        fit: BoxFit.cover,
+                        // Fallback when the asset is missing/corrupt —
+                        // sibling files use the same pattern, the muted
+                        // icon reads better than a broken-image placeholder.
+                        errorBuilder: (_, _, _) => Icon(
+                          Icons.notifications_none_outlined,
+                          size: _kEmptyImageSize,
+                          color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
+                        ),
+                      ),
+                    )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scaleXY(
+                          begin: 1.0,
+                          end: _kEmptyPulseScale,
+                          duration: _kEmptyPulseDuration,
+                          curve: Curves.easeInOut,
+                        ),
+                    const SizedBox(height: kSpacingMedium),
+                    Text(
+                      strings.emptyTitle,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: kSpacingSmall),
+                    Text(
+                      strings.emptySubtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
+                      ),
+                    ),
+                  ],
                 ),
-            const SizedBox(height: kSpacingMedium),
-            Text(
-              strings.emptyTitle,
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: cs.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: kSpacingSmall),
-            Text(
-              strings.emptySubtitle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
               ),
             ),
           ],
-        ),
-      )
-          .animate()
-          .fadeIn(duration: 400.ms)
-          .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut);
+        )
+            .animate()
+            .fadeIn(duration: 400.ms)
+            .slideY(begin: 0.1, end: 0, duration: 400.ms, curve: Curves.easeOut),
+      );
     }
 
     return RefreshIndicator(
-      onRefresh: _loadNotifications,
+      onRefresh: _refreshNotifications,
       child: ListView.separated(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.only(top: kSpacingSmall, left: kSpacingSmall, right: kSpacingSmall, bottom: kSpacingXLarge + kSpacingLarge),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: const EdgeInsets.only(
+          top: kSpacingSmall,
+          left: kSpacingSmall,
+          right: kSpacingSmall,
+          bottom: _kListBottomClearance,
+        ),
         itemCount: _notifications.length,
-        // ✅ FIX: Always scrollable for pull-to-refresh with few items
+        // Always scrollable so pull-to-refresh works even with few items.
         physics: const AlwaysScrollableScrollPhysics(),
         separatorBuilder: (_, _) => const SizedBox(height: kSpacingSmall),
         itemBuilder: (context, index) {
@@ -289,18 +382,18 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
           return RepaintBoundary(
             child: Dismissible(
               key: ValueKey(notification.id),
-              // סווייפ ימינה (RTL) → סמן כנקרא
+              // Swipe from start → "mark as read" (green tint).
               background: Container(
                 alignment: AlignmentDirectional.centerStart,
                 padding: const EdgeInsetsDirectional.only(start: kIconSizeSmallPlus),
-                color: (brand?.success ?? kStickyGreen).withValues(alpha: 0.2),
+                color: (brand?.success ?? kStickyGreen).withValues(alpha: kOpacityLow),
                 child: Icon(Icons.check, color: brand?.success ?? kStickyGreen),
               ),
-              // סווייפ שמאלה → מחיקה
+              // Swipe from end → delete (red tint, 5s undo).
               secondaryBackground: Container(
                 alignment: AlignmentDirectional.centerEnd,
                 padding: const EdgeInsetsDirectional.only(end: kIconSizeSmallPlus),
-                color: cs.error.withValues(alpha: 0.2),
+                color: cs.error.withValues(alpha: kOpacityLow),
                 child: Icon(Icons.delete_outline, color: cs.error),
               ),
               confirmDismiss: (direction) async {
@@ -316,11 +409,12 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                 return true;
               },
               onDismissed: (_) {
-                // Remove from UI immediately
+                // Remove from UI immediately so the swipe feels responsive.
                 final removedIndex = _notifications.indexOf(notification);
                 setState(() => _notifications.removeWhere((n) => n.id == notification.id));
 
-                // Show undo snackbar (5 sec) before actually deleting
+                // Show undo snackbar (5s) before actually committing
+                // the server-side delete.
                 final messenger = ScaffoldMessenger.of(context);
                 messenger.clearSnackBars();
                 messenger.showSnackBar(SnackBar(
@@ -328,7 +422,8 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                   action: SnackBarAction(
                     label: AppStrings.common.undo,
                     onPressed: () {
-                      // Restore to UI
+                      // Cancel pending delete + restore to UI.
+                      _pendingDeleteTimers.remove(notification.id)?.cancel();
                       setState(() {
                         if (removedIndex >= 0 && removedIndex <= _notifications.length) {
                           _notifications.insert(removedIndex, notification);
@@ -338,15 +433,22 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
                       });
                     },
                   ),
-                  duration: const Duration(seconds: 5),
+                  duration: _kUndoSnackBarDuration,
                 ));
 
-                // Cache providers before async gap to avoid context use after dispose
+                // Cache providers before the async gap — using context
+                // after dispose would crash. The Timer also lives in
+                // _pendingDeleteTimers so dispose() can cancel it; that
+                // prevents ghost API calls firing after the user has
+                // navigated away.
                 final cachedUserId = context.read<UserContext>().userId;
                 final cachedNotifService = context.read<NotificationsService>();
-                // Delete from server after snackbar closes
-                Future.delayed(const Duration(seconds: 6), () {
-                  // Only delete if NOT restored (check if still removed)
+                _pendingDeleteTimers[notification.id]?.cancel();
+                _pendingDeleteTimers[notification.id] =
+                    Timer(_kUndoCommitDelay, () {
+                  _pendingDeleteTimers.remove(notification.id);
+                  // Belt-and-braces: only delete if the notification is
+                  // still removed (undo would have re-inserted it).
                   if (!_notifications.any((n) => n.id == notification.id)) {
                     if (cachedUserId != null) {
                       unawaited(cachedNotifService.deleteNotification(
@@ -364,12 +466,12 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
               ),
             )
                 .animate()
-                .fadeIn(duration: 300.ms, delay: (40 * index).ms)
+                .fadeIn(duration: 300.ms, delay: (_kStaggerStepMs * index).ms)
                 .slideX(
                   begin: -0.1,
                   end: 0,
                   duration: 300.ms,
-                  delay: (40 * index).ms,
+                  delay: (_kStaggerStepMs * index).ms,
                   curve: Curves.easeOut,
                 ),
           );
@@ -442,7 +544,7 @@ class _NotificationTile extends StatelessWidget {
       elevation: isUnread ? 2 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: 0.3)) : BorderSide.none,
+        side: isUnread ? BorderSide(color: cs.primary.withValues(alpha: kOpacityLight)) : BorderSide.none,
       ),
       child: Container(
       decoration: BoxDecoration(
@@ -458,8 +560,8 @@ class _NotificationTile extends StatelessWidget {
         onTap();
       },
       leading: Container(
-        width: 44,
-        height: 44,
+        width: _kLeadingIconSize,
+        height: _kLeadingIconSize,
         decoration: BoxDecoration(
           color: _getTypeColor(notification.type, cs, brand).withValues(alpha: kOpacitySoft),
           borderRadius: BorderRadius.circular(kBorderRadius),
@@ -499,8 +601,8 @@ class _NotificationTile extends StatelessWidget {
       ),
       trailing: isUnread
           ? Container(
-              width: 10,
-              height: 10,
+              width: _kUnreadDotSize,
+              height: _kUnreadDotSize,
               decoration: BoxDecoration(
                 color: cs.primary,
                 shape: BoxShape.circle,
@@ -511,14 +613,16 @@ class _NotificationTile extends StatelessWidget {
       ),
     );
 
-    // ✨ v4.0: shimmer עדין להתראות שלא נקראו
+    // One-shot shimmer for unread items: previously this looped forever
+    // (`onPlay: c.repeat(...)`), so a screen with N unread notifications
+    // ran N infinite animations in parallel — visually exhausting and a
+    // controller leak waiting to happen. The single pass after a 3s
+    // delay still says "new!" without staying loud.
     if (isUnread) {
-      tile = tile
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(
-            delay: 3000.ms,
-            duration: 1200.ms,
-            color: cs.primary.withValues(alpha: 0.08),
+      tile = tile.animate().shimmer(
+            delay: _kShimmerDelay,
+            duration: _kShimmerDuration,
+            color: cs.primary.withValues(alpha: kOpacitySubtle),
           );
     }
 

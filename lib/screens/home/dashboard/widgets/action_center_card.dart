@@ -1,4 +1,4 @@
-// lib/screens/home/dashboard/widgets/action_center_card.dart — Action center — compact status chips for pending requests, overdue lists, critical stock
+// lib/screens/home/dashboard/widgets/action_center_card.dart — Action center — compact inline status row: pin icon + tappable segments separated by middots
 
 import 'dart:async';
 
@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/ui_constants.dart';
 import '../../../../l10n/app_strings.dart';
-import '../../../../models/inventory_item.dart';
 import '../../../../models/shopping_list.dart';
 import '../../../../providers/inventory_provider.dart';
 import '../../../../providers/shopping_lists_provider.dart';
@@ -16,12 +15,14 @@ import '../../../../providers/user_context.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../pantry/my_pantry_screen.dart' show MyPantryScreen, PantryStockFilter;
 
-/// Action Center — קומפקטי: שורת chips של "דורש טיפול"
+/// Action Center — single-line "notebook status strip" of things needing
+/// attention. Pin icon at the start, then bold colored count + short label
+/// per category, separated by middots. Each segment is independently
+/// tappable; the whole strip occupies one line on standard screen widths.
 ///
-/// Each chip is one category of pending state (pending requests,
-/// overdue lists, items out of stock). Tapping a chip opens a bottom
-/// sheet with the full breakdown OR — for the out-of-stock chip —
-/// switches to the pantry tab with the matching filter pre-applied.
+/// Categories: out-of-stock (red), overdue lists (orange), pending join
+/// requests (yellow). Tapping a segment opens a bottom sheet OR — for the
+/// out-of-stock segment — switches to the pantry tab with the filter pre-applied.
 class ActionCenterCard extends StatelessWidget {
   final void Function(ShoppingList list)? onNavigateToList;
   final VoidCallback? onNavigateToPantry;
@@ -43,17 +44,23 @@ class ActionCenterCard extends StatelessWidget {
 
     if (!isLoggedIn) return const SizedBox.shrink();
 
-    // Single pass over the lists to bucket pending vs overdue.
+    // Single pass over the lists: bucket overdue, collect pending lists,
+    // and tally total pending requests — all in one loop.
     final pendingLists = <ShoppingList>[];
     final overdueLists = <ShoppingList>[];
+    var pendingCount = 0;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     for (final list in listsProvider.lists) {
       if (list.status != ShoppingList.statusActive) continue;
 
-      if (list.canCurrentUserApprove &&
-          list.pendingRequests.any((r) => r.status.isPending)) {
-        pendingLists.add(list);
+      if (list.canCurrentUserApprove) {
+        final pending =
+            list.pendingRequests.where((r) => r.status.isPending).length;
+        if (pending > 0) {
+          pendingLists.add(list);
+          pendingCount += pending;
+        }
       }
 
       final target = list.targetDate;
@@ -64,80 +71,118 @@ class ActionCenterCard extends StatelessWidget {
       }
     }
 
-    final criticalItems = inventoryProvider.items
-        .where((i) => i.quantity <= 0)
-        .toList();
-
-    final pendingCount = _countPendingRequests(pendingLists);
+    final criticalCount =
+        inventoryProvider.items.where((i) => i.quantity <= 0).length;
 
     // Hide the whole bar when there's nothing to action.
-    if (pendingCount == 0 && overdueLists.isEmpty && criticalItems.isEmpty) {
+    if (pendingCount == 0 && overdueLists.isEmpty && criticalCount == 0) {
       return const SizedBox.shrink();
     }
 
     final strings = AppStrings.actionCenter;
+    // Colors must be foreground-visible on white now that the highlighter
+    // band behind the digits was removed. The sticky-note palette is
+    // optimized for *backgrounds*; sticky-yellow as a foreground icon on
+    // light surface is essentially invisible. Each color here is a theme
+    // accent that carries enough chroma to render as a foreground:
+    //  - critical → cs.error            (red, urgent)
+    //  - overdue  → brand.warning       (deep orange — Orange 700)
+    //  - pending  → brand.notebookBlue  (the literal color of the
+    //                                    notebook ruling lines that already
+    //                                    fill the app background — reusing
+    //                                    it as a foreground for "social"
+    //                                    items is maximally on-brand)
+    final criticalColor = cs.error;
+    final overdueColor = brand?.warning ?? cs.tertiary;
+    final pendingColor = brand?.notebookBlue ?? kNotebookBlue;
+
+    // Build interleaved segments + middot separators. The pin icon at the
+    // very start anchors the row visually ("pinned for you") and ties it to
+    // the notebook design language without competing with the segments.
+    //
+    // Per-segment icons restore semantic context that the short labels
+    // ("נגמר"/"באיחור"/"ממתינות") alone don't carry — a new user shouldn't
+    // need to guess whether "נגמר" refers to a product, a battery, or a
+    // coupon. Iconography does the disambiguation in <14px.
+    final segments = <Widget>[];
+    if (criticalCount > 0) {
+      segments.add(_StatusSegment(
+        icon: Icons.inventory_2_outlined,
+        count: criticalCount,
+        label: strings.criticalShort(criticalCount),
+        color: criticalColor,
+        onTap: _openCriticalStock,
+      ));
+    }
+    if (overdueLists.isNotEmpty) {
+      if (segments.isNotEmpty) segments.add(const _DotSeparator());
+      segments.add(_StatusSegment(
+        icon: Icons.event_busy,
+        count: overdueLists.length,
+        label: strings.overdueShort,
+        color: overdueColor,
+        onTap: () => _openListsAction(
+          context: context,
+          lists: overdueLists,
+          title: strings.overdueListsCount(overdueLists.length),
+          icon: Icons.event_busy,
+        ),
+      ));
+    }
+    if (pendingCount > 0) {
+      if (segments.isNotEmpty) segments.add(const _DotSeparator());
+      segments.add(_StatusSegment(
+        icon: Icons.person_add_alt_1_outlined,
+        count: pendingCount,
+        label: strings.pendingShort(pendingCount),
+        color: pendingColor,
+        onTap: () => _openListsAction(
+          context: context,
+          lists: pendingLists,
+          title: strings.pendingRequests(pendingCount),
+          icon: Icons.pending_actions,
+        ),
+      ));
+    }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: kSpacingSmall),
-      // Wrap (not Row) so 3 chips drop to a second line on narrow screens
-      // instead of ellipsizing the labels into "5 ⚠️ ...".
+      // Top padding gives breathing room from the invite banner above;
+      // without it the row glues to the banner and reads as one block.
+      padding: const EdgeInsets.only(
+        top: kSpacingXTiny,
+        bottom: kSpacingSmall,
+      ),
+      // Wrap (not Row) is the safety net for unusually narrow screens or
+      // very large counts — on 360dp+ all segments fit one line.
+      // The pin icon was removed in this iteration: with three colored
+      // category icons (📦/📅/👤) already anchoring the row, an extra pin
+      // was redundant decoration competing for the same role.
       child: Wrap(
-        spacing: kSpacingSmall,
-        runSpacing: kSpacingSmall,
-        children: [
-          if (criticalItems.isNotEmpty)
-            _StatusChip(
-              icon: Icons.warning_amber_rounded,
-              color: brand?.stickyPink ?? kStickyPink,
-              count: criticalItems.length,
-              label: criticalItems.length == 1
-                  ? strings.criticalStockSingle
-                  : strings.criticalStock(criticalItems.length),
-              onTap: () => _openCriticalStock(context, criticalItems),
-            ),
-          if (overdueLists.isNotEmpty)
-            _StatusChip(
-              icon: Icons.schedule,
-              color: cs.error,
-              count: overdueLists.length,
-              label: overdueLists.length == 1
-                  ? strings.overdueList
-                  : strings.overdueListsCount(overdueLists.length),
-              onTap: () => _openOverdueLists(context, overdueLists),
-            ),
-          if (pendingCount > 0)
-            _StatusChip(
-              icon: Icons.pending_actions,
-              color: brand?.stickyOrange ?? kStickyOrange,
-              count: pendingCount,
-              label: pendingCount == 1
-                  ? strings.pendingRequest
-                  : strings.pendingRequests(pendingCount),
-              onTap: () => _openPendingRequests(context, pendingLists),
-            ),
-        ],
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runSpacing: kSpacingXTiny,
+        children: segments,
       ),
     );
-  }
-
-  int _countPendingRequests(List<ShoppingList> lists) {
-    var total = 0;
-    for (final list in lists) {
-      total += list.pendingRequests.where((r) => r.status.isPending).length;
-    }
-    return total;
   }
 
   /// Out-of-stock chip → switch to the pantry tab with the matching
   /// filter pre-applied. The pantry consumes the static intent on its
   /// next build, so order matters: set the filter, THEN switch tabs.
-  void _openCriticalStock(BuildContext context, List<InventoryItem> items) {
+  void _openCriticalStock() {
     unawaited(HapticFeedback.lightImpact());
     MyPantryScreen.pendingStockFilter = PantryStockFilter.outOfStock;
     onNavigateToPantry?.call();
   }
 
-  void _openOverdueLists(BuildContext context, List<ShoppingList> lists) {
+  /// Shared handler for overdue + pending chips. Fast-path single list to
+  /// jump straight into it; otherwise open the picker sheet.
+  void _openListsAction({
+    required BuildContext context,
+    required List<ShoppingList> lists,
+    required String title,
+    required IconData icon,
+  }) {
     unawaited(HapticFeedback.lightImpact());
     if (lists.length == 1) {
       onNavigateToList?.call(lists.first);
@@ -145,25 +190,8 @@ class ActionCenterCard extends StatelessWidget {
     }
     _showListsSheet(
       context: context,
-      title: AppStrings.actionCenter.overdueListsCount(lists.length),
-      icon: Icons.schedule,
-      lists: lists,
-    );
-  }
-
-  void _openPendingRequests(
-    BuildContext context,
-    List<ShoppingList> lists,
-  ) {
-    unawaited(HapticFeedback.lightImpact());
-    if (lists.length == 1) {
-      onNavigateToList?.call(lists.first);
-      return;
-    }
-    _showListsSheet(
-      context: context,
-      title: AppStrings.actionCenter.pendingRequests(lists.length),
-      icon: Icons.pending_actions,
+      title: title,
+      icon: icon,
       lists: lists,
     );
   }
@@ -235,67 +263,94 @@ class ActionCenterCard extends StatelessWidget {
   }
 }
 
-/// Compact one-line chip — icon + count + short label, all tappable.
-class _StatusChip extends StatelessWidget {
+/// One inline segment: icon + bold count + space + short label.
+/// Independently tappable.
+///
+/// The icon is the sole color carrier — the digit and label render in
+/// onSurface for readability. Earlier iterations painted a highlighter
+/// band behind the digit; with three distinct theme accent colors on the
+/// icons, the highlighter became redundant visual noise.
+class _StatusSegment extends StatelessWidget {
   final IconData icon;
-  final Color color;
   final int count;
   final String label;
+  final Color color;
   final VoidCallback onTap;
 
-  const _StatusChip({
+  const _StatusSegment({
     required this.icon,
-    required this.color,
     required this.count,
     required this.label,
+    required this.color,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Semantics(
       button: true,
-      label: '$label, $count',
-      child: Material(
-        color: color.withValues(alpha: kOpacitySubtle),
-        borderRadius: BorderRadius.circular(kBorderRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kSpacingSmallPlus,
-              vertical: kSpacingSmall,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: color, size: kIconSizeSmallPlus),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: kFontSizeMedium,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+      label: '$count $label',
+      // The InkWell's vertical padding is intentionally larger than the
+      // visible content height: it expands the hit area toward 36-40dp
+      // without growing the rendered text, mitigating the sub-44dp tap
+      // target without breaking the compact one-line look.
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingXTiny,
+            vertical: kSpacingSmall,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ExcludeSemantics(
+                child: Icon(icon, size: kIconSizeSmallPlus, color: color),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                '$count',
+                style: TextStyle(
+                  fontSize: kFontSizeMedium,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface,
                 ),
-                const SizedBox(width: kSpacingXTiny),
-                Flexible(
-                  child: Text(
-                    label,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: kFontSizeTiny,
-                      color: cs.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+              ),
+              const SizedBox(width: kSpacingXTiny),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: kFontSizeMedium,
+                  color: cs.onSurface,
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Decorative middot "·" between segments. Excluded from semantics so
+/// screen readers hear "1 out, 2 overdue, 4 pending" without dot noise.
+class _DotSeparator extends StatelessWidget {
+  const _DotSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    // Match the segment digit font size so the middot sits on the same
+    // visual baseline.
+    return ExcludeSemantics(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kSpacingXTiny),
+        child: Text(
+          '·',
+          style: TextStyle(
+            fontSize: kFontSizeMedium,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),

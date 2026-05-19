@@ -186,6 +186,7 @@ class AppStringsEn {
   static const legal = LegalStrings();
   static const actionCenter = ActionCenterStringsEn();
   static const onboardingTips = OnboardingTipsStringsEn();
+  static const whatsForDinner = WhatsForDinnerStringsEn();
 }
 
 // ========================================
@@ -1203,6 +1204,21 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get autoAddToLists => 'Auto-add to new lists';
   @override String get defaultCategory => 'General';
 
+  // 📷 User-uploaded product photos (local-only)
+  @override String get photoAddCta => 'Add photo';
+  @override String get photoChangeCta => 'Change photo';
+  @override String get photoSheetTitle => 'Personal photo';
+  @override String get photoSheetHint => 'Photo is saved only on your device';
+  @override String get photoOptionCamera => 'Take photo';
+  @override String get photoOptionGallery => 'Choose from gallery';
+  @override String get photoOptionRemove => 'Remove photo';
+  @override String get photoSavedToast => 'Photo saved ✓';
+  @override String get photoRemovedToast => 'Photo removed';
+  @override String get photoErrorToast => 'Error saving photo';
+  // 🏷️ Brand field (editable, in advanced settings)
+  @override String get brandLabel => 'Brand (optional)';
+  @override String get brandHint => 'e.g. Tnuva';
+
   @override String get expiryAlertTitleExpired => 'Expired!';
   @override String get expiryAlertTitleExpiringSoon => 'Expiring Soon';
   @override String expiryAlertSubtitle(int expiredCount, int expiringSoonCount) {
@@ -1331,9 +1347,18 @@ class ShoppingListDetailsStringsEn extends ShoppingListDetailsStrings {
   @override String get dueDateLabel => 'Select due date (optional)';
   @override String dueDateSelected(String date) => 'Due date: $date';
   @override String get priorityLabel => 'Priority';
-  @override String get priorityLow => '🟢 Low';
-  @override String get priorityMedium => '🟡 Medium';
-  @override String get priorityHigh => '🔴 High';
+  @override String get priorityLow => '🟢 Normal';
+  @override String get priorityMedium => '🟡 Important';
+  @override String get priorityHigh => '🔴 Urgent';
+
+  // 📅 Quick-pick chips on the task dialog due-date row.
+  @override String get dueChipToday => 'Today';
+  @override String get dueChipTomorrow => 'Tomorrow';
+  @override String get dueChipEndOfWeek => 'End of week';
+  @override String get dueChipNextWeek => 'Next week';
+
+  @override String get dueDateToday => 'Today';
+  @override String get dueDateTomorrow => 'Tomorrow';
   @override String get productNameEmpty => 'Product name cannot be empty';
   @override String get quantityInvalid => 'Invalid quantity (1-9999)';
   @override String get priceInvalid => 'Invalid price (must be a positive number)';
@@ -1552,6 +1577,9 @@ class ActiveShopperBannerStringsEn extends ActiveShopperBannerStrings {
   // Subtitle context only — the "is shopping now" verb already lives in the title.
   @override String othersActiveSingle(String listName) => 'From "$listName"';
   @override String othersActiveMultiple(int count, String listName) => '$count people shopping from "$listName"';
+  @override String othersWaitingTitle(String shopperName) => '$shopperName is at checkout';
+  @override String othersWaitingTitleMultiple(int count) => '$count waiting at checkout';
+  @override String get someoneWaiting => 'Waiting at checkout';
   @override String get joinButton => 'Join';
   @override String get viewListTooltip => 'Live view';
   @override String shopperJoined(String name) => '$name joined the shopping';
@@ -1590,6 +1618,7 @@ class SuggestionsTodayCardStringsEn extends SuggestionsTodayCardStrings {
   @override String get addAll => 'Add All';
   @override String addedAll(int count, String listName) => '$count items added to "$listName"';
   @override String get addAllFailed => 'Could not add items — try again';
+  @override String get processing => 'Processing';
 }
 
 // ========================================
@@ -1677,6 +1706,9 @@ class PendingInviteBannerStringsEn extends PendingInviteBannerStrings {
   @override String get cancelButton => 'Cancel';
   @override String acceptSuccess(String groupName) => 'Joined group "$groupName"';
   @override String get acceptError => 'Error accepting invitation';
+  @override String get declinePending => 'Invite will be declined';
+  @override String get undoLabel => 'Undo';
+  @override String get viewAllMore => 'View all';
 }
 
 // ========================================
@@ -1857,6 +1889,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get youLabel => 'You';
   @override String get householdMember => 'Household member';
   @override String completedShoppingAt(String store) => '✅ Completed shopping at $store';
+  @override String get completedShopping => '✅ Completed shopping';
   @override String plusItems(int count) => '+$count items';
   @override String minutesAgo(int minutes) => '$minutes min ago';
   @override String hoursAgo(int hours) => '$hours hr ago';
@@ -2035,19 +2068,48 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
   @override String createListsProgress(int current, int target) => 'Lists: $current/$target';
 
   @override String get dismissTooltip => "Don't show again";
+
+  @override String get dismissedSnackbar => 'Tip hidden';
+  @override String get undoLabel => 'Undo';
+
+  @override String get celebrationPantryTitle => 'Nice work!';
+  @override String get celebrationPantrySubtitle => 'Your pantry is set up';
+  @override String get celebrationListsTitle => 'Awesome!';
+  @override String get celebrationListsSubtitle => "You've got 3 active lists";
+}
+
+// ========================================
+// What's For Dinner Card
+// ========================================
+
+class WhatsForDinnerStringsEn extends WhatsForDinnerStrings {
+  const WhatsForDinnerStringsEn();
+
+  @override String get title => "What's for dinner?";
+  @override String preview(String items) => 'You have: $items';
+  @override String get searchButton => 'Find recipes';
+  @override String get searchPrefix => 'recipe with';
+  @override String get errorFallback => "Couldn't open the browser";
 }
 
 class ActionCenterStringsEn extends ActionCenterStrings {
   const ActionCenterStringsEn();
 
   @override String get title => 'Needs Attention';
-  @override String get pendingRequest => '1 pending request';
+  // Long-form strings — used in the bottom sheet titles. The compact
+  // status row uses the *Short variants below.
+  @override String get pendingRequest => 'pending request';
   @override String pendingRequests(int count) => '$count pending requests';
   @override String get review => 'View';
-  @override String get overdueList => 'Overdue list!';
+  @override String get overdueList => 'overdue list!';
   @override String overdueListsCount(int count) => '$count overdue lists!';
   @override String get startShopping => 'Start';
-  @override String get criticalStockSingle => '1 item out of stock';
+  @override String get criticalStockSingle => 'item out of stock';
   @override String criticalStock(int count) => '$count items out of stock';
   @override String get goToPantry => 'Pantry';
+
+  // Short labels for the compact inline status row.
+  @override String criticalShort(int count) => 'out';
+  @override String get overdueShort => 'overdue';
+  @override String pendingShort(int count) => 'pending';
 }

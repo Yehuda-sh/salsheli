@@ -83,6 +83,11 @@ class InventoryItem {
   /// ברקוד מוצר (אופציונלי) — לטעינת תמונה מ-CDN
   final String? barcode;
 
+  /// מותג (אופציונלי) — נערך ע"י המשתמש ב-Pantry, נשמר ב-Firestore
+  /// 📌 שונה מ-_catalogBrand בדיאלוג: שדה קריאה־בלבד שנשלף מהקטלוג ב-runtime.
+  /// השדה הזה הוא הערך השמור על הפריט עצמו.
+  final String? brand;
+
   /// אמוג'י מותאם (אופציונלי)
   /// 🔄 readValue: מחזיר null אם ריק → UI יציג fallback
   @JsonKey(readValue: _readEmoji)
@@ -113,6 +118,7 @@ class InventoryItem {
     this.lastPurchased,
     this.purchaseCount = 0,
     this.barcode,
+    this.brand,
     this.emoji,
     this.updatedAt,
     this.lastUpdatedBy,
@@ -150,6 +156,8 @@ class InventoryItem {
     int? purchaseCount,
     String? barcode,
     bool clearBarcode = false,
+    String? brand,
+    bool clearBrand = false,
     String? emoji,
     bool clearEmoji = false,
     DateTime? updatedAt,
@@ -171,6 +179,7 @@ class InventoryItem {
       lastPurchased: clearLastPurchased ? null : (lastPurchased ?? this.lastPurchased),
       purchaseCount: purchaseCount ?? this.purchaseCount,
       barcode: clearBarcode ? null : (barcode ?? this.barcode),
+      brand: clearBrand ? null : (brand ?? this.brand),
       emoji: clearEmoji ? null : (emoji ?? this.emoji),
       updatedAt: clearUpdatedAt ? null : (updatedAt ?? this.updatedAt),
       lastUpdatedBy: clearLastUpdatedBy ? null : (lastUpdatedBy ?? this.lastUpdatedBy),
@@ -287,7 +296,7 @@ class InventoryItem {
   // ---- Equality & Debug ----
 
   @override
-  String toString() => 'InventoryItem(id: $id, name: $productName, qty: $quantity $unit, min: $minQuantity, location: $location, expiry: $expiryDate, recurring: $isRecurring, updatedBy: $lastUpdatedBy)';
+  String toString() => 'InventoryItem(id: $id, name: $productName, brand: $brand, qty: $quantity $unit, min: $minQuantity, location: $location, expiry: $expiryDate, recurring: $isRecurring, updatedBy: $lastUpdatedBy)';
 
   @override
   bool operator ==(Object other) =>
@@ -304,6 +313,7 @@ class InventoryItem {
           other.notes == notes &&
           other.isRecurring == isRecurring &&
           other.barcode == barcode &&
+          other.brand == brand &&
           other.lastPurchased == lastPurchased &&
           other.purchaseCount == purchaseCount &&
           other.emoji == emoji &&
@@ -323,6 +333,7 @@ class InventoryItem {
         notes,
         isRecurring,
         barcode,
+        brand,
         lastPurchased,
         purchaseCount,
         emoji,

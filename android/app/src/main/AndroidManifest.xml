@@ -53,11 +53,23 @@
             android:value="2" />
     </application>
 
-    <!-- Package visibility for PROCESS_TEXT -->
+    <!-- Package visibility (Android 11+ requires explicit declarations). -->
     <queries>
+        <!-- For PROCESS_TEXT (Material text selection actions). -->
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- For url_launcher with https URLs (e.g. WhatsForDinnerCard
+             opening the user's browser with a Google recipe search).
+             Without these the launch silently returns false on API 30+. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="http"/>
         </intent>
     </queries>
 </manifest>

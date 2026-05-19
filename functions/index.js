@@ -3,12 +3,20 @@
  *
  * Functions:
  * 1. onUserDeleted — GDPR: cascading data deletion when user deletes account
+ * 2. onNotificationCreated — FCM Push Notifications trigger
  *
  * Deploy: firebase deploy --only functions
  */
 
-const { onDocumentDeleted, onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const {
+  onDocumentDeleted,
+  onDocumentCreated,
+} = require("firebase-functions/v2/firestore");
+const {
+  getFirestore,
+  FieldValue,
+  FieldPath,
+} = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 const { initializeApp } = require("firebase-admin/app");
 
@@ -19,18 +27,6 @@ const db = getFirestore();
 // GDPR: Cascading data deletion on account delete
 // ============================================================
 
-/**
- * When a user document is deleted from /users/{userId},
- * cascade delete all their data across collections:
- * - notifications subcollection
- * - saved_contacts subcollection
- * - private_lists subcollection (personal shopping lists)
- * - inventory subcollection (personal pantry items)
- * - shopping_patterns (top-level)
- * - pending_invites (sent by user, top-level)
- * - household membership (members subcollection)
- * - shared_users references in shared_lists (collectionGroup)
- */
 exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
   const userId = event.params.userId;
   const userData = event.data?.data();
@@ -50,45 +46,27 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
   };
 
   try {
-    // 1. Delete notifications subcollection
+    // 1-2. Delete user's isolated subcollections
     results.notifications = await deleteSubcollection(
-      `users/${userId}/notifications`
+      `users/${userId}/notifications`,
     );
-
-    // 2. Delete saved_contacts subcollection
     results.contacts = await deleteSubcollection(
-      `users/${userId}/saved_contacts`
+      `users/${userId}/saved_contacts`,
     );
-
-    // 2b. Delete private_lists subcollection (personal shopping lists)
     results.privateLists = await deleteSubcollection(
-      `users/${userId}/private_lists`
+      `users/${userId}/private_lists`,
     );
+    results.inventory = await deleteSubcollection(`users/${userId}/inventory`);
 
-    // 2c. Delete personal inventory subcollection (pantry items)
-    results.inventory = await deleteSubcollection(
-      `users/${userId}/inventory`
+    // 3. Delete shopping patterns (using safe batch chunks)
+    results.patterns = await deleteQueryBatch(
+      db.collection("shopping_patterns").where("userId", "==", userId),
     );
-
-    // 3. Delete shopping patterns
-    const patternsSnap = await db
-      .collection("shopping_patterns")
-      .where("userId", "==", userId)
-      .get();
-    const patternsBatch = db.batch();
-    patternsSnap.docs.forEach((doc) => patternsBatch.delete(doc.ref));
-    if (patternsSnap.docs.length > 0) await patternsBatch.commit();
-    results.patterns = patternsSnap.docs.length;
 
     // 4. Delete pending invites sent by this user
-    const invitesSnap = await db
-      .collection("pending_invites")
-      .where("requester_id", "==", userId)
-      .get();
-    const invitesBatch = db.batch();
-    invitesSnap.docs.forEach((doc) => invitesBatch.delete(doc.ref));
-    if (invitesSnap.docs.length > 0) await invitesBatch.commit();
-    results.invites = invitesSnap.docs.length;
+    results.invites = await deleteQueryBatch(
+      db.collection("pending_invites").where("requester_id", "==", userId),
+    );
 
     // 5. Remove from household members
     if (householdId) {
@@ -107,6 +85,7 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
         .collection("members")
         .limit(1)
         .get();
+
       if (remainingMembers.empty) {
         await db.collection("households").doc(householdId).delete();
         console.log(`🏠 Deleted empty household ${householdId}`);
@@ -114,50 +93,72 @@ exports.onUserDeleted = onDocumentDeleted("users/{userId}", async (event) => {
     }
 
     // 6. Remove user from shared_users in all shared_lists subcollections.
-    // Lists live at households/{hid}/shared_lists/{lid} — use collectionGroup
-    // to scan across every household. The inequality filter on a nested map
-    // key is unreliable, so we scan and filter in-memory.
+    // OPTIMIZATION: Using orderBy on a FieldPath leverages Firestore's built-in
+    // index to return ONLY documents where this map key exists, avoiding a full DB scan.
     const sharedListsSnap = await db
       .collectionGroup("shared_lists")
+      .orderBy(new FieldPath("shared_users", userId))
       .get();
-    for (const doc of sharedListsSnap.docs) {
-      const sharedUsers = doc.data().shared_users;
-      if (sharedUsers && sharedUsers[userId] !== undefined) {
-        await doc.ref.update({
+
+    if (!sharedListsSnap.empty) {
+      let batch = db.batch();
+      let count = 0;
+      const batches = [];
+
+      sharedListsSnap.docs.forEach((doc) => {
+        batch.update(doc.ref, {
           [`shared_users.${userId}`]: FieldValue.delete(),
         });
-        results.sharedLists++;
-      }
+        count++;
+
+        if (count === 500) {
+          batches.push(batch.commit());
+          batch = db.batch();
+          count = 0;
+        }
+      });
+
+      if (count > 0) batches.push(batch.commit());
+      await Promise.all(batches);
+      results.sharedLists = sharedListsSnap.docs.length;
     }
 
     console.log(`✅ GDPR: Cascade delete complete for ${userId}:`, results);
   } catch (error) {
     console.error(`❌ GDPR: Error during cascade delete for ${userId}:`, error);
-    // Don't throw — this is a background function, errors are logged
   }
 });
 
 // ============================================================
-// Helper: Delete all documents in a subcollection
+// Helpers: Delete Batches and Subcollections (Safe <500 limits)
 // ============================================================
 
-async function deleteSubcollection(path) {
-  const snap = await db.collection(path).get();
+async function deleteQueryBatch(query) {
+  const snap = await query.get();
   if (snap.empty) return 0;
 
-  // Firestore batch limit is 500
-  const batchSize = 500;
-  let deleted = 0;
+  const batches = [];
+  let batch = db.batch();
+  let count = 0;
 
-  for (let i = 0; i < snap.docs.length; i += batchSize) {
-    const batch = db.batch();
-    const chunk = snap.docs.slice(i, i + batchSize);
-    chunk.forEach((doc) => batch.delete(doc.ref));
-    await batch.commit();
-    deleted += chunk.length;
-  }
+  snap.docs.forEach((doc) => {
+    batch.delete(doc.ref);
+    count++;
+    if (count === 500) {
+      batches.push(batch.commit());
+      batch = db.batch();
+      count = 0;
+    }
+  });
 
-  return deleted;
+  if (count > 0) batches.push(batch.commit());
+  await Promise.all(batches);
+
+  return snap.docs.length;
+}
+
+async function deleteSubcollection(path) {
+  return await deleteQueryBatch(db.collection(path));
 }
 
 // ============================================================
@@ -165,10 +166,36 @@ async function deleteSubcollection(path) {
 // ============================================================
 
 /**
- * When a new notification document is created in
- * /users/{userId}/notifications/{notificationId},
- * send a push notification via FCM to the user's device.
+ * Notification type → user-preference field on the user doc.
+ *
+ * Mirrors the 4 toggles in settings_screen.dart. When a user turns a
+ * group off, every type bound to that group is suppressed at the server
+ * — the client never sees a push it can't filter out.
+ *
+ * Types missing from the map (or `unknown`) default to "always send" —
+ * a fail-open posture so we never silently drop a notification because
+ * someone added a new type but forgot to wire the mapping. (Spam is
+ * recoverable; a missed invite is not.)
  */
+const NOTIFICATION_TYPE_TO_PREF = {
+  // Shopping flow — someone volunteered to bring an item
+  who_brings_volunteer: "notify_shopping",
+  // Group membership / household lifecycle
+  invite: "notify_group",
+  request_approved: "notify_group",
+  request_rejected: "notify_group",
+  role_changed: "notify_group",
+  user_removed: "notify_group",
+  member_left: "notify_group",
+  // Pantry reminders
+  low_stock: "notify_reminders",
+  expiry_expired: "notify_reminders",
+  expiry_soon: "notify_reminders",
+  // List-level activity (votes)
+  new_vote: "notify_list_updates",
+  vote_tie: "notify_list_updates",
+};
+
 exports.onNotificationCreated = onDocumentCreated(
   "users/{userId}/notifications/{notificationId}",
   async (event) => {
@@ -178,12 +205,25 @@ exports.onNotificationCreated = onDocumentCreated(
     if (!notification) return;
 
     try {
-      // Get the user's FCM token
+      // Get the user's FCM token + notification preferences in one read.
       const userDoc = await db.collection("users").doc(userId).get();
-      const fcmToken = userDoc.data()?.fcm_token;
+      const userData = userDoc.data() || {};
+      const fcmToken = userData.fcm_token;
 
       if (!fcmToken) {
         console.log(`No FCM token for user ${userId}, skipping push`);
+        return;
+      }
+
+      // ✋ Preference gate — skip push if the user has the matching toggle off.
+      // Missing field == undefined → treated as "enabled" (backward compat
+      // for users who haven't visited the settings screen yet).
+      const prefField = NOTIFICATION_TYPE_TO_PREF[notification.type];
+      if (prefField && userData[prefField] === false) {
+        console.log(
+          `🔕 Push suppressed for ${userId} (type=${notification.type}, ` +
+            `pref=${prefField}=false)`,
+        );
         return;
       }
 
@@ -230,5 +270,5 @@ exports.onNotificationCreated = onDocumentCreated(
         console.error(`❌ Push error for ${userId}:`, error);
       }
     }
-  }
+  },
 );

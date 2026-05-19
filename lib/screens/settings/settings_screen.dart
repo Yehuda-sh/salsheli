@@ -19,6 +19,7 @@ import '../../providers/user_context.dart';
 import '../../services/auth_service.dart';
 import '../../services/image_upload_service.dart';
 import '../../services/tutorial_service.dart';
+import '../../theme/app_theme.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/edit_household_name_dialog.dart';
@@ -26,6 +27,7 @@ import '../../widgets/common/household_invite_dialog.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/section_header.dart';
 import '../../widgets/common/skeleton_loader.dart';
+import '../../widgets/common/sticky_note.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 import 'household_members_screen.dart';
 
@@ -34,11 +36,6 @@ import 'household_members_screen.dart';
 // to define the warning area. Not in kOpacity* because they're contextual.
 const double _kErrorBgAlpha = 0.1;
 const double _kErrorBorderAlpha = 0.3;
-
-// Section card chrome — repeated across 6 settings sections.
-// Tuned together for "paper card on notebook" appearance.
-const double _kCardBgAlpha = 0.85;
-const double _kCardBorderAlpha = 0.2;
 
 // Profile bottom sheet visual sizes — composed-but-named so the math is documented.
 // Avatar = kIconSizeXLarge (48) + kSpacingXLarge (32) = 80 — large hero.
@@ -62,13 +59,33 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   // 8 sections animate via _animatedSection: 0=profile, 1=notifications,
   // 2=general/theme, 3=household, 4=quick links, 5=info, 6=logout, 7=delete account.
   static const int _sectionCount = 8;
-  // Keys לשמירה מקומית - התראות
-  // TODO(fcm): הכפתורים נשמרים ב-SharedPreferences אבל עדיין לא מחוברים ל-FCM.
-  //   כשנחבר FCM — צריך לקרוא את הערכים האלה ב-NotificationsService ולסנן לפיהם.
+  // Keys for SharedPreferences (legacy local cache) — paired with Firestore
+  // user-doc fields so the Cloud Function `onNotificationCreated` can read
+  // the same prefs server-side and skip push when a toggle is off.
+  //
+  // SharedPreferences holds the *UI* state (instant read on next launch
+  // even when offline). The matching Firestore fields drive server-side
+  // filtering — they're the source of truth the push pipeline reads.
   static const _kNotifyShopping = 'settings.notify.shopping';
   static const _kNotifyGroup = 'settings.notify.group';
   static const _kNotifyReminders = 'settings.notify.reminders';
   static const _kNotifyListUpdates = 'settings.notify.listUpdates';
+
+  // Firestore field names on the user doc — match
+  // functions/index.js NOTIFICATION_TYPE_TO_PREF mapping exactly.
+  static const _kFirestoreNotifyShopping = 'notify_shopping';
+  static const _kFirestoreNotifyGroup = 'notify_group';
+  static const _kFirestoreNotifyReminders = 'notify_reminders';
+  static const _kFirestoreNotifyListUpdates = 'notify_list_updates';
+
+  /// Local→Firestore key mapping. Used by [_saveNotificationSetting] and
+  /// [_loadSettings] to keep the two stores in sync.
+  static const Map<String, String> _kPrefsToFirestore = {
+    _kNotifyShopping: _kFirestoreNotifyShopping,
+    _kNotifyGroup: _kFirestoreNotifyGroup,
+    _kNotifyReminders: _kFirestoreNotifyReminders,
+    _kNotifyListUpdates: _kFirestoreNotifyListUpdates,
+  };
 
   // מצב UI - התראות
   bool _notifyShopping = true;
@@ -120,7 +137,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  /// טעינת הגדרות מ-SharedPreferences
+  /// טעינת הגדרות
+  ///
+  /// Reads the 4 notification toggles from Firestore (the source of truth
+  /// for server-side push filtering); falls back to SharedPreferences if
+  /// the Firestore fields aren't present yet (existing users who toggled
+  /// before we added the server-side pipeline).
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -132,6 +154,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
       final userId = userContext.userId;
       bool isAdmin = false;
       bool isOwner = false;
+      // Firestore-sourced toggle values (null = field absent → use local).
+      bool? fsNotifyShopping;
+      bool? fsNotifyGroup;
+      bool? fsNotifyReminders;
+      bool? fsNotifyListUpdates;
       if (householdId != null && userId != null) {
         try {
           // Parallel reads — neither depends on the other.
@@ -146,17 +173,50 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 .collection('households')
                 .doc(householdId)
                 .get(),
+            FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .get(),
           ]);
           final memberDoc = results[0];
           final householdDoc = results[1];
+          final userDoc = results[2];
           final String? memberRole = memberDoc.exists
               ? (memberDoc.data()?['role'] as String?)
               : null;
           final createdBy = householdDoc.data()?['created_by'];
           isOwner = userId == createdBy;
           isAdmin = isOwner || memberRole == 'admin' || memberRole == 'owner';
+          // Read notification prefs — Firestore wins; null means "field
+          // not written yet" and we'll fall back to local prefs below.
+          final userData = userDoc.data();
+          if (userData != null) {
+            fsNotifyShopping = userData[_kFirestoreNotifyShopping] as bool?;
+            fsNotifyGroup = userData[_kFirestoreNotifyGroup] as bool?;
+            fsNotifyReminders = userData[_kFirestoreNotifyReminders] as bool?;
+            fsNotifyListUpdates =
+                userData[_kFirestoreNotifyListUpdates] as bool?;
+          }
         } catch (_) {
           // Silent — default to non-admin
+        }
+      } else if (userId != null) {
+        // No household but still a user — read their prefs.
+        try {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+          final userData = userDoc.data();
+          if (userData != null) {
+            fsNotifyShopping = userData[_kFirestoreNotifyShopping] as bool?;
+            fsNotifyGroup = userData[_kFirestoreNotifyGroup] as bool?;
+            fsNotifyReminders = userData[_kFirestoreNotifyReminders] as bool?;
+            fsNotifyListUpdates =
+                userData[_kFirestoreNotifyListUpdates] as bool?;
+          }
+        } catch (_) {
+          // Silent — keep local fallback
         }
       }
 
@@ -165,15 +225,49 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
       if (!mounted) return;
       setState(() {
-        _notifyShopping = prefs.getBool(_kNotifyShopping) ?? true;
-        _notifyGroup = prefs.getBool(_kNotifyGroup) ?? true;
-        _notifyReminders = prefs.getBool(_kNotifyReminders) ?? true;
-        _notifyListUpdates = prefs.getBool(_kNotifyListUpdates) ?? false;
+        // Resolution order: Firestore (server-truth) → SharedPreferences
+        // (legacy/offline) → hardcoded default.
+        _notifyShopping =
+            fsNotifyShopping ?? prefs.getBool(_kNotifyShopping) ?? true;
+        _notifyGroup = fsNotifyGroup ?? prefs.getBool(_kNotifyGroup) ?? true;
+        _notifyReminders =
+            fsNotifyReminders ?? prefs.getBool(_kNotifyReminders) ?? true;
+        _notifyListUpdates =
+            fsNotifyListUpdates ?? prefs.getBool(_kNotifyListUpdates) ?? false;
         _isHouseholdAdmin = isAdmin;
         _appVersion = packageInfo.version;
         _loading = false;
         _errorMessage = null;
       });
+
+      // 🚚 One-time migration for existing users: if any of the 4 fields
+      // is absent on Firestore but present in SharedPreferences, push the
+      // local value up so the Cloud Function can start respecting it.
+      if (userId != null) {
+        final migration = <String, Object?>{};
+        if (fsNotifyShopping == null) {
+          migration[_kFirestoreNotifyShopping] = _notifyShopping;
+        }
+        if (fsNotifyGroup == null) {
+          migration[_kFirestoreNotifyGroup] = _notifyGroup;
+        }
+        if (fsNotifyReminders == null) {
+          migration[_kFirestoreNotifyReminders] = _notifyReminders;
+        }
+        if (fsNotifyListUpdates == null) {
+          migration[_kFirestoreNotifyListUpdates] = _notifyListUpdates;
+        }
+        if (migration.isNotEmpty) {
+          // Fire-and-forget — failure just means the migration retries
+          // on the next settings open.
+          unawaited(FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .set(migration, SetOptions(merge: true))
+              .catchError((_) {}));
+        }
+      }
+
       unawaited(_animController.forward());
     } catch (e) {
       if (!mounted) return;
@@ -184,13 +278,36 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     }
   }
 
-  /// שמירת הגדרת התראה
+  /// שמירת הגדרת התראה — local + server.
+  ///
+  /// Writes to SharedPreferences (local UI state, instant read offline)
+  /// and to the user's Firestore doc (server-side push filter). The two
+  /// writes are independent — if one fails the other still applies, and
+  /// the next [_loadSettings] reconciles.
   Future<void> _saveNotificationSetting(String key, bool value) async {
+    // Capture userId BEFORE the SharedPreferences await — using `context`
+    // after the async gap would throw use_build_context_synchronously.
+    final userId = mounted ? context.read<UserContext>().userId : null;
+
+    // Local cache — fire first so the UI state survives even if the
+    // network write below fails.
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(key, value);
     } catch (e) {
-      debugPrint('⚠️ Failed to save notification setting $key: $e');
+      debugPrint('⚠️ Failed to save notification setting $key locally: $e');
+    }
+
+    // Server-side — Cloud Function reads these fields before sending push.
+    final firestoreField = _kPrefsToFirestore[key];
+    if (firestoreField == null || userId == null) return;
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .set({firestoreField: value}, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('⚠️ Failed to sync $firestoreField to Firestore: $e');
     }
   }
 
@@ -920,7 +1037,11 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    // Brand sticky-note palette — falls back to the static kSticky*
+    // constants if the AppBrand extension is missing (test scaffolds).
+    final brand = theme.extension<AppBrand>();
     final userContext = context.watch<UserContext>();
 
     // ✅ FIX: אם אין משתמש - מעבירים ל-Login (מסך הגדרות מוגן)
@@ -987,14 +1108,15 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 ),
 
-                // 🔹 פרופיל אישי — Premium gradient ring
-                _animatedSection(0, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 פרופיל אישי — Yellow sticky (warm, hero identity).
+                // padding: 0 because the inner Padding (kSpacingLarge) is
+                // larger than the StickyNote default and preserves the
+                // existing hero-section breathing room.
+                _animatedSection(0, StickyNote(
+                  color: brand?.stickyYellow ?? kStickyYellow,
+                  rotation: -0.005,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingLarge),
                     child: Column(
@@ -1088,14 +1210,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 התראות
-                _animatedSection(1, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 התראות — Orange sticky (attention/alerts).
+                _animatedSection(1, StickyNote(
+                  color: brand?.stickyOrange ?? kStickyOrange,
+                  rotation: 0.005,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1149,14 +1269,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 הגדרות כלליות — Theme cards
-                _animatedSection(2, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 הגדרות כלליות — Cyan sticky (cool/configuration).
+                _animatedSection(2, StickyNote(
+                  color: brand?.stickyCyan ?? kStickyCyan,
+                  rotation: -0.008,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1220,14 +1338,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 ניהול בית
-                _animatedSection(3, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 ניהול בית — Pink sticky (warmth, household/people).
+                _animatedSection(3, StickyNote(
+                  color: brand?.stickyPink ?? kStickyPink,
+                  rotation: 0.008,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.all(kSpacingMedium),
                     child: Column(
@@ -1298,14 +1414,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 קישורים מהירים
-                _animatedSection(4, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 קישורים מהירים — Purple sticky (secondary actions).
+                _animatedSection(4, StickyNote(
+                  color: brand?.stickyPurple ?? kStickyPurple,
+                  rotation: -0.005,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.only(top: kSpacingMedium),
                     child: Column(
@@ -1349,14 +1463,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 מידע
-                _animatedSection(5, Card(
-                  elevation: 0,
-                  color: cs.surface.withValues(alpha: _kCardBgAlpha),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: _kCardBorderAlpha)),
-                  ),
+                // 🔹 מידע — Green sticky (info, safe actions).
+                _animatedSection(5, StickyNote(
+                  color: brand?.stickyGreen ?? kStickyGreen,
+                  rotation: 0.005,
+                  padding: 0,
+                  animate: false,
                   child: Padding(
                     padding: const EdgeInsets.only(top: kSpacingMedium),
                     child: Column(
@@ -1430,21 +1542,30 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
                 const SizedBox(height: kSpacingMedium),
 
-                // 🔹 התנתקות
+                // 🔹 התנתקות — neutral surface, NOT red. Logout is
+                // reversible (data stays, user can log back in); pairing
+                // it visually with delete-account (which IS irreversible)
+                // creates a mis-tap risk. Gray = "boring safe action".
                 _animatedSection(6, Card(
                   elevation: 0,
-                  color: cs.errorContainer.withValues(alpha: 0.3),
+                  color: cs.surfaceContainerHighest.withValues(alpha: 0.85),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                    side: BorderSide(color: cs.error.withValues(alpha: 0.25)),
+                    side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.4)),
                   ),
                   child: ListTile(
-                    leading: Icon(Icons.logout, color: cs.error),
-                    title: Text(AppStrings.settings.logoutTitle, style: TextStyle(color: cs.error, fontWeight: FontWeight.w600)),
+                    leading: Icon(Icons.logout, color: cs.onSurfaceVariant),
+                    title: Text(
+                      AppStrings.settings.logoutTitle,
+                      style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     subtitle: Text(AppStrings.settings.logoutSubtitle),
-                    trailing: _forwardChevron(color: cs.error),
+                    trailing: _forwardChevron(color: cs.onSurfaceVariant),
                     onTap: () {
-                      unawaited(HapticFeedback.heavyImpact());
+                      unawaited(HapticFeedback.lightImpact());
                       _logout();
                     },
                   ),
@@ -1466,18 +1587,34 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   ),
                 ],
 
-                const SizedBox(height: kSpacingMedium),
+                // 🚨 Extra-large gap before "Danger zone". The previous
+                // kSpacingMedium gap made delete-account feel like the
+                // next item in the list; the wider break tells the eye
+                // "this is a separate zone with bigger consequences".
+                const SizedBox(height: kSpacingXLarge),
 
-                // 🔹 מחיקת חשבון (GDPR)
+                // 🔹 מחיקת חשבון (GDPR) — deep red, prominent border so
+                // it doesn't read as "just another red card" next to the
+                // (now neutral) logout above. Border width 2 is the same
+                // emphasis we use for focused inputs.
                 _animatedSection(_sectionCount - 1, Card(
                   elevation: 0,
-                  color: cs.errorContainer.withValues(alpha: 0.85),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(kBorderRadiusLarge)),
+                  color: cs.errorContainer.withValues(alpha: 0.9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+                    side: BorderSide(
+                      color: cs.error.withValues(alpha: 0.5),
+                      width: kBorderWidthFocused,
+                    ),
+                  ),
                   child: ListTile(
                     leading: Icon(Icons.delete_forever, color: cs.error),
                     title: Text(
                       AppStrings.settings.deleteAccountTitle,
-                      style: TextStyle(color: cs.error),
+                      style: TextStyle(
+                        color: cs.error,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     subtitle: Text(
                       AppStrings.settings.deleteAccountSubtitle,
