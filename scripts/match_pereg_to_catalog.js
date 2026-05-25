@@ -1,8 +1,13 @@
-// Matches our 56 Pereg-tagged catalog items to Pereg's official image URLs
+// Matches our Pereg-tagged catalog items to Pereg's official image URLs
 // (from scripts/pereg_image_map.json) using fuzzy name comparison.
 //
-// Output: scripts/pereg_catalog_matches.json — { barcode → imageUrl } map.
-// (Or { name → imageUrl } when barcode is missing.)
+// Outputs TWO files:
+// - assets/data/pereg_barcode_map.json — slim { barcode → SKU } map
+//   consumed by ProductImagesConfig at app startup. Re-running this
+//   script auto-updates the asset; no manual sync needed.
+// - scripts/pereg_catalog_matches.json — rich { barcode → {sku, urls,
+//   names} } object kept for human inspection / debugging.
+//
 // We DON'T modify supermarket.json directly here — that's a separate step
 // once the matches look good.
 
@@ -145,25 +150,32 @@ results
     ),
   );
 
-// Write only strong matches to the output file
+// Write only strong matches to BOTH output files.
 const strongOnly = results.filter((r) => r.score >= STRONG);
-const out = {};
+const richOut = {};
+const slimOut = {};
 for (const r of strongOnly) {
   if (r.catalogBarcode) {
-    out[r.catalogBarcode] = {
+    richOut[r.catalogBarcode] = {
       sku: r.matchSku,
       imageUrl: r.matchUrl,
       thumbUrl: r.matchThumb,
       catalogName: r.catalogName,
       peregName: r.matchName,
     };
+    slimOut[r.catalogBarcode] = r.matchSku;
   }
 }
-fs.writeFileSync('scripts/pereg_catalog_matches.json', JSON.stringify(out, null, 2));
+// Rich format — for humans (debug, inspection, future migration).
+fs.writeFileSync('scripts/pereg_catalog_matches.json', JSON.stringify(richOut, null, 2));
+// Slim format — consumed at runtime by ProductImagesConfig.init().
+fs.writeFileSync('assets/data/pereg_barcode_map.json', JSON.stringify(slimOut, null, 2));
 
 console.log(
-  '\nWritten ' + Object.keys(out).length + ' strong barcode→imageUrl matches to scripts/pereg_catalog_matches.json',
+  '\nWritten ' + Object.keys(richOut).length + ' strong barcode→SKU matches:',
 );
+console.log('  - assets/data/pereg_barcode_map.json (slim, runtime)');
+console.log('  - scripts/pereg_catalog_matches.json (rich, debug)');
 console.log(
   'Total: ' +
     results.filter((r) => r.score >= STRONG).length +

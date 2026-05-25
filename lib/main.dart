@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:memozap/config/app_config.dart';
+import 'package:memozap/config/product_images_config.dart';
 import 'package:memozap/firebase_options.dart';
 import 'package:memozap/l10n/locale_manager.dart';
 import 'package:memozap/models/shopping_list.dart';
@@ -113,6 +114,10 @@ void main() async {
   // onboarding state can do so synchronously in initState — eliminates
   // the "flash empty → populate" layout jump on first build.
   await PrefsCache.init();
+
+  // 🖼️ Load the Pereg barcode → SKU map (asset). Failure is non-fatal —
+  // ProductImagesConfig just skips the Pereg CDN row in that case.
+  await ProductImagesConfig.init();
 
   // Repositories
   final productsRepo = LocalProductsRepository();

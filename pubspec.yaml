@@ -79,6 +79,7 @@ flutter:
 
   assets:
     - assets/data/list_types/
+    - assets/data/pereg_barcode_map.json
     - assets/templates/
     - assets/images/
     - assets/icons/list_types/

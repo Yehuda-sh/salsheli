@@ -1,5 +1,10 @@
 // lib/config/product_images_config.dart — CDN image URLs — Rami Levy + Shufersal + Open Food Facts, supports 7-13 digit barcodes
 
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+
 class ProductImagesConfig {
   ProductImagesConfig._();
 
@@ -25,50 +30,33 @@ class ProductImagesConfig {
   static const String _peregCdnBase =
       'https://www.tavlineypereg.co.il/ProductsImages';
 
-  /// Barcode → Pereg internal SKU. 41 high-confidence matches.
-  static const Map<String, String> _peregBarcodeToSku = {
-    '7290015321426': 'D433526', // אורגנו
-    '7290016492606': 'S584420', // סחוג
-    '7290011091972': 'L165597', // עמבה אסלית
-    '7290011090227': 'C90188', // רוזמרין
-    '7290015321433': 'C90188', // רוזמרין
-    '7290011091620': 'S323434', // קימל טחון
-    '7290015321402': 'E182442', // כוסברה
-    '7290015321273': 'P478463', // מלח לימון
-    '7290015321389': 'S438088', // פטרוזיליה
-    '7290011091507': 'W531777', // פלפל שחור טחון
-    '7290014308633': 'W138711', // פלפל שחור שלם
-    '7290015321419': 'P52300', // שמיר
-    '7290011091088': 'F589364', // כורכום
-    '7290015321570': 'I682336', // מלח הימלאיה דק
-    '7290015321341': 'D187188', // חוויג' למרק
-    '7290011091866': 'N420968', // פנקו גס
-    '7290011091873': 'V575402', // פנקו עדין
-    '7290015321297': 'U940591', // גריל עוף שקית 1 ק"ג
-    '7290015321242': 'L123315', // קינמון טחון
-    '7290015321440': 'Y288613', // עלי דפנה
-    '7290003078684': 'W531777', // פלפל שחור טחון
-    '7290015321358': 'Y624505', // חוויג' לקפה
-    '7290015321235': 'L568322', // מקלות קינמון
-    '7290014308978': 'L568322', // מקלות קינמון
-    '7290015321198': 'Z427025', // פפריקה חריפה
-    '7290015321174': 'Z961114', // פפריקה מתוקה בשמן תבליני פרג
-    '7290011091057': 'Z961114', // פפריקה מתוקה בשמן תבליני פרג
-    '7290016492354': 'Q177254', // שמן זית 5 ליטר
-    '7290015321228': 'Y547936', // זנגביל טחון
-    '7290015321457': 'K39773', // עלי טימין
-    '7290015321211': 'I843392', // כמון טחון
-    '7290008423021': 'I843392', // כמון טחון
-    '7290003078721': 'S584420', // סחוג
-    '7290014309036': 'B361306', // ציפורן שלמה
-    '7290015321327': 'Z670830', // תבלין לדגים
-    '7290015321396': 'N854653', // עלי בזיליקום
-    '7290015321365': 'C751443', // זעתר בלאדי
-    '7290008423236': 'P945641', // מלח גס גדול
-    '7290008423229': 'W540642', // מלח דק גדול
-    '7290008423045': 'W461541', // תבלין לקציצות ומפרום
-    '7290015321310': 'Y133095', // תבלין לשווארמה ופרגיות
-  };
+  /// Barcode → Pereg internal SKU. Loaded once at app startup from
+  /// `assets/data/pereg_barcode_map.json` (produced by
+  /// `scripts/match_pereg_to_catalog.js`). Until [init] runs the map
+  /// is empty — `getImageUrls()` simply skips the Pereg CDN row.
+  static Map<String, String> _peregBarcodeToSku = const {};
+
+  /// Asset path used by both [init] and the generator script.
+  static const String _peregAssetPath =
+      'assets/data/pereg_barcode_map.json';
+
+  /// 🚀 Load the Pereg barcode map. Call once from `main()` before
+  /// `runApp` so widgets can read URLs synchronously. Re-running is a
+  /// no-op after the first successful load.
+  static Future<void> init() async {
+    if (_peregBarcodeToSku.isNotEmpty) return;
+    try {
+      final raw = await rootBundle.loadString(_peregAssetPath);
+      final decoded = json.decode(raw) as Map<String, dynamic>;
+      _peregBarcodeToSku = decoded.cast<String, String>();
+    } catch (e) {
+      // Don't crash app on a missing/corrupt asset — image lookup just
+      // falls through to Rami Levy / Shufersal / Open Food Facts.
+      if (kDebugMode) {
+        debugPrint('ProductImagesConfig.init: failed to load $_peregAssetPath — $e');
+      }
+    }
+  }
 
   /// Standard barcode lengths (EAN-8, UPC-A, EAN-13) — used for
   /// Shufersal and Open Food Facts CDNs which require real EAN codes.
