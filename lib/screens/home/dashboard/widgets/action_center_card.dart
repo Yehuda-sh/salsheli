@@ -148,44 +148,53 @@ class ActionCenterCard extends StatelessWidget {
     // Wrap the segment row in a soft sticky-note pill so it visually
     // anchors to the design language instead of floating as a lone chip
     // (user feedback: "looks orphaned" — see PendingActionsCard for the
-    // same scrapbook treatment). `brand` is already declared above.
-    final stickyYellow = brand?.stickyYellow ?? kStickyYellow;
+    // same scrapbook treatment).
     return Padding(
       padding: const EdgeInsets.only(
         top: kSpacingXTiny,
         bottom: kSpacingSmall,
       ),
-      child: Transform.rotate(
-        // Same subtle tilt family as PendingActionsCard (-0.008rad).
-        // Without it the pill reads as a Material chip disconnected
-        // from the surrounding sticky-note language.
-        angle: 0.006,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kSpacingMedium,
-            vertical: kSpacingTiny,
-          ),
-          decoration: BoxDecoration(
-            color: stickyYellow.withValues(alpha: kOpacitySoft),
-            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-            border: Border.all(
-              color: stickyYellow.withValues(alpha: kOpacityStrong),
+      // Center wraps the pill to content-width — previously it
+      // stretched edge-to-edge of the ListView because the parent
+      // gave it unbounded horizontal space, making a single-chip
+      // pill (e.g. "3 נגמרו") read as a section banner rather than a
+      // sticky-note tag.
+      child: Center(
+        child: Transform.rotate(
+          // Same subtle tilt family as PendingActionsCard (-0.008rad).
+          angle: 0.006,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpacingMedium,
+              vertical: kSpacingTiny,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
-                blurRadius: 4,
-                offset: const Offset(0, 1),
+            decoration: BoxDecoration(
+              // Neutral surface (was sticky-yellow) so the inner chip
+              // icons — already colored red/orange/blue per category —
+              // carry the semantic load. Yellow-on-yellow was visually
+              // monotonous right under the yellow-headed PendingActions.
+              color: cs.surfaceContainerHighest.withValues(alpha: kOpacityHigh),
+              borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+              border: Border.all(
+                color: cs.outline.withValues(alpha: kOpacityLight),
               ),
-            ],
-          ),
-          // Wrap (not Row) is the safety net for unusually narrow screens
-          // or very large counts — on 360dp+ all segments fit one line.
-          child: Wrap(
-            alignment: WrapAlignment.center,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runSpacing: kSpacingXTiny,
-            children: segments,
+              boxShadow: [
+                BoxShadow(
+                  color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            // Wrap (not Row) is the safety net for unusually narrow
+            // screens or very large counts — on 360dp+ all segments fit
+            // one line.
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runSpacing: kSpacingXTiny,
+              children: segments,
+            ),
           ),
         ),
       ),

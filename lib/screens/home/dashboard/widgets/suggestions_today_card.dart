@@ -1038,14 +1038,13 @@ class _AddAllButtonState extends State<_AddAllButton> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
-    // sticky-green ("positive action") instead of cs.primary (dark blue).
-    // The dark navy read as "Material 3 generic" against the cream
-    // notebook background and the pink suggestion cards above; the
-    // sticky-green is on-brand with the scrapbook aesthetic and still
-    // signals "constructive go-ahead" — the original concern that an
-    // OutlinedButton would read as "cancel" doesn't apply to a Filled
-    // green button which is visibly committed.
-    final ctaColor = brand?.stickyGreen ?? kStickyGreen;
+    // brand.accent (amber #FFC107) instead of stickyGreen — the pastel
+    // green at full saturation read as "disabled" against the cream
+    // notebook background (very low contrast). Amber is MemoZap's
+    // signature warm brand color, used for primary CTAs across the app;
+    // it pops without leaving the warm-palette family. Text in
+    // cs.onSurface (dark) is legible at WCAG AA on the amber fill.
+    final ctaColor = brand?.accent ?? cs.primary;
 
     return SizedBox(
       width: double.infinity,
@@ -1065,16 +1064,21 @@ class _AddAllButtonState extends State<_AddAllButton> {
           AppStrings.suggestionsToday.addAll,
           style: const TextStyle(
             fontSize: kFontSizeMedium,
-            fontWeight: FontWeight.w600,
+            // Bumped from w600 to bold — the amber fill is light enough
+            // that a heavier weight reads more confidently as primary CTA.
+            fontWeight: FontWeight.bold,
           ),
         ),
         style: FilledButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
+          padding: const EdgeInsets.symmetric(vertical: kSpacingSmallPlus),
           backgroundColor: ctaColor,
           foregroundColor: cs.onSurface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),
+          // Subtle elevation so the amber chip "lifts" off the cream paper.
+          elevation: 2,
+          shadowColor: cs.shadow.withValues(alpha: kOpacityLight),
         ),
       ),
     );

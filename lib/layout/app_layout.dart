@@ -214,16 +214,33 @@ class _AppLayoutState extends State<AppLayout> {
         ),
       ),
       actions: [
-        // 🔔 Notifications — only notification count (not low stock)
-        IconButton(
-          tooltip: AppStrings.layout.notifications,
-          icon: Badge.count(
-            count: widget.badges?[0] ?? 0,
-            isLabelVisible: (widget.badges?[0] ?? 0) > 0,
-            child: const Icon(Icons.notifications_outlined, size: kIconSizeMedium),
-          ),
-          onPressed: () => _showNotificationsMenu(context),
-        ),
+        // 🔔 Notifications — only notification count (not low stock).
+        // Custom Badge (not Badge.count) so we can downsize the bubble
+        // and soften the red: the default M3 badge at ~20px with full
+        // cs.error read as "anxiety-inducing" against the cream
+        // notebook header. 14px + 0.88 alpha keeps the urgency cue
+        // without dominating the app bar.
+        Builder(builder: (context) {
+          final cs = Theme.of(context).colorScheme;
+          final count = widget.badges?[0] ?? 0;
+          return IconButton(
+            tooltip: AppStrings.layout.notifications,
+            icon: Badge(
+              backgroundColor: cs.error.withValues(alpha: 0.88),
+              textColor: cs.onError,
+              largeSize: 14,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              textStyle: const TextStyle(
+                fontSize: kFontSizeTiny,
+                fontWeight: FontWeight.bold,
+              ),
+              isLabelVisible: count > 0,
+              label: Text('$count'),
+              child: const Icon(Icons.notifications_outlined, size: kIconSizeMedium),
+            ),
+            onPressed: () => _showNotificationsMenu(context),
+          );
+        }),
       ],
     );
   }
@@ -297,11 +314,19 @@ class _AppLayoutState extends State<AppLayout> {
     );
   }
 
-  /// 🎯 Build Animated Badge (Counter Animation)
+  /// 🎯 Build Animated Badge (Counter Animation).
+  /// Tuning matches the bell badge above — softer red, smaller chip,
+  /// so the bottom-nav alerts feel like calm cues rather than alarms.
   Widget _buildAnimatedBadge(Widget icon, int count, ColorScheme cs) {
     return Badge(
-      backgroundColor: cs.error,
+      backgroundColor: cs.error.withValues(alpha: 0.88),
       textColor: cs.onError,
+      largeSize: 14,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      textStyle: const TextStyle(
+        fontSize: kFontSizeTiny,
+        fontWeight: FontWeight.bold,
+      ),
       label: _AnimatedBadgeCount(count: count),
       child: icon,
     );
