@@ -332,7 +332,6 @@ class _HouseholdMembersScreenState extends State<HouseholdMembersScreen> {
                               message: _error!,
                               onAction: _loadMembers,
                               actionLabel: AppStrings.common.retry,
-                              actionIcon: Icons.refresh,
                             )
                           : RefreshIndicator(
                               onRefresh: _loadMembers,

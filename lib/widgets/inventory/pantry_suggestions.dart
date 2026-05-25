@@ -102,7 +102,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
       final jsonStr =
           await rootBundle.loadString('assets/templates/pantry_basic.json');
       final data = json.decode(jsonStr) as Map<String, dynamic>;
-      final items = data['items'] as List;
+      final items = (data['items'] as List).cast<Map<String, dynamic>>();
 
       final allProducts = widget.productsProvider.allProducts;
       final suggestions = <_Suggestion>[];
@@ -156,7 +156,7 @@ class _PantrySuggestionsState extends State<PantrySuggestions> {
     final words = lower.split(RegExp(r'\s+'));
     for (final p in products) {
       final name = (p['name'] as String? ?? '').toLowerCase();
-      if (words.every((w) => name.contains(w))) return p;
+      if (words.every(name.contains)) return p;
     }
     return null;
   }

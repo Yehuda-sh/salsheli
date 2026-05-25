@@ -1088,7 +1088,7 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
               opacity: animation,
               child: SizeTransition(
                 sizeFactor: animation,
-                axisAlignment: -1,
+                alignment: -1,
                 child: child,
               ),
             ),
