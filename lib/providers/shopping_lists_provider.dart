@@ -28,7 +28,7 @@ class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;
   final ReceiptRepository _receiptRepository;
   final _uuid = const Uuid();
-  final _activityLog = ActivityLogService();
+  final ActivityLogService _activityLog;
 
   // State
   List<ShoppingList> _lists = [];
@@ -52,8 +52,10 @@ class ShoppingListsProvider with ChangeNotifier {
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
     required ReceiptRepository receiptRepository,
+    ActivityLogService? activityLog,
   })  : _repository = repository,
-        _receiptRepository = receiptRepository;
+        _receiptRepository = receiptRepository,
+        _activityLog = activityLog ?? ActivityLogService();
 
   // === Safe Notify ===
 

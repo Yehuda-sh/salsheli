@@ -65,7 +65,6 @@ For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
 | [CLAUDE.md](CLAUDE.md) | File-review checklist, design tokens, response style, lessons learned |
 | [AGENTS.md](AGENTS.md) | Operational guide for Claude instances — current state, known issues, architecture |
 | [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) | Per-screen review memory — Decisions Made + Deferred |
-| [TEST_PLAN.md](TEST_PLAN.md) | Unit / widget / integration test plan + KPIs |
 | [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-phase refactor roadmap (status per phase) |
 | [docs/spec-home-screen.md](docs/spec-home-screen.md) | Home dashboard spec (with Activity Feed) |
 | [docs/store-listing.md](docs/store-listing.md) | App store listing copy |

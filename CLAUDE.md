@@ -537,7 +537,6 @@ flutter run          # הרצה
 ## Related Docs
 
 - [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) — זיכרון בין-סקירות: Decisions Made + Deferred per screen
-- [TEST_PLAN.md](TEST_PLAN.md) — תוכנית בדיקות (396 unit tests)
 - [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) — תוכנית ריפקטור 10 שלבים
 - [docs/store-listing.md](docs/store-listing.md) — תוכן Store listing
 - [docs/spec-home-screen.md](docs/spec-home-screen.md) — אפיון מסך הבית (כולל Activity Feed)

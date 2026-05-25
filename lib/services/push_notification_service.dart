@@ -16,42 +16,57 @@ class PushNotificationService {
   static final PushNotificationService instance = PushNotificationService._();
   PushNotificationService._();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // Lazy-resolved so the singleton can be referenced from environments
+  // where Firebase isn't initialized (e.g. unit tests touching code paths
+  // that mention this service). Construction must never throw; only the
+  // actual initialize/_saveToken/clearToken calls reach Firebase.
+  FirebaseMessaging get _messaging => FirebaseMessaging.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   StreamSubscription<String>? _tokenSub;
   String? _currentUserId;
 
   /// אתחול — מבקש הרשאות, שומר token, מאזין לרענונים
+  ///
+  /// Wrapped in a top-level try/catch so callers (UserContext) can fire-and-
+  /// forget without producing unhandled async errors in environments where
+  /// Firebase isn't initialized (e.g. unit tests). Failures are logged in
+  /// debug mode and silently absorbed otherwise.
   Future<void> initialize(String userId) async {
     _currentUserId = userId;
 
-    // בקשת הרשאות (iOS דורש, Android 13+ דורש).
-    // alert/badge/sound default to true — left to defaults to satisfy
-    // avoid_redundant_argument_values.
-    final settings = await _messaging.requestPermission();
+    try {
+      // בקשת הרשאות (iOS דורש, Android 13+ דורש).
+      // alert/badge/sound default to true — left to defaults to satisfy
+      // avoid_redundant_argument_values.
+      final settings = await _messaging.requestPermission();
 
-    if (settings.authorizationStatus == AuthorizationStatus.denied) {
-      if (kDebugMode) debugPrint('🔕 Push notifications denied by user');
-      return;
+      if (settings.authorizationStatus == AuthorizationStatus.denied) {
+        if (kDebugMode) debugPrint('🔕 Push notifications denied by user');
+        return;
+      }
+
+      // שמירת token ראשוני
+      final token = await _messaging.getToken();
+      if (token != null) {
+        await _saveToken(userId, token);
+      }
+
+      // האזנה לרענוני token (Google עשוי לרענן token)
+      unawaited(_tokenSub?.cancel());
+      _tokenSub = _messaging.onTokenRefresh.listen(
+        (newToken) => unawaited(_saveToken(userId, newToken)),
+        onError: (e) {
+          if (kDebugMode) debugPrint('⚠️ FCM token refresh error: $e');
+        },
+      );
+
+      if (kDebugMode) {
+        debugPrint('🔔 Push notifications initialized for $userId');
+      }
+    } catch (e) {
+      if (kDebugMode) debugPrint('⚠️ PushNotificationService.initialize: $e');
     }
-
-    // שמירת token ראשוני
-    final token = await _messaging.getToken();
-    if (token != null) {
-      await _saveToken(userId, token);
-    }
-
-    // האזנה לרענוני token (Google עשוי לרענן token)
-    unawaited(_tokenSub?.cancel());
-    _tokenSub = _messaging.onTokenRefresh.listen(
-      (newToken) => unawaited(_saveToken(userId, newToken)),
-      onError: (e) {
-        if (kDebugMode) debugPrint('⚠️ FCM token refresh error: $e');
-      },
-    );
-
-    if (kDebugMode) debugPrint('🔔 Push notifications initialized for $userId');
   }
 
   /// שמירת FCM token ב-Firestore

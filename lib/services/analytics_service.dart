@@ -15,7 +15,10 @@ class AnalyticsService {
 
   AnalyticsService._internal();
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  // Lazy getter — construction must never reach FirebaseAnalytics.instance
+  // (e.g. unit tests). Only _log() accesses this, and _log() returns early
+  // when !AppConfig.isProduction, so Firebase is never touched in tests.
+  FirebaseAnalytics get _analytics => FirebaseAnalytics.instance;
 
   /// 📋 אירוע: יצירת רשימה חדשה
   Future<void> logCreateList({

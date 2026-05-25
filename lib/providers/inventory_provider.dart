@@ -28,7 +28,7 @@ enum InventoryMode {
 
 class InventoryProvider with ChangeNotifier {
   final InventoryRepository _repository;
-  final _activityLog = ActivityLogService();
+  final ActivityLogService _activityLog;
   UserContext? _userContext;
   bool _listeningToUser = false;
   bool _hasInitialized = false; // מניעת אתחול כפול
@@ -122,7 +122,9 @@ class InventoryProvider with ChangeNotifier {
   InventoryProvider({
     required InventoryRepository repository,
     required UserContext userContext,
-  }) : _repository = repository {
+    ActivityLogService? activityLog,
+  })  : _repository = repository,
+        _activityLog = activityLog ?? ActivityLogService() {
     updateUserContext(userContext);
   }
 

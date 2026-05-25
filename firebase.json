@@ -4,7 +4,7 @@
       "android": {
         "default": {
           "projectId": "memozap-5ad30",
-          "appId": "1:804283551011:android:6c53d4ec1bf80b33bd9096",
+          "appId": "1:804283551011:android:b12a1e116860c006bd9096",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -12,7 +12,7 @@
         "lib/firebase_options.dart": {
           "projectId": "memozap-5ad30",
           "configurations": {
-            "android": "1:804283551011:android:6c53d4ec1bf80b33bd9096",
+            "android": "1:804283551011:android:b12a1e116860c006bd9096",
             "ios": "1:804283551011:ios:556229dadd57ba3bbd9096"
           }
         }
@@ -44,9 +44,5 @@
       "port": 4000
     },
     "singleProjectMode": true
-  },
-  "emulatorDataPath": {
-    "import": "./emulator-data",
-    "export": "./emulator-data"
   }
 }

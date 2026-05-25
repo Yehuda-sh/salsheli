@@ -105,16 +105,24 @@ app.*.map.json
 **/mapping.txt
 
 # ----------------------------
-# Firebase & secrets (אל תכניס לריפו)
+# Firebase
 # ----------------------------
-**/google-services.json
-**/GoogleService-Info.plist
-lib/firebase_options.dart
+# Service-account keys — real secrets, never commit:
 scripts/firebase-service-account.json
 serviceAccountKey.json
 firebase-service-account.json
+
+# Local-only emulator data + debug logs:
 emulator-data/
 functions/firebase-debug.log
+
+# Config files — google-services.json + firebase_options.dart are
+# already tracked (needed for build, not actually secret since Firebase
+# config is bundled in the APK). These rules are defensive — prevent
+# adding new/forked copies in other paths.
+**/google-services.json
+**/GoogleService-Info.plist
+lib/firebase_options.dart
 
 # ----------------------------
 # Certificates / profiles
@@ -146,16 +154,8 @@ fastlane/TestOutput
 fastlane/Preview.html
 
 # ----------------------------
-# Local configs with secrets
+# Local files (not for the repo)
 # ----------------------------
-claude_desktop_config.json
-project_inventory.txt
-ui_inventory.txt
-docs/AGENTS.md
-docs/USER.md
-docs/TOOLS.md
-docs/MEMORY.md
-israeli-supermarkets-2024.zip
 scripts/dumps/
 scripts/kaggle_data/
 .claude/

@@ -7,10 +7,16 @@ import 'package:uuid/uuid.dart';
 import '../models/activity_event.dart';
 
 class ActivityLogService {
-  final FirebaseFirestore _firestore;
+  // Stored as nullable so the constructor never touches FirebaseFirestore.instance.
+  // Resolved lazily on first log() call — keeps the service safe to instantiate
+  // in environments where Firebase hasn't been initialized (e.g. unit tests).
+  final FirebaseFirestore? _firestoreOverride;
 
   ActivityLogService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+      : _firestoreOverride = firestore;
+
+  FirebaseFirestore get _firestore =>
+      _firestoreOverride ?? FirebaseFirestore.instance;
 
   /// כותב אירוע פעילות ל-Firestore.
   ///

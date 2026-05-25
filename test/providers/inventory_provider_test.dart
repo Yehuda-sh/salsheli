@@ -8,9 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memozap/models/inventory_item.dart';
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/providers/inventory_provider.dart';
+import 'package:memozap/models/activity_event.dart';
 import 'package:memozap/providers/user_context.dart';
 import 'package:memozap/repositories/inventory_repository.dart';
 import 'package:memozap/repositories/user_repository.dart';
+import 'package:memozap/services/activity_log_service.dart';
 import 'package:memozap/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -209,6 +211,42 @@ Future<({UserContext ctx, _MockAuthService auth})> createLoggedInContext({
 }
 
 // =============================================================================
+// STUB: ActivityLogService that doesn't touch Firebase
+// =============================================================================
+
+/// Noop stand-in injected into [InventoryProvider] so the constructor — which
+/// would otherwise call `ActivityLogService()` and reach
+/// `FirebaseFirestore.instance` — never touches Firebase in tests.
+class _StubActivityLog implements ActivityLogService {
+  @override
+  Future<void> log({
+    required String householdId,
+    required ActivityType type,
+    required String actorId,
+    required String actorName,
+    Map<String, dynamic> data = const {},
+  }) async {
+    // noop
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
+/// Builds an [InventoryProvider] with the activity-log stub already wired.
+/// Keeps the 25 test sites short and consistent.
+InventoryProvider _buildProvider({
+  required InventoryRepository repository,
+  required UserContext userContext,
+}) {
+  return InventoryProvider(
+    repository: repository,
+    userContext: userContext,
+    activityLog: _StubActivityLog(),
+  );
+}
+
+// =============================================================================
 // TESTS
 // =============================================================================
 
@@ -234,7 +272,7 @@ void main() {
 
   group('InventoryProvider - Initial State', () {
     test('starts with empty list and not loading', () {
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: mockRepo,
         userContext: userContext,
       );
@@ -251,7 +289,7 @@ void main() {
 
   group('InventoryProvider - Dispose Safety', () {
     test('should not crash after dispose', () {
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: mockRepo,
         userContext: userContext,
       );
@@ -300,7 +338,7 @@ void main() {
     test('creates item and adds to list', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -325,7 +363,7 @@ void main() {
     test('throws on empty product name', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -348,7 +386,7 @@ void main() {
     test('throws on zero quantity', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -373,7 +411,7 @@ void main() {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
       repo.shouldThrow = true;
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -402,7 +440,7 @@ void main() {
     test('updates item in list', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -431,7 +469,7 @@ void main() {
     test('sets lastUpdatedBy audit field', () async {
       final logged = await createLoggedInContext(userId: 'user-abc');
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -460,7 +498,7 @@ void main() {
     test('removes item from list', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -485,7 +523,7 @@ void main() {
     test('throws on empty id', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -504,7 +542,7 @@ void main() {
     test('rollback on delete failure', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -535,7 +573,7 @@ void main() {
     test('adds quantity to existing item (case-insensitive)', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -561,7 +599,7 @@ void main() {
     test('creates new item when product not found', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -581,7 +619,7 @@ void main() {
     test('throws on invalid inputs', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -600,7 +638,7 @@ void main() {
     test('decrements quantity and returns updated item', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -629,7 +667,7 @@ void main() {
     test('decrements to 0 (out of stock) — item stays in list', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -657,7 +695,7 @@ void main() {
     test('returns null for non-existent product', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -674,7 +712,7 @@ void main() {
     test('case-insensitive match', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -701,7 +739,7 @@ void main() {
     test('itemsByCategory filters correctly', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -728,7 +766,7 @@ void main() {
     test('itemsByLocation filters correctly', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -749,7 +787,7 @@ void main() {
     test('getLowStockItems returns items below min', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -772,7 +810,7 @@ void main() {
     test('clearAll empties items and error', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -797,7 +835,7 @@ void main() {
     test('adds items and returns count', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -821,7 +859,7 @@ void main() {
     test('returns 0 for empty list', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );
@@ -840,7 +878,7 @@ void main() {
     test('deletes all and returns count', () async {
       final logged = await createLoggedInContext();
       final repo = MockInventoryRepository();
-      final provider = InventoryProvider(
+      final provider = _buildProvider(
         repository: repo,
         userContext: logged.ctx,
       );

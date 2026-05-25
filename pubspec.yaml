@@ -1,6 +1,6 @@
-# 📝 MemoZap — Smart Family Shopping Lists
+# 📝 MemoZap — Smart Shared Shopping Lists
 name: memozap
-description: "MemoZap - Smart family shopping list manager with Notebook design, shared lists, digital pantry and receipt scanning."
+description: "MemoZap - Smart shared shopping list manager with Notebook design, real-time list sharing, and digital pantry."
 publish_to: "none"
 version: 1.0.1+2
 
