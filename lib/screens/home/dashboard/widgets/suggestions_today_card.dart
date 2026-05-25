@@ -1037,12 +1037,16 @@ class _AddAllButtonState extends State<_AddAllButton> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
+    // sticky-green ("positive action") instead of cs.primary (dark blue).
+    // The dark navy read as "Material 3 generic" against the cream
+    // notebook background and the pink suggestion cards above; the
+    // sticky-green is on-brand with the scrapbook aesthetic and still
+    // signals "constructive go-ahead" — the original concern that an
+    // OutlinedButton would read as "cancel" doesn't apply to a Filled
+    // green button which is visibly committed.
+    final ctaColor = brand?.stickyGreen ?? kStickyGreen;
 
-    // Filled primary button — "+ הוסף הכל" is the positive action that
-    // commits the whole carousel into a list, so the visual treatment
-    // matches its intent. The earlier OutlinedButton with orange border
-    // on a light surface read as a destructive/cancel button instead of
-    // a constructive CTA.
     return SizedBox(
       width: double.infinity,
       child: FilledButton.icon(
@@ -1053,7 +1057,7 @@ class _AddAllButtonState extends State<_AddAllButton> {
                 height: kIconSizeSmall,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: cs.onPrimary,
+                  color: cs.onSurface,
                 ),
               )
             : const Icon(Icons.playlist_add, size: kIconSizeSmallPlus),
@@ -1066,8 +1070,8 @@ class _AddAllButtonState extends State<_AddAllButton> {
         ),
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: kSpacingSmall),
-          backgroundColor: cs.primary,
-          foregroundColor: cs.onPrimary,
+          backgroundColor: ctaColor,
+          foregroundColor: cs.onSurface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(kBorderRadius),
           ),

@@ -145,23 +145,49 @@ class ActionCenterCard extends StatelessWidget {
       ));
     }
 
+    // Wrap the segment row in a soft sticky-note pill so it visually
+    // anchors to the design language instead of floating as a lone chip
+    // (user feedback: "looks orphaned" — see PendingActionsCard for the
+    // same scrapbook treatment). `brand` is already declared above.
+    final stickyYellow = brand?.stickyYellow ?? kStickyYellow;
     return Padding(
-      // Top padding gives breathing room from the invite banner above;
-      // without it the row glues to the banner and reads as one block.
       padding: const EdgeInsets.only(
         top: kSpacingXTiny,
         bottom: kSpacingSmall,
       ),
-      // Wrap (not Row) is the safety net for unusually narrow screens or
-      // very large counts — on 360dp+ all segments fit one line.
-      // The pin icon was removed in this iteration: with three colored
-      // category icons (📦/📅/👤) already anchoring the row, an extra pin
-      // was redundant decoration competing for the same role.
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        runSpacing: kSpacingXTiny,
-        children: segments,
+      child: Transform.rotate(
+        // Same subtle tilt family as PendingActionsCard (-0.008rad).
+        // Without it the pill reads as a Material chip disconnected
+        // from the surrounding sticky-note language.
+        angle: 0.006,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: kSpacingMedium,
+            vertical: kSpacingTiny,
+          ),
+          decoration: BoxDecoration(
+            color: stickyYellow.withValues(alpha: kOpacitySoft),
+            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+            border: Border.all(
+              color: stickyYellow.withValues(alpha: kOpacityStrong),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
+                blurRadius: 4,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          // Wrap (not Row) is the safety net for unusually narrow screens
+          // or very large counts — on 360dp+ all segments fit one line.
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: kSpacingXTiny,
+            children: segments,
+          ),
+        ),
       ),
     );
   }
