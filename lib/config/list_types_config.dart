@@ -20,11 +20,16 @@ class ListTypeConfig {
   /// שם קצר להצגה (למשל ב-Dropdown או בטאבים קטנים)
   final String shortName;
 
-  /// אימוג'י ייצוגי
+  /// אימוג'י ייצוגי (fallback בלבד — לטקסטים, accessibility)
   final String emoji;
 
-  /// אייקון Material
+  /// אייקון Material — fallback אם אין sticker (כרגע רק household)
   final IconData icon;
+
+  /// 🎨 Sticker מותאם (PNG ב-`assets/icons/list_types/`).
+  /// כשמסופק, ה-UI מציג אותו במקום ה-Material icon — Notebook design language.
+  /// אם null — חזרה ל-Material icon (זמני, עד יצירת sticker).
+  final String? stickerAsset;
 
   /// צבע אחיד לסוג הרשימה (Sticky Note style)
   final Color? color;
@@ -35,6 +40,7 @@ class ListTypeConfig {
     required this.shortName,
     required this.emoji,
     required this.icon,
+    this.stickerAsset,
     this.color,
   });
 }
@@ -52,6 +58,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeSupermarketShort,
       emoji: '🛒',
       icon: Icons.shopping_cart,
+      stickerAsset: 'assets/icons/list_types/supermarket.png',
       color: kStickyGreen,
     ),
     ListTypeConfig(
@@ -60,6 +67,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typePharmacyShort,
       emoji: '💊',
       icon: Icons.medication,
+      stickerAsset: 'assets/icons/list_types/pharmacy.png',
       color: kStickyPink,
     ),
     ListTypeConfig(
@@ -68,6 +76,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeGreengrocerShort,
       emoji: '🥬',
       icon: Icons.local_florist,
+      stickerAsset: 'assets/icons/list_types/greengrocer.png',
       color: kStickyCyan,
     ),
     ListTypeConfig(
@@ -76,6 +85,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeButcherShort,
       emoji: '🥩',
       icon: Icons.set_meal,
+      stickerAsset: 'assets/icons/list_types/butcher.png',
       color: kStickyOrange,
     ),
     ListTypeConfig(
@@ -84,6 +94,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeBakeryShort,
       emoji: '🥖',
       icon: Icons.bakery_dining,
+      stickerAsset: 'assets/icons/list_types/bakery.png',
       color: kStickyYellow,
     ),
     ListTypeConfig(
@@ -92,6 +103,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeMarketShort,
       emoji: '🏪',
       icon: Icons.store,
+      stickerAsset: 'assets/icons/list_types/market.png',
       color: kStickyGreen,
     ),
     ListTypeConfig(
@@ -100,6 +112,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeHouseholdShort,
       emoji: '🏠',
       icon: Icons.home,
+      // 🚧 TODO: add assets/icons/list_types/household.png — falls back to Material icon for now.
       color: kStickyCyan,
     ),
     ListTypeConfig(
@@ -108,6 +121,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeEventShort,
       emoji: '🎉',
       icon: Icons.celebration,
+      stickerAsset: 'assets/icons/list_types/event.png',
       color: kStickyPurple,
     ),
     ListTypeConfig(
@@ -116,6 +130,7 @@ class ListTypes with ConfigValidation {
       shortName: AppStrings.shopping.typeOtherShort,
       emoji: '📝',
       icon: Icons.more_horiz,
+      stickerAsset: 'assets/icons/list_types/other.png',
     ),
   ];
 

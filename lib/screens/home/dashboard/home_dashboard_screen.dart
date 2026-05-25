@@ -19,6 +19,7 @@ import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/email_verification_banner.dart';
 import '../../../widgets/common/household_invite_dialog.dart';
+import '../../../widgets/common/list_type_icon.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
@@ -721,10 +722,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                              Icon(
-                                ListTypes.getByKeySafe(list.type).icon,
-                                color: accentColor,
+                              ListTypeIcon(
+                                typeKey: list.type,
                                 size: kIconSizeMedium,
+                                fallbackColor: accentColor,
                               ),
                             ],
                           ),

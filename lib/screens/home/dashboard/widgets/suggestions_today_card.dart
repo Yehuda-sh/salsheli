@@ -18,6 +18,7 @@ import '../../../../models/smart_suggestion.dart';
 import '../../../../providers/shopping_lists_provider.dart';
 import '../../../../providers/suggestions_provider.dart';
 import '../../../../theme/app_theme.dart';
+import '../../../../widgets/common/list_type_icon.dart';
 import '../../../../widgets/common/product_thumbnail.dart';
 
 // Carousel layout — keep page-index math and ListView in sync.
@@ -206,9 +207,10 @@ Future<ShoppingList?> _chooseTargetList(
               shrinkWrap: true,
               children: activeLists
                   .map((l) => ListTile(
-                        leading: Icon(
-                          ListTypes.getByKeySafe(l.type).icon,
-                          color: ListTypes.getColor(l.type, cs, brand),
+                        leading: ListTypeIcon(
+                          typeKey: l.type,
+                          size: kIconSizeMedium,
+                          fallbackColor: ListTypes.getColor(l.type, cs, brand),
                         ),
                         title: Text(l.name),
                         subtitle: Text(AppStrings.suggestionsToday.itemCount(l.items.length)),
