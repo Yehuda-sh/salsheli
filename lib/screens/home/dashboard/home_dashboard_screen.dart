@@ -34,6 +34,11 @@ import 'widgets/whats_for_dinner_card.dart';
 const double _kAvatarSize = 72.0;
 const double _kStickerSize = 60.0;
 const double _kProgressStrokeWidth = 4.0;
+// Home dashboard shows only the top-N most recent active lists. Beyond
+// that the user sees a "See all" button that pushes a dedicated full-
+// list screen — 20+ hero cards on the dashboard read as wall-of-noise
+// per Apr-30 review.
+const int _kDashboardActiveListLimit = 5;
 const double _kListAccentBarWidth = 5.0;
 // Empty-state illustration size — keeps a stable footprint even when
 // the asset fails to decode and the errorBuilder swaps in a fallback icon.
@@ -595,9 +600,44 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ),
             ),
           )
-        else
-          ...activeLists.map((list) => _buildListCard(context, list)),
+        else ...[
+          // Show only the top-N most recent lists; the rest live in the
+          // dedicated `/all-lists` screen behind a "See all" button.
+          ...activeLists
+              .take(_kDashboardActiveListLimit)
+              .map((list) => _buildListCard(context, list)),
+          if (activeLists.length > _kDashboardActiveListLimit)
+            _buildSeeAllButton(context, activeLists.length),
+        ],
       ],
+    );
+  }
+
+  /// "ראה הכל (N)" button at the bottom of the active-lists preview.
+  /// Pushes the full `ShoppingListsScreen` which has search/filter/sort
+  /// for users juggling many lists.
+  Widget _buildSeeAllButton(BuildContext context, int totalCount) {
+    final cs = Theme.of(context).colorScheme;
+    final strings = AppStrings.homeDashboard;
+    return Padding(
+      padding: const EdgeInsets.only(top: kSpacingSmall),
+      child: TextButton.icon(
+        onPressed: () {
+          unawaited(HapticFeedback.lightImpact());
+          Navigator.pushNamed(context, '/all-lists');
+        },
+        icon: Icon(Icons.arrow_back_ios_new, size: kIconSizeSmall, color: cs.primary),
+        label: Text(
+          '${strings.seeAll} ($totalCount)',
+          style: TextStyle(
+            color: cs.primary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(kMinTapTarget, kMinTapTarget),
+        ),
+      ),
     );
   }
 

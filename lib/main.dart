@@ -39,6 +39,7 @@ import 'package:memozap/screens/index_screen.dart';
 import 'package:memozap/screens/main_navigation_screen.dart';
 import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
+import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
 import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
@@ -238,6 +239,7 @@ class MyApp extends StatelessWidget {
             '/notifications': (context) => const NotificationsCenterScreen(),
             '/receipts': (context) => const ShoppingHistoryScreen(),
             '/pending-invites': (context) => const PendingInvitesScreen(),
+            '/all-lists': (context) => const ShoppingListsScreen(),
           },
           onGenerateRoute: (settings) {
             // Auth routes — Shared Axis horizontal transition (notebook page flip)

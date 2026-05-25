@@ -122,12 +122,26 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 🎛️ סרגל עליון נקי - כפתור גלולה עם טקסט
   Widget _buildTopBar() {
     final cs = Theme.of(context).colorScheme;
+    final canPop = Navigator.canPop(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          // Back button — only visible when this screen was pushed (e.g.
+          // from the home dashboard's "see all"). Hidden if it's used as
+          // a tab so we don't pop the whole nav stack accidentally.
+          if (canPop)
+            IconButton(
+              onPressed: () {
+                unawaited(HapticFeedback.lightImpact());
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_forward),
+              color: cs.onSurfaceVariant,
+              tooltip: AppStrings.common.goBack,
+            ),
+          const Spacer(),
           // 🎛️ כפתור כלים/סינון בסגנון גלולה
           PopupMenuButton<String>(
             tooltip: AppStrings.shopping.searchAndFilter,
