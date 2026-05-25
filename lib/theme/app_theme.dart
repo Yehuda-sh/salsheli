@@ -1,5 +1,9 @@
 // lib/theme/app_theme.dart — App theme — Material 3 light/dark themes, AppBrand extension, dynamic colors
 
+// CupertinoPageTransitionsBuilder was removed from material.dart re-exports in
+// Flutter 3.40+; explicit import keeps this forward-compatible.
+// ignore: unnecessary_import
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../core/ui_constants.dart';
