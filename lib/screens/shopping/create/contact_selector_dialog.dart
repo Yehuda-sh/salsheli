@@ -383,45 +383,44 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Radio buttons for email/phone
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => setState(() =>
-                                  _inputType = _ContactInputType.email),
-                              child: Row(
-                                children: [
-                                  Radio<_ContactInputType>(
-                                    value: _ContactInputType.email,
-                                    groupValue: _inputType,
-                                    onChanged: (value) =>
-                                        setState(() => _inputType = value!),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                  Text(AppStrings.contactSelector.emailLabel),
-                                ],
+                      RadioGroup<_ContactInputType>(
+                        groupValue: _inputType,
+                        onChanged: (value) =>
+                            setState(() => _inputType = value!),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() =>
+                                    _inputType = _ContactInputType.email),
+                                child: Row(
+                                  children: [
+                                    const Radio<_ContactInputType>(
+                                      value: _ContactInputType.email,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    Text(AppStrings.contactSelector.emailLabel),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () => setState(() =>
-                                  _inputType = _ContactInputType.phone),
-                              child: Row(
-                                children: [
-                                  Radio<_ContactInputType>(
-                                    value: _ContactInputType.phone,
-                                    groupValue: _inputType,
-                                    onChanged: (value) =>
-                                        setState(() => _inputType = value!),
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                  Text(AppStrings.contactSelector.phoneLabel),
-                                ],
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() =>
+                                    _inputType = _ContactInputType.phone),
+                                child: Row(
+                                  children: [
+                                    const Radio<_ContactInputType>(
+                                      value: _ContactInputType.phone,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    Text(AppStrings.contactSelector.phoneLabel),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(height: kSpacingSmall),
                       // Input field
