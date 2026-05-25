@@ -29,8 +29,11 @@ import 'widgets/suggestions_today_card.dart';
 import 'widgets/whats_for_dinner_card.dart';
 
 // Layout tokens specific to the active-list card.
-const double _kAvatarSize = 44.0;
-const double _kProgressStrokeWidth = 3.0;
+// Avatar grew 44→72 so the paper-cut sticker reads as the card's hero
+// element instead of a small icon competing with the progress ring.
+const double _kAvatarSize = 72.0;
+const double _kStickerSize = 60.0;
+const double _kProgressStrokeWidth = 4.0;
 const double _kListAccentBarWidth = 5.0;
 // Empty-state illustration size — keeps a stable footprint even when
 // the asset fails to decode and the errorBuilder swaps in a fallback icon.
@@ -722,13 +725,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                              // Sticker fills ~80% of the avatar so the
-                              // paper-cut design is recognisable; was
-                              // kIconSizeMedium which looked like a pastel
-                              // blob inside the progress ring.
+                              // Sticker is now hero-sized (60px in a 72px
+                              // avatar = 83%). The paper-cut details
+                              // become readable instead of reading as a
+                              // pastel blob inside the progress ring.
                               ListTypeIcon(
                                 typeKey: list.type,
-                                size: kIconSizeLarge,
+                                size: _kStickerSize,
                                 fallbackColor: accentColor,
                               ),
                             ],

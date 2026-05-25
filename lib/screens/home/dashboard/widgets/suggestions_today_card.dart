@@ -22,13 +22,18 @@ import '../../../../widgets/common/list_type_icon.dart';
 import '../../../../widgets/common/product_thumbnail.dart';
 
 // Carousel layout — keep page-index math and ListView in sync.
-const double _kCarouselHeight = 200.0;
-const double _kCardWidth = 170.0;
+// Card grew (200→260, 170→180) so the product image can be a hero.
+const double _kCarouselHeight = 260.0;
+const double _kCardWidth = 180.0;
 const double _kCardGap = kSpacingSmall;
-const double _kCardItemExtent = _kCardWidth + _kCardGap; // 178
+const double _kCardItemExtent = _kCardWidth + _kCardGap; // 188
 const double _kCardRotation = 0.02;
 const double _kTapeHeight = 18.0;
 const double _kTapeHorizontalMargin = 30.0;
+// Product image — was kIconSizeXXLarge (64px) in a 170-wide card,
+// which read as a small icon rather than a product photo. 120px
+// makes the thumbnail the visual anchor of the card.
+const double _kProductImageSize = 120.0;
 
 // Dot indicator dimensions — active is wider to read as "current page".
 const double _kDotActiveWidth = 16.0;
@@ -209,7 +214,7 @@ Future<ShoppingList?> _chooseTargetList(
                   .map((l) => ListTile(
                         leading: ListTypeIcon(
                           typeKey: l.type,
-                          size: kIconSizeLarge,
+                          size: kIconSizeXLarge,
                           fallbackColor: ListTypes.getColor(l.type, cs, brand),
                         ),
                         title: Text(l.name),
@@ -692,13 +697,13 @@ class _StickyNoteCardState extends State<_StickyNoteCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // תמונת מוצר
+                  // תמונת מוצר — hero element of the card
                   Center(
                     child: ProductThumbnail(
                       barcode: suggestion.barcode.isNotEmpty ? suggestion.barcode : null,
                       category: suggestion.category,
                       productName: suggestion.productName,
-                      size: kIconSizeXXLarge,
+                      size: _kProductImageSize,
                     ),
                   ),
                   const SizedBox(height: kSpacingSmall),
