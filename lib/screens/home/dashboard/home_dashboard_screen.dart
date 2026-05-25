@@ -722,9 +722,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
+                              // Sticker fills ~80% of the avatar so the
+                              // paper-cut design is recognisable; was
+                              // kIconSizeMedium which looked like a pastel
+                              // blob inside the progress ring.
                               ListTypeIcon(
                                 typeKey: list.type,
-                                size: kIconSizeMedium,
+                                size: kIconSizeLarge,
                                 fallbackColor: accentColor,
                               ),
                             ],

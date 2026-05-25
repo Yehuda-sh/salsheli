@@ -209,7 +209,7 @@ Future<ShoppingList?> _chooseTargetList(
                   .map((l) => ListTile(
                         leading: ListTypeIcon(
                           typeKey: l.type,
-                          size: kIconSizeMedium,
+                          size: kIconSizeLarge,
                           fallbackColor: ListTypes.getColor(l.type, cs, brand),
                         ),
                         title: Text(l.name),
