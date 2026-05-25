@@ -265,14 +265,8 @@ class ShoppingListTile extends StatelessWidget {
               color: stickyColor.withValues(alpha: 0.5),
             ),
           ),
-          // IntrinsicHeight removed: the side-strip Container had no
-          // intrinsic height of its own, so IntrinsicHeight collapsed
-          // the row to 0 — making the inner Column (ListTile + action
-          // button) overflow by ~16px on every card. CrossAxisAlignment
-          // .stretch + an IntrinsicHeight-less Row still stretches the
-          // side strip vertically to match the tallest child (the
-          // Column), which is what we want.
-          child: Row(
+          child: IntrinsicHeight(
+            child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 🎨 Colored side strip — לפי סוג רשימה
@@ -418,6 +412,7 @@ class ShoppingListTile extends StatelessWidget {
           ),
               ),
             ],
+          ),
           ),
         ),
       ),
