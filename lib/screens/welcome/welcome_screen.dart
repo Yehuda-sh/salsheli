@@ -614,7 +614,7 @@ class _BottomSection extends StatelessWidget {
 // ============================================================
 
 class _BenefitChip extends StatelessWidget {
-  final IconData icon;
+  final FaIconData icon;
   final String text;
   final Color color;
 
@@ -634,7 +634,7 @@ class _BenefitChip extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: kOpacityStrong)),
+        FaIcon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: kOpacityStrong)),
         const SizedBox(width: kSpacingSmall),
         Text(
           text,

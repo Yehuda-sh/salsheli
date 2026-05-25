@@ -15,7 +15,7 @@ import '../../../widgets/common/animated_button.dart';
 /// and the [onPressed] is wired straight through to an InkWell so the
 /// Material ripple still fires alongside the scale animation.
 class SocialLoginButton extends StatelessWidget {
-  final IconData icon;
+  final FaIconData icon;
   final String label;
   final Color color;
   final VoidCallback? onPressed;
