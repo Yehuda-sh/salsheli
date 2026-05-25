@@ -235,7 +235,9 @@ class _PendingActionsCardState extends State<PendingActionsCard>
           actions.add(_ActionData(
             id: 'email_verify',
             priorityColor: _Priority.critical,
-            icon: Icons.mark_email_unread_outlined,
+            // shield = "verify your identity" semantic — distinct from the
+            // person/group icons below which represent people-related actions.
+            icon: Icons.verified_user_outlined,
             title: AppStrings.pendingActions.emailVerifyTitle,
             subtitle: AppStrings.pendingActions.emailVerifySubtitle,
             isLoading: _isSending,
@@ -250,7 +252,9 @@ class _PendingActionsCardState extends State<PendingActionsCard>
           actions.add(_ActionData(
             id: 'invite_${invite.id}',
             priorityColor: _Priority.positive,
-            icon: Icons.mail_outline,
+            // person_add = "someone wants to add YOU" — semantically the
+            // opposite of group_add (used below for "YOU should invite").
+            icon: Icons.person_add_alt_1_outlined,
             title: copy.title,
             subtitle: copy.subtitle,
             onTap: () {
@@ -287,71 +291,105 @@ class _PendingActionsCardState extends State<PendingActionsCard>
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final stickyYellow = brand?.stickyYellow ?? kStickyYellow;
+    final stickyPink = brand?.stickyPink ?? kStickyPink;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: kSpacingSmall),
-      decoration: BoxDecoration(
-        color: cs.surface.withValues(alpha: kOpacityHigh),
-        borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-        border: Border.all(
-          color: cs.outline.withValues(alpha: kOpacityLight),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+    // Subtle -0.5° tilt — same family as the suggestion cards below
+    // (which rotate ±1°). Without it the card reads as a Material
+    // rectangle disconnected from the surrounding sticky-note language.
+    return Transform.rotate(
+      angle: -0.008,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: kSpacingSmall),
+        decoration: BoxDecoration(
+          color: cs.surface.withValues(alpha: kOpacityHigh),
+          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
+          border: Border.all(
+            color: cs.outline.withValues(alpha: kOpacityLight),
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // ⚡ Header — sticky-yellow band ties the card to the notebook
-          // design language. Count badge on the trailing side.
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kSpacingMedium,
-              vertical: kSpacingSmall,
+          boxShadow: [
+            BoxShadow(
+              color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
+              blurRadius: 8,
+              offset: const Offset(1, 3),
             ),
-            decoration: BoxDecoration(
-              color: stickyYellow.withValues(alpha: kOpacitySoft),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(kBorderRadiusLarge),
-              ),
-            ),
-            child: Row(
+          ],
+        ),
+        child: Column(
+          children: [
+            // ⚡ Header — sticky-yellow band with a pink "washi-tape" strip
+            // peeking from the trailing corner. The tape ties the card to
+            // the scrapbook personality of the rest of the home screen.
+            Stack(
               children: [
-                Icon(Icons.bolt, size: kIconSizeSmallPlus, color: cs.onSurface),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  AppStrings.pendingActions.title,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: cs.onSurface,
-                  ),
-                ),
-                const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: kSpacingSmall,
-                    vertical: 2,
+                    horizontal: kSpacingMedium,
+                    vertical: kSpacingSmall,
                   ),
                   decoration: BoxDecoration(
-                    color: cs.onSurface.withValues(alpha: kOpacityLight),
-                    borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                    color: stickyYellow.withValues(alpha: kOpacityStrong),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(kBorderRadiusLarge),
+                    ),
                   ),
-                  child: Text(
-                    '${actions.length}',
-                    style: TextStyle(
-                      fontSize: kFontSizeSmall,
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface,
+                  child: Row(
+                    children: [
+                      Icon(Icons.bolt, size: kIconSizeSmallPlus, color: cs.onSurface),
+                      const SizedBox(width: kSpacingSmall),
+                      Text(
+                        AppStrings.pendingActions.title,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: cs.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: kSpacingSmall,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cs.onSurface.withValues(alpha: kOpacityLight),
+                          borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+                        ),
+                        child: Text(
+                          '${actions.length}',
+                          style: TextStyle(
+                            fontSize: kFontSizeSmall,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Pink washi-tape strip — angled, peeks above the header to
+                // suggest a card "taped down" to the notebook page.
+                PositionedDirectional(
+                  top: -4,
+                  start: kSpacingLarge,
+                  child: Transform.rotate(
+                    angle: -0.12,
+                    child: Container(
+                      width: kSpacingXLarge,
+                      height: kSpacingSmallPlus,
+                      decoration: BoxDecoration(
+                        color: stickyPink.withValues(alpha: kOpacityStrong),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
           // Rows separated by hairline dividers.
           ...actions.asMap().entries.map((entry) {
             final i = entry.key;
@@ -372,7 +410,8 @@ class _PendingActionsCardState extends State<PendingActionsCard>
               ],
             );
           }),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -433,8 +472,13 @@ class _ActionRow extends StatelessWidget {
     final cs = theme.colorScheme;
     final priorityColor = _resolvePriorityColor(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    // iOS-style thin chevrons — visually distinct from the title text
+    // weight, unlike the chunkier Icons.chevron_*. In Hebrew RTL the
+    // "forward / continue" direction is leftward, so arrow_back_ios_new
+    // (which is a left-pointing arrow) is the correct "go ahead" cue;
+    // in LTR we flip to arrow_forward_ios.
     final forwardChevron =
-        isRtl ? Icons.chevron_left : Icons.chevron_right;
+        isRtl ? Icons.arrow_back_ios_new : Icons.arrow_forward_ios;
 
     final content = InkWell(
       onTap: action.isLoading
@@ -450,13 +494,14 @@ class _ActionRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Icon circle — priority color at high opacity for a soft
-            // "sticky-note dot" look.
+            // Icon circle — priority color at sticky-note strength
+            // (kOpacityStrong, matches the vibrancy of the suggestion
+            // cards below; kOpacityMedium read as washed-out).
             Container(
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: priorityColor.withValues(alpha: kOpacityMedium),
+                color: priorityColor.withValues(alpha: kOpacityStrong),
                 shape: BoxShape.circle,
               ),
               child: action.isLoading
