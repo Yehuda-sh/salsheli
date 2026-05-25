@@ -186,6 +186,7 @@ class AppStringsHe {
   static const actionCenter = ActionCenterStrings();
   static const onboardingTips = OnboardingTipsStrings();
   static const whatsForDinner = WhatsForDinnerStrings();
+  static const pendingActions = PendingActionsStrings();
 }
 
 // ========================================
@@ -2318,6 +2319,27 @@ class OnboardingTipsStrings {
 // ========================================
 // What's For Dinner Card
 // ========================================
+
+// ========================================
+// Pending Actions Card Strings
+// ========================================
+// Unified card on the home dashboard that aggregates pending invitations,
+// email verification reminders, and the "invite your home" prompt — each
+// rendered as a uniform action row instead of three competing banners.
+
+class PendingActionsStrings {
+  const PendingActionsStrings();
+
+  String get title => 'פעולות ממתינות';
+  // Email-verification action row.
+  String get emailVerifyTitle => 'אמת את כתובת האימייל';
+  String get emailVerifySubtitle => 'כדי לקבל הזמנות ועדכונים';
+  // Invite-family action row subtitle (the title reuses
+  // `homeDashboard.inviteFamilyTitle`).
+  String get inviteFamilyShortSubtitle => 'אופציונלי — שתפו רשימות';
+  // Swipe-to-dismiss / × action label for screen readers.
+  String get dismissAction => 'הסתר';
+}
 
 class WhatsForDinnerStrings {
   const WhatsForDinnerStrings();

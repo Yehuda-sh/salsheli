@@ -51,4 +51,5 @@ class AppStrings {
   static ActionCenterStrings get actionCenter => _isEnglish ? AppStringsEn.actionCenter : AppStringsHe.actionCenter;
   static OnboardingTipsStrings get onboardingTips => _isEnglish ? AppStringsEn.onboardingTips : AppStringsHe.onboardingTips;
   static WhatsForDinnerStrings get whatsForDinner => _isEnglish ? AppStringsEn.whatsForDinner : AppStringsHe.whatsForDinner;
+  static PendingActionsStrings get pendingActions => _isEnglish ? AppStringsEn.pendingActions : AppStringsHe.pendingActions;
 }

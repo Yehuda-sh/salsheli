@@ -187,6 +187,7 @@ class AppStringsEn {
   static const actionCenter = ActionCenterStringsEn();
   static const onboardingTips = OnboardingTipsStringsEn();
   static const whatsForDinner = WhatsForDinnerStringsEn();
+  static const pendingActions = PendingActionsStringsEn();
 }
 
 // ========================================
@@ -2081,6 +2082,16 @@ class OnboardingTipsStringsEn extends OnboardingTipsStrings {
 // ========================================
 // What's For Dinner Card
 // ========================================
+
+class PendingActionsStringsEn extends PendingActionsStrings {
+  const PendingActionsStringsEn();
+
+  @override String get title => 'Pending Actions';
+  @override String get emailVerifyTitle => 'Verify your email';
+  @override String get emailVerifySubtitle => 'to receive invites and updates';
+  @override String get inviteFamilyShortSubtitle => 'Optional — share lists';
+  @override String get dismissAction => 'Dismiss';
+}
 
 class WhatsForDinnerStringsEn extends WhatsForDinnerStrings {
   const WhatsForDinnerStringsEn();

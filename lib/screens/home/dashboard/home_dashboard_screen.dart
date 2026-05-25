@@ -14,17 +14,14 @@ import '../../../models/shopping_list.dart';
 import '../../../providers/receipt_provider.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../providers/suggestions_provider.dart';
-import '../../../providers/user_context.dart';
 import '../../../services/tutorial_service.dart';
 import '../../../theme/app_theme.dart';
-import '../../../widgets/common/email_verification_banner.dart';
-import '../../../widgets/common/household_invite_dialog.dart';
 import '../../../widgets/common/list_type_icon.dart';
 import '../../../widgets/common/notebook_background.dart';
 import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/onboarding_tips_card.dart';
-import 'widgets/pending_invites_banner.dart';
+import 'widgets/pending_actions_card.dart';
 import 'widgets/suggestions_today_card.dart';
 import 'widgets/whats_for_dinner_card.dart';
 
@@ -235,24 +232,26 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   // (Offline banner is mounted once at main_navigation_screen
                   // so it covers all four tabs without stacking copies.)
 
-                  // === 1. באנרים (Error / Active Shopper / Pending Invites) ===
+                  // === 1. באנרים שגיאה + Active Shopper (real-time) ===
                   _staggered(
                     Column(
                       children: [
                         if (listsProvider.hasError)
                           _buildErrorBanner(context, listsProvider.errorMessage!),
                         const ActiveShopperBanner(),
-                        const PendingInvitesBanner(),
                       ],
                     ),
                     sectionIndex++,
                   ),
 
-                  // === 2. אימות אימייל (אם צריך) ===
-                  const EmailVerificationBanner(),
-
-                  // === 2.5. הזמנת משפחה (solo households only) ===
-                  _buildInviteFamilyBanner(context),
+                  // === 2. פעולות ממתינות — כרטיס יחיד מאחד 3 באנרים שהיו פה: ===
+                  //   - הזמנות נכנסות (היה PendingInvitesBanner)
+                  //   - אימות אימייל (היה EmailVerificationBanner)
+                  //   - הזמן את הבית (היה _buildInviteFamilyBanner)
+                  _staggered(
+                    const RepaintBoundary(child: PendingActionsCard()),
+                    sectionIndex++,
+                  ),
 
                   // === 3. Action Center — דורש טיפול (דחוף → למעלה) ===
                   _staggered(
@@ -317,100 +316,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ============================================
-  // 0.5. INVITE FAMILY BANNER — shown for solo households
-  // ============================================
-  Widget _buildInviteFamilyBanner(BuildContext context) {
-    final userContext = context.watch<UserContext>();
-    // Trust the explicit `isSolo` flag from the user document. The old
-    // fallback that sniffed Hebrew/English substrings of householdName
-    // ('של', 'Home') broke as soon as the user switched UI language and
-    // wasn't reliable across naming choices anyway. If isSolo is null
-    // (legacy users on older docs) the banner stays hidden — better to
-    // miss a one-off banner than mis-classify a real household as solo.
-    final isSolo = userContext.user?.isSolo ?? false;
-
-    if (!isSolo) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final brand = theme.extension<AppBrand>();
-
-    // Slight rotation + drop shadow brings this banner into the same
-    // sticky-note language as the tip cards below. Without it, the
-    // banner read as a generic Material rectangle disconnected from
-    // the rest of the notebook+sticky home screen.
-    return Transform.rotate(
-      angle: -0.005,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: kSpacingSmall),
-        padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmallPlus),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacitySoft),
-              (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: 0.05),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-          border: Border.all(color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kOpacityLight)),
-          boxShadow: [
-            BoxShadow(
-              color: theme.shadowColor.withValues(alpha: kOpacitySubtle),
-              blurRadius: 4.0,
-              offset: const Offset(1, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Plain house emoji — the previous family ZWJ sequence
-            // (👨‍👩‍👧‍👦) renders as an empty box on older Android builds.
-            // Decorative only — screen readers should jump straight to
-            // the title text, not announce "house".
-            const ExcludeSemantics(
-              child: Text('🏠', style: TextStyle(fontSize: kFontSizeLarge)),
-            ),
-            const SizedBox(width: kSpacingSmallPlus),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppStrings.homeDashboard.inviteFamilyTitle,
-                    style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface),
-                  ),
-                  Text(
-                    AppStrings.homeDashboard.inviteFamilySubtitle,
-                    style: TextStyle(fontSize: kFontSizeSmall, color: cs.onSurfaceVariant),
-                  ),
-                ],
-              ),
-            ),
-            // ElevatedButton (with default elevation) instead of FilledButton —
-            // the cyan-on-cyan FilledButton blended into the banner. The
-            // amber brand accent pops as a clear CTA against the cyan
-            // backdrop; cs.onSurface (dark) is the legible ink color for
-            // amber per the theme's onAccent convention.
-            ElevatedButton(
-              onPressed: () {
-                unawaited(HapticFeedback.lightImpact());
-                showHouseholdInviteDialog(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: brand?.accent ?? cs.primary,
-                foregroundColor: cs.onSurface,
-                padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus),
-                minimumSize: const Size(0, kMinTapTarget),
-              ),
-              child: Text(AppStrings.homeDashboard.inviteFamilyAction),
-            ),
-          ],
-        ),
       ),
     );
   }
