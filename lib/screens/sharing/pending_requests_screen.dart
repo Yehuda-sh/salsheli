@@ -56,6 +56,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
           final navigator = Navigator.of(context);
           final brand = Theme.of(context).extension<AppBrand>();
 
+          messenger.removeCurrentSnackBar();
           messenger.showSnackBar(
             SnackBar(
               content: Row(
@@ -108,6 +109,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
       if (!mounted) return;
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Row(
@@ -124,6 +126,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Row(
@@ -170,6 +173,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
 
       if (!mounted) return;
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Row(
@@ -186,6 +190,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Row(

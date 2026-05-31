@@ -188,6 +188,7 @@ class ShoppingListTile extends StatelessWidget {
               try {
                 await onDelete?.call();
 
+                messenger.removeCurrentSnackBar();
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text(AppStrings.shopping.listDeleted(deletedList.name)),
@@ -199,6 +200,7 @@ class ShoppingListTile extends StatelessWidget {
                         if (restore == null) return;
                         unawaited(
                           restore(deletedList).catchError((_) {
+                            messenger.removeCurrentSnackBar();
                             messenger.showSnackBar(
                               SnackBar(
                                 content: Text(AppStrings.shopping.restoreError),
@@ -213,6 +215,7 @@ class ShoppingListTile extends StatelessWidget {
                   ),
                 );
               } catch (e) {
+                messenger.removeCurrentSnackBar();
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text(AppStrings.shopping.deleteError),

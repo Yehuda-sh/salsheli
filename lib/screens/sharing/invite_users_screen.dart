@@ -73,6 +73,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           final navigator = Navigator.of(context);
           final brand = Theme.of(context).extension<AppBrand>();
 
+          messenger.removeCurrentSnackBar();
           messenger.showSnackBar(
             SnackBar(
               content: Row(
@@ -253,6 +254,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       final currentEmail = userContext.userEmail?.toLowerCase() ?? '';
       if (invitedUserId == currentUserId ||
           (currentEmail.isNotEmpty && invitedUserEmail == currentEmail)) {
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
           content: Text(AppStrings.sharing.cannotInviteSelf),
         ));
@@ -323,6 +325,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
           : AppStrings.sharing.inviteSentUnregistered(displayName);
 
       final brand = Theme.of(context).extension<AppBrand>();
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(successMessage),
@@ -335,6 +338,7 @@ class _InviteUsersScreenState extends State<InviteUsersScreen> {
       if (!mounted) return;
 
       final brand = Theme.of(context).extension<AppBrand>();
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(userFriendlyError(e, context: 'invite')),

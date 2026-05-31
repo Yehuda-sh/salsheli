@@ -216,6 +216,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       setState(() => _addingProductId = null);
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.shopping.updateProductError(userFriendlyError(e, context: 'updateProductQuantity'))),
@@ -243,6 +244,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
           _showFeedback(AppStrings.shopping.productAddedToList(item.name));
         } catch (e) {
           if (!mounted) return;
+          messenger.removeCurrentSnackBar();
           messenger.showSnackBar(
             SnackBar(
               content: Text(AppStrings.shopping.addProductError(userFriendlyError(e, context: 'addCustomProduct'))),
@@ -293,6 +295,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
 
       setState(() => _addingProductId = null);
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.shopping.addProductError(userFriendlyError(e, context: 'addProduct'))),

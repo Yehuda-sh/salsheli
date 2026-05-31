@@ -203,6 +203,7 @@ class _NotificationsCenterScreenState extends State<NotificationsCenterScreen> {
 
       // ✅ FIX: unawaited for fire-and-forget
       unawaited(HapticFeedback.lightImpact());
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(strings.allMarkedAsRead),

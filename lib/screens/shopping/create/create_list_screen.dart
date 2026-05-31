@@ -140,6 +140,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           ? AppStrings.createListDialog.listCreatedWithBudget(name, budget)
           : AppStrings.createListDialog.listCreated(name);
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Row(
@@ -196,6 +197,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
 
   void _showErrorSnackBar(String message) {
     final cs = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -266,6 +268,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
           );
         });
 
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(
             content: Text(
@@ -278,6 +281,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
     } catch (e) {
       if (!mounted) return;
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.createListDialog.loadingTemplatesError),

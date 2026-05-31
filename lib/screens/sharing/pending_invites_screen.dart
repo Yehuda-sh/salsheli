@@ -131,6 +131,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
           : strings.acceptSuccess(
               _safeString(invite.requestData['list_name']) ??
                   strings.listFallback);
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(content: Text(successMsg), backgroundColor: successBg),
       );
@@ -154,6 +155,7 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
       }
       unawaited(_loadInvites());
     } else {
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(strings.acceptError(result.errorMessage ?? '')),
@@ -223,11 +225,13 @@ class _PendingInvitesScreenState extends State<PendingInvitesScreen> {
     setState(() => _processingInviteId = null);
 
     if (result.isSuccess) {
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(content: Text(strings.declineSuccess), backgroundColor: warningBg),
       );
       unawaited(_loadInvites());
     } else {
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(strings.declineError(result.errorMessage ?? '')),

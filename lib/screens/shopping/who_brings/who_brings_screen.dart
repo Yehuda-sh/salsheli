@@ -206,6 +206,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
   void _showSnackBar(String message, {bool isSuccess = false}) {
     final cs = Theme.of(context).colorScheme;
     if (!mounted) return;
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),

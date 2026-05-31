@@ -132,6 +132,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 await provider.deleteList(list.id);
                 if (mounted) {
                   Navigator.of(context).pop(); // חזרה מפרטי הרשימה
+                  messenger.removeCurrentSnackBar();
                   messenger.showSnackBar(
                     SnackBar(
                       content: Text(AppStrings.shopping.listDeleted(list.name)),
@@ -145,6 +146,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   );
                 }
               } catch (e) {
+                messenger.removeCurrentSnackBar();
                 messenger.showSnackBar(
                   SnackBar(
                     content: Text(userFriendlyError(e, context: 'deleteList')),
@@ -205,6 +207,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
         unawaited(HapticFeedback.lightImpact());
         if (!mounted) return;
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
           content: Row(children: [
             Icon(Icons.hourglass_empty, color: cs.onPrimary),
@@ -225,6 +228,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
         unawaited(HapticFeedback.mediumImpact());
         if (!mounted) return;
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
           content: Text(AppStrings.shopping.productAddedToList(name)),
           backgroundColor: successColor,
@@ -235,6 +239,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       _clearSearch();
     } catch (e) {
       if (!mounted) return;
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
         content: Text(userFriendlyError(e, context: 'addProduct')),
         backgroundColor: cs.error,
@@ -265,6 +270,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
     provider.removeItemFromList(currentList.id, originalIndex);
 
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.listDetails.itemDeleted(removed.name)),
@@ -337,6 +343,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               },
             );
             if (mounted) {
+              ScaffoldMessenger.of(context).removeCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Row(children: [
@@ -350,6 +357,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             }
           } catch (e) {
             if (mounted) {
+              ScaffoldMessenger.of(context).removeCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(userFriendlyError(e, context: 'requestApproval')), backgroundColor: cs.error),
               );
@@ -439,6 +447,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
           content: Text(message),
           duration: const Duration(seconds: 5),

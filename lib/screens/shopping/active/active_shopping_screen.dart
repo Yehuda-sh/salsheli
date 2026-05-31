@@ -111,6 +111,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           if (mounted) {
             // הצג הודעה וחזור למסך הקודם
             final brand = Theme.of(context).extension<AppBrand>();
+            ScaffoldMessenger.of(context).removeCurrentSnackBar();
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(AppStrings.shopping.viewerCannotShop),
@@ -312,6 +313,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       });
 
       if (!anyFailed) {
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(
             content: Row(
@@ -351,6 +353,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     if (existingItem != null) {
       // מוצר קיים ברשימה — סמן כנקנה
       _updateItemStatus(existingItem, ShoppingItemStatus.purchased);
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
         content: Text(existingItem.name),
         backgroundColor: brand?.stickyGreen ?? kStickyGreen,
@@ -394,6 +397,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         await listsProvider.addUnifiedItem(widget.list.id, newItem);
         // סמן מיד כנקנה
         _updateItemStatus(newItem, ShoppingItemStatus.purchased);
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
           content: Text(newItem.name),
           backgroundColor: brand?.stickyGreen ?? kStickyGreen,
@@ -402,6 +406,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       }
     } else {
       // לא נמצא
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(SnackBar(
         content: Text(AppStrings.shopping.barcodeNotFound(barcode)),
         backgroundColor: cs.error,
@@ -659,6 +664,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         message += '\n${AppStrings.shopping.pendingItemsLeftWarning(pendingItems.length)}';
       }
 
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(
             content: Row(

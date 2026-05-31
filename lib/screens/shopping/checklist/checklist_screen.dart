@@ -123,6 +123,7 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
   void _showSyncErrorSnackbar() {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(AppStrings.common.syncError),

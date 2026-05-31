@@ -158,6 +158,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
   Future<void> _addByEmail() async {
     final email = _emailController.text.trim();
     if (email.isEmpty || !_isValidEmail(email)) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.contactSelector.invalidEmail)),
       );
@@ -166,6 +167,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
 
     // בדוק אם כבר נבחר
     if (_selectedContacts.any((c) => c.email == email)) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.contactSelector.contactAlreadySelected)),
       );
@@ -207,6 +209,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isCheckingContact = false);
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(content: Text(userFriendlyError(e, context: 'contactSelector'))),
         );
@@ -218,6 +221,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
   Future<void> _addByPhone() async {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty || !_isValidPhone(phone)) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.contactSelector.invalidPhone)),
       );
@@ -228,6 +232,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
 
     // בדוק אם כבר נבחר
     if (_selectedContacts.any((c) => c.phone == normalizedPhone)) {
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppStrings.contactSelector.contactAlreadySelected)),
       );
@@ -269,6 +274,7 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
     } catch (e) {
       if (mounted) {
         setState(() => _isCheckingContact = false);
+        messenger.removeCurrentSnackBar();
         messenger.showSnackBar(
           SnackBar(content: Text(userFriendlyError(e, context: 'contactSelector'))),
         );

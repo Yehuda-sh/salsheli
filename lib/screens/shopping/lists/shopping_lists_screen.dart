@@ -921,6 +921,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   if (userId != null) {
                     final userRole = list.getUserRole(userId);
                     if (userRole != null && !userRole.canShop) {
+                      ScaffoldMessenger.of(context).removeCurrentSnackBar();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(AppStrings.shopping.viewerCannotShop),

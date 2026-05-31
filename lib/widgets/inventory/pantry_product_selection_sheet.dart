@@ -360,6 +360,7 @@ class _PantryProductSelectionSheetState
         _addingProductId = null;
       });
 
+      messenger.removeCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
           content: Text(AppStrings.inventory.addError),
