@@ -39,6 +39,8 @@ void main() {
     test('fresh vegetable', () => expect(cat('מלפפון חלק'), 'ירקות'));
     test('dairy', () => expect(cat('חלב טרי 3%'), 'מוצרי חלב'));
     test('real coffee', () => expect(cat('קפה שחור טורקי'), 'קפה ותה'));
+    test('flavored coffee stays coffee',
+        () => expect(cat('קפה בטעם וניל'), 'קפה ותה'));
     test('unknown → אחר', () => expect(cat('מוצר לא מוכר כלשהו'), 'אחר'));
   });
 }

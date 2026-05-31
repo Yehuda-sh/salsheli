@@ -402,8 +402,10 @@ class ProductsProvider with ChangeNotifier {
       filtered = filtered
           .where(
             (p) =>
-                (p['name'] as String).toLowerCase().contains(lowerQuery) ||
-                (p['category'] as String).toLowerCase().contains(lowerQuery) ||
+                (p['name'] as String? ?? '').toLowerCase().contains(lowerQuery) ||
+                (p['category'] as String? ?? '')
+                    .toLowerCase()
+                    .contains(lowerQuery) ||
                 (p['brand'] as String?)?.toLowerCase().contains(lowerQuery) ==
                     true,
           )
@@ -447,7 +449,7 @@ class ProductsProvider with ChangeNotifier {
 
     // 1. נסה התאמה מדויקת
     final exact = _products
-        .where((p) => (p['name'] as String).toLowerCase().trim() == lowerName)
+        .where((p) => (p['name'] as String? ?? '').toLowerCase().trim() == lowerName)
         .firstOrNull;
 
     if (exact != null) {
@@ -457,14 +459,15 @@ class ProductsProvider with ChangeNotifier {
     // 2. נסה התאמה חלקית - תעדף את השם הקצר ביותר
     // (למנוע מצב שבו "בננה" מתאים ל"מחית בננה לתינוקות" במקום ל"בננה")
     final partialMatches = _products
-        .where((p) => (p['name'] as String).toLowerCase().contains(lowerName))
+        .where((p) => (p['name'] as String? ?? '').toLowerCase().contains(lowerName))
         .toList();
 
     if (partialMatches.isEmpty) return null;
 
     // מיין לפי אורך השם - הקצר ביותר קודם
-    partialMatches.sort((a, b) =>
-        (a['name'] as String).length.compareTo((b['name'] as String).length));
+    partialMatches.sort((a, b) => (a['name'] as String? ?? '')
+        .length
+        .compareTo((b['name'] as String? ?? '').length));
 
     return partialMatches.first;
   }

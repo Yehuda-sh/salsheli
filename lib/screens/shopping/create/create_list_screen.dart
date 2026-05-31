@@ -309,7 +309,7 @@ class _CreateListScreenState extends State<CreateListScreen> {
       confirmText: AppStrings.common.ok,
     );
 
-    if (selectedDate != null) {
+    if (selectedDate != null && mounted) {
       setState(() => _eventDate = selectedDate);
     }
   }

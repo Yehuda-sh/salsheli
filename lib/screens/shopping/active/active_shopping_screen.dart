@@ -434,11 +434,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _itemStatuses[item.id] == ShoppingItemStatus.outOfStock).length;
     final notNeeded = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.notNeeded).length;
-    // pending כולל גם פריטים שלא במפה (null)
-    final pending = list.items.where((item) {
-      final status = _itemStatuses[item.id];
-      return status == null || status == ShoppingItemStatus.pending;
-    }).length;
+    // pending = רק פריטים שהקונה הזה עוקב אחריהם (לא פריטים שקונה אחר הוסיף תוך כדי)
+    final pending = list.items
+        .where((item) => _itemStatuses[item.id] == ShoppingItemStatus.pending)
+        .length;
 
     // אסוף שמות חנויות מוכרות (מהעדפות + מקבלות קודמות)
     final knownStores = _getKnownStores();
@@ -449,7 +448,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       barrierDismissible: false,
       builder: (context) => ShoppingSummaryDialog(
         listName: widget.list.name,
-        total: list.items.length,
+        total: list.items.where((i) => _itemStatuses.containsKey(i.id)).length,
         purchased: purchased,
         outOfStock: outOfStock,
         notNeeded: notNeeded,
@@ -529,10 +528,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         return status == ShoppingItemStatus.outOfStock;
       }).toList();
 
-      final pendingItems = list.items.where((item) {
-        final status = _itemStatuses[item.id];
-        return status == null || status == ShoppingItemStatus.pending;
-      }).toList();
+      // 🛡️ רק פריטים שהקונה הזה עוקב אחריהם (יש להם רשומה ב-_itemStatuses).
+      // פריט שקונה אחר הוסיף/קנה תוך כדי הקנייה (status == null) לא ייכלל —
+      // אחרת "מחק ממתינים" היה כותב עליו notNeeded ומוחק קנייה של מישהו אחר.
+      final pendingItems = list.items
+          .where((item) => _itemStatuses[item.id] == ShoppingItemStatus.pending)
+          .toList();
 
       // ✅ רשימת פריטים שיועברו לרשימה הבאה - ריקה בהתחלה
       final List<UnifiedListItem> itemsToTransfer = [];

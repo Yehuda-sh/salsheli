@@ -160,6 +160,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     // Show rejection reason dialog
     final reason = await _showRejectDialog();
     if (reason == null) return; // User canceled
+    if (!mounted) return;
 
     setState(() => _processingRequestId = request.id);
 
