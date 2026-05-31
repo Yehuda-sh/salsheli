@@ -29,6 +29,10 @@ class ProductsProvider with ChangeNotifier {
   // 📊 Lazy Loading State
   bool _hasLoadedAll = false;
   bool _isLoadingMore = false;
+  // 🔖 Bumped on _clearData()/logout to invalidate an in-flight background
+  // load — prevents it from repopulating products for a logged-out user
+  // (and from notifying after the data was already cleared).
+  int _loadGeneration = 0;
   static const int _batchSize = 100; // טען 100 מוצרים בכל פעם
 
   // Search & Filter
@@ -85,9 +89,12 @@ class ProductsProvider with ChangeNotifier {
 
   /// 🧹 ניקוי נתונים (כשמשתמש מתנתק)
   void _clearData() {
+    _loadGeneration++; // 🛑 invalidate any in-flight background load
     _products = [];
     _categories = [];
     _hasInitialized = false;
+    _hasLoadedAll = false;
+    _isLoadingMore = false;
     _lastUpdated = null;
     _errorMessage = null;
     _notifySafe();
@@ -207,6 +214,7 @@ class ProductsProvider with ChangeNotifier {
     if (_hasLoadedAll || _isLoadingMore) return;
 
     _isLoadingMore = true;
+    final gen = _loadGeneration; // 🔖 snapshot — abort if _clearData bumps it
 
     try {
       int loadedCount = _products.length;
@@ -216,11 +224,19 @@ class ProductsProvider with ChangeNotifier {
         // המתן קצת כדי לא לחסום את ה-UI
         await Future.delayed(const Duration(milliseconds: 50));
 
+        // 🛑 Abort if disposed or the user logged out (which bumps the
+        // generation) — otherwise the loop keeps appending products and
+        // calling notifyListeners after _clearData() already ran.
+        if (_isDisposed || gen != _loadGeneration) return;
+
         // טען עוד מוצרים
         final moreProducts = await _loadProductsByTypeOrAll(
           limit: step,
           offset: loadedCount,
         );
+
+        // Re-check after the async fetch.
+        if (_isDisposed || gen != _loadGeneration) return;
 
         if (moreProducts.isEmpty || moreProducts.length < step) {
           _hasLoadedAll = true;
@@ -241,8 +257,12 @@ class ProductsProvider with ChangeNotifier {
         debugPrintStack(label: '_loadAllInBackground', stackTrace: st);
       }
     } finally {
-      _isLoadingMore = false;
-      _notifySafe();
+      // Only release the flag if we still own the current generation —
+      // a newer load/clear may have already reset it.
+      if (gen == _loadGeneration) {
+        _isLoadingMore = false;
+        _notifySafe();
+      }
     }
   }
 

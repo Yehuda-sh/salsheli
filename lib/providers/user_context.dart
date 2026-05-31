@@ -346,7 +346,13 @@ class UserContext with ChangeNotifier {
       _hasAuthButNoProfile = false;
 
       // אתחול Push Notifications (FCM token)
-      if (_user != null) {
+      // 🛑 Guard against a racing user-switch: only register the FCM token if
+      // the signed-in auth user still matches the profile we just loaded —
+      // otherwise a fast logout→login could register the token to the wrong
+      // account.
+      if (_user != null &&
+          !_isDisposed &&
+          _authService.currentAuthUser?.uid == userId) {
         unawaited(PushNotificationService.instance.initialize(_user!.id));
       }
     } catch (e, stackTrace) {

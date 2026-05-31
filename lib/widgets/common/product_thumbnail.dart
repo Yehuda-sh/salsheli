@@ -118,6 +118,10 @@ class ProductThumbnail extends StatelessWidget {
     }
 
     return _FallbackImage(
+      // 🔑 Key by barcode so the fallback-index state resets when this widget
+      // element is recycled for a DIFFERENT product while scrolling a list —
+      // otherwise one product's "which URL failed" index leaks onto another.
+      key: ValueKey(barcode),
       urls: validUrls,
       size: size,
       tintColor: tintColor,
@@ -273,6 +277,7 @@ class _FallbackImage extends StatefulWidget {
   final Widget Function(Widget child) containerBuilder;
 
   const _FallbackImage({
+    super.key,
     required this.urls,
     required this.size,
     required this.tintColor,

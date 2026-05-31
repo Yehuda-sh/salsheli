@@ -198,7 +198,7 @@ class ShoppingListsProvider with ChangeNotifier {
       },
       onError: (error) {
         if (_isDisposed) return;
-        _errorMessage = error.toString();
+        _errorMessage = userFriendlyError(error, context: 'watchLists');
         _isLoading = false;
         _notifySafe();
       },

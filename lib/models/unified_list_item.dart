@@ -405,7 +405,7 @@ class UnifiedListItem {
   /// - barcode, unit, category, notes, image_url (אופציונליים)
   factory UnifiedListItem.fromRequestData(Map<String, dynamic> data) {
     return UnifiedListItem.product(
-      name: data['name'] as String,
+      name: data['name'] as String? ?? '',
       quantity: (data['quantity'] as num?)?.toInt() ?? 1,
       unitPrice: (data['unitPrice'] as num?)?.toDouble() ?? 0.0,
       barcode: data['barcode'] as String?,

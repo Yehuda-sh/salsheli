@@ -250,7 +250,7 @@ class FirebaseUserRepository implements UserRepository {
             .collection(FirestoreCollections.households)
             .doc(householdId)
             .update({
-          'name': sanitized ?? 'הבית שלנו',
+          'name': sanitized ?? _defaultHouseholdName(householdId),
           'updated_at': FieldValue.serverTimestamp(),
         });
       }
@@ -260,6 +260,16 @@ class FirebaseUserRepository implements UserRepository {
       debugPrintStack(stackTrace: stackTrace);
       throw UserRepositoryException('Failed to update household name', e);
     }
+  }
+
+  /// Neutral default household name (Audience & Voice guardrail — no
+  /// "הבית של X"/family assumptions). Derives a stable 4-char suffix from
+  /// the household id so the default reads e.g. "MemoZap-AB12".
+  String _defaultHouseholdName(String householdId) {
+    final cleaned = householdId.replaceAll(RegExp(r'[^A-Za-z0-9]'), '');
+    final suffix =
+        cleaned.length >= 4 ? cleaned.substring(cleaned.length - 4) : cleaned;
+    return 'MemoZap-${suffix.toUpperCase()}';
   }
 
   // === Clear All ===
@@ -369,7 +379,7 @@ class FirebaseUserRepository implements UserRepository {
       // יצירת household document
       await householdRef.set({
         'id': householdId,
-        'name': user.householdName ?? 'הבית של ${user.name}',
+        'name': user.householdName ?? _defaultHouseholdName(householdId),
         'created_by': user.id,
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),

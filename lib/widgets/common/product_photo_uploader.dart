@@ -185,6 +185,12 @@ class _ProductPhotoUploaderState extends State<ProductPhotoUploader> {
       unawaited(HapticFeedback.lightImpact());
       widget.onChanged?.call(null);
       _showToast(AppStrings.inventory.photoRemovedToast, isError: false);
+    } catch (e) {
+      // Mirror _pickAndSave: a failed delete must surface an error toast,
+      // not fail silently on a destructive action.
+      if (kDebugMode) debugPrint('⚠️ ProductPhotoUploader remove: $e');
+      if (!mounted) return;
+      _showToast(AppStrings.inventory.photoErrorToast, isError: true);
     } finally {
       if (mounted) setState(() => _busy = false);
     }

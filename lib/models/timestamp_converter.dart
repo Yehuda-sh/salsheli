@@ -8,13 +8,25 @@ import 'package:json_annotation/json_annotation.dart';
 class TimestampConverter implements JsonConverter<DateTime, Object> {
   const TimestampConverter();
 
+  /// Sentinel for malformed/unknown values — epoch keeps bad data visible
+  /// (sorts to the bottom) instead of throwing, which would crash the entire
+  /// fromJson of a required field like ShoppingList.createdDate/updatedDate
+  /// and take down the whole list stream.
+  static final DateTime _fallback = DateTime.utc(1970);
+
   @override
   DateTime fromJson(Object json) {
     if (json is Timestamp) return json.toDate();
-    if (json is String) return DateTime.parse(json);
+    if (json is String) {
+      final parsed = DateTime.tryParse(json);
+      if (parsed != null) return parsed;
+      debugPrint('[TimestampConverter] unparseable string "$json" → epoch fallback');
+      return _fallback;
+    }
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    throw ArgumentError('Cannot convert value to DateTime: $json (${json.runtimeType})');
+    debugPrint('[TimestampConverter] unknown type ${json.runtimeType} → epoch fallback');
+    return _fallback;
   }
 
   @override
@@ -32,7 +44,8 @@ class NullableTimestampConverter implements JsonConverter<DateTime?, Object?> {
     if (json is String) return DateTime.tryParse(json);
     if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);
     if (json is DateTime) return json;
-    throw ArgumentError('Cannot convert value to DateTime?: $json (${json.runtimeType})');
+    debugPrint('[NullableTimestampConverter] unknown type ${json.runtimeType} → null');
+    return null;
   }
 
   @override
