@@ -69,7 +69,60 @@ Claude operates in **two different environments**. Identify which one at session
 
 ## 4. Current State
 
-### Latest Session (May 3, 2026) — Catalog Cleanup + Pantry UX Bugs
+### Latest Session (May 31, 2026) — Full-codebase audit + 8 fix phases
+
+User asked for a deep review of **every** file. 12 parallel sub-agents swept all
+161 `lib/` files (models, repos, services, providers, config, l10n, all screens,
+all widgets, security); the critical security claims were **verified by hand**.
+Fixes applied in phases — **8 commits, all pushed to `claude/dev`, 478/478 tests
+green, `dart analyze lib/` clean after each.**
+
+**Phase A — crashes + snackbars (2 commits):** 8 crash/data-integrity fixes —
+products_provider background-load generation guard (stops repopulating after
+logout); shopping_lists_provider watchLists onError → userFriendlyError (was raw
+toString); user_context FCM init guarded vs racing user-switch;
+unified_list_item.fromRequestData null-safe name; timestamp_converter lenient
+(epoch/null fallback — one bad date can't crash the list stream);
+product_thumbnail _FallbackImage keyed by barcode; product_photo_uploader._remove
+gained a catch; firebase_user_repository neutral "MemoZap-XXXX" default household
+name (was "הבית של X"). + **49 SnackBar dedups** across 14 files.
+
+**Phase B — i18n + categories (3 commits):** #13 category-detection traps fixed
+(longest-match-first + flavor-signal guard: מנגולד→veg, מיץ תפוז→drink, מעדן בננה→
+not-fruit; +10-case regression test). #12 provider sweep — every provider
+_errorMessage routes through userFriendlyError (localized HE/EN); removed the
+errorMessagePrefix param from inventory/user_context _runAsync (+ fixed it
+hardcoding context:'loadUser' for every op); inventory bulk-update summary →
+AppStrings.inventory.bulkUpdatePartial.
+
+**Phase C — real-time sync #14 (1 commit):** active_shopping_screen +
+who_brings_screen read the **live** list from the provider stream (getById)
+instead of a frozen widget.list — items added/removed by other shoppers + live
+shopper avatars now update. _itemStatuses stays per-shopper status;
+receipt/checkout logic unchanged. Known limit: two shoppers toggling the SAME
+item don't see each other.
+
+**Phase C.5 — 3 UX bugs (1 commit):** item-delete undo restores the full item
+(was name/qty/unit only, new id); saved-contact swipe-delete got an undo SnackBar
++ fixed the missing CommonStringsEn.undo; pending-requests inbox got
+pull-to-refresh from the live list.
+
+**Phase E — cleanup (1 commit):** removed dead repo APIs (searchProductsStream ×3,
+existsUser ×2 — zero callers).
+
+**🔴 VERIFIED CRITICAL — audit found, NOT yet fixed (see Known Issues #11/#17–20):**
+Hand-checked `firestore.rules` vs the client + `functions/index.js`. The v4.5/4.6
+rules hardening is real but BROKE two core flows (client wasn't updated in the
+same change): **(a) joining a household is impossible** —
+`pending_invites_service._addUserToHousehold` runs a client batch the rules deny
+for a non-creator/non-admin, and no Cloud Function does it server-side (likely
+masked because demo data is Admin-SDK-seeded). **(b) every cross-user
+notification is rejected** — `notifications_service` never sets `senderId`, so
+`sender_id:null` fails the rule (the throw is swallowed). Plus a NEW **group_ids
+self-grant** escalation and **activity_log + household inventory deletable by any
+member**. These are the release gate — see Next Priorities #1.
+
+### Session (May 3, 2026) — Catalog Cleanup + Pantry UX Bugs
 
 **Catalog quality pass (assets/data/list_types/*.json):**
 Multiple cleanup phases on the catalog after the user surfaced data quality
@@ -355,15 +408,31 @@ catalog audit + post-merge polish.
 - March 24, 2026: Code review session 3 — 4 security fixes, 5 logic bugs, ~50 design system fixes
 
 ### Next Priorities
-1. **Continue Settings folder review** — `settings_screen.dart` Round 3 covers `_NotificationToggle` + `_ThemeCard` (lines 1483-end, ~100 lines).
-2. **Verify `firestore.rules`** — current file is v4.5 (audit fixes from Apr-27 deployed), but the in-app docs still flag the spam vector on `users/X/notifications/*`. Re-audit before public release.
-3. **Implement pantry merge logic** — dialog result still ignored at `pending_invites_screen.dart:164` (TODO from Apr-27).
-4. **`shopping_history_screen` review** — would unblock the deferred `_iconForType` extraction (`household_activity_feed` and the screen each have their own copy) and the receipt-tile tab-nav fix (intent-passing mechanism, same family as `MyPantryScreen.pendingStockFilter`).
-5. **Login-screen Q2 follow-up** — Google/Apple users don't realize the next sign-in will be silent after a Settings-driven logout. Logged in REVIEW_BACKLOG.md under `settings_screen` UX deferred.
-6. **Phase 3 of pantry catalog dialog** — "אחרונים" tab + "+" new-product button + barcode-not-found flow (carry-over from Apr-27).
-7. **Enable Google Sign-In** in Firebase Console (user action; not code).
-8. **Deploy Firestore indexes**: `firebase deploy --only firestore:indexes` (carry-over).
-9. **Deploy Cloud Functions**: `firebase deploy --only functions` (requires Blaze plan; carry-over).
+1. 🔴 **Security gate (before any public release)** — the v4.5/4.6 rules broke
+   core flows. Needs: (a) a callable `acceptHouseholdInvite` Cloud Function
+   (Admin SDK) so users can actually join a household (#17); (b) set `senderId`
+   (+`senderName`) in every cross-user `create*Notification` so notifications
+   pass the rule (#18); (c) constrain `group_ids` in the `users` update rule
+   (#19); (d) restrict `activity_log` + household `inventory` deletes to admin
+   (#20). Requires Blaze for the Function.
+2. **#12 remainder** — `notifications_service` titles/messages still hardcoded
+   Hebrew (entangled with #18 senderId); service-layer throws
+   (pending_requests_service, pending_invites_service…) collapse to generic via
+   userFriendlyError — fix with typed exceptions / result enums.
+3. **Directionality(rtl) cleanup sweep** — ~13 redundant wrappers (template
+   dialogs, sharing screens, details, pantry sheets). Cosmetic + visual-layout
+   risk → do on-device and verify. Intentional LTR wrappers (+/- controls,
+   main.dart global) must stay.
+4. **Dead l10n cleanup** — 4 unreachable string groups (priceComparison,
+   templates, selectList, recurring) + listTypeGroups (empty) + dead getters
+   (personalFamily/sharedFamily/familyOf). Verify zero callers, then delete or
+   wire into the AppStrings proxy.
+5. **Pantry merge (#2)** — `pending_invites_screen` still discards the
+   `showPantryMergeDialog` bool (TODO); needs an InventoryProvider merge method.
+6. **Login Q2** — Google/Apple users aren't warned the next sign-in is silent
+   after logout. **Tutorial + Legal strings** render Hebrew in English UI.
+7. **Continue Settings Round 3 / `shopping_history_screen` review**; **Enable
+   Google Sign-In** + **deploy indexes/functions** (Blaze). (carry-over)
 
 ### Currently Blocking
 - Google/Apple Sign-In requires Firebase Console configuration (not code)
@@ -385,12 +454,17 @@ catalog audit + post-merge polish.
 | 8 | ~~**0 tests**~~ | ✅ Fixed — 15 test files, 6,627 lines |
 | 9 | **`use_build_context_synchronously` warnings** in settings_screen (2 locations) | Known W1 issue — has `mounted` guards, likely fixed but needs analyzer verify |
 | 10 | **`app_locale` stored in Firestore but read from SharedPreferences** | Firestore field is metadata only — locale switch is local |
-| 11 | 🔴 **`firestore.rules` privilege-escalation holes** (session 7 audit) | (a) `users/{uid}` write is field-unrestricted — user can self-set `household_id` to any household and `isHouseholdMember()` trusts the field. (b) `members/{memberId}` create allows `memberId == request.auth.uid` — self-add to any household. (c) Any auth user can write to `/users/X/notifications/*` with `sender_id: null` — spam vector. Needs a security pass before public release. |
-| 12 | **i18n1**: ~50 hardcoded Hebrew error strings in providers/services | Found session 7. Needs new AppStrings entries for error prefixes (createItem, updateItem, addStock, etc.) |
-| 13 | **CAT1**: substring traps in `category_detection_service.dart` | `'מנגו'` matches `'מנגולד'`; `'תפוז'` matches before `'מיץ '` (orange juice → fruit); `'תמר'` not anchored. Found session 7. |
-| 14 | **active_shopping_screen + who_brings_screen** don't re-watch provider — concurrent edits by other shoppers don't appear live | Pre-existing architectural choice. Found session 7. |
+| 11 | 🔴 **`firestore.rules` v4.5/4.6 — the (a)/(b)/(c) holes are CLOSED, but two over-corrected into shipping-blockers** (verified May 31) | Original self-set-`household_id` / self-add-member / anon-notification holes are fixed. BUT see #17 (household-join now impossible client-side) + #18 (cross-user notifications rejected) — both need the client/Functions updated to match. Plus #19/#20. |
+| 12 | **i18n1**: hardcoded Hebrew error strings | ✅ **Providers fixed** (May 31 — all route through userFriendlyError). ⏳ Remaining: `notifications_service` titles/messages (entangled with #18) + service-layer throws (collapse to generic; need typed exceptions). |
+| 13 | ~~**CAT1**: substring traps in `category_detection_service`~~ | ✅ **Fixed May 31** — longest-match-first + flavor-signal guard + 10-case regression test. |
+| 14 | ~~**active_shopping + who_brings don't re-watch provider**~~ | ✅ **Fixed May 31** (#14) — both read the live provider list. Remaining: cross-user same-item status (each shopper tracks own `_itemStatuses`). |
 | 15 | **75 short Israeli barcodes (7290 prefix)** in supermarket.json | 14 auto-fixed via EAN-13 checksum (session 7). Remaining 60 didn't validate — likely not simple leading-zero strips. |
 | 16 | ~~**`product_selection_bottom_sheet._failedImageUrls`** Set grows unbounded~~ | ✅ Fixed — bounded to 200 entries with auto-clear; resets when full. |
+| 17 | 🔴 **Joining a household is impossible** (verified May 31) | `pending_invites_service._addUserToHousehold` runs a client batch (member create + `users.household_id` update) that v4.5 rules deny for a non-creator/non-admin; no Cloud Function compensates. Sharing's headline flow is broken under deployed rules; likely masked by Admin-SDK-seeded demo data. **Fix:** callable `acceptHouseholdInvite` Cloud Function (Blaze). |
+| 18 | 🔴 **Every cross-user notification is rejected** (verified May 31) | `notifications_service.create*Notification` never sets `senderId`, so `sender_id:null` fails the v4.5 cross-user rule (the throw is swallowed → returns false). Invites/approvals/role-changes/removals send no bell/push. **Fix (client):** set `senderId`+`senderName` in every cross-user notification. |
+| 19 | 🔴 **`group_ids` self-grant escalation** (NEW, May 31) | The `users` update rule guards only `household_id`, not `group_ids`; `isGroupMember`/`userHasGroupInList`/`custom_locations` trust the client array → self-grant of cross-group read + custom_locations write. Authorize via the group doc's members, not the user array. |
+| 20 | 🟠 **Audit log + shared inventory deletable by any member** (May 31) | `firestore.rules`: `activity_log` delete + household `inventory` delete are `isHouseholdMember`-only → any member (even viewer) can wipe the "tamper-proof" log or shared inventory. Restrict to admin / item author. |
+| 21 | 🟡 **~13 redundant `Directionality(rtl)` wrappers** | Cosmetic (app is globally RTL); removal carries visual-layout risk → deferred to a dedicated on-device pass. Intentional LTR wrappers (+/- controls, main.dart global) must stay. |
 
 ---
 

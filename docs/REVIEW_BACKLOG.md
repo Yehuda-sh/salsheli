@@ -18,6 +18,39 @@
 
 ---
 
+## 🗓️ Session 31/5/2026 — Full-codebase audit (12 agents) + 8 fix phases
+
+סקירת רוחב על כל 161 קבצי `lib/` ע"י 12 סוכנים מקבילים, ואז 8 פאזות תיקון
+(8 commits, 478/478 טסטים, analyze נקי). פירוט מלא ב-[AGENTS.md](../AGENTS.md) §4.
+
+### ✅ Decisions Made (cross-cutting)
+- **שגיאות providers → `userFriendlyError`**: כל `_errorMessage` בכל ה-providers
+  עובר דרך `userFriendlyError(e, context:'op')` (מתורגם HE/EN). הוסר הפרמטר
+  `errorMessagePrefix` מ-`_runAsync` (inventory + user_context). הפטרן הזה הוא
+  עכשיו ה-standard — אין יותר קידומות עברית קשיחות ב-providers.
+- **#13 `category_detection`**: longest-match-first על מילות מפתח משוטחות +
+  `_flavorSignals` שפוסל התאמת פרי/ירק/קפה במוצר מעובד. יש טסט רגרסיה
+  (`test/services/category_detection_service_test.dart`) — להוסיף לו מקרים בעתיד.
+- **#14 סנכרון חי**: `active_shopping_screen` + `who_brings_screen` קוראים
+  `provider.getById(widget.list.id)` (live) במקום `widget.list` קפוא. **הפטרן
+  לחיקוי** למסכים תלויי-רשימה: `context.watch<ShoppingListsProvider>().getById()`
+  ב-build, `context.read(...).getById()` בשיטות async. `shopping_summary_screen`
+  היה ה-reference.
+- **SnackBar dedup**: `removeCurrentSnackBar()` לפני `showSnackBar` הוא חובה —
+  49 מקומות תוקנו. סריקה: כל `.showSnackBar(` ללא dedup ב-6 שורות שמעל.
+- **שם בית ברירת מחדל**: `firebase_user_repository._defaultHouseholdName` →
+  `MemoZap-XXXX` (לא "הבית של X"). אכיפת ה-Audience & Voice guardrail בשורש.
+
+### ⏸️ Deferred (trigger → AGENTS.md Next Priorities)
+- 🔴 **שער אבטחה** (#11/#17–20): הצטרפות לבית שבורה (צריך Cloud Function),
+  `senderId` חסר בהתראות, `group_ids` escalation, מחיקת log/inventory ע"י כל חבר.
+- **#12 שאריות**: `notifications_service` (כרוך ב-senderId), service typed-exceptions.
+- **Directionality(rtl)** (~13 מקומות): קוסמטי + סיכון ויזואלי → סבב on-device.
+- **Dead l10n**: 4 קבוצות מחרוזות + getters לא-נגישים (verify zero callers → מחיקה).
+- **#2 מיזוג מזווה**: `pending_invites_screen` עדיין זורק את תוצאת הדיאלוג.
+
+---
+
 ## Cross-Cutting Widgets
 
 ויג'טים שמופיעים ב-30+ מסכים. החלטות עליהם משפיעות על **כל** האפליקציה.
