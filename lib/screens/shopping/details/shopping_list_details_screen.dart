@@ -341,6 +341,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 'name': item.name,
                 'quantity': item.quantity ?? 1,
                 'notes': item.notes,
+                'neededCount': item.neededCount,
                 'type': 'task',
               },
             );

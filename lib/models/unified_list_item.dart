@@ -404,6 +404,17 @@ class UnifiedListItem {
   /// - unitPrice (אופציונלי, ברירת מחדל: 0.0)
   /// - barcode, unit, category, notes, image_url (אופציונליים)
   factory UnifiedListItem.fromRequestData(Map<String, dynamic> data) {
+    // 🔧 בקשת "מי מביא" (משימה) חייבת להיבנות מחדש כמשימה ולא כמוצר —
+    // אחרת משימה שאושרה ע"י עורך מאבדת את neededCount והופכת למוצר רגיל.
+    if (data['type'] == 'task') {
+      return UnifiedListItem.whoBrings(
+        name: data['name'] as String? ?? '',
+        neededCount: (data['neededCount'] as num?)?.toInt() ?? 1,
+        category: data['category'] as String?,
+        notes: data['notes'] as String?,
+        imageUrl: data['image_url'] as String? ?? data['imageUrl'] as String?,
+      );
+    }
     return UnifiedListItem.product(
       name: data['name'] as String? ?? '',
       quantity: (data['quantity'] as num?)?.toInt() ?? 1,

@@ -188,9 +188,12 @@ class InventoryItem {
 
   // ---- Helper Getters ----
 
-  /// 🇮🇱 האם הפריט במלאי נמוך (מתחת למינימום שהוגדר)
-  /// 🇬🇧 Is the item low stock (below minimum threshold)
-  bool get isLowStock => quantity < minQuantity;
+  /// 🇮🇱 האם הפריט במלאי נמוך (אך לא אזל) — מתחת למינימום אבל כמות > 0
+  /// 🇬🇧 Is the item low stock (below minimum, but NOT out of stock).
+  /// Disjoint from out-of-stock (quantity == 0) so banners/filters don't
+  /// double-count a gone item as both "low" and "out" (home_widget_service
+  /// already used `isLowStock && quantity > 0` — this folds that in).
+  bool get isLowStock => quantity > 0 && quantity < minQuantity;
 
   /// האם יש תאריך תפוגה
   bool get hasExpiryDate => expiryDate != null;
@@ -266,7 +269,9 @@ class InventoryItem {
   /// - **warning**: מלאי נמוך או תפוגה קרובה
   /// - **success**: הכל תקין
   StatusType get statusType {
-    if (isExpired) return StatusType.error;
+    // out-of-stock (quantity == 0) is now disjoint from isLowStock, so flag it
+    // here explicitly — otherwise a gone item would read as success (green).
+    if (isExpired || quantity == 0) return StatusType.error;
     if (isLowStock || isExpiringSoon) return StatusType.warning;
     return StatusType.success;
   }

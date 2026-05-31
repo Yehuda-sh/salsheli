@@ -142,7 +142,7 @@ void main() {
         expect(item.isLowStock, false);
       });
 
-      test('should return true when quantity is 0', () {
+      test('should return false when quantity is 0 (out of stock, not low)', () {
         final item = InventoryItem(
           id: 'zero-stock-id',
           productName: 'חלב',
@@ -153,7 +153,9 @@ void main() {
           minQuantity: 2,
         );
 
-        expect(item.isLowStock, true);
+        // qty 0 is out-of-stock, now disjoint from low-stock (which is qty>0<min).
+        expect(item.isLowStock, false);
+        expect(item.needsUrgentAttention, true);
       });
     });
 
@@ -345,7 +347,8 @@ void main() {
         );
 
         expect(item.quantity, 0);
-        expect(item.isLowStock, true);
+        // out-of-stock is disjoint from low-stock now
+        expect(item.isLowStock, false);
       });
 
       test('should handle negative quantity in JSON', () {
@@ -357,7 +360,8 @@ void main() {
 
         final item = InventoryItem.fromJson(json);
         expect(item.quantity, -5);
-        expect(item.isLowStock, true);
+        // negative qty is not "low stock" (low-stock requires quantity > 0)
+        expect(item.isLowStock, false);
       });
 
       test('should handle special characters in productName', () {
