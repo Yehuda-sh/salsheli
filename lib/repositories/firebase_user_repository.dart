@@ -80,20 +80,6 @@ class FirebaseUserRepository implements UserRepository {
     }
   }
 
-  // === Exists User ===
-
-  @override
-  Future<bool> existsUser(String userId) async {
-    try {
-      final doc = await _firestore.collection(FirestoreCollections.users).doc(userId).get();
-      return doc.exists;
-    } catch (e, stackTrace) {
-      debugPrintStack(stackTrace: stackTrace);
-      // 🔧 זורק Exception במקום להחזיר false - כדי להבדיל בין "לא קיים" לבין "שגיאת רשת"
-      throw UserRepositoryException('Failed to check if user exists', e);
-    }
-  }
-
   // === Get All Users ===
   // 💡 Dynamic filtering: Pass householdId to filter, or null for all users
   // ⚠️ WARNING: Calling without householdId returns ALL users (admin only!)

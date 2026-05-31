@@ -97,24 +97,6 @@ abstract class ProductsRepository {
   /// ```
   Future<List<Map<String, dynamic>>> searchProducts(String query);
 
-  /// חיפוש מוצרים Reactive - מחזיר Stream של תוצאות
-  ///
-  /// מאפשר ל-UI להציג תוצאות מתעדכנות בזמן אמת
-  /// בזמן שהמשתמש מקליד (type-ahead).
-  ///
-  /// Parameters:
-  ///   - [query]: מחרוזת חיפוש (שם או מותג)
-  ///
-  /// Returns: Stream חד-פעמי עם תוצאות החיפוש
-  ///
-  /// Example:
-  /// ```dart
-  /// repository.searchProductsStream('חלב').listen((results) {
-  ///   print('נמצאו ${results.length} תוצאות');
-  /// });
-  /// ```
-  Stream<List<Map<String, dynamic>>> searchProductsStream(String query);
-
   // ========================================
   // Management - ניהול וקטגוריות
   // ========================================

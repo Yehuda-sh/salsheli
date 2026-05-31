@@ -1164,6 +1164,8 @@ class InventoryStrings {
   String get deleteConfirmTitle => 'מחיקת פריט';
   String deleteConfirmMessage(String name) => 'למחוק את "$name" מהמזווה?';
   String get deleteError => 'שגיאה במחיקה';
+  String bulkUpdatePartial(int updated, int failed, String names) =>
+      'עודכנו $updated פריטים, נכשלו $failed: $names';
   String barcodeRow(String code) => 'ברקוד: $code';
   String get categoryLabel => 'קטגוריה';
   String get quantityLabel => 'כמות';

@@ -255,11 +255,6 @@ class FirebaseProductsRepository implements ProductsRepository {
     }
   }
 
-  @override
-  Stream<List<Map<String, dynamic>>> searchProductsStream(String query) {
-    return Stream.fromFuture(searchProducts(query));
-  }
-
   /// קבלת רשימת כל הקטגוריות הייחודיות
   /// 
   /// סורק את כל המוצרים ומחלץ את הקטגוריות הייחודיות

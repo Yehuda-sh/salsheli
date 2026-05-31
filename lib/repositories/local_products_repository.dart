@@ -173,11 +173,6 @@ class LocalProductsRepository implements ProductsRepository {
   String _normalizeHebrew(String s) =>
       s.toLowerCase().replaceAll(_nikudRegex, '');
 
-  @override
-  Stream<List<Map<String, dynamic>>> searchProductsStream(String query) {
-    return Stream.fromFuture(searchProducts(query));
-  }
-
   /// בודק אם מוצר תואם לחיפוש (שם או מותג)
   bool _matchesQuery(Map<String, dynamic> product, String normalizedQuery) {
     final name = _normalizeHebrew((product['name'] as String?) ?? '');

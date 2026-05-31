@@ -754,7 +754,8 @@ class InventoryProvider with ChangeNotifier {
     }
 
     if (failureCount > 0) {
-      _errorMessage = 'עודכנו $successCount פריטים, נכשלו $failureCount: ${failures.join(", ")}';
+      _errorMessage = AppStrings.inventory
+          .bulkUpdatePartial(successCount, failureCount, failures.join(', '));
       _notifySafe(); // 🔒 בטוח גם אם המשתמש יצא מהמסך
     }
 

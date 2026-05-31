@@ -1144,6 +1144,8 @@ class InventoryStringsEn extends InventoryStrings {
   @override String get deleteConfirmTitle => 'Delete item';
   @override String deleteConfirmMessage(String name) => 'Delete "$name" from the pantry?';
   @override String get deleteError => 'Failed to delete';
+  @override String bulkUpdatePartial(int updated, int failed, String names) =>
+      '$updated items updated, $failed failed: $names';
   @override String barcodeRow(String code) => 'Barcode: $code';
   @override String get categoryLabel => 'Category';
   @override String get quantityLabel => 'Quantity';

@@ -155,26 +155,6 @@ abstract class UserRepository {
   // Query - חיפוש ושליפה
   // ========================================
 
-  /// בודק האם משתמש קיים במערכת
-  ///
-  /// מהיר יותר מ-[fetchUser] - לא טוען את כל הנתונים.
-  ///
-  /// Parameters:
-  ///   - [userId]: מזהה המשתמש
-  ///
-  /// Returns: `true` אם קיים, `false` אחרת
-  ///
-  /// Throws: [UserRepositoryException] בשגיאת רשת
-  /// (לא להניח ש-`false` = לא קיים, יכול להיות שגיאה)
-  ///
-  /// Example:
-  /// ```dart
-  /// if (await repository.existsUser('abc123')) {
-  ///   print('משתמש קיים');
-  /// }
-  /// ```
-  Future<bool> existsUser(String userId);
-
   /// מחזיר רשימה של משתמשים
   ///
   /// Parameters:
