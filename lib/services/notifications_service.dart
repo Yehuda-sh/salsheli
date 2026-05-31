@@ -3,6 +3,7 @@
 import 'dart:developer' as developer;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 import '../core/error_utils.dart';
@@ -141,6 +142,17 @@ class NotificationsService {
           .doc(userId)
           .collection(FirestoreCollections.notifications);
 
+  /// כותב התראה ומזריק את ה-senderId (ה-uid המאומת) אם חסר.
+  /// 🔒 חוקי האבטחה דורשים `sender_id == request.auth.uid` להתראות בין-משתמשים;
+  /// בלי זה כל ההתראות (הזמנה/אישור/דחייה/תפקיד/הסרה/התנדבות) נדחות בשקט ע"י ה-rules.
+  Future<void> _writeWithSender(String userId, AppNotification notification) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    final toWrite = (uid != null && notification.senderId == null)
+        ? notification.copyWith(senderId: uid)
+        : notification;
+    await _notificationsCollection(userId).doc(toWrite.id).set(toWrite.toJson());
+  }
+
   // ============================================================
   // CREATE NOTIFICATIONS
   // ============================================================
@@ -175,7 +187,7 @@ class NotificationsService {
       );
 
       // 🆕 שימוש ב-subcollection - הבעלות מאומתת דרך הנתיב
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
 
       return true;
     } catch (e, stackTrace) {
@@ -214,7 +226,7 @@ class NotificationsService {
       );
 
       // 🆕 שימוש ב-subcollection
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
 
       return true;
     } catch (e, stackTrace) {
@@ -249,7 +261,7 @@ class NotificationsService {
         },
         createdAt: DateTime.now(),
       );
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
       return true;
     } catch (e, stackTrace) {
       _logError('createNewRequestNotification', e, stackTrace);
@@ -293,7 +305,7 @@ class NotificationsService {
       );
 
       // 🆕 שימוש ב-subcollection
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
 
       return true;
     } catch (e, stackTrace) {
@@ -334,7 +346,7 @@ class NotificationsService {
       );
 
       // 🆕 שימוש ב-subcollection
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
 
       return true;
     } catch (e, stackTrace) {
@@ -371,7 +383,7 @@ class NotificationsService {
       );
 
       // 🆕 שימוש ב-subcollection
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
 
       return true;
     } catch (e, stackTrace) {
@@ -406,7 +418,7 @@ class NotificationsService {
         createdAt: DateTime.now(),
       );
 
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
       return true;
     } catch (e, stackTrace) {
       _logError('createWhoBringsVolunteerNotification', e, stackTrace);
@@ -448,7 +460,7 @@ class NotificationsService {
         createdAt: DateTime.now(),
       );
 
-      await _notificationsCollection(userId).doc(notification.id).set(notification.toJson());
+      await _writeWithSender(userId, notification);
       return true;
     } catch (e, stackTrace) {
       _logError('createLowStockNotification', e, stackTrace);
