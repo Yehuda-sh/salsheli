@@ -122,6 +122,20 @@ notification is rejected** — `notifications_service` never sets `senderId`, so
 self-grant** escalation and **activity_log + household inventory deletable by any
 member**. These are the release gate — see Next Priorities #1.
 
+**Round 2 (deeper sweep + independent self-review of the session's commits) — 3 more commits:**
+The self-review caught a **regression introduced by the #14 fix**:
+`active_shopping._saveAndFinish` classified items NOT in the current shopper's
+`_itemStatuses` (items another shopper added/purchased mid-shop) as pending →
+"delete pending" wrote `isChecked=false` over them, **erasing another shopper's
+purchase**. Fixed (only items this shopper tracks get categorized/flushed). Also
+fixed: 5 unsafe `as String` casts in products_provider search/getByName (crash on
+catalog products missing name/category — common in scraped data); a flavored-coffee
+category regression; 2 missing `mounted` guards; **#2** low-stock now disjoint from
+out-of-stock (`isLowStock = qty>0 && qty<min`, statusType flags qty 0 as error);
+**#3** who-brings task requests rebuild as tasks (were → product, losing
+neededCount). **#1** (shared-contacts) found to be a rules gap → Known Issue #22,
+not a code bug.
+
 ### Session (May 3, 2026) — Catalog Cleanup + Pantry UX Bugs
 
 **Catalog quality pass (assets/data/list_types/*.json):**
@@ -465,6 +479,8 @@ catalog audit + post-merge polish.
 | 19 | 🔴 **`group_ids` self-grant escalation** (NEW, May 31) | The `users` update rule guards only `household_id`, not `group_ids`; `isGroupMember`/`userHasGroupInList`/`custom_locations` trust the client array → self-grant of cross-group read + custom_locations write. Authorize via the group doc's members, not the user array. |
 | 20 | 🟠 **Audit log + shared inventory deletable by any member** (May 31) | `firestore.rules`: `activity_log` delete + household `inventory` delete are `isHouseholdMember`-only → any member (even viewer) can wipe the "tamper-proof" log or shared inventory. Restrict to admin / item author. |
 | 21 | 🟡 **~13 redundant `Directionality(rtl)` wrappers** | Cosmetic (app is globally RTL); removal carries visual-layout risk → deferred to a dedicated on-device pass. Intentional LTR wrappers (+/- controls, main.dart global) must stay. |
+| 22 | 🔴 **"Share with specific contacts" lists are invisible to those contacts** (verified May 31, r2) | `create_list` "shared" → `isPrivate:true`; the list saves to the owner's `private_lists` and the contact is added via `addSharedUserToPrivateList` (shared_users map). But `firestore.rules` `private_lists` read is **owner-only** (no shared_users branch), and watchLists doesn't query other users' private_lists → contacts never see it. Rules/query gap (release-gate, same family as #11/#17). **Don't "fix" create_list to isPrivate:false** — that routes it to household-wide `shared_lists`, over-sharing to everyone. Needs a `private_lists` shared-read rule + a "lists shared with me" query. |
+| 23 | 🟡 **Editor/owner-added barcode + price lost on shopping lists** (May 31, r2) | `_scanBarcodeAndAdd → _addProductToList(name, category)` drops the scanned barcode, and `addItemToList` has no barcode/price param. (The #3 task→product half is fixed.) Needs owner-path plumbing (use `addUnifiedItem` or extend `addItemToList`). |
 
 ---
 
