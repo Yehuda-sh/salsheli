@@ -67,7 +67,6 @@ class InventoryProvider with ChangeNotifier {
   /// - [action]: הפעולה ה-async לביצוע
   /// - [setLoading]: האם לעדכן את _isLoading (ברירת מחדל: true)
   /// - [rethrowError]: האם לזרוק מחדש שגיאות (ברירת מחדל: true)
-  /// - [errorMessagePrefix]: prefix להודעת שגיאה
   ///
   /// **Returns:** הערך שהוחזר מה-action, או null אם נכשל
   Future<T?> _runAsync<T>({
@@ -75,7 +74,6 @@ class InventoryProvider with ChangeNotifier {
     required Future<T> Function() action,
     bool setLoading = true,
     bool rethrowError = true,
-    String? errorMessagePrefix,
   }) async {
     if (_isDisposed) {
       return null;
@@ -92,9 +90,7 @@ class InventoryProvider with ChangeNotifier {
       _errorMessage = null;
       return result;
     } catch (e) {
-      _errorMessage = errorMessagePrefix != null
-          ? '$errorMessagePrefix: ${userFriendlyError(e, context: operation)}'
-          : userFriendlyError(e, context: operation);
+      _errorMessage = userFriendlyError(e, context: operation);
       if (rethrowError) rethrow;
       return null;
     } finally {
@@ -413,7 +409,6 @@ class InventoryProvider with ChangeNotifier {
     await _runAsync(
       operation: 'createItem',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה ביצירת פריט',
       action: () async {
         // 🚀 Optimistic: עדכון מיידי של ה-UI
         _errorMessage = null;
@@ -459,7 +454,6 @@ class InventoryProvider with ChangeNotifier {
     await _runAsync(
       operation: 'updateItem',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בעדכון פריט',
       action: () async {
         // 🚀 Optimistic: עדכון מיידי של ה-UI
         _errorMessage = null;
@@ -507,7 +501,6 @@ class InventoryProvider with ChangeNotifier {
     await _runAsync(
       operation: 'deleteItem',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה במחיקת פריט',
       action: () async {
         // 🚀 Optimistic: הסרה מיידית מה-UI
         _errorMessage = null;
@@ -623,7 +616,6 @@ class InventoryProvider with ChangeNotifier {
     await _runAsync(
       operation: 'addStock',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בעדכון מלאי',
       action: () async {
         // 🚀 Optimistic: עדכון כמות מיידי ב-UI
         _errorMessage = null;
@@ -695,7 +687,6 @@ class InventoryProvider with ChangeNotifier {
     await _runAsync(
       operation: 'removeStock',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בהורדת מלאי',
       action: () async {
         // 🚀 Optimistic: עדכון כמות מיידי ב-UI
         _errorMessage = null;
@@ -849,7 +840,7 @@ class InventoryProvider with ChangeNotifier {
 
       return successCount;
     } catch (e) {
-      _errorMessage = 'שגיאה בהוספת פריטים';
+      _errorMessage = userFriendlyError(e, context: 'addStarterItems');
       _notifySafe();
       rethrow;
     }
@@ -875,7 +866,7 @@ class InventoryProvider with ChangeNotifier {
 
       return deletedCount;
     } catch (e) {
-      _errorMessage = 'שגיאה במחיקת מזווה אישי';
+      _errorMessage = userFriendlyError(e, context: 'deletePersonalInventory');
       _notifySafe();
       rethrow;
     }

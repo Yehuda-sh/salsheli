@@ -108,7 +108,6 @@ class UserContext with ChangeNotifier {
   /// - [action]: הפעולה ה-async לביצוע
   /// - [setLoading]: האם לעדכן את _isLoading (ברירת מחדל: true)
   /// - [rethrowError]: האם לזרוק מחדש שגיאות (ברירת מחדל: true)
-  /// - [errorMessagePrefix]: prefix להודעת שגיאה
   ///
   /// **Returns:** הערך שהוחזר מה-action, או null אם נכשל
   Future<T?> _runAsync<T>({
@@ -116,7 +115,6 @@ class UserContext with ChangeNotifier {
     required Future<T> Function() action,
     bool setLoading = true,
     bool rethrowError = true,
-    String? errorMessagePrefix,
   }) async {
     if (_isDisposed) {
       return null;
@@ -133,9 +131,7 @@ class UserContext with ChangeNotifier {
       _errorMessage = null;
       return result;
     } catch (e) {
-      _errorMessage = errorMessagePrefix != null
-          ? '$errorMessagePrefix: ${userFriendlyError(e, context: 'loadUser')}'
-          : userFriendlyError(e, context: 'loadUser');
+      _errorMessage = userFriendlyError(e, context: operation);
       if (rethrowError) rethrow;
       return null;
     } finally {
@@ -356,7 +352,7 @@ class UserContext with ChangeNotifier {
         unawaited(PushNotificationService.instance.initialize(_user!.id));
       }
     } catch (e, stackTrace) {
-      _errorMessage = 'שגיאה בטעינת פרטי משתמש';
+      _errorMessage = userFriendlyError(e, context: 'loadUser');
       debugPrint('🔴 _loadUserFromFirestore ERROR: $e');
       debugPrint('🔴 Stack: $stackTrace');
 
@@ -384,7 +380,6 @@ class UserContext with ChangeNotifier {
     try {
       await _runAsync(
         operation: 'signUp',
-        errorMessagePrefix: 'שגיאה ברישום',
         action: () async {
           final credential = await _authService.signUp(
             email: email,
@@ -425,7 +420,6 @@ class UserContext with ChangeNotifier {
   }) async {
     await _runAsync(
       operation: 'signIn',
-      errorMessagePrefix: 'שגיאה בהתחברות',
       action: () async {
         await _authService.signIn(email: email, password: password);
         // ה-listener של authStateChanges יטפל בטעינת המשתמש
@@ -442,7 +436,6 @@ class UserContext with ChangeNotifier {
     try {
       await _runAsync(
         operation: 'signInWithGoogle',
-        errorMessagePrefix: 'שגיאה בהתחברות עם Google',
         action: () async {
           final result = await _authService.signInWithGoogle();
           if (result.isNewUser) {
@@ -464,7 +457,6 @@ class UserContext with ChangeNotifier {
     try {
       await _runAsync(
         operation: 'signInWithApple',
-        errorMessagePrefix: 'שגיאה בהתחברות עם Apple',
         action: () async {
           final result = await _authService.signInWithApple();
           if (result.isNewUser) {
@@ -502,7 +494,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'signOut',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בהתנתקות',
       action: () async {
         // ניקוי FCM token לפני התנתקות
         await PushNotificationService.instance.clearToken();
@@ -534,7 +525,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'signOutAndClearAllData',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בהתנתקות ומחיקת נתונים',
       action: () async {
 
         // 🔒 קודם כל מתנתקים מ-Firebase - אם זה נכשל, לא מנקים state מקומי
@@ -565,7 +555,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'saveUser',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בשמירת פרטי משתמש',
       action: () async {
         _user = await _repository.saveUser(user);
       },
@@ -585,7 +574,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'updateUserProfile',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בעדכון פרופיל',
       action: () async {
         // אם יש תמונת פרופיל חדשה, היא מחליפה את האימוג'י
         await _repository.updateProfile(
@@ -606,7 +594,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'updateHouseholdName',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בעדכון שם קבוצה',
       action: () async {
         await _repository.updateHouseholdName(_user!.id, isEmpty ? null : trimmed);
         _user = _user!.copyWith(
@@ -622,7 +609,6 @@ class UserContext with ChangeNotifier {
     await _runAsync(
       operation: 'sendPasswordResetEmail',
       setLoading: false,
-      errorMessagePrefix: 'שגיאה בשליחת מייל לאיפוס סיסמה',
       action: () async {
         await _authService.sendPasswordResetEmail(email);
       },

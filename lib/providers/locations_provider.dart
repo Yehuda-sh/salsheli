@@ -2,6 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 
+import '../core/error_utils.dart';
 import '../models/custom_location.dart';
 import '../repositories/locations_repository.dart';
 import 'user_context.dart';
@@ -119,7 +120,7 @@ class LocationsProvider with ChangeNotifier {
         return;
       }
 
-      _errorMessage = 'שגיאה בטעינת מיקומים: $e';
+      _errorMessage = userFriendlyError(e, context: 'loadLocations');
       if (kDebugMode) {
         debugPrintStack(label: 'LocationsProvider._doLoad', stackTrace: st);
       }
@@ -198,7 +199,7 @@ class LocationsProvider with ChangeNotifier {
     } catch (e) {
       // Rollback: שחזור למצב הקודם
       _customLocations = previousLocations;
-      _errorMessage = 'שגיאה בהוספת מיקום';
+      _errorMessage = userFriendlyError(e, context: 'addLocation');
       _notifySafe();
       return false;
     }
@@ -246,7 +247,7 @@ class LocationsProvider with ChangeNotifier {
     } catch (e) {
       // Rollback: שחזור המיקום שנמחק
       _customLocations = previousLocations;
-      _errorMessage = 'שגיאה במחיקת מיקום';
+      _errorMessage = userFriendlyError(e, context: 'deleteLocation');
       _notifySafe();
       return false;
     }

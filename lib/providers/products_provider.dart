@@ -199,7 +199,7 @@ class ProductsProvider with ChangeNotifier {
         unawaited(_loadAllInBackground());
       }
     } catch (e) {
-      _errorMessage = 'שגיאה בטעינת מוצרים: ${userFriendlyError(e, context: 'loadProducts')}';
+      _errorMessage = userFriendlyError(e, context: 'loadProducts');
       _notifySafe();
     } finally {
       _isLoading = false;
@@ -324,7 +324,7 @@ class ProductsProvider with ChangeNotifier {
       _lastUpdated = DateTime.now();
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'שגיאה ברענון מוצרים: ${userFriendlyError(e, context: 'refreshProducts')}';
+      _errorMessage = userFriendlyError(e, context: 'refreshProducts');
       _notifySafe();
     } finally {
       _isRefreshing = false;
@@ -418,7 +418,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.getProductByBarcode(barcode);
     } catch (e) {
-      _errorMessage = 'שגיאה בחיפוש ברקוד: ${userFriendlyError(e, context: 'searchBarcode')}';
+      _errorMessage = userFriendlyError(e, context: 'searchBarcode');
       _notifySafe();
       return null;
     }
@@ -474,7 +474,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.searchProducts(query);
     } catch (e) {
-      _errorMessage = 'שגיאה בחיפוש מוצרים: ${userFriendlyError(e, context: 'searchProducts')}';
+      _errorMessage = userFriendlyError(e, context: 'searchProducts');
       _notifySafe();
       return [];
     }
@@ -487,7 +487,7 @@ class ProductsProvider with ChangeNotifier {
     try {
       return await _repository.getProductsByCategory(category);
     } catch (e) {
-      _errorMessage = 'שגיאה בטעינת קטגוריה: ${userFriendlyError(e, context: 'loadCategory')}';
+      _errorMessage = userFriendlyError(e, context: 'loadCategory');
       _notifySafe();
       return [];
     }
