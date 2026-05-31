@@ -72,6 +72,7 @@ class CategoryDetectionService {
       'קישוא',
       'ברוקולי',
       'כרובית',
+      'מנגולד',
     ],
     'בשר ודגים': [
       'חזה עוף', 'שניצל עוף', 'כרעיים',
@@ -140,6 +141,41 @@ class CategoryDetectionService {
     ],
   };
 
+  /// מילות-המפתח משוטחות וממוינות לפי אורך יורד — כך מילה ספציפית
+  /// ("עגבניה", "שוקולד") מנצחת substring כללי קצר ("תמר", "קפה").
+  static final List<MapEntry<String, String>> _sortedKeywords = () {
+    final list = <MapEntry<String, String>>[];
+    _categoryKeywords.forEach((category, keywords) {
+      for (final kw in keywords) {
+        list.add(MapEntry(kw.toLowerCase(), category));
+      }
+    });
+    list.sort((a, b) => b.key.length.compareTo(a.key.length));
+    return list;
+  }();
+
+  /// קטגוריות שבהן שם-מוצר עלול להיות רק "טעם" ולא הקטגוריה עצמה.
+  static const Set<String> _flavorableCategories = {
+    'פירות',
+    'ירקות',
+    'קפה ותה',
+  };
+
+  /// סימני "מוצר מעובד / בטעם" — נוכחותם פוסלת התאמת פרי/ירק/קפה,
+  /// כדי ש"מיץ תפוז" יהיה משקה ו"מעדן בננה" לא יהיה פרי.
+  static const List<String> _flavorSignals = [
+    'מיץ',
+    'בטעם',
+    'מעדן',
+    'יופלה',
+    'משקה',
+    'מילקי',
+    'שוקו',
+    'סוכרי',
+    'ריבת',
+    'ממרח',
+  ];
+
   /// זיהוי קטגוריה ממוצר JSON
   static String detectFromProductJson(Map<String, dynamic> product) {
     return _detectCategory(
@@ -174,13 +210,17 @@ class CategoryDetectionService {
       }
     }
 
-    // 2. זיהוי לפי מילות מפתח
-    for (final entry in _categoryKeywords.entries) {
-      for (final keyword in entry.value) {
-        if (nameLower.contains(keyword.toLowerCase())) {
-          return entry.key;
-        }
+    // 2. זיהוי לפי מילות מפתח — הארוך-ביותר-קודם, כדי ששם ספציפי
+    //    ינצח substring כללי ("עגבניה" מנצח "תמר", "שוקולד" מנצח "קפה").
+    final hasFlavorSignal = _flavorSignals.any((s) => nameLower.contains(s));
+    for (final entry in _sortedKeywords) {
+      if (!nameLower.contains(entry.key)) continue;
+      // שם פרי/ירק/קפה בתוך מוצר מעובד הוא טעם, לא הקטגוריה האמיתית
+      // ("מיץ תפוז" → משקה, "מעדן בננה" → מחלבה). דלג ותן למילה ספציפית יותר.
+      if (hasFlavorSignal && _flavorableCategories.contains(entry.value)) {
+        continue;
       }
+      return entry.value;
     }
 
     return currentCategory ?? 'אחר';
