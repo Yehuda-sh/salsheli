@@ -320,6 +320,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
             productName: name,
             category: category ?? similar.category,
             quantity: 1,
+            // 🔧 re-key to the scanned product's barcode — otherwise the item
+            // keeps the OLD product's barcode and a re-scan won't match it.
+            barcode: scannedBarcode,
           );
           await inventoryProvider.updateItem(updatedItem);
           if (mounted) {

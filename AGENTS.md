@@ -122,7 +122,7 @@ notification is rejected** — `notifications_service` never sets `senderId`, so
 self-grant** escalation and **activity_log + household inventory deletable by any
 member**. These are the release gate — see Next Priorities #1.
 
-**Round 2 (deeper sweep + independent self-review of the session's commits) — 3 more commits:**
+**Round 2 (deeper sweep + independent self-review of the session's commits) — 6 more commits:**
 The self-review caught a **regression introduced by the #14 fix**:
 `active_shopping._saveAndFinish` classified items NOT in the current shopper's
 `_itemStatuses` (items another shopper added/purchased mid-shop) as pending →
@@ -135,6 +135,13 @@ out-of-stock (`isLowStock = qty>0 && qty<min`, statusType flags qty 0 as error);
 **#3** who-brings task requests rebuild as tasks (were → product, losing
 neededCount). **#1** (shared-contacts) found to be a rules gap → Known Issue #22,
 not a code bug.
+
+Then continued: **#18 un-broken** — a `_writeWithSender` helper injects the
+authenticated `senderId` into every notification (they were ALL rejected by the
+v4.5 rule); 4 more crash-on-malformed-data casts hardened (shopping_patterns,
+2 catalog widgets, and `Receipt.fromJson` now sanitizes its `items` list before
+the generated parser); and the pantry "replace product" now re-keys to the
+scanned barcode.
 
 ### Session (May 3, 2026) — Catalog Cleanup + Pantry UX Bugs
 
@@ -475,7 +482,7 @@ catalog audit + post-merge polish.
 | 15 | **75 short Israeli barcodes (7290 prefix)** in supermarket.json | 14 auto-fixed via EAN-13 checksum (session 7). Remaining 60 didn't validate — likely not simple leading-zero strips. |
 | 16 | ~~**`product_selection_bottom_sheet._failedImageUrls`** Set grows unbounded~~ | ✅ Fixed — bounded to 200 entries with auto-clear; resets when full. |
 | 17 | 🔴 **Joining a household is impossible** (verified May 31) | `pending_invites_service._addUserToHousehold` runs a client batch (member create + `users.household_id` update) that v4.5 rules deny for a non-creator/non-admin; no Cloud Function compensates. Sharing's headline flow is broken under deployed rules; likely masked by Admin-SDK-seeded demo data. **Fix:** callable `acceptHouseholdInvite` Cloud Function (Blaze). |
-| 18 | 🔴 **Every cross-user notification is rejected** (verified May 31) | `notifications_service.create*Notification` never sets `senderId`, so `sender_id:null` fails the v4.5 cross-user rule (the throw is swallowed → returns false). Invites/approvals/role-changes/removals send no bell/push. **Fix (client):** set `senderId`+`senderName` in every cross-user notification. |
+| 18 | ~~**Every cross-user notification is rejected**~~ | ✅ **Client fixed May 31** — `_writeWithSender` injects `FirebaseAuth.currentUser.uid` (senderId) into every notification, so they pass the v4.5 rule. Remaining: notification text is still hardcoded Hebrew (#12 remainder) — needs read-time localization for cross-locale recipients. |
 | 19 | 🔴 **`group_ids` self-grant escalation** (NEW, May 31) | The `users` update rule guards only `household_id`, not `group_ids`; `isGroupMember`/`userHasGroupInList`/`custom_locations` trust the client array → self-grant of cross-group read + custom_locations write. Authorize via the group doc's members, not the user array. |
 | 20 | 🟠 **Audit log + shared inventory deletable by any member** (May 31) | `firestore.rules`: `activity_log` delete + household `inventory` delete are `isHouseholdMember`-only → any member (even viewer) can wipe the "tamper-proof" log or shared inventory. Restrict to admin / item author. |
 | 21 | 🟡 **~13 redundant `Directionality(rtl)` wrappers** | Cosmetic (app is globally RTL); removal carries visual-layout risk → deferred to a dedicated on-device pass. Intentional LTR wrappers (+/- controls, main.dart global) must stay. |
