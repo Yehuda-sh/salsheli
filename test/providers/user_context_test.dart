@@ -483,7 +483,9 @@ void main() {
       }
 
       expect(userContext.hasError, true);
-      expect(userContext.errorMessage, contains('שגיאה בהתחברות'));
+      // Error text now comes from userFriendlyError (localized HE/EN), not a
+      // hardcoded Hebrew prefix — assert one is set, not its exact wording.
+      expect(userContext.errorMessage, isNotEmpty);
 
       userContext.dispose();
     });
@@ -503,7 +505,9 @@ void main() {
       }
 
       expect(userContext.hasError, true);
-      expect(userContext.errorMessage, contains('שגיאה בשמירת פרטי משתמש'));
+      // Error text now comes from userFriendlyError (localized HE/EN), not a
+      // hardcoded Hebrew prefix — assert one is set, not its exact wording.
+      expect(userContext.errorMessage, isNotEmpty);
 
       userContext.dispose();
     });
