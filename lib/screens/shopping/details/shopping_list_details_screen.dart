@@ -280,7 +280,9 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           label: AppStrings.common.cancel,
           textColor: cs.onPrimary,
           onPressed: () {
-            provider.addItemToList(currentList.id, removed.name, removed.quantity ?? 1, removed.unit);
+            // ♻️ שחזור הפריט המלא (id, הערות, מחיר, ברקוד) במקום ליצור חדש
+            // עם שם/כמות בלבד — addUnifiedItem משמר את כל השדות.
+            unawaited(provider.addUnifiedItem(currentList.id, removed));
           },
         ),
       ),

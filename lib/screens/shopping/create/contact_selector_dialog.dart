@@ -1,5 +1,7 @@
 // lib/screens/shopping/create/contact_selector_dialog.dart — Contact selector — pick contacts to share a new list with
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -542,13 +544,37 @@ class _ContactSelectorDialogState extends State<ContactSelectorDialog> {
                                   ),
                                   onDismissed: (_) {
                                     final userId = context.read<UserContext>().user?.id;
-                                    if (userId != null) {
-                                      _savedContactsService.deleteContact(
-                                        currentUserId: userId,
-                                        contactUserId: contact.userId,
-                                      );
-                                    }
+                                    if (userId == null) return;
+                                    unawaited(_savedContactsService.deleteContact(
+                                      currentUserId: userId,
+                                      contactUserId: contact.userId,
+                                    ));
                                     setState(() => _savedContacts.remove(contact));
+                                    // ♻️ Undo — מחיקת איש קשר היא הרסנית; אפשר לשחזר
+                                    final messenger = ScaffoldMessenger.of(context);
+                                    messenger.removeCurrentSnackBar();
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        duration: const Duration(seconds: 5),
+                                        content: Text(AppStrings.contactSelector
+                                            .contactRemoved(contact.userName ?? contact.userEmail)),
+                                        action: SnackBarAction(
+                                          label: AppStrings.common.undo,
+                                          onPressed: () {
+                                            unawaited(_savedContactsService.saveContact(
+                                              currentUserId: userId,
+                                              contactUserId: contact.userId,
+                                              contactUserName: contact.userName,
+                                              contactUserEmail: contact.userEmail,
+                                              contactUserAvatar: contact.userAvatar,
+                                            ));
+                                            if (mounted) {
+                                              setState(() => _savedContacts.add(contact));
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    );
                                   },
                                   child: _ContactTile(
                                     contact: contact,

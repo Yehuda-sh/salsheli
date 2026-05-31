@@ -1479,6 +1479,7 @@ class SharingStrings {
   String get pendingRequestsTitle => 'בקשות ממתינות';
   String get noPermissionViewRequests => 'רק בעלים/מנהלים יכולים לראות בקשות';
   String get noPendingRequests => 'אין בקשות ממתינות';
+  String pendingRequestsLabel(int count) => '$count בקשות ממתינות';
   String get noPendingRequestsSubtitle => 'בקשות מעורכים יופיעו כאן לאישור';
   String get requestTypeAdd => 'הוספה';
   String get requestTypeEdit => 'עריכה';
@@ -2092,6 +2093,7 @@ class ContactSelectorStrings {
   String get roleEditorShortDesc => 'יכול לערוך דרך אישור';
   String get roleViewerShortDesc => 'יכול לצפות בלבד';
   String get roleUnknownShortDesc => 'תפקיד לא מוכר';
+  String contactRemoved(String name) => '$name הוסר מאנשי הקשר';
 }
 
 // ========================================

@@ -11,6 +11,7 @@ import '../../l10n/app_strings.dart';
 import '../../models/enums/request_type.dart';
 import '../../models/pending_request.dart';
 import '../../models/shopping_list.dart';
+import '../../providers/shopping_lists_provider.dart';
 import '../../providers/user_context.dart';
 import '../../repositories/shopping_lists_repository.dart';
 import '../../services/notifications_service.dart';
@@ -306,7 +307,7 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
                             ),
                             if (_pendingRequests.isNotEmpty)
                               Text(
-                                '${_pendingRequests.length} בקשות',
+                                strings.pendingRequestsLabel(_pendingRequests.length),
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: cs.onSurfaceVariant,
                                 ),
@@ -326,18 +327,42 @@ class _PendingRequestsScreenState extends State<PendingRequestsScreen> {
     );
   }
 
-  Widget _buildContent() {
-    if (_pendingRequests.isEmpty) {
-      return _buildEmptyState();
-    }
+  /// 🔄 רענון ידני (pull-to-refresh) — קורא בקשות מהרשימה החיה בפרובידר,
+  /// כך בקשות חדשות שנשלחו בזמן שהמסך פתוח מופיעות (קודם לא היה רענון כלל).
+  Future<void> _refreshRequests() async {
+    final provider = context.read<ShoppingListsProvider>();
+    final liveList = provider.getById(widget.list.id) ?? widget.list;
+    if (!mounted) return;
+    setState(() {
+      _pendingRequests = _service.getPendingRequests(liveList);
+    });
+  }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(kSpacingMedium),
-      itemCount: _pendingRequests.length,
-      separatorBuilder: (context, index) => const SizedBox(height: kSpacingMedium),
-      itemBuilder: (context, index) {
-        return _buildRequestCard(_pendingRequests[index], index);
-      },
+  Widget _buildContent() {
+    return RefreshIndicator(
+      onRefresh: _refreshRequests,
+      child: _pendingRequests.isEmpty
+          ? LayoutBuilder(
+              builder: (context, constraints) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: _buildEmptyState(),
+                  ),
+                ],
+              ),
+            )
+          : ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(kSpacingMedium),
+              itemCount: _pendingRequests.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: kSpacingMedium),
+              itemBuilder: (context, index) {
+                return _buildRequestCard(_pendingRequests[index], index);
+              },
+            ),
     );
   }
 

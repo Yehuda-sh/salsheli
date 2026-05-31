@@ -307,6 +307,7 @@ class CommonStringsEn extends CommonStrings {
   @override String get resetFilter => 'Reset Filter';
   @override String get clearAll => 'Clear All';
   @override String get deleted => 'Deleted';
+  @override String get undo => 'Undo';
   @override String get searchProductHint => 'Search product...';
   @override String get categories => 'Categories';
   @override String get meatTypes => 'Meat Types';
@@ -1771,6 +1772,7 @@ class SharingStringsEn extends SharingStrings {
   @override String get pendingRequestsTitle => 'Pending Requests';
   @override String get noPermissionViewRequests => 'Only owners/admins can view requests';
   @override String get noPendingRequests => 'No pending requests';
+  @override String pendingRequestsLabel(int count) => '$count pending requests';
   @override String get noPendingRequestsSubtitle => 'Requests from editors will appear here for approval';
   @override String get requestTypeAdd => 'Add';
   @override String get requestTypeEdit => 'Edit';
@@ -2037,6 +2039,7 @@ class ContactSelectorStringsEn extends ContactSelectorStrings {
   @override String get roleEditorShortDesc => 'Can edit via approval';
   @override String get roleViewerShortDesc => 'View only';
   @override String get roleUnknownShortDesc => 'Unknown role';
+  @override String contactRemoved(String name) => '$name removed from contacts';
 }
 
 class ShoppingSummaryStringsEn extends ShoppingSummaryStrings {
