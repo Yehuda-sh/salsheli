@@ -298,7 +298,7 @@ class _PantryProductSelectionSheetState
   }
 
   Future<void> _addProductToPantry(Map<String, dynamic> product) async {
-    final productId = product['barcode'] as String? ?? product['name'] as String;
+    final productId = product['barcode'] as String? ?? product['name'] as String? ?? '';
 
     unawaited(HapticFeedback.lightImpact()); // ✅ Haptic feedback
     setState(() {

@@ -145,7 +145,8 @@ class ShoppingPatternsService {
 
       // חפש את המוצר בדפוס הזה
       for (var i = 0; i < purchaseOrder.length; i++) {
-        final entry = purchaseOrder[i] as Map<String, dynamic>;
+        final entry = purchaseOrder[i];
+        if (entry is! Map) continue; // skip a malformed non-map array element
         final name = entry['itemName'] as String?;
         if (name == itemName) {
           scores.add(i); // השמור את המיקום בדפוס הזה

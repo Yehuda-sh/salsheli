@@ -174,7 +174,7 @@ class _ProductSelectionBottomSheetState extends State<ProductSelectionBottomShee
     final messenger = ScaffoldMessenger.of(context);
     final theme = Theme.of(context);
     final provider = context.read<ShoppingListsProvider>();
-    final productName = product['name'] as String;
+    final productName = product['name'] as String? ?? '';
     final productId = product['id']?.toString() ?? productName;
 
     setState(() => _addingProductId = productId);

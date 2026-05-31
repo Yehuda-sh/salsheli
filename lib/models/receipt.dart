@@ -170,8 +170,16 @@ class Receipt {
     );
   }
 
-  factory Receipt.fromJson(Map<String, dynamic> json) =>
-      _$ReceiptFromJson(json);
+  factory Receipt.fromJson(Map<String, dynamic> json) {
+    // 🛡️ A receipt doc with a missing/non-list `items` (partial OCR write,
+    // legacy schema) or a non-map element would crash the generated parser and
+    // break the entire receipts/history screen. Sanitize to a clean list first.
+    final raw = json['items'];
+    final safeItems = raw is List
+        ? raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
+        : const <Map<String, dynamic>>[];
+    return _$ReceiptFromJson({...json, 'items': safeItems});
+  }
 
   Map<String, dynamic> toJson() => _$ReceiptToJson(this);
 
