@@ -343,9 +343,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final listsProvider = context.read<ShoppingListsProvider>();
     final cs = Theme.of(context).colorScheme;
     final messenger = ScaffoldMessenger.of(context);
+    // 🔄 רשימה חיה (כולל פריטים שחברים אחרים הוסיפו)
+    final list = listsProvider.getById(widget.list.id) ?? widget.list;
 
     // 1. חפש ברשימה הנוכחית
-    final existingItem = widget.list.items.where((item) {
+    final existingItem = list.items.where((item) {
       final itemBarcode = item.productData?['barcode'] as String?;
       return itemBarcode == barcode;
     }).firstOrNull;
@@ -420,15 +422,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     // ✨ Haptic feedback למשוב מישוש
     unawaited(HapticFeedback.mediumImpact());
 
-    // 🔧 ספור לפי widget.list.items כדי לכלול גם פריטים שלא במפה (null = pending)
-    final purchased = widget.list.items.where((item) =>
+    // 🔄 רשימה חיה — כולל פריטים שחברים אחרים הוסיפו תוך כדי הקנייה
+    final list =
+        context.read<ShoppingListsProvider>().getById(widget.list.id) ??
+            widget.list;
+
+    // 🔧 ספור לפי הרשימה כדי לכלול גם פריטים שלא במפה (null = pending)
+    final purchased = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.purchased).length;
-    final outOfStock = widget.list.items.where((item) =>
+    final outOfStock = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.outOfStock).length;
-    final notNeeded = widget.list.items.where((item) =>
+    final notNeeded = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.notNeeded).length;
     // pending כולל גם פריטים שלא במפה (null)
-    final pending = widget.list.items.where((item) {
+    final pending = list.items.where((item) {
       final status = _itemStatuses[item.id];
       return status == null || status == ShoppingItemStatus.pending;
     }).length;
@@ -442,7 +449,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       barrierDismissible: false,
       builder: (context) => ShoppingSummaryDialog(
         listName: widget.list.name,
-        total: widget.list.items.length,
+        total: list.items.length,
         purchased: purchased,
         outOfStock: outOfStock,
         notNeeded: notNeeded,
@@ -499,6 +506,8 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final inventoryProvider = context.read<InventoryProvider>();
     final shoppingProvider = context.read<ShoppingListsProvider>();
     final receiptProvider = context.read<ReceiptProvider>();
+    // 🔄 רשימה חיה — כולל פריטים שחברים אחרים הוסיפו תוך כדי הקנייה
+    final list = shoppingProvider.getById(widget.list.id) ?? widget.list;
 
     setState(() {
       _isSaving = true;
@@ -510,17 +519,17 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       _cancelAllSaveTimers();
 
       // 2️⃣ זהה פריטים לפי סטטוס נוכחי
-      final purchasedItems = widget.list.items.where((item) {
+      final purchasedItems = list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == ShoppingItemStatus.purchased;
       }).toList();
 
-      final outOfStockItems = widget.list.items.where((item) {
+      final outOfStockItems = list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == ShoppingItemStatus.outOfStock;
       }).toList();
 
-      final pendingItems = widget.list.items.where((item) {
+      final pendingItems = list.items.where((item) {
         final status = _itemStatuses[item.id];
         return status == null || status == ShoppingItemStatus.pending;
       }).toList();
@@ -741,6 +750,12 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final brand = theme.extension<AppBrand>();
     final accent = brand?.accent ?? cs.primary;
 
+    // 🔄 רשימה חיה מהפרובידר — פריטים שחברים אחרים מוסיפים/מסירים ואווטרי
+    // הקונים הפעילים מתעדכנים בזמן אמת (במקום תמונת מצב קפואה מ-widget.list).
+    final list =
+        context.watch<ShoppingListsProvider>().getById(widget.list.id) ??
+            widget.list;
+
     // 🔄 Loading State
     if (_isLoading) {
       return Stack(
@@ -828,7 +843,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     }
 
     // 📭 Empty State - אם אין פריטים
-    if (widget.list.items.isEmpty) {
+    if (list.items.isEmpty) {
       return Stack(
         children: [
           const NotebookBackground(),
@@ -871,22 +886,22 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     }
 
     // חשב סטטיסטיקות
-    // 🔧 ספור לפי widget.list.items כדי לכלול גם פריטים שלא במפה (null = pending)
-    final purchased = widget.list.items.where((item) =>
+    // 🔧 ספור לפי הרשימה החיה כדי לכלול גם פריטים שלא במפה (null = pending)
+    final purchased = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.purchased).length;
-    final notNeeded = widget.list.items.where((item) =>
+    final notNeeded = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.notNeeded).length;
-    final outOfStock = widget.list.items.where((item) =>
+    final outOfStock = list.items.where((item) =>
         _itemStatuses[item.id] == ShoppingItemStatus.outOfStock).length;
     // 🔧 outOfStock נחשב כ"טופל" - המשתמש טיפל בפריט (סימן שאין במלאי)
     final completed = purchased + notNeeded + outOfStock;
-    final total = widget.list.items.length;
+    final total = list.items.length;
 
 
     // קבץ לפי קטגוריה
     final productsProvider = context.watch<ProductsProvider>();
     final itemsByCategory = <String, List<UnifiedListItem>>{};
-    for (final item in widget.list.items) {
+    for (final item in list.items) {
       final category = item.category
           ?? (productsProvider.getByName(item.name)?['category'] as String?)
           ?? AppStrings.shopping.categoryGeneral;
@@ -961,14 +976,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                   ],
                 ),
                 // 👥 קונים פעילים - אווטרים עם הילה פועמת
-                if (widget.list.currentShoppers.length > 1)
+                if (list.currentShoppers.length > 1)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ...widget.list.currentShoppers.take(4).map((shopper) {
-                          final name = widget.list.sharedUsers[shopper.userId]?.userName;
+                        ...list.currentShoppers.take(4).map((shopper) {
+                          final name = list.sharedUsers[shopper.userId]?.userName;
                           final initial = (name != null && name.isNotEmpty)
                               ? name.characters.first
                               : '?';
@@ -981,11 +996,11 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
                             ),
                           );
                         }),
-                        if (widget.list.currentShoppers.length > 4)
+                        if (list.currentShoppers.length > 4)
                           Padding(
                             padding: const EdgeInsetsDirectional.only(end: kSpacingXTiny),
                             child: Text(
-                              '+${widget.list.currentShoppers.length - 4}',
+                              '+${list.currentShoppers.length - 4}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: cs.onSurfaceVariant,
                                 fontSize: kFontSizeSmall,

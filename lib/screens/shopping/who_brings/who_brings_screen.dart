@@ -30,14 +30,7 @@ class WhoBringsScreen extends StatefulWidget {
 }
 
 class _WhoBringsScreenState extends State<WhoBringsScreen> {
-  late ShoppingList _list;
   final Set<String> _busyItemIds = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _list = widget.list;
-  }
 
   /// הוספת התנדבות לפריט
   Future<void> _volunteer(UnifiedListItem item) async {
@@ -81,10 +74,8 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
       final updatedItem = item.copyWith(taskData: updatedTaskData);
 
-      await provider.updateItemById(_list.id, updatedItem);
-
-      // עדכן את הרשימה המקומית
-      _updateLocalList(updatedItem);
+      await provider.updateItemById(widget.list.id, updatedItem);
+      // ה-UI מתעדכן אוטומטית מה-stream של הפרובידר (כולל שינויים של אחרים)
 
       // 📬 שלח התראה לבעל הרשימה ולאדמינים
       await _sendVolunteerNotification(item, displayName);
@@ -129,10 +120,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
       final updatedItem = item.copyWith(taskData: updatedTaskData);
 
-      await provider.updateItemById(_list.id, updatedItem);
-
-      // עדכן את הרשימה המקומית
-      _updateLocalList(updatedItem);
+      await provider.updateItemById(widget.list.id, updatedItem);
 
       _showSnackBar(AppStrings.shopping.cancelVolunteer(item.name));
     } catch (e) {
@@ -142,20 +130,6 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
         setState(() => _busyItemIds.remove(item.id));
       }
     }
-  }
-
-  /// עדכון הרשימה המקומית
-  void _updateLocalList(UnifiedListItem updatedItem) {
-    final updatedItems = _list.items.map((item) {
-      if (item.id == updatedItem.id) {
-        return updatedItem;
-      }
-      return item;
-    }).toList();
-
-    setState(() {
-      _list = _list.copyWith(items: updatedItems);
-    });
   }
 
   /// 📬 שליחת התראה על התנדבות חדשה
@@ -170,20 +144,20 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
       final notificationsService = context.read<NotificationsService>();
 
       // שלח התראה לבעל הרשימה (אם זה לא המשתמש הנוכחי)
-      final creatorId = _list.createdBy;
+      final creatorId = widget.list.createdBy;
       if (creatorId != currentUserId) {
         await notificationsService.createWhoBringsVolunteerNotification(
           userId: creatorId,
           householdId: householdId,
-          listId: _list.id,
-          listName: _list.name,
+          listId: widget.list.id,
+          listName: widget.list.name,
           itemName: item.name,
           volunteerName: volunteerName,
         );
       }
 
       // שלח התראה לאדמינים (sharedUsers עם role=admin)
-      for (final entry in _list.sharedUsers.entries) {
+      for (final entry in widget.list.sharedUsers.entries) {
         final sharedUserId = entry.key;
         final sharedUser = entry.value;
 
@@ -191,8 +165,8 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
           await notificationsService.createWhoBringsVolunteerNotification(
             userId: sharedUserId,
             householdId: householdId,
-            listId: _list.id,
-            listName: _list.name,
+            listId: widget.list.id,
+            listName: widget.list.name,
             itemName: item.name,
             volunteerName: volunteerName,
           );
@@ -225,10 +199,15 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
     final userContext = context.watch<UserContext>();
     final userId = userContext.userId;
 
+    // 🔄 רשימה חיה מהפרובידר — כך התנדבויות של חברים אחרים מופיעות בזמן אמת
+    final list =
+        context.watch<ShoppingListsProvider>().getById(widget.list.id) ??
+            widget.list;
+
     // חשב סטטיסטיקות
-    final totalItems = _list.items.length;
-    final fullItems = _list.items.where((i) => i.isVolunteersFull).length;
-    final myItems = _list.items.where((i) =>
+    final totalItems = list.items.length;
+    final fullItems = list.items.where((i) => i.isVolunteersFull).length;
+    final myItems = list.items.where((i) =>
         userId != null && i.hasUserVolunteered(userId)).length;
 
     return Stack(
@@ -275,7 +254,7 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              _list.name,
+                              list.name,
                               style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: cs.onSurface,
@@ -369,13 +348,13 @@ class _WhoBringsScreenState extends State<WhoBringsScreen> {
 
                 // 📋 רשימת פריטים
                 Expanded(
-                  child: _list.items.isEmpty
+                  child: list.items.isEmpty
                       ? _EmptyState()
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
-                          itemCount: _list.items.length,
+                          itemCount: list.items.length,
                           itemBuilder: (context, index) {
-                            final item = _list.items[index];
+                            final item = list.items[index];
                             final hasVolunteered = userId != null &&
                                 item.hasUserVolunteered(userId);
 
