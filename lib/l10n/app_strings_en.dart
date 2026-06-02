@@ -575,15 +575,15 @@ class IndexStringsEn extends IndexStrings {
 class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
-  @override String get subtitle => 'Smart shopping for everyone at home';
+  @override String get subtitle => 'The list that starts in your pantry';
 
-  // Carousel pages — three distinct pillars (lists / pantry / sharing).
-  @override String get group1Title => 'Smart lists';
-  @override String get group1Question => 'Built-in product catalog and ready templates — no typing it all';
-  @override String get group2Title => 'A pantry that never runs out';
-  @override String get group2Question => 'Your digital pantry — alerts you before you run low';
-  @override String get group3Title => 'Everyone in sync';
-  @override String get group3Question => 'Everyone sees, everyone updates — no more duplicate buys';
+  // Carousel — the product's actual loop: pantry → auto-built list → store.
+  @override String get group1Title => 'Know what you have at home';
+  @override String get group1Question => 'Log your pantry and quantities — the app watches your stock';
+  @override String get group2Title => 'Your list builds itself';
+  @override String get group2Question => 'Whatever runs low becomes a shopping list automatically, in the right amount';
+  @override String get group3Title => 'In-store: clear and fast';
+  @override String get group3Question => 'See the exact product, and split the shopping in real time';
 
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   @override String get benefit1Title => 'Completely free';

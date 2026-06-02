@@ -171,12 +171,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     onPageChanged: _onPageChanged,
                     children: [
                       _SimpleFeatureCard(
-                        illustrationAsset: 'assets/images/onboarding_shopping.webp',
+                        illustrationAsset: 'assets/images/onboarding_pantry.webp',
                         title: AppStrings.welcome.group1Title,
                         description: AppStrings.welcome.group1Question,
                       ),
                       _SimpleFeatureCard(
-                        illustrationAsset: 'assets/images/onboarding_pantry.webp',
+                        illustrationAsset: 'assets/images/onboarding_shopping.webp',
                         title: AppStrings.welcome.group2Title,
                         description: AppStrings.welcome.group2Question,
                       ),
