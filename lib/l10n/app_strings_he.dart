@@ -589,51 +589,23 @@ class IndexStrings {
 class WelcomeStrings {
   const WelcomeStrings();
 
-  String get title => AppStringsHe.appName;
   String get subtitle => 'קניות חכמות לכל הבית';
-  String get group1Emoji => '🛒';
+
+  // Carousel pages — three distinct pillars (lists / pantry / sharing).
   String get group1Title => 'רשימות חכמות';
   String get group1Question => 'קטלוג מוצרים ותבניות מוכנות — בלי להקליד הכל';
-  String get group1Feature1 => 'פריטים חכמים ✅';
-  String get group1Feature2 => 'כמויות אוטומטיות 🔢';
-  String get group2Emoji => '📦';
   String get group2Title => 'מזווה שלא נגמר';
   String get group2Question => 'המזווה הדיגיטלי שלך — מתריע לפני שנגמר';
-  String get group2Feature1 => 'מלאי חי 📊';
-  String get group2Feature2 => 'התראות חכמות ⏰';
-  String get group3Emoji => '👨‍👩‍👧‍👦';
   String get group3Title => 'כולם מסונכרנים';
   String get group3Question => 'כולם רואים, כולם מעדכנים — בלי קניות כפולות';
-  String get group3Feature1 => 'עדכונים חיים 🔄';
-  String get group3Feature2 => 'סנכרון ענן ☁️';
-  String get moreGroupsHint => 'פשוט ויפה — בלי עקומת למידה';
-  String get demoItem1 => 'חלב';
-  String get demoItem2 => 'לחם';
-  String get demoItem3 => 'ביצים';
-  String get demoPantryHeader => '📦 מזווה';
-  String get demoPantryItem1 => 'חלב';
-  String get demoPantryItem2 => 'ביצים';
-  String get demoPantryItem3 => 'לחם';
-  String get demoFamilyHeader => '👨‍👩‍👧‍👦 הבית';
-  String get demoUser1 => 'אבא';
-  String get demoUser2 => 'אמא';
-  String get demoUser3 => 'דני';
-  String get statusOnline => 'מחובר';
-  String get statusOffline => 'לא מחובר';
-  // Welcome bottom chips — "trust signals", not feature repeats. The
-  // carousel already covers features (lists/sharing/pantry); these chips
-  // earn their place by answering "why install?" instead of echoing it.
+
+  // Bottom chips — "trust signals" (why install?), not feature repeats.
   String get benefit1Title => 'חינמי לגמרי';
-  String get benefit1Subtitle => 'ללא מנויים, ללא הפתעות';
   String get benefit2Title => 'פרטי ומאובטח';
-  String get benefit2Subtitle => 'הנתונים שלך מוצפנים ומאובטחים';
   String get benefit3Title => 'ללא פרסומות';
-  String get benefit3Subtitle => 'חוויה נקייה, בלי הסחות דעת';
+
   String get startButton => 'הרשמה';
-  String get loginButton => 'התחברות';
   String get loginLink => 'כבר יש לי חשבון — התחברות';
-  String get authExplanation => 'התחברו כדי לסנכרן את הרשימות בכל המכשירים';
-  String get registerButton => 'הרשמה';
   String get termsOfService => 'תנאי שימוש';
   String get privacyPolicy => 'מדיניות פרטיות';
   String get logoLabel => 'לוגו אפליקציית ${AppStringsHe.appName}';

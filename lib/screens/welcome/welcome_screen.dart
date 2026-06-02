@@ -72,11 +72,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _autoPlayTimer?.cancel();
     _autoPlayTimer = Timer.periodic(_kAutoPlayInterval, (_) {
       if (!_pageController.hasClients) return;
-      final nextPage = (_currentPage + 1) % _kOnboardingPages;
+      // One-time gentle tour: advance forward and stop at the last page.
+      // Looping with a modulo wrap would animate a jarring backward sweep
+      // across every page on each cycle.
+      if (_currentPage >= _kOnboardingPages - 1) {
+        _autoPlayActive = false;
+        _autoPlayTimer?.cancel();
+        return;
+      }
       _isAutoAdvancing = true;
       _pageController
           .animateToPage(
-            nextPage,
+            _currentPage + 1,
             duration: _kPageTransition,
             curve: Curves.easeInOutCubic,
           )
@@ -258,6 +265,8 @@ class _LogoSection extends StatelessWidget {
                 fontSize: kFontSizeDisplay,
                 fontWeight: FontWeight.w700,
                 color: cs.primary,
+                // Tuned for the Caveat handwritten wordmark: a touch of
+                // tracking + tight line-height so it reads as one mark.
                 letterSpacing: 0.5,
                 height: 1.0,
               ),
@@ -303,7 +312,8 @@ class _SimpleFeatureCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Illustration — flex 2, text flex 1
+          // Illustration takes the lion's share; title + description sit
+          // below at their natural height.
           Expanded(
             flex: 3,
             child: ClipRRect(
@@ -388,13 +398,17 @@ class _WormDotIndicator extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return SizedBox(
       height: _kDotIndicatorHeight,
-      child: CustomPaint(
-        size: Size(count * _kDotSpacing, _kDotIndicatorHeight),
-        painter: _WormPainter(
-          count: count,
-          pageOffset: isRtl ? (count - 1 - pageOffset) : pageOffset,
-          activeColor: activeColor,
-          inactiveColor: inactiveColor.withValues(alpha: kOpacityLight),
+      // Repaints on every scroll frame (~60fps); isolate it so the worm
+      // doesn't mark the surrounding column dirty.
+      child: RepaintBoundary(
+        child: CustomPaint(
+          size: Size(count * _kDotSpacing, _kDotIndicatorHeight),
+          painter: _WormPainter(
+            count: count,
+            pageOffset: isRtl ? (count - 1 - pageOffset) : pageOffset,
+            activeColor: activeColor,
+            inactiveColor: inactiveColor.withValues(alpha: kOpacityLight),
+          ),
         ),
       ),
     );
@@ -598,6 +612,9 @@ class _BottomSection extends StatelessWidget {
               ),
 
               // === Legal links ===
+              // Deliberate "fine print" de-emphasis: 0.45 keeps the links
+              // legible but quiet, 0.25 fades the separator further. These
+              // sit between kOpacityLight/Medium, hence raw values.
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
