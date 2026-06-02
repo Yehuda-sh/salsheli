@@ -192,6 +192,30 @@
 
 ---
 
+## Welcome Screen
+
+### 📂 Components נגעו
+- `welcome_screen.dart` — onboarding carousel (auto-play) + bottom CTA section. מוצג רק עד יצירת חשבון.
+- `app_strings_he.dart` / `app_strings_en.dart` — `WelcomeStrings` (he base) + `WelcomeStringsEn` (override).
+
+### ✅ Decisions Made (סבב 1-2, 2/6/2026)
+- **Carousel = 3 pillars מובחנים**: עמוד 1 היה "שיתוף" (כפילות עם עמוד 3). שונה ל-"רשימות חכמות" (lists/catalog). עכשיו lists / pantry / sharing — בלי חזרה.
+- **Bottom chips = trust signals, לא feature repeats**: היו 3 שבבים שחזרו על הקרוסלה (שיתוף/רשימות/מזווה). הוחלפו ל-trust: 🎁 חינמי לגמרי · 🛡️ פרטי ומאובטח · ⚡ מוכן תוך דקה. אייקונים: gift / shieldHalved / bolt.
+- **Auto-play עוצר במגע + בעמוד האחרון**: היה loop אינסופי עם `% wrap` שגרם ל-backward sweep מבלבל (עמוד 3→1). עכשיו מתקדם קדימה, נעצר בעמוד האחרון, ו-`_isAutoAdvancing` flag מבדיל swipe ידני מ-auto-advance (עוצר לתמיד במגע ראשון).
+- **הוסר BackdropFilter blur** מהחלון התחתון — ב-~92% opacity הטשטוש כמעט לא נראה אבל עלה GPU pass לכל frame. עכשיו פאנל נייר אטום.
+- **Entrance slide 0.1/0.15 → 0.2** — כניסה נוכחת יותר (לוגו, שבבים, חלון תחתון).
+- **🧹 מחיקת ~21 מחרוזות יתומות** משלד עיצוב ישן ("טלפון דמו"): emojis, group features, demo items/pantry, status, benefit subtitles, unused buttons. כללו דמו **לא-מכליל** (אבא/אמא/דני + 👨‍👩‍👧‍👦) — נמחק לפי Audience & Voice. he base == en override (16 getters כל אחד).
+- **Perf/robustness**: `cacheWidth: 256` ללוגו (מקור 1533px), `errorBuilder` fallback ללוגו + 3 איורים, `RepaintBoundary` סביב worm-dot CustomPaint.
+- **RTL מטופל נכון**: parallax direction + worm-dot `count-1-pageOffset` לפי locale.
+
+### ⏸️ Deferred
+- **🛡️ "פרטי ומאובטח" מול תוכנית הפרסומות**: המשתמש מתכנן להוסיף פרסומות. אם רשת הפרסום עוקבת אחרי משתמשים — הטענה "פרטי ומאובטח" נחלשת. **Trigger:** לפני שמשיקים פרסומות — לוודא שזו אמת (רשת פרטית / בלי מכירת דאטה) או לרכך copy.
+- **🎁 "חינמי לגמרי" מול monetization עתידי**: נכון כל עוד המודל = פרסומות בלבד. אם ייכנס מנוי פרימיום → לשנות ל-"חינם להתחלה". **Trigger:** הוספת paid tier.
+- **⚡ Timer רץ ברקע**: אין `AppLifecycleState` שמשהה auto-play כשהאפליקציה ברקע. זניח למסך פתיחה. **Trigger:** אם נמדד battery/jank.
+- **🖼️ Parallax edge bleed**: הרקע זז עד 60px, עלול לחשוף שוליים בלי קווי-מחברת. כמעט בלתי-נראה (רקע subtle). **Trigger:** אם נראה במסכים צרים.
+
+---
+
 ## Home Dashboard Screen
 
 ### 📂 Components נגעו
