@@ -1063,6 +1063,28 @@
 
 ---
 
+## Shopping Lists Screen
+
+### 📂 Components נגעו
+- `shopping_lists_screen.dart` (1201 שורות) — כל הרשימות: חיפוש/סינון/מיון, sections פעיל+היסטוריה, pagination, FAB.
+- משתמש ב-`ShoppingListTile` (מחיקה owner-only דרך תפריט 3-נקודות).
+
+### ✅ Decisions Made (סבב 1-2, 2/6/2026)
+- **חיפוש בלחיצה אחת**: היה קבור 3 לחיצות (גלולה→תפריט→sheet). קודם לאייקון חיפוש ייעודי בסרגל. התפריט מחזיק עכשיו רק סינון+מיון+ניקוי.
+- **כותרת מסך highlighter**: הסרגל העליון היה ריק (בלי הקשר כשמשמש כטאב). נוספה "כל הרשימות" בסגנון highlighter cyan.
+- **היררכיית כותרת (סבב 2 — ביקורת עצמית)**: הכותרת החדשה הייתה `kFontSizeLarge` (20) — זהה ל-section headers, גם cyan. שונתה ל-`kFontSizeXLarge` (28) — magnitude ×1.4 שמבדיל "כותרת עמוד" מ"כותרת סקציה" בלי לשבור את שפת ה-highlighter.
+- **Badge סינון מדויק**: ה-pill נדלק רק על סינון/מיון (`hasFilterOrSort`), לא על חיפוש — לחיפוש יש אייקון מואר משלו.
+- **🔍 Source-vs-symptom — מחיקה ללא-בעלים**: לא נוסף snackbar. ה-`ShoppingListTile` כבר מסתיר את אפשרות המחיקה בתפריט כש-`onDelete=null`. אין כשל שקט.
+- **Hygiene**: `errorBuilder` על איור ה-empty (כמו dashboard/notifications) + `_kEmptyIllustrationSize`; magic alphas→tokens (`0.6`→`onSurfaceVariant`, `0.5`→`kOpacityMedium`, `0.8`→`kOpacityHigh`, `0.12`→`kOpacitySubtle`); תיקון הערת כותרת מיושנת ("swipe-to-delete"→menu).
+
+### ⏸️ Deferred
+- **📊 מיון לא חל על היסטוריה**: `_getFilteredAndSortedCompletedLists` תמיד ממיין לפי `updatedDate`, מתעלם מ-`_sortBy`. מרוכך ע"י subtitle "(לפי עדכון אחרון)". **Trigger:** אם משתמש מתלונן שמיון "לפי שם/תקציב" לא משפיע על היסטוריה. **המלצה:** להשאיר (ה-subtitle מסביר).
+- **⚡ `ListView(children:)` לא-עצל + רשימות פעילות ללא pagination**: כל הכרטיסים נבנים מיידית. תקין לשימוש טיפוסי (מעט רשימות). **Trigger:** אם משתמש עם 50+ רשימות פעילות חווה jank. **היקף:** בינוני (refactor ל-builder עם sections).
+- **🗄️ `statusArchived` רדום**: המודל תומך ב-archived אבל אין פעולת ארכוב פעילה, והמסך מציג רק active/completed. **Trigger:** אם יוסיפו feature ארכוב — לוודא שהמסך לא מסתיר אותן בשקט.
+- **💀 Skeleton בלי section headers**: `SkeletonListView` רשימה שטוחה; ה-layout הטעון מתחיל ב-header. קפיצה קלה (מרוכך ע"י fadeIn). **Trigger:** אם נראה קפיצה.
+
+---
+
 ## Shopping List Details — Task Dialog
 
 ### 📂 Components נגעו

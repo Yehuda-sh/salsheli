@@ -163,7 +163,11 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               child: Text(
                 AppStrings.shopping.allLists,
                 style: const TextStyle(
-                  fontSize: kFontSizeLarge,
+                  // Screen title outranks the section headers below
+                  // (kFontSizeLarge): 28 vs 20 is a clear ~1.4× magnitude,
+                  // so "page title" reads above "section title" even though
+                  // both wear the same cyan highlighter.
+                  fontSize: kFontSizeXLarge,
                   fontWeight: FontWeight.bold,
                 ),
               ),
