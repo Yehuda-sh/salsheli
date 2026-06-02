@@ -548,7 +548,7 @@ class _BottomSection extends StatelessWidget {
                .slideX(begin: 0.2, duration: 300.ms, delay: 500.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
-                icon: FontAwesomeIcons.ban,
+                icon: FontAwesomeIcons.bolt,
                 text: AppStrings.welcome.benefit3Title,
                 color: cs.primary,
               ).animate().fadeIn(duration: 300.ms, delay: 600.ms)

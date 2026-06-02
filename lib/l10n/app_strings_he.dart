@@ -602,7 +602,7 @@ class WelcomeStrings {
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   String get benefit1Title => 'חינמי לגמרי';
   String get benefit2Title => 'פרטי ומאובטח';
-  String get benefit3Title => 'ללא פרסומות';
+  String get benefit3Title => 'מוכן תוך דקה';
 
   String get startButton => 'הרשמה';
   String get loginLink => 'כבר יש לי חשבון — התחברות';

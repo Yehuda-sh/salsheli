@@ -587,7 +587,7 @@ class WelcomeStringsEn extends WelcomeStrings {
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   @override String get benefit1Title => 'Completely free';
   @override String get benefit2Title => 'Private & secure';
-  @override String get benefit3Title => 'No ads';
+  @override String get benefit3Title => 'Ready in a minute';
 
   @override String get startButton => 'Sign Up';
   @override String get loginLink => 'Already have an account — Log In';
