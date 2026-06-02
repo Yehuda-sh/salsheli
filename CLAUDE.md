@@ -104,6 +104,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 - **`claude/dev`** — ברנץ' העבודה השוטפת. **כל הסשנים** (לוקאלי + ענן/מובייל) עובדים עליו.
 - **`main`** — snapshot יציב. נוגעים בו רק כשמודעים ("עכשיו ממזגים פיצ'ר ל-main").
 - **ברנצ'ים `claude/<session-id>`** — אם המערכת יוצרת ברנץ' ייעודי לסשן, לבצע merge ל-`claude/dev` בסוף הסשן (לא להשאיר תלוי).
+- **🔴 חוק חובה — לדחוף תמיד גם ל-`claude/dev`**: גם כשהסשן מוגדר לעבוד על ברנץ' ייעודי (`claude/<session-id>`), בסוף הסשן **חייבים** לסנכרן את `claude/dev` ל-origin (fast-forward + `git push origin claude/dev`), לא רק את הברנץ' הייעודי. אחרת הסשן הבא שעובד על `claude/dev` לא יראה את העבודה. **שני הברנצ'ים חייבים להגיע ל-origin על אותו קומיט.**
 
 ### 🟢 בתחילת כל סשן — pull תמיד
 ```bash
