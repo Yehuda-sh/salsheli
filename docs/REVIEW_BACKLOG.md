@@ -208,6 +208,14 @@
 - **Perf/robustness**: `cacheWidth: 256` ללוגו (מקור 1533px), `errorBuilder` fallback ללוגו + 3 איורים, `RepaintBoundary` סביב worm-dot CustomPaint.
 - **RTL מטופל נכון**: parallax direction + worm-dot `count-1-pageOffset` לפי locale.
 
+### ✅ Decisions Made (סבב קודם — היסטורי)
+- **Inclusive language בנקודת הכניסה** — "לכל המשפחה" → "לכל הבית", "המשפחה מסונכרנת" → "כולם מסונכרנים" (he+en). הסתום הראשון של המשתמש — חייב להיות נכון לפני ה-L1 sweep הכללי.
+- **PageView reverse לפי locale** — `reverse: isRtl` במקום קבוע `true`. תואם ל-WormDotIndicator שכבר היה locale-aware.
+- **shouldRepaint מלא ב-`_WormPainter`** — כולל `inactiveColor` ו-`count`, לא רק `pageOffset`/`activeColor`. תואם להחלפת theme.
+- **Token alignment** — `alpha: 0.5` ב-bodyMedium → `kOpacityMedium`. **Theme extension reuse** — `brand?.success` מתוך scope, בלי re-fetch.
+
+> 📝 שני ה-Deferred של הסבב הקודם **נפתרו** בסבב 2/6: ה-style-on-style ב-`_SimpleFeatureCard` תועד בהערה (titleLarge נושא רק font; size/weight נדרסים במכוון), וה-magic alphas ב-`_BottomSection` קיבלו הערות או הוסרו (ה-`0.92`/blur ירדו עם הסרת ה-BackdropFilter).
+
 ### ⏸️ Deferred
 - **🛡️ "פרטי ומאובטח" מול תוכנית הפרסומות**: המשתמש מתכנן להוסיף פרסומות. אם רשת הפרסום עוקבת אחרי משתמשים — הטענה "פרטי ומאובטח" נחלשת. **Trigger:** לפני שמשיקים פרסומות — לוודא שזו אמת (רשת פרטית / בלי מכירת דאטה) או לרכך copy.
 - **🎁 "חינמי לגמרי" מול monetization עתידי**: נכון כל עוד המודל = פרסומות בלבד. אם ייכנס מנוי פרימיום → לשנות ל-"חינם להתחלה". **Trigger:** הוספת paid tier.
@@ -797,26 +805,6 @@
 ### ⏸️ Deferred
 - **🚨 קריטי: `showPantryMergeDialog` הוא stub כרגע** — `pending_invites_screen.dart:154` יש `// TODO: implement actual merge logic when user confirms`. הדיאלוג מחזיר `bool` אבל ה-caller **מתעלם מהתוצאה**. המשתמש לוחץ "העבר למזווה הבית" → כלום לא קורה. **Trigger:** סקירה של `pending_invites_screen.dart` או של `inventory_provider.dart`. **היקף:** בינוני — צריך method חדש ב-`InventoryProvider` שמעביר items מ-personal scope ל-household scope.
 - **שאר הקבצים של המסך** — לא נסקרו ב-12-category checklist. **Trigger:** סקירה רשמית של Pending Invites Screen.
-
----
-
-## Welcome Screen
-
-### 📂 Components נגעו
-- `welcome_screen.dart` — onboarding ראשי (carousel + benefits + CTA)
-- `app_strings_he.dart` / `app_strings_en.dart` — strings ספציפיים ל-welcome
-
-### ✅ Decisions Made
-- **Inclusive language בנקודת הכניסה** — "לכל המשפחה" → "לכל הבית", "המשפחה מסונכרנת" → "כולם מסונכרנים" (he+en). זה הסתום ראשון של המשתמש — חייב להיות נכון לפני ה-L1 sweep הכללי.
-- **PageView reverse לפי locale** — `reverse: isRtl` במקום קבוע `true`. תואם את ה-WormDotIndicator שכבר היה locale-aware.
-- **Parallax direction לפי locale** — `offset * intensity * (isRtl ? -1 : 1)`. הרקע נע נגד כיוון ה-swipe בשתי השפות.
-- **shouldRepaint מלא ב-_WormPainter** — כולל `inactiveColor` ו-`count`, לא רק `pageOffset` ו-`activeColor`. תואם להחלפת theme.
-- **Token alignment** — `alpha: 0.5` ב-bodyMedium → `kOpacityMedium`.
-- **Theme extension reuse** — `brand?.success` משומש מתוך scope, לא re-fetch של `Theme.of(context).extension<AppBrand>()`.
-
-### ⏸️ Deferred
-- **Style-on-style ב-`_SimpleFeatureCard`** — `theme.textTheme.titleLarge?.copyWith(fontSize: kFontSizeTitle, fontWeight: FontWeight.w800)`. דפוס שחוזר באפליקציה (ראה גם `suggestions_today_card.dart`, `section_header.dart` שתוקן). **Trigger:** typography sweep מתוכנן או סקירה של הקובץ הזה. **היקף:** קטן בקובץ, בינוני בכלל האפליקציה.
-- **Magic alphas רבים ב-`_BottomSection`** — `0.87`, `0.45`, `0.6`, `0.25`, `0.92`, `0.06`, `0.35`. כל אחד מהם premium marker מכוון. **Trigger:** sweep חוצה-קבצים אם נראה ש-0.45/0.6 מופיעים בכמה מקומות. **היקף:** קטן.
 
 ---
 
