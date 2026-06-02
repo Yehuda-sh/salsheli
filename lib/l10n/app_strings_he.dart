@@ -498,6 +498,7 @@ class ShoppingStrings {
   String get activeLists => '🔵 רשימות פעילות';
   String get historyLists => '✅ היסטוריה';
   String get historyListsNote => '(לפי עדכון אחרון)';
+  String get listsScreenTitle => 'כל הרשימות';
   String get noListsFoundTitle => 'לא נמצאו רשימות';
   String get noListsFoundSubtitle => 'נסה לשנות את החיפוש או הסינון';
   String get noListsTitle => 'מוכנים לקנייה חכמה?';

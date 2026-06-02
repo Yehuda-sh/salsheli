@@ -161,7 +161,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 borderRadius: BorderRadius.circular(kBorderRadiusSmall),
               ),
               child: Text(
-                AppStrings.shopping.allLists,
+                AppStrings.shopping.listsScreenTitle,
                 style: const TextStyle(
                   // Screen title outranks the section headers below
                   // (kFontSizeLarge): 28 vs 20 is a clear ~1.4× magnitude,

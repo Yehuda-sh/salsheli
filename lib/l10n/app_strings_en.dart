@@ -486,6 +486,7 @@ class ShoppingStringsEn extends ShoppingStrings {
   @override String get activeLists => '🔵 Active Lists';
   @override String get historyLists => '✅ History';
   @override String get historyListsNote => '(by last update)';
+  @override String get listsScreenTitle => 'All Lists';
   @override String get noListsFoundTitle => 'No lists found';
   @override String get noListsFoundSubtitle => 'Try changing the search or filter';
   @override String get noListsTitle => 'Ready to shop smarter?';
