@@ -590,18 +590,18 @@ class IndexStrings {
 class WelcomeStrings {
   const WelcomeStrings();
 
-  String get subtitle => 'המזווה יודע מה חסר — אתם רק קונים';
+  String get subtitle => 'סורקים ברקוד והמלאי מתעדכן, רואים מה חסר, וקונים יחד בזמן אמת';
 
-  // Carousel — the product's actual loop: pantry → auto-built list → store.
-  // Page 1 (pantry image): track home stock.
-  String get group1Title => 'המזווה זוכר במקומכם';
-  String get group1Question => 'מסמנים מה יש בבית וכמה, ולא שוכחים יותר מה נגמר';
-  // Page 2 (shopping image): the list builds itself from what's low.
-  String get group2Title => 'הרשימה כותבת את עצמה';
-  String get group2Question => 'כל מה שאוזל קופץ לרשימה לבד, בכמות שצריך';
-  // Page 3 (sharing image): in-store clarity + real-time split shopping.
-  String get group3Title => 'סוף לניחושים בסופר';
-  String get group3Question => 'רואים בדיוק איזה מוצר, ומתחלקים את העגלה בזמן אמת';
+  // Carousel — the product's actual loop: scan pantry → low-stock suggestions → shared store.
+  // Page 1 (pantry image): barcode quick-scan decrements stock locally.
+  String get group1Title => 'המלאי מתעדכן בסריקה';
+  String get group1Question => 'נגמר משהו? סורקים את הברקוד והכמות במזווה יורדת מיד — בלי להקליד';
+  // Page 2 (shopping image): low-stock items surface as suggestions, user adds with a tap.
+  String get group2Title => 'יודעים מה חסר, מוסיפים בנגיעה';
+  String get group2Question => 'מה שמתחיל להיגמר קופץ כהצעה — מוסיפים לרשימה בנגיעה, ויוצאים לסופר מסודרים';
+  // Page 3 (sharing image): real-time shared shopping on one list (visibility, not enforcement).
+  String get group3Title => 'קונים יחד, בלי כפילויות';
+  String get group3Question => 'קונים מאותה רשימה ביחד, וכל מה שמישהו לוקח מסומן לכולם בזמן אמת — אף אחד לא קונה פעמיים';
 
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   String get benefit1Title => 'חינמי לגמרי';

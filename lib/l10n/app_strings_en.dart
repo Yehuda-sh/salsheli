@@ -575,15 +575,18 @@ class IndexStringsEn extends IndexStrings {
 class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
-  @override String get subtitle => 'Your pantry knows what to buy — you just shop';
+  @override String get subtitle => 'Scan a barcode and stock updates, see what\'s running low, and shop together in real time';
 
-  // Carousel — the product's actual loop: pantry → auto-built list → store.
-  @override String get group1Title => 'Your pantry remembers for you';
-  @override String get group1Question => 'Mark what you have and how much — never forget what ran out';
-  @override String get group2Title => 'The list writes itself';
-  @override String get group2Question => 'Whatever runs low jumps onto the list, in the right amount';
-  @override String get group3Title => 'No more guessing in-store';
-  @override String get group3Question => 'See the exact product, and split the cart in real time';
+  // Carousel — the product's actual loop: scan pantry → low-stock suggestions → shared store.
+  // Page 1 (pantry image): barcode quick-scan decrements stock locally.
+  @override String get group1Title => 'Stock updates with a scan';
+  @override String get group1Question => 'Out of something? Scan the barcode and the pantry count drops instantly — no typing';
+  // Page 2 (shopping image): low-stock items surface as suggestions, user adds with a tap.
+  @override String get group2Title => 'Know what\'s low, add with a tap';
+  @override String get group2Question => 'Items running low pop up as suggestions — add them to your list with a tap and head to the store ready';
+  // Page 3 (sharing image): real-time shared shopping on one list (visibility, not enforcement).
+  @override String get group3Title => 'Shop together, no duplicates';
+  @override String get group3Question => 'Shop the same list together, and whatever someone grabs is marked for everyone in real time — no one buys it twice';
 
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   @override String get benefit1Title => 'Completely free';
