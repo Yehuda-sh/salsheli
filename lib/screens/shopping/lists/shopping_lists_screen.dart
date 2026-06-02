@@ -1,4 +1,4 @@
-// lib/screens/shopping/lists/shopping_lists_screen.dart — Shopping lists — all lists with search, filter, swipe-to-delete, create FAB
+// lib/screens/shopping/lists/shopping_lists_screen.dart — Shopping lists — all lists with search, filter, sort, menu delete (owner-only), create FAB
 
 import 'dart:async';
 
@@ -21,6 +21,8 @@ import '../active/active_shopping_screen.dart';
 import '../checklist/checklist_screen.dart';
 import '../who_brings/who_brings_screen.dart';
 
+// Empty-state illustration diameter (sits inside the gradient circle).
+const double _kEmptyIllustrationSize = 160.0;
 
 class ShoppingListsScreen extends StatefulWidget {
   const ShoppingListsScreen({super.key});
@@ -119,10 +121,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     );
   }
 
-  /// 🎛️ סרגל עליון נקי - כפתור גלולה עם טקסט
+  /// 🎛️ סרגל עליון — כותרת highlighter + חיפוש בלחיצה אחת + סינון
   Widget _buildTopBar() {
     final cs = Theme.of(context).colorScheme;
+    final brand = Theme.of(context).extension<AppBrand>();
     final canPop = Navigator.canPop(context);
+    // The pill controls type-filter + sort only; search has its own lit
+    // icon, so the pill badge reflects just what the popup owns.
+    final hasFilterOrSort = _selectedType != 'all' || _sortBy != 'date_desc';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
@@ -141,8 +147,43 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               color: cs.onSurfaceVariant,
               tooltip: AppStrings.common.goBack,
             ),
+          // 🏷️ כותרת מסך בסגנון highlighter — תואמת ל-section headers למטה,
+          // כך שהמסך נקרא כ"עמוד מחברת" אחד עם זהות ברורה.
+          Semantics(
+            header: true,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: kSpacingSmall,
+                vertical: kSpacingXTiny,
+              ),
+              decoration: BoxDecoration(
+                color: (brand?.stickyCyan ?? kStickyCyan).withValues(alpha: kHighlightOpacity),
+                borderRadius: BorderRadius.circular(kBorderRadiusSmall),
+              ),
+              child: Text(
+                AppStrings.shopping.allLists,
+                style: const TextStyle(
+                  fontSize: kFontSizeLarge,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
           const Spacer(),
-          // 🎛️ כפתור כלים/סינון בסגנון גלולה
+          // 🔍 חיפוש בלחיצה אחת — הפעולה הנפוצה ביותר מקבלת כפתור משלה
+          // במקום להיקבר שתי רמות בתוך תפריט.
+          IconButton(
+            onPressed: () {
+              unawaited(HapticFeedback.selectionClick());
+              _showSearchSheet();
+            },
+            icon: Icon(
+              Icons.search,
+              color: _searchQuery.isNotEmpty ? cs.primary : cs.onSurfaceVariant,
+            ),
+            tooltip: AppStrings.shopping.searchMenuLabel,
+          ),
+          // 🎛️ סינון + מיון בתפריט; נקודת badge מסמנת סינון פעיל.
           PopupMenuButton<String>(
             tooltip: AppStrings.shopping.searchAndFilter,
             shape: RoundedRectangleBorder(
@@ -150,12 +191,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             offset: const Offset(0, 40),
             itemBuilder: (context) => [
-              _buildMenuItem(
-                value: 'search',
-                icon: Icons.search,
-                label: AppStrings.shopping.searchMenuLabel,
-                isActive: _searchQuery.isNotEmpty,
-              ),
               _buildMenuItem(
                 value: 'filter',
                 icon: Icons.filter_list,
@@ -180,14 +215,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ],
             onSelected: _handleMenuAction,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: kSpacingSmallPlus, vertical: kSpacingTiny),
+              padding: const EdgeInsets.all(kSpacingTiny),
               decoration: BoxDecoration(
-                color: _hasActiveFilters
+                color: hasFilterOrSort
                     ? cs.primaryContainer
-                    : cs.surface.withValues(alpha: 0.8),
+                    : cs.surface.withValues(alpha: kOpacityHigh),
                 borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                 border: Border.all(
-                  color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.12),
+                  color: hasFilterOrSort ? cs.primary : cs.onSurface.withValues(alpha: kOpacitySubtle),
                 ),
               ),
               child: Row(
@@ -196,19 +231,10 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                   Icon(
                     Icons.tune,
                     size: kIconSizeSmallPlus,
-                    color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
+                    color: hasFilterOrSort ? cs.primary : cs.onSurfaceVariant,
                   ),
-                  const SizedBox(width: kSpacingTiny),
-                  Text(
-                    _hasActiveFilters ? AppStrings.shopping.filterActive : AppStrings.shopping.searchMenuLabel,
-                    style: TextStyle(
-                      fontSize: kFontSizeMedium,
-                      color: _hasActiveFilters ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
-                      fontWeight: _hasActiveFilters ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  // Badge נקודה כשיש סינון
-                  if (_hasActiveFilters) ...[
+                  // Badge נקודה כשיש סינון/מיון פעיל
+                  if (hasFilterOrSort) ...[
                     const SizedBox(width: kSpacingXTiny),
                     Container(
                       width: kSpacingSmall,
@@ -285,9 +311,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     unawaited(HapticFeedback.selectionClick());
 
     switch (action) {
-      case 'search':
-        _showSearchSheet();
-        break;
       case 'filter':
         _showFilterSheet();
         break;
@@ -529,7 +552,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? cs.primary : cs.onSurface.withValues(alpha: 0.6),
+        color: isSelected ? cs.primary : cs.onSurfaceVariant,
       ),
       title: Text(
         label,
@@ -572,7 +595,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       margin: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingSmall),
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.5),
+        color: cs.primaryContainer.withValues(alpha: kOpacityMedium),
         borderRadius: BorderRadius.circular(kBorderRadius),
       ),
       child: Row(
@@ -1124,9 +1147,14 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       child: ClipOval(
                         child: Image.asset(
                           'assets/images/empty_cart.webp',
-                          width: 160,
-                          height: 160,
+                          width: _kEmptyIllustrationSize,
+                          height: _kEmptyIllustrationSize,
                           fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Icon(
+                            Icons.shopping_cart_outlined,
+                            size: kIconSizeXLarge,
+                            color: cs.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),
