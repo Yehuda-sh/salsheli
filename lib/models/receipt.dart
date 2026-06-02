@@ -176,7 +176,7 @@ class Receipt {
     // break the entire receipts/history screen. Sanitize to a clean list first.
     final raw = json['items'];
     final safeItems = raw is List
-        ? raw.whereType<Map>().map((e) => Map<String, dynamic>.from(e)).toList()
+        ? raw.whereType<Map>().map(Map<String, dynamic>.from).toList()
         : const <Map<String, dynamic>>[];
     return _$ReceiptFromJson({...json, 'items': safeItems});
   }

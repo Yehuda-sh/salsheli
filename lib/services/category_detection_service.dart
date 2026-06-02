@@ -213,7 +213,7 @@ class CategoryDetectionService {
 
     // 2. זיהוי לפי מילות מפתח — הארוך-ביותר-קודם, כדי ששם ספציפי
     //    ינצח substring כללי ("עגבניה" מנצח "תמר", "שוקולד" מנצח "קפה").
-    final hasFlavorSignal = _flavorSignals.any((s) => nameLower.contains(s));
+    final hasFlavorSignal = _flavorSignals.any(nameLower.contains);
     for (final entry in _sortedKeywords) {
       if (!nameLower.contains(entry.key)) continue;
       // שם פרי/ירק/קפה בתוך מוצר מעובד הוא טעם, לא הקטגוריה האמיתית
