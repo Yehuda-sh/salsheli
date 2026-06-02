@@ -11,6 +11,7 @@ import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
 import '../providers/inventory_provider.dart';
 import '../providers/user_context.dart';
+import '../widgets/common/app_wordmark.dart';
 
 class AppLayout extends StatefulWidget {
   final Widget child;
@@ -150,18 +151,8 @@ class _AppLayoutState extends State<AppLayout> {
             fit: BoxFit.contain,
           ),
           const SizedBox(width: kSpacingSmall),
-          // ✍️ Handwriting-style brand name
-          Text(
-            AppStrings.layout.appTitle,
-            style: TextStyle(
-              fontFamily: 'Caveat',
-              fontSize: kFontSizeXLarge,
-              fontWeight: FontWeight.w700,
-              color: cs.primary,
-              letterSpacing: 0.5,
-              height: 1.0,
-            ),
-          ),
+          // ✍️ Handwriting-style two-tone brand name
+          const AppWordmark(fontSize: kFontSizeXLarge),
         ],
       ),
       centerTitle: true,

@@ -10,6 +10,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../core/ui_constants.dart';
 import '../l10n/app_strings.dart';
+import '../widgets/common/app_wordmark.dart';
 import '../widgets/common/notebook_background.dart';
 
 // ───────────────────────────────────────────────────────────────────────────
@@ -333,17 +334,7 @@ class _IndexLoadingViewState extends State<IndexLoadingView>
     final cs = Theme.of(context).colorScheme;
     return Semantics(
       header: true,
-      child: Text(
-        AppStrings.index.appName,
-        style: TextStyle(
-          fontFamily: 'Caveat',
-          fontSize: kFontSizeDisplay,
-          fontWeight: FontWeight.w700,
-          color: cs.primary,
-          letterSpacing: 0.5,
-          height: 1.0,
-        ),
-      ),
+      child: const AppWordmark(),
     )
         .animate(delay: 400.ms)
         .fadeIn(duration: 500.ms, curve: Curves.easeIn)
@@ -528,18 +519,8 @@ class _IndexErrorViewState extends State<IndexErrorView> {
                         ),
                         const SizedBox(height: kSpacingXLarge),
 
-                        // App name (same Caveat header as loading)
-                        Text(
-                          AppStrings.index.appName,
-                          style: TextStyle(
-                            fontFamily: 'Caveat',
-                            fontSize: kFontSizeDisplay,
-                            fontWeight: FontWeight.w700,
-                            color: cs.primary,
-                            letterSpacing: 0.5,
-                            height: 1.0,
-                          ),
-                        ),
+                        // App name (same two-tone wordmark as loading)
+                        const AppWordmark(),
                         const SizedBox(height: kSpacingLarge),
 
                         // Softer connectivity icon — error_outline with

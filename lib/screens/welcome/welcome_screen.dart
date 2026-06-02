@@ -11,6 +11,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/common/app_wordmark.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/dialogs/legal_content_dialog.dart';
 
@@ -258,19 +259,7 @@ class _LogoSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: kSpacingXTiny),
-            Text(
-              AppStrings.appName,
-              style: TextStyle(
-                fontFamily: 'Caveat',
-                fontSize: kFontSizeDisplay,
-                fontWeight: FontWeight.w700,
-                color: cs.primary,
-                // Tuned for the Caveat handwritten wordmark: a touch of
-                // tracking + tight line-height so it reads as one mark.
-                letterSpacing: 0.5,
-                height: 1.0,
-              ),
-            ),
+            const AppWordmark(),
             const SizedBox(height: kSpacingXTiny),
             Text(
               AppStrings.welcome.subtitle,
