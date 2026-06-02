@@ -1085,6 +1085,27 @@
 
 ---
 
+## Shopping List Details Screen
+
+### 📂 Components נגעו
+- `shopping_list_details_screen.dart` (1271 שורות) — הוספת/עריכת פריטים: חיפוש, סריקת ברקוד, הוספה חופשית, קיבוץ לפי קטגוריה, הרשאות, התחל-קנייה.
+- נקרא מ-`/populate-list` + `/list-details` (יצירה, רשימות, התראות).
+
+### ✅ Decisions Made (סבב 1, 2/6/2026)
+- **🐛 הסרת `Directionality(rtl)` מקובע (BUG fix)**: שורה 474 כפתה RTL על כל המסך → שבר English/LTR layout, והפך את ה-chevron ב-`_buildPlanningCard` (`Directionality.of(context) == rtl ? ...`) לקוד מת (תמיד RTL). הוסר → ה-layout עוקב אחרי ה-locale הגלובלי, וה-chevron חזר לחיים. אושר ע"י המשתמש שהאפליקציה אמורה לתמוך ב-LTR.
+- **🐛 הערת FAB מיושנת**: "לחיצה קצרה=מוצר, ארוכה=משימה" בעוד שיש 2 FABs נפרדים. תוקנה לתיאור הנכון.
+- **⚡ O(n²) → O(n)**: `currentList.items.indexOf(item)` בתוך ה-builder של הקיבוץ הוחלף ב-`indexById` map שנבנה פעם אחת.
+- **📏 רוחב strip עקבי**: `width: 3` (item) → `kSpacingXTiny` (=4, תואם ל-strip של כותרת הקטגוריה).
+- **🎨 Token alignment**: `0.5`→`kOpacityMedium` (hero icon bg, allChecked text), `0.2`→`kOpacityLow` (title highlight).
+
+### ⏸️ Deferred
+- **🌍 CROSS-CUTTING: `Directionality(rtl)` מקובע ב-14 קבצים נוספים** — אותו באג. נמצא ב: `template_preview_dialog`, `contact_selector_dialog`, `template_picker_dialog`, `pending_invites_screen`, `invite_users_screen`, `my_pantry_screen`, `pantry_empty_state`, `pending_requests_screen`, `add_location_dialog`, `product_selection_bottom_sheet`, `pantry_item_dialog`, `pantry_starter_preview_dialog`, `pantry_product_selection_sheet`. **Trigger:** sweep מתואם (קובץ-קובץ, כל אחד דורש בדיקה שאין raw `right`/`left` שהסתמך על RTL). **היקף:** בינוני-גדול. **לא לעשות בבת אחת בלי הרצה.**
+- **🎨 Colored glow shadows** (`0.35`/`0.4`/`0.3` alpha על FAB/CTA shadows) — premium tuning מכוון, לא tokens. נשמר.
+- **🟡 שני FABs מוערמים** — מוצר (גדול צהוב) + משימה (קטן ציאן). אין תוויות גלויות; tooltip בלבד. סיכון מיס-טאפ קל. **Trigger:** אם משתמשים מתבלבלים. **המלצה:** לשקול label זעיר או הפרדה.
+- **📂 קיבוץ קופץ ב-≥3 פריטים** — מעבר מרשימה שטוחה לקטגוריות. **Trigger:** אם המעבר מרגיש חד.
+
+---
+
 ## Shopping List Details — Task Dialog
 
 ### 📂 Components נגעו

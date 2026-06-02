@@ -471,9 +471,10 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     final brand = theme.extension<AppBrand>();
     final canEdit = currentList.canCurrentUserEdit;
 
-    return Directionality(
-      textDirection: ui.TextDirection.rtl,
-      child: Stack(
+    // No hardcoded Directionality here — the layout follows the app
+    // locale (he → RTL, en → LTR) from MaterialApp. Forcing RTL broke
+    // English layout and made the locale-aware chevron below dead code.
+    return Stack(
         children: [
           const NotebookBackground(),
           Scaffold(
@@ -542,7 +543,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       width: kIconSizeLarge,
                       height: kIconSizeLarge,
                       decoration: BoxDecoration(
-                        color: currentList.stickyColor.withValues(alpha: 0.5),
+                        color: currentList.stickyColor.withValues(alpha: kOpacityMedium),
                         borderRadius: BorderRadius.circular(kBorderRadiusSmall),
                       ),
                       child: Center(
@@ -556,7 +557,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: kSpacingSmall, vertical: 2),
                       decoration: BoxDecoration(
-                        color: currentList.stickyColor.withValues(alpha: 0.2),
+                        color: currentList.stickyColor.withValues(alpha: kOpacityLow),
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(2),
                           topRight: Radius.circular(6),
@@ -698,7 +699,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
               ),
             ),
 
-            // FAB: הוספה — לחיצה קצרה = מוצר, ארוכה = משימה
+            // FAB stack: כפתור גדול צהוב = הוספת מוצר, כפתור קטן ציאן = הוספת משימה
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             floatingActionButton: canEdit
                 ? Padding(
@@ -764,7 +765,6 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                 : null,
           ),
         ],
-      ),
     );
   }
 
@@ -991,7 +991,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     final canEdit = currentList.canCurrentUserEdit;
 
     final grouped = <String, List<UnifiedListItem>>{};
-    for (final item in items) {
+    // id → original index, built once. Avoids items.indexOf() inside the
+    // per-item builder below (which was O(n²) over the whole list).
+    final indexById = <String, int>{};
+    for (var i = 0; i < items.length; i++) {
+      final item = items[i];
+      indexById[item.id] = i;
       final cat = (item.category != null && item.category!.trim().isNotEmpty)
           ? item.category!
           : AppStrings.listDetails.categoryOther;
@@ -1039,7 +1044,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: kFontSizeBody,
-                      color: allChecked ? cs.onSurface.withValues(alpha: 0.5) : null,
+                      color: allChecked ? cs.onSurface.withValues(alpha: kOpacityMedium) : null,
                     ),
                   ),
                   const SizedBox(width: kSpacingSmall),
@@ -1060,7 +1065,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             ),
             // פריטים עם side strip + opacity
             ...categoryItems.map((item) {
-              final originalIndex = currentList.items.indexOf(item);
+              final originalIndex = indexById[item.id] ?? 0;
               return AnimatedOpacity(
                 duration: const Duration(milliseconds: 300),
                 opacity: item.isChecked ? 0.5 : 1.0,
@@ -1070,7 +1075,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                     border: BorderDirectional(
                       start: BorderSide(
                         color: highlightColors[catIndex % highlightColors.length],
-                        width: 3,
+                        width: kSpacingXTiny,
                       ),
                     ),
                   ),
