@@ -592,8 +592,8 @@ class WelcomeStrings {
   String get title => AppStringsHe.appName;
   String get subtitle => 'קניות חכמות לכל הבית';
   String get group1Emoji => '🛒';
-  String get group1Title => 'קנו ביחד';
-  String get group1Question => 'רשימה אחת, כולם עורכים בזמן אמת';
+  String get group1Title => 'רשימות חכמות';
+  String get group1Question => 'קטלוג מוצרים ותבניות מוכנות — בלי להקליד הכל';
   String get group1Feature1 => 'פריטים חכמים ✅';
   String get group1Feature2 => 'כמויות אוטומטיות 🔢';
   String get group2Emoji => '📦';
@@ -620,12 +620,15 @@ class WelcomeStrings {
   String get demoUser3 => 'דני';
   String get statusOnline => 'מחובר';
   String get statusOffline => 'לא מחובר';
-  String get benefit1Title => 'שיתוף בזמן אמת';
-  String get benefit1Subtitle => 'שינויים מופיעים מיד אצל כולם';
-  String get benefit2Title => 'רשימות + מטלות במקום אחד';
-  String get benefit2Subtitle => 'קניות, סידורים, אירועים — הכל מסודר';
-  String get benefit3Title => 'מזווה חכם';
-  String get benefit3Subtitle => 'יודע מה צריך — לפני שאתם יודעים';
+  // Welcome bottom chips — "trust signals", not feature repeats. The
+  // carousel already covers features (lists/sharing/pantry); these chips
+  // earn their place by answering "why install?" instead of echoing it.
+  String get benefit1Title => 'חינמי לגמרי';
+  String get benefit1Subtitle => 'ללא מנויים, ללא הפתעות';
+  String get benefit2Title => 'פרטי ומאובטח';
+  String get benefit2Subtitle => 'הנתונים שלך מוצפנים ומאובטחים';
+  String get benefit3Title => 'ללא פרסומות';
+  String get benefit3Subtitle => 'חוויה נקייה, בלי הסחות דעת';
   String get startButton => 'הרשמה';
   String get loginButton => 'התחברות';
   String get loginLink => 'כבר יש לי חשבון — התחברות';

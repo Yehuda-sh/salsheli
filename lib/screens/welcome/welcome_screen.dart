@@ -38,6 +38,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final _pageOffset = ValueNotifier<double>(0.0);
   int _currentPage = 0;
   Timer? _autoPlayTimer;
+  // Auto-play is a gentle "here's what we offer" loop — but the moment
+  // the user takes control (a manual swipe) it stops for good, so the
+  // carousel never "runs away" from someone reading at their own pace.
+  bool _autoPlayActive = true;
+  // animateToPage also fires onPageChanged; this flag lets us tell our
+  // own auto-advance apart from a genuine user swipe.
+  bool _isAutoAdvancing = false;
 
   @override
   void initState() {
@@ -66,17 +73,25 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _autoPlayTimer = Timer.periodic(_kAutoPlayInterval, (_) {
       if (!_pageController.hasClients) return;
       final nextPage = (_currentPage + 1) % _kOnboardingPages;
-      _pageController.animateToPage(
-        nextPage,
-        duration: _kPageTransition,
-        curve: Curves.easeInOutCubic,
-      );
+      _isAutoAdvancing = true;
+      _pageController
+          .animateToPage(
+            nextPage,
+            duration: _kPageTransition,
+            curve: Curves.easeInOutCubic,
+          )
+          .whenComplete(() => _isAutoAdvancing = false);
     });
   }
 
-  void _onUserSwipe(int index) {
+  void _onPageChanged(int index) {
     setState(() => _currentPage = index);
-    _startAutoPlay();
+    // A genuine user swipe (not our own auto-advance) stops the loop for
+    // good — the user is now in control.
+    if (!_isAutoAdvancing && _autoPlayActive) {
+      _autoPlayActive = false;
+      _autoPlayTimer?.cancel();
+    }
   }
 
   void _handleLogin() {
@@ -136,7 +151,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 _LogoSection(screenHeight: screenHeight)
                     .animate()
                     .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-                    .slideY(begin: 0.15, duration: 400.ms, curve: Curves.easeOut),
+                    .slideY(begin: 0.2, duration: 400.ms, curve: Curves.easeOut),
 
                 // === Carousel ===
                 Expanded(
@@ -145,7 +160,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     child: PageView(
                     controller: _pageController,
                     reverse: isRtl,
-                    onPageChanged: _onUserSwipe,
+                    onPageChanged: _onPageChanged,
                     children: [
                       _SimpleFeatureCard(
                         illustrationAsset: 'assets/images/onboarding_shopping.webp',
@@ -189,7 +204,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 )
                     .animate()
                     .fadeIn(duration: 400.ms, delay: 300.ms)
-                    .slideY(begin: 0.15, duration: 400.ms, delay: 300.ms),
+                    .slideY(begin: 0.2, duration: 400.ms, delay: 300.ms),
               ],
             ),
           ),
@@ -225,6 +240,15 @@ class _LogoSection extends StatelessWidget {
               'assets/images/logo.png',
               height: screenHeight * 0.08,
               fit: BoxFit.contain,
+              // Source is 1533×1533 but renders at ~64px. Without
+              // cacheWidth the full bitmap (~9MB decoded) sits in memory
+              // for a thumbnail — decode to a fraction instead.
+              cacheWidth: 256,
+              errorBuilder: (_, _, _) => Icon(
+                Icons.shopping_basket_rounded,
+                size: screenHeight * 0.08,
+                color: cs.primary,
+              ),
             ),
             const SizedBox(height: kSpacingXTiny),
             Text(
@@ -289,6 +313,13 @@ class _SimpleFeatureCard extends StatelessWidget {
                   illustrationAsset,
                   fit: BoxFit.cover,
                   width: double.infinity,
+                  errorBuilder: (_, _, _) => Center(
+                    child: Icon(
+                      Icons.image_outlined,
+                      size: kIconSizeXLarge,
+                      color: cs.onSurface.withValues(alpha: kOpacityLight),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -305,6 +336,9 @@ class _SimpleFeatureCard extends StatelessWidget {
                   title,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
+                    // 0.87 = Material "high-emphasis" text opacity. titleLarge
+                    // only carries the font family here; size/weight are
+                    // overridden deliberately for the carousel headline.
                     color: cs.onSurface.withValues(alpha: 0.87),
                     fontWeight: FontWeight.w800,
                     fontSize: kFontSizeTitle,
@@ -455,10 +489,10 @@ class _BottomSection extends StatelessWidget {
     final brand = theme.extension<AppBrand>();
     final bgColor = brand?.paperBackground ?? kPaperBackground;
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
-        child: Container(
+    // Solid paper panel. At ~92% opacity the old BackdropFilter blur was
+    // barely visible yet cost a GPU pass every frame — an opaque panel
+    // reads identically and is lighter. (Removed ClipRRect + blur.)
+    return Container(
           padding: EdgeInsets.only(
             left: kSpacingMedium,
             right: kSpacingMedium,
@@ -466,10 +500,7 @@ class _BottomSection extends StatelessWidget {
             bottom: bottomPadding + kSpacingSmall,
           ),
           decoration: BoxDecoration(
-            // Slightly higher than kOpacityHigh so the bottom panel
-            // reads as nearly-opaque while still letting the parallax
-            // background bleed through the BackdropFilter.
-            color: bgColor.withValues(alpha: 0.92),
+            color: bgColor,
             border: Border(
               top: BorderSide(
                 color: cs.outlineVariant.withValues(alpha: kOpacitySubtle),
@@ -489,25 +520,25 @@ class _BottomSection extends StatelessWidget {
             children: [
               // === Benefits — compact, staggered entrance ===
               _BenefitChip(
-                icon: FontAwesomeIcons.userGroup,
+                icon: FontAwesomeIcons.gift,
                 text: AppStrings.welcome.benefit1Title,
                 color: cs.primary,
               ).animate().fadeIn(duration: 300.ms, delay: 400.ms)
-               .slideX(begin: 0.1, duration: 300.ms, delay: 400.ms),
+               .slideX(begin: 0.2, duration: 300.ms, delay: 400.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
-                icon: FontAwesomeIcons.listCheck,
+                icon: FontAwesomeIcons.shieldHalved,
                 text: AppStrings.welcome.benefit2Title,
                 color: cs.primary,
               ).animate().fadeIn(duration: 300.ms, delay: 500.ms)
-               .slideX(begin: 0.1, duration: 300.ms, delay: 500.ms),
+               .slideX(begin: 0.2, duration: 300.ms, delay: 500.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
-                icon: FontAwesomeIcons.jar,
+                icon: FontAwesomeIcons.ban,
                 text: AppStrings.welcome.benefit3Title,
                 color: cs.primary,
               ).animate().fadeIn(duration: 300.ms, delay: 600.ms)
-               .slideX(begin: 0.1, duration: 300.ms, delay: 600.ms),
+               .slideX(begin: 0.2, duration: 300.ms, delay: 600.ms),
 
               const SizedBox(height: kSpacingMedium),
 
@@ -518,9 +549,12 @@ class _BottomSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(kBorderRadiusLarge),
                   boxShadow: [
+                    // Colored "lifted" glow under the primary CTA — the
+                    // 0.35 alpha + soft offset make the green button feel
+                    // raised off the paper. Tuned values, not tokens.
                     BoxShadow(
                       color: (brand?.success ?? cs.primary).withValues(alpha: 0.35),
-                      blurRadius: 16,
+                      blurRadius: kSpacingMedium,
                       offset: const Offset(0, 6),
                     ),
                   ],
@@ -603,9 +637,7 @@ class _BottomSection extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
   }
 }
 

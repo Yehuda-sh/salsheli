@@ -577,8 +577,8 @@ class WelcomeStringsEn extends WelcomeStrings {
   @override String get title => AppStringsEn.appName;
   @override String get subtitle => 'Smart shopping for everyone at home';
   @override String get group1Emoji => '🛒';
-  @override String get group1Title => 'Shop together';
-  @override String get group1Question => 'One list, everyone edits in real time';
+  @override String get group1Title => 'Smart lists';
+  @override String get group1Question => 'Built-in product catalog and ready templates — no typing it all';
   @override String get group1Feature1 => 'Smart items ✅';
   @override String get group1Feature2 => 'Auto quantities 🔢';
   @override String get group2Emoji => '📦';
@@ -605,12 +605,13 @@ class WelcomeStringsEn extends WelcomeStrings {
   @override String get demoUser3 => 'Danny';
   @override String get statusOnline => 'Online';
   @override String get statusOffline => 'Offline';
-  @override String get benefit1Title => 'Real-time sharing';
-  @override String get benefit1Subtitle => 'Changes appear instantly for everyone';
-  @override String get benefit2Title => 'Lists + tasks in one place';
-  @override String get benefit2Subtitle => 'Groceries, errands, events — all organized';
-  @override String get benefit3Title => 'Smart pantry';
-  @override String get benefit3Subtitle => 'Knows what you need before you do';
+  // Welcome bottom chips — "trust signals", not feature repeats (see HE).
+  @override String get benefit1Title => 'Completely free';
+  @override String get benefit1Subtitle => 'No subscriptions, no surprises';
+  @override String get benefit2Title => 'Private & secure';
+  @override String get benefit2Subtitle => 'Your data is encrypted and protected';
+  @override String get benefit3Title => 'No ads';
+  @override String get benefit3Subtitle => 'A clean experience, no distractions';
   @override String get startButton => 'Sign Up';
   @override String get loginButton => 'Log In';
   @override String get loginLink => 'Already have an account — Log In';
