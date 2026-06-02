@@ -124,9 +124,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final brand = theme.extension<AppBrand>();
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-    // Carousel direction follows the locale: in RTL the user expects
-    // "swipe right = next page" (matches reading direction). In LTR
-    // PageView's default forward swipe is left, so we don't reverse.
+    // PageView already honours Directionality (RTL → page 1 on the right,
+    // advancing right-to-left), so we must NOT pass reverse — that would
+    // double-flip it back to LTR. The worm dots and parallax below are
+    // hand-drawn (canvas/Transform don't auto-flip), so they keep their
+    // own isRtl handling and now stay consistent with the page direction.
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
@@ -167,7 +169,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     label: AppStrings.welcome.carouselLabel,
                     child: PageView(
                     controller: _pageController,
-                    reverse: isRtl,
                     onPageChanged: _onPageChanged,
                     children: [
                       _SimpleFeatureCard(

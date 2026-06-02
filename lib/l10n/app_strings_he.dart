@@ -590,18 +590,18 @@ class IndexStrings {
 class WelcomeStrings {
   const WelcomeStrings();
 
-  String get subtitle => 'הרשימה שמתחילה במזווה';
+  String get subtitle => 'המזווה יודע מה חסר — אתם רק קונים';
 
   // Carousel — the product's actual loop: pantry → auto-built list → store.
   // Page 1 (pantry image): track home stock.
-  String get group1Title => 'דעו מה יש בבית';
-  String get group1Question => 'רשמו מה יש במזווה וכמה — והאפליקציה שומרת על המלאי';
+  String get group1Title => 'המזווה זוכר במקומכם';
+  String get group1Question => 'מסמנים מה יש בבית וכמה, ולא שוכחים יותר מה נגמר';
   // Page 2 (shopping image): the list builds itself from what's low.
-  String get group2Title => 'הרשימה נבנית לבד';
-  String get group2Question => 'מה שאוזל הופך לרשימת קניות אוטומטית, בכמות הנכונה';
+  String get group2Title => 'הרשימה כותבת את עצמה';
+  String get group2Question => 'כל מה שאוזל קופץ לרשימה לבד, בכמות שצריך';
   // Page 3 (sharing image): in-store clarity + real-time split shopping.
-  String get group3Title => 'בסופר: ברור ומהיר';
-  String get group3Question => 'רואים את המוצר המדויק, ומתחלקים את הקנייה בזמן אמת';
+  String get group3Title => 'סוף לניחושים בסופר';
+  String get group3Question => 'רואים בדיוק איזה מוצר, ומתחלקים את העגלה בזמן אמת';
 
   // Bottom chips — "trust signals" (why install?), not feature repeats.
   String get benefit1Title => 'חינמי לגמרי';
