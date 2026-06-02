@@ -709,7 +709,7 @@ class AuthStrings {
   String get showPassword => 'הצג סיסמה';
   String get hidePassword => 'הסתר סיסמה';
   String get enterEmailFirst => 'אנא הזן את כתובת האימייל שלך בשדה למעלה';
-  String resetEmailSentTo(String email) => 'נשלח מייל לאיפוס סיסמה ל-$email';
+  String resetEmailSentTo(String email) => 'נשלח מייל לאיפוס סיסמה ל-$email (בדוק גם בתיבת הספאם)';
   String get resetEmailSendError => 'שגיאה בשליחת מייל איפוס';
   String get forgotPasswordSemanticLabel => 'שכחת סיסמה? לחץ לקבלת מייל איפוס';
   String get forgotPasswordSemanticHint => 'שולח קישור לאיפוס סיסמה לאימייל שהוזן';

@@ -252,6 +252,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (mounted) {
         setState(() => _isLoading = false);
 
+        // ✅ סוגר את הקשר ה-autofill כדי שמערכת ההפעלה תציע לשמור את הסיסמה החדשה
+        TextInput.finishAutofillContext();
+
         // 🏠 שאלה על שם הבית (אופציונלי — המשתמש יכול לדלג)
         await _askHouseholdName(userContext);
 
@@ -387,6 +390,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     required IconData icon,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
+    Iterable<String>? autofillHints,
     bool obscureText = false,
     Widget? suffixIcon,
     void Function(String)? onFieldSubmitted,
@@ -420,6 +424,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         ),
         keyboardType: keyboardType,
         textInputAction: textInputAction,
+        autofillHints: autofillHints,
         obscureText: obscureText,
         onChanged: (value) {
           // 📳 משוב תחושתי בעת מעבר מלא-תקין לתקין
@@ -484,7 +489,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                     },
                     // ✅ RepaintBoundary לאופטימיזציה
                     child: RepaintBoundary(
-                      child: Form(
+                      child: AutofillGroup(
+                        child: Form(
                         key: _formKey,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -577,6 +583,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               hint: AppStrings.auth.nameHint,
                               icon: Icons.person_outlined,
                               textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.name],
                               semanticLabel: AppStrings.auth.nameFieldSemanticLabel,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -602,6 +609,10 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
+                              autofillHints: const [
+                                AutofillHints.username,
+                                AutofillHints.email,
+                              ],
                               semanticLabel: AppStrings.auth.emailFieldSemanticLabel,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -628,6 +639,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               icon: Icons.phone_outlined,
                               keyboardType: TextInputType.phone,
                               textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.telephoneNumber],
                               semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
                               helperText: AppStrings.auth.phoneHelperText,
                               validator: (value) {
@@ -662,6 +674,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                 tooltip: _obscurePassword ? AppStrings.auth.showPassword : AppStrings.auth.hidePassword,
                               ),
                               textInputAction: TextInputAction.next,
+                              autofillHints: const [AutofillHints.newPassword],
                               semanticLabel: AppStrings.auth.passwordFieldSemanticLabel,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -696,6 +709,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     : AppStrings.auth.hidePassword,
                               ),
                               textInputAction: TextInputAction.done,
+                              autofillHints: const [AutofillHints.newPassword],
                               onFieldSubmitted: (_) {
                                 _onRegisterPressed();
                               },
@@ -806,6 +820,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             const SizedBox(height: kSpacingMedium),
                           ],
                         ),
+                      ),
                       ),
                     ),
                   ),

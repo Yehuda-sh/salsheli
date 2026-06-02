@@ -25,6 +25,12 @@ import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
 
 
+/// משך ההשהיה בין הודעת ההצלחה למעבר הביתה — קצר מספיק כדי לא להכביד על
+/// משתמש חוזר, ארוך מספיק כדי שיראה את אישור ההצלחה. עקבי לכל מסלולי ה-auth
+/// (אימייל / Google / Apple).
+const Duration _kSuccessRedirectDelay = Duration(milliseconds: 800);
+
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -49,8 +55,9 @@ class _LoginScreenState extends State<LoginScreen>
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
 
-  // 🎯 Focus node for auto-focus
+  // 🎯 Focus nodes — keyboard "next" flow: email → password
   final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -81,6 +88,7 @@ class _LoginScreenState extends State<LoginScreen>
     _passwordController.dispose();
     _shakeController.dispose();
     _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -164,11 +172,14 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
+        // ✅ סוגר את הקשר ה-autofill כדי שמערכת ההפעלה תציע לשמור את הסיסמה
+        TextInput.finishAutofillContext();
+
         // 🎉 הצגת הודעת הצלחה קצרה
         _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
 
         // ⏱️ המתנה קצרה לפני ניווט (feedback ויזואלי)
-        await Future.delayed(const Duration(milliseconds: 1500));
+        await Future.delayed(_kSuccessRedirectDelay);
 
         if (mounted) {
           // ✅ Pending invites guard: בודק ומנווט ל-/pending-invites אם יש,
@@ -219,8 +230,14 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // ✅ Pending invites guard before home
-        await navigateAfterAuth(context, userContext);
+        // 🎉 משוב הצלחה + השהיה קצרה — עקבי עם התחברות באימייל
+        _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
+        await Future.delayed(_kSuccessRedirectDelay);
+
+        if (mounted) {
+          // ✅ Pending invites guard before home
+          await navigateAfterAuth(context, userContext);
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
@@ -255,8 +272,14 @@ class _LoginScreenState extends State<LoginScreen>
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // ✅ Pending invites guard before home
-        await navigateAfterAuth(context, userContext);
+        // 🎉 משוב הצלחה + השהיה קצרה — עקבי עם התחברות באימייל
+        _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
+        await Future.delayed(_kSuccessRedirectDelay);
+
+        if (mounted) {
+          // ✅ Pending invites guard before home
+          await navigateAfterAuth(context, userContext);
+        }
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
@@ -479,7 +502,8 @@ class _LoginScreenState extends State<LoginScreen>
                           child: child,
                         );
                       },
-                      child: Form(
+                      child: AutofillGroup(
+                        child: Form(
                         key: _formKey,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -607,6 +631,13 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              autofillHints: const [
+                                AutofillHints.username,
+                                AutofillHints.email,
+                              ],
+                              onFieldSubmitted: (_) =>
+                                  _passwordFocusNode.requestFocus(),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return AppStrings.auth.emailRequired;
@@ -625,6 +656,7 @@ class _LoginScreenState extends State<LoginScreen>
                             // 🔒 שדה סיסמה - paper fillColor
                             TextFormField(
                               controller: _passwordController,
+                              focusNode: _passwordFocusNode,
                               decoration: InputDecoration(
                                 labelText: AppStrings.auth.passwordLabel,
                                 hintText: AppStrings.auth.passwordHint,
@@ -660,6 +692,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 ),
                               ),
                               obscureText: _obscurePassword,
+                              textInputAction: TextInputAction.done,
+                              autofillHints: const [AutofillHints.password],
                               onFieldSubmitted: (_) => _handleLogin(),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -800,6 +834,7 @@ class _LoginScreenState extends State<LoginScreen>
                           ],
                         ),
                       ),
+                      ),
                     ),
                   ),
               ),
@@ -813,6 +848,8 @@ class _LoginScreenState extends State<LoginScreen>
                       sigmaY: kGlassBlurMedium,
                     ),
                     child: Container(
+                      // 0.25: scrim עדין — מספיק כדי לעמעם את הטופס מאחורי
+                      // ה-blur, בלי להחשיך לגמרי (ה-BackdropFilter כבר עושה את העבודה)
                       color: cs.scrim.withValues(alpha: 0.25),
                       child: Center(
                         child: LoadingOverlay(color: cs.primary),

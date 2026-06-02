@@ -768,6 +768,19 @@
 **⏸️ נשאר ב-Deferred:**
 - **🔁 Shake animation duplication** — `_shakeController` + `_shakeAnimation` עם אותו TweenSequence (0→10→-8→6→-4→0) קיים ב-login (400ms) וב-register (500ms). אותו ייעוד (form validation fail), אותה לוגיקה. **Trigger:** סקירה ייעודית לחילוץ `ShakeOnError` widget משותף. **היקף:** קטן-בינוני.
 
+### 🔍 Third-Round Findings (2/6/2026) — login + register
+
+**✅ נסגרו (gap-driven — פיצ'ר שהיה ב-register או היה אמור להיות, חסר ב-login):**
+- **autofillHints + AutofillGroup** — היו **0 שימושים בכל `lib/`**. נוסף לשני המסכים: login (email=`username,email`; password=`password`), register (name/email/phone/password/confirm עם `newPassword`). + `TextInput.finishAutofillContext()` אחרי הצלחה → מערכת ההפעלה מציעה לשמור סיסמה. מנהלי סיסמאות (iCloud/Google/1Password) עכשיו ממלאים ושומרים.
+- **Keyboard flow ב-login** — היה רק `_emailFocusNode` לא-בשימוש. נוסף `_passwordFocusNode` + `TextInputAction.next` (email) → focus לסיסמה → `.done` מפעיל login. (register כבר היה תקין — שורש: login פיגר אחרי register.)
+- **השהיית הצלחה 1500ms → 800ms** (קבוע `_kSuccessRedirectDelay`) — פחות חיכוך למשתמש חוזר.
+- **עקביות social** — Google/Apple עכשיו מציגים אותו משוב הצלחה + 800ms כמו אימייל (לפני כן ניווטו מיד בלי משוב).
+- **קופי ספאם** — `resetEmailSentTo` עכשיו "(בדוק גם בתיבת הספאם)" — תואם את `verificationEmailSent` הקיים.
+- **scrim alpha 0.25** — קיבל הערה מסבירה (single-use, literal עם הסבר במקום const).
+
+**⏸️ נשאר ב-Deferred:**
+- register success delay נשאר 1200ms (לא קוצר ל-800 — פעולה חד-פעמית, פחות חיכוך חוזר). **Trigger:** אם רוצים עקביות מלאה בין login ל-register.
+
 ---
 
 ## Auth Screens (Register)

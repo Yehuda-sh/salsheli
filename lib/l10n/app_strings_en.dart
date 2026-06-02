@@ -694,7 +694,7 @@ class AuthStringsEn extends AuthStrings {
   @override String get showPassword => 'Show password';
   @override String get hidePassword => 'Hide password';
   @override String get enterEmailFirst => 'Please enter your email address in the field above';
-  @override String resetEmailSentTo(String email) => 'Password reset email sent to $email';
+  @override String resetEmailSentTo(String email) => 'Password reset email sent to $email (check your spam folder too)';
   @override String get resetEmailSendError => 'Error sending reset email';
   @override String get forgotPasswordSemanticLabel => 'Forgot password? Tap to receive a reset email';
   @override String get forgotPasswordSemanticHint => 'Sends a password reset link to the entered email';
