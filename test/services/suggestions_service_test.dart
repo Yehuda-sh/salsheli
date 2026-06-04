@@ -20,7 +20,8 @@ void main() {
             productName: 'חלב',
             category: 'מוצרי חלב',
             location: 'מקרר',
-            quantity: 1, // Below minQuantity (default 2)
+            quantity: 1, // Below minQuantity (2)
+            minQuantity: 2,
             unit: 'יח\'',
           ),
           const InventoryItem(
@@ -28,7 +29,7 @@ void main() {
             productName: 'לחם',
             category: 'מאפים',
             location: 'ארון',
-            quantity: 10, // Above minQuantity (default 2)
+            quantity: 10, // Above minQuantity
             unit: 'יח\'',
           ),
         ];
@@ -70,6 +71,7 @@ void main() {
             category: 'מוצרי חלב',
             location: 'מקרר',
             quantity: 2,
+            minQuantity: 3,
             unit: 'יח\'',
           ),
           const InventoryItem(
@@ -78,6 +80,7 @@ void main() {
             category: 'מאפים',
             location: 'ארון',
             quantity: 1,
+            minQuantity: 2,
             unit: 'יח\'',
           ),
         ];

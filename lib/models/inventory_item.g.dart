@@ -14,7 +14,7 @@ InventoryItem _$InventoryItemFromJson(Map<String, dynamic> json) =>
       location: json['location'] as String? ?? 'other',
       quantity: (json['quantity'] as num?)?.toInt() ?? 0,
       unit: json['unit'] as String? ?? "יח'",
-      minQuantity: (json['min_quantity'] as num?)?.toInt() ?? 2,
+      minQuantity: (json['min_quantity'] as num?)?.toInt() ?? 1,
       expiryDate:
           const NullableTimestampConverter().fromJson(json['expiry_date']),
       notes: json['notes'] as String?,

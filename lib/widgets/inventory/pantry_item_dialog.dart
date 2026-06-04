@@ -147,7 +147,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       _brandController = TextEditingController();
       _quantityController = TextEditingController(text: '1');
       _unitController = TextEditingController(text: AppStrings.inventory.defaultUnit);
-      _minQuantityController = TextEditingController(text: '2');
+      _minQuantityController = TextEditingController(text: '1');
       _notesController = TextEditingController();
       _selectedCategory = widget.initialCategory != null
           ? FiltersConfig.hebrewCategoryToEnglish(widget.initialCategory!)
@@ -737,7 +737,7 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
       return;
     }
 
-    final minQuantity = int.tryParse(_minQuantityController.text) ?? 2;
+    final minQuantity = int.tryParse(_minQuantityController.text) ?? 1;
     final productName = _nameController.text.trim();
     final brand = _brandController.text.trim();
     // שמור את הקטגוריה בעברית (לתאימות עם שאר המערכת)

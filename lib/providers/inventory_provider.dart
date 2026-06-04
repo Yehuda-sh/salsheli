@@ -361,7 +361,7 @@ class InventoryProvider with ChangeNotifier {
     required String location,
     int quantity = 1,
     String? unit,
-    int minQuantity = 2,
+    int minQuantity = 1,
     DateTime? expiryDate,
     String? notes,
     bool isRecurring = false,

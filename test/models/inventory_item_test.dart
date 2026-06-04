@@ -27,7 +27,7 @@ void main() {
         expect(item.location, 'מקרר');
         expect(item.quantity, 5);
         expect(item.unit, 'יח\'');
-        expect(item.minQuantity, 2); // default value
+        expect(item.minQuantity, 1); // default value
       });
 
       test('should create InventoryItem with custom minQuantity', () {
@@ -218,7 +218,7 @@ void main() {
         expect(item.location, 'other'); // default
         expect(item.quantity, 0); // default
         expect(item.unit, 'יח\''); // default
-        expect(item.minQuantity, 2); // default
+        expect(item.minQuantity, 1); // default
       });
 
       test('should roundtrip serialize/deserialize correctly', () {

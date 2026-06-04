@@ -405,7 +405,6 @@ class TemplateService {
         location: defaultLocation,
         quantity: quantity,
         unit: (product?['defaultUnit'] as String?) ?? unit,
-        minQuantity: 1,
       ));
     }
 

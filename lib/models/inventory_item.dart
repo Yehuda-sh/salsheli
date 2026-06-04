@@ -55,8 +55,8 @@ class InventoryItem {
   final String unit;
 
   /// כמות מינימלית - מתחת לסף הזה יוצג כ"מלאי נמוך"
-  /// ברירת מחדל: 2
-  @JsonKey(name: 'min_quantity', defaultValue: 2)
+  /// ברירת מחדל: 1 (מופיע ברשימה כשהכמות יורדת ל-0; ראה PRODUCT_DIRECTION §3)
+  @JsonKey(name: 'min_quantity', defaultValue: 1)
   final int minQuantity;
 
   /// תאריך תפוגה (אופציונלי)
@@ -111,7 +111,7 @@ class InventoryItem {
     required this.location,
     required this.quantity,
     required this.unit,
-    this.minQuantity = 2,
+    this.minQuantity = 1,
     this.expiryDate,
     this.notes,
     this.isRecurring = false,
