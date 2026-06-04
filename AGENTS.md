@@ -2,6 +2,8 @@
 
 > **Every Claude instance MUST read this file at the start of every session.**
 > This is not a session summary — it is a living operational guide.
+>
+> 🧭 **מקור אמת למוצר:** [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md) — הוא הקובע. עדכונים אחרי המיקוד לסופר: ריבוי סוגי רשימות וחנויות → **סופר בלבד**; נחתכו/הוקפאו "מי מביא?", מצב צ'קליסט, ותהליך אישור הבקשות; ניקוי 5 הקטלוגים האחרים → רק סופר; מנדט "NotebookBackground בכל מסך" → "נייר רגוע". רשומות היסטוריות למטה משקפות מצב קודם.
 
 ---
 

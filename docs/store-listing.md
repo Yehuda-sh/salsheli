@@ -1,5 +1,7 @@
 # MemoZap — Store Listing
 
+> ⚠️ **טיוטה ישנה — דורשת יישור.** הקופי כאן עדיין מדבר על ריבוי חנויות ו"לכל הבית". הכיוון הנוכחי: **סופר בלבד**, ממוקד בלולאת המזווה. ראה [PRODUCT_DIRECTION.md](PRODUCT_DIRECTION.md) לפני פרסום.
+
 ## App Name
 **MemoZap** — רשימת קניות חכמה
 
@@ -20,7 +22,7 @@ MemoZap הופך את ניהול הקניות לפשוט, חכם ומשותף �
 • צור רשימות קניות בקלות
 • קטלוג מוצרים מובנה — לא צריך להקליד הכל
 • סמן מוצרים תוך כדי קנייה
-• תבניות מוכנות לסופר, שוק, בית מרקחת ועוד
+• הרשימה נבנית מהמזווה — מה שנגמר בבית עובר אוטומטית לרשימה
 
 🏠 **שיתוף עם כל הבית**
 • הזמן בני משפחה, שותפים או חברים לבית אחד
@@ -56,7 +58,7 @@ MemoZap חינמי לשימוש. ללא מנויים, ללא הפתעות.
 Shopping / Productivity
 
 ## Tags
-shopping list, grocery, pantry, household, family, shared list, רשימת קניות, מזווה
+shopping list, grocery, pantry, supermarket, household, shared list, רשימת קניות, מזווה, סופר
 
 ## Content Rating
 Everyone / כל הגילאים

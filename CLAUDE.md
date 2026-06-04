@@ -1,11 +1,14 @@
 # MemoZap
 
+> 🧭 **מקור האמת למוצר:** [docs/PRODUCT_DIRECTION.md](docs/PRODUCT_DIRECTION.md).
+> אם משהו כאן סותר אותו — המסמך ההוא מנצח. האפליקציה ממוקדת ל**סופר בלבד**, והעיצוב מתפתח ל**"נייר רגוע"** (פתקים דביקים כמבטא, לא בכל מסך).
+
 ## Project Overview
 
-אפליקציית ניהול קניות משפחתית חכמה עם עיצוב **Notebook + Sticky Notes**.
+אפליקציית קניות חכמה **לסופר** — המזווה עוקב אחרי מה שחסר ובונה את רשימת הקנייה הבאה.
 
 **פיצ'רים עיקריים:**
-- רשימות קניות משותפות בזמן אמת (9 סוגים)
+- רשימת קניות אחת חיה לסופר, משותפת בזמן אמת (סוגי רשימות אחרים — מוסתרים)
 - מזווה דיגיטלי עם התראות מלאי נמוך
 - שיתוף רשימות עם תפקידים (Owner/Admin/Editor/Viewer)
 - קנייה משותפת עם סנכרון בזמן אמת
@@ -31,7 +34,7 @@ Flutter 3.8+ / Dart 3.8.1+ · Firebase (Auth/Firestore/Storage/Analytics/Crashly
 | Typography | `kFontSizeTiny(10)` → `kFontSizeDisplay(34)` — 8 sizes |
 | Icons | `kIconSizeSmall(16)`, `SmallPlus(20)`, `Medium(24)`, `MediumPlus(28)`, `Large(36)`, `XLarge(48)`, `XXLarge(64)` |
 | Colors | **Theme only** — `Theme.of(context).colorScheme` |
-| Background | `NotebookBackground()` on all 21 screens |
+| Background | `NotebookBackground()` — מסכים ראשיים; מתרכך ל"נייר רגוע" (ראה PRODUCT_DIRECTION §7) |
 | Imports | **Relative** in lib/ (`../../core/...`) — `package:memozap/` only in `main.dart` |
 
 **Rules:**
@@ -238,7 +241,7 @@ git push origin claude/dev
 - 📝 **Typography hierarchy** — האם בחירת `titleSmall`/`titleMedium`/`labelLarge` היא מודעת? האם משלבים `fontWeight: FontWeight.bold` מעל variant שכבר עם משקל (סטייל-מעל-סטייל)?
 - ✨ **Premium markers** — מה הופך את הוויג'ט הזה ל-**לא גנרי**? shadow? gradient? micro-animation? custom shape? אם אין — האם היה אמור להיות?
 - 🎭 **Empty / Loading / Error visuals** — האם המצבים האלה **מעוצבים** או "סתם מציגים מחרוזת"? אייקון? אילוסטרציה? CTA?
-- 🧬 **Coherence עם design language** — האפליקציה היא "Notebook + Sticky Notes". האם הוויג'ט הזה מרגיש חלק מזה, או generic Material? אם screen אחר באפליקציה דווקא **כן** מקיים את שפת העיצוב (לדוגמה: highlighter style ב-`shopping_lists_screen`) — זה gap.
+- 🧬 **Coherence עם design language** — שפת העיצוב מתפתחת ל"נייר רגוע" (פתקים כמבטא, לא עוטפים כל מסך — ראה [PRODUCT_DIRECTION](docs/PRODUCT_DIRECTION.md) §7). האם הוויג'ט נקי וחם, או רועש/generic Material? פתק מלא-צבע מאחורי כל תוכן הוא עכשיו **gap**, לא מטרה.
 - ⚠️ **Mis-tap risk** — אלמנטים הרסניים (מחיקה, ביטול) רחוקים מ-CTAs ראשיים? Reject button פחות בולט מ-Approve?
 - 📏 **האם הערכים עצמם נכונים?** — לא רק "האם זה קבוע":
   - **גודל** — `kMinTapTarget` (44) vs `kButtonHeight` (48) vs custom — מי מתאים **לתפקיד**? CTA ראשי? פעולה משנית?

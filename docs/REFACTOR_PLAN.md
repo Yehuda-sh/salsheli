@@ -3,6 +3,8 @@
 > נוצר: 8 מרץ 2026
 > עודכן: 30 אפריל 2026
 > מטרה: **אפליקציה מוכנה להפצה ב-App Store + Google Play**
+>
+> 🧭 **עודכן אחרי המיקוד לסופר** — ראה [PRODUCT_DIRECTION.md](PRODUCT_DIRECTION.md). פריטי "הושלם" שכבר לא תקפים: "Editor approval flow (PendingRequests)" ו-"מי מביא?" → **נחתכים**; "NotebookBackground ב-21/21" → מתרכך ל"נייר רגוע". שאר הפאזות עומדות בתוקפן.
 
 ---
 
