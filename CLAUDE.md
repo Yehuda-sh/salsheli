@@ -519,6 +519,19 @@ flutter run          # הרצה
 
 ---
 
+## Code Gotchas (Project-Specific)
+
+עובדות שחוזרות כבאגים — לבדוק בכל סריקת קוד:
+
+- **`unit` מול `defaultUnit`** — בקטלוג `unit` הוא יחידת המדידה של שופרסל (מיליליטר). לתצוגה/מזווה למשתמש — `defaultUnit` (יח').
+- **שמות מוצר עם סיומת אנגלית** — לנקות עם `_cleanProductName()` לפני תצוגה.
+- **סוגי התראות ב-Firestore** — חייבים להופיע ב-`isValidNotificationType()` ב-`firestore.rules`, אחרת הכתיבה נדחית.
+- **AppBar עם glass blur** — מסכי push עם AppBar: `flexibleSpace: ClipRect(child: BackdropFilter(...))`.
+- **גובה bottom sheet** — עם הרבה פריטים, להוסיף `maxHeight` (85% מגובה המסך).
+- **`NotebookBackground()` תמיד `const`**.
+
+---
+
 ## Dependency-First Ordering
 
 סדר עבודה:
