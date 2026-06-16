@@ -169,7 +169,16 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
     final name = product['name'] as String? ?? '';
     final category = product['category'] as String?;
-    await _addProductToList(name: name, currentList: currentList, category: category);
+    // 🆕 שמר ברקוד + מחיר מהקטלוג — אחרת הם נופלים בהוספה לרשימה (#23)
+    final barcode = product['barcode'] as String?;
+    final unitPrice = (product['price'] as num?)?.toDouble();
+    await _addProductToList(
+      name: name,
+      currentList: currentList,
+      category: category,
+      barcode: barcode,
+      unitPrice: unitPrice,
+    );
   }
 
   /// הוספת מוצר (מקטלוג או חופשי) — מכבד הרשאות Editor
@@ -178,6 +187,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     required ShoppingList currentList,
     int quantity = 1,
     String? category,
+    String? barcode,
+    double? unitPrice,
   }) async {
     final provider = context.read<ShoppingListsProvider>();
     final messenger = ScaffoldMessenger.of(context);
@@ -200,6 +211,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             'unit': AppStrings.pantry.unitAbbreviation,
             'category': category,
             'type': 'product',
+            if (barcode != null) 'barcode': barcode,
+            if (unitPrice != null) 'unitPrice': unitPrice,
           },
         );
 
@@ -222,6 +235,8 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           quantity,
           AppStrings.pantry.unitAbbreviation,
           category: category,
+          barcode: barcode,
+          unitPrice: unitPrice ?? 0.0,
         );
 
         unawaited(HapticFeedback.mediumImpact());

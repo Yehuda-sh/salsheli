@@ -548,7 +548,7 @@ class ShoppingListsProvider with ChangeNotifier {
   }
 
   // === Add Item To List ===
-  Future<void> addItemToList(String listId, String name, int quantity, String unit, {String? category}) async {
+  Future<void> addItemToList(String listId, String name, int quantity, String unit, {String? category, String? barcode, double unitPrice = 0.0}) async {
     final list = getById(listId);
     if (list == null) {
       throw Exception('רשימה $listId לא נמצאה');
@@ -565,7 +565,8 @@ class ShoppingListsProvider with ChangeNotifier {
       name: name,
       quantity: quantity,
       unit: unit,
-      unitPrice: 0.0,
+      unitPrice: unitPrice,
+      barcode: barcode,
       category: category,
     );
 

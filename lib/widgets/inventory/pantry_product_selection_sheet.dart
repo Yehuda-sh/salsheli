@@ -21,6 +21,7 @@ import '../common/app_loading_skeleton.dart';
 import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
 import '../common/product_thumbnail.dart';
+import 'pantry_item_dialog.dart';
 
 
 class PantryProductSelectionSheet extends StatefulWidget {
@@ -186,13 +187,16 @@ class _PantryProductSelectionSheetState
       setState(() => _searchQuery = name);
       _filterProducts();
     } else if (mounted) {
-      unawaited(HapticFeedback.heavyImpact());
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(AppStrings.shopping.barcodeNotFound(result.barcode)),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ));
+      // 🆕 לא נמצא בקטלוג → דיאלוג יצירת מוצר חדש עם הברקוד הסרוק,
+      // במקום שגיאה (תואם לסריקה הראשית במזווה).
+      unawaited(HapticFeedback.lightImpact());
+      unawaited(showDialog(
+        context: context,
+        builder: (ctx) => PantryItemDialog(
+          mode: PantryItemDialogMode.add,
+          initialBarcode: result.barcode,
+        ),
+      ));
     }
   }
 
@@ -332,6 +336,7 @@ class _PantryProductSelectionSheetState
         category: category,
         location: result['location'] as String,
         quantity: result['quantity'] as int,
+        minQuantity: result['minQuantity'] as int? ?? 1,
         barcode: barcode,
       );
 
@@ -378,6 +383,7 @@ class _PantryProductSelectionSheetState
     final locationsProvider = context.read<LocationsProvider>();
 
     int quantity = 1;
+    int minQuantity = 1;
     String location = StorageLocationsConfig.mainPantry;
 
     return showDialog<Map<String, dynamic>>(
@@ -445,6 +451,54 @@ class _PantryProductSelectionSheetState
                               ? () {
                                   unawaited(HapticFeedback.selectionClick());
                                   setDialogState(() => quantity++);
+                                }
+                              : null,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: kSpacingMedium),
+
+                    // 🆕 מינימום — מתי להתריע שהפריט עומד להיגמר
+                    Row(
+                      children: [
+                        Text(
+                          AppStrings.inventory.minimumLabel,
+                          style: TextStyle(color: cs.onSurfaceVariant),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: Icon(Icons.remove_circle, color: cs.error),
+                          onPressed: minQuantity > 0
+                              ? () {
+                                  unawaited(HapticFeedback.selectionClick());
+                                  setDialogState(() => minQuantity--);
+                                }
+                              : null,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: kSpacingMedium,
+                            vertical: kSpacingSmall,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cs.primaryContainer,
+                            borderRadius: BorderRadius.circular(kBorderRadius),
+                          ),
+                          child: Text(
+                            '$minQuantity',
+                            style: TextStyle(
+                              fontSize: kFontSizeMedium,
+                              fontWeight: FontWeight.bold,
+                              color: cs.primary,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add_circle, color: cs.primary),
+                          onPressed: minQuantity < kMaxPantryQuantity
+                              ? () {
+                                  unawaited(HapticFeedback.selectionClick());
+                                  setDialogState(() => minQuantity++);
                                 }
                               : null,
                         ),
@@ -536,6 +590,7 @@ class _PantryProductSelectionSheetState
                     onPressed: () {
                       Navigator.pop(dialogContext, {
                         'quantity': quantity,
+                        'minQuantity': minQuantity,
                         'location': location,
                       });
                     },
