@@ -31,8 +31,13 @@ class ListTypeConfig {
   /// אם null — חזרה ל-Material icon (זמני, עד יצירת sticker).
   final String? stickerAsset;
 
-  /// צבע אחיד לסוג הרשימה (Sticky Note style)
+  /// צבע אחיד לסוג הרשימה (Sticky Note style) — light/fallback const.
   final Color? color;
+
+  /// Dark-mode-aware resolver via AppBrand. Lives next to [color] so the
+  /// type→color mapping has a single home (was duplicated in getColor's
+  /// switch). null → fall back to [color] / theme primary.
+  final Color Function(AppBrand)? brandColor;
 
   const ListTypeConfig({
     required this.key,
@@ -42,6 +47,7 @@ class ListTypeConfig {
     required this.icon,
     this.stickerAsset,
     this.color,
+    this.brandColor,
   });
 }
 
@@ -60,6 +66,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.shopping_cart,
       stickerAsset: 'assets/icons/list_types/supermarket.png',
       color: kStickyGreen,
+      brandColor: (b) => b.stickyGreen,
     ),
     ListTypeConfig(
       key: ListTypeKeys.pharmacy,
@@ -69,6 +76,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.medication,
       stickerAsset: 'assets/icons/list_types/pharmacy.png',
       color: kStickyPink,
+      brandColor: (b) => b.stickyPink,
     ),
     ListTypeConfig(
       key: ListTypeKeys.greengrocer,
@@ -78,6 +86,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.local_florist,
       stickerAsset: 'assets/icons/list_types/greengrocer.png',
       color: kStickyCyan,
+      brandColor: (b) => b.stickyCyan,
     ),
     ListTypeConfig(
       key: ListTypeKeys.butcher,
@@ -87,6 +96,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.set_meal,
       stickerAsset: 'assets/icons/list_types/butcher.png',
       color: kStickyOrange,
+      brandColor: (b) => b.stickyOrange,
     ),
     ListTypeConfig(
       key: ListTypeKeys.bakery,
@@ -96,6 +106,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.bakery_dining,
       stickerAsset: 'assets/icons/list_types/bakery.png',
       color: kStickyYellow,
+      brandColor: (b) => b.stickyYellow,
     ),
     ListTypeConfig(
       key: ListTypeKeys.market,
@@ -105,6 +116,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.store,
       stickerAsset: 'assets/icons/list_types/market.png',
       color: kStickyGreen,
+      brandColor: (b) => b.stickyGreen,
     ),
     ListTypeConfig(
       key: ListTypeKeys.household,
@@ -114,6 +126,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.home,
       // 🚧 TODO: add assets/icons/list_types/household.png — falls back to Material icon for now.
       color: kStickyCyan,
+      brandColor: (b) => b.stickyCyan,
     ),
     ListTypeConfig(
       key: ListTypeKeys.event,
@@ -123,6 +136,7 @@ class ListTypes with ConfigValidation {
       icon: Icons.celebration,
       stickerAsset: 'assets/icons/list_types/event.png',
       color: kStickyPurple,
+      brandColor: (b) => b.stickyPurple,
     ),
     ListTypeConfig(
       key: ListTypeKeys.other,
@@ -143,28 +157,15 @@ class ListTypes with ConfigValidation {
   // 🎨 Color API
   // ========================================
 
-  /// צבע לפי סוג רשימה - תומך ב-Dark Mode דרך AppBrand
+  /// צבע לפי סוג רשימה - תומך ב-Dark Mode דרך AppBrand.
+  /// Single source: each config declares its own [brandColor] resolver.
   static Color getColor(String typeKey, ColorScheme cs, AppBrand? brand) {
-    if (brand != null) {
-      switch (typeKey) {
-        case ListTypeKeys.supermarket:
-        case ListTypeKeys.market:
-          return brand.stickyGreen;
-        case ListTypeKeys.pharmacy:
-          return brand.stickyPink;
-        case ListTypeKeys.greengrocer:
-        case ListTypeKeys.household:
-          return brand.stickyCyan;
-        case ListTypeKeys.bakery:
-          return brand.stickyYellow;
-        case ListTypeKeys.butcher:
-          return brand.stickyOrange;
-        case ListTypeKeys.event:
-          return brand.stickyPurple;
-      }
+    final config = getByKeySafe(typeKey);
+    if (brand != null && config.brandColor != null) {
+      return config.brandColor!(brand);
     }
-    // Fallback: צבע הקונפיגורציה או צבע הנושא הראשי
-    return getByKeySafe(typeKey).color ?? cs.primary;
+    // Fallback: light const color, or theme primary (e.g. 'other').
+    return config.color ?? cs.primary;
   }
 
   // ========================================
