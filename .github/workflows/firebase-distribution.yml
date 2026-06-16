@@ -20,6 +20,20 @@ jobs:
         with:
           fetch-depth: 2
 
+      # 🧹 Free runner disk space. A release build + NDK + the large bundled
+      #    catalog assets exhaust the default ~14 GB, which fails the build with
+      #    "No space left on device" (mergeReleaseResources / packageRelease).
+      #    Removes toolchains the Flutter/Android build never uses. The pre-bundled
+      #    NDK is wiped here and the one version we need is reinstalled below.
+      - name: Free up disk space
+        run: |
+          echo "Disk before cleanup:"; df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost
+          sudo rm -rf /usr/local/lib/android/sdk/ndk
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force 2>/dev/null || true
+          echo "Disk after cleanup:"; df -h /
+
       # 🔍 Detect if models changed — skip build_runner if not needed
       - name: Detect changes
         id: changes
@@ -77,7 +91,7 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
             android/.gradle
-          key: gradle-${{ hashFiles('android/build.gradle', 'android/app/build.gradle', 'pubspec.lock') }}
+          key: gradle-${{ hashFiles('android/**/*.gradle.kts', 'android/gradle/wrapper/gradle-wrapper.properties', 'pubspec.lock') }}
           restore-keys: gradle-
 
       - name: Install NDK
