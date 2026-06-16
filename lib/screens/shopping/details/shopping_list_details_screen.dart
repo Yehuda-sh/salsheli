@@ -35,8 +35,6 @@ import '../../../widgets/shopping/product_selection_bottom_sheet.dart';
 import '../../settings/manage_users_screen.dart';
 import '../../sharing/pending_requests_screen.dart';
 import '../active/active_shopping_screen.dart';
-import '../checklist/checklist_screen.dart';
-import '../who_brings/who_brings_screen.dart';
 
 
 class ShoppingListDetailsScreen extends StatefulWidget {
@@ -390,25 +388,16 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
 
   Future<void> _startShopping(ShoppingList currentList) async {
     unawaited(HapticFeedback.mediumImpact());
-    final Widget screen;
-    if (currentList.type == ShoppingList.typeEvent &&
-        currentList.eventMode == ShoppingList.eventModeWhoBrings) {
-      screen = WhoBringsScreen(list: currentList);
-    } else if (currentList.type == ShoppingList.typeEvent &&
-        currentList.eventMode == ShoppingList.eventModeTasks) {
-      screen = ChecklistScreen(list: currentList);
-    } else {
-      // מיון חכם לפי דפוס קנייה נלמד
-      final patternsService = ShoppingPatternsService(
-        firestore: FirebaseFirestore.instance,
-        userContext: context.read<UserContext>(),
-      );
-      final sortedList = await patternsService.sortListByPattern(
-        shoppingList: currentList,
-      );
-      screen = ActiveShoppingScreen(list: sortedList);
-    }
+    // מיון חכם לפי דפוס קנייה נלמד
+    final patternsService = ShoppingPatternsService(
+      firestore: FirebaseFirestore.instance,
+      userContext: context.read<UserContext>(),
+    );
+    final sortedList = await patternsService.sortListByPattern(
+      shoppingList: currentList,
+    );
     if (!mounted) return;
+    final Widget screen = ActiveShoppingScreen(list: sortedList);
     unawaited(Navigator.push(context, MaterialPageRoute(builder: (_) => screen)));
   }
 

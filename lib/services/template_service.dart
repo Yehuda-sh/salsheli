@@ -331,22 +331,6 @@ class TemplateService {
     return ['bbq', 'birthday', 'friends', 'shabbat', 'picnic'].contains(templateId);
   }
 
-  /// מחזיר מצב אירוע ברירת מחדל לפי ID תבנית ונראות
-  ///
-  /// - תבנית אירוע + משותף (לא פרטי) → 'who_brings' (מי מביא מה)
-  /// - תבנית אירוע + פרטי → 'tasks' (משימות אישיות)
-  /// - תבנית רגילה → null (קנייה רגילה)
-  static String? getEventModeForTemplate(String templateId, {required bool isPrivate}) {
-    // רק תבניות אירוע מקבלות eventMode
-    if (!isEventTemplate(templateId)) {
-      return null;
-    }
-
-    // אירוע פרטי = משימות אישיות (צ'קליסט)
-    // אירוע משותף = מי מביא מה
-    return isPrivate ? 'tasks' : 'who_brings';
-  }
-
   /// 🏺 טוען פריטי starter למזווה (Onboarding)
   ///
   /// מחזיר רשימת InventoryItem מוכנה להוספה למזווה

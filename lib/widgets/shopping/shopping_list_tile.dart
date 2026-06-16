@@ -118,16 +118,6 @@ class ShoppingListTile extends StatelessWidget {
       return (Icons.add_circle_outline, AppStrings.shopping.addProductsToStart);
     }
 
-    if (list.type == ShoppingList.typeEvent &&
-        list.eventMode == ShoppingList.eventModeWhoBrings) {
-      return (Icons.people, AppStrings.shopping.whoBringsWhat);
-    }
-
-    if (list.type == ShoppingList.typeEvent &&
-        list.eventMode == ShoppingList.eventModeTasks) {
-      return (Icons.checklist, AppStrings.shopping.checklist);
-    }
-
     return (Icons.shopping_cart_checkout, AppStrings.shopping.startShoppingButton);
   }
 

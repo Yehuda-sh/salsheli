@@ -18,8 +18,6 @@ import '../../../widgets/common/skeleton_loader.dart';
 import '../../../widgets/common/sticky_button.dart';
 import '../../../widgets/shopping/shopping_list_tile.dart';
 import '../active/active_shopping_screen.dart';
-import '../checklist/checklist_screen.dart';
-import '../who_brings/who_brings_screen.dart';
 
 // Empty-state illustration diameter (sits inside the gradient circle).
 const double _kEmptyIllustrationSize = 160.0;
@@ -1212,21 +1210,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     );
   }
 
-  /// 🎯 מחזיר את המסך המתאים לפי סוג הרשימה ומצב האירוע
+  /// 🎯 מחזיר את המסך המתאים לפי סוג הרשימה
   Widget _getScreenForList(ShoppingList list) {
-    // אירוע עם "מי מביא מה"
-    if (list.type == ShoppingList.typeEvent &&
-        list.eventMode == ShoppingList.eventModeWhoBrings) {
-      return WhoBringsScreen(list: list);
-    }
-
-    // אירוע אישי (משימות / צ'קליסט)
-    if (list.type == ShoppingList.typeEvent &&
-        list.eventMode == ShoppingList.eventModeTasks) {
-      return ChecklistScreen(list: list);
-    }
-
-    // כל השאר: חנויות + אירוע עם קנייה רגילה
+    // כל הרשימות: חנויות (קנייה רגילה)
     return ActiveShoppingScreen(list: list);
   }
 }

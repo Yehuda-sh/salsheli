@@ -323,7 +323,6 @@ class ShoppingListsProvider with ChangeNotifier {
     List<UnifiedListItem>? items, // 🆕 פריטים אופציונליים (UnifiedListItem)
     String? templateId, // 🆕 מזהה תבנית
     List<SelectedContact>? sharedContacts, // 🆕 אנשי קשר לשיתוף ספציפי
-    String? eventMode, // 🆕 מצב אירוע (who_brings/shopping/tasks)
   }) async {
     final userId = _userContext?.user?.id;
     final householdId = _userContext?.user?.householdId;
@@ -358,7 +357,6 @@ class ShoppingListsProvider with ChangeNotifier {
               eventDate: eventDate,
               isShared: isShared,
               isPrivate: isPrivate,
-              eventMode: eventMode, // 🆕 מצב אירוע
             )
           : ShoppingList.newList(
               id: _uuid.v4(),
@@ -371,7 +369,6 @@ class ShoppingListsProvider with ChangeNotifier {
               isPrivate: isPrivate,
               items: items ?? [], // 🆕 העברת פריטים
               createdFromTemplate: items != null && items.isNotEmpty,
-              eventMode: eventMode, // 🆕 מצב אירוע
             );
 
       await _repository.saveList(newList, userId, householdId);

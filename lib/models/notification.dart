@@ -42,7 +42,7 @@ class _ActionDataConverter
 /// קובעת את עוצמת הרטט ואת סדר המיון ב-UI:
 /// - [urgent] — דורש פעולה מיידית (userRemoved, voteTie)
 /// - [high] — חשוב אבל לא קריטי (invite, roleChanged, lowStock, expiryExpired)
-/// - [normal] — אינפורמטיבי רגיל (requestApproved, requestRejected, whoBringsVolunteer, newVote, expirySoon)
+/// - [normal] — אינפורמטיבי רגיל (requestApproved, requestRejected, newVote, expirySoon)
 /// - [low] — רקע / מידע כללי (memberLeft, unknown)
 enum NotificationPriority {
   low,
@@ -226,7 +226,7 @@ class AppNotification {
   /// שם המוצר
   String? get productName => _getData('productName', 'product_name');
 
-  /// שם המתנדב (ל-whoBringsVolunteer)
+  /// שם המתנדב
   String? get volunteerName => _getData('volunteerName', 'volunteer_name');
 
   /// סיבה (להסרה / דחייה)
@@ -242,7 +242,6 @@ class AppNotification {
       case NotificationType.invite:
       case NotificationType.requestApproved:
       case NotificationType.roleChanged:
-      case NotificationType.whoBringsVolunteer:
       case NotificationType.newVote:
       case NotificationType.voteTie:
         return listId != null;
@@ -276,7 +275,6 @@ class AppNotification {
     NotificationType.expirySoon => NotificationPriority.normal,
     NotificationType.requestApproved => NotificationPriority.normal,
     NotificationType.requestRejected => NotificationPriority.normal,
-    NotificationType.whoBringsVolunteer => NotificationPriority.normal,
     NotificationType.newVote => NotificationPriority.normal,
     NotificationType.memberLeft => NotificationPriority.low,
     NotificationType.unknown => NotificationPriority.low,
@@ -316,9 +314,6 @@ enum NotificationType {
 
   // === Stage 6: New notification types ===
 
-  @JsonValue('who_brings_volunteer')
-  whoBringsVolunteer, // מישהו התנדב להביא פריט
-
   @JsonValue('new_vote')
   newVote, // מישהו הצביע בהצבעה
 
@@ -357,8 +352,6 @@ extension NotificationTypeExtension on NotificationType {
         return '🔄';
       case NotificationType.userRemoved:
         return '🚫';
-      case NotificationType.whoBringsVolunteer:
-        return '🙋';
       case NotificationType.newVote:
         return '🗳️';
       case NotificationType.voteTie:
@@ -388,8 +381,6 @@ extension NotificationTypeExtension on NotificationType {
         return 'שינוי תפקיד';
       case NotificationType.userRemoved:
         return 'הסרה';
-      case NotificationType.whoBringsVolunteer:
-        return 'התנדבות';
       case NotificationType.newVote:
         return 'הצבעה';
       case NotificationType.voteTie:
@@ -416,7 +407,7 @@ extension NotificationTypeExtension on NotificationType {
   ///
   /// - error: userRemoved, requestRejected, voteTie, expiryExpired
   /// - warning: lowStock, expirySoon, roleChanged
-  /// - success: requestApproved, whoBringsVolunteer
+  /// - success: requestApproved
   /// - info: invite, newVote, memberLeft, unknown
   StatusType get statusType {
     switch (this) {
@@ -431,7 +422,6 @@ extension NotificationTypeExtension on NotificationType {
       case NotificationType.roleChanged:
         return StatusType.warning;
       case NotificationType.requestApproved:
-      case NotificationType.whoBringsVolunteer:
         return StatusType.success;
       case NotificationType.invite:
       case NotificationType.newVote:

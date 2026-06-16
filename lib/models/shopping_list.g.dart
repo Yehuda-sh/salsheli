@@ -45,7 +45,6 @@ ShoppingList _$ShoppingListFromJson(Map<String, dynamic> json) => ShoppingList(
               .toList() ??
           [],
       isPrivate: json['is_private'] as bool? ?? true,
-      eventMode: json['event_mode'] as String?,
     );
 
 Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
@@ -75,7 +74,6 @@ Map<String, dynamic> _$ShoppingListToJson(ShoppingList instance) =>
       'pending_requests':
           instance.pendingRequests.map((e) => e.toJson()).toList(),
       'is_private': instance.isPrivate,
-      'event_mode': instance.eventMode,
     };
 
 Value? _$JsonConverterFromJson<Json, Value>(

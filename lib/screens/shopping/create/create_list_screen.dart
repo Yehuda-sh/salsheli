@@ -11,7 +11,6 @@ import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/selected_contact.dart';
-import '../../../models/shopping_list.dart';
 import '../../../models/unified_list_item.dart';
 import '../../../providers/shopping_lists_provider.dart';
 import '../../../services/template_service.dart';
@@ -64,13 +63,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
   // 📋 Template selection
   TemplateInfo? _selectedTemplate;
   List<UnifiedListItem> _templateItems = [];
-
-  // 🎉 Event mode (לאירועים בלבד)
-  // null = קנייה רגילה (לא אירוע)
-  // 'who_brings' = מי מביא מה
-  // 'shopping' = קנייה רגילה (אירוע)
-  // 'tasks' = משימות אישיות
-  String? _eventMode;
 
   // 📅 Date formatter
   final _dateFormat = DateFormat('dd/MM/yyyy');
@@ -127,7 +119,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
         items: _templateItems.isNotEmpty ? _templateItems : null,
         templateId: _selectedTemplate?.id,
         sharedContacts: _visibility == ListVisibility.shared ? _selectedContacts : null,
-        eventMode: _type == ShoppingList.typeEvent ? _eventMode : null,
       );
 
 
@@ -259,11 +250,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
           // 🎉 עדכון סוג הרשימה לפי התבנית
           _type = TemplateService.getListTypeForTemplate(selected.id);
           _templateItems = selectedItems;
-          // 🎯 עדכון eventMode לתבניות אירוע
-          _eventMode = TemplateService.getEventModeForTemplate(
-            selected.id,
-            isPrivate: _visibility == ListVisibility.private,
-          );
         });
 
         messenger.removeCurrentSnackBar();
@@ -574,12 +560,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     // נקה אנשי קשר אם עוברים מ-shared לאופציה אחרת
                     if (_visibility != ListVisibility.shared) {
                       _selectedContacts = [];
-                    }
-                    // 🎯 עדכון eventMode אם זה אירוע
-                    if (_type == ShoppingList.typeEvent) {
-                      _eventMode = _visibility == ListVisibility.private
-                          ? ShoppingList.eventModeTasks
-                          : ShoppingList.eventModeWhoBrings;
                     }
                   });
                 },

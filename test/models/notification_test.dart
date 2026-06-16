@@ -140,8 +140,8 @@ void main() {
       }
     });
 
-    test('enum has 13 values', () {
-      expect(NotificationType.values.length, 13);
+    test('enum has 12 values', () {
+      expect(NotificationType.values.length, 12);
     });
   });
 
@@ -222,7 +222,7 @@ void main() {
     test('volunteerName getter', () {
       final n = AppNotification(
         id: 'ad-6', userId: 'u1', householdId: 'h1',
-        type: NotificationType.whoBringsVolunteer, title: 't', message: 'm',
+        type: NotificationType.invite, title: 't', message: 'm',
         actionData: const {'volunteer_name': 'אבי'},
         createdAt: DateTime(2026, 3, 15),
       );
