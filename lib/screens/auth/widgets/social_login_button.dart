@@ -47,6 +47,10 @@ class SocialLoginButton extends StatelessWidget {
       enabled: !isDisabled,
       child: AnimatedButton(
         enabled: !isDisabled,
+        // Light haptic on press — social sign-in is a CTA (matches the
+        // AnimatedButton guardrail: haptic for CTAs, not navigation).
+        // Fires only when enabled, so a disabled button stays silent.
+        haptic: ButtonHaptic.light,
         // 0.97 matches the heavier-press preset documented in
         // animated_button.dart — keeps the social buttons feeling
         // chunky without being mushy.
