@@ -35,13 +35,13 @@ void main() {
         final list = ShoppingList.newList(
           name: 'קניות לחג',
           createdBy: 'user-123',
-          type: ShoppingList.typeBakery,
+          type: ShoppingList.typeSupermarket,
           budget: 500.0,
           eventDate: eventDate,
           isShared: true,
         );
 
-        expect(list.type, ShoppingList.typeBakery);
+        expect(list.type, ShoppingList.typeSupermarket);
         expect(list.budget, 500.0);
         expect(list.eventDate, eventDate);
         expect(list.isShared, true);
@@ -421,15 +421,15 @@ void main() {
           type: ShoppingList.typeSupermarket,
         );
 
-        final pharmacyList = ShoppingList.newList(
-          name: 'בית מרקחת',
+        final otherList = ShoppingList.newList(
+          name: 'אחר',
           createdBy: 'user-123',
-          type: ShoppingList.typePharmacy,
+          type: ShoppingList.typeOther,
         );
 
         // ✅ Colors now come from ListTypes config (single source of truth)
         expect(supermarketList.stickyColor, const Color(0xFFA5D6A7)); // kStickyGreen
-        expect(pharmacyList.stickyColor, const Color(0xFFF48FB1)); // kStickyPink
+        expect(otherList.stickyColor, const Color(0xFFFFF59D)); // kStickyYellow fallback
       });
 
       test('typeEmoji should return correct emoji for each type', () {
@@ -444,20 +444,11 @@ void main() {
 
         expect(
           ShoppingList.newList(
-            name: 'אטליז',
+            name: 'אחר',
             createdBy: 'user-123',
-            type: ShoppingList.typeButcher,
+            type: ShoppingList.typeOther,
           ).typeEmoji,
-          '🥩',
-        );
-
-        expect(
-          ShoppingList.newList(
-            name: 'מאפייה',
-            createdBy: 'user-123',
-            type: ShoppingList.typeBakery,
-          ).typeEmoji,
-          '🥖',
+          '📝',
         );
       });
 
@@ -473,11 +464,11 @@ void main() {
 
         expect(
           ShoppingList.newList(
-            name: 'בית מרקחת',
+            name: 'אחר',
             createdBy: 'user-123',
-            type: ShoppingList.typePharmacy,
+            type: ShoppingList.typeOther,
           ).typeIcon,
-          Icons.medication,
+          Icons.more_horiz,
         );
       });
     });
@@ -528,12 +519,6 @@ void main() {
 
       test('should have correct type constants', () {
         expect(ShoppingList.typeSupermarket, 'supermarket');
-        expect(ShoppingList.typePharmacy, 'pharmacy');
-        expect(ShoppingList.typeGreengrocer, 'greengrocer');
-        expect(ShoppingList.typeButcher, 'butcher');
-        expect(ShoppingList.typeBakery, 'bakery');
-        expect(ShoppingList.typeMarket, 'market');
-        expect(ShoppingList.typeHousehold, 'household');
         expect(ShoppingList.typeOther, 'other');
       });
 

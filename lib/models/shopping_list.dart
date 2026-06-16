@@ -126,8 +126,8 @@ class ShoppingList {
   @JsonKey(defaultValue: 'active')
   final String status;
 
-  /// 🇮🇱 סוג הרשימה: "supermarket" | "pharmacy" | "other" וכו'
-  /// 🇬🇧 List type: "supermarket" | "pharmacy" | "other" etc.
+  /// 🇮🇱 סוג הרשימה: "supermarket" | "other"
+  /// 🇬🇧 List type: "supermarket" | "other"
   @JsonKey(defaultValue: 'supermarket')
   final String type;
 
@@ -225,25 +225,15 @@ class ShoppingList {
   static const String statusArchived = 'archived';
   static const String statusCompleted = 'completed';
 
-  // ---- Type constants (Extended List Types) ----
+  // ---- Type constants (supermarket-only) ----
   // ✅ מפתחות סוגים - delegate ל-ListTypeKeys (מקור אמת יחיד)
   static const String typeSupermarket = ListTypeKeys.supermarket;
-  static const String typePharmacy = ListTypeKeys.pharmacy;
-  static const String typeGreengrocer = ListTypeKeys.greengrocer;
-  static const String typeButcher = ListTypeKeys.butcher;
-  static const String typeBakery = ListTypeKeys.bakery;
-  static const String typeMarket = ListTypeKeys.market;
-  static const String typeHousehold = ListTypeKeys.household;
-  static const String typeEvent = ListTypeKeys.event;
   static const String typeOther = ListTypeKeys.other;
 
   /// 🇮🇱 האם הרשימה צריכה לעדכן מזווה משפחתי ולשמור דפוסי קנייה?
   /// 🇬🇧 Should this list update household pantry and save shopping patterns?
-  /// - רשימות אירועים (על האש, יום הולדת) - לא מעדכנות
   /// - רשימות אישיות (isPrivate=true) - לא מעדכנות מזווה משפחתי
   static bool shouldUpdatePantry(String type, {required bool isPrivate}) {
-    // רשימות אירוע - לא מעדכנות מזווה
-    if (type == typeEvent) return false;
     // רשימות אישיות - לא מעדכנות מזווה משפחתי
     if (isPrivate) return false;
     return true;

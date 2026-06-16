@@ -1,7 +1,7 @@
 # 🧹 ניקוי "סופר בלבד" — מחיקת סוגי הרשימות שאינם-סופר
 
 > **מה זה:** תוכנית ביצוע למחיקה מלאה (לא הסתרה) של כל מה שאינו-סופר, לפי [PRODUCT_DIRECTION.md](PRODUCT_DIRECTION.md).
-> **סטטוס:** פאזות 1-2 ✅ בוצעו. פאזות 3-7 ⬜ ממתינות — **לבצע כשיש זמן.**
+> **סטטוס:** פאזות 1-4 ✅ בוצעו. פאזות 5-7 ⬜ ממתינות — **לבצע כשיש זמן.**
 > **החלטות מפתח:** למחוק (לא להשאיר מוסתר); לשמור `supermarket` + `other` בלבד; לשמור את תבניות המזווה/השבועי; "אישור בקשות" + "פישוט תפקידים" — **מחוץ להיקף הזה** (עבודה נפרדת בעתיד).
 
 זה מסמך **חד-פעמי** — כשכל הפאזות בוצעו, אפשר למחוק אותו (ההיסטוריה ב-git).
@@ -34,22 +34,23 @@
 
 **הקשור: הסתרת כרטיס "מה לבשל"** (`ffd0dbae`) — הוסר מהרינדור; הקוד + `filters_data` food-logic סומנו DORMANT. `url_launcher` תלוי כעת רק בו (יהפוך למיותר אם הכרטיס יימחק לגמרי).
 
+### פאזה 3 — תבניות אירוע · commit `0a9f6dd`
+- נמחקו 8 תבניות `event_*.json` (bbq/birthday/friends/hanukkah/passover/picnic/rosh_hashana/shabbat).
+- נשמרו `pantry_basic.json` + `shopping_weekly.json` (המזווה משתמש בהן).
+- `list_templates.json` עודכן — נשארה רק קטגוריית "קניות שוטפות".
+- `template_service.dart`: הוסר `isEventTemplate` + לוגיקת event. `getListTypeForTemplate` מחזיר תמיד `'supermarket'`.
+- `template_picker_dialog` / `template_preview_dialog`: אין refs ל-event.
+
+### פאזה 4 — config: הגדרות הסוגים
+- `list_type_keys.dart`: הוסרו `pharmacy/greengrocer/butcher/bakery/market/household/event` מ-`all` ומהקבועים. נשמרו `supermarket` + `other`.
+- `list_types_config.dart`: הוסרו 7 ה-`ListTypeConfig` המתאימים (נשמרו supermarket + other). `performValidation` מאמת 1:1 מול `ListTypeKeys.all`.
+- `shopping_list.dart`: הוסרו הקבועים `typePharmacy`...`typeEvent` (נשמרו `typeSupermarket` + `typeOther`). `shouldUpdatePantry` כבר לא מתייחס ל-`typeEvent`.
+- `shopping_lists_screen.dart`: הוסר כל בורר סינון-הסוג (צ'יפ "all" בודד, sheet, tag, `_getTypeLabel`) — כל הרשימות הן סופר. נשארו חיפוש + מיון.
+- הטסטים ב-`shopping_list_test.dart` עודכנו לשני הסוגים שנשארו.
+
 ---
 
 ## ⬜ נשאר לביצוע
-
-### פאזה 3 — תבניות אירוע (סיכון בינוני)
-- **למחוק** 8 תבניות: `assets/templates/event_bbq.json`, `event_birthday.json`, `event_friends.json`, `event_hanukkah.json`, `event_passover.json`, `event_picnic.json`, `event_rosh_hashana.json`, `event_shabbat.json`.
-- **לשמור:** `pantry_basic.json` + `shopping_weekly.json` (המזווה משתמש בהן — ראה `inventory_provider`, `my_pantry_screen`, `pantry_suggestions`).
-- לעדכן את האינדקס `assets/templates/list_templates.json` — להסיר את רשומות האירוע.
-- `template_service.dart`: לבדוק/לנקות `isEventTemplate` (נשאר ללא callers אחרי פאזה 2) + כל לוגיקת event שנותרה. `getListTypeForTemplate` — לוודא שלא מחזיר סוג שאינו-סופר.
-- `template_picker_dialog.dart` / `template_preview_dialog.dart`: לוודא שלא מציגים תבניות אירוע.
-
-### פאזה 4 — config: הגדרות הסוגים (סיכון נמוך)
-- `list_type_keys.dart`: להסיר `pharmacy/greengrocer/butcher/bakery/market/household/event` מ-`all` ומהקבועים. **לשמור `supermarket` + `other`** (`other` = fallback חובה ל-resolve pattern).
-- `list_types_config.dart`: להסיר את 7 ה-`ListTypeConfig` המתאימים (לשמור supermarket + other). `performValidation` תאמת אוטומטית 1:1 מול `ListTypeKeys.all`.
-- `shopping_list.dart`: להסיר את הקבועים `typePharmacy`...`typeHousehold`, `typeEvent` (לשמור `typeSupermarket` + `typeOther`). לעדכן `shouldUpdatePantry` (היום מתייחס ל-`typeEvent` — הופך למיותר).
-- `shopping_lists_screen.dart`: להסיר את צ'יפ ה-"all" הבודד שנשאר מפאזה 1 (כל הרשימות הן סופר → סינון סוג מיותר).
 
 ### פאזה 5 — קטלוגים (סיכון בינוני)
 - **למחוק** 5 קבצי JSON: `assets/data/list_types/pharmacy.json`, `market.json`, `butcher.json`, `greengrocer.json`, `bakery.json`. **לשמור `supermarket.json`.**
@@ -59,6 +60,7 @@
 
 ### פאזה 6 — מחרוזות + stickers + נתוני דמו (סיכון נמוך)
 - `app_strings_he.dart` + `app_strings_en.dart`: להסיר `typePharmacy`...`typeEvent` (+ ה-`*Short`), `eventMode*`, `whoBrings*`.
+- **חוב מפאזה 4:** המחרוזות `allTypesLabel`, `filterByTypeLabel`, `filterByTypeTitle` התייתמו (בורר סינון-הסוג הוסר) — להסיר גם אותן.
 - **stickers:** למחוק 7 PNG ב-`assets/icons/list_types/` (`pharmacy/greengrocer/butcher/bakery/market/event` + לבדוק household). **לשמור `supermarket.png` + `other.png`.**
 - `scripts/rebuild_demo_data.js`: להסיר יצירת רשימות שאינן-סופר (event/who_brings/templates של אירוע) + התראות `who_brings_volunteer`.
 - **חוב מפאזה 2 לסגור כאן:** ה-helpers של `whoBrings` ב-`unified_list_item.dart` (`isWhoBrings`, `neededCount`, `volunteers`, factory `whoBrings`, וכו') + ה-getter `volunteerName` ב-`notification.dart` — נשארו כי היו שזורים בזרימת אישור-הבקשות. אם אישור-הבקשות עדיין קיים → להשאיר; אם נמחק (עבודה נפרדת) → לנקות גם פה.

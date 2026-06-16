@@ -1,4 +1,4 @@
-// lib/screens/shopping/lists/shopping_lists_screen.dart — Shopping lists — all lists with search, filter, sort, menu delete (owner-only), create FAB
+// lib/screens/shopping/lists/shopping_lists_screen.dart — Shopping lists — all lists with search, sort, menu delete (owner-only), create FAB
 
 import 'dart:async';
 
@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../../config/list_types_config.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
 import '../../../models/shopping_list.dart';
@@ -32,7 +31,6 @@ class ShoppingListsScreen extends StatefulWidget {
 class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   // 🔍 חיפוש וסינון
   String _searchQuery = '';
-  String _selectedType = 'all';
   String _sortBy = 'date_desc';
 
   // 📦 היסטוריה - pagination
@@ -48,7 +46,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   /// האם יש סינון/חיפוש פעיל
   bool get _hasActiveFilters =>
-      _searchQuery.isNotEmpty || _selectedType != 'all' || _sortBy != 'date_desc';
+      _searchQuery.isNotEmpty || _sortBy != 'date_desc';
 
   @override
   void didChangeDependencies() {
@@ -124,9 +122,9 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
     final canPop = Navigator.canPop(context);
-    // The pill controls type-filter + sort only; search has its own lit
-    // icon, so the pill badge reflects just what the popup owns.
-    final hasFilterOrSort = _selectedType != 'all' || _sortBy != 'date_desc';
+    // The pill controls sort only; search has its own lit icon, so the
+    // pill badge reflects just what the popup owns.
+    final hasFilterOrSort = _sortBy != 'date_desc';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium, vertical: kSpacingTiny),
@@ -193,12 +191,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
             ),
             offset: const Offset(0, 40),
             itemBuilder: (context) => [
-              _buildMenuItem(
-                value: 'filter',
-                icon: Icons.filter_list,
-                label: AppStrings.shopping.filterByTypeLabel,
-                isActive: _selectedType != 'all',
-              ),
               _buildMenuItem(
                 value: 'sort',
                 icon: Icons.sort,
@@ -313,9 +305,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     unawaited(HapticFeedback.selectionClick());
 
     switch (action) {
-      case 'filter':
-        _showFilterSheet();
-        break;
       case 'sort':
         _showSortSheet();
         break;
@@ -429,78 +418,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     }
   }
 
-  /// 🏷️ Bottom Sheet לסינון לפי סוג
-  void _showFilterSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(kBorderRadiusLarge)),
-        ),
-        padding: const EdgeInsets.all(kSpacingLarge),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // כותרת
-            Row(
-              children: [
-                const Icon(Icons.filter_list, size: kIconSizeMedium),
-                const SizedBox(width: kSpacingSmall),
-                Text(
-                  AppStrings.shopping.filterByTypeTitle,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-            const SizedBox(height: kSpacingLarge),
-
-            // אפשרויות סינון
-            Wrap(
-              spacing: kSpacingSmall,
-              runSpacing: kSpacingSmall,
-              children: [
-                _buildFilterChip('all', '📦', AppStrings.shopping.allTypesLabel),
-              ],
-            ),
-            const SizedBox(height: kSpacingLarge),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// צ'יפ סינון
-  Widget _buildFilterChip(String key, String emoji, String name) {
-    final cs = Theme.of(context).colorScheme;
-    final isSelected = _selectedType == key;
-
-    return FilterChip(
-      showCheckmark: false,
-      label: Text(
-        '$emoji $name',
-        style: TextStyle(
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        ),
-      ),
-      selected: isSelected,
-      onSelected: (selected) {
-        unawaited(HapticFeedback.selectionClick());
-        setState(() {
-          _selectedType = key;
-          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
-        });
-        Navigator.pop(context);
-      },
-      backgroundColor: cs.onPrimary,
-      selectedColor: Theme.of(context).extension<AppBrand>()?.stickyCyan ?? kStickyCyan,
-    );
-  }
-
   /// 📊 Bottom Sheet למיון
   void _showSortSheet() {
     showModalBottomSheet(
@@ -582,7 +499,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     unawaited(HapticFeedback.lightImpact());
     setState(() {
       _searchQuery = '';
-      _selectedType = 'all';
       _sortBy = 'date_desc';
       _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
     });
@@ -612,8 +528,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               children: [
                 if (_searchQuery.isNotEmpty)
                   _buildFilterTag('🔍 "$_searchQuery"', onTap: _showSearchSheet),
-                if (_selectedType != 'all')
-                  _buildFilterTag('🏷️ ${_getTypeLabel(_selectedType)}', onTap: _showFilterSheet),
                 if (_sortBy != 'date_desc')
                   _buildFilterTag('📊 ${_getSortLabel()}', onTap: _showSortSheet),
               ],
@@ -660,13 +574,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ),
       ),
     );
-  }
-
-  /// קבלת תווית סוג
-  String _getTypeLabel(String type) {
-    if (type == 'all') return AppStrings.shopping.allTypesLabel;
-    final listType = ListTypes.all.where((t) => t.key == type).firstOrNull;
-    return listType?.shortName ?? type;
   }
 
   /// קבלת תווית מיון
@@ -725,13 +632,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     return _buildListsView(activeLists, completedLists);
   }
 
-  /// 🔍 סינון רשימות לפי סטטוס, חיפוש וסוג
+  /// 🔍 סינון רשימות לפי סטטוס וחיפוש
   List<ShoppingList> _filterLists(List<ShoppingList> lists, String status) {
     final query = _searchQuery.toLowerCase();
     return lists.where((list) {
       if (list.status != status) return false;
       if (_searchQuery.isNotEmpty && !list.name.toLowerCase().contains(query)) return false;
-      if (_selectedType != 'all' && list.type != _selectedType) return false;
       return true;
     }).toList();
   }
