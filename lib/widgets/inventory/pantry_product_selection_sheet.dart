@@ -17,6 +17,7 @@ import '../../providers/locations_provider.dart';
 import '../../repositories/local_products_repository.dart';
 import '../../theme/app_theme.dart';
 import '../common/add_location_dialog.dart';
+import '../common/app_dialog.dart';
 import '../common/app_loading_skeleton.dart';
 import '../common/barcode_helpers.dart';
 import '../common/notebook_background.dart';
@@ -190,9 +191,9 @@ class _PantryProductSelectionSheetState
       // 🆕 לא נמצא בקטלוג → דיאלוג יצירת מוצר חדש עם הברקוד הסרוק,
       // במקום שגיאה (תואם לסריקה הראשית במזווה).
       unawaited(HapticFeedback.lightImpact());
-      unawaited(showDialog(
+      unawaited(AppDialog.show(
         context: context,
-        builder: (ctx) => PantryItemDialog(
+        child: PantryItemDialog(
           mode: PantryItemDialogMode.add,
           initialBarcode: result.barcode,
         ),

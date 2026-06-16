@@ -23,6 +23,7 @@ import '../../services/notifications_service.dart';
 import '../../services/template_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/add_location_dialog.dart';
+import '../../widgets/common/app_dialog.dart';
 import '../../widgets/common/app_error_state.dart';
 import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/barcode_helpers.dart';
@@ -292,9 +293,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     // 🆕 לא נמצא בקטלוג → פתח דיאלוג יצירת מוצר חדש עם הברקוד הסרוק,
     // במקום מבוי סתום של "ברקוד לא נמצא". המשתמש ממלא שם וזה נשמר עם הברקוד.
     if (product == null) {
-      unawaited(showDialog(
+      unawaited(AppDialog.show(
         context: context,
-        builder: (ctx) => PantryItemDialog(
+        child: PantryItemDialog(
           mode: PantryItemDialogMode.add,
           initialBarcode: result.barcode,
         ),
@@ -359,9 +360,9 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
     }
 
     if (!mounted) return;
-    unawaited(showDialog(
+    unawaited(AppDialog.show(
       context: context,
-      builder: (ctx) => PantryItemDialog(
+      child: PantryItemDialog(
         mode: PantryItemDialogMode.add,
         initialName: name,
         initialCategory: category,
