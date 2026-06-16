@@ -32,6 +32,9 @@ const kLocationEmojis = [
   '📍', // מיקום אחר
 ];
 
+/// Max length for a custom location name (keeps it readable in dropdowns/chips).
+const int _kMaxLocationNameLength = 30;
+
 /// מציג דיאלוג להוספת מיקום חדש.
 /// מחזיר את ה-key של המיקום החדש, או null אם בוטל.
 Future<String?> showAddLocationDialog(BuildContext context) async {
@@ -98,7 +101,7 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                   const SizedBox(height: kSpacingMedium),
                   TextField(
                     controller: controller,
-                    maxLength: 30,
+                    maxLength: _kMaxLocationNameLength,
                     decoration: InputDecoration(
                       labelText: AppStrings.inventory.locationNameLabel,
                       hintText: AppStrings.inventory.locationNameHint,
@@ -107,7 +110,9 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                     // textDirection removed — TextField now follows the
                     // ambient Directionality, so an English location name
                     // ("Living Room") aligns LTR on an EN locale.
-                    onChanged: (_) => setDialogState(() {}),
+                    // No onChanged: the Add button rebuilds itself via a
+                    // ValueListenableBuilder on the controller, so the whole
+                    // dialog (incl. the emoji grid) no longer rebuilds per keystroke.
                   ),
                 ],
               ),
@@ -117,58 +122,63 @@ Future<String?> showAddLocationDialog(BuildContext context) async {
                 onPressed: () => Navigator.pop(ctx),
                 child: Text(AppStrings.common.cancel),
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
-                label: Text(AppStrings.inventory.addLocationButton),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: cs.primaryContainer,
-                  foregroundColor: cs.onPrimaryContainer,
-                ),
-                onPressed: controller.text.trim().isEmpty
-                    ? null
-                    : () async {
-                        final name = controller.text.trim();
+              // Only the button rebuilds when the name field changes (enabled
+              // state) — not the whole dialog. Emoji taps still use setDialogState.
+              ValueListenableBuilder<TextEditingValue>(
+                valueListenable: controller,
+                builder: (_, value, _) => ElevatedButton.icon(
+                  icon: const Icon(Icons.add_location_alt, size: kIconSizeSmall),
+                  label: Text(AppStrings.inventory.addLocationButton),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: cs.primaryContainer,
+                    foregroundColor: cs.onPrimaryContainer,
+                  ),
+                  onPressed: value.text.trim().isEmpty
+                      ? null
+                      : () async {
+                          final name = controller.text.trim();
 
-                        final provider = ctx.read<LocationsProvider>();
-                        final navigator = Navigator.of(ctx);
-                        final messenger = ScaffoldMessenger.of(ctx);
+                          final provider = ctx.read<LocationsProvider>();
+                          final navigator = Navigator.of(ctx);
+                          final messenger = ScaffoldMessenger.of(ctx);
 
-                        // Compute the key the same way the provider does,
-                        // so we can return it without relying on the
-                        // "last item in customLocations" assumption — that
-                        // race-conditions if anything else mutates the
-                        // list during the await.
-                        final newKey = CustomLocation.normalizeKey(name);
-                        // Distinguish "already exists" from other failures
-                        // (network, permissions). The provider's bool
-                        // return collapses both, so we check existence
-                        // up front to surface the right message.
-                        final alreadyExists = provider.locationExists(newKey);
+                          // Compute the key the same way the provider does,
+                          // so we can return it without relying on the
+                          // "last item in customLocations" assumption — that
+                          // race-conditions if anything else mutates the
+                          // list during the await.
+                          final newKey = CustomLocation.normalizeKey(name);
+                          // Distinguish "already exists" from other failures
+                          // (network, permissions). The provider's bool
+                          // return collapses both, so we check existence
+                          // up front to surface the right message.
+                          final alreadyExists = provider.locationExists(newKey);
 
-                        final success = await provider.addLocation(
-                          name,
-                          emoji: selectedEmoji,
-                        );
-
-                        if (!ctx.mounted) return;
-
-                        if (success) {
-                          navigator.pop(newKey);
-                          return;
-                        }
-
-                        messenger
-                          ..removeCurrentSnackBar()
-                          ..showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                alreadyExists
-                                    ? AppStrings.inventory.locationExists
-                                    : AppStrings.inventory.locationAddError,
-                              ),
-                            ),
+                          final success = await provider.addLocation(
+                            name,
+                            emoji: selectedEmoji,
                           );
-                      },
+
+                          if (!ctx.mounted) return;
+
+                          if (success) {
+                            navigator.pop(newKey);
+                            return;
+                          }
+
+                          messenger
+                            ..removeCurrentSnackBar()
+                            ..showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  alreadyExists
+                                      ? AppStrings.inventory.locationExists
+                                      : AppStrings.inventory.locationAddError,
+                                ),
+                              ),
+                            );
+                        },
+                ),
               ),
             ],
           );
