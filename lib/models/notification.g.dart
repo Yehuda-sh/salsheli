@@ -46,8 +46,6 @@ const _$NotificationTypeEnumMap = {
   NotificationType.requestRejected: 'request_rejected',
   NotificationType.roleChanged: 'role_changed',
   NotificationType.userRemoved: 'user_removed',
-  NotificationType.newVote: 'new_vote',
-  NotificationType.voteTie: 'vote_tie',
   NotificationType.memberLeft: 'member_left',
   NotificationType.lowStock: 'low_stock',
   NotificationType.expiryExpired: 'expiry_expired',

@@ -914,7 +914,6 @@
     - `who_brings_volunteer` → `notify_shopping`
     - `invite` / `request_approved` / `request_rejected` / `role_changed` / `user_removed` / `member_left` → `notify_group`
     - `low_stock` / `expiry_expired` / `expiry_soon` → `notify_reminders`
-    - `new_vote` / `vote_tie` → `notify_list_updates`
 - **🎨 6 sections migrated from Material Card → StickyNote** (matching the app's "Notebook + Sticky Notes" design language). Color palette per section, slight rotation each:
   - Section 0 (Profile): `stickyYellow` (-0.005°) — warm hero identity
   - Section 1 (Notifications): `stickyOrange` (+0.005°) — attention/alerts

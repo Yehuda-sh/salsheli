@@ -40,9 +40,9 @@ class _ActionDataConverter
 /// 🔔 רמת דחיפות ההתראה
 ///
 /// קובעת את עוצמת הרטט ואת סדר המיון ב-UI:
-/// - [urgent] — דורש פעולה מיידית (userRemoved, voteTie)
+/// - [urgent] — דורש פעולה מיידית (userRemoved)
 /// - [high] — חשוב אבל לא קריטי (invite, roleChanged, lowStock, expiryExpired)
-/// - [normal] — אינפורמטיבי רגיל (requestApproved, requestRejected, newVote, expirySoon)
+/// - [normal] — אינפורמטיבי רגיל (requestApproved, requestRejected, expirySoon)
 /// - [low] — רקע / מידע כללי (memberLeft, unknown)
 enum NotificationPriority {
   low,
@@ -242,8 +242,6 @@ class AppNotification {
       case NotificationType.invite:
       case NotificationType.requestApproved:
       case NotificationType.roleChanged:
-      case NotificationType.newVote:
-      case NotificationType.voteTie:
         return listId != null;
       case NotificationType.lowStock:
       case NotificationType.expiryExpired:
@@ -267,7 +265,6 @@ class AppNotification {
   /// רמת הדחיפות — למיון ורטט
   NotificationPriority get priority => switch (type) {
     NotificationType.userRemoved => NotificationPriority.urgent,
-    NotificationType.voteTie => NotificationPriority.urgent,
     NotificationType.invite => NotificationPriority.high,
     NotificationType.roleChanged => NotificationPriority.high,
     NotificationType.lowStock => NotificationPriority.high,
@@ -275,16 +272,15 @@ class AppNotification {
     NotificationType.expirySoon => NotificationPriority.normal,
     NotificationType.requestApproved => NotificationPriority.normal,
     NotificationType.requestRejected => NotificationPriority.normal,
-    NotificationType.newVote => NotificationPriority.normal,
     NotificationType.memberLeft => NotificationPriority.low,
     NotificationType.unknown => NotificationPriority.low,
   };
 
   /// שם הרטט המומלץ — לשימוש ב-HapticFeedback
   ///
-  /// - `'heavy'` → urgent (userRemoved, voteTie)
+  /// - `'heavy'` → urgent (userRemoved)
   /// - `'medium'` → high (invite, roleChanged, lowStock, expiryExpired)
-  /// - `'light'` → normal (requestApproved, newVote, etc.)
+  /// - `'light'` → normal (requestApproved, etc.)
   /// - `'selection'` → low (memberLeft, unknown)
   String get recommendedHaptic => switch (priority) {
     NotificationPriority.urgent => 'heavy',
@@ -313,12 +309,6 @@ enum NotificationType {
   userRemoved, // הוסרת מהרשימה
 
   // === Stage 6: New notification types ===
-
-  @JsonValue('new_vote')
-  newVote, // מישהו הצביע בהצבעה
-
-  @JsonValue('vote_tie')
-  voteTie, // תיקו בהצבעה (לבעלים)
 
   @JsonValue('member_left')
   memberLeft, // חבר עזב (לאדמינים)
@@ -352,10 +342,6 @@ extension NotificationTypeExtension on NotificationType {
         return '🔄';
       case NotificationType.userRemoved:
         return '🚫';
-      case NotificationType.newVote:
-        return '🗳️';
-      case NotificationType.voteTie:
-        return '⚖️';
       case NotificationType.memberLeft:
         return '👋';
       case NotificationType.lowStock:
@@ -381,10 +367,6 @@ extension NotificationTypeExtension on NotificationType {
         return 'שינוי תפקיד';
       case NotificationType.userRemoved:
         return 'הסרה';
-      case NotificationType.newVote:
-        return 'הצבעה';
-      case NotificationType.voteTie:
-        return 'תיקו';
       case NotificationType.memberLeft:
         return 'עזיבה';
       case NotificationType.lowStock:
@@ -405,15 +387,14 @@ extension NotificationTypeExtension on NotificationType {
 
   /// סוג הסטטוס הסמנטי — מיפוי ל-[StatusType]
   ///
-  /// - error: userRemoved, requestRejected, voteTie, expiryExpired
+  /// - error: userRemoved, requestRejected, expiryExpired
   /// - warning: lowStock, expirySoon, roleChanged
   /// - success: requestApproved
-  /// - info: invite, newVote, memberLeft, unknown
+  /// - info: invite, memberLeft, unknown
   StatusType get statusType {
     switch (this) {
       case NotificationType.userRemoved:
       case NotificationType.requestRejected:
-      case NotificationType.voteTie:
         return StatusType.error;
       case NotificationType.expiryExpired:
         return StatusType.error;
@@ -424,7 +405,6 @@ extension NotificationTypeExtension on NotificationType {
       case NotificationType.requestApproved:
         return StatusType.success;
       case NotificationType.invite:
-      case NotificationType.newVote:
       case NotificationType.memberLeft:
       case NotificationType.unknown:
         return StatusType.info;

@@ -140,8 +140,8 @@ void main() {
       }
     });
 
-    test('enum has 12 values', () {
-      expect(NotificationType.values.length, 12);
+    test('enum has 10 values', () {
+      expect(NotificationType.values.length, 10);
     });
   });
 
@@ -373,7 +373,7 @@ void main() {
     test('normal → light', () {
       final n = AppNotification(
         id: 'h-3', userId: 'u1', householdId: 'h1',
-        type: NotificationType.newVote, title: 't', message: 'm',
+        type: NotificationType.requestApproved, title: 't', message: 'm',
         actionData: const {}, createdAt: DateTime(2026, 3, 15),
       );
       expect(n.recommendedHaptic, 'light');

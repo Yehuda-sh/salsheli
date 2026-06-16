@@ -178,8 +178,6 @@ async function deleteSubcollection(path) {
  * recoverable; a missed invite is not.)
  */
 const NOTIFICATION_TYPE_TO_PREF = {
-  // Shopping flow — someone volunteered to bring an item
-  who_brings_volunteer: "notify_shopping",
   // Group membership / household lifecycle
   invite: "notify_group",
   request_approved: "notify_group",
@@ -191,9 +189,6 @@ const NOTIFICATION_TYPE_TO_PREF = {
   low_stock: "notify_reminders",
   expiry_expired: "notify_reminders",
   expiry_soon: "notify_reminders",
-  // List-level activity (votes)
-  new_vote: "notify_list_updates",
-  vote_tie: "notify_list_updates",
 };
 
 exports.onNotificationCreated = onDocumentCreated(
