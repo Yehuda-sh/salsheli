@@ -256,29 +256,6 @@ function makeTaskItem(id, name, opts = {}) {
 }
 
 /**
- * "Who Brings" item — special task with volunteers
- */
-function makeWhoBringsItem(id, name, neededCount, volunteers = [], opts = {}) {
-  return {
-    id,
-    name,
-    type: 'task',
-    isChecked: opts.isChecked || false,
-    category: null,
-    notes: opts.notes || null,
-    image_url: null,
-    checked_by: null,
-    checked_at: null,
-    productData: null,
-    taskData: {
-      itemType: 'whoBrings',
-      neededCount,
-      volunteers, // [{userId, displayName}]
-    },
-  };
-}
-
-/**
  * Receipt item — snake_case (matches Receipt model with FieldRename.snake)
  * Includes barcode/brand when available so receipts and list items round-trip
  * the same product identity through the app.
@@ -317,7 +294,7 @@ function makeActiveShopper(uid, joinedAt, isStarter) {
 /**
  * Notification — matches AppNotification model
  * Valid types: invite, request_approved, request_rejected, role_changed,
- *   user_removed, who_brings_volunteer, new_vote, vote_tie, member_left,
+ *   user_removed, member_left,
  *   low_stock, expiry_expired, expiry_soon
  */
 function makeNotification(id, uid, householdId, type, title, message, opts = {}) {
@@ -619,51 +596,6 @@ async function main() {
     items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3 })),
   });
   console.log('   📋 כהן: צרכי בית (household, 8 items)');
-
-  // ── COHEN: Who Brings event — שבת משפחתית 🎉 ──
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat').set({
-    id: 'list_cohen_shabbat', name: 'ארוחת שבת משפחתית 🎉', status: 'active', type: 'event',
-    budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
-    format: 'shared', created_from_template: false, event_mode: 'who_brings',
-    event_date: ts(daysFromNow(3)),
-    created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(2)),
-    shared_with: [uids.avi, uids.yuval, uids.noa],
-    shared_users: {
-      [uids.yuval]: { role: 'editor', shared_at: ts(daysAgo(1)), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: false },
-      [uids.noa]:   { role: 'editor', shared_at: ts(daysAgo(1)), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: false },
-    },
-    pending_requests: [], active_shoppers: [],
-    items: [
-      makeWhoBringsItem('wb_1', 'סלט ירקות', 2, [{ userId: uids.yuval, displayName: 'יובל כהן' }]),
-      makeWhoBringsItem('wb_2', 'חומוס', 1, []),
-      makeWhoBringsItem('wb_3', 'קינוח', 1, [{ userId: uids.noa, displayName: 'נועה כהן' }]),
-      makeWhoBringsItem('wb_4', 'לחם', 2, [
-        { userId: uids.avi, displayName: 'אבי כהן' },
-        { userId: uids.ronit, displayName: 'רונית כהן' },
-      ]),
-      makeWhoBringsItem('wb_5', 'שתייה', 3, [{ userId: uids.yuval, displayName: 'יובל כהן' }]),
-      makeTaskItem('wb_t1', 'לסדר את השולחן', { priority: 'low' }),
-    ],
-  });
-  console.log('   📋 כהן: ארוחת שבת (event, who_brings, 5 who-brings + 1 task)');
-
-  // ── COHEN: Birthday completed ──
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_birthday').set({
-    id: 'list_cohen_birthday', name: 'יום הולדת נועה 🎂', status: 'completed', type: 'event',
-    budget: 500, is_shared: true, is_private: false, created_by: uids.ronit,
-    format: 'shared', created_from_template: false, event_mode: 'tasks',
-    created_date: ts(daysAgo(30)), updated_date: ts(daysAgo(28)),
-    shared_with: [uids.avi, uids.yuval], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: [
-      makeTaskItem('item_bd_0', 'עוגת שוקולד 3 קומות', { isChecked: true, notes: 'מהקונדיטוריה ברחוב הרצל' }),
-      makeTaskItem('item_bd_1', 'נרות יום הולדת', { isChecked: true }),
-      makeTaskItem('item_bd_2', 'בלונים ורוד וזהב (20)', { isChecked: true }),
-      makeTaskItem('item_bd_3', 'להזמין פיצה מדומינוס', { isChecked: true, notes: '4 מגשים' }),
-      makeProductItem(findProd('במבה') || { name: 'במבה 80 גרם', category: 'ממתקים וחטיפים', price: 5.9 }, 4, { id: 'item_bd_4', isChecked: true, quantity: 5 }),
-      makeProductItem(findProd('ביסלי') || { name: 'ביסלי גריל 200 גרם', category: 'ממתקים וחטיפים', price: 8.9 }, 5, { id: 'item_bd_5', isChecked: true, quantity: 3 }),
-    ],
-  });
-  console.log('   📋 כהן: יום הולדת נועה (event/tasks, completed)');
 
   // ── COHEN: Last week completed ──
   const lastWeekProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), 15);
@@ -1053,15 +985,14 @@ async function main() {
   ]);
   console.log('   📝 Mike: 3 activity events');
 
-  // Tomer household — 3 events (solo user with chores + pharmacy)
+  // Tomer household — 2 events (solo user with pharmacy)
   // list_id values match real lists created above so the activity
   // feed's tap-to-open behaves end-to-end on this user.
   await createActivityEvents(hIds.tomer, [
     makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy', list_id: 'list_tomer_pharm' }, daysAgo(5)),
     makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם', list_id: 'list_tomer_pharm' }, daysAgo(4)),
-    makeActivityEvent('act_tomer_3', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'משימות לסוף שבוע', list_type: 'event', list_id: 'list_tomer_chores' }, daysAgo(1)),
   ]);
-  console.log('   📝 תומר: 3 activity events');
+  console.log('   📝 תומר: 2 activity events');
 
   // Shiran household — 2 events (solo, has "הכל נקנה" list)
   // list_shiran_done is created later in PATCH 4 with this exact name.
@@ -1142,8 +1073,6 @@ async function main() {
     makeNotification('notif_avi_1', uids.avi, hIds.cohen, 'invite', 'הזמנה לרשימה', 'רונית הזמינה אותך לרשימת "קניות שבועיות"', { createdAt: daysAgo(7), isRead: true, readAt: daysAgo(7), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
     makeNotification('notif_avi_2', uids.avi, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "קולה זירו" אושרה', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly', requestId: 'req_yuval_old' } }),
     makeNotification('notif_avi_3', uids.avi, hIds.cohen, 'request_rejected', 'בקשה נדחתה', 'הבקשה של נועה להוסיף "שוקולד פרה" נדחתה', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
-    makeNotification('notif_avi_4', uids.avi, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'יובל כהן התנדב להביא "סלט ירקות"', { createdAt: hoursAgo(5), senderId: uids.yuval, senderName: 'יובל כהן', actionData: { listId: 'list_cohen_shabbat', volunteerName: 'יובל כהן' } }),
-    makeNotification('notif_avi_5', uids.avi, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'נועה כהן התנדבה להביא "קינוח"', { createdAt: hoursAgo(3), senderId: uids.noa, senderName: 'נועה כהן', actionData: { listId: 'list_cohen_shabbat', volunteerName: 'נועה כהן' } }),
     makeNotification('notif_avi_6', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
     makeNotification('notif_avi_7', uids.avi, hIds.cohen, 'low_stock', 'מלאי נמוך', 'נשארה יחידה אחרונה של "ביצים L', { createdAt: hoursAgo(6), actionData: { productName: 'ביצים L' } }),
     makeNotification('notif_avi_8', uids.avi, hIds.cohen, 'role_changed', 'שינוי תפקיד', 'אורי שלום קיבל תפקיד צפייה ברשימת "קניות שבועיות"', { createdAt: daysAgo(60), isRead: true, readAt: daysAgo(60), actionData: { listId: 'list_cohen_weekly', newRole: 'viewer' } }),
@@ -1161,20 +1090,16 @@ async function main() {
     makeNotification('notif_avi_13', uids.avi, hIds.cohen, 'expiry_soon', 'תפוגה קרובה', '"חטיף חלבון בטעם שוקולד" פג תוקף בעוד יומיים', { createdAt: hoursAgo(4), actionData: { productName: 'חטיף חלבון בטעם שוקולד', productId: 'inv_cohen_expiry' } }),
     makeNotification('notif_avi_14', uids.avi, hIds.cohen, 'expiry_expired', 'פג תוקף!', 'פג התוקף של "חלב תנובה 3%" — יש להשליך', { createdAt: hoursAgo(2), actionData: { productName: 'חלב תנובה 3%' } }),
   ]);
-  console.log('   🔔 אבי: 13 notifications (8 unread, includes expiry edge cases)');
+  console.log('   🔔 אבי: 11 notifications (6 unread, includes expiry edge cases)');
 
   // Ronit notifications (5)
   await createNotifications(uids.ronit, [
     makeNotification('notif_ronit_1', uids.ronit, hIds.cohen, 'invite', 'הזמנה לרשימה', 'יובל ביקש להוסיף "במבה 80 גרם" לקניות שבועיות', { createdAt: hoursAgo(2), senderId: uids.yuval, senderName: 'יובל כהן', actionData: { listId: 'list_cohen_weekly', requestId: 'req_yuval_1' } }),
     makeNotification('notif_ronit_2', uids.ronit, hIds.cohen, 'invite', 'בקשה חדשה', 'נועה ביקשה להוסיף "נייר טואלט" לקניות שבועיות', { createdAt: hoursAgo(0.5), senderId: uids.noa, senderName: 'נועה כהן', actionData: { listId: 'list_cohen_weekly', requestId: 'req_noa_1' } }),
     makeNotification('notif_ronit_3', uids.ronit, hIds.cohen, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב תנובה 3%" נגמר', { createdAt: hoursAgo(8), actionData: { productName: 'חלב תנובה 3%' } }),
-    makeNotification('notif_ronit_4', uids.ronit, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'יובל כהן התנדב להביא "סלט ירקות"', { createdAt: hoursAgo(5), senderId: uids.yuval, senderName: 'יובל כהן', actionData: { listId: 'list_cohen_shabbat' } }),
     makeNotification('notif_ronit_5', uids.ronit, hIds.cohen, 'request_approved', 'בקשה אושרה', 'אישרת את הבקשה של יובל להוסיף "קולה זירו"', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), actionData: { listId: 'list_cohen_weekly' } }),
-    // Vote notifications — tests new_vote and vote_tie types
-    makeNotification('notif_ronit_6', uids.ronit, hIds.cohen, 'new_vote', 'הצבעה חדשה', 'אבי כהן הצביע ברשימת "ארוחת שבת"', { createdAt: hoursAgo(1), senderId: uids.avi, senderName: 'אבי כהן', actionData: { listId: 'list_cohen_shabbat' } }),
-    makeNotification('notif_ronit_7', uids.ronit, hIds.cohen, 'vote_tie', 'תיקו בהצבעה!', 'יש תיקו בהצבעה ברשימת "ארוחת שבת" — נדרשת הכרעה', { createdAt: hoursAgo(0.5), actionData: { listId: 'list_cohen_shabbat' } }),
   ]);
-  console.log('   🔔 רונית: 7 notifications (6 unread, includes vote types)');
+  console.log('   🔔 רונית: 4 notifications (3 unread)');
 
   // Naama notifications (8)
   await createNotifications(uids.naama, [
@@ -1198,9 +1123,8 @@ async function main() {
   // Yuval notifications (editor — sees his request outcomes)
   await createNotifications(uids.yuval, [
     makeNotification('notif_yuval_1', uids.yuval, hIds.cohen, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להוסיף "קולה זירו" אושרה ע"י רונית', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.ronit, senderName: 'רונית כהן', actionData: { listId: 'list_cohen_weekly' } }),
-    makeNotification('notif_yuval_2', uids.yuval, hIds.cohen, 'who_brings_volunteer', 'מתנדב חדש', 'נועה כהן התנדבה להביא "קינוח"', { createdAt: hoursAgo(3), senderId: uids.noa, senderName: 'נועה כהן', actionData: { listId: 'list_cohen_shabbat' } }),
   ]);
-  console.log('   🔔 יובל: 2 notifications (1 unread)');
+  console.log('   🔔 יובל: 1 notification (0 unread)');
 
   // Noa notifications (editor — sees rejection)
   await createNotifications(uids.noa, [
@@ -1215,9 +1139,8 @@ async function main() {
     makeNotification('notif_dan_2', uids.dan, hIds.levi, 'low_stock', 'מלאי נמוך', 'נשאר מעט "מיץ תפוזים"', { createdAt: hoursAgo(4), actionData: { productName: 'מיץ תפוזים' } }),
     makeNotification('notif_dan_3', uids.dan, hIds.levi, 'invite', 'הזמנה לרשימה', 'מאיה הוסיפה אותך לרשימת "רשימה לסופר"', { createdAt: daysAgo(1), isRead: true, readAt: daysAgo(1), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_weekly' } }),
     makeNotification('notif_dan_4', uids.dan, hIds.levi, 'request_approved', 'בקשה אושרה', 'הבקשה שלך להזמין את נעמה רוזן למשפחת לוי נשלחה', { createdAt: daysAgo(5), isRead: true, readAt: daysAgo(5), actionData: { householdId: hIds.levi } }),
-    makeNotification('notif_dan_5', uids.dan, hIds.levi, 'who_brings_volunteer', 'מתנדב חדש', 'מאיה לוי התנדבה להביא מהשוק', { createdAt: hoursAgo(2), senderId: uids.maya, senderName: 'מאיה לוי', actionData: { listId: 'list_levi_market', volunteerName: 'מאיה לוי' } }),
   ]);
-  console.log('   🔔 דן: 5 notifications (3 unread)');
+  console.log('   🔔 דן: 4 notifications (2 unread)');
 
   // Maya notifications (4) — admin of Levi household
   await createNotifications(uids.maya, [
@@ -1614,22 +1537,6 @@ async function main() {
   });
   console.log('   ⏰ Levi weekly: target_date set to 2 days AGO (tests urgency "עבר!")');
 
-  // PATCH 2: Who Brings item that is FULL (neededCount == volunteers)
-  // ⚠️ Can't use 'items.3' — Firestore converts array to map. Read-modify-write instead.
-  const shabbatRef = db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_shabbat');
-  const shabbatDoc = await shabbatRef.get();
-  if (shabbatDoc.exists) {
-    const items = shabbatDoc.data().items || [];
-    if (items.length > 3) {
-      items[3] = makeWhoBringsItem('wb_4', 'לחם', 2, [
-        { userId: uids.avi, displayName: 'אבי כהן', volunteeredAt: ts(hoursAgo(4)) },
-        { userId: uids.ronit, displayName: 'רונית כהן', volunteeredAt: ts(hoursAgo(3)) },
-      ]);
-      await shabbatRef.update({ items });
-    }
-  }
-  console.log('   ✅ Shabbat wb_4 "לחם": now FULL (2/2 volunteers)');
-
   // PATCH 3: Inventory items with notes
   await db.collection('households').doc(hIds.cohen).collection('inventory').doc('inv_household_cohen_0').update({
     notes: 'לקנות רק תנובה, לא של שטראוס',
@@ -1712,25 +1619,6 @@ async function main() {
   });
   console.log('   ⏰ Cohen pantry: real catalog snack bar (חטיף חלבון בטעם שוקולד), expires in 2 days');
 
-  // PATCH 6: Active checklist (event_mode: 'tasks') — Tomer's chores
-  await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_chores').set({
-    id: 'list_tomer_chores', name: 'משימות לסוף שבוע', status: 'active', type: 'event',
-    budget: 0, is_shared: false, is_private: true, created_by: uids.tomer,
-    format: 'personal', created_from_template: false, event_mode: 'tasks',
-    event_date: ts(daysFromNow(2)),
-    created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(2)),
-    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: [
-      makeTaskItem('item_chore_0', 'לנקות את הדירה 🧹', { priority: 'high' }),
-      makeTaskItem('item_chore_1', 'כביסה + גיהוץ', { isChecked: true, priority: 'medium' }),
-      makeTaskItem('item_chore_2', 'לארגן את הארון', { priority: 'low', notes: 'לתרום בגדים ישנים' }),
-      makeTaskItem('item_chore_3', 'לתקן את הברז במטבח 🔧', { priority: 'high' }),
-      // Item with emoji in name
-      makeProductItem({ name: '🧴 סבון כלים אקולוגי', category: 'מוצרי ניקיון', price: 18.9 }, 4, { id: 'item_chore_4' }),
-    ],
-  });
-  console.log('   ✅ Tomer: Active checklist (event/tasks, budget: 0, emoji in item name)');
-
   // PATCH 7: Template-based list — Dan created from template
   await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_template').set({
     id: 'list_levi_template', name: 'קניות שבועיות (תבנית)', status: 'active', type: 'supermarket',
@@ -1751,11 +1639,11 @@ async function main() {
   console.log('═'.repeat(55));
   console.log(`\n👥 ${USERS.length} users`);
   console.log(`🏠 ${Object.keys(HOUSEHOLDS).length} households (all with is_solo field)`);
-  console.log(`📋 ~62 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
+  console.log(`📋 ~59 shopping lists (all 9 types + active/completed/archived, naama: 35+)`);
   console.log(`📦 ~116 inventory items`);
   console.log(`🧾 77 receipts`);
-  console.log(`📝 51 activity log events incl. list_shared / list_deleted / member_joined`);
-  console.log(`🔔 45 notifications`);
+  console.log(`📝 50 activity log events incl. list_shared / list_deleted / member_joined`);
+  console.log(`🔔 38 notifications`);
   console.log(`✉️ 4 pending invites (3 pending + 1 rejected)`);
   console.log(`\n🔑 Password: ${DEMO_PASSWORD}`);
   console.log('\n📧 Users:');

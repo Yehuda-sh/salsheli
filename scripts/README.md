@@ -13,7 +13,7 @@
 **מה נוצר:**
 - 22 משתמשים (כולל edge cases: Google/Apple sign-in, שם ארוך, אנגלית, geresh, removed user, elderly, roommates)
 - 15 בתים
-- ~57 רשימות (כל 9 הסוגים, statuses שונים, who-brings, templates, target dates)
+- ~59 רשימות (statuses שונים, templates, target dates) — סופר-מוקד; רשימות אירוע/"מי מביא" הוסרו
 - ~110 פריטי מזווה
 - ~76 קבלות
 - ~51 events ב-activity_log (כל 9 סוגי האירועים)
