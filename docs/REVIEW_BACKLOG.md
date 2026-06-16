@@ -23,7 +23,7 @@
 ## 🗓️ Session 31/5/2026 — Full-codebase audit (12 agents) + 8 fix phases
 
 סקירת רוחב על כל 161 קבצי `lib/` ע"י 12 סוכנים מקבילים, ואז 8 פאזות תיקון
-(8 commits, 478/478 טסטים, analyze נקי). פירוט מלא ב-[AGENTS.md](../AGENTS.md) §4.
+(8 commits, 478/478 טסטים, analyze נקי). סיכום ב-[AGENTS.md](../AGENTS.md) §3 Current State; היסטוריה מלאה ב-`git log`.
 
 ### ✅ Decisions Made (cross-cutting)
 - **שגיאות providers → `userFriendlyError`**: כל `_errorMessage` בכל ה-providers

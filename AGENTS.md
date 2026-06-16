@@ -109,8 +109,7 @@ injects `senderId` (#18 client-side).
 | 22 | 🔴 **"Share with specific contacts" lists are invisible to those contacts** | `create_list` "shared" → `isPrivate:true`; saved to owner's `private_lists`, contact added via `shared_users` map. But `private_lists` read rule is owner-only, and watchLists doesn't query others' private_lists → contacts never see it. **Don't "fix" by routing to household-wide `shared_lists`** (over-shares to everyone). Needs a `private_lists` shared-read rule + a "lists shared with me" query. |
 | 23 | 🟡 **Editor/owner-added barcode + price lost on shopping lists** | `_scanBarcodeAndAdd → _addProductToList(name, category)` drops the scanned barcode, and `addItemToList` has no barcode/price param. Needs owner-path plumbing (use `addUnifiedItem` or extend `addItemToList`). |
 
-> Gaps in numbering (#3, #5, #8, #13, #16) = resolved issues, removed. Numbers are stable —
-> open issues are referenced cross-doc (REVIEW_BACKLOG, Next Priorities), so they are never renumbered.
+> **Resolved-issue ledger** (numbers kept stable — code/tests still cite them): **#3** SocialAuthMixin deleted · **#5** kSticky colors → `brand?.sticky*` fallback · **#8** test suite added · **#13** category-detection substring traps (cited in `category_detection_service_test.dart`) · **#16** `product_selection_bottom_sheet._failedImageUrls` Set bounded to 200 (cited in that file). These rows were dropped from the table above; open issues are referenced cross-doc, so numbers are never reused.
 
 ---
 
