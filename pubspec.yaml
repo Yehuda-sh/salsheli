@@ -1,6 +1,6 @@
-# 📝 MemoZap — Smart Shared Shopping Lists
+# 📝 MemoZap — the pantry that writes your supermarket list
 name: memozap
-description: "MemoZap - Smart shared shopping list manager with Notebook design, real-time list sharing, and digital pantry."
+description: "The digital pantry that writes your next supermarket list — shared with your household in real time."
 publish_to: "none"
 version: 1.0.1+2
 
