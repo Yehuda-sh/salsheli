@@ -467,7 +467,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
               runSpacing: kSpacingSmall,
               children: [
                 _buildFilterChip('all', '📦', AppStrings.shopping.allTypesLabel),
-                ...ListTypes.all.map((t) => _buildFilterChip(t.key, t.emoji, t.shortName)),
               ],
             ),
             const SizedBox(height: kSpacingLarge),

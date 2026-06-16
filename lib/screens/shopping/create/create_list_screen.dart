@@ -1,6 +1,5 @@
 // lib/screens/shopping/create/create_list_screen.dart — Create list screen — new list form with type, budget, template, contacts, event mode
 
-import 'dart:async' show unawaited;
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -8,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../config/list_types_config.dart';
 import '../../../core/status_colors.dart';
 import '../../../core/ui_constants.dart';
 import '../../../l10n/app_strings.dart';
@@ -389,19 +387,9 @@ class _CreateListScreenState extends State<CreateListScreen> {
                     ),
                     const SizedBox(height: kSpacingMedium),
 
-                    // 📋 סוג הרשימה
-                    _buildTypeSelector(theme),
-                    const SizedBox(height: kSpacingMedium),
-
                     // 🔒 אישית/משפחתית
                     _buildPrivacyToggle(theme),
                     const SizedBox(height: kSpacingMedium),
-
-                    // 🎉 מצב אירוע (רק כשהסוג הוא אירוע)
-                    if (_type == ShoppingList.typeEvent) ...[
-                      _buildEventModeSelector(theme),
-                      const SizedBox(height: kSpacingMedium),
-                    ],
 
                     // 📅 תאריך אירוע
                     _buildEventDateField(theme),
@@ -547,123 +535,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
     );
   }
 
-  Widget _buildTypeSelector(ThemeData theme) {
-    final strings = AppStrings.createListDialog;
-    // 🔧 שימוש בקונסטנטים מהקונפיגורציה במקום מחרוזות קשיחות
-    final types = ListTypes.all.map((t) => t.key).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(
-          strings.typeLabel,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: kSpacingSmall),
-        // Grid 3×3 of type icons
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: kSpacingSmall,
-            mainAxisSpacing: kSpacingSmall,
-            childAspectRatio: 1.1,
-          ),
-          itemCount: types.length,
-          itemBuilder: (context, index) => _buildTypeGridItem(types[index], theme),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTypeGridItem(String type, ThemeData theme) {
-    final typeInfo = ListTypes.getByKeySafe(type);
-    final cs = theme.colorScheme;
-    final isSelected = _type == type;
-    final accentColor = ListTypes.getColor(type, cs, theme.extension<AppBrand>());
-
-    return GestureDetector(
-      onTap: _isSubmitting
-          ? null
-          : () {
-              unawaited(HapticFeedback.selectionClick());
-              setState(() {
-                _type = type;
-                if (type == ShoppingList.typeEvent) {
-                  _eventMode = _visibility == ListVisibility.private
-                      ? ShoppingList.eventModeTasks
-                      : ShoppingList.eventModeWhoBrings;
-                } else {
-                  _eventMode = null;
-                }
-              });
-            },
-      child: AnimatedScale(
-        scale: isSelected ? 0.97 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? accentColor.withValues(alpha: kOpacitySoft)
-                : cs.surfaceContainerHighest.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-            border: Border.all(
-              color: isSelected ? accentColor : cs.outline.withValues(alpha: 0.1),
-              width: isSelected ? 2 : 1,
-            ),
-          ),
-          child: Stack(
-            children: [
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(typeInfo.emoji, style: const TextStyle(fontSize: kFontSizeXLarge)),
-                    const SizedBox(height: kSpacingXTiny),
-                    Text(
-                      typeInfo.shortName,
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                        color: isSelected ? accentColor : cs.onSurface.withValues(alpha: kOpacityStrong),
-                        letterSpacing: 0.3,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-              if (isSelected)
-                Positioned(
-                  top: kSpacingXTiny,
-                  left: kSpacingXTiny,
-                  child: Container(
-                    width: kIconSizeSmall,
-                    height: kIconSizeSmall,
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.check,
-                      size: kFontSizeTiny,
-                      color: cs.onPrimary,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildPrivacyToggle(ThemeData theme) {
     final strings = AppStrings.createListDialog;
 
@@ -744,165 +615,6 @@ class _CreateListScreenState extends State<CreateListScreen> {
       case ListVisibility.shared:
         return strings.visibilitySharedDesc;
     }
-  }
-
-  /// 🎉 בורר מצב אירוע - מוצג רק כשהסוג הוא אירוע
-  Widget _buildEventModeSelector(ThemeData theme) {
-    final cs = theme.colorScheme;
-    final strings = AppStrings.createListDialog;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // כותרת
-        Text(
-          strings.eventModeLabel,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: cs.primary,
-          ),
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        // אופציות
-        _buildEventModeOption(
-          theme: theme,
-          mode: ShoppingList.eventModeWhoBrings,
-          icon: Icons.people,
-          title: strings.eventModeWhoBrings,
-          description: strings.eventModeWhoBringsDesc,
-          isRecommended: _visibility != ListVisibility.private,
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        _buildEventModeOption(
-          theme: theme,
-          mode: ShoppingList.eventModeShopping,
-          icon: Icons.shopping_cart,
-          title: strings.eventModeShopping,
-          description: strings.eventModeShoppingDesc,
-        ),
-        const SizedBox(height: kSpacingSmall),
-
-        _buildEventModeOption(
-          theme: theme,
-          mode: ShoppingList.eventModeTasks,
-          icon: Icons.checklist,
-          title: strings.eventModeTasks,
-          description: strings.eventModeTasksDesc,
-          isRecommended: _visibility == ListVisibility.private,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEventModeOption({
-    required ThemeData theme,
-    required String mode,
-    required IconData icon,
-    required String title,
-    required String description,
-    bool isRecommended = false,
-  }) {
-    final cs = theme.colorScheme;
-    final isSelected = _eventMode == mode;
-
-    return InkWell(
-      onTap: _isSubmitting
-          ? null
-          : () {
-              unawaited(HapticFeedback.selectionClick());
-              setState(() => _eventMode = mode);
-            },
-      borderRadius: BorderRadius.circular(kBorderRadius),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(kSpacingMedium),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? cs.primaryContainer.withValues(alpha: 0.5)
-              : cs.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(kBorderRadius),
-          border: Border.all(
-            color: isSelected ? cs.primary : cs.outline.withValues(alpha: 0.3),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            // Radio indicator
-            Container(
-              width: kIconSizeMedium,
-              height: kIconSizeMedium,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected ? cs.primary : cs.outline,
-                  width: 2,
-                ),
-                color: isSelected ? cs.primary : Colors.transparent,
-              ),
-              child: isSelected
-                  ? Icon(Icons.check, size: kIconSizeSmall, color: cs.onPrimary)
-                  : null,
-            ),
-            const SizedBox(width: kSpacingMedium),
-
-            // Icon
-            Icon(
-              icon,
-              color: isSelected ? cs.primary : cs.onSurfaceVariant,
-            ),
-            const SizedBox(width: kSpacingSmall),
-
-            // Text
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                          color: isSelected ? cs.primary : cs.onSurface,
-                        ),
-                      ),
-                      if (isRecommended) ...[
-                        const SizedBox(width: kSpacingTiny),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: kSpacingTiny,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: cs.tertiaryContainer,
-                            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-                          ),
-                          child: Text(
-                            AppStrings.createListDialog.recommended,
-                            style: TextStyle(
-                              fontSize: kFontSizeTiny,
-                              color: cs.onTertiaryContainer,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   Widget _buildContactsPicker(ThemeData theme) {
