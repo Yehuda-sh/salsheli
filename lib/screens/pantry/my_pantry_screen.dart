@@ -283,13 +283,28 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
   /// 📷 סריקת ברקוד — בודק כפילויות ואז פותח pantry dialog
   Future<void> _scanBarcodeAndAddToPantry() async {
+    final result = await openBarcodeScanner(context);
+    if (result == null || !mounted) return;
+
     final productsProvider = context.read<ProductsProvider>();
-    final product = await scanAndLookupProduct(context, productsProvider);
-    if (product == null || !mounted) return;
+    final product = productsProvider.getByBarcode(result.barcode);
+
+    // 🆕 לא נמצא בקטלוג → פתח דיאלוג יצירת מוצר חדש עם הברקוד הסרוק,
+    // במקום מבוי סתום של "ברקוד לא נמצא". המשתמש ממלא שם וזה נשמר עם הברקוד.
+    if (product == null) {
+      unawaited(showDialog(
+        context: context,
+        builder: (ctx) => PantryItemDialog(
+          mode: PantryItemDialogMode.add,
+          initialBarcode: result.barcode,
+        ),
+      ));
+      return;
+    }
 
     final name = product['name'] as String? ?? '';
     final category = product['category'] as String?;
-    final scannedBarcode = product['barcode'] as String?;
+    final scannedBarcode = product['barcode'] as String? ?? result.barcode;
 
     // 🔍 בדיקת כפילויות — barcode first, then name similarity
     final inventoryProvider = context.read<InventoryProvider>();
@@ -350,6 +365,8 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
         mode: PantryItemDialogMode.add,
         initialName: name,
         initialCategory: category,
+        // 🆕 העבר את הברקוד הסרוק — אחרת הוא "נופל" והפריט נשמר בלעדיו
+        initialBarcode: scannedBarcode,
       ),
     ));
   }

@@ -43,6 +43,7 @@ class PantryItemDialog extends StatefulWidget {
   final VoidCallback? onSuccess;
   final String? initialName; // pre-fill from barcode scan
   final String? initialCategory; // pre-fill from barcode scan
+  final String? initialBarcode; // pre-fill from barcode scan — saved on the new item
 
   const PantryItemDialog({
     super.key,
@@ -51,6 +52,7 @@ class PantryItemDialog extends StatefulWidget {
     this.onSuccess,
     this.initialName,
     this.initialCategory,
+    this.initialBarcode,
   }) : assert(
           mode == PantryItemDialogMode.add || item != null,
           'Item is required in edit mode',
@@ -765,6 +767,8 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
           notes: notes,
           isRecurring: _isRecurring,
           brand: brand.isEmpty ? null : brand,
+          // 🆕 שמור את הברקוד הסרוק — אחרת סריקה חוזרת לא תזהה את הפריט
+          barcode: widget.initialBarcode,
         );
       } else {
         final updatedItem = widget.item!.copyWith(
@@ -827,6 +831,9 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
+    // Barcode to surface: an existing item's, or one just scanned for a
+    // brand-new item (so the user sees the code is attached before saving).
+    final displayBarcode = widget.item?.barcode ?? widget.initialBarcode;
     final accent = brand?.accent ?? cs.primary;
 
     final title = widget.mode == PantryItemDialogMode.add 
@@ -962,20 +969,20 @@ class _PantryItemDialogState extends State<PantryItemDialog> {
               // 🔢 Barcode row — read-only. Helps the user confirm the right
               // product was scanned, disambiguates similar items (1L vs 1.5L
               // milk both show as "תנובה"), and exposes the code for sharing.
-              if (widget.item?.barcode != null && widget.item!.barcode!.isNotEmpty) ...[
+              if (displayBarcode != null && displayBarcode.isNotEmpty) ...[
                 const SizedBox(height: kSpacingXTiny),
                 Text(
-                  AppStrings.inventory.barcodeRow(widget.item!.barcode!),
+                  AppStrings.inventory.barcodeRow(displayBarcode),
                   style: TextStyle(
                     fontSize: kFontSizeTiny,
                     color: cs.onSurfaceVariant.withValues(alpha: kOpacityStrong),
                   ),
                   textDirection: TextDirection.ltr,
                 ),
-                // 📷 Personal photo CTA — only when there's a barcode (which
-                // is what keys the photo). Hidden during loading so a save
-                // in flight doesn't compete with file IO for state.
-                if (!_isLoading)
+                // 📷 Personal photo CTA — only for a saved item (the photo is
+                // keyed by barcode and stored per existing item). Hidden during
+                // loading so a save in flight doesn't compete with file IO.
+                if (!_isLoading && widget.item?.barcode != null)
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: ProductPhotoUploader(
