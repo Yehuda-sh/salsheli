@@ -2391,81 +2391,77 @@ class _MyPantryScreenState extends State<MyPantryScreen> {
 
     final strings = AppStrings.pantry;
 
-    showDialog(
+    AppDialog.show(
       context: context,
-      barrierColor: cs.scrim.withValues(alpha: kOpacityLight),
-      builder: (dialogContext) => BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: kGlassBlurLow, sigmaY: kGlassBlurLow),
-        child: StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
-            title: Text(
-              item.productName,
-              style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(strings.updateQuantityTitle),
-                const SizedBox(height: kSpacingMedium),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton.filled(
-                      icon: const Icon(Icons.remove),
-                      onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
-                      child: Text(
-                        '$quantity',
-                        style: TextStyle(
-                          fontSize: kFontSizeLarge,
-                          fontWeight: FontWeight.bold,
-                          color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
-                        ),
+      child: StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(
+            item.productName,
+            style: TextStyle(fontSize: kFontSizeMedium, color: cs.primary),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(strings.updateQuantityTitle),
+              const SizedBox(height: kSpacingMedium),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton.filled(
+                    icon: const Icon(Icons.remove),
+                    onPressed: quantity > 0 ? () => setDialogState(() => quantity--) : null,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingLarge),
+                    child: Text(
+                      '$quantity',
+                      style: TextStyle(
+                        fontSize: kFontSizeLarge,
+                        fontWeight: FontWeight.bold,
+                        color: quantity <= item.minQuantity ? cs.error : cs.onSurface,
                       ),
                     ),
-                    IconButton.filled(
-                      icon: const Icon(Icons.add),
-                      onPressed: quantity < kMaxPantryQuantity ? () => setDialogState(() => quantity++) : null,
-                    ),
-                  ],
-                ),
-                if (quantity <= item.minQuantity)
-                  Padding(
-                    padding: const EdgeInsets.only(top: kSpacingSmall),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
-                        const SizedBox(width: kSpacingTiny),
-                        Text(
-                          strings.lowStockWarning(item.minQuantity),
-                          style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
-                        ),
-                      ],
-                    ),
                   ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(strings.cancelButton),
+                  IconButton.filled(
+                    icon: const Icon(Icons.add),
+                    onPressed: quantity < kMaxPantryQuantity ? () => setDialogState(() => quantity++) : null,
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  if (quantity != item.quantity) {
-                    _updateQuantity(item, quantity);
-                  }
-                },
-                child: Text(strings.saveButton),
-              ),
+              if (quantity <= item.minQuantity)
+                Padding(
+                  padding: const EdgeInsets.only(top: kSpacingSmall),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.warning, color: cs.error, size: kIconSizeSmall),
+                      const SizedBox(width: kSpacingTiny),
+                      Text(
+                        strings.lowStockWarning(item.minQuantity),
+                        style: TextStyle(color: cs.error, fontSize: kFontSizeTiny),
+                      ),
+                    ],
+                  ),
+                ),
             ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(strings.cancelButton),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                if (quantity != item.quantity) {
+                  _updateQuantity(item, quantity);
+                }
+              },
+              child: Text(strings.saveButton),
+            ),
+          ],
         ),
       ),
     );
