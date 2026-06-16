@@ -32,7 +32,7 @@
 ## 🔧 מה שנשאר (per phase)
 
 ### Phase 3 — ריפקטור מבני (Post-launch)
-- פיצול קבצים גדולים: my_pantry (1,477), settings (1,471), shopping_lists_screen (1,187), shopping_list_details (1,136), shopping_lists_provider (1,196), auth_service (1,001).
+- פיצול קבצים גדולים (שורות נכון ליוני 2026, גדול→קטן): my_pantry (2,459), settings (1,753), shopping_list_details (1,276), shopping_lists_screen (1,233), shopping_lists_provider (1,204), auth_service (1,005).
 - BaseProvider mixin — ~50 שורות כפולות ב-5 providers.
 - notifications_service refactor — `_createNotification()` helper.
 

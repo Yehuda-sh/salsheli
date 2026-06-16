@@ -10,11 +10,11 @@
 assets/
 ├── data/
 │   ├── list_types/          קבצי מוצרים לפי סוג רשימה
-│   │   ├── supermarket.json   (~112,000 מוצרים, 24MB — הקטלוג הפעיל היחיד)
+│   │   ├── supermarket.json   (~120K מוצרים, ~29MB — הקטלוג הפעיל, גדל אוטומטית)
 │   │   ├── pharmacy.json      (1,026)  ┐
-│   │   ├── market.json        (996)    │ 5 קטלוגים מוסתרים (סופר-בלבד),
-│   │   ├── butcher.json       (834)    │ נשמרים והפיכים — ראה PRODUCT_DIRECTION §1
-│   │   ├── greengrocer.json   (592)    │
+│   │   ├── market.json        (994)    │ 5 קטלוגים מוסתרים (סופר-בלבד),
+│   │   ├── butcher.json       (833)    │ נשמרים והפיכים — ראה PRODUCT_DIRECTION §1
+│   │   ├── greengrocer.json   (591)    │
 │   │   └── bakery.json        (472)    ┘
 │   └── README.md            תיעוד זה
 │
@@ -91,13 +91,13 @@ assets/
 
 | קובץ | מוצרים | קטגוריות |
 |------|--------|----------|
-| supermarket.json | ~112,000 | 27 (מנופה ומסווג, ~22% עדיין "כללי" — fallback) |
+| supermarket.json | ~120,000 | 27 (מנופה ומסווג, ~22% עדיין "כללי" — fallback) |
 | pharmacy.json | 1,026 | 12 |
-| market.json | 996 | 5 |
-| butcher.json | 834 | 8 (כולל "נקניקים ובשרים מעובדים" אחרי אודיט Apr-27) |
-| greengrocer.json | 592 | 4 |
+| market.json | 994 | 5 |
+| butcher.json | 833 | 8 (כולל "נקניקים ובשרים מעובדים" אחרי אודיט Apr-27) |
+| greengrocer.json | 591 | 4 |
 | bakery.json | 472 | 6 (לחמים, עוגות, מאפים מזרחיים, מאפים מתוקים, מלוחים, fallback) |
-| **סה"כ** | **~116,000** | |
+| **סה"כ** | **~125,000** | |
 
 > הקטלוג מתעדכן אוטומטית מ-API של רשתות הסופר הישראליות (`scripts/fetch_new_products.py`) דרך GitHub Action `fetch-new-products.yml`. שינויים ידניים (סיווג, ניקוי) — דרך הסקריפטים ב-`scripts/`.
 

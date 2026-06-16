@@ -105,5 +105,6 @@
 | מסך "מי מביא?" + צ'קליסט + אישור בקשות | `AGENTS.md`, `REFACTOR_PLAN.md` | נחתכים |
 | "NotebookBackground בכל 21 המסכים" + "בלי Material cards" + הגירת Settings ל-StickyNote | `REFACTOR_PLAN.md`, `REVIEW_BACKLOG.md` | "נייר רגוע" — פתקים כמבטא |
 | מסך בית עם 6 סקציות + ריבוי רשימות + אייקונים לפי סוג | `REVIEW_BACKLOG.md` | רשימה אחת חיה, מבנה ממוקד בלולאה |
-| מינימום ברירת מחדל = 2 | קוד (`inventory_item.dart`) | 1 |
-| הצעות מוגבלות ל-3 | קוד (`suggestions_today_card.dart`) | כל החוסרים |
+| הצעות מוגבלות ל-3 | קוד (`suggestions_today_card.dart` — עדיין `.take(3)`) | כל החוסרים |
+
+> ✅ **יושב מאז:** "מינימום ברירת מחדל = 2" → הקוד כבר `defaultValue: 1` (`inventory_item.dart`).
