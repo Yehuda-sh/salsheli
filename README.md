@@ -1,6 +1,6 @@
 # MemoZap
 
-> Smart family shopping management app
+> Smart supermarket shopping app — the pantry writes your next grocery list
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8+-02569B?logo=flutter)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?logo=firebase)](https://firebase.google.com)
@@ -14,7 +14,7 @@ MemoZap is a smart shopping list manager for any group that shares groceries —
 
 ### Key Features
 
-- **Shared Shopping Lists** — Create and manage lists with your household in real-time (9 list types)
+- **Shared Shopping List** — One live "next grocery run" list, built from your pantry, synced with your household in real-time
 - **Active Shopping Mode** — Real-time progress tracking while in-store with collaborative shopping
 - **Smart Pantry** — Track inventory with automatic low-stock detection and purchase suggestions
 - **Household Activity Feed** — See what's happening in your household (shopping, stock updates, new lists)
@@ -66,7 +66,6 @@ For demo data (admin only), see [`scripts/README.md`](scripts/README.md).
 | [AGENTS.md](AGENTS.md) | Operational guide for Claude instances — current state, known issues, architecture |
 | [docs/REVIEW_BACKLOG.md](docs/REVIEW_BACKLOG.md) | Per-screen review memory — Decisions Made + Deferred |
 | [docs/REFACTOR_PLAN.md](docs/REFACTOR_PLAN.md) | 10-phase refactor roadmap (status per phase) |
-| [docs/spec-home-screen.md](docs/spec-home-screen.md) | Home dashboard spec (with Activity Feed) |
 | [docs/store-listing.md](docs/store-listing.md) | App store listing copy |
 | [scripts/README.md](scripts/README.md) | Demo data + catalog maintenance scripts |
 

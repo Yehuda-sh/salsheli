@@ -99,11 +99,11 @@
 
 | נושא שהתיישן | היכן | מה נכון עכשיו |
 |---|---|---|
-| "9 סוגי רשימות" + תבניות לחנויות שונות | `CLAUDE.md`, `store-listing.md`, `spec-home-screen.md` | סופר בלבד; השאר מוסתר |
+| "9 סוגי רשימות" + תבניות לחנויות שונות | `CLAUDE.md`, `store-listing.md` | סופר בלבד; השאר מוסתר |
 | ניקוי/QA על 5 הקטלוגים האחרים | `REVIEW_BACKLOG.md` (catalog audit) | רק קטלוג סופר |
 | כרטיס "מה לבשל הערב?" (נוסף 19/5) | `REVIEW_BACKLOG.md` | מוסתר |
 | מסך "מי מביא?" + צ'קליסט + אישור בקשות | `AGENTS.md`, `REFACTOR_PLAN.md` | נחתכים |
 | "NotebookBackground בכל 21 המסכים" + "בלי Material cards" + הגירת Settings ל-StickyNote | `CLAUDE.md`, `REFACTOR_PLAN.md`, `REVIEW_BACKLOG.md` | "נייר רגוע" — פתקים כמבטא |
-| מסך בית עם 6 סקציות + ריבוי רשימות + אייקונים לפי סוג | `spec-home-screen.md`, `REVIEW_BACKLOG.md` | רשימה אחת חיה, מבנה ממוקד בלולאה |
+| מסך בית עם 6 סקציות + ריבוי רשימות + אייקונים לפי סוג | `REVIEW_BACKLOG.md` | רשימה אחת חיה, מבנה ממוקד בלולאה |
 | מינימום ברירת מחדל = 2 | קוד (`inventory_item.dart`) | 1 |
 | הצעות מוגבלות ל-3 | קוד (`suggestions_today_card.dart`) | כל החוסרים |

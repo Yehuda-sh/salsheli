@@ -10,22 +10,15 @@
 assets/
 ├── data/
 │   ├── list_types/          קבצי מוצרים לפי סוג רשימה
-│   │   ├── supermarket.json   (~112,000 מוצרים, 24MB — מנופה ומסווג)
-│   │   ├── pharmacy.json      (1,026 מוצרים)
-│   │   ├── market.json        (996 מוצרים)
-│   │   ├── butcher.json       (834 מוצרים)
-│   │   ├── greengrocer.json   (592 מוצרים)
-│   │   └── bakery.json        (472 מוצרים)
-│   ├── IMAGE_URLS.md        רשימת קישורי תמונות (Unsplash/Pexels)
+│   │   ├── supermarket.json   (~112,000 מוצרים, 24MB — הקטלוג הפעיל היחיד)
+│   │   ├── pharmacy.json      (1,026)  ┐
+│   │   ├── market.json        (996)    │ 5 קטלוגים מוסתרים (סופר-בלבד),
+│   │   ├── butcher.json       (834)    │ נשמרים והפיכים — ראה PRODUCT_DIRECTION §1
+│   │   ├── greengrocer.json   (592)    │
+│   │   └── bakery.json        (472)    ┘
 │   └── README.md            תיעוד זה
 │
-├── templates/               תבניות רשימות מוכנות
-│   ├── list_templates.json    אינדקס כל התבניות
-│   ├── event_bbq.json         ברביקיו
-│   ├── event_birthday.json    יום הולדת
-│   ├── event_friends.json     אירוח חברים
-│   ├── shopping_weekly.json   קניות שבועיות
-│   └── pantry_basic.json      מזווה בסיסי
+├── templates/               תבניות רשימות (מוסתרות בסופר-בלבד; 11 קבצים: 8 אירועים + שבועי + מזווה + אינדקס)
 │
 ├── images/                  תמונות
 │   ├── app_icon.png           אייקון האפליקציה
