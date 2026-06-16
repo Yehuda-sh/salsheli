@@ -1,5 +1,10 @@
 // lib/main.dart — App entry point — Firebase init, Provider tree setup, theme, routing
 
+// main.dart deliberately uses package: imports (project convention — every
+// other lib/ file uses relative imports). Silence the lints that conflict
+// with that intentional exception, so `dart analyze` stays signal-only.
+// ignore_for_file: prefer_relative_imports, directives_ordering
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -208,7 +213,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        final userContext = context.watch<UserContext>();
+        // select (not watch): only themeMode is read here, so rebuild the
+        // MaterialApp on theme changes — not on every UserContext notification.
+        final themeMode = context.select<UserContext, ThemeMode>((u) => u.themeMode);
 
         return ListenableBuilder(
           listenable: LocaleManager.instance,
@@ -224,7 +231,7 @@ class MyApp extends StatelessWidget {
           },
           theme: lightDynamic != null ? AppTheme.fromDynamicColors(lightDynamic, dark: false) : AppTheme.lightTheme,
           darkTheme: darkDynamic != null ? AppTheme.fromDynamicColors(darkDynamic, dark: true) : AppTheme.darkTheme,
-          themeMode: userContext.themeMode,
+          themeMode: themeMode,
           locale: Locale(LocaleManager.instance.languageCode),
           supportedLocales: const [Locale('he', 'IL'), Locale('en', 'US')],
           localizationsDelegates: const [
