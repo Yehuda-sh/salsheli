@@ -263,6 +263,8 @@
 **🎯 Pattern**: דוגמה לעקביות פטרן cross-file. ה-SnackBar contrast fix שבוצע ב-`suggestions_today_card` חזר על עצמו פה ב-FilledButton. **כלל אצבע:** בכל מקום עם sticky color כרקע + foreground צבע "default theme" — לבדוק קונטרסט ידנית.
 
 ### סבב 4 (19/5/2026) — Architectural pruning + WhatsForDinnerCard
+> ⚠️ **כרטיס "מה לבשל הערב?" מוסתר** אחרי המיקוד-לסופר ([PRODUCT_DIRECTION](PRODUCT_DIRECTION.md) §6 — הקוד נשאר). ההחלטה הארכיטקטונית והמחקר נשמרים כהיסטוריה; **אודיט הקטלוג בהמשך הסבב חי** (supermarket.json הוא הקטלוג הפעיל).
+
 המשתמש שאל בכנות "האם בכלל צריך את הפיד הזה?". סקירה מקיפה גילתה שה-`household_activity_feed.dart` (במסך הבית) משכפל מידע שכבר זמין ב-3 מקומות: היסטוריה, פעמון התראות, ו-Action Center. נדרשה החלטה ארכיטקטונית.
 
 **מחקר API מתכונים (פרי-decision):** בוצעו 7 חיפושי web יסודיים על קיום API חופשי למתכונים בעברית. תוצאות:
@@ -274,31 +276,9 @@
 
 **ההחלטה:** במקום לבנות feature recipe-matching עם content engineering (~50+ שעות תוכן ראשוני + תחזוקה), להחליף ב-**External Google search** — חינמי, מקסימום ערך, אפס תחזוקה.
 
-#### שינויים בקובץ `home_dashboard_screen.dart`
-- **🗑️ הסרת `HouseholdActivityFeed`** ממסך הבית. הקובץ עצמו (`household_activity_feed.dart`) נשמר כי משמש ב-`shopping_history_screen`.
-- **🆕 `WhatsForDinnerCard` חדש** — sticky-orange card שמציג: כותרת "🍲 מה לבשל הערב?" + preview של 5 פריטים מהמזווה + כפתור "חפש מתכונים" עם אייקון external. לחיצה → `launchUrl(Uri.https('www.google.com', '/search', {'q': 'מתכון עם X Y Z'}))` ב-LaunchMode.externalApplication.
+**מימוש (מתומצת — הכרטיס מוסתר):** `HouseholdActivityFeed` הוסר ממסך הבית (הקובץ נשמר, משמש ב-`shopping_history_screen`). נוסף `WhatsForDinnerCard` (sticky-orange, preview 5 פריטי מזווה, כפתור "חפש מתכונים" → Google חיצוני). תלות חדשה **`url_launcher: ^6.3.1`** (שימוש ראשון בפרויקט — תקדים ל-external links). Strings תחת `AppStrings.whatsForDinner`.
 
-#### תלות חדשה
-- **`url_launcher: ^6.3.1`** נוסף ל-`pubspec.yaml`. שימוש ראשון בפרויקט (יוצר תקדים ל-external link patterns).
-
-#### Strings חדשים (HE+EN)
-- `whatsForDinner.title` / `preview(items)` / `searchButton` / `searchPrefix` / `errorFallback`
-- רשום ב-`AppStrings` (`whatsForDinner` getter)
-
-#### Sticky-note design language consistency
-- Transform.rotate(-0.005°)
-- stickyOrange gradient (kOpacitySoft → 0.05 alpha)
-- BoxShadow קל
-- Border עדין
-- אותו pattern של `_buildInviteFamilyBanner`
-
-#### Defensive UX
-- מסתתר כשפחות מ-3 פריטים במזווה (הchild שאילתת recipe על 1-2 מצרכים = רעש)
-- `fixBidiNumbers` על preview (שמות מוצרים מעורבים)
-- launchUrl עטוף ב-try/catch + fallback snackbar
-- `mode: LaunchMode.externalApplication` — נפתח בדפדפן הברירת-מחדל, לא ב-in-app webview
-
-**🎯 Pattern**: דוגמה ל-"smart link" widget — מספק ערך לוקאלי (preview מותאם אישית מהמזווה) + לוקח action אל מחוץ לאפליקציה. אפס תחזוקת תוכן.
+**🎯 Pattern נשמר:** "smart link" widget — ערך לוקאלי (preview מהמזווה) + action חיצוני, אפס תחזוקת תוכן. רלוונטי לכל external-link עתידי גם אם הכרטיס הזה לא יחזור.
 
 #### Hotfix מיידי (אותו יום, 19/5)
 המשתמש צילם screenshot עם demo data של naama — ה-preview הציג: "יש לך: אולטאסול ספריי שקוף · בגד ים חליפה בנות · בדין מרכך כיבסה מרוכז · בצל מטוגן במשקל · דגני בוקר אורינגל לי". 3 מתוך 5 לא היו אוכל. ה-pantry במזווה (סופרסל catalog) כולל ניקיון/ביגוד/כביסה.
@@ -1014,33 +994,13 @@
 
 ## Catalog (assets/data/list_types/)
 
-### 🛒 Catalog Full Cleanup — 30/4/2026 (Phases 1-3)
+> 🧭 אחרי המיקוד-לסופר: **supermarket.json הוא הקטלוג הפעיל היחיד.** ניקוי/QA על 5 הקטלוגים האחרים — superseded (מוסתרים, הפיכים). הלוגים הפאזתיים מתומצתים; טבלת המצב הסופי + ה-deferred + ה-lesson חיים.
 
-**📊 Scope:** ~116,000 products across 6 list types (supermarket / pharmacy / market / butcher / greengrocer / bakery). User confirmed only demo users on the system, so aggressive cleanup was approved.
+### 🛒 Catalog Full Cleanup — 30/4/2026
 
-**✅ Phase 1 — Text cleanups:**
-- **Trailing dots/asterisks stripped** — 681 product names: supermarket 646, butcher 18, bakery 8, pharmacy 5, greengrocer 4. Most were single-dot strips left over from the source export's abbreviation marker on units ("ג.", "מ"ל.").
-- **Leading punctuation stripped** — 12 names in supermarket. Examples: ".AMERICAN KETCHUP." → "AMERICAN KETCHUP".
-- **Garbage names removed** — 30 supermarket items dropped (numeric-only, 1-2 letter codes, punctuation-only — none had a real product behind them).
+**📊 Scope:** ~116,000 products across 6 list types. User confirmed only demo users on the system, so aggressive cleanup was approved.
 
-**✅ Phase 2 — Re-categorization** (reran `scripts/fix_supermarket_step{2..6}.py`):
-- Categorized ~5,800 supermarket items out of `'כללי'` into proper buckets (קפואים, אלכוהול, צעצועים ומתנות, etc.).
-- Step 2 also removed ~1,375 non-product entries (e.g., "חופשי שנתי", "מנוי תקופתי").
-- `'כללי'` count: 35,971 → 30,170 (~27% of catalog). Remaining items either don't match the keyword/prefix/bigram rules or are genuinely miscellaneous — would need a new categorization rule batch to go further.
-
-**✅ Phase 3 — Dedup + barcode/price normalization:**
-- **Supermarket: 64 duplicate barcodes** dropped — for each duplicate group, kept the row with the longest name + most complete metadata, dropped the rest.
-- **Market: 2 duplicate barcodes** dropped (same strategy).
-- **Greengrocer: 113 placeholder barcodes nulled** — barcodes shared by 2+ different items (e.g., `7290000000114` was used for both "ביצי בקר" and "חציל") set to `null`. Weight-sold items don't have real barcodes; null is the honest representation.
-- **`barcode: ""` → `barcode: null`** — 114 butcher items + 59 bakery items normalized for consistency. Now: 0 empty-string barcodes anywhere; either real barcode or `null`.
-- **`price: 0` → `price: null`** — 181 supermarket items + 18 bakery items. The app's pricing UI needs to treat `0` and `null` as "unknown"; `null` is the cleaner representation.
-
-**✅ Phase 5+6 — Schema repair + extended cleanup:**
-- **3 corrupted barcodes fixed**: `'800050024715.0'` (Excel `.0` artifact) → stripped, `'7290016299359.'` (trailing dot) → stripped, `'-869063785873'` (leading minus) → stripped. After fix, the cleaned barcodes were validated as digit-only ≥6 chars; remaining 3 still-invalid barcodes set to `null`.
-- **204 + 8 names ending with weird punctuation** (`-`, `,`, `/`, `\`, `:`, `;`, mixed) — first pass caught contiguous trailing punct; second pass extended to interleaved patterns like `" - - - "` and `"//////"` (e.g., `'איקרה לבנה - -'` → `'איקרה לבנה'`, `'שניצל תירס//////'` → `'שניצל תירס'`).
-- **145 brand values nulled** in supermarket — included literal `','`, single non-letter chars, `'null'`/`'undefined'`/`'-'` strings.
-- **264 unit values nulled** — values like `'0'`, `'1'`, `'0   0'`, `'100 0'` (no letters at all = not a real unit name).
-- **311 same-name+category+price triplets in supermarket + 1 in butcher** deduped — kept the row with the most complete metadata + longest name per group.
+**✅ מה בוצע (Phases 1-6, מתומצת):** ניקוי טקסט (681 trailing dots/asterisks, 12 leading punct, 30 garbage names); re-categorization (~5,800 פריטים מ-`'כללי'`, `'כללי'` 35,971→30,170, הוסרו ~1,375 non-products); dedup ברקודים (supermarket 64, market 2) + null- ל-placeholder/empty barcodes (greengrocer 113, butcher 114, bakery 59) ול-`price:0` (181+18); תיקון schema (3 ברקודים קוראפטיים, 204+8 שמות עם פיסוק חריג, 145 brand + 264 unit values nulled, 311+1 triplets deduped).
 
 **📊 Final state:**
 | File | Items | Duplicates | Null barcodes | Null prices |
@@ -1053,18 +1013,7 @@
 | bakery      |     472 | 0 | 77  | 18 |
 | **Total**   | **114,637** | **0** | | |
 
-**✅ Phase 4 — Deeper text cleanup:**
-- **36 supermarket items** had RLE/RLM bidi formatting marks (invisible Unicode chars `‪‫`) that broke rendering — stripped.
-- **976 backticks (\`)** across all files normalized to apostrophe `'`. The backtick was a substitute for the Hebrew geresh (`׳`); apostrophe is more portable. Distribution: supermarket 896, bakery 40, butcher 22, pharmacy 14, market 4.
-- **114 supermarket names** had multiple consecutive spaces — collapsed to single space (e.g., `'ביסקוויט "מינואט"  ע'` → `'ביסקוויט "מינואט" ע'`).
-- **87 non-products removed from supermarket** by pattern-matching:
-  - 10 "מחלקת אפיה/בשר/מעדניה" (department names mistakenly catalogued).
-  - 22 coupons ("קופון פסטה ספגטי אסם", etc. — discounts, not products).
-  - 20 deposits ("פיקדון", "פקדון", "דמי פיקדון", "זיכוי פקדון") — bottle-deposit fees.
-  - 8 transit subscriptions remaining ("מנוי חופשי", "נסיעה חופשית").
-  - 2 delivery fees ("דמי משלוח").
-  - 2 packaging recycling fees ("מיחזור אריזה").
-  - And misc generic items ("פריט כללי", "הנחות שניתנו").
+**✅ Phase 4 — Deeper text cleanup (מתומצת):** 36 bidi marks (RLE/RLM) stripped; 976 backticks → apostrophe; 114 שמות עם רווחים כפולים; **87 non-products הוסרו** (department names, coupons, deposits/פיקדון, transit subs, delivery/recycling fees, generic items).
 
 **⏸️ Deferred (rule-based limit):**
 - ~~30,170 supermarket items in `'כללי'`~~ → **24,669 (22.3%)** after Phases 7-10 manual rules.
