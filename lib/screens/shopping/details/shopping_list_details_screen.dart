@@ -925,10 +925,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CustomPaint(
-                  size: const Size(30, 1),
-                  painter: PerforationPainter(color: cs.outline.withValues(alpha: 0.3)),
-                ),
+                const PerforationLine(width: 30),
                 const SizedBox(width: kSpacingSmall),
                 Text(
                   AppStrings.listDetails.totalLabel,

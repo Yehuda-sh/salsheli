@@ -65,15 +65,7 @@ class ShoppingListTile extends StatelessWidget {
     return Column(
       children: [
         // ✂️ Perforation line - "קו תלישה"
-        SizedBox(
-          height: 1,
-          width: double.infinity,
-          child: CustomPaint(
-            painter: PerforationPainter(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-            ),
-          ),
-        ),
+        const PerforationLine(),
         TappableCard(
               tooltip: label,
               semanticLabel: label,

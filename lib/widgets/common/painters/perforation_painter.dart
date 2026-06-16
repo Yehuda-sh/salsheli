@@ -4,6 +4,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../../core/ui_constants.dart';
+
 /// Painter שמצייר קו אופקי מקווקו (perforation / tear line)
 ///
 /// שימוש:
@@ -66,5 +68,28 @@ class PerforationPainter extends CustomPainter {
         dashWidth != oldDelegate.dashWidth ||
         dashGap != oldDelegate.dashGap ||
         strokeWidth != oldDelegate.strokeWidth;
+  }
+}
+
+/// The app's standard dashed "tear line" (perforation divider).
+///
+/// Wraps [PerforationPainter] so call sites don't repeat the CustomPaint +
+/// color boilerplate, and the line looks identical everywhere. Full width by
+/// default (a divider between sections); pass [width] for a short inline mark
+/// (e.g. the little tear before a "total" label).
+class PerforationLine extends StatelessWidget {
+  /// Line width. Defaults to full width; pass a fixed value for a short mark.
+  final double width;
+
+  const PerforationLine({super.key, this.width = double.infinity});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size(width, 1),
+      painter: PerforationPainter(
+        color: Theme.of(context).colorScheme.outline.withValues(alpha: kOpacityLight),
+      ),
+    );
   }
 }

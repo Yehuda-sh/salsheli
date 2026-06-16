@@ -277,15 +277,7 @@ class _ReceiptCard extends StatelessWidget {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // ── Perforation ──
-                CustomPaint(
-                  size: const Size(double.infinity, 1),
-                  painter: PerforationPainter(
-                    color: cs.outline.withValues(alpha: 0.25),
-                    dashWidth: 6,
-                    dashGap: 4,
-                  ),
-                ),
+                const PerforationLine(),
 
                 const SizedBox(height: kSpacingMedium),
 
@@ -331,15 +323,7 @@ class _ReceiptCard extends StatelessWidget {
 
                 const SizedBox(height: kSpacingMedium),
 
-                // ── Perforation ──
-                CustomPaint(
-                  size: const Size(double.infinity, 1),
-                  painter: PerforationPainter(
-                    color: cs.outline.withValues(alpha: 0.25),
-                    dashWidth: 6,
-                    dashGap: 4,
-                  ),
-                ),
+                const PerforationLine(),
 
                 const SizedBox(height: kSpacingMedium),
 
@@ -382,15 +366,7 @@ class _ReceiptCard extends StatelessWidget {
                 if (budget > 0) ...[
                   const SizedBox(height: kSpacingMedium),
 
-                  // ── Perforation ──
-                  CustomPaint(
-                    size: const Size(double.infinity, 1),
-                    painter: PerforationPainter(
-                      color: cs.outline.withValues(alpha: 0.25),
-                      dashWidth: 6,
-                      dashGap: 4,
-                    ),
-                  ),
+                  const PerforationLine(),
 
                   const SizedBox(height: kSpacingMedium),
 
