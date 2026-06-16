@@ -259,27 +259,6 @@ class TemplateService {
       }
     }
 
-    // תת-תבניות (אירועים)
-    final subTemplates = data['subTemplates'];
-    if (subTemplates is List) {
-      for (final subTemplate in subTemplates) {
-        if (subTemplate is! Map) continue;
-        final subs = subTemplate['sub'];
-        if (subs is! List) continue;
-        for (final sub in subs) {
-          if (sub is Map && sub['templateFile'] != null) {
-            templates.add(TemplateInfo(
-              id: sub['id'] as String? ?? '',
-              name: sub['name'] as String? ?? '',
-              templateFile: sub['templateFile'] as String,
-              icon: _getIconForCategory(sub['id'] as String? ?? ''),
-              description: sub['description'] as String?,
-            ));
-          }
-        }
-      }
-    }
-
     if (kDebugMode) debugPrint('✅ [TemplateService] נמצאו ${templates.length} תבניות');
     return templates;
   }
@@ -287,20 +266,10 @@ class TemplateService {
   /// מחזיר אייקון לפי קטגוריית תבנית
   static String _getIconForCategory(String id) {
     switch (id) {
-      case 'bbq':
-        return '🔥';
       case 'shopping':
         return '🛒';
       case 'pantry':
         return '🏺';
-      case 'friends':
-        return '🎉';
-      case 'birthday':
-        return '🎂';
-      case 'shabbat':
-        return '🕯️';
-      case 'picnic':
-        return '🧺';
       default:
         return '📋';
     }
@@ -308,27 +277,10 @@ class TemplateService {
 
   /// מחזיר סוג רשימה לפי ID תבנית
   ///
-  /// משמש לקביעת הסוג האוטומטי כשבוחרים תבנית
+  /// משמש לקביעת הסוג האוטומטי כשבוחרים תבנית.
+  /// האפליקציה ממוקדת לסופר — כל תבנית נפתרת ל-supermarket.
   static String getListTypeForTemplate(String templateId) {
-    switch (templateId) {
-      case 'bbq':
-      case 'birthday':
-      case 'friends':
-      case 'shabbat':
-      case 'picnic':
-        return 'event';
-      case 'shopping':
-        return 'supermarket';
-      case 'pantry':
-        return 'household';
-      default:
-        return 'supermarket';
-    }
-  }
-
-  /// האם התבנית היא של אירוע?
-  static bool isEventTemplate(String templateId) {
-    return ['bbq', 'birthday', 'friends', 'shabbat', 'picnic'].contains(templateId);
+    return 'supermarket';
   }
 
   /// 🏺 טוען פריטי starter למזווה (Onboarding)

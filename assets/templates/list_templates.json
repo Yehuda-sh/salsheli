@@ -5,66 +5,6 @@
       "name": "קניות שוטפות",
       "description": "מוצרי יסוד לשבוע — חלב, ירקות, פירות, מזווה",
       "templateFile": "shopping_weekly.json"
-    },
-    {
-      "id": "event",
-      "name": "אירועים",
-      "templateFile": null
-    },
-    {
-      "id": "shabbat",
-      "name": "שבת",
-      "description": "כל מה שצריך לשבת מושלמת — מקידוש ועד קינוח",
-      "templateFile": "event_shabbat.json"
-    }
-  ],
-  "subTemplates": [
-    {
-      "parentId": "event",
-      "sub": [
-        {
-          "id": "bbq",
-          "name": "על האש",
-          "description": "כל מה שצריך למנגל מושלם",
-          "templateFile": "event_bbq.json"
-        },
-        {
-          "id": "friends",
-          "name": "ישיבה עם חברים",
-          "description": "חטיפים ושתייה לערב מהנה",
-          "templateFile": "event_friends.json"
-        },
-        {
-          "id": "birthday",
-          "name": "מסיבת יום הולדת",
-          "description": "כל מה שצריך למסיבה מושלמת",
-          "templateFile": "event_birthday.json"
-        },
-        {
-          "id": "picnic",
-          "name": "פיקניק",
-          "description": "כל מה שצריך לפיקניק או טיול בטבע",
-          "templateFile": "event_picnic.json"
-        },
-        {
-          "id": "rosh_hashana",
-          "name": "ראש השנה",
-          "description": "שנה טובה ומתוקה — תפוח בדבש, רימון, חלה עגולה",
-          "templateFile": "event_rosh_hashana.json"
-        },
-        {
-          "id": "passover",
-          "name": "פסח",
-          "description": "ליל הסדר — מצות, יין, חרוסת ומרור",
-          "templateFile": "event_passover.json"
-        },
-        {
-          "id": "hanukkah",
-          "name": "חנוכה",
-          "description": "נס גדול היה פה — סופגניות, לביבות ושמן",
-          "templateFile": "event_hanukkah.json"
-        }
-      ]
     }
   ]
 }
