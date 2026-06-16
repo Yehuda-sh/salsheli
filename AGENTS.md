@@ -61,6 +61,9 @@ injects `senderId` (#18 client-side).
 > Full per-session history lives in `git log` — not duplicated here.
 
 ### Next Priorities
+0. 🧹 **Supermarket-only cleanup (in progress)** — deleting all non-supermarket list
+   types end-to-end. Phases 1-2 done; phases 3-7 (templates, config, catalogs, strings,
+   docs) pending. Full plan + checklist: [docs/SUPERMARKET_CLEANUP.md](docs/SUPERMARKET_CLEANUP.md).
 1. 🔴 **Security gate (before any public release)** — the v4.5/4.6 rules broke core
    flows. Needs: (a) a callable `acceptHouseholdInvite` Cloud Function (Admin SDK) so
    users can actually join a household (#17); (b) `senderId`/`senderName` already set
