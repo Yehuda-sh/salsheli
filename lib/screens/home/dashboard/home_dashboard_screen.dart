@@ -23,7 +23,6 @@ import 'widgets/active_shopper_banner.dart';
 import 'widgets/onboarding_tips_card.dart';
 import 'widgets/pending_actions_card.dart';
 import 'widgets/suggestions_today_card.dart';
-import 'widgets/whats_for_dinner_card.dart';
 
 // Layout tokens specific to the active-list card.
 // Avatar grew 44→72 so the paper-cut sticker reads as the card's hero
@@ -298,16 +297,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
                   ),
 
-                  // === 6. מה לבשל הערב? (Google recipe search) ===
-                  // Replaced the household activity feed — see REVIEW_BACKLOG
-                  // (17/5/2026): the feed duplicated info already available
-                  // in the History tab and the notification center, and was
-                  // showing receipt fallback weeks-old labelled "מה חדש".
-                  // This card surfaces a forward-looking action instead.
-                  _staggered(
-                    const RepaintBoundary(child: WhatsForDinnerCard()),
-                    sectionIndex++,
-                  ),
+                  // === "מה לבשל הערב?" — מוסתר אחרי המיקוד-לסופר (PRODUCT_DIRECTION §6).
+                  // הקוד נשמר ב-widgets/whats_for_dinner_card.dart (הפיך). להחזרה:
+                  // להחזיר את ה-import למעלה + _staggered(WhatsForDinnerCard()) כאן.
 
                   // FAB clearance (only when FAB is showing)
                   SizedBox(height: showFab ? kIconSizeXLarge + kSpacingXLarge : kSpacingMedium),

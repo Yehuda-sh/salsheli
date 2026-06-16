@@ -16,6 +16,13 @@ class CategoryInfo {
 class CategoriesData {
   CategoriesData._();
 
+  // ⚠️ DORMANT (hidden per the supermarket pivot — PRODUCT_DIRECTION §6).
+  // The food-filtering block below (foodCategoryKeys, isFoodCategory,
+  // nonFoodNameHints, looksLikeNonFood) is consumed ONLY by WhatsForDinnerCard,
+  // which is no longer rendered on the home screen (the widget file is kept
+  // for reversibility). Retained so the card compiles if restored. Delete this
+  // block only if the card is permanently dropped.
+
   /// Edible categories — used to filter pantry items when surfacing
   /// recipe-related features (e.g. the "What's for dinner" card).
   ///

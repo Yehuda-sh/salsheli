@@ -1,4 +1,9 @@
 // lib/screens/home/dashboard/widgets/whats_for_dinner_card.dart — "What's for dinner" — Google recipe search using current pantry items
+//
+// ⚠️ HIDDEN (not rendered) after the supermarket pivot — PRODUCT_DIRECTION §6.
+// The home dashboard no longer mounts this widget; the file (and its
+// filters_data food helpers) is retained for reversibility. To restore:
+// re-add the import + _staggered(WhatsForDinnerCard()) in home_dashboard_screen.
 
 import 'dart:async';
 
