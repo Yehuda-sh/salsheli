@@ -80,7 +80,7 @@
 - **FCM push not required for launch** — in-app notifications work.
 - **Onboarding removed** — -3,258 lines; welcome screen still works via `seenOnboarding`.
 - **Single-class large files deferred** — post-launch.
-- **Catalog**: supermarket.json הוא הפעיל; 5 הקטלוגים האחרים מוסתרים (מיקוד-סופר).
+- **Catalog**: supermarket.json הוא היחיד; 5 הקטלוגים האחרים **נמחקו** (מיקוד-סופר, יוני 2026).
 
 ---
 
