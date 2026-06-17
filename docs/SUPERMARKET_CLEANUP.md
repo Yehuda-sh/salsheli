@@ -1,7 +1,7 @@
 # 🧹 ניקוי "סופר בלבד" — מחיקת סוגי הרשימות שאינם-סופר
 
 > **מה זה:** תוכנית ביצוע למחיקה מלאה (לא הסתרה) של כל מה שאינו-סופר, לפי [PRODUCT_DIRECTION.md](PRODUCT_DIRECTION.md).
-> **סטטוס:** פאזות 1-4 ✅ בוצעו. פאזות 5-7 ⬜ ממתינות — **לבצע כשיש זמן.**
+> **סטטוס:** פאזות 1-5 ✅ בוצעו. פאזות 6-7 ⬜ ממתינות — **לבצע כשיש זמן.**
 > **החלטות מפתח:** למחוק (לא להשאיר מוסתר); לשמור `supermarket` + `other` בלבד; לשמור את תבניות המזווה/השבועי; "אישור בקשות" + "פישוט תפקידים" — **מחוץ להיקף הזה** (עבודה נפרדת בעתיד).
 
 זה מסמך **חד-פעמי** — כשכל הפאזות בוצעו, אפשר למחוק אותו (ההיסטוריה ב-git).
@@ -48,15 +48,18 @@
 - `shopping_lists_screen.dart`: הוסר כל בורר סינון-הסוג (צ'יפ "all" בודד, sheet, tag, `_getTypeLabel`) — כל הרשימות הן סופר. נשארו חיפוש + מיון.
 - הטסטים ב-`shopping_list_test.dart` עודכנו לשני הסוגים שנשארו.
 
+### פאזה 5 — קטלוגים
+- נמחקו 5 קבצי JSON: `pharmacy.json`, `market.json`, `butcher.json`, `greengrocer.json`, `bakery.json`. נשמר `supermarket.json`.
+- `local_products_repository.dart`: `_supportedTypes` צומצם ל-`{supermarket}` בלבד (כל סוג אחר, כולל `other`, נופל ל-supermarket).
+- `template_service.dart`: רשימת ה-`sources` צומצמה ל-`['supermarket']` (טען רק קטלוג אחד).
+- `scripts/fetch_new_products.py`: `CATALOG_FILES` צומצם ל-`supermarket.json` (מניעת אזהרות "not found" בכל הרצה).
+- `assets/data/README.md`: עץ + סטטיסטיקה עודכנו לקטלוג יחיד.
+- ניקוי comments מיותמים: `products_provider`, `products_repository`, `firebase_products_repository`.
+- **pubspec — לא שונה**: ההצהרה `assets/data/list_types/` היא ברמת תיקייה (supermarket.json נשאר).
+
 ---
 
 ## ⬜ נשאר לביצוע
-
-### פאזה 5 — קטלוגים (סיכון בינוני)
-- **למחוק** 5 קבצי JSON: `assets/data/list_types/pharmacy.json`, `market.json`, `butcher.json`, `greengrocer.json`, `bakery.json`. **לשמור `supermarket.json`.**
-- `local_products_repository.dart`: לעדכן את ה-loader שטוען לפי סוג — שייטען רק supermarket.
-- **pubspec — אין צורך לשנות**: ההצהרה `assets/data/list_types/` היא ברמת תיקייה (supermarket.json נשאר). אותו דבר ל-`assets/templates/` ו-`assets/icons/list_types/`.
-- לעדכן `assets/data/README.md` (סטטיסטיקה + עץ).
 
 ### פאזה 6 — מחרוזות + stickers + נתוני דמו (סיכון נמוך)
 - `app_strings_he.dart` + `app_strings_en.dart`: להסיר `typePharmacy`...`typeEvent` (+ ה-`*Short`), `eventMode*`, `whoBrings*`.

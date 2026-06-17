@@ -61,15 +61,8 @@ class TemplateService {
     try {
       _productsCache = {};
 
-      // רשימת כל החנויות
-      const sources = [
-        'supermarket',
-        'bakery',
-        'butcher',
-        'greengrocer',
-        'pharmacy',
-        'market'
-      ];
+      // קטלוג יחיד — האפליקציה ממוקדת לסופר
+      const sources = ['supermarket'];
 
       for (final source in sources) {
         try {

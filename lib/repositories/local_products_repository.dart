@@ -12,14 +12,10 @@ class LocalProductsRepository implements ProductsRepository {
   // Shared Futures - מבטיח שקובץ לא נטען פעמיים בו-זמנית
   final Map<String, Future<List<Map<String, dynamic>>>> _loadingFutures = {};
 
-  // List types עם JSON ייעודי
+  // List types עם JSON ייעודי — האפליקציה ממוקדת לסופר, כך שיש
+  // קטלוג אחד בלבד. סוגים אחרים (כולל 'other') נופלים ל-supermarket.
   static const Set<String> _supportedTypes = {
     'supermarket',
-    'pharmacy',
-    'greengrocer',
-    'butcher',
-    'bakery',
-    'market',
   };
 
   // Fallback type

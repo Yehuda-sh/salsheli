@@ -386,8 +386,7 @@ class ProductsProvider with ChangeNotifier {
   List<Map<String, dynamic>> _calculateFilteredProducts() {
     var filtered = List<Map<String, dynamic>>.from(_products);
 
-    // ⚠️ אין צורך בסינון לפי list_type - המוצרים כבר נטענו מהקובץ הנכון!
-    // (pharmacy.json, bakery.json וכו')
+    // ⚠️ אין צורך בסינון לפי list_type - המוצרים נטענים מ-supermarket.json (קטלוג יחיד)
 
     // Filter by category
     if (_selectedCategory != null) {

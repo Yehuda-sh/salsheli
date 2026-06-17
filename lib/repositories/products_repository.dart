@@ -39,12 +39,11 @@ abstract class ProductsRepository {
   ///
   /// Returns: רשימת מוצרים מסוננת לפי סוג הרשימה
   ///
-  /// Note: אם הסוג לא נתמך (household/other), ייעשה **fallback אוטומטי**
+  /// Note: אם הסוג לא נתמך (other), ייעשה **fallback אוטומטי**
   /// ל-supermarket ללא שגיאה.
   ///
   /// Example:
   /// ```dart
-  /// final bakery = await repository.getProductsByListType('bakery');
   /// final first100 = await repository.getProductsByListType('supermarket', limit: 100);
   /// ```
   Future<List<Map<String, dynamic>>> getProductsByListType(

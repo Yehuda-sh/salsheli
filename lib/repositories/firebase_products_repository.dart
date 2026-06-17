@@ -323,7 +323,7 @@ class FirebaseProductsRepository implements ProductsRepository {
   /// 
   /// Example:
   /// ```dart
-  /// final bakeryProducts = await repo.getProductsByListType('bakery');
+  /// final products = await repo.getProductsByListType('supermarket');
   /// ```
   @override
   Future<List<Map<String, dynamic>>> getProductsByListType(

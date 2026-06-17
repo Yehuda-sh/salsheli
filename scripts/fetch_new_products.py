@@ -52,14 +52,9 @@ LIST_TYPES_DIR = PROJECT_ROOT / 'assets' / 'data' / 'list_types'
 OUTPUT_FILE = LIST_TYPES_DIR / 'new_products.json'
 DUMPS_FOLDER = PROJECT_ROOT / 'scripts' / 'dumps'
 
-# All catalog files to check against
+# All catalog files to check against (supermarket-only — single catalog)
 CATALOG_FILES = [
     'supermarket.json',
-    'market.json',
-    'pharmacy.json',
-    'butcher.json',
-    'greengrocer.json',
-    'bakery.json',
 ]
 
 # Chains to scrape — None = ALL chains, or specify list
