@@ -124,13 +124,12 @@ const HOUSEHOLDS = {
 // LOAD PRODUCTS FROM JSON CATALOG
 // ═══════════════════════════════════════════════════════════════
 function loadProducts() {
+  // Supermarket-only — single catalog (other types were removed).
   const products = [];
-  for (const f of ['supermarket', 'bakery', 'butcher', 'greengrocer', 'pharmacy', 'market']) {
-    const p = path.join(__dirname, '..', 'assets', 'data', 'list_types', `${f}.json`);
-    if (fs.existsSync(p)) {
-      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
-      products.push(...data.map(item => ({ ...item, sourceFile: f })));
-    }
+  const p = path.join(__dirname, '..', 'assets', 'data', 'list_types', 'supermarket.json');
+  if (fs.existsSync(p)) {
+    const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+    products.push(...data.map(item => ({ ...item, sourceFile: 'supermarket' })));
   }
   return products;
 }
@@ -515,10 +514,10 @@ async function main() {
   });
   console.log('   📋 כהן: קניות שבועיות (supermarket, 14 items, 2 pending + 1 approved + 1 rejected)');
 
-  // ── COHEN: Greengrocer — ACTIVE SHOPPING by רונית + אבי (2 shoppers!) ──
-  const greenProducts = pickRandom(products.filter(p => p.sourceFile === 'greengrocer' && !p.name.includes('יוגורט') && !p.name.includes('מיץ')), 10);
+  // ── COHEN: Fruit & veg — ACTIVE SHOPPING by רונית + אבי (2 shoppers!) ──
+  const greenProducts = pickRandom(byCategory(products, 'פירות וירקות').filter(p => p.sourceFile === 'supermarket'), 10);
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_green').set({
-    id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'greengrocer',
+    id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: ts(hoursAgo(5)), updated_date: ts(hoursAgo(0.3)),
@@ -533,12 +532,12 @@ async function main() {
       checkedAt: i < 4 ? ts(hoursAgo(0.3)) : null,
     })),
   });
-  console.log('   📋 כהן: ירקות ופירות (greengrocer, 2 ACTIVE SHOPPERS, 4/10 checked)');
+  console.log('   📋 כהן: ירקות ופירות (supermarket, 2 ACTIVE SHOPPERS, 4/10 checked)');
 
   // ── COHEN: Bakery for shabbat ──
-  const bakeryProducts = pickRandom(products.filter(p => p.sourceFile === 'bakery'), 5);
+  const bakeryProducts = pickRandom(byCategory(products, 'לחם ומאפים').filter(p => p.sourceFile === 'supermarket'), 5);
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_bakery').set({
-    id: 'list_cohen_bakery', name: 'מאפייה לשבת 🥖', status: 'active', type: 'bakery',
+    id: 'list_cohen_bakery', name: 'מאפייה לשבת 🥖', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(3)),
@@ -549,19 +548,19 @@ async function main() {
     pending_requests: [], active_shoppers: [],
     items: bakeryProducts.map((p, i) => makeProductItem(p, i, { id: `item_bk_${i}`, isChecked: i === 0, notes: i === 0 ? 'הגדולה, לא הקטנה' : null })),
   });
-  console.log('   📋 כהן: מאפייה לשבת (bakery, 5 items)');
+  console.log('   📋 כהן: מאפייה לשבת (supermarket, 5 items)');
 
-  // ── COHEN: Butcher for friday ──
-  const butcherProducts = pickRandom(products.filter(p => p.sourceFile === 'butcher'), 6);
+  // ── COHEN: Meat & fish for friday ──
+  const butcherProducts = pickRandom(byCategory(products, 'בשר ודגים').filter(p => p.sourceFile === 'supermarket'), 6);
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_butcher').set({
-    id: 'list_cohen_butcher', name: 'קצביה ליום שישי 🥩', status: 'active', type: 'butcher',
+    id: 'list_cohen_butcher', name: 'קצביה ליום שישי 🥩', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.avi,
     format: 'shared', created_from_template: false,
     created_date: ts(daysAgo(2)), updated_date: ts(hoursAgo(1)),
     shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: butcherProducts.map((p, i) => makeProductItem(p, i, { id: `item_bt_${i}`, isChecked: i < 2 })),
   });
-  console.log('   📋 כהן: קצביה (butcher, 6 items, 2/6 checked)');
+  console.log('   📋 כהן: קצביה (supermarket, 6 items, 2/6 checked)');
 
   // ── COHEN: Mixed products + tasks ──
   const mixedProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'שימורים', 'מוצרי ניקיון', 'ממתקים וחטיפים').filter(p => p.sourceFile === 'supermarket'), 6);
@@ -588,14 +587,14 @@ async function main() {
   // ── COHEN: Household supplies ──
   const houseProducts = pickRandom(byCategory(products, 'מוצרי בית', 'מוצרי ניקיון').filter(p => p.sourceFile === 'supermarket'), 8);
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_household').set({
-    id: 'list_cohen_household', name: 'צרכי בית 🏠', status: 'active', type: 'household',
+    id: 'list_cohen_household', name: 'צרכי בית 🏠', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
     format: 'shared', created_from_template: false,
     created_date: ts(daysAgo(5)), updated_date: ts(daysAgo(1)),
     shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3 })),
   });
-  console.log('   📋 כהן: צרכי בית (household, 8 items)');
+  console.log('   📋 כהן: צרכי בית (supermarket, 8 items)');
 
   // ── COHEN: Last week completed ──
   const lastWeekProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), 15);
@@ -633,22 +632,22 @@ async function main() {
   });
   console.log('   📋 לוי: רשימה לסופר (supermarket, 7 items)');
 
-  // ── LEVI: Market ──
-  const marketProducts = pickRandom(products.filter(p => p.sourceFile === 'market'), 8);
+  // ── LEVI: Open-air market staples (varied supermarket categories) ──
+  const marketProducts = pickRandom(byCategory(products, 'פירות וירקות', 'בשר ודגים', 'תבלינים ואפייה', 'אגוזים וגרעינים').filter(p => p.sourceFile === 'supermarket'), 8);
   await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_market').set({
-    id: 'list_levi_market', name: 'שוק מחנה יהודה 🏪', status: 'active', type: 'market',
+    id: 'list_levi_market', name: 'שוק מחנה יהודה 🏪', status: 'active', type: 'supermarket',
     budget: null, is_shared: true, is_private: false, created_by: uids.dan,
     format: 'shared', created_from_template: false,
     created_date: ts(daysAgo(3)), updated_date: ts(daysAgo(1)),
     shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
     items: marketProducts.map((p, i) => makeProductItem(p, i, { id: `item_mk_${i}`, isChecked: i < 3 })),
   });
-  console.log('   📋 לוי: שוק מחנה יהודה (market, 8 items)');
+  console.log('   📋 לוי: שוק מחנה יהודה (supermarket, 8 items)');
 
-  // ── TOMER: Pharmacy (private) ──
-  const pharmProducts = pickRandom(products.filter(p => p.sourceFile === 'pharmacy'), 5);
+  // ── TOMER: Toiletries & health (private) ──
+  const pharmProducts = pickRandom(byCategory(products, 'היגיינה אישית', 'קוסמטיקה וטיפוח', 'תוספי תזונה').filter(p => p.sourceFile === 'supermarket'), 5);
   await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_pharm').set({
-    id: 'list_tomer_pharm', name: 'סופרפארם 💊', status: 'active', type: 'pharmacy',
+    id: 'list_tomer_pharm', name: 'סופרפארם 💊', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
     format: 'personal', created_from_template: false,
     created_date: ts(daysAgo(3)), updated_date: ts(hoursAgo(5)),
@@ -658,7 +657,7 @@ async function main() {
       makeTaskItem('item_tp_task', 'לשאול על ויטמין D', { priority: 'low' }),
     ],
   });
-  console.log('   📋 תומר: סופרפארם (pharmacy, private, 5 products + 1 task)');
+  console.log('   📋 תומר: סופרפארם (supermarket, private, 5 products + 1 task)');
 
   // ── TOMER: "Other" type list ──
   await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_misc').set({
@@ -939,7 +938,7 @@ async function main() {
     // 'list_cohen_passover' is a historical event — the underlying list isn't
     // in the demo (we don't keep cleaning-day lists around), so the activity
     // entry omits list_id; the feed will render it without a tap target.
-    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'household' }, daysAgo(2)),
+    makeActivityEvent('act_cohen_8', hIds.cohen, 'list_created', uids.avi, 'אבי כהן', { list_name: 'ניקיון פסח', list_type: 'supermarket' }, daysAgo(2)),
     makeActivityEvent('act_cohen_9', hIds.cohen, 'role_changed', uids.avi, 'אבי כהן', { target_name: 'נועה כהן', new_role: 'editor' }, daysAgo(1)),
     makeActivityEvent('act_cohen_10', hIds.cohen, 'shopping_completed', uids.noa, 'נועה כהן', { list_name: 'ניקיון פסח', item_count: 4, store_name: 'שופרסל' }, hoursAgo(5)),
     // NEW: list_deleted — Avi cleaned up an old shared list.
@@ -956,7 +955,7 @@ async function main() {
     makeActivityEvent('act_levi_2', hIds.levi, 'shopping_started', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', list_id: 'list_levi_weekly' }, daysAgo(2)),
     makeActivityEvent('act_levi_3', hIds.levi, 'shopping_completed', uids.maya, 'מאיה לוי', { list_name: 'קניות לשבת', item_count: 8, store_name: 'רמי לוי שורש', list_id: 'list_levi_weekly' }, daysAgo(2)),
     makeActivityEvent('act_levi_4', hIds.levi, 'stock_updated', uids.maya, 'מאיה לוי', { product_name: 'חלב', quantity: 3 }, daysAgo(2)),
-    makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'household' }, daysAgo(1)),
+    makeActivityEvent('act_levi_5', hIds.levi, 'list_created', uids.dan, 'דן לוי', { list_name: 'ניקיון שישי', list_type: 'supermarket' }, daysAgo(1)),
   ]);
   console.log('   📝 לוי: 5 activity events');
 
@@ -967,7 +966,7 @@ async function main() {
     makeActivityEvent('act_naama_2', hIds.naama, 'shopping_started', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', list_id: 'list_naama_big' }, daysAgo(7)),
     makeActivityEvent('act_naama_3', hIds.naama, 'shopping_completed', uids.naama, 'נעמה רוזן', { list_name: 'סופר שבועי', item_count: 25, store_name: 'שופרסל', list_id: 'list_naama_big' }, daysAgo(7)),
     makeActivityEvent('act_naama_4', hIds.naama, 'stock_updated', uids.naama, 'נעמה רוזן', { product_name: 'גבינה צהובה', quantity: 1 }, daysAgo(5)),
-    makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'pharmacy' }, daysAgo(4)),
+    makeActivityEvent('act_naama_5', hIds.naama, 'list_created', uids.naama, 'נעמה רוזן', { list_name: 'פארם', list_type: 'supermarket' }, daysAgo(4)),
     // 'פארם' was an old single-purpose list — kept here without list_id since
     // naama's current data doesn't include a pharmacy list (omitting list_id
     // makes the activity feed render the row without a tap target).
@@ -989,7 +988,7 @@ async function main() {
   // list_id values match real lists created above so the activity
   // feed's tap-to-open behaves end-to-end on this user.
   await createActivityEvents(hIds.tomer, [
-    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'pharmacy', list_id: 'list_tomer_pharm' }, daysAgo(5)),
+    makeActivityEvent('act_tomer_1', hIds.tomer, 'list_created', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', list_type: 'supermarket', list_id: 'list_tomer_pharm' }, daysAgo(5)),
     makeActivityEvent('act_tomer_2', hIds.tomer, 'shopping_completed', uids.tomer, 'תומר בר', { list_name: 'בית מרקחת', item_count: 3, store_name: 'סופר פארם', list_id: 'list_tomer_pharm' }, daysAgo(4)),
   ]);
   console.log('   📝 תומר: 2 activity events');
@@ -1026,7 +1025,7 @@ async function main() {
   await createActivityEvents(hIds.roommates, [
     // NEW: member_joined — Sapir was the latest to join the apartment.
     makeActivityEvent('act_room_join', hIds.roommates, 'member_joined', uids.sapir, 'ספיר דוד', {}, daysAgo(2)),
-    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'household', list_id: 'list_room_clean' }, daysAgo(1)),
+    makeActivityEvent('act_room_1', hIds.roommates, 'list_created', uids.keren, 'קרן אביב', { list_name: 'ניקיון שבועי לדירה 🧹', list_type: 'supermarket', list_id: 'list_room_clean' }, daysAgo(1)),
     makeActivityEvent('act_room_2', hIds.roommates, 'list_created', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_type: 'supermarket', list_id: 'list_room_grocery' }, hoursAgo(6)),
     makeActivityEvent('act_room_3', hIds.roommates, 'item_added', uids.sapir, 'ספיר דוד', { item_name: 'חומוס אבו גוש', list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(4)),
     makeActivityEvent('act_room_4', hIds.roommates, 'shopping_started', uids.hila, 'הילה מורג', { list_name: 'סופר לשבוע 🛒', list_id: 'list_room_grocery' }, hoursAgo(3)),
@@ -1329,7 +1328,7 @@ async function main() {
 
   // Mike's English pharmacy list
   await db.collection('users').doc(uids.mike).collection('private_lists').doc('list_mike_pharm').set({
-    id: 'list_mike_pharm', name: 'Pharmacy & Personal Care', status: 'active', type: 'pharmacy',
+    id: 'list_mike_pharm', name: 'Pharmacy & Personal Care', status: 'active', type: 'supermarket',
     budget: null, is_shared: false, is_private: true, created_by: uids.mike,
     format: 'personal', created_from_template: false,
     created_date: ts(daysAgo(3)), updated_date: ts(daysAgo(1)),
@@ -1365,7 +1364,7 @@ async function main() {
   // ── ROOMMATES: 3 girls sharing apartment — different last names, shared household ──
   const roommatesClean = pickRandom(byCategory(products, 'מוצרי ניקיון', 'מוצרי בית').filter(p => p.sourceFile === 'supermarket'), 8);
   await db.collection('households').doc(hIds.roommates).collection('shared_lists').doc('list_room_clean').set({
-    id: 'list_room_clean', name: 'ניקיון שבועי לדירה 🧹', status: 'active', type: 'household',
+    id: 'list_room_clean', name: 'ניקיון שבועי לדירה 🧹', status: 'active', type: 'supermarket',
     budget: 200, is_shared: true, is_private: false, created_by: uids.keren,
     format: 'shared', created_from_template: false,
     created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(2)),

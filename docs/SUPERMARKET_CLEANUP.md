@@ -1,7 +1,7 @@
 # 🧹 ניקוי "סופר בלבד" — מחיקת סוגי הרשימות שאינם-סופר
 
 > **מה זה:** תוכנית ביצוע למחיקה מלאה (לא הסתרה) של כל מה שאינו-סופר, לפי [PRODUCT_DIRECTION.md](PRODUCT_DIRECTION.md).
-> **סטטוס:** פאזות 1-5 ✅ בוצעו. פאזות 6-7 ⬜ ממתינות — **לבצע כשיש זמן.**
+> **סטטוס:** פאזות 1-6 ✅ בוצעו. פאזה 7 ⬜ ממתינה — **לבצע כשיש זמן.**
 > **החלטות מפתח:** למחוק (לא להשאיר מוסתר); לשמור `supermarket` + `other` בלבד; לשמור את תבניות המזווה/השבועי; "אישור בקשות" + "פישוט תפקידים" — **מחוץ להיקף הזה** (עבודה נפרדת בעתיד).
 
 זה מסמך **חד-פעמי** — כשכל הפאזות בוצעו, אפשר למחוק אותו (ההיסטוריה ב-git).
@@ -57,16 +57,15 @@
 - ניקוי comments מיותמים: `products_provider`, `products_repository`, `firebase_products_repository`.
 - **pubspec — לא שונה**: ההצהרה `assets/data/list_types/` היא ברמת תיקייה (supermarket.json נשאר).
 
+### פאזה 6 — מחרוזות + stickers + נתוני דמו
+- `app_strings_he.dart` + `app_strings_en.dart`: הוסרו `typePharmacy`...`typeEvent` (+ ה-`*Short`), `eventMode*`, `whoBrings*`, וגם `allTypesLabel`/`filterByTypeLabel`/`filterByTypeTitle` (חוב מפאזה 4). נשמרו `typeSupermarket`+`typeOther`.
+- **stickers:** נמחקו 6 PNG (`pharmacy/greengrocer/butcher/bakery/market/event`). `household.png` לא היה קיים מלכתחילה. נשמרו `supermarket.png` + `other.png`.
+- `scripts/rebuild_demo_data.js`: `loadProducts` טוען רק supermarket. 8 רשימות הדמו שהיו סוגים אחרים (greengrocer/bakery/butcher/household/market/pharmacy ×2) הומרו ל-`supermarket` עם סינון לפי קטגוריות אמיתיות (פירות וירקות / לחם ומאפים / בשר ודגים / היגיינה אישית וכו'). שמות הרשימות נשמרו (גיוון). `list_type` באירועי הפעילות יושר ל-supermarket.
+- **חוב מפאזה 2 — נשאר במכוון:** ה-helpers של `whoBrings` ב-`unified_list_item.dart` + `volunteerName` ב-`notification.dart` עדיין שזורים בזרימת **אישור-הבקשות** (מחוץ להיקף). יש לנקות אותם רק כשאישור-הבקשות יימחק.
+
 ---
 
 ## ⬜ נשאר לביצוע
-
-### פאזה 6 — מחרוזות + stickers + נתוני דמו (סיכון נמוך)
-- `app_strings_he.dart` + `app_strings_en.dart`: להסיר `typePharmacy`...`typeEvent` (+ ה-`*Short`), `eventMode*`, `whoBrings*`.
-- **חוב מפאזה 4:** המחרוזות `allTypesLabel`, `filterByTypeLabel`, `filterByTypeTitle` התייתמו (בורר סינון-הסוג הוסר) — להסיר גם אותן.
-- **stickers:** למחוק 7 PNG ב-`assets/icons/list_types/` (`pharmacy/greengrocer/butcher/bakery/market/event` + לבדוק household). **לשמור `supermarket.png` + `other.png`.**
-- `scripts/rebuild_demo_data.js`: להסיר יצירת רשימות שאינן-סופר (event/who_brings/templates של אירוע) + התראות `who_brings_volunteer`.
-- **חוב מפאזה 2 לסגור כאן:** ה-helpers של `whoBrings` ב-`unified_list_item.dart` (`isWhoBrings`, `neededCount`, `volunteers`, factory `whoBrings`, וכו') + ה-getter `volunteerName` ב-`notification.dart` — נשארו כי היו שזורים בזרימת אישור-הבקשות. אם אישור-הבקשות עדיין קיים → להשאיר; אם נמחק (עבודה נפרדת) → לנקות גם פה.
 
 ### פאזה 7 — מסמכים (סיכון נמוך)
 - `PRODUCT_DIRECTION.md`: לשנות את §1 ואת טבלת ה-superseded מ"מוסתרים, הפיך" ל**"נמחקו"**.
