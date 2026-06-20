@@ -368,30 +368,14 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     final product = productsProvider.getByBarcode(barcode);
 
     if (product != null) {
-      // מצאנו — שאל אם להוסיף
+      // מצאנו — בחר כמות והוסף (LIVE_LIST_SPEC §5.2: מבצע "3 חבילות אורז")
       if (!mounted) return;
-      final shouldAdd = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(product['name'] as String? ?? barcode),
-          content: Text(AppStrings.shopping.barcodeFoundAdd),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: Text(AppStrings.common.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: Text(AppStrings.shopping.addToListButton),
-            ),
-          ],
-        ),
-      );
+      final qty = await _askPurchaseQuantity(product['name'] as String? ?? barcode);
 
-      if (shouldAdd == true && mounted) {
+      if (qty != null && mounted) {
         final newItem = UnifiedListItem.product(
           name: product['name'] as String? ?? barcode,
-          quantity: 1,
+          quantity: qty,
           unitPrice: (product['price'] as num?)?.toDouble() ?? 0,
           category: product['category'] as String?,
           barcode: barcode,
@@ -401,7 +385,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         _updateItemStatus(newItem, ShoppingItemStatus.purchased);
         messenger.removeCurrentSnackBar();
         messenger.showSnackBar(SnackBar(
-          content: Text(newItem.name),
+          content: Text(qty > 1 ? '${newItem.name} ×$qty' : newItem.name),
           backgroundColor: brand?.stickyGreen ?? kStickyGreen,
           duration: const Duration(seconds: 2),
         ));
@@ -414,6 +398,73 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         backgroundColor: cs.error,
       ));
     }
+  }
+
+  /// בורר כמות לסריקת ברקוד (LIVE_LIST_SPEC §5.2).
+  /// ברירת מחדל 1, ניתן לשנות — למשל מבצע "3 חבילות אורז".
+  /// מחזיר את הכמות שנבחרה, או null אם בוטל.
+  Future<int?> _askPurchaseQuantity(String productName) {
+    final cs = Theme.of(context).colorScheme;
+    int qty = 1;
+    return showDialog<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: Text(productName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(AppStrings.shopping.barcodeFoundAdd),
+              const SizedBox(height: kSpacingLarge),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: qty > 1
+                        ? () {
+                            unawaited(HapticFeedback.selectionClick());
+                            setLocal(() => qty--);
+                          }
+                        : null,
+                    icon: const Icon(Icons.remove_circle_outline, size: kIconSizeLarge),
+                    tooltip: AppStrings.shopping.decreaseQuantityTooltip,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
+                    child: Text(
+                      '$qty',
+                      style: TextStyle(
+                        fontSize: kFontSizeDisplay,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      unawaited(HapticFeedback.selectionClick());
+                      setLocal(() => qty++);
+                    },
+                    icon: const Icon(Icons.add_circle_outline, size: kIconSizeLarge),
+                    tooltip: AppStrings.shopping.increaseQuantityTooltip,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(AppStrings.common.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, qty),
+              child: Text(AppStrings.shopping.addToListButton),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   /// סיום קנייה - מעבר למסך סיכום
