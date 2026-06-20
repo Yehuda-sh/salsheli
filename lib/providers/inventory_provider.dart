@@ -742,18 +742,31 @@ class InventoryProvider with ChangeNotifier {
 
     for (final item in purchasedItems) {
       if (item.type == ItemType.product && item.quantity != null) {
-        // Only update pantry for items that ALREADY exist there.
-        // Don't auto-create pantry entries for one-off purchases
-        // (fresh strawberries, random snack) — otherwise the pantry
-        // fills with ghost items the user never intended to track.
-        final existsInPantry = _items.any(
+        // LIVE_LIST_SPEC §5.4: everything bought enters the pantry. If the
+        // product already exists → increment; if not → create it (min 1) so
+        // the live-list loop can track it. "Ghost items" (one-off purchases
+        // the user doesn't want recurring) are handled by "remove permanently",
+        // not by blocking creation here.
+        final existing = _items.where(
           (i) => i.productName.trim().toLowerCase() == item.name.trim().toLowerCase() ||
                  (item.barcode != null && i.barcode == item.barcode),
-        );
-        if (!existsInPantry) continue;
+        ).firstOrNull;
 
         try {
-          await addStock(item.name, item.quantity!);
+          if (existing != null) {
+            await addStock(existing.productName, item.quantity!);
+          } else {
+            // New pantry item from a purchase — preserve barcode + category so
+            // future barcode scans match it. Unit is left to the default to
+            // avoid the catalog `unit` (ml) vs display `defaultUnit` mismatch.
+            await createItem(
+              productName: item.name,
+              category: item.category ?? 'other',
+              location: 'other',
+              quantity: item.quantity!,
+              barcode: item.barcode,
+            );
+          }
           successCount++;
         } catch (e) {
           failureCount++;

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memozap/models/inventory_item.dart';
+import 'package:memozap/models/unified_list_item.dart';
 import 'package:memozap/models/user_entity.dart';
 import 'package:memozap/providers/inventory_provider.dart';
 import 'package:memozap/models/activity_event.dart';
@@ -627,6 +628,57 @@ void main() {
 
       expect(() => provider.addStock('', 5), throwsArgumentError);
       expect(() => provider.addStock('חלב', 0), throwsArgumentError);
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+  });
+
+  // LIVE_LIST_SPEC §5.4 — everything bought enters the pantry.
+  group('InventoryProvider - updateStockAfterPurchase', () {
+    test('creates a new pantry item (min 1) when product not in pantry', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = _buildProvider(repository: repo, userContext: logged.ctx);
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final count = await provider.updateStockAfterPurchase([
+        UnifiedListItem.product(
+          id: 'p1', name: 'אורז', quantity: 3, unitPrice: 0.0,
+          barcode: '729000111', category: 'אורז ופסטה',
+        ),
+      ]);
+
+      expect(count, 1);
+      final created = provider.items.firstWhere((i) => i.productName == 'אורז');
+      expect(created.quantity, 3);
+      expect(created.minQuantity, 1); // default minimum
+      expect(created.barcode, '729000111'); // preserved for future scans
+      expect(created.category, 'אורז ופסטה');
+
+      provider.dispose();
+      logged.ctx.dispose();
+      logged.auth.dispose();
+    });
+
+    test('increments an existing pantry item instead of duplicating', () async {
+      final logged = await createLoggedInContext();
+      final repo = MockInventoryRepository();
+      final provider = _buildProvider(repository: repo, userContext: logged.ctx);
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      await provider.createItem(
+        productName: 'חלב', category: 'dairy', location: 'fridge', quantity: 1,
+      );
+
+      await provider.updateStockAfterPurchase([
+        UnifiedListItem.product(id: 'p2', name: 'חלב', quantity: 2, unitPrice: 0.0),
+      ]);
+
+      final milk = provider.items.where((i) => i.productName == 'חלב').toList();
+      expect(milk.length, 1); // no duplicate
+      expect(milk.first.quantity, 3); // 1 + 2
 
       provider.dispose();
       logged.ctx.dispose();
