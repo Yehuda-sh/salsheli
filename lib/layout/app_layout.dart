@@ -87,7 +87,8 @@ class _AppLayoutState extends State<AppLayout> {
               ),
               // מלאי חסר — רק אם יש
               Builder(builder: (ctx) {
-                final lowStockCount = ctx.read<InventoryProvider>().getLowStockItems().length;
+                // "Missing" = below minimum incl. out-of-stock (LIVE_LIST_SPEC §2).
+                final lowStockCount = ctx.read<InventoryProvider>().getMissingItems().length;
                 if (lowStockCount == 0) return const SizedBox.shrink();
                 return ListTile(
                   leading: Icon(Icons.inventory_2_outlined, color: cs.error),

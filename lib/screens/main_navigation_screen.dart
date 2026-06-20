@@ -207,16 +207,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen>
 
   @override
   Widget build(BuildContext context) {
-    // v4.0: Watch inventory for pantry low-stock badge
+    // v4.0: Watch inventory for the pantry "missing" badge (items to buy)
     final inventoryProvider = context.watch<InventoryProvider>();
-    final lowStockCount = inventoryProvider.getLowStockItems().length;
+    // "Missing" = below minimum incl. out-of-stock (LIVE_LIST_SPEC §2) — the
+    // count of items that need buying, not just the visual "low" tier.
+    final missingCount = inventoryProvider.getMissingItems().length;
 
     // v4.0: Build dynamic badges map
     // Tab 0 (Home): unread notification count (shown only in AppBar bell, not bottom nav)
-    // Tab 1 (Pantry): low stock item count
+    // Tab 1 (Pantry): count of items that need buying (missing)
     final badges = <int, int?>{
       if (_unreadCount > 0) 0: _unreadCount,
-      if (lowStockCount > 0) 1: lowStockCount,
+      if (missingCount > 0) 1: missingCount,
     };
 
     return PopScope(

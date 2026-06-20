@@ -188,11 +188,21 @@ class InventoryItem {
 
   // ---- Helper Getters ----
 
+  /// 🇮🇱 האם הפריט "חסר" — שייך לרשימת הקנייה (כמות מתחת למינימום, כולל 0).
+  /// 🇬🇧 Is the item "missing" — belongs on the shopping list.
+  ///
+  /// **המקור היחיד** להגדרת "חוסר" (ראה docs/LIVE_LIST_SPEC.md §2):
+  /// `quantity < minQuantity`, **כולל `quantity == 0`**.
+  /// זו ההגדרה שמזינה את הרשימה החיה. שונה מ-[isLowStock] שהוא שכבת
+  /// תצוגה בלבד (צהוב, לא כולל 0). מתקיים: missing = low ∪ out-of-stock.
+  bool get isMissing => quantity < minQuantity;
+
   /// 🇮🇱 האם הפריט במלאי נמוך (אך לא אזל) — מתחת למינימום אבל כמות > 0
   /// 🇬🇧 Is the item low stock (below minimum, but NOT out of stock).
   /// Disjoint from out-of-stock (quantity == 0) so banners/filters don't
   /// double-count a gone item as both "low" and "out" (home_widget_service
   /// already used `isLowStock && quantity > 0` — this folds that in).
+  /// **תצוגה בלבד** — להגדרת "חוסר" (שכוללת 0) השתמש ב-[isMissing].
   bool get isLowStock => quantity > 0 && quantity < minQuantity;
 
   /// האם יש תאריך תפוגה

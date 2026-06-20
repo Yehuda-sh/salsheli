@@ -159,6 +159,53 @@ void main() {
       });
     });
 
+    // ===== isMissing Tests (LIVE_LIST_SPEC §2 — single source of truth) =====
+    group('isMissing', () {
+      InventoryItem make(int quantity, int minQuantity) => InventoryItem(
+            id: 'missing-id',
+            productName: 'חלב',
+            category: 'מוצרי חלב',
+            location: 'מקרר',
+            quantity: quantity,
+            unit: 'יח\'',
+            minQuantity: minQuantity,
+          );
+
+      test('true when below minimum (qty > 0)', () {
+        expect(make(1, 2).isMissing, true);
+      });
+
+      test('true when out of stock (qty == 0) — UNLIKE isLowStock', () {
+        final item = make(0, 2);
+        expect(item.isMissing, true); // missing includes out-of-stock
+        expect(item.isLowStock, false); // low-stock excludes it
+      });
+
+      test('true at default minimum 1 when quantity hits 0', () {
+        expect(make(0, 1).isMissing, true);
+      });
+
+      test('false when quantity equals minimum (strict <)', () {
+        expect(make(2, 2).isMissing, false);
+      });
+
+      test('false when quantity above minimum', () {
+        expect(make(5, 2).isMissing, false);
+      });
+
+      test('missing == low ∪ out-of-stock', () {
+        // low tier
+        final low = make(1, 2);
+        expect(low.isMissing, low.isLowStock || low.quantity == 0);
+        // out tier
+        final out = make(0, 2);
+        expect(out.isMissing, out.isLowStock || out.quantity == 0);
+        // healthy
+        final ok = make(3, 2);
+        expect(ok.isMissing, ok.isLowStock || ok.quantity == 0);
+      });
+    });
+
     // ===== JSON Serialization Tests =====
     group('JSON Serialization', () {
       test('should serialize to JSON correctly', () {

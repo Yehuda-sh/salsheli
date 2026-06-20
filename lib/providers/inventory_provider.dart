@@ -576,6 +576,15 @@ class InventoryProvider with ChangeNotifier {
     return _items.where((item) => item.isLowStock).toList();
   }
 
+  /// מחזיר את כל ה"חוסרים" — פריטים שצריך לקנות (כמות מתחת למינימום, כולל 0).
+  ///
+  /// זו ההגדרה היחידה ל"חוסר" (ראה docs/LIVE_LIST_SPEC.md §2) — אלו הפריטים
+  /// שמזינים את הרשימה החיה. שונה מ-[getLowStockItems] שמחזיר רק מלאי נמוך
+  /// לתצוגה (לא כולל פריטים שאזלו).
+  List<InventoryItem> getMissingItems() {
+    return _items.where((item) => item.isMissing).toList();
+  }
+
   /// מוסיף מלאי למוצר קיים (חיבור!)
   ///
   /// Example:
