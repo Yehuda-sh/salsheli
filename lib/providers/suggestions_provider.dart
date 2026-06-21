@@ -237,7 +237,7 @@ class SuggestionsProvider with ChangeNotifier {
 
   /// ➕ הוספת המלצה לפי ID לרשימה
   ///
-  /// משמש לתצוגות שמציגות מספר המלצות בו-זמנית (כמו SuggestionsTodayCard)
+  /// משמש לתצוגות שמציגות מספר המלצות בו-זמנית (כמו last_chance_banner)
   Future<void> addSuggestionById(String suggestionId, String listId) async {
     final suggestionIndex = _suggestions.indexWhere((s) => s.id == suggestionId);
     if (suggestionIndex == -1) return;

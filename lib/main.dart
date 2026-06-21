@@ -5,6 +5,8 @@
 // with that intentional exception, so `dart analyze` stays signal-only.
 // ignore_for_file: prefer_relative_imports, directives_ordering
 
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -162,16 +164,29 @@ void main() async {
               (previous ?? LocationsProvider(userContext: userContext, repository: locationsRepo))
                 ..updateUserContext(userContext),
         ),
-        ChangeNotifierProxyProvider<UserContext, ShoppingListsProvider>(
+        // ⚠️ InventoryProvider מוכרז לפני ShoppingListsProvider כי האחרון תלוי בו
+        //    (פאזה 2: המזווה כותב את הרשימה החיה).
+        ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
+          create: (context) => InventoryProvider(userContext: context.read<UserContext>(), repository: inventoryRepo),
+          update: (context, userContext, previous) {
+            final provider = previous ?? InventoryProvider(userContext: userContext, repository: inventoryRepo);
+            provider.updateUserContext(userContext);
+            return provider;
+          },
+        ),
+        ChangeNotifierProxyProvider2<UserContext, InventoryProvider, ShoppingListsProvider>(
           create: (context) {
             final provider = ShoppingListsProvider(repository: shoppingListsRepo, receiptRepository: receiptRepo);
             provider.updateUserContext(context.read<UserContext>());
             return provider;
           },
-          update: (context, userContext, previous) {
+          update: (context, userContext, inventoryProvider, previous) {
             final provider =
                 previous ?? ShoppingListsProvider(repository: shoppingListsRepo, receiptRepository: receiptRepo);
             provider.updateUserContext(userContext);
+            // 🔄 פאזה 2: המזווה כותב את הרשימה — מסנכרן חוסרים בכל שינוי מזווה.
+            //    fire-and-forget: הסנכרון idempotent (לא כותב אם אין שינוי).
+            unawaited(provider.syncMissingFromPantry(inventoryProvider.getMissingItems()));
             return provider;
           },
         ),
@@ -186,14 +201,6 @@ void main() async {
           update: (context, userContext, previous) =>
               (previous ?? ActivityLogProvider(userContext: userContext, repository: activityLogRepo))
                 ..updateUserContext(userContext),
-        ),
-        ChangeNotifierProxyProvider<UserContext, InventoryProvider>(
-          create: (context) => InventoryProvider(userContext: context.read<UserContext>(), repository: inventoryRepo),
-          update: (context, userContext, previous) {
-            final provider = previous ?? InventoryProvider(userContext: userContext, repository: inventoryRepo);
-            provider.updateUserContext(userContext);
-            return provider;
-          },
         ),
         ChangeNotifierProxyProvider<InventoryProvider, SuggestionsProvider>(
           create: (context) => SuggestionsProvider(inventoryProvider: context.read<InventoryProvider>()),

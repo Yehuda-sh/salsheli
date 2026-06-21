@@ -22,7 +22,6 @@ import 'widgets/action_center_card.dart';
 import 'widgets/active_shopper_banner.dart';
 import 'widgets/onboarding_tips_card.dart';
 import 'widgets/pending_actions_card.dart';
-import 'widgets/suggestions_today_card.dart';
 
 // Layout tokens specific to the active-list card.
 // Avatar grew 44→72 so the paper-cut sticker reads as the card's hero
@@ -268,16 +267,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
                   const SizedBox(height: kSpacingMedium),
 
-                  // === 4. הצעות להיום ===
-                  _staggered(
-                    const RepaintBoundary(
-                      child: SuggestionsTodayCard(),
-                    ),
-                    sectionIndex++,
-                  ),
-                  const SizedBox(height: kSpacingMedium),
-
-                  // === 5. רשימות פעילות ===
+                  // === רשימות פעילות ===
+                  // 🔄 פאזה 2: כרטיס "הצעות להיום" הוסר — חוסרי המזווה נכנסים
+                  //    לרשימה הפעילה אוטומטית (LIVE_LIST_SPEC §3), בלי כרטיס נפרד.
                   _staggered(
                     RepaintBoundary(
                       child: _buildActiveListsSection(context, activeLists),

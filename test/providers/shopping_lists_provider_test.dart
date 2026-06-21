@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:memozap/models/active_shopper.dart';
 import 'package:memozap/models/activity_event.dart';
 import 'package:memozap/models/enums/shopping_item_status.dart';
+import 'package:memozap/models/inventory_item.dart';
 import 'package:memozap/models/receipt.dart';
 import 'package:memozap/models/shopping_list.dart';
 import 'package:memozap/models/unified_list_item.dart';
@@ -452,6 +453,19 @@ UnifiedListItem _makeCheckedItem(String id, String name) =>
       isChecked: true,
     );
 
+/// Convenience: an [InventoryItem] to feed `syncMissingFromPantry`
+/// (the provider treats every item passed in as a "missing" item).
+InventoryItem _pantryItem(String id, String name, {String category = 'כללי'}) =>
+    InventoryItem(
+      id: id,
+      productName: name,
+      category: category,
+      location: 'מקרר',
+      quantity: 0,
+      unit: "יח'",
+      // minQuantity ברירת המחדל = 1, אז quantity 0 הוא "חוסר"
+    );
+
 // =============================================================================
 // TESTS
 // =============================================================================
@@ -680,6 +694,105 @@ void main() {
         throwsA(isA<Exception>()),
       );
 
+      provider.dispose();
+    });
+  });
+
+  // ===========================================================================
+  // syncMissingFromPantry (פאזה 2 — המזווה כותב את הרשימה)
+  // ===========================================================================
+  group('ShoppingListsProvider - syncMissingFromPantry', () {
+    test('adds missing pantry items to the active list as auto items', () async {
+      mockRepo.setInitialLists([_makeList(id: 'l1')]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      await provider.syncMissingFromPantry([
+        _pantryItem('p1', 'חלב'),
+        _pantryItem('p2', 'ביצים'),
+      ]);
+
+      final items = provider.getById('l1')!.items;
+      expect(items.length, 2);
+      expect(items.every((i) => i.isFromPantry), isTrue);
+      expect(items.map((i) => i.pantryItemId).toSet(), {'p1', 'p2'});
+
+      provider.dispose();
+    });
+
+    test('removes auto items whose pantry item is no longer missing', () async {
+      final auto = UnifiedListItem.product(
+          id: 'a1', name: 'חלב', quantity: 1, unitPrice: 0.0, pantryItemId: 'p1');
+      mockRepo.setInitialLists([_makeList(id: 'l1', items: [auto])]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      // back in stock → nothing missing
+      await provider.syncMissingFromPantry([]);
+
+      expect(provider.getById('l1')!.items, isEmpty);
+      provider.dispose();
+    });
+
+    test('never touches manual items', () async {
+      // no pantryItemId → manual
+      final manual = UnifiedListItem.product(
+          id: 'm1', name: 'שוקולד', quantity: 1, unitPrice: 0.0);
+      mockRepo.setInitialLists([_makeList(id: 'l1', items: [manual])]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      await provider.syncMissingFromPantry([]);
+
+      final items = provider.getById('l1')!.items;
+      expect(items.length, 1);
+      expect(items.first.id, 'm1');
+      expect(items.first.isFromPantry, isFalse);
+      provider.dispose();
+    });
+
+    test('keeps an in-cart auto item that is still missing', () async {
+      final checkedAuto = UnifiedListItem.product(
+          id: 'a1',
+          name: 'חלב',
+          quantity: 1,
+          unitPrice: 0.0,
+          isChecked: true,
+          pantryItemId: 'p1');
+      mockRepo.setInitialLists([_makeList(id: 'l1', items: [checkedAuto])]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      await provider.syncMissingFromPantry([_pantryItem('p1', 'חלב')]);
+
+      final items = provider.getById('l1')!.items;
+      expect(items.length, 1);
+      expect(items.first.isChecked, isTrue);
+      provider.dispose();
+    });
+
+    test('is idempotent — no write when nothing changed', () async {
+      final auto = UnifiedListItem.product(
+          id: 'a1', name: 'חלב', quantity: 1, unitPrice: 0.0, pantryItemId: 'p1');
+      mockRepo.setInitialLists([_makeList(id: 'l1', items: [auto])]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      final before = mockRepo.saveCallCount;
+      await provider.syncMissingFromPantry([_pantryItem('p1', 'חלב')]);
+
+      expect(mockRepo.saveCallCount, before);
+      provider.dispose();
+    });
+
+    test('no active list → no-op (no throw, no write)', () async {
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      final before = mockRepo.saveCallCount;
+      await provider.syncMissingFromPantry([_pantryItem('p1', 'חלב')]);
+
+      expect(mockRepo.saveCallCount, before);
       provider.dispose();
     });
   });

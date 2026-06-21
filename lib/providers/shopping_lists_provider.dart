@@ -13,6 +13,7 @@ import '../models/activity_event.dart';
 import '../models/enums/item_type.dart';
 import '../models/enums/shopping_item_status.dart';
 import '../models/enums/user_role.dart';
+import '../models/inventory_item.dart';
 import '../models/receipt.dart';
 import '../models/selected_contact.dart';
 import '../models/shopping_list.dart';
@@ -822,6 +823,72 @@ class ShoppingListsProvider with ChangeNotifier {
       _notifySafe();
       rethrow;
     }
+  }
+
+  // ==========================================
+  // 🔄 פאזה 2 — סנכרון מזווה → רשימה חיה
+  // ==========================================
+
+  /// 🔄 מסנכרן את חוסרי המזווה אל הרשימה החיה (ראה docs/LIVE_LIST_SPEC.md §3-§4).
+  ///
+  /// "המזווה כותב את הרשימה": פריט שירד מתחת למינימום מופיע ברשימה **לבד**;
+  /// פריט שחזר מעל המינימום (או נמחק מהמזווה) יורד ממנה **לבד** — בלי לגעת
+  /// בפריטים שהוספת ידנית או בסטטוס "בעגלה".
+  ///
+  /// [missingItems] — תוצאת `InventoryProvider.getMissingItems()` (כל החוסרים).
+  ///
+  /// המנגנון (לפי מזהה פריט המזווה, חד-משמעי):
+  /// - **כניסה:** חוסר שאין לו פריט-רשימה אוטומטי תואם → נוסף.
+  /// - **יציאה:** פריט-רשימה אוטומטי שאין לו חוסר תואם → מוסר.
+  /// - **idempotent:** אם אין שינוי בפועל — לא כותב ל-Firestore (מונע לולאות).
+  ///
+  /// 📍 עד פאזה 3 (רשימה אחת קבועה) — היעד הוא הרשימה הפעילה (ברירת מחדל קודם).
+  Future<void> syncMissingFromPantry(List<InventoryItem> missingItems) async {
+    final defaultListName = AppStrings.shopping.defaultShoppingListName;
+    final ShoppingList? targetList =
+        activeLists.where((list) => list.name == defaultListName).firstOrNull ??
+            activeLists.firstOrNull;
+    if (targetList == null) return; // אין רשימה פעילה — אין לאן לסנכרן
+
+    final missingIds = {for (final inv in missingItems) inv.id};
+
+    // מזהי המזווה שכבר מיוצגים ברשימה כפריט אוטומטי
+    final existingAutoIds = <String>{
+      for (final item in targetList.items)
+        if (item.pantryItemId != null) item.pantryItemId!,
+    };
+
+    // יציאה: פריט אוטומטי שכבר לא חסר. פריט ידני (pantryItemId == null) — לא נוגעים.
+    final kept = targetList.items.where((item) {
+      final pid = item.pantryItemId;
+      if (pid == null) return true;
+      return missingIds.contains(pid);
+    }).toList();
+
+    // כניסה: חוסר שאין לו עדיין פריט אוטומטי ברשימה.
+    final toAdd = <UnifiedListItem>[];
+    for (final inv in missingItems) {
+      if (existingAutoIds.contains(inv.id)) continue;
+      toAdd.add(
+        UnifiedListItem.product(
+          name: inv.productName,
+          // כמות ברירת מחדל 1 (ניתנת לעריכה ברשימה). גזירת כמות מהמחסור
+          // (minQuantity - quantity) נשארת לשיפור עתידי.
+          quantity: 1,
+          unitPrice: 0.0,
+          barcode: inv.barcode,
+          unit: inv.unit,
+          brand: inv.brand,
+          category: inv.category,
+          pantryItemId: inv.id,
+        ),
+      );
+    }
+
+    final removedCount = targetList.items.length - kept.length;
+    if (removedCount == 0 && toAdd.isEmpty) return; // אין שינוי — לא כותבים
+
+    await updateList(targetList.copyWith(items: [...kept, ...toAdd]));
   }
 
   // ==========================================

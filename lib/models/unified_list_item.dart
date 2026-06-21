@@ -187,6 +187,19 @@ class UnifiedListItem {
   /// 🇬🇧 Brand (products only)
   String? get brand => productData?['brand'] as String?;
 
+  /// 🇮🇱 מזהה פריט המזווה שהפריט נולד ממנו (חוסר אוטומטי)
+  /// 🇬🇧 Source pantry item id (auto-filled "missing" item)
+  ///
+  /// קיים רק בפריטים שנכנסו לרשימה **אוטומטית** מהמזווה (ראה LIVE_LIST_SPEC §3).
+  /// פריטים שהוספו ידנית/בסריקה לא מכילים אותו → `null`.
+  /// משמש לסנכרון: כשהפריט במזווה חוזר מעל המינימום, מסירים את פריט-הרשימה
+  /// המתאים לפי המזהה הזה — בלי לגעת בפריטים ידניים.
+  String? get pantryItemId => productData?['pantryItemId'] as String?;
+
+  /// 🇮🇱 האם הפריט נכנס אוטומטית מהמזווה (חוסר)
+  /// 🇬🇧 Whether this item was auto-filled from the pantry (a "missing" item)
+  bool get isFromPantry => pantryItemId != null;
+
   /// 🇮🇱 מחיר כולל (כמות × מחיר ליחידה)
   /// 🇬🇧 Total price (quantity × unit price)
   double? get totalPrice {
@@ -313,6 +326,7 @@ class UnifiedListItem {
     String? imageUrl,
     String? checkedBy,
     DateTime? checkedAt,
+    String? pantryItemId,
   }) {
     return UnifiedListItem(
       id: id ?? const Uuid().v4(),
@@ -328,6 +342,7 @@ class UnifiedListItem {
         if (barcode != null) 'barcode': barcode,
         'unit': unit,
         if (brand != null) 'brand': brand,
+        if (pantryItemId != null) 'pantryItemId': pantryItemId,
       },
       checkedBy: checkedBy,
       checkedAt: checkedAt,
