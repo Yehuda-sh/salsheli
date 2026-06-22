@@ -795,10 +795,16 @@
 - **Token alignment**: alpha 0.3 על shadow של register button → `kOpacityLight`.
 - **Source-vs-Symptom**: `_askHouseholdName` כבר מתקן את "ללא שם" ב-source (auto-name `MemoZap-XXXX` על Skip — בוצע בסשן קודם).
 
+### ✅ Decisions Made (סבב 2, 22/6/2026 — קריאת קוד מלאה)
+- **📱 טלפון: חובה → אופציונלי (source-vs-symptom)**: השדה היה חובה בהרשמת אימייל אבל (א) לא נאסף מ-Google/Apple, (ב) `findByPhone` קיים עם **0 callers** — אין invite-by-phone. כלומר נדרש מידע שלא בשימוש ולא-עקבי מול social. הוסר ה-required מה-validator (ריק=תקין, אם מולא עדיין מאמת פורמט ישראלי), label קיבל `(אופציונלי)`, ו-`signUp` מקבל `null` כשריק. בנוסף: `phoneHelperText` הסיר הבטחה שגויה ("לקבלת עדכונים מהקבוצות" — לא קורה) → "מספר נייד ישראלי" (he+en).
+- **⏳ Loading timeout + Cancel**: ה-overlay חסם את המסך ללא מוצא. נוסף `_setLoading()` מרכזי + טיימר 10ש' → מציג "הטעינה לוקחת יותר מהצפוי..." + כפתור ביטול (כל 3 מסלולי auth: email/Google/Apple). הודעה עטופה ב-`Semantics(liveRegion)`. String חדש `loadingTakingLong` (he+en).
+- **🐛 RTL בדיאלוג שם הבית — תוקן** (היה Deferred): הוסר `textDirection: TextDirection.rtl` מקובע (שורה 135) ששבר שמות אנגליים. ה-app RTL גלובלית, TextField בוחר אוטומטית.
+- **אימות סיסמה — נשאר**: שקלנו להסיר (יש הצג/הסתר), המשתמש בחר לשמור — טעות הקלדה ברישום = נעילה מהחשבון.
+
 ### ⏸️ Deferred
 - **`_askHouseholdName` משתמש ב-raw `showDialog`** במקום `AppDialog.show`. כל שאר הדיאלוגים באפליקציה כבר עברו ל-AppDialog. **שאלה עיצובית פתוחה:** האם לאחד עם `showEditHouseholdNameDialog` (ה-shared dialog שעבדנו עליו) — הם דומים אבל ב-intent שונה (post-register עם Skip vs edit עם Cancel). **Trigger:** סקירה של edit_household_name_dialog או דיון מודע על איחוד הדיאלוגים. **היקף:** קטן-בינוני.
-- **`_phoneRegex` Israeli-only** (`^05[0-9]-?[0-9]{7}$`). בסדר ל-launch בעברית, אבל אם האפליקציה תתרחב ל-locales אחרים — צריך לוקאל-aware. **Trigger:** הוספת locale חדש או דרישות בינ"ל. **היקף:** קטן.
-- **`textDirection: TextDirection.rtl` מקובע ב-`_askHouseholdName`** (שורה 135). משתמש דובר אנגלית שמקליד "Smith family" יראה את זה RTL. **Trigger:** locale-awareness sweep. **היקף:** קטן.
+- **`_phoneRegex` Israeli-only** (`^05[0-9]-?[0-9]{7}$`). חל רק אם המשתמש בכלל מילא טלפון (עכשיו אופציונלי). בסדר ל-launch בעברית, אבל אם האפליקציה תתרחב ל-locales אחרים — צריך לוקאל-aware. **Trigger:** הוספת locale חדש או דרישות בינ"ל. **היקף:** קטן.
+- **דיאלוג שם הבית קופץ לפני snackbar ההצלחה**: אחרי register → מיד דיאלוג "שם הבית" → ואז "נרשמת!". אין רגע "הצלחת!" לפני בקשת פעולה נוספת. **Trigger:** דיון UX על סדר ה-onboarding שאחרי register. **היקף:** קטן.
 - **Style-on-style typography**: `headlineLarge.copyWith(fontSize: kFontSizeXLarge, fontWeight: w800)` — דפוס שחוזר באפליקציה (welcome, suggestions_today_card, section_header [תוקן]). **Trigger:** typography sweep גלובלי. **היקף:** בינוני (חוצה-קבצים).
 
 ### ⏳ Files of this screen — pending review

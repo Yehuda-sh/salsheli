@@ -592,6 +592,7 @@ class AuthStringsEn extends AuthStrings {
   @override String get registerSubtitle => 'Join the smarter way to shop ✨';
   @override String get registerButton => 'Sign Up';
   @override String get registering => 'Signing up...';
+  @override String get loadingTakingLong => 'This is taking longer than expected...';
   @override String get forgotPassword => 'Forgot password?';
   @override String get sendResetEmailButton => 'Send Link';
   @override String get resetEmailSent => 'Password reset email sent successfully!';
@@ -681,7 +682,7 @@ class AuthStringsEn extends AuthStrings {
       'You have $count pending group invitations.\n\nWould you like to go to the invitations screen?';
   @override String get pendingInvitesLater => 'Later';
   @override String get pendingInvitesView => 'View Invitations';
-  @override String get phoneHelperText => 'Israeli mobile number - for group updates';
+  @override String get phoneHelperText => 'Israeli mobile number';
   @override String get nameFieldSemanticLabel => 'Full name field, required';
   @override String get emailFieldSemanticLabel => 'Email address field, required';
   @override String get passwordFieldSemanticLabel => 'Password field, at least 6 characters';

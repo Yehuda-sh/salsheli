@@ -43,6 +43,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  // ⏳ Escape hatch for a stuck auth call (dead network): after ~10s the
+  // loading overlay surfaces a "taking longer" message + Cancel.
+  Timer? _loadingTimeoutTimer;
+  bool _loadingTakingLong = false;
+
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
   late Animation<double> _shakeAnimation;
@@ -78,6 +83,23 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     // ✅ No auto-focus — let user see the full screen first (Social Login visible)
   }
 
+  /// Centralized loading toggle + 10s "taking longer" timer so no auth
+  /// path can trap the user behind an indefinite spinner.
+  void _setLoading(bool loading) {
+    _loadingTimeoutTimer?.cancel();
+    setState(() {
+      _isLoading = loading;
+      _loadingTakingLong = false;
+    });
+    if (loading) {
+      _loadingTimeoutTimer = Timer(const Duration(seconds: 10), () {
+        if (mounted && _isLoading) {
+          setState(() => _loadingTakingLong = true);
+        }
+      });
+    }
+  }
+
   void _togglePasswordVisibility() {
     unawaited(HapticFeedback.lightImpact());
     setState(() {
@@ -106,6 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _loadingTimeoutTimer?.cancel();
     _shakeController.dispose();
     _nameFocusNode.dispose();
     _emailFocusNode.dispose();
@@ -132,7 +155,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
           content: TextField(
             controller: controller,
             maxLength: 40,
-            textDirection: TextDirection.rtl,
+            // אין textDirection מקובע — שם בית באנגלית ("Smith family") הוצג
+            // הפוך. האפליקציה RTL גלובלית וה-TextField בוחר כיוון אוטומטית.
             autofocus: true,
             decoration: InputDecoration(
               hintText: AppStrings.sharing.householdNameDialogHint,
@@ -227,7 +251,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       return;
     }
 
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final name = _nameController.text.trim();
@@ -238,7 +262,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       // רישום דרך UserContext
       if (kDebugMode) debugPrint('📝 _handleRegister() | Signing up...');
       final userContext = context.read<UserContext>();
-      await userContext.signUp(email: email, password: password, name: name, phone: phone);
+      // phone אופציונלי — null במקום מחרוזת ריקה כדי לא לשמור ערך ריק.
+      await userContext.signUp(
+        email: email,
+        password: password,
+        name: name,
+        phone: phone.isEmpty ? null : phone,
+      );
 
       // ✅ הרישום הצליח!
       if (kDebugMode) debugPrint('✅ _handleRegister() | Success! userId: ${userContext.userId}');
@@ -250,7 +280,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       // 🎉 הצגת feedback ויזואלי + שם בית + ניווט
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
 
         // ✅ סוגר את הקשר ה-autofill כדי שמערכת ההפעלה תציע לשמור את הסיסמה החדשה
         TextInput.finishAutofillContext();
@@ -278,7 +308,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final errorMsg = userFriendlyError(e, context: 'register');
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
         unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
 
@@ -307,7 +337,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (_isLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
@@ -319,7 +349,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
         if (mounted) {
@@ -330,7 +360,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
         // ✅ בדיקת ביטול לפי error code (לא string matching)
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
@@ -346,7 +376,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     if (_isLoading) return;
 
     unawaited(HapticFeedback.lightImpact());
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
@@ -358,7 +388,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       await prefs.setBool('seenOnboarding', true);
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
         if (mounted) {
@@ -369,7 +399,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
         // ✅ בדיקת ביטול לפי error code (לא string matching)
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
@@ -634,7 +664,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             _buildFormField(
                               controller: _phoneController,
                               focusNode: _phoneFocusNode,
-                              label: AppStrings.auth.phoneLabel,
+                              label: '${AppStrings.auth.phoneLabel} ${AppStrings.common.optional}',
                               hint: AppStrings.auth.phoneHint,
                               icon: Icons.phone_outlined,
                               keyboardType: TextInputType.phone,
@@ -643,8 +673,9 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                               semanticLabel: AppStrings.auth.phoneFieldSemanticLabel,
                               helperText: AppStrings.auth.phoneHelperText,
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return AppStrings.auth.phoneRequired;
+                                // אופציונלי: ריק = תקין. אם מולא — לאמת פורמט ישראלי.
+                                if (value == null || value.trim().isEmpty) {
+                                  return null;
                                 }
                                 final normalized = value.replaceAll('-', '').replaceAll(' ', '');
                                 if (!_phoneRegex.hasMatch(normalized)) {
@@ -834,7 +865,34 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
                   child: Container(
                     color: cs.scrim.withValues(alpha: 0.25),
-                    child: Center(child: LoadingOverlay(color: accent)),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          LoadingOverlay(color: accent),
+                          // ⏳ מופיע רק אם הטעינה נתקעת (~10ש') — מוצא למשתמש.
+                          if (_loadingTakingLong) ...[
+                            const SizedBox(height: kSpacingLarge),
+                            Semantics(
+                              liveRegion: true,
+                              child: Text(
+                                AppStrings.auth.loadingTakingLong,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurface.withValues(alpha: kOpacityStrong),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: kSpacingSmall),
+                            OutlinedButton(
+                              onPressed: () => _setLoading(false),
+                              child: Text(AppStrings.common.cancel),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

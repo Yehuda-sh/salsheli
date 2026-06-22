@@ -609,6 +609,8 @@ class AuthStrings {
   String get registerSubtitle => 'הדרך החכמה לניהול הקניות ✨';
   String get registerButton => 'הירשם';
   String get registering => 'נרשם...';
+  // escape hatch לטעינת auth שנתקעת (מוצג אחרי ~10ש')
+  String get loadingTakingLong => 'הטעינה לוקחת יותר מהצפוי...';
   String get forgotPassword => 'שכחת סיסמה?';
   String get sendResetEmailButton => 'שלח קישור';
   String get resetEmailSent => 'מייל לאיפוס סיסמה נשלח בהצלחה!';
@@ -698,7 +700,7 @@ class AuthStrings {
       'יש לך $count הזמנות לקבוצות ממתינות לאישור.\n\nהאם לעבור למסך ההזמנות?';
   String get pendingInvitesLater => 'אחר כך';
   String get pendingInvitesView => 'צפה בהזמנות';
-  String get phoneHelperText => 'מספר נייד ישראלי - לקבלת עדכונים מהקבוצות';
+  String get phoneHelperText => 'מספר נייד ישראלי';
   String get nameFieldSemanticLabel => 'שדה שם מלא, חובה';
   String get emailFieldSemanticLabel => 'שדה כתובת אימייל, חובה';
   String get passwordFieldSemanticLabel => 'שדה סיסמה, לפחות 6 תווים';
