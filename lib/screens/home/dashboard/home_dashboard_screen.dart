@@ -587,22 +587,36 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             ),
                             const SizedBox(height: kSpacingTiny),
                             if (totalCount == 0)
-                              // Inviting CTA instead of dead-end "Empty
-                              // list". The card itself is tappable, so
-                              // this nudges the user to use that.
-                              Row(
+                              // 🔄 פאזה 6: רשימה ריקה במודל "רשימה אחת חיה"
+                              // = הכל נקנה. במקום CTA "מת" ("הוסף פריטים"),
+                              // מסר חגיגי שמסביר שהמזווה ימלא אוטומטית את מה
+                              // שייגמר — המשתמש מבין שהריק זמני ומכוון.
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.add_circle_outline,
-                                    size: kFontSizeSmall,
-                                    color: accentColor,
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        size: kFontSizeSmall,
+                                        color: successColor,
+                                      ),
+                                      const SizedBox(width: kSpacingXTiny),
+                                      Text(
+                                        strings.emptyListAllBought,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: successColor,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: kSpacingXTiny),
+                                  const SizedBox(height: kSpacingXTiny),
                                   Text(
-                                    strings.emptyListCta,
+                                    strings.emptyListAutoFillHint,
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: accentColor,
-                                      fontWeight: FontWeight.w500,
+                                      color: cs.onSurfaceVariant,
                                     ),
                                   ),
                                 ],

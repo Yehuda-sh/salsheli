@@ -1879,6 +1879,9 @@ class HomeDashboardStrings {
   String get createFirstList => 'צור רשימה ראשונה';
   String get emptyList => 'רשימה ריקה';
   String get emptyListCta => 'הקש להוספת פריטים';
+  // 🔄 פאזה 6: מצב "רשימה חיה ריקה" = הכל נקנה. מסר חגיגי + הסבר auto-fill.
+  String get emptyListAllBought => 'הכל נקנה! 🎉';
+  String get emptyListAutoFillHint => 'נמלא כאן מה שייגמר במזווה';
   String get completed => 'הושלם! ✓';
   String remainingItems(int count) => 'נותרו $count פריטים';
   String itemsCount(int count) => '$count פריטים';

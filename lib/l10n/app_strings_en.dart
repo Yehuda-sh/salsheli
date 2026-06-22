@@ -1828,6 +1828,8 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get createFirstList => 'Create your first list';
   @override String get emptyList => 'Empty list';
   @override String get emptyListCta => 'Tap to add items';
+  @override String get emptyListAllBought => 'All bought! 🎉';
+  @override String get emptyListAutoFillHint => 'We\'ll add what runs low in your pantry';
   @override String get completed => 'Completed! ✓';
   @override String remainingItems(int count) => '$count items remaining';
   @override String itemsCount(int count) => '$count items';
