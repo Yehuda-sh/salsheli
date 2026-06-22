@@ -173,8 +173,13 @@ class AuthException implements Exception {
     this.originalError,
   });
 
+  // כולל את originalError כשקיים — אחרת הסיבה האמיתית (למשל
+  // PlatformException של Google: "ApiException: 10" = SHA-1 חסר ב-Firebase)
+  // נעלמת מהלוג ומ-userFriendlyError, והמשתמש רואה רק הודעה גנרית.
   @override
-  String toString() => 'AuthException($code): $message';
+  String toString() => originalError != null
+      ? 'AuthException($code): $message (cause: $originalError)'
+      : 'AuthException($code): $message';
 
   /// יצירת AuthException מקוד Firebase
   factory AuthException.fromFirebaseCode(String firebaseCode, String message) {
