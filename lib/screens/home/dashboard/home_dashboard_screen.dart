@@ -35,9 +35,6 @@ const double _kProgressStrokeWidth = 4.0;
 // per Apr-30 review.
 const int _kDashboardActiveListLimit = 5;
 const double _kListAccentBarWidth = 5.0;
-// Empty-state illustration size — keeps a stable footprint even when
-// the asset fails to decode and the errorBuilder swaps in a fallback icon.
-const double _kEmptyStateImageHeight = 100.0;
 // List card vertical padding — kSpacingSmallPlus (12) leaves the card
 // feeling tight against the icon row, kSpacingMedium (16) over-spaces
 // it. 14 is the in-between that reads as "comfortable but compact"; the
@@ -181,37 +178,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
     var sectionIndex = 0;
 
-    // Empty state already shows a prominent "Create first list" CTA in
-    // the active-lists card — duplicating it as a FAB clutters the
-    // screen. Hide the FAB until the user has at least one list.
-    final showFab = activeLists.isNotEmpty;
-
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: showFab
-          ? FloatingActionButton.extended(
-              heroTag: 'home_fab',
-              onPressed: () {
-                unawaited(HapticFeedback.lightImpact());
-                Navigator.pushNamed(context, '/create-list');
-              },
-              tooltip: AppStrings.homeDashboard.newListButton,
-              icon: Image.asset(
-                'assets/images/icon_new_list.webp',
-                width: kIconSizeMedium,
-                height: kIconSizeMedium,
-                errorBuilder: (_, _, _) =>
-                    const Icon(Icons.add, size: kIconSizeMedium),
-              ),
-              label: Text(AppStrings.homeDashboard.newListButton),
-            ).animate().scale(
-                  begin: const Offset(0.8, 0.8),
-                  end: const Offset(1.0, 1.0),
-                  duration: 500.ms,
-                  delay: 300.ms,
-                  curve: Curves.elasticOut,
-                )
-          : null,
       body: Stack(
         children: [
           const NotebookBackground(),
@@ -286,15 +254,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     onNavigateToPantry: widget.onTabSelected != null
                         ? () => widget.onTabSelected!(1)
                         : null,
-                    onNavigateToCreateList: () => Navigator.pushNamed(context, '/create-list'),
                   ),
 
                   // === "מה לבשל הערב?" — מוסתר אחרי המיקוד-לסופר (PRODUCT_DIRECTION §6).
                   // הקוד נשמר ב-widgets/whats_for_dinner_card.dart (הפיך). להחזרה:
                   // להחזיר את ה-import למעלה + _staggered(WhatsForDinnerCard()) כאן.
 
-                  // FAB clearance (only when FAB is showing)
-                  SizedBox(height: showFab ? kIconSizeXLarge + kSpacingXLarge : kSpacingMedium),
+                  // 🔄 פאזה 3: ה-FAB הוסר — אין צורך ב-clearance תחתון מוגדל.
+                  const SizedBox(height: kSpacingMedium),
                 ],
               ),
             ),
@@ -420,84 +387,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         ),
         const SizedBox(height: kSpacingSmall),
 
-        // רשימה או הודעה
-        if (activeLists.isEmpty)
-          Card(
-            elevation: 0,
-            color: cs.secondaryContainer.withValues(alpha: kOpacityLow),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-              side: BorderSide(
-                color: cs.secondary.withValues(alpha: kOpacitySoft),
-              ),
-            ),
-            child: InkWell(
-              onTap: () {
-                unawaited(HapticFeedback.lightImpact());
-                Navigator.pushNamed(context, '/create-list');
-              },
-              borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: kSpacingXLarge, horizontal: kSpacingLarge),
-                child: Column(
-                  children: [
-                    // Illustration — falls back to a Material icon if the
-                    // asset is missing so the empty-state still reads.
-                    Image.asset(
-                      'assets/images/empty_cart.webp',
-                      height: _kEmptyStateImageHeight,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => Icon(
-                        Icons.shopping_cart_outlined,
-                        size: _kEmptyStateImageHeight,
-                        color: cs.onSurfaceVariant.withValues(alpha: kOpacityMedium),
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                    Text(
-                      strings.noActiveLists,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: cs.onSurface,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: kSpacingTiny),
-                    Text(
-                      strings.createListHint,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: kSpacingMedium),
-                    // CTA button
-                    FilledButton.icon(
-                      onPressed: () {
-                        unawaited(HapticFeedback.mediumImpact());
-                        Navigator.pushNamed(context, '/create-list');
-                      },
-                      icon: const Icon(Icons.add),
-                      label: Text(strings.createFirstList),
-                      style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(kBorderRadiusLarge),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        else ...[
-          // Show only the top-N most recent lists; the rest live in the
-          // dedicated `/all-lists` screen behind a "See all" button.
-          ...activeLists
-              .take(_kDashboardActiveListLimit)
-              .map((list) => _buildListCard(context, list)),
-          if (activeLists.length > _kDashboardActiveListLimit)
-            _buildSeeAllButton(context, activeLists.length),
-        ],
+        // רשימות פעילות — 🔄 פאזה 3: auto-ensure מבטיח שתמיד יש לפחות אחת,
+        // אז מצב ה-empty ("צור רשימה ראשונה") הוסר.
+        // Show only the top-N most recent lists; the rest live in the
+        // dedicated `/all-lists` screen behind a "See all" button.
+        ...activeLists
+            .take(_kDashboardActiveListLimit)
+            .map((list) => _buildListCard(context, list)),
+        if (activeLists.length > _kDashboardActiveListLimit)
+          _buildSeeAllButton(context, activeLists.length),
       ],
     );
   }

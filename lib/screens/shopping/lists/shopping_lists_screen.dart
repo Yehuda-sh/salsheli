@@ -71,8 +71,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
     final provider = context.watch<ShoppingListsProvider>();
 
     return Scaffold(
@@ -103,17 +101,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'shopping_lists_add_btn',
-        onPressed: () {
-          unawaited(HapticFeedback.mediumImpact());
-          Navigator.pushNamed(context, '/create-list');
-        },
-        backgroundColor: brand?.stickyYellow ?? kStickyYellow,
-        tooltip: AppStrings.shopping.newListTooltip,
-        child: Icon(Icons.add, color: cs.onSurface),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      // 🔄 פאזה 3: כפתור "רשימה חדשה" הוסר — יש רשימה חיה אחת קבועה.
     );
   }
 
@@ -1019,7 +1007,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   /// 📋 מצב ריק – אין רשימות להצגה
   Widget _buildEmptyState() {
     final cs = Theme.of(context).colorScheme;
-    final brand = Theme.of(context).extension<AppBrand>();
 
     return Center(
       child: SingleChildScrollView(
@@ -1096,19 +1083,7 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 );
               },
             ),
-            const SizedBox(height: kSpacingXLarge),
-            StickyButton(
-              color: brand?.stickyYellow ?? kStickyYellow,
-              label: AppStrings.shopping.createNewListButton,
-              icon: Icons.add,
-              onPressed: () {
-
-                // ✨ Haptic feedback למשוב מישוש
-                unawaited(HapticFeedback.mediumImpact());
-
-                Navigator.pushNamed(context, '/create-list');
-              },
-            ),
+            // 🔄 פאזה 3: כפתור "צור רשימה חדשה" הוסר — הרשימה החיה נוצרת אוטומטית.
             const SizedBox(height: kSpacingMedium),
           ],
         ),

@@ -1235,16 +1235,8 @@ class _EmptyState extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: kSpacingLarge),
-            // 🎯 CTA — כפתור יצירת רשימה ראשונה
-            FilledButton.icon(
-              onPressed: () {
-                unawaited(HapticFeedback.lightImpact());
-                Navigator.pushNamed(context, '/create-list');
-              },
-              icon: const Icon(Icons.add_shopping_cart),
-              label: Text(AppStrings.homeDashboard.newListButton),
-            ),
+            // 🔄 פאזה 3: CTA "צור רשימה" הוסר — אין יצירת רשימות. ההיסטוריה
+            // מתמלאת לבד עם סיום קניות.
           ],
         ),
       ),

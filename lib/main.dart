@@ -48,7 +48,6 @@ import 'package:memozap/screens/notifications/notifications_center_screen.dart';
 import 'package:memozap/screens/sharing/pending_invites_screen.dart';
 import 'package:memozap/screens/shopping/lists/shopping_lists_screen.dart';
 import 'package:memozap/screens/shopping/active/active_shopping_screen.dart';
-import 'package:memozap/screens/shopping/create/create_list_screen.dart';
 import 'package:memozap/screens/shopping/details/shopping_list_details_screen.dart';
 import 'package:memozap/screens/shopping/shopping_summary_screen.dart';
 import 'package:memozap/services/auth_service.dart';
@@ -249,7 +248,6 @@ class MyApp extends StatelessWidget {
           home: const IndexScreen(),
           routes: {
             '/home': (context) => const MainNavigationScreen(),
-            '/create-list': (context) => const CreateListScreen(),
             '/notifications': (context) => const NotificationsCenterScreen(),
             '/receipts': (context) => const ShoppingHistoryScreen(),
             '/pending-invites': (context) => const PendingInvitesScreen(),

@@ -62,12 +62,10 @@ enum _TipKind {
 
 class OnboardingTipsCard extends StatefulWidget {
   final VoidCallback? onNavigateToPantry;
-  final VoidCallback? onNavigateToCreateList;
 
   const OnboardingTipsCard({
     super.key,
     this.onNavigateToPantry,
-    this.onNavigateToCreateList,
   });
 
   @override
@@ -256,11 +254,8 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
     //  - the user hasn't crossed the threshold yet, OR
     //  - they JUST crossed it and we're in the celebration window.
     final pantryCelebrating = _celebratingKind == _TipKind.pantry;
-    final listsCelebrating = _celebratingKind == _TipKind.lists;
     final showPantry =
         !pantryDismissed && (pantryCount < _kPantryTipTarget || pantryCelebrating);
-    final showLists =
-        !listsDismissed && (listCount < _kListsTipTarget || listsCelebrating);
 
     if (showPantry) {
       tips.add(_TipData(
@@ -282,25 +277,7 @@ class _OnboardingTipsCardState extends State<OnboardingTipsCard> {
       ));
     }
 
-    if (showLists) {
-      tips.add(_TipData(
-        kind: _TipKind.lists,
-        icon: Icons.playlist_add,
-        color: brand?.stickyGreen ?? kStickyGreen,
-        title: listsCelebrating
-            ? strings.celebrationListsTitle
-            : strings.createListsTitle,
-        subtitle: listsCelebrating
-            ? strings.celebrationListsSubtitle
-            : strings.createListsSubtitle,
-        progress: strings.createListsProgress(listCount, _kListsTipTarget),
-        isCelebrating: listsCelebrating,
-        onAction: () {
-          unawaited(HapticFeedback.lightImpact());
-          widget.onNavigateToCreateList?.call();
-        },
-      ));
-    }
+    // 🔄 פאזה 3: טיפ "צור רשימות" הוסר — הרשימה החיה נוצרת אוטומטית.
 
     if (tips.isEmpty) return const SizedBox.shrink();
 
