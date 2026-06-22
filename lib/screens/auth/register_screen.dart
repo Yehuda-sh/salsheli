@@ -2,7 +2,6 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -21,8 +20,8 @@ import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'post_auth_navigation.dart';
-import 'widgets/loading_overlay.dart';
 import 'widgets/social_login_button.dart';
+import 'widgets/timed_loading_overlay.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -43,10 +42,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  // ⏳ Escape hatch for a stuck auth call (dead network): after ~10s the
-  // loading overlay surfaces a "taking longer" message + Cancel.
-  Timer? _loadingTimeoutTimer;
-  bool _loadingTakingLong = false;
   // Set when the user taps Cancel on the "taking longer" escape hatch. The
   // auth Future can't be aborted, so its completion handlers check this and
   // bail out — otherwise a call that finishes *after* Cancel would still
@@ -88,26 +83,16 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     // ✅ No auto-focus — let user see the full screen first (Social Login visible)
   }
 
-  /// Centralized loading toggle + 10s "taking longer" timer so no auth
-  /// path can trap the user behind an indefinite spinner.
   void _setLoading(bool loading) {
-    _loadingTimeoutTimer?.cancel();
     setState(() {
       _isLoading = loading;
-      _loadingTakingLong = false;
       if (loading) _authAbandoned = false; // fresh attempt
     });
-    if (loading) {
-      _loadingTimeoutTimer = Timer(const Duration(seconds: 10), () {
-        if (mounted && _isLoading) {
-          setState(() => _loadingTakingLong = true);
-        }
-      });
-    }
   }
 
-  /// User gave up on a stuck auth call. Dismisses the overlay and marks the
-  /// in-flight attempt abandoned so its (late) completion no-ops.
+  /// User gave up on a stuck auth call (Cancel on the escape hatch). Dismisses
+  /// the overlay and marks the in-flight attempt abandoned so its (late)
+  /// completion no-ops instead of navigating against the user's intent.
   void _cancelLoading() {
     _authAbandoned = true;
     _setLoading(false);
@@ -141,7 +126,6 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _loadingTimeoutTimer?.cancel();
     _shakeController.dispose();
     _nameFocusNode.dispose();
     _emailFocusNode.dispose();
@@ -872,42 +856,12 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                 ),
               ),
             ),
-            // 🌫️ Loading overlay עם Glassmorphism + טקסט משתנה
+            // 🌫️ Loading overlay + escape hatch (timer מנוהל בתוך ה-widget)
             if (_isLoading)
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: kGlassBlurMedium, sigmaY: kGlassBlurMedium),
-                  child: Container(
-                    color: cs.scrim.withValues(alpha: 0.25),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LoadingOverlay(color: accent),
-                          // ⏳ מופיע רק אם הטעינה נתקעת (~10ש') — מוצא למשתמש.
-                          if (_loadingTakingLong) ...[
-                            const SizedBox(height: kSpacingLarge),
-                            Semantics(
-                              liveRegion: true,
-                              child: Text(
-                                AppStrings.auth.loadingTakingLong,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: cs.onSurface.withValues(alpha: kOpacityStrong),
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: kSpacingSmall),
-                            OutlinedButton(
-                              onPressed: _cancelLoading,
-                              child: Text(AppStrings.common.cancel),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
+                child: TimedLoadingOverlay(
+                  color: accent,
+                  onCancel: _cancelLoading,
                 ),
               ),
           ],

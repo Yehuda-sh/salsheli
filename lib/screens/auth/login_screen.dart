@@ -20,9 +20,9 @@ import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'post_auth_navigation.dart';
-import 'widgets/loading_overlay.dart';
 import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
+import 'widgets/timed_loading_overlay.dart';
 
 
 /// משך ההשהיה בין הודעת ההצלחה למעבר הביתה — קצר מספיק כדי לא להכביד על
@@ -46,6 +46,11 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  // Set when the user cancels a stuck auth call (escape hatch). The auth
+  // Future can't be aborted, so its completion handlers check this and bail
+  // out — otherwise a call finishing after Cancel would still navigate the
+  // user in, against their intent. (Same guard as register_screen.)
+  bool _authAbandoned = false;
 
   // 🧪 Secret dev mode — 5 taps on title
   int _devTapCount = 0;
@@ -90,6 +95,21 @@ class _LoginScreenState extends State<LoginScreen>
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     super.dispose();
+  }
+
+  void _setLoading(bool loading) {
+    setState(() {
+      _isLoading = loading;
+      if (loading) _authAbandoned = false; // fresh attempt
+    });
+  }
+
+  /// User gave up on a stuck auth call (Cancel on the escape hatch). Dismisses
+  /// the overlay and marks the in-flight attempt abandoned so its (late)
+  /// completion no-ops instead of navigating against the user's intent.
+  void _cancelLoading() {
+    _authAbandoned = true;
+    _setLoading(false);
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -147,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final email = _emailController.text.trim();
@@ -169,8 +189,9 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('✅ _handleLogin() | Onboarding flag saved');
 
       // 🔹 3. הצגת feedback ויזואלי + ניווט
-      if (mounted) {
-        setState(() => _isLoading = false);
+      // (מדלגים אם המשתמש ביטל את ההמתנה — לא לנווט נגד רצונו)
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
 
         // ✅ סוגר את הקשר ה-autofill כדי שמערכת ההפעלה תציע לשמור את הסיסמה
         TextInput.finishAutofillContext();
@@ -192,8 +213,8 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('❌ _handleLogin() | Login failed: $e');
       final errorMsg = userFriendlyError(e, context: 'login');
 
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
 
         // 🎨 הודעת שגיאה משופרת
@@ -215,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🔵 _handleGoogleSignIn() | Starting Google sign in...');
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
@@ -227,8 +248,8 @@ class _LoginScreenState extends State<LoginScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
 
         // 🎉 משוב הצלחה + השהיה קצרה — עקבי עם התחברות באימייל
         _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
@@ -241,8 +262,8 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn() | Error: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
@@ -257,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen>
 
     unawaited(HapticFeedback.lightImpact());
     if (kDebugMode) debugPrint('🍎 _handleAppleSignIn() | Starting Apple sign in...');
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
@@ -269,8 +290,8 @@ class _LoginScreenState extends State<LoginScreen>
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
 
         // 🎉 משוב הצלחה + השהיה קצרה — עקבי עם התחברות באימייל
         _showStatus(AppStrings.auth.loginSuccessRedirect, type: StatusType.success);
@@ -283,8 +304,8 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn() | Error: $e');
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && !_authAbandoned) {
+        _setLoading(false);
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
@@ -313,7 +334,7 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
-    setState(() => _isLoading = true);
+    _setLoading(true);
 
     try {
       final userContext = context.read<UserContext>();
@@ -322,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('✅ _handleForgotPassword() | Reset email sent');
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
 
         // הצג הודעת הצלחה
         _showStatus(AppStrings.auth.resetEmailSentTo(email), type: StatusType.success);
@@ -331,7 +352,7 @@ class _LoginScreenState extends State<LoginScreen>
       if (kDebugMode) debugPrint('❌ _handleForgotPassword() | Failed: $e');
 
       if (mounted) {
-        setState(() => _isLoading = false);
+        _setLoading(false);
 
         _showStatus(AppStrings.auth.resetEmailSendError, type: StatusType.error);
       }
@@ -502,7 +523,10 @@ class _LoginScreenState extends State<LoginScreen>
                           child: child,
                         );
                       },
-                      child: AutofillGroup(
+                      // RepaintBoundary: ה-shake מצייר מחדש בכל frame — מבודד
+                      // את הטופס מתחת לאנימציה (יישור ל-register_screen).
+                      child: RepaintBoundary(
+                        child: AutofillGroup(
                         child: Form(
                         key: _formKey,
                         child: Column(
@@ -835,26 +859,17 @@ class _LoginScreenState extends State<LoginScreen>
                         ),
                       ),
                       ),
+                      ),
                     ),
                   ),
               ),
 
-              // 🌫️ Loading overlay עם Glassmorphism + טקסט משתנה
+              // 🌫️ Loading overlay + escape hatch (timer מנוהל בתוך ה-widget)
               if (_isLoading)
                 Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(
-                      sigmaX: kGlassBlurMedium,
-                      sigmaY: kGlassBlurMedium,
-                    ),
-                    child: Container(
-                      // 0.25: scrim עדין — מספיק כדי לעמעם את הטופס מאחורי
-                      // ה-blur, בלי להחשיך לגמרי (ה-BackdropFilter כבר עושה את העבודה)
-                      color: cs.scrim.withValues(alpha: 0.25),
-                      child: Center(
-                        child: LoadingOverlay(color: cs.primary),
-                      ),
-                    ),
+                  child: TimedLoadingOverlay(
+                    color: cs.primary,
+                    onCancel: _cancelLoading,
                   ),
                 ),
             ],

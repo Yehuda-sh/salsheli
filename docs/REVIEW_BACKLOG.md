@@ -752,8 +752,13 @@
 - **brand reuse**: `brand?.success` משומש מתוך scope (Builder pattern) במקום re-fetch של `Theme.of(context).extension<AppBrand>()`.
 - **5-tap dev gesture נשאר חשוף בפרודקשן** — **החלטה מודעת**: המשתמש עדיין בודק. בעצם לא עושה כלום בפרודקשן (אין `demo.com` accounts ב-Firebase production). אם יוחלט בעתיד שזה רע — לעטוף ב-`if (kDebugMode)` כמו הכפתור הוויזואלי בשורה 416.
 
+### ✅ Decisions Made (סבב 4, 22/6/2026 — סנכרון עם register + חילוץ)
+- **⏳ Timeout + Cancel + הגנת race — סונכרן עם register**: login היה עם overlay טעינה אינסופי (אותו באג שתוקן ב-register). נוסף דגל `_authAbandoned` + `_setLoading`/`_cancelLoading`, וכל בלוקי ה-UI שאחרי await (login/Google/Apple, success+catch) בודקים `mounted && !_authAbandoned`. forgot-password נשאר לא-מוגן במכוון (אין ניווט — רק snackbar).
+- **🧩 חילוץ `TimedLoadingOverlay`**: ה-overlay-עם-timeout נדרש פעמיים (register+login) → חולץ ל-`widgets/timed_loading_overlay.dart`. ה-widget מחזיק את הטיימר בעצמו (mounted רק בזמן טעינה → ניהול אוטומטי). **register גם פושט** — נמחקו `_loadingTimeoutTimer`/`_loadingTakingLong` + הטיימר מ-`_setLoading`. שני המסכים משתמשים ב-`TimedLoadingOverlay(color, onCancel)`.
+- **⚡ RepaintBoundary סביב הטופס**: היה ב-register, חסר ב-login (ה-shake צייר מחדש את כל הטופס בכל frame). נוסף ליישור.
+
 ### ⏸️ Deferred
-- **`_showStatus` כפילות עם register_screen** — שני העתקים כמעט זהים של snackbar configuration. **Trigger:** סקירה ייעודית של auth shared utilities. **היקף:** קטן (extract ל-`auth_snackbar_utils.dart` או דומה).
+- **`_showStatus` כפילות עם register_screen** — שני העתקים כמעט זהים של snackbar configuration. (ה-overlay כבר חולץ; זה הבא בתור.) **Trigger:** סקירה ייעודית של auth shared utilities. **היקף:** קטן (extract ל-`auth_snackbar_utils.dart` או דומה).
 - **22 משתמשי דמו hardcoded ב-`_demoUsers`** — כפילות חלקית עם `scripts/rebuild_demo_data.js`. סכנת drift אם מישהו מעדכן את הסקריפט בלי לעדכן את המסך. **Trigger:** מי שמעדכן demo users. **היקף:** קטן (להפיק רשימה אחת מהקובץ של הסקריפט אם אפשר).
 - **שורה 344: `'name': 'apple_user@icloud.com'`** — ה-name הוא אימייל, לא שם בעברית כמו השאר. בפועל מציג את הכתובת עצמה ב-bottom sheet. **Trigger:** סקירה של quick_login_bottom_sheet או demo data refresh. **היקף:** מינוסקולי.
 - **Style-on-style typography** — `headlineLarge.copyWith(fontWeight: w800, fontSize: kFontSizeDisplay)`. אותו דפוס שכבר נרשם ב-Auth Screens (Register). **Trigger:** typography sweep גלובלי.
