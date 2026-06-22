@@ -755,6 +755,66 @@ void main() {
   });
 
   // ===========================================================================
+  // finishShoppingKeepListActive (פאזה 6 — סיום קנייה, הרשימה נשארת)
+  // ===========================================================================
+  group('ShoppingListsProvider - finishShoppingKeepListActive', () {
+    test('removes purchased items, keeps the rest, list stays active', () async {
+      final items = [
+        UnifiedListItem.product(id: 'i1', name: 'חלב', quantity: 1, unitPrice: 0.0),
+        UnifiedListItem.product(id: 'i2', name: 'לחם', quantity: 1, unitPrice: 0.0),
+        UnifiedListItem.product(id: 'i3', name: 'ביצים', quantity: 1, unitPrice: 0.0),
+      ];
+      mockRepo.setInitialLists([_makeList(id: 'l1', items: items)]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      await provider.finishShoppingKeepListActive('l1', purchasedItemIds: {'i1', 'i2'});
+
+      final list = provider.getById('l1')!;
+      expect(list.items.map((i) => i.id), ['i3']); // unbought stays
+      expect(list.status, ShoppingList.statusActive); // not completed
+      provider.dispose();
+    });
+
+    test('marks active shoppers inactive', () async {
+      final items = [
+        UnifiedListItem.product(id: 'i1', name: 'חלב', quantity: 1, unitPrice: 0.0),
+      ];
+      mockRepo.setInitialLists([
+        _makeList(
+          id: 'l1',
+          items: items,
+          activeShoppers: [ActiveShopper.starter(userId: 'u-test')],
+        ),
+      ]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      await provider.finishShoppingKeepListActive('l1', purchasedItemIds: {'i1'});
+
+      final list = provider.getById('l1')!;
+      expect(list.activeShoppers.every((s) => !s.isActive), isTrue);
+      provider.dispose();
+    });
+
+    test('idempotent — nothing purchased and no active shopper → no write', () async {
+      mockRepo.setInitialLists([
+        _makeList(id: 'l1', items: [
+          UnifiedListItem.product(id: 'i1', name: 'חלב', quantity: 1, unitPrice: 0.0),
+        ]),
+      ]);
+      final provider = await _buildProvider(
+          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
+
+      final before = mockRepo.saveCallCount;
+      await provider.finishShoppingKeepListActive('l1', purchasedItemIds: {});
+
+      expect(mockRepo.saveCallCount, before);
+      provider.dispose();
+    });
+  });
+
+  // ===========================================================================
   // syncMissingFromPantry (פאזה 2 — המזווה כותב את הרשימה)
   // ===========================================================================
   group('ShoppingListsProvider - syncMissingFromPantry', () {

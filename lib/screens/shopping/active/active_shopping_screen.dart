@@ -28,6 +28,7 @@ import '../../../theme/app_theme.dart';
 import '../../../widgets/common/barcode_helpers.dart';
 import '../../../widgets/common/notebook_background.dart';
 import '../../../widgets/common/offline_banner.dart';
+import '../shopping_summary_screen.dart';
 import 'widgets/active_shopping_item_tile.dart';
 import 'widgets/active_shopping_states.dart';
 import 'widgets/last_chance_banner.dart';
@@ -509,7 +510,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
     );
 
     if (outcome != null && outcome.result != ShoppingSummaryResult.cancel && mounted) {
-      await _saveAndFinish(pendingAction: outcome.result, storeName: outcome.storeName);
+      await _saveAndFinish(storeName: outcome.storeName);
     } else {
     }
   }
@@ -533,16 +534,10 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
 
   /// שמירה וסיום - עם עדכון מלאי אוטומטי
   ///
-  /// [pendingAction] - מה לעשות עם פריטים ב-pending:
-  /// - finishAndTransferPending: העבר לרשימה הבאה
-  /// - finishAndLeavePending: השאר ברשימה (הרשימה תישאר פעילה)
-  /// - finishAndDeletePending: מחק (סמן כ-notNeeded)
-  /// - finishNoPending: אין פריטים ב-pending
+  /// 🔄 פאזה 6: שומר את הקנייה ומשאיר את הרשימה החיה **פעילה** — הנקנים
+  /// יוצאים (עלו למזווה + קבלה), הלא-נקנים נשארים. אין יותר גלגול/השלמה.
   /// [storeName] - שם חנות אופציונלי (מהמשתמש, לקבלה)
-  Future<void> _saveAndFinish({
-    ShoppingSummaryResult pendingAction = ShoppingSummaryResult.finishNoPending,
-    String? storeName,
-  }) async {
+  Future<void> _saveAndFinish({String? storeName}) async {
     final cs = Theme.of(context).colorScheme;
     final brand = Theme.of(context).extension<AppBrand>();
     // ✅ תפוס context לפני await
@@ -568,62 +563,23 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
       // 1️⃣ בטל טיימרים כדי למנוע writes נוספים
       _cancelAllSaveTimers();
 
-      // 2️⃣ זהה פריטים לפי סטטוס נוכחי
-      final purchasedItems = list.items.where((item) {
-        final status = _itemStatuses[item.id];
-        return status == ShoppingItemStatus.purchased;
-      }).toList();
-
-      final outOfStockItems = list.items.where((item) {
-        final status = _itemStatuses[item.id];
-        return status == ShoppingItemStatus.outOfStock;
-      }).toList();
-
-      // 🛡️ רק פריטים שהקונה הזה עוקב אחריהם (יש להם רשומה ב-_itemStatuses).
-      // פריט שקונה אחר הוסיף/קנה תוך כדי הקנייה (status == null) לא ייכלל —
-      // אחרת "מחק ממתינים" היה כותב עליו notNeeded ומוחק קנייה של מישהו אחר.
-      final pendingItems = list.items
-          .where((item) => _itemStatuses[item.id] == ShoppingItemStatus.pending)
+      // 2️⃣ זהה את הפריטים שנקנו (לפי הסטטוס של הקונה הזה)
+      final purchasedItems = list.items
+          .where((item) => _itemStatuses[item.id] == ShoppingItemStatus.purchased)
           .toList();
 
-      // ✅ רשימת פריטים שיועברו לרשימה הבאה - ריקה בהתחלה
-      final List<UnifiedListItem> itemsToTransfer = [];
+      // 📸 snapshot לסיכום — נלכד לפני שמסירים את הנקנים מהרשימה
+      final summaryTotal =
+          list.items.where((i) => _itemStatuses.containsKey(i.id)).length;
+      final summaryPurchased = purchasedItems.length;
+      final summarySpent = purchasedItems.fold<double>(
+          0.0, (acc, item) => acc + (item.totalPrice ?? 0.0));
+      final summaryBudget = list.budget ?? 0.0;
 
-      // 3️⃣ טפל ב-pending לפי בחירת המשתמש (לפני ה-flush!)
-      switch (pendingAction) {
-        case ShoppingSummaryResult.finishAndTransferPending:
-          // העבר pending + outOfStock לרשימה הבאה (מסיימים את הרשימה)
-          itemsToTransfer.addAll(outOfStockItems);
-          itemsToTransfer.addAll(pendingItems);
-          break;
-
-        case ShoppingSummaryResult.finishAndDeletePending:
-          // ✅ סמן pending כ-notNeeded (לפני ה-flush כדי שיסונכרן!)
-          itemsToTransfer.addAll(outOfStockItems);
-          for (final item in pendingItems) {
-            _itemStatuses[item.id] = ShoppingItemStatus.notNeeded;
-          }
-          break;
-
-        case ShoppingSummaryResult.finishAndLeavePending:
-          // ✅ השאר ברשימה - לא מעבירים כלום! (גם לא outOfStock)
-          // הרשימה נשארת פעילה עם כל הפריטים שלא נקנו
-          break;
-
-        case ShoppingSummaryResult.finishNoPending:
-          // אין pending - העבר רק outOfStock (מסיימים את הרשימה)
-          itemsToTransfer.addAll(outOfStockItems);
-          break;
-
-        case ShoppingSummaryResult.cancel:
-          // ביטול - לא עושים כלום
-          break;
-      }
-
-      // 4️⃣ Flush: סנכרן את כל הסטטוסים (כולל השינויים מלמעלה!)
+      // 3️⃣ Flush: סנכרן את כל הסטטוסים לרשימה (purchased → isChecked)
       await _flushPendingSaves(shoppingProvider);
 
-      // 5️⃣ עדכן מזווה ודפוסים - רק לרשימות משותפות (לא אירועים ולא אישיות)
+      // 4️⃣ עדכן מזווה ודפוסים — רק לרשימות שמתחברות למזווה
       if (purchasedItems.isNotEmpty &&
           ShoppingList.shouldUpdatePantry(widget.list.type, isPrivate: widget.list.isPrivate)) {
         await inventoryProvider.updateStockAfterPurchase(purchasedItems);
@@ -634,8 +590,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
             firestore: FirebaseFirestore.instance,
             userContext: _userContext,
           );
-
-          // שמור את סדר הקנייה
           final purchasedNames = purchasedItems.map((item) => item.name).toList();
           await patternsService.saveShoppingPattern(
             listType: widget.list.type,
@@ -643,23 +597,6 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
           );
         } catch (_) { // Non-critical
         }
-      } else if (purchasedItems.isNotEmpty) {
-      }
-
-      // 6️⃣ העבר פריטים לרשימה הבאה (רק אם מסיימים את הרשימה)
-      if (itemsToTransfer.isNotEmpty) {
-        await shoppingProvider.addToNextList(itemsToTransfer);
-      }
-
-      // 5️⃣ קבע אם הרשימה הושלמה
-      // הרשימה הושלמה אם:
-      // - אין pending, או
-      // - המשתמש בחר להעביר/למחוק את ה-pending
-      final shouldCompleteList = pendingAction != ShoppingSummaryResult.finishAndLeavePending;
-
-      if (shouldCompleteList) {
-        await shoppingProvider.updateListStatus(widget.list.id, ShoppingList.statusCompleted);
-      } else {
       }
 
       // 6️⃣ צור קבלה וירטואלית מהפריטים שנקנו
@@ -707,22 +644,20 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         }
       }
 
+      // 🔄 פאזה 6: הרשימה נשארת פעילה — מסירים את הנקנים (עלו למזווה),
+      // הלא-נקנים נשארים, והקונים מסומנים לא-פעילים (הסשן הסתיים).
+      await shoppingProvider.finishShoppingKeepListActive(
+        widget.list.id,
+        purchasedItemIds: purchasedItems.map((i) => i.id).toSet(),
+      );
+
       // ✅ בדוק אם עדיין mounted לפני שימוש ב-context
       if (!mounted) return;
 
       // הצג הודעת הצלחה עם פרטים
-      String message = shouldCompleteList
-          ? AppStrings.shopping.shoppingCompletedSuccess
-          : AppStrings.shopping.shoppingSaved;
-
+      String message = AppStrings.shopping.shoppingSaved;
       if (purchasedItems.isNotEmpty) {
         message += '\n${AppStrings.shopping.pantryUpdated(purchasedItems.length)}';
-      }
-      if (itemsToTransfer.isNotEmpty) {
-        message += '\n${AppStrings.shopping.itemsMovedToNext(itemsToTransfer.length)}';
-      }
-      if (!shouldCompleteList && pendingItems.isNotEmpty) {
-        message += '\n${AppStrings.shopping.pendingItemsLeftWarning(pendingItems.length)}';
       }
 
         messenger.removeCurrentSnackBar();
@@ -748,7 +683,16 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         // 🔧 FIX: איפוס _isSaving לפני ניווט למקרה שנכשל
         setState(() => _isSaving = false);
 
-        unawaited(navigator.pushReplacementNamed('/shopping-summary', arguments: widget.list.id));
+        unawaited(navigator.pushReplacementNamed(
+          '/shopping-summary',
+          arguments: ShoppingSummaryArgs(
+            listName: widget.list.name,
+            total: summaryTotal,
+            purchased: summaryPurchased,
+            spentAmount: summarySpent,
+            budget: summaryBudget,
+          ),
+        ));
     } catch (_) { // Non-critical
 
       if (mounted) {
@@ -784,7 +728,7 @@ class _ActiveShoppingScreenState extends State<ActiveShoppingScreen> {
         );
 
         if (shouldRetry == true && mounted) {
-          await _saveAndFinish(pendingAction: pendingAction); // Retry with same action
+          await _saveAndFinish(storeName: storeName); // Retry
         }
       }
     } finally {

@@ -262,9 +262,17 @@ class MyApp extends StatelessWidget {
               return _sharedAxisRoute(const auth_register.RegisterScreen(), settings);
             }
             if (settings.name == '/shopping-summary') {
-              final listId = settings.arguments as String?;
-              if (listId == null) return null;
-              return MaterialPageRoute(builder: (_) => ShoppingSummaryScreen(listId: listId));
+              final args = settings.arguments;
+              if (args is! ShoppingSummaryArgs) return null;
+              return MaterialPageRoute(
+                builder: (_) => ShoppingSummaryScreen(
+                  listName: args.listName,
+                  total: args.total,
+                  purchased: args.purchased,
+                  spentAmount: args.spentAmount,
+                  budget: args.budget,
+                ),
+              );
             }
             if (settings.name == '/active-shopping') {
               ShoppingList? list;

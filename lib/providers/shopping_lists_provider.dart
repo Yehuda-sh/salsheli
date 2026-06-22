@@ -1256,6 +1256,42 @@ class ShoppingListsProvider with ChangeNotifier {
     }
   }
 
+  /// 🔄 פאזה 6 — מסיים סשן קנייה ומשאיר את הרשימה החיה **פעילה**.
+  ///
+  /// במודל "רשימה אחת קבועה" אין "סיום רשימה": מה שנקנה עלה למזווה ונרשם
+  /// בקבלה (ההיסטוריה), ולכן יוצא מהרשימה; מה שלא נקנה נשאר לפעם הבאה.
+  /// הרשימה **לא** מסומנת "הושלמה" — היא ממשיכה לחיות.
+  ///
+  /// [purchasedItemIds] — מזהי הפריטים שנקנו (יוסרו מהרשימה).
+  ///
+  /// בנוסף: מסמן את כל הקונים כלא-פעילים (סשן הקנייה הסתיים). idempotent —
+  /// אם אין מה להסיר ואין קונים פעילים, לא כותב.
+  Future<void> finishShoppingKeepListActive(
+    String listId, {
+    required Set<String> purchasedItemIds,
+  }) async {
+    final list = getById(listId);
+    if (list == null) return;
+
+    final remainingItems = list.items
+        .where((item) => !purchasedItemIds.contains(item.id))
+        .toList();
+    final hadActiveShopper = list.activeShoppers.any((s) => s.isActive);
+    final inactiveShoppers =
+        list.activeShoppers.map((s) => s.copyWith(isActive: false)).toList();
+
+    // אין שינוי בפועל — לא כותבים
+    if (remainingItems.length == list.items.length && !hadActiveShopper) {
+      return;
+    }
+
+    await updateList(list.copyWith(
+      items: remainingItems,
+      activeShoppers: inactiveShoppers,
+      updatedDate: DateTime.now(),
+    ));
+  }
+
   /// מנקה sessions נטושים (6+ שעות)
   /// 
   /// Example:

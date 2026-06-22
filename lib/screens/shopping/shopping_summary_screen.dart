@@ -4,21 +4,47 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import '../../core/ui_constants.dart';
 import '../../l10n/app_strings.dart';
-import '../../providers/shopping_lists_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/common/app_error_state.dart';
-import '../../widgets/common/app_loading_skeleton.dart';
 import '../../widgets/common/notebook_background.dart';
 import '../../widgets/common/painters/perforation_painter.dart';
 
-class ShoppingSummaryScreen extends StatefulWidget {
-  final String listId;
+/// 🔄 פאזה 6: snapshot של נתוני סיכום הקנייה, מועבר כ-arguments לראוט.
+class ShoppingSummaryArgs {
+  final String listName;
+  final int total;
+  final int purchased;
+  final double spentAmount;
+  final double budget;
 
-  const ShoppingSummaryScreen({super.key, required this.listId});
+  const ShoppingSummaryArgs({
+    required this.listName,
+    required this.total,
+    required this.purchased,
+    required this.spentAmount,
+    required this.budget,
+  });
+}
+
+/// 🔄 פאזה 6: המסך מקבל snapshot של נתוני הסיכום מרגע סיום הקנייה,
+/// במקום לקרוא חיים מהרשימה (שכבר השתנתה — הנקנים יצאו וסנכרון המזווה רץ).
+class ShoppingSummaryScreen extends StatefulWidget {
+  final String listName;
+  final int total;
+  final int purchased;
+  final double spentAmount;
+  final double budget;
+
+  const ShoppingSummaryScreen({
+    super.key,
+    required this.listName,
+    required this.total,
+    required this.purchased,
+    required this.spentAmount,
+    required this.budget,
+  });
 
   @override
   State<ShoppingSummaryScreen> createState() => _ShoppingSummaryScreenState();
@@ -58,57 +84,30 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
     final cs = theme.colorScheme;
     final strings = AppStrings.shoppingSummary;
 
+    // 🔄 פאזה 6: סטטיסטיקות מתוך ה-snapshot (לא מהרשימה החיה).
+    final total = widget.total;
+    final purchased = widget.purchased;
+    final missing = total - purchased;
+    final spentAmount = widget.spentAmount;
+    final budget = widget.budget;
+    final budgetDiff = budget - spentAmount;
+    final successRate = total > 0 ? (purchased / total) * 100 : 0.0;
+    final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
+
+    // אימוג'י לפי הצלחה
+    final celebrationEmoji = successRate >= 90
+        ? '🎉'
+        : successRate >= 70
+            ? '👍'
+            : '💪';
+
     return Scaffold(
       backgroundColor: theme.extension<AppBrand>()?.paperBackground ?? kPaperBackground,
       body: Stack(
         children: [
           const NotebookBackground(),
           SafeArea(
-            child: Consumer<ShoppingListsProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading) {
-                  // Both args (sectionCount: 3, showHero: false) match
-                  // the AppLoadingSkeleton defaults — omitted.
-                  return const AppLoadingSkeleton();
-                }
-
-                if (provider.errorMessage != null) {
-                  return AppErrorState(
-                    title: AppStrings.shoppingSummary.loadError,
-                    message: provider.errorMessage!,
-                    onAction: () => Navigator.of(context).pop(),
-                    actionLabel: AppStrings.common.goBack,
-                    actionIcon: Icons.arrow_back,
-                  );
-                }
-
-                final list = provider.getById(widget.listId);
-                if (list == null) {
-                  return _NotFoundState(
-                    onBack: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                  );
-                }
-
-                // סטטיסטיקות
-                final total = list.items.length;
-                final purchased = list.items.where((item) => item.isChecked).length;
-                final missing = total - purchased;
-                final spentAmount = list.items
-                    .where((item) => item.isChecked)
-                    .fold(0.0, (sum, item) => sum + (item.totalPrice ?? 0.0));
-                final budget = list.budget ?? 0.0;
-                final budgetDiff = budget - spentAmount;
-                final successRate = total > 0 ? (purchased / total) * 100 : 0.0;
-                final successColor = theme.extension<AppBrand>()?.success ?? kStickyGreen;
-
-                // אימוג'י לפי הצלחה
-                final celebrationEmoji = successRate >= 90
-                    ? '🎉'
-                    : successRate >= 70
-                        ? '👍'
-                        : '💪';
-
-                return SingleChildScrollView(
+            child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: kSpacingMedium),
                   child: Column(
                     children: [
@@ -140,7 +139,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                         child: FadeTransition(
                           opacity: _slideUp,
                           child: _ReceiptCard(
-                            listName: list.name,
+                            listName: widget.listName,
                             purchased: purchased,
                             missing: missing,
                             total: total,
@@ -178,9 +177,7 @@ class _ShoppingSummaryScreenState extends State<ShoppingSummaryScreen>
                       const SizedBox(height: kSpacingLarge),
                     ],
                   ),
-                );
-              },
-            ),
+                ),
           ),
         ],
       ),
@@ -528,36 +525,4 @@ class _StatColumn extends StatelessWidget {
   }
 }
 
-class _NotFoundState extends StatelessWidget {
-  final VoidCallback onBack;
-
-  const _NotFoundState({required this.onBack});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final strings = AppStrings.shoppingSummary;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(kSpacingXLarge),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off, size: kIconSizeXXLarge + kSpacingMedium, color: cs.onSurfaceVariant),
-            const SizedBox(height: kSpacingMedium),
-            Text(strings.notFound, style: TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.bold, color: cs.onSurface)),
-            const SizedBox(height: kSpacingSmall),
-            Text(strings.notFoundSubtitle, style: TextStyle(fontSize: kFontSizeMedium, color: cs.onSurfaceVariant)),
-            const SizedBox(height: kSpacingLarge),
-            FilledButton.icon(
-              onPressed: onBack,
-              icon: const Icon(Icons.home),
-              label: Text(strings.backToHome),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// 🔄 פאזה 6: _NotFoundState הוסר — המסך מקבל snapshot ישיר, אין מצב "לא נמצא".

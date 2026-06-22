@@ -14,10 +14,9 @@ import '../../../../widgets/common/sticky_button.dart';
 
 enum ShoppingSummaryResult {
   cancel, // חזור לרשימה
-  finishAndTransferPending, // סיים והעבר pending לרשימה הבאה
-  finishAndLeavePending, // סיים והשאר pending ברשימה
-  finishAndDeletePending, // סיים ומחק pending
-  finishNoPending, // סיים (אין pending)
+  // 🔄 פאזה 6: סיים. הרשימה החיה נשארת — הנקנים יוצאים (עלו למזווה + קבלה),
+  // הלא-נקנים נשארים. אין יותר "גלגול/השלמה".
+  finish,
 }
 
 /// תוצאת דיאלוג סיכום — כוללת גם שם חנות אופציונלי
@@ -56,8 +55,6 @@ class ShoppingSummaryDialog extends StatefulWidget {
 }
 
 class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
-  // מצב: האם להציג את אפשרויות ה-pending
-  bool _showPendingOptions = false;
   // שם חנות שהמשתמש בחר/הקליד
   String? _selectedStoreName;
 
@@ -66,11 +63,6 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
-
-    // אם יש pending ומציגים אפשרויות - הצג מסך בחירה
-    if (_showPendingOptions && widget.pending > 0) {
-      return _buildPendingOptionsDialog(cs, brand);
-    }
 
     // מסך סיכום רגיל
     return AlertDialog(
@@ -274,12 +266,8 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
             icon: Icons.check,
             onPressed: () {
               unawaited(HapticFeedback.mediumImpact());
-              // אם יש pending - הצג אפשרויות, אחרת סיים ישר
-              if (widget.pending > 0) {
-                setState(() => _showPendingOptions = true);
-              } else {
-                Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishNoPending, storeName: _selectedStoreName));
-              }
+              // 🔄 פאזה 6: סיום אחיד — הלא-נקנים פשוט נשארים ברשימה החיה.
+              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finish, storeName: _selectedStoreName));
             },
             color: brand?.stickyGreen ?? kStickyGreen,
             textColor: cs.onPrimary,
@@ -290,155 +278,10 @@ class _ShoppingSummaryDialogState extends State<ShoppingSummaryDialog> {
     );
   }
 
-  /// דיאלוג בחירת אפשרות עבור פריטים ב-pending
-  Widget _buildPendingOptionsDialog(ColorScheme cs, AppBrand? brand) {
-    return AlertDialog(
-      title: Row(
-        children: [
-          Icon(Icons.help_outline, color: brand?.stickyOrange ?? kStickyOrange, size: kIconSizeLarge),
-          const SizedBox(width: kSpacingSmallPlus),
-          Expanded(
-            child: Text(
-              AppStrings.shopping.summaryPendingQuestion(widget.pending),
-              style: TextStyle(fontSize: kFontSizeMedium, fontWeight: FontWeight.bold, color: cs.onSurface),
-            ),
-          ),
-        ],
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            AppStrings.shopping.summaryPendingSubtitle,
-            style: TextStyle(fontSize: kFontSizeBody, color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: kSpacingMedium),
-
-          // ✅ אופציה 1: העבר לרשימה הבאה
-          PendingOptionTile(
-            icon: Icons.arrow_forward,
-            iconColor: cs.tertiary,
-            title: AppStrings.shopping.summaryPendingTransfer,
-            subtitle: AppStrings.shopping.summaryPendingTransferSubtitle,
-            onTap: () {
-              unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndTransferPending, storeName: _selectedStoreName));
-            },
-          ),
-
-          const SizedBox(height: kSpacingSmall),
-
-          // 📌 אופציה 2: השאר ברשימה
-          PendingOptionTile(
-            icon: Icons.pause_circle_outline,
-            iconColor: brand?.stickyOrange ?? kStickyOrange,
-            title: AppStrings.shopping.summaryPendingLeave,
-            subtitle: AppStrings.shopping.summaryPendingLeaveSubtitle,
-            onTap: () {
-              unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndLeavePending, storeName: _selectedStoreName));
-            },
-          ),
-
-          const SizedBox(height: kSpacingSmall),
-
-          // 🗑️ אופציה 3: מחק
-          PendingOptionTile(
-            icon: Icons.delete_outline,
-            iconColor: cs.error,
-            title: AppStrings.shopping.summaryPendingDelete,
-            subtitle: AppStrings.shopping.summaryPendingDeleteSubtitle,
-            onTap: () {
-              unawaited(HapticFeedback.mediumImpact());
-              Navigator.pop(context, ShoppingSummaryOutcome(ShoppingSummaryResult.finishAndDeletePending, storeName: _selectedStoreName));
-            },
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            setState(() => _showPendingOptions = false);
-          },
-          child: Text(AppStrings.shopping.summaryBack),
-        ),
-      ],
-    );
-  }
 }
 
-/// כרטיס אפשרות עבור pending items
-/// ✅ RTL-aware chevron + Semantics
-class PendingOptionTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const PendingOptionTile({super.key, 
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    // ✅ RTL-aware chevron: "קדימה" = שמאלה ב-RTL, ימינה ב-LTR
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
-    final chevronIcon = isRtl ? Icons.chevron_left : Icons.chevron_right;
-
-    return Semantics(
-      button: true,
-      label: '$title: $subtitle',
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-        child: Container(
-          padding: const EdgeInsets.all(kSpacingSmall),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(kBorderRadiusSmall),
-            border: Border.all(color: iconColor.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: iconColor, size: kIconSizeMedium),
-              const SizedBox(width: kSpacingSmall),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: cs.onSurface,
-                      ),
-                    ),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: kFontSizeSmall,
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(chevronIcon, color: cs.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// 🔄 פאזה 6: PendingOptionTile + _buildPendingOptionsDialog הוסרו —
+// אין יותר אפשרויות גלגול/מחיקה בסיום קנייה.
 
 // ========================================
 // Widget: אווטר קונה פעיל עם הילה פועמת
