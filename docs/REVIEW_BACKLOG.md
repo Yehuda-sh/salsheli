@@ -204,6 +204,10 @@
 - **🎯 Header חזר ל-tagline אחד (de-dup)**: ה-`subtitle` הקבוע מעל הקרוסלה היה "סורקים ברקוד והמלאי מתעדכן, רואים מה חסר, וקונים יחד בזמן אמת" — שלושת הפילרים verbatim, כך שכל עמוד בקרוסלה רק חזר על חלק ממנו (spoiler + שתי כותרות מתחרות). קוצר ל-umbrella promise: "המזווה יודע מה חסר — אתם רק קונים" (en: "Your pantry knows what's missing — you just shop"). עכשיו כל עמוד מגלה פילר בלי חזרה.
 - **סדר עמודים אושר**: מזווה → רשימה → שיתוף (= הסדר בקוד: `onboarding_pantry`→`shopping`→`sharing`). הצילום שהראה "שיתוף ראשון" יוחס להחלקה ידנית, לא לבאג. אין שינוי.
 - **תמונות onboarding — מקובל**: הטלפונים בצילומי הסטוק מציגים טקסט אנגלי ("Grocery List", "SPAGHETTI/PANTRY") ועמוד השיתוף בלי אפליקציה. המשתמש אישר שזה מקובל — אין החלפת נכסים.
+- **🎯 אייקון CTA: `person_add` → חץ קדימה locale-aware**: ה-`person_add` (דמות+) שידר "הזמן מישהו" ולא "צור חשבון". הוחלף ל-`isRtl ? arrow_back_rounded : arrow_forward_rounded` (אותה קונבנציה כמו onboarding_tips_card / pending_actions_card — בעברית RTL "קדימה" = חץ שמאלה).
+- **♿ A11y: הסרת תיוג כפול ב-trust chips**: כל `_BenefitChip` היה עטוף ב-`Semantics(label: text)` סביב Row שכבר מכיל את אותו `Text`, והאייקון הדקורטיבי לא הוחרג. הוסר ה-wrapper המיותר + `ExcludeSemantics` על ה-FaIcon (הטקסט עצמו נושא את ה-label).
+- **🟢 Social login — נשאר רק במסך ההרשמה (החלטה)**: שקלנו להוסיף Google/Apple למסך הפתיחה (נגיעה אחת). המשתמש בחר להשאיר את מסך הפתיחה מינימלי — Google/Apple צעד אחד פנימה במסך ההרשמה. אין שינוי.
+- **♿ Worm-dot RTL**: הצילום הראה נקודה ימנית פעילה לצד העמוד האחרון — יוחס להחלקה ידנית, לא לבאג. אומת מול הקוד: `pageOffset: isRtl ? (count-1-pageOffset) : pageOffset` תקין. אין שינוי.
 
 ### ✅ Decisions Made (סבב 1-2, 2/6/2026)
 - **Carousel = 3 pillars מובחנים**: עמוד 1 היה "שיתוף" (כפילות עם עמוד 3). שונה ל-"רשימות חכמות" (lists/catalog). עכשיו lists / pantry / sharing — בלי חזרה.

@@ -492,6 +492,10 @@ class _BottomSection extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final bgColor = brand?.paperBackground ?? kPaperBackground;
+    // "Forward / proceed" arrow flips with locale: arrow_back points left
+    // = forward in Hebrew RTL, arrow_forward (right) in English LTR. Same
+    // convention as onboarding_tips_card / pending_actions_card.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     // Solid paper panel. At ~92% opacity the old BackdropFilter blur was
     // barely visible yet cost a GPU pass every frame — an opaque panel
@@ -565,7 +569,9 @@ class _BottomSection extends StatelessWidget {
                 ),
                 child: FilledButton.icon(
                   onPressed: onRegister,
-                  icon: const Icon(Icons.person_add),
+                  icon: Icon(
+                    isRtl ? Icons.arrow_back_rounded : Icons.arrow_forward_rounded,
+                  ),
                   label: Text(
                     AppStrings.welcome.startButton,
                     style: const TextStyle(fontSize: kFontSizeLarge, fontWeight: FontWeight.w700),
@@ -667,13 +673,15 @@ class _BenefitChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Semantics(
-      label: text,
-      child: Row(
+    // The Text already provides the semantic label; the icon is pure
+    // decoration → ExcludeSemantics avoids a duplicate/garbled announcement.
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        FaIcon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: kOpacityStrong)),
+        ExcludeSemantics(
+          child: FaIcon(icon, size: kIconSizeSmallPlus, color: color.withValues(alpha: kOpacityStrong)),
+        ),
         const SizedBox(width: kSpacingSmall),
         Text(
           text,
@@ -684,7 +692,6 @@ class _BenefitChip extends StatelessWidget {
           ),
         ),
       ],
-    ),
     );
   }
 }
