@@ -1,11 +1,13 @@
 // lib/services/auth_service.dart — Auth service — Firebase Auth wrapper: login, register, social auth, delete account
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -407,6 +409,18 @@ class AuthService {
   ///   }
   /// }
   /// ```
+  /// מתעד כשל התחברות social ל-Crashlytics. ב-build מופץ (App Distribution)
+  /// הלוגים מושתקים, אז זו הדרך היחידה לראות את השגיאה האמיתית (למשל
+  /// PlatformException/ApiException של Google) ב-Firebase Console.
+  void _recordSocialError(String operation, Object error, StackTrace stack) {
+    unawaited(FirebaseCrashlytics.instance.recordError(
+      error,
+      stack,
+      reason: 'social login failed: $operation',
+      fatal: false,
+    ));
+  }
+
   Future<SocialLoginResult> signInWithGoogle() async {
     try {
 
@@ -429,9 +443,11 @@ class AuthService {
       return SocialLoginResult.fromCredential(userCredential);
     } on AuthException {
       rethrow;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      _recordSocialError('google/FirebaseAuth(${e.code})', e, st);
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
-    } catch (e) {
+    } catch (e, st) {
+      _recordSocialError('google', e, st);
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
         message: AppStrings.auth.socialLoginError,
@@ -481,7 +497,7 @@ class AuthService {
       final userCredential = await _auth.signInWithCredential(oauthCredential);
 
       return SocialLoginResult.fromCredential(userCredential);
-    } on SignInWithAppleAuthorizationException catch (e) {
+    } on SignInWithAppleAuthorizationException catch (e, st) {
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthException(
           code: AuthErrorCode.socialLoginCancelled,
@@ -489,6 +505,7 @@ class AuthService {
           originalError: e,
         );
       }
+      _recordSocialError('apple/authorization(${e.code})', e, st);
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
         message: AppStrings.auth.socialLoginError,
@@ -496,9 +513,11 @@ class AuthService {
       );
     } on AuthException {
       rethrow;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      _recordSocialError('apple/FirebaseAuth(${e.code})', e, st);
       throw AuthException.fromFirebaseCode(e.code, AppStrings.auth.socialLoginError);
-    } catch (e) {
+    } catch (e, st) {
+      _recordSocialError('apple', e, st);
       throw AuthException(
         code: AuthErrorCode.socialLoginFailed,
         message: AppStrings.auth.socialLoginError,

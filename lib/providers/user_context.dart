@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -479,14 +480,27 @@ class UserContext with ChangeNotifier {
         ? rawName
         : (result.email?.split('@').first ?? AppStrings.common.defaultUserName);
 
-    _user = await _repository.createUser(
-      userId: result.uid,
-      name: name,
-      email: result.email ?? '',
-      phone: result.phoneNumber ?? '',
-      seenOnboarding: true,
-      profileImageUrl: result.photoUrl, // ✅ שמירת תמונת פרופיל מ-Google/Apple
-    );
+    try {
+      _user = await _repository.createUser(
+        userId: result.uid,
+        name: name,
+        email: result.email ?? '',
+        phone: result.phoneNumber ?? '',
+        seenOnboarding: true,
+        profileImageUrl: result.photoUrl, // ✅ שמירת תמונת פרופיל מ-Google/Apple
+      );
+    } catch (e, st) {
+      // ההתחברות עצמה הצליחה אך יצירת רשומת המשתמש ב-Firestore נכשלה
+      // (למשל כללי אבטחה). ב-build מופץ הלוגים מושתקים — מתעדים ל-Crashlytics
+      // כדי לראות את הסיבה האמיתית ב-Firebase Console.
+      unawaited(FirebaseCrashlytics.instance.recordError(
+        e,
+        st,
+        reason: 'createUserFromSocialLogin failed',
+        fatal: false,
+      ));
+      rethrow;
+    }
   }
 
   /// התנתקות רגילה מהמערכת (שומר seenOnboarding)
