@@ -551,7 +551,7 @@ class IndexStringsEn extends IndexStrings {
 class WelcomeStringsEn extends WelcomeStrings {
   const WelcomeStringsEn();
 
-  @override String get subtitle => 'Scan a barcode and stock updates, see what\'s running low, and shop together in real time';
+  @override String get subtitle => 'Your pantry knows what\'s missing — you just shop';
 
   // Carousel — the product's actual loop: scan pantry → low-stock suggestions → shared store.
   // Page 1 (pantry image): barcode quick-scan decrements stock locally.

@@ -566,7 +566,9 @@ class IndexStrings {
 class WelcomeStrings {
   const WelcomeStrings();
 
-  String get subtitle => 'סורקים ברקוד והמלאי מתעדכן, רואים מה חסר, וקונים יחד בזמן אמת';
+  // tagline מותגי אחד (umbrella promise) — לא מפרט את 3 עמודי הקרוסלה,
+  // כדי שכל עמוד יגלה פילר חדש בלי spoiler מראש.
+  String get subtitle => 'המזווה יודע מה חסר — אתם רק קונים';
 
   // Carousel — the product's actual loop: scan pantry → low-stock suggestions → shared store.
   // Page 1 (pantry image): barcode quick-scan decrements stock locally.
