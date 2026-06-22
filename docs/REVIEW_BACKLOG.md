@@ -801,6 +801,12 @@
 - **🐛 RTL בדיאלוג שם הבית — תוקן** (היה Deferred): הוסר `textDirection: TextDirection.rtl` מקובע (שורה 135) ששבר שמות אנגליים. ה-app RTL גלובלית, TextField בוחר אוטומטית.
 - **אימות סיסמה — נשאר**: שקלנו להסיר (יש הצג/הסתר), המשתמש בחר לשמור — טעות הקלדה ברישום = נעילה מהחשבון.
 
+### ✅ Decisions Made (סבב 3, 22/6/2026 — תיקון race שהוכנס בסבב 2)
+- **🐛 Cancel-during-loading race**: ה-escape hatch (Cancel) רק הסתיר את ה-overlay, אבל ה-Future של ה-auth המשיך ברקע — וכשהצליח, בלוק ה-`if (mounted)` בכל זאת פתח את דיאלוג שם-הבית וניווט את המשתמש פנימה, **נגד הביטול**. נוסף דגל `_authAbandoned` (מתאפס ב-`_setLoading(true)`, נדלק ב-`_cancelLoading()`); כל בלוקי ה-UI שאחרי ה-await (success + catch, בכל 3 המסלולים) בודקים `mounted && !_authAbandoned`. הבלוקים המקוננים נשארו `mounted` בלבד — שם ה-overlay כבר נעלם וה-Cancel לא נגיש.
+
+### ⏸️ Deferred (סבב 3)
+- **משתמש שביטל אחרי שההרשמה כבר הצליחה ברקע**: נשאר רשום ב-Firebase (auth persists) אך תקוע במסך ההרשמה. ניסיון הרשמה חוזר → "אימייל כבר בשימוש". **אפשרות שיפור:** לזהות את המצב ולהציע מעבר להתחברות. **Trigger:** דיון על recovery flows. **היקף:** קטן. (מקובל כרגע — השגיאה עצמה רמז שימושי.)
+
 ### ⏸️ Deferred
 - **`_askHouseholdName` משתמש ב-raw `showDialog`** במקום `AppDialog.show`. כל שאר הדיאלוגים באפליקציה כבר עברו ל-AppDialog. **שאלה עיצובית פתוחה:** האם לאחד עם `showEditHouseholdNameDialog` (ה-shared dialog שעבדנו עליו) — הם דומים אבל ב-intent שונה (post-register עם Skip vs edit עם Cancel). **Trigger:** סקירה של edit_household_name_dialog או דיון מודע על איחוד הדיאלוגים. **היקף:** קטן-בינוני.
 - **`_phoneRegex` Israeli-only** (`^05[0-9]-?[0-9]{7}$`). חל רק אם המשתמש בכלל מילא טלפון (עכשיו אופציונלי). בסדר ל-launch בעברית, אבל אם האפליקציה תתרחב ל-locales אחרים — צריך לוקאל-aware. **Trigger:** הוספת locale חדש או דרישות בינ"ל. **היקף:** קטן.

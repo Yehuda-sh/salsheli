@@ -47,6 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
   // loading overlay surfaces a "taking longer" message + Cancel.
   Timer? _loadingTimeoutTimer;
   bool _loadingTakingLong = false;
+  // Set when the user taps Cancel on the "taking longer" escape hatch. The
+  // auth Future can't be aborted, so its completion handlers check this and
+  // bail out — otherwise a call that finishes *after* Cancel would still
+  // pop the household dialog and navigate the user in, against their intent.
+  bool _authAbandoned = false;
 
   // 🎬 Animation controller לשגיאות
   late AnimationController _shakeController;
@@ -90,6 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
     setState(() {
       _isLoading = loading;
       _loadingTakingLong = false;
+      if (loading) _authAbandoned = false; // fresh attempt
     });
     if (loading) {
       _loadingTimeoutTimer = Timer(const Duration(seconds: 10), () {
@@ -98,6 +104,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         }
       });
     }
+  }
+
+  /// User gave up on a stuck auth call. Dismisses the overlay and marks the
+  /// in-flight attempt abandoned so its (late) completion no-ops.
+  void _cancelLoading() {
+    _authAbandoned = true;
+    _setLoading(false);
   }
 
   void _togglePasswordVisibility() {
@@ -279,7 +292,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       if (kDebugMode) debugPrint('✅ _handleRegister() | Onboarding flag saved');
 
       // 🎉 הצגת feedback ויזואלי + שם בית + ניווט
-      if (mounted) {
+      // (מדלגים אם המשתמש ביטל את ההמתנה — לא לנווט נגד רצונו)
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
 
         // ✅ סוגר את הקשר ה-autofill כדי שמערכת ההפעלה תציע לשמור את הסיסמה החדשה
@@ -307,7 +321,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
 
       final errorMsg = userFriendlyError(e, context: 'register');
 
-      if (mounted) {
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
         unawaited(_shakeController.forward(from: 0)); // 🎬 Shake animation
         unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
@@ -348,7 +362,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
@@ -359,7 +373,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleGoogleSignIn: $e');
-      if (mounted) {
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
         // ✅ בדיקת ביטול לפי error code (לא string matching)
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
@@ -387,7 +401,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
 
-      if (mounted) {
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
         // 🏠 Ask for household name (same as email registration)
         await _askHouseholdName(userContext);
@@ -398,7 +412,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       }
     } catch (e) {
       if (kDebugMode) debugPrint('❌ _handleAppleSignIn: $e');
-      if (mounted) {
+      if (mounted && !_authAbandoned) {
         _setLoading(false);
         // ✅ בדיקת ביטול לפי error code (לא string matching)
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
@@ -886,7 +900,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                             ),
                             const SizedBox(height: kSpacingSmall),
                             OutlinedButton(
-                              onPressed: () => _setLoading(false),
+                              onPressed: _cancelLoading,
                               child: Text(AppStrings.common.cancel),
                             ),
                           ],
