@@ -175,13 +175,13 @@ void main() async {
         ),
         ChangeNotifierProxyProvider2<UserContext, InventoryProvider, ShoppingListsProvider>(
           create: (context) {
-            final provider = ShoppingListsProvider(repository: shoppingListsRepo, receiptRepository: receiptRepo);
+            final provider = ShoppingListsProvider(repository: shoppingListsRepo);
             provider.updateUserContext(context.read<UserContext>());
             return provider;
           },
           update: (context, userContext, inventoryProvider, previous) {
             final provider =
-                previous ?? ShoppingListsProvider(repository: shoppingListsRepo, receiptRepository: receiptRepo);
+                previous ?? ShoppingListsProvider(repository: shoppingListsRepo);
             provider.updateUserContext(userContext);
             // 🔄 פאזה 2: המזווה כותב את הרשימה — מסנכרן חוסרים בכל שינוי מזווה.
             //    fire-and-forget: הסנכרון idempotent (לא כותב אם אין שינוי).

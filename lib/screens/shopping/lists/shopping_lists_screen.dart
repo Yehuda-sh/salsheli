@@ -33,11 +33,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   String _searchQuery = '';
   String _sortBy = 'date_desc';
 
-  // 📦 היסטוריה - pagination
-  static const int _historyPageSize = 10;
-  int _currentHistoryLimit = 10;
-  int _previousHistoryLimit = 10; // 🎬 למעקב אנימציית "טען עוד"
-
   // 🔄 האם כבר ביקשנו טעינה ראשונית
   bool _initialLoadRequested = false;
 
@@ -360,7 +355,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                 onSubmitted: (value) {
                   setState(() {
                     _searchQuery = value.trim();
-                    _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
                   });
                   Navigator.pop(context);
                 },
@@ -386,7 +380,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
                       onPressed: () {
                         setState(() {
                           _searchQuery = controller.text.trim();
-                          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
                         });
                         Navigator.pop(context);
                       },
@@ -475,7 +468,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         unawaited(HapticFeedback.selectionClick());
         setState(() {
           _sortBy = value;
-          _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
         });
         Navigator.pop(context);
       },
@@ -488,7 +480,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     setState(() {
       _searchQuery = '';
       _sortBy = 'date_desc';
-      _currentHistoryLimit = _historyPageSize; _previousHistoryLimit = _historyPageSize; // 🔄 איפוס pagination
     });
   }
 
@@ -604,20 +595,20 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
       });
     }
 
-    // 🔍 סינון ומיון
+    // 🔍 סינון ומיון — 🔄 פאזה 6: רק רשימות פעילות. אין יותר "היסטוריה" של
+    // רשימות שהושלמו (הרשימה החיה לא מסתיימת); ההיסטוריה = טאב הקבלות.
     final activeLists = _getFilteredAndSortedActiveLists(provider.lists);
-    final completedLists = _getFilteredAndSortedCompletedLists(provider.lists);
 
-    if (activeLists.isEmpty && completedLists.isEmpty && provider.lists.isNotEmpty) {
+    if (activeLists.isEmpty && provider.lists.isNotEmpty) {
       // יש רשימות אבל הסינון ריק
       return _buildEmptySearchResults();
     }
 
-    if (activeLists.isEmpty && completedLists.isEmpty) {
+    if (activeLists.isEmpty) {
       return _buildEmptyState();
     }
 
-    return _buildListsView(activeLists, completedLists);
+    return _buildListsView(activeLists);
   }
 
   /// 🔍 סינון רשימות לפי סטטוס וחיפוש
@@ -634,14 +625,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
   List<ShoppingList> _getFilteredAndSortedActiveLists(List<ShoppingList> lists) {
     final filtered = _filterLists(lists, ShoppingList.statusActive);
     _sortLists(filtered);
-    return filtered;
-  }
-
-  /// 🔍 סינון ומיון רשימות היסטוריה
-  List<ShoppingList> _getFilteredAndSortedCompletedLists(List<ShoppingList> lists) {
-    final filtered = _filterLists(lists, ShoppingList.statusCompleted);
-    // מיון היסטוריה: תאריך עדכון יורד
-    filtered.sort((a, b) => b.updatedDate.compareTo(a.updatedDate));
     return filtered;
   }
 
@@ -674,16 +657,8 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
     }
   }
 
-  /// 📌 מציג פעילות + היסטוריה
-  Widget _buildListsView(List<ShoppingList> activeLists, List<ShoppingList> completedLists) {
-    // 🔧 FIX: כשיש סינון פעיל - הצג את כל ההיסטוריה (בלי pagination)
-    // כדי שהמשתמש יראה את כל התוצאות שמתאימות לחיפוש
-    final showAllHistory = _hasActiveFilters;
-    final limitedHistory = showAllHistory
-        ? completedLists
-        : completedLists.take(_currentHistoryLimit).toList();
-    final hasMoreHistory = !showAllHistory && completedLists.length > _currentHistoryLimit;
-
+  /// 📌 מציג את הרשימות הפעילות (🔄 פאזה 6: אין יותר סקשן היסטוריה)
+  Widget _buildListsView(List<ShoppingList> activeLists) {
     return ListView(
       // 📏 Padding מתואם לקווי המחברת (48px בין קווים)
       // 20px למעלה כדי שהכותרת תהיה בין הקווים
@@ -694,41 +669,6 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
           _buildSectionHeader(AppStrings.shopping.activeLists, activeLists.length),
           const SizedBox(height: kSpacingMedium),
           ..._buildListCards(activeLists, isActive: true),
-          const SizedBox(height: kSpacingLarge),
-        ],
-
-        // ✅ היסטוריה
-        if (limitedHistory.isNotEmpty) ...[
-          // 🔧 FIX: הוספת הערה שההיסטוריה ממוינת לפי עדכון אחרון
-          _buildSectionHeader(
-            AppStrings.shopping.historyLists,
-            completedLists.length,
-            subtitle: AppStrings.shopping.historyListsNote,
-            isActive: false, // 🔧 FIX: צבע ירוק להיסטוריה
-          ),
-          const SizedBox(height: kSpacingSmall),
-          ..._buildListCards(limitedHistory, isActive: false),
-
-          // כפתור "טען עוד" - רק אם לא בסינון
-          if (hasMoreHistory) ...[
-            const SizedBox(height: kSpacingMedium),
-            Center(
-              child: StickyButtonSmall(
-                color: Theme.of(context).extension<AppBrand>()?.stickyCyan ?? kStickyCyan,
-                label: AppStrings.shopping.loadMoreLists(completedLists.length - _currentHistoryLimit),
-                icon: Icons.expand_more,
-                onPressed: () {
-                  // ✨ Haptic feedback למשוב מישוש
-                  unawaited(HapticFeedback.selectionClick());
-
-                  setState(() {
-                    _previousHistoryLimit = _currentHistoryLimit;
-                    _currentHistoryLimit += _historyPageSize;
-                  });
-                },
-              ),
-            ),
-          ],
         ],
       ],
     );
@@ -860,14 +800,12 @@ class _ShoppingListsScreenState extends State<ShoppingListsScreen> {
         ),
       );
 
-      // 🎬 אנימציית כניסה - בטעינה ראשונית או ב"טען עוד"
-      final isNewlyLoaded = !isActive && index >= _previousHistoryLimit;
-      if ((shouldAnimate && index < maxAnimatedItems) || isNewlyLoaded) {
-        final animIndex = isNewlyLoaded ? index - _previousHistoryLimit : index;
+      // 🎬 אנימציית כניסה - בטעינה ראשונית
+      if (shouldAnimate && index < maxAnimatedItems) {
         return TweenAnimationBuilder<double>(
           key: ValueKey('anim_${list.id}'),
           tween: Tween(begin: 0.0, end: 1.0),
-          duration: Duration(milliseconds: 300 + (animIndex.clamp(0, 5) * 50)),
+          duration: Duration(milliseconds: 300 + (index.clamp(0, 5) * 50)),
           curve: Curves.easeOut,
           builder: (context, value, child) {
             return Opacity(

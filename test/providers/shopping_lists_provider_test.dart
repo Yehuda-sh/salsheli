@@ -414,7 +414,6 @@ Future<ShoppingListsProvider> _buildProvider({
 }) async {
   final provider = ShoppingListsProvider(
     repository: mockRepo,
-    receiptRepository: mockReceipts,
     activityLog: _StubActivityLog(),
     autoEnsureDefaultList: autoEnsureDefaultList,
   );
@@ -447,16 +446,6 @@ ShoppingList _makeList({
     activeShoppers: activeShoppers,
   );
 }
-
-/// Convenience: a checked [UnifiedListItem].
-UnifiedListItem _makeCheckedItem(String id, String name) =>
-    UnifiedListItem.product(
-      id: id,
-      name: name,
-      quantity: 1,
-      unitPrice: 0.0,
-      isChecked: true,
-    );
 
 /// Convenience: an [InventoryItem] to feed `syncMissingFromPantry`
 /// (the provider treats every item passed in as a "missing" item).
@@ -1121,80 +1110,7 @@ void main() {
     });
   });
 
-  // ===========================================================================
-  // addToNextList
-  // ===========================================================================
-  group('ShoppingListsProvider - addToNextList', () {
-    test('creates new list when no active lists exist', () async {
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      final items = [
-        UnifiedListItem.product(
-            id: 'i1', name: 'חלב', quantity: 2, unitPrice: 0.0),
-      ];
-      await provider.addToNextList(items);
-
-      expect(provider.lists.length, 1);
-      expect(provider.lists.first.items.length, 1);
-      expect(provider.lists.first.items.first.name, 'חלב');
-
-      provider.dispose();
-    });
-
-    test('adds to existing active list', () async {
-      mockRepo.setInitialLists([_makeList(id: 'existing')]);
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      final items = [
-        UnifiedListItem.product(
-            id: 'new1', name: 'גבינה', quantity: 1, unitPrice: 0.0),
-      ];
-      await provider.addToNextList(items);
-
-      // A new list should NOT have been created
-      expect(provider.lists.length, 1);
-      expect(provider.getById('existing')!.items.length, 1);
-      expect(provider.getById('existing')!.items.first.name, 'גבינה');
-
-      provider.dispose();
-    });
-
-    test('deduplicates items by name (case-insensitive)', () async {
-      final existingItems = [
-        UnifiedListItem.product(
-            id: 'e1', name: 'חלב', quantity: 1, unitPrice: 0.0),
-      ];
-      mockRepo.setInitialLists([_makeList(id: 'l1', items: existingItems)]);
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      // Try to add the same item again (different id, same name)
-      final duplicates = [
-        UnifiedListItem.product(
-            id: 'dup', name: 'חלב', quantity: 3, unitPrice: 0.0),
-      ];
-      await provider.addToNextList(duplicates);
-
-      // Should still be only 1 item (duplicate skipped)
-      expect(provider.getById('l1')!.items.length, 1);
-
-      provider.dispose();
-    });
-
-    test('no-op when items list is empty', () async {
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      await provider.addToNextList([]);
-
-      expect(provider.lists, isEmpty);
-      expect(mockRepo.saveCallCount, 0);
-
-      provider.dispose();
-    });
-  });
+  // 🔄 פאזה 6: בדיקות addToNextList הוסרו — השיטה הוסרה (אין "רשימה הבאה").
 
   // ===========================================================================
   // Collaborative Shopping — start / join / leave
@@ -1385,57 +1301,7 @@ void main() {
     });
   });
 
-  // ===========================================================================
-  // finishCollaborativeShopping
-  // ===========================================================================
-  group('ShoppingListsProvider - finishCollaborativeShopping', () {
-    test('marks list completed and creates receipt for checked items', () async {
-      final starter = ActiveShopper.starter(userId: 'u-test');
-      final items = [_makeCheckedItem('i0', 'חלב'), _makeCheckedItem('i1', 'לחם')];
-      mockRepo.setInitialLists([_makeList(id: 'l1', activeShoppers: [starter], items: items)]);
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      await provider.finishCollaborativeShopping('l1', 'u-test');
-
-      expect(provider.getById('l1')!.status, ShoppingList.statusCompleted);
-      expect(mockReceipts.saveCallCount, 1);
-      expect(mockReceipts.lastSaved!.items.length, 2);
-
-      provider.dispose();
-    });
-
-    test('throws when caller is not the Starter', () async {
-      final starter = ActiveShopper.starter(userId: 'u-starter');
-      mockRepo.setInitialLists([_makeList(id: 'l1', activeShoppers: [starter])]);
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      await expectLater(
-        provider.finishCollaborativeShopping('l1', 'u-not-starter'),
-        throwsA(isA<Exception>()),
-      );
-
-      provider.dispose();
-    });
-
-    test('does not save receipt when no items are checked', () async {
-      final starter = ActiveShopper.starter(userId: 'u-test');
-      final items = [
-        UnifiedListItem.product(
-            id: 'i0', name: 'חלב', quantity: 1, unitPrice: 0.0),
-      ]; // not checked
-      mockRepo.setInitialLists([_makeList(id: 'l1', activeShoppers: [starter], items: items)]);
-      final provider = await _buildProvider(
-          mockRepo: mockRepo, mockReceipts: mockReceipts, userContext: userCtx);
-
-      await provider.finishCollaborativeShopping('l1', 'u-test');
-
-      expect(mockReceipts.saveCallCount, 0);
-
-      provider.dispose();
-    });
-  });
+  // 🔄 פאזה 6: בדיקות finishCollaborativeShopping הוסרו — השיטה הוסרה.
 
   // ===========================================================================
   // cleanupAbandonedSessions

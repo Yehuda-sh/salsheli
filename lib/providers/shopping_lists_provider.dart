@@ -14,11 +14,9 @@ import '../models/enums/item_type.dart';
 import '../models/enums/shopping_item_status.dart';
 import '../models/enums/user_role.dart';
 import '../models/inventory_item.dart';
-import '../models/receipt.dart';
 import '../models/selected_contact.dart';
 import '../models/shopping_list.dart';
 import '../models/unified_list_item.dart';
-import '../repositories/receipt_repository.dart';
 import '../repositories/shopping_lists_repository.dart';
 import '../services/activity_log_service.dart';
 import '../services/analytics_service.dart';
@@ -27,7 +25,6 @@ import 'user_context.dart';
 
 class ShoppingListsProvider with ChangeNotifier {
   final ShoppingListsRepository _repository;
-  final ReceiptRepository _receiptRepository;
   final _uuid = const Uuid();
   final ActivityLogService _activityLog;
 
@@ -57,11 +54,9 @@ class ShoppingListsProvider with ChangeNotifier {
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
-    required ReceiptRepository receiptRepository,
     ActivityLogService? activityLog,
     this.autoEnsureDefaultList = true,
   })  : _repository = repository,
-        _receiptRepository = receiptRepository,
         _activityLog = activityLog ?? ActivityLogService();
 
   // === Safe Notify ===
@@ -763,75 +758,8 @@ class ShoppingListsProvider with ChangeNotifier {
     await updateList(updatedList);
   }
 
-  /// מוסיף פריטים לרשימה הבאה (אוטומטי)
-  ///
-  /// ✅ לוגיקה משופרת:
-  /// 1. מחפש רשימה פעילה קיימת (כולל רשימת ברירת מחדל!)
-  /// 2. אם אין → יוצר רשימה חדשה עם שם ברירת מחדל
-  /// 3. מוסיף פריטים עם מניעת כפילויות
-  Future<void> addToNextList(List<UnifiedListItem> items) async {
-
-    if (items.isEmpty) {
-      return;
-    }
-
-    final userId = _userContext?.user?.id;
-    final householdId = _userContext?.user?.householdId;
-
-    if (userId == null || householdId == null) {
-      throw Exception('❌ משתמש לא מחובר');
-    }
-
-    _errorMessage = null;
-
-    try {
-      final defaultListName = AppStrings.shopping.defaultShoppingListName;
-
-      // ✅ לוגיקה משופרת: מחפש רשימה פעילה קיימת (כולל ברירת מחדל!)
-      // עדיפות: 1) רשימת ברירת מחדל פעילה 2) רשימה אחרת פעילה 3) יצירה חדשה
-      ShoppingList? targetList;
-
-      // 1. חפש רשימת ברירת מחדל פעילה
-      targetList = activeLists.where((list) => list.name == defaultListName).firstOrNull;
-
-      // 2. אם אין, חפש רשימה אחרת פעילה
-      targetList ??= activeLists.firstOrNull;
-
-      if (targetList == null) {
-        // 3. אין רשימות פעילות → צור רשימה חדשה
-        await createList(
-          name: defaultListName,
-          items: items,
-        );
-      } else {
-        // הוסף לרשימה קיימת - עם בדיקת כפילויות
-
-        // 🔧 מניעת כפילויות - בודק לפי id ושם
-        final existingIds = targetList.items.map((i) => i.id).toSet();
-        final existingNames = targetList.items
-            .map((i) => i.name.toLowerCase())
-            .toSet();
-
-        final newItems = items.where((item) {
-          // בדוק גם לפי id וגם לפי שם
-          return !existingIds.contains(item.id) &&
-                 !existingNames.contains(item.name.toLowerCase());
-        }).toList();
-
-        if (newItems.isEmpty) {
-          return;
-        }
-
-        final updatedItems = [...targetList.items, ...newItems];
-        final updatedList = targetList.copyWith(items: updatedItems);
-        await updateList(updatedList);
-      }
-    } catch (e) {
-      _errorMessage = userFriendlyError(e, context: 'addItemsToNextList');
-      _notifySafe();
-      rethrow;
-    }
-  }
+  // 🔄 פאזה 6: addToNextList הוסר — אין יותר "רשימה הבאה"/גלגול. הרשימה
+  // החיה אחת וקבועה; מה שלא נקנה פשוט נשאר בה.
 
   // ==========================================
   // 🔄 פאזה 3 — רשימה אחת קבועה ("הרשימה החיה")
@@ -1181,80 +1109,8 @@ class ShoppingListsProvider with ChangeNotifier {
     }
   }
 
-  /// מסיים קנייה משותפת - רק ה-Starter יכול!
-  /// יוצר קבלה וירטואלית מכל הפריטים המסומנים
-  /// 
-  /// Example:
-  /// ```dart
-  /// await provider.finishCollaborativeShopping(listId, userId);
-  /// ```
-  Future<void> finishCollaborativeShopping(String listId, String userId) async {
-    final list = getById(listId);
-    if (list == null) {
-      throw Exception('רשימה $listId לא נמצאה');
-    }
-
-    // בדוק שהמשתמש יכול לסיים (רק Starter)
-    if (!list.canUserFinish(userId)) {
-      throw Exception('רק מי שהתחיל את הקנייה יכול לסיים');
-    }
-
-    _errorMessage = null;
-
-    try {
-      // 1. סמן את כל הקונים כלא פעילים
-      final inactiveShoppers = list.activeShoppers.map((shopper) {
-        return shopper.copyWith(isActive: false);
-      }).toList();
-
-      // 2. מצא פריטים מסומנים (רק Products)
-      final checkedItems = list.items
-          .where((item) => item.isChecked && item.type == ItemType.product)
-          .map((item) => ReceiptItem(
-                id: item.id,
-                name: item.name,
-                quantity: item.quantity ?? 0,
-                unitPrice: item.unitPrice ?? 0.0,
-                unit: item.unit,
-                barcode: item.barcode,
-                isChecked: item.isChecked,
-              ))
-          .toList();
-
-      // 3. צור קבלה וירטואלית
-      if (checkedItems.isNotEmpty) {
-        final householdId = _userContext?.user?.householdId;
-        if (householdId == null) {
-          throw Exception('household_id לא נמצא');
-        }
-
-        final receipt = Receipt.virtual(
-          linkedShoppingListId: listId,
-          createdBy: userId,
-          householdId: householdId,
-          storeName: list.name,
-          items: checkedItems,
-          date: DateTime.now(),
-        );
-
-        // שמור קבלה ב-ReceiptRepository
-        await _receiptRepository.saveReceipt(receipt: receipt, householdId: householdId);
-      }
-
-      // 4. עדכן רשימה: סטטוס + inactiveShoppers
-      final updatedList = list.copyWith(
-        status: ShoppingList.statusCompleted,
-        activeShoppers: inactiveShoppers,
-        updatedDate: DateTime.now(),
-      );
-
-      await updateList(updatedList);
-    } catch (e) {
-      _errorMessage = userFriendlyError(e, context: 'finishShopping');
-      _notifySafe();
-      rethrow;
-    }
-  }
+  // 🔄 פאזה 6: finishCollaborativeShopping הוסר — היה מסמן את הרשימה
+  // "הושלמה" (מודל ישן). הסיום עכשיו דרך finishShoppingKeepListActive.
 
   /// 🔄 פאזה 6 — מסיים סשן קנייה ומשאיר את הרשימה החיה **פעילה**.
   ///

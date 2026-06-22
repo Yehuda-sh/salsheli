@@ -1,4 +1,4 @@
-// lib/screens/home/dashboard/home_dashboard_screen.dart — Home dashboard — active shopping banner, action center, lists, activity feed
+// lib/screens/home/dashboard/home_dashboard_screen.dart — Home dashboard — error banner, active-shopper banner, pending actions, action center, active lists, onboarding tips
 
 import 'dart:async';
 
