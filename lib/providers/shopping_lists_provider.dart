@@ -49,11 +49,17 @@ class ShoppingListsProvider with ChangeNotifier {
   final bool _useRealTimeUpdates = true; // ניתן לכבות אם יש בעיות
   bool _isDisposed = false;
   bool _didCleanupSessions = false;
+  bool _isEnsuringDefaultList = false; // 🔄 פאזה 3 — מניעת יצירה כפולה של הרשימה החיה
+
+  /// 🔄 פאזה 3: יצירה אוטומטית של "הרשימה החיה" כשאין רשימה פעילה.
+  /// ברירת מחדל true (פרודקשן). בדיקות שצריכות מצב ריק מבוקר מעבירות false.
+  final bool autoEnsureDefaultList;
 
   ShoppingListsProvider({
     required ShoppingListsRepository repository,
     required ReceiptRepository receiptRepository,
     ActivityLogService? activityLog,
+    this.autoEnsureDefaultList = true,
   })  : _repository = repository,
         _receiptRepository = receiptRepository,
         _activityLog = activityLog ?? ActivityLogService();
@@ -196,6 +202,8 @@ class ShoppingListsProvider with ChangeNotifier {
         _errorMessage = null;
         _notifySafe();
 
+        // 🔄 פאזה 3: רשימה אחת קבועה — אם אין אף רשימה פעילה, צור את הרשימה החיה.
+        unawaited(_ensureDefaultListExists());
       },
       onError: (error) {
         if (_isDisposed) return;
@@ -822,6 +830,36 @@ class ShoppingListsProvider with ChangeNotifier {
       _errorMessage = userFriendlyError(e, context: 'addItemsToNextList');
       _notifySafe();
       rethrow;
+    }
+  }
+
+  // ==========================================
+  // 🔄 פאזה 3 — רשימה אחת קבועה ("הרשימה החיה")
+  // ==========================================
+
+  /// 🔄 מבטיח שתמיד קיימת רשימה פעילה אחת — "הרשימה החיה" (LIVE_LIST_SPEC §8).
+  ///
+  /// נקרא אחרי כל עדכון מה-stream. אם אין אף רשימה פעילה (משתמש חדש, או אחרי
+  /// שכל הרשימות הושלמו/אורכבו) — יוצר את רשימת ברירת המחדל. כך המשתמש תמיד
+  /// נוחת על רשימה, ואפשר להסיר בבטחה את כפתורי "רשימה חדשה".
+  ///
+  /// 🛡️ מוגן מפני יצירה כפולה ב-flag, ובודק שוב אחרי ה-guard (race-safe מול
+  ///    עדכוני stream שמגיעים תוך כדי היצירה). idempotent — לא יוצר אם כבר יש.
+  Future<void> _ensureDefaultListExists() async {
+    if (!autoEnsureDefaultList) return;
+    if (_isDisposed || _isEnsuringDefaultList) return;
+    // צריך משתמש + household כדי ליצור, ורק אם אין כבר רשימה פעילה
+    if (_userContext?.user?.householdId == null) return;
+    if (activeLists.isNotEmpty) return;
+
+    _isEnsuringDefaultList = true;
+    try {
+      if (activeLists.isNotEmpty) return; // בדיקה כפולה אחרי ה-guard
+      await createList(name: AppStrings.shopping.defaultShoppingListName);
+    } catch (_) {
+      // נכשל — ננסה שוב ב-emit הבא של ה-stream (בלי להציף שגיאה למשתמש)
+    } finally {
+      _isEnsuringDefaultList = false;
     }
   }
 

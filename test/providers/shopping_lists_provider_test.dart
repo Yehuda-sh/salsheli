@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:memozap/l10n/app_strings.dart';
 import 'package:memozap/models/active_shopper.dart';
 import 'package:memozap/models/activity_event.dart';
 import 'package:memozap/models/enums/shopping_item_status.dart';
@@ -407,11 +408,15 @@ Future<ShoppingListsProvider> _buildProvider({
   required MockShoppingListsRepository mockRepo,
   required MockReceiptRepository mockReceipts,
   required UserContext userContext,
+  // 🔄 פאזה 3: ברוב הבדיקות נכבה את היצירה האוטומטית כדי לשלוט במצב הרשימות.
+  // הבדיקות הייעודיות ל"רשימה אחת קבועה" מדליקות אותה במפורש.
+  bool autoEnsureDefaultList = false,
 }) async {
   final provider = ShoppingListsProvider(
     repository: mockRepo,
     receiptRepository: mockReceipts,
     activityLog: _StubActivityLog(),
+    autoEnsureDefaultList: autoEnsureDefaultList,
   );
   provider.updateUserContext(userContext);
   // Two rounds of microtasks:
@@ -694,6 +699,57 @@ void main() {
         throwsA(isA<Exception>()),
       );
 
+      provider.dispose();
+    });
+  });
+
+  // ===========================================================================
+  // autoEnsureDefaultList (פאזה 3 — רשימה אחת קבועה)
+  // ===========================================================================
+  group('ShoppingListsProvider - autoEnsureDefaultList', () {
+    test('auto-creates the live list when no active list exists', () async {
+      // אין רשימות התחלתיות + הדגל דלוק
+      final provider = await _buildProvider(
+        mockRepo: mockRepo,
+        mockReceipts: mockReceipts,
+        userContext: userCtx,
+        autoEnsureDefaultList: true,
+      );
+
+      expect(provider.activeLists.length, 1);
+      expect(provider.activeLists.first.name,
+          AppStrings.shopping.defaultShoppingListName);
+
+      provider.dispose();
+    });
+
+    test('does not create a second list when one already exists', () async {
+      mockRepo.setInitialLists([_makeList(id: 'existing')]);
+      final provider = await _buildProvider(
+        mockRepo: mockRepo,
+        mockReceipts: mockReceipts,
+        userContext: userCtx,
+        autoEnsureDefaultList: true,
+      );
+
+      expect(provider.activeLists.length, 1);
+      expect(provider.activeLists.first.id, 'existing');
+
+      provider.dispose();
+    });
+
+    test('does not create duplicates across repeated stream emissions', () async {
+      final provider = await _buildProvider(
+        mockRepo: mockRepo,
+        mockReceipts: mockReceipts,
+        userContext: userCtx,
+        autoEnsureDefaultList: true,
+      );
+
+      // נותן זמן לכמה מחזורי stream (יצירה → re-emit → בדיקה חוזרת)
+      await Future.delayed(const Duration(milliseconds: 80));
+
+      expect(provider.activeLists.length, 1);
       provider.dispose();
     });
   });
