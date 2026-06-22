@@ -510,91 +510,18 @@ async function main() {
         reviewer_id: null, reviewed_at: null, requester_name: 'נועה כהן', reviewer_name: null },
     ],
     active_shoppers: [],
-    items: weeklyProducts.map((p, i) => makeProductItem(p, i, { id: `item_cw_${i}`, isChecked: i < 4 })),
-  });
-  console.log('   📋 כהן: קניות שבועיות (supermarket, 14 items, 2 pending + 1 approved + 1 rejected)');
-
-  // ── COHEN: Fruit & veg — ACTIVE SHOPPING by רונית + אבי (2 shoppers!) ──
-  const greenProducts = pickRandom(byCategory(products, 'פירות וירקות').filter(p => p.sourceFile === 'supermarket'), 10);
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_green').set({
-    id: 'list_cohen_green', name: 'ירקות ופירות לשבוע', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
-    format: 'shared', created_from_template: false,
-    created_date: ts(hoursAgo(5)), updated_date: ts(hoursAgo(0.3)),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [],
-    active_shoppers: [
-      makeActiveShopper(uids.ronit, hoursAgo(0.5), true),
-      makeActiveShopper(uids.avi, hoursAgo(0.3), false),
-    ],
-    items: greenProducts.map((p, i) => makeProductItem(p, i, {
-      id: `item_cg_${i}`, isChecked: i < 4,
-      checkedBy: i < 4 ? (i < 2 ? uids.ronit : uids.avi) : null,
-      checkedAt: i < 4 ? ts(hoursAgo(0.3)) : null,
-    })),
-  });
-  console.log('   📋 כהן: ירקות ופירות (supermarket, 2 ACTIVE SHOPPERS, 4/10 checked)');
-
-  // ── COHEN: Bakery for shabbat ──
-  const bakeryProducts = pickRandom(byCategory(products, 'לחם ומאפים').filter(p => p.sourceFile === 'supermarket'), 5);
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_bakery').set({
-    id: 'list_cohen_bakery', name: 'מאפייה לשבת 🥖', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
-    format: 'shared', created_from_template: false,
-    created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(3)),
-    shared_with: [uids.avi, uids.noa],
-    shared_users: {
-      [uids.noa]: { role: 'editor', shared_at: ts(daysAgo(7)), user_name: 'נועה כהן', user_email: 'noa.cohen@demo.com', can_start_shopping: true },
-    },
-    pending_requests: [], active_shoppers: [],
-    items: bakeryProducts.map((p, i) => makeProductItem(p, i, { id: `item_bk_${i}`, isChecked: i === 0, notes: i === 0 ? 'הגדולה, לא הקטנה' : null })),
-  });
-  console.log('   📋 כהן: מאפייה לשבת (supermarket, 5 items)');
-
-  // ── COHEN: Meat & fish for friday ──
-  const butcherProducts = pickRandom(byCategory(products, 'בשר ודגים').filter(p => p.sourceFile === 'supermarket'), 6);
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_butcher').set({
-    id: 'list_cohen_butcher', name: 'קצביה ליום שישי 🥩', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.avi,
-    format: 'shared', created_from_template: false,
-    created_date: ts(daysAgo(2)), updated_date: ts(hoursAgo(1)),
-    shared_with: [uids.ronit], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: butcherProducts.map((p, i) => makeProductItem(p, i, { id: `item_bt_${i}`, isChecked: i < 2 })),
-  });
-  console.log('   📋 כהן: קצביה (supermarket, 6 items, 2/6 checked)');
-
-  // ── COHEN: Mixed products + tasks ──
-  const mixedProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'שימורים', 'מוצרי ניקיון', 'ממתקים וחטיפים').filter(p => p.sourceFile === 'supermarket'), 6);
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_mixed').set({
-    id: 'list_cohen_mixed', name: 'קניות + משימות לשבת', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.avi,
-    format: 'shared', created_from_template: false,
-    created_date: ts(hoursAgo(8)), updated_date: ts(hoursAgo(1)),
-    shared_with: [uids.ronit, uids.yuval],
-    shared_users: {
-      [uids.yuval]: { role: 'editor', shared_at: ts(daysAgo(7)), user_name: 'יובל כהן', user_email: 'yuval.cohen@demo.com', can_start_shopping: true },
-    },
-    pending_requests: [], active_shoppers: [],
+    // 🔄 פאזה 3: רשימה אחת קבועה לכל בית. הרשימה החיה של כהן מרכזת מוצרים +
+    // משימות (לשעבר רשימת "מעורב") כדי לשמר הדגמת מוצרים+משימות באותה רשימה.
     items: [
-      ...mixedProducts.map((p, i) => makeProductItem(p, i, { id: `item_mix_p${i}`, isChecked: i < 2 })),
-      makeTaskItem('item_mix_t0', 'לנקות את המקרר', { notes: 'לפני שמכניסים קניות', priority: 'high' }),
-      makeTaskItem('item_mix_t1', 'להוציא בשר מהמקפיא', { isChecked: true, notes: 'לארוחת שבת' }),
-      makeTaskItem('item_mix_t2', 'לבדוק תאריכי תפוגה במזווה', {}),
-      makeTaskItem('item_mix_t3', 'להזמין גז', { notes: 'אמישראגז 1-800-225-225', priority: 'high' }),
+      ...weeklyProducts.map((p, i) => makeProductItem(p, i, { id: `item_cw_${i}`, isChecked: i < 4 })),
+      makeTaskItem('item_cw_t0', 'לנקות את המקרר', { notes: 'לפני שמכניסים קניות', priority: 'high' }),
+      makeTaskItem('item_cw_t1', 'לבדוק תאריכי תפוגה במזווה', {}),
     ],
   });
-  console.log('   📋 כהן: קניות + משימות (supermarket, 6 products + 4 tasks)');
+  console.log('   📋 כהן: קניות שבועיות (הרשימה החיה — 14 מוצרים + 2 משימות, 2 בקשות ממתינות)');
 
-  // ── COHEN: Household supplies ──
-  const houseProducts = pickRandom(byCategory(products, 'מוצרי בית', 'מוצרי ניקיון').filter(p => p.sourceFile === 'supermarket'), 8);
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_household').set({
-    id: 'list_cohen_household', name: 'צרכי בית 🏠', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.ronit,
-    format: 'shared', created_from_template: false,
-    created_date: ts(daysAgo(5)), updated_date: ts(daysAgo(1)),
-    shared_with: [uids.avi], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: houseProducts.map((p, i) => makeProductItem(p, i, { id: `item_ch_${i}`, isChecked: i < 3 })),
-  });
-  console.log('   📋 כהן: צרכי בית (supermarket, 8 items)');
+  // 🔄 פאזה 3: רשימות כהן הנוספות (ירקות/מאפייה/קצביה/מעורב/צרכי בית) הוסרו —
+  // בית אחד = רשימה פעילה אחת. תרחיש "קנייה פעילה" (2 קונים) עבר לבית לוי.
 
   // ── COHEN: Last week completed ──
   const lastWeekProducts = pickRandom(products.filter(p => p.sourceFile === 'supermarket' && p.price), 15);
@@ -620,29 +547,26 @@ async function main() {
   });
   console.log('   📋 כהן: חג פסח 2025 (ARCHIVED, 20 items)');
 
-  // ── LEVI: Active supermarket ──
-  const leviProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'פירות וירקות', 'משקאות', 'אורז ופסטה'), 7);
+  // ── LEVI: Live list — ACTIVE SHOPPING by מאיה + דן (2 shoppers!) ──
+  // 🔄 פאזה 3: בית אחד = רשימה פעילה אחת. תרחיש הקנייה הפעילה (2 קונים) רוכז כאן.
+  const leviProducts = pickRandom(byCategory(products, 'מוצרי חלב', 'פירות וירקות', 'משקאות', 'אורז ופסטה'), 10);
   await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_weekly').set({
     id: 'list_levi_weekly', name: 'רשימה לסופר', status: 'active', type: 'supermarket',
     budget: 500, is_shared: true, is_private: false, created_by: uids.maya,
     format: 'shared', created_from_template: false,
-    created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(3)),
-    shared_with: [uids.dan], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: leviProducts.map((p, i) => makeProductItem(p, i, { id: `item_lv_${i}`, isChecked: i < 2 })),
+    created_date: ts(daysAgo(1)), updated_date: ts(hoursAgo(0.3)),
+    shared_with: [uids.dan], shared_users: {}, pending_requests: [],
+    active_shoppers: [
+      makeActiveShopper(uids.maya, hoursAgo(0.5), true),
+      makeActiveShopper(uids.dan, hoursAgo(0.3), false),
+    ],
+    items: leviProducts.map((p, i) => makeProductItem(p, i, {
+      id: `item_lv_${i}`, isChecked: i < 4,
+      checkedBy: i < 4 ? (i < 2 ? uids.maya : uids.dan) : null,
+      checkedAt: i < 4 ? ts(hoursAgo(0.3)) : null,
+    })),
   });
-  console.log('   📋 לוי: רשימה לסופר (supermarket, 7 items)');
-
-  // ── LEVI: Open-air market staples (varied supermarket categories) ──
-  const marketProducts = pickRandom(byCategory(products, 'פירות וירקות', 'בשר ודגים', 'תבלינים ואפייה', 'אגוזים וגרעינים').filter(p => p.sourceFile === 'supermarket'), 8);
-  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_market').set({
-    id: 'list_levi_market', name: 'שוק מחנה יהודה 🏪', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.dan,
-    format: 'shared', created_from_template: false,
-    created_date: ts(daysAgo(3)), updated_date: ts(daysAgo(1)),
-    shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: marketProducts.map((p, i) => makeProductItem(p, i, { id: `item_mk_${i}`, isChecked: i < 3 })),
-  });
-  console.log('   📋 לוי: שוק מחנה יהודה (supermarket, 8 items)');
+  console.log('   📋 לוי: רשימה לסופר (הרשימה החיה — קנייה פעילה, 2 קונים, 4/10 סומנו)');
 
   // ── TOMER: Toiletries & health (private) ──
   const pharmProducts = pickRandom(byCategory(products, 'היגיינה אישית', 'קוסמטיקה וטיפוח', 'תוספי תזונה').filter(p => p.sourceFile === 'supermarket'), 5);
@@ -659,20 +583,7 @@ async function main() {
   });
   console.log('   📋 תומר: סופרפארם (supermarket, private, 5 products + 1 task)');
 
-  // ── TOMER: "Other" type list ──
-  await db.collection('users').doc(uids.tomer).collection('private_lists').doc('list_tomer_misc').set({
-    id: 'list_tomer_misc', name: 'דברים לקנות 📝', status: 'active', type: 'other',
-    budget: null, is_shared: false, is_private: true, created_by: uids.tomer,
-    format: 'personal', created_from_template: false,
-    created_date: ts(daysAgo(7)), updated_date: ts(daysAgo(2)),
-    shared_with: [], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: [
-      makeTaskItem('item_misc_0', 'סוללות AA', { priority: 'medium' }),
-      makeTaskItem('item_misc_1', 'מטען לאייפון', { isChecked: true }),
-      makeTaskItem('item_misc_2', 'מפתח חלופי לבית', { priority: 'high' }),
-    ],
-  });
-  console.log('   📋 תומר: דברים לקנות (OTHER type, 3 tasks)');
+  // 🔄 פאזה 3: רשימת "דברים לקנות" של תומר הוסרה — משתמש סולו = רשימה פעילה אחת.
 
   // ── SHIRAN: Empty list (0 items — tests empty state) ──
   await db.collection('users').doc(uids.shiran).collection('private_lists').doc('list_shiran_empty').set({
@@ -928,7 +839,7 @@ async function main() {
   await createActivityEvents(hIds.cohen, [
     makeActivityEvent('act_cohen_1', hIds.cohen, 'list_created', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_type: 'supermarket', list_id: 'list_cohen_weekly' }, daysAgo(7)),
     makeActivityEvent('act_cohen_2', hIds.cohen, 'stock_updated', uids.yuval, 'יובל כהן', { product_name: 'חלב תנובה 3%', quantity: 1 }, daysAgo(6)),
-    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'ירקות ופירות', list_id: 'list_cohen_green' }, daysAgo(6)),
+    makeActivityEvent('act_cohen_3', hIds.cohen, 'shopping_started', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(6)),
     // NEW: list_shared — Ronit shared the weekly list with the household.
     makeActivityEvent('act_cohen_share', hIds.cohen, 'list_shared', uids.ronit, 'רונית כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(5)),
     makeActivityEvent('act_cohen_4', hIds.cohen, 'shopping_started', uids.avi, 'אבי כהן', { list_name: 'קניות שבועיות', list_id: 'list_cohen_weekly' }, daysAgo(3)),
@@ -1145,10 +1056,10 @@ async function main() {
   await createNotifications(uids.maya, [
     makeNotification('notif_maya_1', uids.maya, hIds.levi, 'low_stock', 'מלאי נמוך', 'המלאי של "חלב טרי 3%" נגמר', { createdAt: hoursAgo(6), actionData: { productName: 'חלב טרי 3%' } }),
     makeNotification('notif_maya_2', uids.maya, hIds.levi, 'low_stock', 'מלאי נמוך', 'נשאר מעט "מיץ תפוזים"', { createdAt: hoursAgo(4), actionData: { productName: 'מיץ תפוזים' } }),
-    makeNotification('notif_maya_3', uids.maya, hIds.levi, 'invite', 'הזמנה לרשימה', 'דן יצר רשימה חדשה "שוק מחנה יהודה 🏪"', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.dan, senderName: 'דן לוי', actionData: { listId: 'list_levi_market' } }),
-    makeNotification('notif_maya_4', uids.maya, hIds.levi, 'invite', 'הזמנה לרשימה', 'דן יצר רשימה מתבנית "קניות שבועיות (תבנית)"', { createdAt: hoursAgo(6), senderId: uids.dan, senderName: 'דן לוי', actionData: { listId: 'list_levi_template' } }),
+    makeNotification('notif_maya_3', uids.maya, hIds.levi, 'invite', 'שיתוף רשימה', 'דן שיתף איתך את "רשימה לסופר"', { createdAt: daysAgo(3), isRead: true, readAt: daysAgo(3), senderId: uids.dan, senderName: 'דן לוי', actionData: { listId: 'list_levi_weekly' } }),
+    // 🔄 פאזה 3: notif_maya_4 ("נוצר מתבנית") הוסר — אין יצירת רשימות במודל החדש.
   ]);
-  console.log('   🔔 מאיה: 4 notifications (3 unread)');
+  console.log('   🔔 מאיה: 3 notifications (2 unread)');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 8. PENDING INVITES — top-level pending_invites collection (PendingRequest schema)
@@ -1279,13 +1190,10 @@ async function main() {
   await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_weekly').update({
     target_date: ts(daysFromNow(1)), // מחר — urgency "מחר"
   });
-  await db.collection('households').doc(hIds.cohen).collection('shared_lists').doc('list_cohen_butcher').update({
-    target_date: ts(daysFromNow(0)), // היום — urgency "היום!"
-  });
-  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_market').update({
+  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_weekly').update({
     target_date: ts(daysFromNow(5)), // 5 ימים — urgency "עוד 5 ימים"
   });
-  console.log('   ⏰ Cohen weekly: target=tomorrow, butcher: target=today, Levi market: target=5 days');
+  console.log('   ⏰ Cohen weekly: target=tomorrow, Levi weekly: target=5 days');
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // 12. GOOGLE/APPLE USER DATA — basic list + pantry
@@ -1618,17 +1526,7 @@ async function main() {
   });
   console.log('   ⏰ Cohen pantry: real catalog snack bar (חטיף חלבון בטעם שוקולד), expires in 2 days');
 
-  // PATCH 7: Template-based list — Dan created from template
-  await db.collection('households').doc(hIds.levi).collection('shared_lists').doc('list_levi_template').set({
-    id: 'list_levi_template', name: 'קניות שבועיות (תבנית)', status: 'active', type: 'supermarket',
-    budget: null, is_shared: true, is_private: false, created_by: uids.dan,
-    format: 'shared', created_from_template: true, template_id: 'tmpl_shopping_weekly',
-    created_date: ts(hoursAgo(6)), updated_date: ts(hoursAgo(1)),
-    shared_with: [uids.maya], shared_users: {}, pending_requests: [], active_shoppers: [],
-    items: pickRandom(products.filter(p => p.sourceFile === 'supermarket'), 8)
-      .map((p, i) => makeProductItem(p, i, { id: `item_lt_${i}`, isChecked: i < 3 })),
-  });
-  console.log('   📋 Levi: Template-based list (created_from_template: true)');
+  // 🔄 פאזה 3: PATCH 7 (רשימה מתבנית) הוסר — אין יצירת רשימות/תבניות במודל החדש.
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   // SUMMARY
