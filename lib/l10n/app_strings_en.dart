@@ -1822,6 +1822,7 @@ class HomeDashboardStringsEn extends HomeDashboardStrings {
   @override String get sharedFamily => 'Shared Home';
   @override String get familyOf => 'Home of ';
   @override String get activeListsTitle => 'Active Lists';
+  @override String get singleActiveListTitle => 'Active List';
   @override String get noActiveLists => 'No active lists';
   @override String get createListHint => 'Tap here to create a new list';
   @override String get createFirstList => 'Create your first list';

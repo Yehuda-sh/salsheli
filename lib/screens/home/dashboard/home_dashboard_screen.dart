@@ -347,6 +347,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final cs = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
     final strings = AppStrings.homeDashboard;
+    final isSingle = activeLists.length == 1;
 
     return Column(
       children: [
@@ -368,19 +369,23 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Icon(Icons.shopping_bag_outlined, size: kIconSizeSmallPlus, color: cs.onSurfaceVariant),
                 const SizedBox(width: kSpacingSmall),
                 Text(
-                  strings.activeListsTitle,
+                  // 🔄 פאזה 6: רשימה אחת = כותרת יחיד בלי מונה ("הרשימה הפעילה"),
+                  // במודל "רשימה אחת חיה" המונה "1" מיותר ומוזר בעברית.
+                  isSingle ? strings.singleActiveListTitle : strings.activeListsTitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: cs.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(width: kSpacingXTiny),
-                Text(
-                  '${activeLists.length}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: cs.outline,
+                if (!isSingle) ...[
+                  const SizedBox(width: kSpacingXTiny),
+                  Text(
+                    '${activeLists.length}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.outline,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

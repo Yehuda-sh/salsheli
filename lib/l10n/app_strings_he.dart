@@ -1871,6 +1871,9 @@ class HomeDashboardStrings {
   String get sharedFamily => 'בית משותף';
   String get familyOf => 'הבית של ';
   String get activeListsTitle => 'רשימות פעילות';
+  // 🔄 פאזה 6: כותרת יחיד למודל "רשימה אחת חיה" — מוצגת כשיש בדיוק רשימה אחת
+  // (במקום "רשימות פעילות 1" שנשמע מוזר בעברית).
+  String get singleActiveListTitle => 'הרשימה הפעילה';
   String get noActiveLists => 'אין רשימות פעילות';
   String get createListHint => 'המחברת שלך מוכנה... מה קונים היום?';
   String get createFirstList => 'צור רשימה ראשונה';
