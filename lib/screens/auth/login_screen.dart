@@ -20,6 +20,7 @@ import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'post_auth_navigation.dart';
+import 'widgets/auth_error_dialog.dart';
 import 'widgets/quick_login_bottom_sheet.dart';
 import 'widgets/social_login_button.dart';
 import 'widgets/timed_loading_overlay.dart';
@@ -267,6 +268,8 @@ class _LoginScreenState extends State<LoginScreen>
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
+          // ⚠️ אבחון זמני — מציג את השגיאה הגולמית (cause) לאיתור תקלת Google.
+          unawaited(showAuthErrorDetails(context, e));
         }
       }
     }
@@ -309,6 +312,8 @@ class _LoginScreenState extends State<LoginScreen>
         final isCancelled = e is AuthException && e.code == AuthErrorCode.socialLoginCancelled;
         if (!isCancelled) {
           _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
+          // ⚠️ אבחון זמני — מציג את השגיאה הגולמית (cause) לאיתור תקלת Apple.
+          unawaited(showAuthErrorDetails(context, e));
         }
       }
     }

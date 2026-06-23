@@ -20,6 +20,7 @@ import '../../services/auth_service.dart' show AuthErrorCode, AuthException;
 import '../../theme/app_theme.dart';
 import '../../widgets/common/notebook_background.dart';
 import 'post_auth_navigation.dart';
+import 'widgets/auth_error_dialog.dart';
 import 'widgets/social_login_button.dart';
 import 'widgets/timed_loading_overlay.dart';
 
@@ -364,6 +365,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
           _showStatus(userFriendlyError(e, context: 'google_sign_in'), type: StatusType.error);
+          // ⚠️ אבחון זמני — מציג את השגיאה הגולמית (cause) לאיתור תקלת Google.
+          unawaited(showAuthErrorDetails(context, e));
         }
       }
     }
@@ -403,6 +406,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         if (!isCancelled) {
           unawaited(_errorHaptic()); // 📳 רצף רטט שגיאה
           _showStatus(userFriendlyError(e, context: 'apple_sign_in'), type: StatusType.error);
+          // ⚠️ אבחון זמני — מציג את השגיאה הגולמית (cause) לאיתור תקלת Apple.
+          unawaited(showAuthErrorDetails(context, e));
         }
       }
     }
