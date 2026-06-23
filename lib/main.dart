@@ -217,12 +217,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // select (not watch): only themeMode is read, so MyApp rebuilds on theme
+    // changes — not on every UserContext notification.
+    // ⚠️ חייב לחיות כאן ב-build() ולא בתוך ה-builder של DynamicColorBuilder/
+    // ListenableBuilder — אלה רצים כש-MyApp לא באמצע build, ואז context.select
+    // קורס ("Tried to use context.select outside of build"). ראה CLAUDE.md.
+    final themeMode = context.select<UserContext, ThemeMode>((u) => u.themeMode);
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        // select (not watch): only themeMode is read here, so rebuild the
-        // MaterialApp on theme changes — not on every UserContext notification.
-        final themeMode = context.select<UserContext, ThemeMode>((u) => u.themeMode);
-
         return ListenableBuilder(
           listenable: LocaleManager.instance,
           builder: (context, _) => MaterialApp(
