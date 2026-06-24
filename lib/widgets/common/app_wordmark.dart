@@ -42,7 +42,9 @@ class AppWordmark extends StatelessWidget {
     return Text.rich(
       TextSpan(
         children: [
-          TextSpan(text: first, style: base.copyWith(color: cs.primary)),
+          // כחול-מותג קבוע (notebookBlue) ולא cs.primary — אחרת "Memo"
+          // משנה גוון לפי הטפט במכשירי Material You ושובר עקביות מותג.
+          TextSpan(text: first, style: base.copyWith(color: brand?.notebookBlue ?? cs.primary)),
           TextSpan(text: second, style: base.copyWith(color: brand?.success ?? cs.primary)),
         ],
       ),

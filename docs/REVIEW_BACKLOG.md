@@ -200,6 +200,11 @@
 - `welcome_screen.dart` — onboarding carousel (auto-play) + bottom CTA section. מוצג רק עד יצירת חשבון.
 - `app_strings_he.dart` / `app_strings_en.dart` — `WelcomeStrings` (he base) + `WelcomeStringsEn` (override).
 
+### ✅ Decisions Made (סבב 5, 22/6/2026 — ביקורת עיצוב על צילום)
+- **🔵 איחוד כל הכחולים לכחול-מותג קבוע**: ה-wordmark "Memo", אייקוני ה-trust (🎁🛡️⚡) והקישור "כבר יש לי חשבון" כולם השתמשו ב-`cs.primary` — שנודד עם Material You לפי טפט המכשיר (לכן נראו כחולים-אפרפרים שונים). אוחדו ל-`brand.notebookBlue` קבוע (כמו שה-CTA כבר משתמש ב-`brand.success` קבוע). `app_wordmark.dart` משפיע גם על app-bar/splash → עקביות מותג בכל האפליקציה.
+- **🔤 ריכוך ה-tagline**: ה-tagline מתחת ללוגו היה w600 בכהה (bold), והתחרה עם כותרת השקופית (גם bold). רוכך ל-w500 + `onSurfaceVariant` → קול משני שקט, וכותרת השקופית הופכת לכותרת הברורה היחידה.
+- **🔷 מסגרת-אריח ללוגו (לבדיקה ויזואלית)**: הסמל הקרם "נמס" ברקע הבהיר. נוסף Container מעוגל (`kBorderRadiusXLarge`) עם `cs.surface` + צל עדין מאחורי הלוגו — מרים אותו ונותן תחושת app-icon. מסומן בקוד כ"שינוי ויזואלי, קל להסרה". **פתוח:** פישוט ציור הצ'קליסט + ניגודיות הקרם דורש asset חדש (לא ניתן בקוד).
+
 ### ✅ Decisions Made (סבב 3, 22/6/2026 — סקירת צילומים)
 - **🎯 Header חזר ל-tagline אחד (de-dup)**: ה-`subtitle` הקבוע מעל הקרוסלה היה "סורקים ברקוד והמלאי מתעדכן, רואים מה חסר, וקונים יחד בזמן אמת" — שלושת הפילרים verbatim, כך שכל עמוד בקרוסלה רק חזר על חלק ממנו (spoiler + שתי כותרות מתחרות). קוצר ל-umbrella promise: "המזווה יודע מה חסר — אתם רק קונים" (en: "Your pantry knows what's missing — you just shop"). עכשיו כל עמוד מגלה פילר בלי חזרה.
 - **סדר עמודים אושר**: מזווה → רשימה → שיתוף (= הסדר בקוד: `onboarding_pantry`→`shopping`→`sharing`). הצילום שהראה "שיתוף ראשון" יוחס להחלקה ידנית, לא לבאג. אין שינוי.

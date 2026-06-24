@@ -245,18 +245,35 @@ class _LogoSection extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/images/logo.png',
-              height: screenHeight * 0.08,
-              fit: BoxFit.contain,
-              // Source is 1533×1533 but renders at ~64px. Without
-              // cacheWidth the full bitmap (~9MB decoded) sits in memory
-              // for a thumbnail — decode to a fraction instead.
-              cacheWidth: 256,
-              errorBuilder: (_, _, _) => Icon(
-                Icons.shopping_basket_rounded,
-                size: screenHeight * 0.08,
-                color: cs.primary,
+            // 🔷 מסגרת-אריח עדינה מאחורי הלוגו: מרימה את ה"פתק" הקרם מעל
+            // הרקע הבהיר (ניגודיות) ונותנת תחושת app-icon מכוונת.
+            // שינוי ויזואלי — לבדוק על המכשיר; להסרה: להחזיר את ה-Image בלבד.
+            Container(
+              padding: const EdgeInsets.all(kSpacingSmall),
+              decoration: BoxDecoration(
+                color: cs.surface,
+                borderRadius: BorderRadius.circular(kBorderRadiusXLarge),
+                boxShadow: [
+                  BoxShadow(
+                    color: cs.shadow.withValues(alpha: kOpacitySubtle),
+                    blurRadius: kSpacingSmallPlus,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: screenHeight * 0.08,
+                fit: BoxFit.contain,
+                // Source is 1533×1533 but renders at ~64px. Without
+                // cacheWidth the full bitmap (~9MB decoded) sits in memory
+                // for a thumbnail — decode to a fraction instead.
+                cacheWidth: 256,
+                errorBuilder: (_, _, _) => Icon(
+                  Icons.shopping_basket_rounded,
+                  size: screenHeight * 0.08,
+                  color: cs.primary,
+                ),
               ),
             ),
             const SizedBox(height: kSpacingXTiny),
@@ -265,9 +282,11 @@ class _LogoSection extends StatelessWidget {
             Text(
               AppStrings.welcome.subtitle,
               textAlign: TextAlign.center,
+              // tagline רך ושקט (קול משני) — כדי שכותרת השקופית למטה תהיה
+              // הכותרת הברורה היחידה, בלי שתיהן מתחרות בולד-על-בולד.
               style: theme.textTheme.titleMedium?.copyWith(
-                color: cs.onSurface.withValues(alpha: kOpacityStrong),
-                fontWeight: FontWeight.w600,
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -492,6 +511,9 @@ class _BottomSection extends StatelessWidget {
     final cs = theme.colorScheme;
     final brand = theme.extension<AppBrand>();
     final bgColor = brand?.paperBackground ?? kPaperBackground;
+    // כחול-מותג קבוע (לא cs.primary שנודד עם Material You לפי הטפט) —
+    // לוורדמרק, ל-trust chips ולקישור, כך שכל הכחולים יהיו אחד עקבי.
+    final brandBlue = brand?.notebookBlue ?? cs.primary;
     // "Forward / proceed" arrow flips with locale: arrow_back points left
     // = forward in Hebrew RTL, arrow_forward (right) in English LTR. Same
     // convention as onboarding_tips_card / pending_actions_card.
@@ -530,21 +552,21 @@ class _BottomSection extends StatelessWidget {
               _BenefitChip(
                 icon: FontAwesomeIcons.gift,
                 text: AppStrings.welcome.benefit1Title,
-                color: cs.primary,
+                color: brandBlue,
               ).animate().fadeIn(duration: 300.ms, delay: 400.ms)
                .slideX(begin: 0.2, duration: 300.ms, delay: 400.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.shieldHalved,
                 text: AppStrings.welcome.benefit2Title,
-                color: cs.primary,
+                color: brandBlue,
               ).animate().fadeIn(duration: 300.ms, delay: 500.ms)
                .slideX(begin: 0.2, duration: 300.ms, delay: 500.ms),
               const SizedBox(height: kSpacingSmall),
               _BenefitChip(
                 icon: FontAwesomeIcons.bolt,
                 text: AppStrings.welcome.benefit3Title,
-                color: cs.primary,
+                color: brandBlue,
               ).animate().fadeIn(duration: 300.ms, delay: 600.ms)
                .slideX(begin: 0.2, duration: 300.ms, delay: 600.ms),
 
@@ -602,7 +624,7 @@ class _BottomSection extends StatelessWidget {
                   style: TextStyle(
                     fontSize: kFontSizeMedium,
                     fontWeight: FontWeight.w600,
-                    color: cs.primary,
+                    color: brandBlue,
                   ),
                 ),
               ),
